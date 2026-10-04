@@ -1,0 +1,70 @@
+{
+  "client": {
+    "schema": {
+      "$defs": {
+        "Ping": {
+          "properties": {
+            "type": {
+              "const": "ping",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "title": "Ping",
+          "type": "object"
+        }
+      },
+      "discriminator": {
+        "mapping": {
+          "ping": "#/$defs/Ping"
+        },
+        "propertyName": "type"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/Ping"
+        }
+      ]
+    },
+    "types": [
+      "ping"
+    ]
+  },
+  "server": {
+    "schema": {
+      "$defs": {
+        "Pong": {
+          "properties": {
+            "type": {
+              "const": "pong",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "title": "Pong",
+          "type": "object"
+        }
+      },
+      "discriminator": {
+        "mapping": {
+          "pong": "#/$defs/Pong"
+        },
+        "propertyName": "type"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/Pong"
+        }
+      ]
+    },
+    "types": [
+      "pong"
+    ]
+  }
+}
