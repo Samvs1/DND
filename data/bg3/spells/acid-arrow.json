@@ -1,0 +1,30 @@
+{
+  "index": "acid-arrow",
+  "level": 2,
+  "school": "evocation",
+  "classes": [
+    "wizard"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "feet",
+    "feet": 90
+  },
+  "targeting": {
+    "kind": "creature"
+  },
+  "effects": [
+    {
+      "type": "attack_roll",
+      "attack": "ranged",
+      "on_hit": [
+        {
+          "type": "damage",
+          "dice": "4d4",
+          "damage_type": "acid",
+          "upcast_dice": "1d4"
+        }
+      ]
+    }
+  ]
+}

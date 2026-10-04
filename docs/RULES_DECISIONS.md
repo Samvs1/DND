@@ -79,6 +79,8 @@ M3.4 spell durations | rounds-based spell conditions count down at the end of th
 M3.4 healing spells | heal dice + spellcasting modifier + feature bonuses (Disciple of Life 2 + the CAST level); cantrip damage scales at character levels 5, 11, 17 | SRD 5.1 Cure Wounds, Life Domain, cantrip scaling
 M3.5 cantrip riders | Chill Touch drops the no-healing and undead-disadvantage riders; Acid Splash picks up to two creatures of one zone (no 5-ft adjacency check); Ray of Frost is modelled as two thirds speed until the end of the caster's next turn; Shocking Grasp drops the metal-armor advantage; True Strike gives the caster advantage on the first attack of the next turn (not tied to one target) | SRD 5.1 spell text; the DSL has no such riders
 M3.5 level 1 simplifications | Charm Person and Animal Friendship do not check creature type (humanoid, beast, INT 3 or less) and Animal Friendship does not end when the target is harmed; Guiding Bolt gives advantage to ALL attacks against the target until the end of the caster's next turn (SRD: the next attack); Mage Armor is a flat +3 AC (SRD: 13 + DEX when unarmored) and does not check armor; Thunderwave does not push; Hideous Laughter does not give advantage on saves after damage | SRD 5.1 spell text; DSL limits, the DM adjudicates the rest
+M3.6 level 2-3 simplifications | Acid Arrow deals only the hit damage (no end-of-next-turn damage, no half damage on a miss); Aid gives temporary HP instead of raising the HP maximum; Blindness/Deafness only blinds; Invisibility ends on the bearer's first attack roll (SRD: also on casting); Slow drops the -2 DEX save penalty and the one-action limit; Hypnotic Pattern lets the target repeat the WIS save each turn instead of waking when damaged; Lightning Bolt hits the caster's zone and the adjacent ones instead of a line; Fear does not make creatures drop items; Web and Grease leave no lingering difficult terrain or surface (M3.7); Lesser Restoration does not cure disease | SRD 5.1 spell text; DSL limits, the DM adjudicates the rest
+M3.6 shipped count | 40 spells are shipped (9 cantrips, 15 level 1, 10 level 2, 6 level 3), short of the SPEC 7.4 target of 50: the rest of the wizard/cleric/warlock/ranger SRD lists are utility spells or need DSL features that do not exist yet (HP-pool targeting, negative dice, damage-rider conditions, heal-from-damage, surfaces, speed above 1x, check dice, raising the dead); see the unsupported list | SPEC 7.4 forbids approximating those; hard-engineer decides which DSL features to add
 
 ## Unsupported spells (hidden from pickers)
 Spells on the wizard, cleric, warlock or ranger SRD lists that the effect DSL cannot express are NOT shipped (SPEC 7.4); `tests/unit/data/test_spell_coverage.py` checks that every in-scope SRD spell is shipped or listed here. Format: `- <srd-index> (L<level>) | reason`.
@@ -123,3 +125,73 @@ Spells on the wizard, cleric, warlock or ranger SRD lists that the effect DSL ca
 - longstrider (L1) | speed bonus above 1x is not expressible (speed_factor is at most 1)
 - protection-from-evil-and-good (L1) | depends on attacker creature types, which creatures do not carry yet
 - sanctuary (L1) | redirects attacks and breaks on hostile acts, no DSL effect
+- alter-self (L2) | polymorph-style body change, no DSL effect
+- animal-messenger (L2) | utility messaging effect, no combat mechanics
+- arcane-lock (L2) | object ward, no combat mechanics
+- arcanists-magic-aura (L2) | illusion utility, DM adjudicated
+- augury (L2) | divination utility, DM adjudicated
+- barkskin (L2) | sets a minimum AC of 16; the DSL has only flat AC bonuses
+- calm-emotions (L2) | suppresses charm and fear with a choice of outcomes; no DSL choice effect
+- continual-flame (L2) | utility light effect, no combat mechanics
+- darkness (L2) | heavily obscured area needs the surfaces system (M3.7)
+- darkvision (L2) | vision utility, no DSL effect
+- detect-thoughts (L2) | divination utility, DM adjudicated
+- enhance-ability (L2) | per-ability advantage chosen at cast time; no DSL choice effect
+- enlarge-reduce (L2) | size change with a choice of modes and weapon damage dice; no DSL effect
+- enthrall (L2) | attention effect on perception checks, DM adjudicated
+- find-traps (L2) | detection utility, DM adjudicated
+- flaming-sphere (L2) | summons a movable object that burns creatures each turn, not a DSL effect
+- gentle-repose (L2) | ritual utility on corpses, no combat mechanics
+- gust-of-wind (L2) | line of wind that pushes creatures and moves each turn; no DSL movement effect
+- knock (L2) | utility object effect, no combat mechanics
+- levitate (L2) | flight and lifting, no DSL movement effect
+- locate-animals-or-plants (L2) | detection utility, DM adjudicated
+- locate-object (L2) | detection utility, DM adjudicated
+- magic-mouth (L2) | utility object effect, no combat mechanics
+- magic-weapon (L2) | changes a weapon's attack and damage bonus, which the DSL cannot target
+- mirror-image (L2) | illusory duplicates absorb attacks; no DSL effect
+- misty-step (L2) | teleports the caster; the DSL has no movement effect
+- pass-without-trace (L2) | stealth bonus on checks, DM adjudicated
+- prayer-of-healing (L2) | 10-minute casting time (the DSL has action, bonus action and reaction only)
+- protection-from-poison (L2) | advantage on one kind of save plus poison resistance; no DSL resistance effect
+- ray-of-enfeeblement (L2) | halves the target's STR weapon damage; the DSL has no damage-dealt modifier
+- rope-trick (L2) | extradimensional space, no DSL effect
+- see-invisibility (L2) | vision utility, no DSL effect
+- silence (L2) | area that blocks sound and spellcasting; needs the surfaces system (M3.7)
+- spider-climb (L2) | movement utility, no DSL effect
+- spike-growth (L2) | area that damages movement; needs the surfaces system (M3.7)
+- spiritual-weapon (L2) | summons a weapon that attacks each turn, not a DSL effect
+- suggestion (L2) | free-text command to a charmed creature, DM adjudicated
+- warding-bond (L2) | shares damage between two creatures; no DSL effect
+- zone-of-truth (L2) | area that compels honesty, DM adjudicated
+- animate-dead (L3) | summons undead under the caster's control, not a DSL effect
+- beacon-of-hope (L3) | grants advantage on WIS saves and max healing in an area; no DSL effect
+- bestow-curse (L3) | curse with a choice of effects chosen at cast time; no DSL choice effect
+- blink (L3) | random planar shifting each turn, no DSL effect
+- clairvoyance (L3) | divination utility, DM adjudicated
+- counterspell (L3) | reaction spell (reactions are Tier 2)
+- create-food-and-water (L3) | creates consumable items, not a DSL effect
+- daylight (L3) | light area needs the surfaces system (M3.7)
+- dispel-magic (L3) | ends arbitrary spells; the DSL has no dispel effect
+- fly (L3) | flight, no DSL movement effect
+- gaseous-form (L3) | form change with a movement mode, no DSL effect
+- glyph-of-warding (L3) | 1-hour casting time and a delayed trigger, no DSL effect
+- haste (L3) | extra action and doubled speed; the DSL cannot grant actions or speed above 1x
+- magic-circle (L3) | wards a zone against creature types, which creatures do not carry yet
+- major-image (L3) | illusion, needs DM adjudication of belief
+- meld-into-stone (L3) | merges the caster into a stone object, no DSL effect
+- nondetection (L3) | divination ward, DM adjudicated
+- phantom-steed (L3) | summons a mount, not a DSL effect
+- protection-from-energy (L3) | resistance to one damage type chosen at cast time; no DSL resistance effect
+- remove-curse (L3) | ends curses, which are not modelled as conditions
+- revivify (L3) | returns a dead creature to life; a dead creature is not a valid spell target
+- sending (L3) | unlimited-range messaging utility, DM adjudicated
+- sleet-storm (L3) | difficult, slippery area; needs the surfaces system (M3.7)
+- speak-with-dead (L3) | divination utility, DM adjudicated
+- spirit-guardians (L3) | damaging aura that acts on creatures entering or starting a turn in it; needs the surfaces system (M3.7)
+- stinking-cloud (L3) | lingering poison cloud with a start-of-turn save; needs the surfaces system (M3.7)
+- tiny-hut (L3) | ritual shelter, no combat mechanics
+- tongues (L3) | language utility, no combat mechanics
+- vampiric-touch (L3) | melee attack that heals the caster for half the damage and repeats each turn; no DSL healing-from-damage
+- water-breathing (L3) | environment utility, no DSL effect
+- water-walk (L3) | environment utility, no DSL effect

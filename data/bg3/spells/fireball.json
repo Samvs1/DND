@@ -1,0 +1,33 @@
+{
+  "index": "fireball",
+  "level": 3,
+  "school": "evocation",
+  "classes": [
+    "sorcerer",
+    "wizard"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "feet",
+    "feet": 150
+  },
+  "targeting": {
+    "kind": "area",
+    "area": "zone"
+  },
+  "effects": [
+    {
+      "type": "save",
+      "ability": "dex",
+      "on_fail": [
+        {
+          "type": "damage",
+          "dice": "8d6",
+          "damage_type": "fire",
+          "upcast_dice": "1d6"
+        }
+      ],
+      "on_success": "half"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "index": "mass-healing-word",
+  "level": 3,
+  "school": "evocation",
+  "classes": [
+    "cleric"
+  ],
+  "casting_time": "bonus_action",
+  "range": {
+    "kind": "feet",
+    "feet": 60
+  },
+  "targeting": {
+    "kind": "creatures",
+    "count": 6
+  },
+  "effects": [
+    {
+      "type": "heal",
+      "dice": "1d4",
+      "upcast_dice": "1d4"
+    }
+  ]
+}

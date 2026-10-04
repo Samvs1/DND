@@ -54,7 +54,7 @@ def _refused(
 
 def test_cast_refusals_consume_nothing() -> None:
     state = _cleric_fight()
-    _refused(state, "fireball", RefusalCode.UNKNOWN_SPELL, targets=["gob"])
+    _refused(state, "sleep", RefusalCode.UNKNOWN_SPELL, targets=["gob"])
     _refused(state, "magic-missile", RefusalCode.SPELL_NOT_READY, targets=["gob"])
     _refused(state, "sacred-flame", RefusalCode.NO_SLOT, targets=["gob"], slot=1)
     _refused(state, "sacred-flame", RefusalCode.OUT_OF_RANGE, targets=["far"])

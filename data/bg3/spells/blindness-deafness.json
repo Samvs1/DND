@@ -1,0 +1,36 @@
+{
+  "index": "blindness-deafness",
+  "level": 2,
+  "school": "necromancy",
+  "classes": [
+    "bard",
+    "cleric",
+    "sorcerer",
+    "wizard"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "feet",
+    "feet": 30
+  },
+  "duration_rounds": 10,
+  "targeting": {
+    "kind": "creatures",
+    "count": 1,
+    "count_per_slot": 1
+  },
+  "effects": [
+    {
+      "type": "save",
+      "ability": "con",
+      "on_fail": [
+        {
+          "type": "apply_condition",
+          "condition": "blinded",
+          "save_ends": "con"
+        }
+      ],
+      "on_success": "none"
+    }
+  ]
+}

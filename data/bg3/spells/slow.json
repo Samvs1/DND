@@ -1,0 +1,34 @@
+{
+  "index": "slow",
+  "level": 3,
+  "school": "transmutation",
+  "classes": [
+    "sorcerer",
+    "wizard"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "feet",
+    "feet": 120
+  },
+  "concentration": true,
+  "duration_rounds": 10,
+  "targeting": {
+    "kind": "creatures",
+    "count": 6
+  },
+  "effects": [
+    {
+      "type": "save",
+      "ability": "wis",
+      "on_fail": [
+        {
+          "type": "apply_condition",
+          "condition": "slowed",
+          "save_ends": "wis"
+        }
+      ],
+      "on_success": "none"
+    }
+  ]
+}

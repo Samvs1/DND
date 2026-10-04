@@ -1,0 +1,30 @@
+{
+  "index": "lesser-restoration",
+  "level": 2,
+  "school": "abjuration",
+  "classes": [
+    "bard",
+    "cleric",
+    "druid",
+    "paladin",
+    "ranger"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "touch"
+  },
+  "targeting": {
+    "kind": "creature"
+  },
+  "effects": [
+    {
+      "type": "remove_condition",
+      "conditions": [
+        "blinded",
+        "deafened",
+        "paralyzed",
+        "poisoned"
+      ]
+    }
+  ]
+}

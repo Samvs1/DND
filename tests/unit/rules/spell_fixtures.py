@@ -30,12 +30,13 @@ def caster(
     level: int = 1,
     slots: dict[int, int] | None = None,
 ) -> Creature:
-    """A PC of `cls` whose casting ability is 16 (+3) with the given spells ready."""
+    """A PC of `cls`: casting ability 16 (+3), the level's proficiency bonus, spells ready."""
     pc_creature = make_pc(cid, class_index=cls)
     pc_creature.abilities[CASTING_ABILITY[cls]] = 16
     pc = pc_creature.pc
     assert pc is not None
     pc.level = level
+    pc_creature.proficiency_bonus = 2 + (level - 1) // 4
     pc.cantrips = list(cantrips)
     if cls in ("warlock", "ranger"):
         pc.spells_known = list(spells)

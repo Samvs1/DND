@@ -42,7 +42,8 @@ Effects (`type` tag):
 
 Public API: the models above, `Effect` (annotated union), `load_spell_defs(directory=None) ->
 Registry[SpellDef]` (one file per spell; the file stem must equal the index), `spell_defs()`
-(default directory, cached).
+(default directory, cached), `shipped_spell_ids() -> frozenset[str]` (the spells pickers may
+offer: SRD spells the DSL cannot express are hidden, docs/RULES_DECISIONS.md).
 """
 
 from __future__ import annotations
@@ -218,3 +219,8 @@ def load_spell_defs(directory: Path | None = None) -> Registry[SpellDef]:
 @functools.cache
 def spell_defs() -> Registry[SpellDef]:
     return load_spell_defs()
+
+
+@functools.cache
+def shipped_spell_ids() -> frozenset[str]:
+    return frozenset(spell.index for spell in spell_defs().all())

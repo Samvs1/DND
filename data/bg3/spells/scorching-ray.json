@@ -1,0 +1,33 @@
+{
+  "index": "scorching-ray",
+  "level": 2,
+  "school": "evocation",
+  "classes": [
+    "sorcerer",
+    "wizard"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "feet",
+    "feet": 120
+  },
+  "targeting": {
+    "kind": "creatures",
+    "count": 3,
+    "count_per_slot": 1,
+    "repeat": true
+  },
+  "effects": [
+    {
+      "type": "attack_roll",
+      "attack": "ranged",
+      "on_hit": [
+        {
+          "type": "damage",
+          "dice": "2d6",
+          "damage_type": "fire"
+        }
+      ]
+    }
+  ]
+}

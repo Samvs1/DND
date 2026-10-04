@@ -1,0 +1,26 @@
+{
+  "index": "invisibility",
+  "level": 2,
+  "school": "illusion",
+  "classes": [
+    "bard",
+    "sorcerer",
+    "warlock",
+    "wizard"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "touch"
+  },
+  "concentration": true,
+  "duration_rounds": 600,
+  "targeting": {
+    "kind": "creature"
+  },
+  "effects": [
+    {
+      "type": "apply_condition",
+      "condition": "invisibility"
+    }
+  ]
+}

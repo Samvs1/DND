@@ -1,0 +1,26 @@
+{
+  "index": "aid",
+  "level": 2,
+  "school": "abjuration",
+  "classes": [
+    "cleric",
+    "paladin"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "feet",
+    "feet": 30
+  },
+  "targeting": {
+    "kind": "creatures",
+    "count": 3,
+    "count_per_slot": 1
+  },
+  "effects": [
+    {
+      "type": "temp_hp",
+      "dice": "5",
+      "upcast_dice": "5"
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "index": "hypnotic-pattern",
+  "level": 3,
+  "school": "illusion",
+  "classes": [
+    "bard",
+    "sorcerer",
+    "warlock",
+    "wizard"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "feet",
+    "feet": 120
+  },
+  "concentration": true,
+  "duration_rounds": 10,
+  "targeting": {
+    "kind": "area",
+    "area": "zone"
+  },
+  "effects": [
+    {
+      "type": "save",
+      "ability": "wis",
+      "on_fail": [
+        {
+          "type": "apply_condition",
+          "condition": "charmed",
+          "save_ends": "wis"
+        },
+        {
+          "type": "apply_condition",
+          "condition": "incapacitated",
+          "save_ends": "wis"
+        }
+      ],
+      "on_success": "none"
+    }
+  ]
+}

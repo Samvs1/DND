@@ -1,0 +1,35 @@
+{
+  "index": "fear",
+  "level": 3,
+  "school": "illusion",
+  "classes": [
+    "bard",
+    "sorcerer",
+    "warlock",
+    "wizard"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "self"
+  },
+  "concentration": true,
+  "duration_rounds": 10,
+  "targeting": {
+    "kind": "area",
+    "area": "zone"
+  },
+  "effects": [
+    {
+      "type": "save",
+      "ability": "wis",
+      "on_fail": [
+        {
+          "type": "apply_condition",
+          "condition": "frightened",
+          "save_ends": "wis"
+        }
+      ],
+      "on_success": "none"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "index": "shatter",
+  "level": 2,
+  "school": "evocation",
+  "classes": [
+    "bard",
+    "sorcerer",
+    "warlock",
+    "wizard"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "feet",
+    "feet": 60
+  },
+  "targeting": {
+    "kind": "area",
+    "area": "zone"
+  },
+  "effects": [
+    {
+      "type": "save",
+      "ability": "con",
+      "on_fail": [
+        {
+          "type": "damage",
+          "dice": "3d8",
+          "damage_type": "thunder",
+          "upcast_dice": "1d8"
+        }
+      ],
+      "on_success": "half"
+    }
+  ]
+}

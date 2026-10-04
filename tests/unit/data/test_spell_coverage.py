@@ -11,10 +11,12 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from aidm.data.spell_defs import spell_defs
+from aidm.data.spell_defs import shipped_spell_ids, spell_defs
 from aidm.data.srd import srd
 
-MAX_LEVEL = 1
+MAX_LEVEL = 3
+SHIPPED_FLOOR = 40  # SPEC 7.4 asks for 50; see RULES_DECISIONS M3.6 shipped count
+SHIPPED_CLASSES = {"cleric", "fighter", "ranger", "rogue", "warlock", "wizard"}
 RANGER_MAX_LEVEL = 2
 FULL_CASTERS = {"wizard", "cleric", "warlock"}
 DOC = Path(__file__).resolve().parents[3] / "docs" / "RULES_DECISIONS.md"
@@ -55,3 +57,23 @@ def test_every_in_scope_spell_is_shipped_or_listed_unsupported() -> None:
 def test_unsupported_list_names_real_spells_at_their_level() -> None:
     for index, level in _unsupported().items():
         assert srd().spells.get(index).level == level, index
+
+
+def test_shipped_count_floor_and_levels() -> None:
+    shipped = spell_defs().all()
+    assert len(shipped) >= SHIPPED_FLOOR
+    assert {s.level for s in shipped} == {0, 1, 2, 3}
+
+
+def test_every_shipped_spell_is_in_the_srd_and_on_a_shipped_class_list() -> None:
+    for spell in spell_defs().all():
+        entry = srd().spells.get(spell.index)
+        assert SHIPPED_CLASSES & set(spell.classes), spell.index
+        assert set(spell.classes) == {c.index for c in entry.classes}, spell.index
+
+
+def test_shipped_spell_ids_is_the_picker_filter() -> None:
+    ids = shipped_spell_ids()
+    assert ids == {s.index for s in spell_defs().all()}
+    assert "fireball" in ids and "sleep" not in ids
+    assert ids.isdisjoint(_unsupported())
