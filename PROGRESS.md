@@ -1,4 +1,4 @@
-NEXT: M3.2 Encounter lifecycle. Delegate to hard-engineer. Files in flight: none. Last gate: M3.1 GATE PASS 8/8.
+NEXT: M3.3 Combat commands. Delegate to hard-engineer. Last gate: M3.2 GATE PASS 8/8.
 
 # PROGRESS
 
@@ -39,7 +39,7 @@ Stashes and blockers: record them in the Notes section at the bottom.
 
 ## M3 Combat (SPEC 6.1, 7.2-7.4)
 - [x] M3.1 **H** Zones: model (3-6 zones, adjacency, distance label, cover, high ground, surfaces slot), seeded generation from terrain tags, movement cost per hop, range bands, high-ground adv/disadv. Gate: pytest rules.
-- [ ] M3.2 **H** Encounter lifecycle: start (surprise), 1d4+DEX initiative, turn order, action/bonus/movement/reaction state, end turn, victory/flee/party wipe, CR budget builder. Gate: pytest rules.
+- [x] M3.2 **H** Encounter lifecycle: start (surprise), 1d4+DEX initiative, turn order, action/bonus/movement/reaction state, end turn, victory/flee/party wipe, CR budget builder. Gate: pytest rules.
 - [ ] M3.3 **H** Commands: attack (melee/ranged/finesse/crit double dice/nat 1), `rules.hit_chance` preview, dash, disengage, bonus-action shove/jump, hide, help, throw, use_item (potion bonus action, give to adjacent ally); `test_v1_potion_full_hp_refused_not_consumed`, `test_v1_invalid_input_never_consumes_turn`. Gate: pytest rules.
 - [ ] M3.4 **H** Spell effect DSL: schema plus ONE interpreter (attack_roll, save half/none/condition, typed damage with upcast, heal, apply/remove_condition, temp_hp, ac_buff, surface, multi_target), slot validation, upcasting, concentration hookup; 10 spells with goldens. Gate: pytest rules.
 - [ ] M3.5 **M** Spell content batch 1: all cantrips and level 1 for the 6 classes' lists as DSL JSON, a golden test each. Gate: pytest spells.
@@ -130,3 +130,4 @@ If the API rejects the key or needs organisation verification: stop M10 generati
 
 ## Notes (stashes, blockers, decisions pending)
 - M2.4 resolved the M2.2 deferred hooks (hill dwarf HP, racial resistances, life domain heavy armor, rogue expertise, domain/patron spells). Unsupported feature mechanics are listed in RULES_DECISIONS M2.4 for M3 (reactions, DSL effects).
+- M3.2: combat state model documented in docs/DECISIONS.md ("Combat state model"). models/events.py is at 393 lines: new M3.3+ events go in their own models module (like models/encounter_events.py) and only join the union in events.py.

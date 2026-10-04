@@ -19,7 +19,9 @@ Public API:
   `CheckResolved`, `DamageTaken`, `DeathSavesSet`, `ConditionTicked`, `ConcentrationStarted`,
   `ConcentrationEnded`, `ResourceSet`, `ResourceRemoved`, `CampSuppliesChanged`,
   `ShortRestTaken`, `LongRestTaken`, `XpGained`, `LevelGained`, `SpellbookChanged`,
-  `GoldChanged`, `InventoryChanged`.
+  `GoldChanged`, `InventoryChanged`, and the encounter events of `aidm.models.encounter_events`
+  (`EncounterStarted`, `TurnStarted`, `TurnEnded`, `EconomyChanged`, `CombatantWithdrew`,
+  `EncounterEnded`).
 - `AnyEvent` (plain union), `Event` (union annotated with the `type` discriminator),
   `EVENT_TYPES` (every event class), `event_adapter` (`TypeAdapter` for validate/dump of `Event`).
 - `LoggedEvent(seq, event)`: the persisted envelope (events.jsonl line).
@@ -35,6 +37,14 @@ from aidm.models.checks import CheckResult
 from aidm.models.conditions import Concentration
 from aidm.models.damage import DamagePart, DamageType
 from aidm.models.dice import D20Roll, Roll
+from aidm.models.encounter_events import (
+    CombatantWithdrew,
+    EconomyChanged,
+    EncounterEnded,
+    EncounterStarted,
+    TurnEnded,
+    TurnStarted,
+)
 from aidm.models.state import ActiveCondition, Creature, Resource
 
 
@@ -326,6 +336,12 @@ type AnyEvent = (
     | SpellbookChanged
     | GoldChanged
     | InventoryChanged
+    | EncounterStarted
+    | TurnStarted
+    | TurnEnded
+    | EconomyChanged
+    | CombatantWithdrew
+    | EncounterEnded
 )
 
 Event = Annotated[AnyEvent, Field(discriminator="type")]
@@ -357,6 +373,12 @@ EVENT_TYPES: tuple[type[BaseModel], ...] = (
     SpellbookChanged,
     GoldChanged,
     InventoryChanged,
+    EncounterStarted,
+    TurnStarted,
+    TurnEnded,
+    EconomyChanged,
+    CombatantWithdrew,
+    EncounterEnded,
 )
 
 event_adapter: TypeAdapter[AnyEvent] = TypeAdapter(Event)

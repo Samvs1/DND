@@ -1,0 +1,30 @@
+{
+  "source": "Standard 5e encounter-building numbers (XP thresholds by character level and the group multiplier); SRD 5.1 itself only lists monster XP by challenge rating. Game mechanics, no rules text copied.",
+  "thresholds": {
+    "1": {"easy": 25, "medium": 50, "hard": 75, "deadly": 100},
+    "2": {"easy": 50, "medium": 100, "hard": 150, "deadly": 200},
+    "3": {"easy": 75, "medium": 150, "hard": 225, "deadly": 400},
+    "4": {"easy": 125, "medium": 250, "hard": 375, "deadly": 500},
+    "5": {"easy": 250, "medium": 500, "hard": 750, "deadly": 1100},
+    "6": {"easy": 300, "medium": 600, "hard": 900, "deadly": 1400},
+    "7": {"easy": 350, "medium": 750, "hard": 1100, "deadly": 1700},
+    "8": {"easy": 450, "medium": 900, "hard": 1400, "deadly": 2100},
+    "9": {"easy": 550, "medium": 1100, "hard": 1600, "deadly": 2400},
+    "10": {"easy": 600, "medium": 1200, "hard": 1900, "deadly": 2800},
+    "11": {"easy": 800, "medium": 1600, "hard": 2400, "deadly": 3600},
+    "12": {"easy": 1000, "medium": 2000, "hard": 3000, "deadly": 4500}
+  },
+  "multiplier_steps": [
+    {"min_monsters": 1, "multiplier": 1.0},
+    {"min_monsters": 2, "multiplier": 1.5},
+    {"min_monsters": 3, "multiplier": 2.0},
+    {"min_monsters": 7, "multiplier": 2.5},
+    {"min_monsters": 11, "multiplier": 3.0},
+    {"min_monsters": 15, "multiplier": 4.0}
+  ],
+  "small_party_top_multiplier": 5.0,
+  "large_party_multiplier": 0.5,
+  "small_party_max": 2,
+  "large_party_min": 6,
+  "max_monsters": 8
+}

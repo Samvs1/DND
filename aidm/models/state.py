@@ -33,7 +33,8 @@ Public API:
 - `GameState(campaign_id, seed, event_count, creatures, camp_supplies, short_rests_used)`:
   `event_count` is the number of events applied so far, so the session can use it as the next
   event `seq`. `camp_supplies` is the party's supply pool and `short_rests_used` counts short
-  rests since the last long rest (BG3 limit, `aidm.rules.rests`).
+  rests since the last long rest (BG3 limit, `aidm.rules.rests`). `encounter` (M3.2) is the
+  current or last fight (`aidm.models.encounter.Encounter`), None before the first one.
 
 Growth rule: every field added later MUST have a default, so snapshots and event logs written by
 older builds still validate and replay. Models use `extra="forbid"` to catch typos early.
@@ -50,6 +51,7 @@ from aidm.models.abilities import Ability, Skill
 from aidm.models.character import PcData, Size
 from aidm.models.conditions import Concentration, ConditionDuration, SaveEnds, TurnBoundary
 from aidm.models.damage import DamageType
+from aidm.models.encounter import Encounter
 
 
 class CreatureKind(StrEnum):
@@ -162,3 +164,4 @@ class GameState(BaseModel):
     creatures: dict[str, Creature] = Field(default_factory=dict[str, Creature])
     camp_supplies: int = Field(default=0, ge=0)
     short_rests_used: int = Field(default=0, ge=0)
+    encounter: Encounter | None = None

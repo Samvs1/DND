@@ -55,6 +55,7 @@ from aidm.rules.checks import dc_for_tier, saving_throw, skill_check
 from aidm.rules.creation import build_character
 from aidm.rules.d20 import roll_d20
 from aidm.rules.dice import roll
+from tests.property.encounter_strategies import draw_encounter_event
 from tests.unit.rules.creation_fixtures import default_choices
 
 CONDITIONS = ["prone", "poisoned", "frightened", "blinded"]
@@ -271,5 +272,7 @@ def draw_event(data: st.DataObject, state: GameState, next_id: int) -> AnyEvent:
     """Draw one event that is valid for `state` (adds a creature when there are none)."""
     if not state.creatures or data.draw(st.integers(0, 5)) == 0:
         return CreatureAdded(creature=draw_creature(data, f"c{next_id}"))
+    if data.draw(st.integers(0, 4)) == 0:
+        return draw_encounter_event(data, state)
     target = state.creatures[data.draw(st.sampled_from(sorted(state.creatures)))]
     return data.draw(st.sampled_from(TARGETED))(data, target)

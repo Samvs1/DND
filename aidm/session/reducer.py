@@ -7,8 +7,10 @@ Public API:
   Callers that need the old value must `state.model_copy(deep=True)` first.
 - `replay(initial, events) -> GameState`: deep-copies `initial` and applies every event in order.
   `initial` is never modified. `replay(s0, log)` must equal the live state (tested).
-- `ReducerError(ValueError)`: the event does not fit the state (unknown creature id, duplicate
-  id). This is always an engine bug: rules must only emit events valid for the current state.
+- `ReducerError(ValueError)` (defined in `reducer_errors`): the event does not fit the state
+  (unknown creature id, duplicate id, no active encounter). This is always an engine bug: rules
+  must only emit events valid for the current state. Encounter events are applied by
+  `aidm.session.encounter_apply`.
 
 Semantics: every event increments `state.event_count` (log-only events included) and then does
 plain assignment of the resolved values it carries. The reducer never rolls dice, reads data or
@@ -21,6 +23,14 @@ from collections.abc import Iterable
 from typing import assert_never
 
 from aidm.models.character import InventoryItem, PcData
+from aidm.models.encounter_events import (
+    CombatantWithdrew,
+    EconomyChanged,
+    EncounterEnded,
+    EncounterStarted,
+    TurnEnded,
+    TurnStarted,
+)
 from aidm.models.events import (
     AnyEvent,
     CampSuppliesChanged,
@@ -51,10 +61,8 @@ from aidm.models.events import (
     XpGained,
 )
 from aidm.models.state import ActiveCondition, Creature, GameState
-
-
-class ReducerError(ValueError):
-    """An event that cannot apply to the current state (an engine bug)."""
+from aidm.session.encounter_apply import apply_encounter_event
+from aidm.session.reducer_errors import ReducerError
 
 
 def _creature(state: GameState, creature_id: str) -> Creature:
@@ -154,6 +162,26 @@ def _apply_pc_event(
             _set_item(pc, item, qty)
 
 
+def _apply_death_event(
+    target: Creature, event: DeathSaveRolled | DeathSavesSet | Stabilized | CreatureDied
+) -> None:
+    match event:
+        case DeathSaveRolled(successes=successes, failures=failures):
+            target.death_save_successes = successes
+            target.death_save_failures = failures
+        case DeathSavesSet(successes=successes, failures=failures, stable=stable):
+            target.death_save_successes = successes
+            target.death_save_failures = failures
+            target.stable = stable
+        case Stabilized():
+            target.stable = True
+            target.death_save_successes = 0
+            target.death_save_failures = 0
+        case CreatureDied():
+            target.dead = True
+            target.stable = False
+
+
 def apply(state: GameState, event: AnyEvent) -> GameState:
     match event:
         case CreatureAdded(creature=creature):
@@ -175,24 +203,8 @@ def apply(state: GameState, event: AnyEvent) -> GameState:
             _creature(state, cid).concentrating_on = concentration
         case ConcentrationEnded(creature_id=cid):
             _creature(state, cid).concentrating_on = None
-        case DeathSaveRolled(creature_id=cid, successes=successes, failures=failures):
-            target = _creature(state, cid)
-            target.death_save_successes = successes
-            target.death_save_failures = failures
-        case DeathSavesSet(creature_id=cid, successes=successes, failures=failures, stable=stable):
-            target = _creature(state, cid)
-            target.death_save_successes = successes
-            target.death_save_failures = failures
-            target.stable = stable
-        case Stabilized(creature_id=cid):
-            target = _creature(state, cid)
-            target.stable = True
-            target.death_save_successes = 0
-            target.death_save_failures = 0
-        case CreatureDied(creature_id=cid):
-            target = _creature(state, cid)
-            target.dead = True
-            target.stable = False
+        case DeathSaveRolled() | DeathSavesSet() | Stabilized() | CreatureDied():
+            _apply_death_event(_creature(state, event.creature_id), event)
         case ResourceSet(creature_id=cid, key=key, resource=resource):
             _creature(state, cid).resources[key] = resource
         case ResourceRemoved(creature_id=cid, key=key):
@@ -208,6 +220,15 @@ def apply(state: GameState, event: AnyEvent) -> GameState:
             _level_gained(_creature(state, cid), event)
         case XpGained() | SpellbookChanged() | GoldChanged() | InventoryChanged():
             _apply_pc_event(state, event)
+        case (
+            EncounterStarted()
+            | TurnStarted()
+            | TurnEnded()
+            | EconomyChanged()
+            | CombatantWithdrew()
+            | EncounterEnded()
+        ):
+            apply_encounter_event(state, event)
         case DiceRolled() | CheckResolved() | DamageTaken():
             pass
         case _:
