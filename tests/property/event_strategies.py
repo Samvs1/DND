@@ -37,6 +37,7 @@ from aidm.models.events import (
     DiceRolled,
     HpChanged,
     LongRestTaken,
+    ResourceRemoved,
     ResourceSet,
     ShortRestTaken,
     Stabilized,
@@ -225,6 +226,12 @@ def _resource(data: st.DataObject, c: Creature) -> AnyEvent:
     return ResourceSet(creature_id=c.id, key=key, resource=resource)
 
 
+def _resource_off(data: st.DataObject, c: Creature) -> AnyEvent:
+    if not c.resources:
+        return _resource(data, c)
+    return ResourceRemoved(creature_id=c.id, key=data.draw(st.sampled_from(sorted(c.resources))))
+
+
 def _party(data: st.DataObject, _c: Creature) -> AnyEvent:
     supplies = data.draw(st.integers(0, 200))
     return data.draw(
@@ -248,6 +255,7 @@ TARGETED: list[Callable[[st.DataObject, Creature], AnyEvent]] = [
     lambda _d, c: ConcentrationEnded(creature_id=c.id, spell_id="bless", reason="test"),
     _death_save,
     _resource,
+    _resource_off,
     _party,
     _dice,
     _check,

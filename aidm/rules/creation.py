@@ -10,7 +10,8 @@ Public API:
 - `spell_pick_errors(choices, refs, regs) -> list[CreationError]`: cantrips (class count from
   the level-1 row, SRD class list), racial cantrips (`cantrip_choices` from `cantrip_class`),
   spells (known/pact: `spells_known`; a spellbook caster: `spellbook_start`; others none) and
-  prepared spells (prepared casters only, from the spellbook or the class list).
+  prepared spells (prepared casters only, from the spellbook or the class list; at most
+  `aidm.rules.spellcasting.prepared_spell_limit` with the final scores, PREPARED_OVER_LIMIT).
 - `CreationInvalid(ValueError)`: `build_character` was handed choices that do not validate;
   `.errors` lists why (callers must validate first, so this is an engine bug).
 - `auto_equip(inventory, equipment, abilities) -> Equipped`: best-AC body armor, a shield, a
@@ -20,7 +21,8 @@ Public API:
   abilities with racial bonuses, HP (hit die max + CON), proficiency bonus, saves, skills,
   speed, size, darkvision, languages, proficiencies, inventory (class fixed + picked packages +
   background gear), equipment and AC (via `aidm.rules.defense`), level-1 features, the subclass
-  when its level is 1, race traits and the spell picks.
+  when its level is 1, race traits, the spell picks and full spell-slot pools
+  (`aidm.rules.spellcasting.slot_resources`).
 """
 
 from collections.abc import Mapping, Sequence
@@ -30,7 +32,7 @@ from aidm.data.registry import Registry
 from aidm.data.srd_equipment import SrdEquipment
 from aidm.models.abilities import Ability, Skill
 from aidm.models.character import Equipped, InventoryItem, PcData, Size
-from aidm.models.creation import CreationChoices, CreationError
+from aidm.models.creation import CreationChoices, CreationError, CreationErrorCode
 from aidm.models.state import Creature, CreatureKind
 from aidm.rules.abilities import ability_modifier, proficiency_bonus
 from aidm.rules.ability_gen import ability_score_errors, apply_bonuses, racial_bonuses
@@ -49,6 +51,13 @@ from aidm.rules.creation_checks import (
 )
 from aidm.rules.defense import SHIELD_CATEGORY, armor_class
 from aidm.rules.hp import max_hp_at_level
+from aidm.rules.spellcasting import (
+    cantrips_known_count,
+    max_spell_level,
+    prepared_spell_limit,
+    slot_resources,
+    spells_known_count,
+)
 
 CREATION_LEVEL = 1
 _MELEE = "Melee"
@@ -63,18 +72,13 @@ class CreationInvalid(ValueError):
         self.errors = errors
 
 
-def _max_spell_level(refs: CreationRefs) -> int:
-    slots = refs.cls.level(CREATION_LEVEL).slots
-    return max((i + 1 for i, n in enumerate(slots) if n > 0), default=0)
-
-
 def _spell_count(refs: CreationRefs) -> int:
     casting = refs.cls.spellcasting
     if casting is None or casting.first_level > CREATION_LEVEL:
         return 0
     if casting.kind == "prepared":
         return casting.spellbook_start
-    return refs.cls.level(CREATION_LEVEL).spells_known or 0
+    return spells_known_count(refs.cls, CREATION_LEVEL)
 
 
 def _prepared_pool(choices: CreationChoices, refs: CreationRefs, levelled: set[str]) -> set[str]:
@@ -89,7 +93,7 @@ def spell_pick_errors(
 ) -> list[CreationError]:
     cls_index = refs.cls.index
     cantrips = class_spell_indexes(regs.spells, cls_index, 0, 0)
-    count = refs.cls.level(CREATION_LEVEL).cantrips_known
+    count = cantrips_known_count(refs.cls, CREATION_LEVEL)
     errors = pick_errors("cantrips", choices.cantrips, count=count, allowed=cantrips)
     race_class = refs.race.cantrip_class or (refs.subrace.cantrip_class if refs.subrace else None)
     race_count = refs.race.cantrip_choices + (refs.subrace.cantrip_choices if refs.subrace else 0)
@@ -101,11 +105,28 @@ def spell_pick_errors(
         allowed=race_pool,
         taken=choices.cantrips,
     )
-    levelled = class_spell_indexes(regs.spells, cls_index, 1, _max_spell_level(refs))
+    levelled = class_spell_indexes(
+        regs.spells, cls_index, 1, max_spell_level(refs.cls, CREATION_LEVEL)
+    )
     errors += pick_errors("spells", choices.spells, count=_spell_count(refs), allowed=levelled)
     pool = _prepared_pool(choices, refs, levelled)
     errors += pick_errors("prepared", choices.prepared, count=None, allowed=pool)
     return errors
+
+
+def _final_abilities(choices: CreationChoices, refs: CreationRefs) -> dict[Ability, int]:
+    bonuses = racial_bonuses(refs.race, refs.subrace, choices.ability_choice_picks)
+    return apply_bonuses(choices.base_scores, bonuses)
+
+
+def _prepared_limit_errors(choices: CreationChoices, refs: CreationRefs) -> list[CreationError]:
+    limit = prepared_spell_limit(refs.cls, CREATION_LEVEL, _final_abilities(choices, refs))
+    if limit == 0 or len(choices.prepared) <= limit:
+        return []  # non-prepared casters are refused by spell_pick_errors
+    detail = f"{len(choices.prepared)} prepared, the limit is {limit}"
+    return [
+        CreationError(code=CreationErrorCode.PREPARED_OVER_LIMIT, field="prepared", detail=detail)
+    ]
 
 
 def validate_creation(choices: CreationChoices, regs: CharacterRegistries) -> list[CreationError]:
@@ -121,6 +142,8 @@ def validate_creation(choices: CreationChoices, regs: CharacterRegistries) -> li
     errors += equipment_errors(choices, refs)
     errors += class_choice_errors(choices, refs, CREATION_LEVEL)
     errors += spell_pick_errors(choices, refs, regs)
+    if not ability_score_errors(choices):
+        errors += _prepared_limit_errors(choices, refs)
     return errors
 
 
@@ -248,8 +271,7 @@ def build_character(
     refs, _ = resolve_refs(choices, regs)
     if errors or refs is None:
         raise CreationInvalid(errors)
-    bonuses = racial_bonuses(refs.race, refs.subrace, choices.ability_choice_picks)
-    abilities = apply_bonuses(choices.base_scores, bonuses)
+    abilities = _final_abilities(choices, refs)
     pc = _pc_data(choices, refs, abilities, regs)
     con_mod = ability_modifier(abilities[Ability.CON])
     max_hp = max_hp_at_level(refs.cls.hit_die, con_mod, CREATION_LEVEL)
@@ -268,5 +290,6 @@ def build_character(
         speed=refs.race.speed,
         size=Size(refs.race.size),
         darkvision=refs.race.darkvision,
+        resources=slot_resources(refs.cls, CREATION_LEVEL),
         pc=pc,
     )

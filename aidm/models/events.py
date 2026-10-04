@@ -17,7 +17,8 @@ Public API:
 - Events: `CreatureAdded`, `CreatureRemoved`, `HpChanged`, `TempHpSet`, `ConditionApplied`,
   `ConditionRemoved`, `DeathSaveRolled`, `Stabilized`, `CreatureDied`, `DiceRolled`,
   `CheckResolved`, `DamageTaken`, `DeathSavesSet`, `ConditionTicked`, `ConcentrationStarted`,
-  `ConcentrationEnded`, `ResourceSet`, `CampSuppliesChanged`, `ShortRestTaken`, `LongRestTaken`.
+  `ConcentrationEnded`, `ResourceSet`, `ResourceRemoved`, `CampSuppliesChanged`,
+  `ShortRestTaken`, `LongRestTaken`.
 - `AnyEvent` (plain union), `Event` (union annotated with the `type` discriminator),
   `EVENT_TYPES` (every event class), `event_adapter` (`TypeAdapter` for validate/dump of `Event`).
 - `LoggedEvent(seq, event)`: the persisted envelope (events.jsonl line).
@@ -203,6 +204,14 @@ class ResourceSet(_EventBase):
     resource: Resource
 
 
+class ResourceRemoved(_EventBase):
+    """The creature's resource `key` no longer exists (a pact slot pool moved to a new level)."""
+
+    type: Literal["resource_removed"] = "resource_removed"
+    creature_id: str
+    key: str = Field(min_length=1)
+
+
 class CampSuppliesChanged(_EventBase):
     """The party supply pool changed by `delta` (loot, purchase); `camp_supplies` is the result."""
 
@@ -247,6 +256,7 @@ type AnyEvent = (
     | ConcentrationStarted
     | ConcentrationEnded
     | ResourceSet
+    | ResourceRemoved
     | CampSuppliesChanged
     | ShortRestTaken
     | LongRestTaken
@@ -272,6 +282,7 @@ EVENT_TYPES: tuple[type[BaseModel], ...] = (
     ConcentrationStarted,
     ConcentrationEnded,
     ResourceSet,
+    ResourceRemoved,
     CampSuppliesChanged,
     ShortRestTaken,
     LongRestTaken,

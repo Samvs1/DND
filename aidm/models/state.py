@@ -22,8 +22,9 @@ Public API:
   Conditions (M1.5): `condition_immunities` (condition keys, e.g. SRD monster immunities) and
   `concentrating_on` (at most one `Concentration`).
   Resources (M1.6): `resources` maps a resource key ("pact-slot-1", "second-wind") to a
-  `Resource(current, maximum, recharge)`; rests restore them by `RechargeKind`. This is the hook
-  the M2.3 slot model and M2.4 feature resources plug into.
+  `Resource(current, maximum, recharge)`; rests restore them by `RechargeKind`. Spell slots live
+  here (`aidm.rules.spellcasting`: `spell-slot-<n>` long rest, `pact-slot-<n>` short rest), as do
+  the M2.4 feature resources.
   Body (M2.2): `speed` (feet), `size`, `darkvision` (feet, 0 = none).
   Player characters (M2.2): `pc` holds the character sheet data (`aidm.models.character.PcData`);
   None for NPCs and monsters. A PC is a Creature with `kind` PC and `pc` set.

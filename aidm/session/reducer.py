@@ -38,6 +38,7 @@ from aidm.models.events import (
     DiceRolled,
     HpChanged,
     LongRestTaken,
+    ResourceRemoved,
     ResourceSet,
     ShortRestTaken,
     Stabilized,
@@ -96,6 +97,12 @@ def _tick_condition(creature: Creature, event: ConditionTicked) -> None:
     raise ReducerError(f"{creature.id!r} has no ROUNDS condition {key!r} to tick")
 
 
+def _remove_resource(creature: Creature, key: str) -> None:
+    if key not in creature.resources:
+        raise ReducerError(f"{creature.id!r} has no resource {key!r} to remove")
+    del creature.resources[key]
+
+
 def apply(state: GameState, event: AnyEvent) -> GameState:
     match event:
         case CreatureAdded(creature=creature):
@@ -137,6 +144,8 @@ def apply(state: GameState, event: AnyEvent) -> GameState:
             target.stable = False
         case ResourceSet(creature_id=cid, key=key, resource=resource):
             _creature(state, cid).resources[key] = resource
+        case ResourceRemoved(creature_id=cid, key=key):
+            _remove_resource(_creature(state, cid), key)
         case CampSuppliesChanged(camp_supplies=supplies):
             state.camp_supplies = supplies
         case ShortRestTaken(short_rests_used=used):
