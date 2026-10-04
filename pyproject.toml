@@ -1,0 +1,88 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aidm"
+version = "0.1.0"
+description = "AI Dungeon Master (D&D 5e with BG3 rules)"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "pydantic>=2",
+    "openai",
+    "httpx",
+    "python-dotenv",
+    "fish-audio-sdk",
+    "qrcode",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+    "pytest-cov",
+    "hypothesis",
+    "ruff",
+    "pyright",
+    "import-linter",
+    "playwright",
+]
+
+[tool.setuptools.packages.find]
+include = ["aidm*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+extend-exclude = ["data", "artifacts", "saves", "logs"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pyright]
+include = ["aidm", "tests", "scripts"]
+exclude = [".venv", "data", "aidm/web"]
+strict = ["aidm/rules", "aidm/models"]
+typeCheckingMode = "basic"
+pythonVersion = "3.13"
+venvPath = "."
+venv = ".venv"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+markers = ["live: opt-in live network tests (RUN_LIVE=1)"]
+
+[tool.importlinter]
+root_package = "aidm"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "Layered architecture"
+type = "layers"
+layers = [
+    "aidm.server",
+    "aidm.session",
+    "aidm.dm",
+    "aidm.rules",
+    "aidm.models | aidm.data",
+]
+
+[[tool.importlinter.contracts]]
+name = "Rules engine is pure"
+type = "forbidden"
+source_modules = ["aidm.rules"]
+forbidden_modules = [
+    "openai",
+    "httpx",
+    "fastapi",
+    "uvicorn",
+    "aidm.dm",
+    "aidm.session",
+    "aidm.server",
+]
