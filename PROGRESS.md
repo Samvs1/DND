@@ -1,4 +1,4 @@
-NEXT: M3.1 Zones. Delegate to hard-engineer. Last gate: M2 FULL GATE PASS 8/8.
+NEXT: M3.2 Encounter lifecycle. Delegate to hard-engineer. Files in flight: none. Last gate: M3.1 GATE PASS 8/8.
 
 # PROGRESS
 
@@ -38,7 +38,7 @@ Stashes and blockers: record them in the Notes section at the bottom.
 - [x] M2.6 **M** Per-class goldens: AC, attack bonus, save DC, slots and HP at levels 1-5 for all 6 classes; JSON export/import round trip. FULL gate. Commit `M2: Characters`. (commit M2: Characters)
 
 ## M3 Combat (SPEC 6.1, 7.2-7.4)
-- [ ] M3.1 **H** Zones: model (3-6 zones, adjacency, distance label, cover, high ground, surfaces slot), seeded generation from terrain tags, movement cost per hop, range bands, high-ground adv/disadv. Gate: pytest rules.
+- [x] M3.1 **H** Zones: model (3-6 zones, adjacency, distance label, cover, high ground, surfaces slot), seeded generation from terrain tags, movement cost per hop, range bands, high-ground adv/disadv. Gate: pytest rules.
 - [ ] M3.2 **H** Encounter lifecycle: start (surprise), 1d4+DEX initiative, turn order, action/bonus/movement/reaction state, end turn, victory/flee/party wipe, CR budget builder. Gate: pytest rules.
 - [ ] M3.3 **H** Commands: attack (melee/ranged/finesse/crit double dice/nat 1), `rules.hit_chance` preview, dash, disengage, bonus-action shove/jump, hide, help, throw, use_item (potion bonus action, give to adjacent ally); `test_v1_potion_full_hp_refused_not_consumed`, `test_v1_invalid_input_never_consumes_turn`. Gate: pytest rules.
 - [ ] M3.4 **H** Spell effect DSL: schema plus ONE interpreter (attack_roll, save half/none/condition, typed damage with upcast, heal, apply/remove_condition, temp_hp, ac_buff, surface, multi_target), slot validation, upcasting, concentration hookup; 10 spells with goldens. Gate: pytest rules.

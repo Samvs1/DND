@@ -1,0 +1,120 @@
+[
+  {
+    "index": "wilds",
+    "name": "Open Wilds",
+    "hop_feet": 30,
+    "zones": [
+      {"key": "open_ground", "names": ["Open Ground", "Windswept Field"], "tags": ["open"], "distance_label": "about 40 ft across"},
+      {"key": "boulders", "names": ["Boulder Cluster", "Tumbled Stones"], "tags": ["rocks"], "distance_label": "about 20 ft across", "cover": "half"},
+      {"key": "hillock", "names": ["Grassy Hillock", "Low Rise"], "tags": ["hill"], "distance_label": "about 25 ft across", "high_ground": true},
+      {"key": "scrub", "names": ["Thorny Scrub", "Gorse Patch"], "tags": ["brush"], "distance_label": "about 30 ft across", "difficult": true},
+      {"key": "gully", "names": ["Dry Gully", "Shallow Ravine"], "tags": ["low"], "distance_label": "about 20 ft across", "cover": "half"},
+      {"key": "lone_tree", "names": ["Lone Tree", "Old Signpost Tree"], "tags": ["tree"], "distance_label": "about 15 ft across", "cover": "half"}
+    ]
+  },
+  {
+    "index": "forest",
+    "name": "Forest",
+    "hop_feet": 30,
+    "zones": [
+      {"key": "clearing", "names": ["Sunlit Clearing", "Fern Glade"], "tags": ["open"], "distance_label": "about 40 ft across"},
+      {"key": "thicket", "names": ["Bramble Thicket", "Briar Tangle"], "tags": ["brush"], "distance_label": "about 25 ft across", "cover": "half", "difficult": true},
+      {"key": "fallen_oak", "names": ["Fallen Oak", "Toppled Trunk"], "tags": ["log"], "distance_label": "about 20 ft across", "cover": "three_quarters"},
+      {"key": "ridge", "names": ["Mossy Ridge", "Root-Bound Knoll"], "tags": ["hill"], "distance_label": "about 25 ft across", "high_ground": true},
+      {"key": "creek", "names": ["Shallow Creek", "Pebbled Stream"], "tags": ["water"], "distance_label": "about 15 ft across", "difficult": true},
+      {"key": "deep_trees", "names": ["Old Pines", "Shadowed Trunks"], "tags": ["trees"], "distance_label": "about 30 ft across", "cover": "half"},
+      {"key": "game_trail", "names": ["Game Trail", "Deer Path"], "tags": ["path"], "distance_label": "about 35 ft long"}
+    ]
+  },
+  {
+    "index": "ruins",
+    "name": "Ruins",
+    "hop_feet": 30,
+    "zones": [
+      {"key": "courtyard", "names": ["Cracked Courtyard", "Weedy Plaza"], "tags": ["open"], "distance_label": "about 40 ft across"},
+      {"key": "rubble", "names": ["Rubble Pile", "Collapsed Wall"], "tags": ["rubble"], "distance_label": "about 20 ft across", "cover": "half", "difficult": true},
+      {"key": "archway", "names": ["Broken Archway", "Leaning Gate"], "tags": ["arch"], "distance_label": "about 15 ft across", "cover": "half"},
+      {"key": "tower_stump", "names": ["Tower Stump", "Crumbling Parapet"], "tags": ["height"], "distance_label": "about 20 ft across", "high_ground": true, "cover": "half"},
+      {"key": "colonnade", "names": ["Fallen Colonnade", "Pillar Row"], "tags": ["pillars"], "distance_label": "about 30 ft long", "cover": "three_quarters"},
+      {"key": "sunken_hall", "names": ["Sunken Hall", "Roofless Chamber"], "tags": ["low"], "distance_label": "about 35 ft across"}
+    ]
+  },
+  {
+    "index": "bridge",
+    "name": "Bridge Crossing",
+    "hop_feet": 30,
+    "zones": [
+      {"key": "near_bank", "names": ["Near Bank", "Reed Shore"], "tags": ["bank"], "distance_label": "about 30 ft across"},
+      {"key": "bridge_span", "names": ["Bridge Span", "Rope Bridge"], "tags": ["bridge"], "distance_label": "about 40 ft long"},
+      {"key": "far_bank", "names": ["Far Bank", "Muddy Landing"], "tags": ["bank"], "distance_label": "about 30 ft across"},
+      {"key": "gatehouse", "names": ["Toll Gatehouse", "Stone Guardpost"], "tags": ["building"], "distance_label": "about 15 ft across", "cover": "three_quarters", "high_ground": true},
+      {"key": "shallows", "names": ["River Shallows", "Rushing Ford"], "tags": ["water"], "distance_label": "about 25 ft across", "difficult": true},
+      {"key": "pylon", "names": ["Bridge Pylon", "Mossy Buttress"], "tags": ["pillar"], "distance_label": "about 10 ft across", "cover": "half"}
+    ]
+  },
+  {
+    "index": "cave",
+    "name": "Cave",
+    "hop_feet": 15,
+    "zones": [
+      {"key": "cavern", "names": ["Echoing Cavern", "Dripstone Hall"], "tags": ["open"], "distance_label": "about 30 ft across"},
+      {"key": "tunnel", "names": ["Narrow Tunnel", "Low Passage"], "tags": ["tight"], "distance_label": "about 20 ft long"},
+      {"key": "ledge", "names": ["Rock Ledge", "Crystal Shelf"], "tags": ["height"], "distance_label": "about 15 ft across", "high_ground": true},
+      {"key": "stalagmites", "names": ["Stalagmite Forest", "Pillar Grotto"], "tags": ["pillars"], "distance_label": "about 25 ft across", "cover": "three_quarters"},
+      {"key": "pool", "names": ["Still Pool", "Glimmering Pool"], "tags": ["water"], "distance_label": "about 20 ft across", "difficult": true},
+      {"key": "rockfall", "names": ["Rockfall", "Scree Slope"], "tags": ["rubble"], "distance_label": "about 20 ft across", "cover": "half", "difficult": true}
+    ]
+  },
+  {
+    "index": "village",
+    "name": "Village",
+    "hop_feet": 30,
+    "zones": [
+      {"key": "square", "names": ["Village Square", "Market Green"], "tags": ["open"], "distance_label": "about 40 ft across"},
+      {"key": "well", "names": ["Old Well", "Stone Trough"], "tags": ["well"], "distance_label": "about 15 ft across", "cover": "half"},
+      {"key": "rooftop", "names": ["Thatched Rooftop", "Barn Loft"], "tags": ["height"], "distance_label": "about 20 ft across", "high_ground": true},
+      {"key": "alley", "names": ["Narrow Alley", "Cart Lane"], "tags": ["tight"], "distance_label": "about 30 ft long", "cover": "half"},
+      {"key": "smithy", "names": ["Smithy Yard", "Cooper's Shed"], "tags": ["building"], "distance_label": "about 20 ft across", "cover": "three_quarters"},
+      {"key": "garden", "names": ["Vegetable Plots", "Muddy Garden"], "tags": ["soft"], "distance_label": "about 30 ft across", "difficult": true}
+    ]
+  },
+  {
+    "index": "swamp",
+    "name": "Swamp",
+    "hop_feet": 30,
+    "zones": [
+      {"key": "mire", "names": ["Sucking Mire", "Black Mud"], "tags": ["mud"], "distance_label": "about 35 ft across", "difficult": true},
+      {"key": "hummock", "names": ["Dry Hummock", "Grassy Island"], "tags": ["hill"], "distance_label": "about 20 ft across", "high_ground": true},
+      {"key": "reeds", "names": ["Tall Reeds", "Cattail Bed"], "tags": ["brush"], "distance_label": "about 25 ft across", "cover": "half", "difficult": true},
+      {"key": "boardwalk", "names": ["Rotting Boardwalk", "Plank Path"], "tags": ["path"], "distance_label": "about 40 ft long"},
+      {"key": "dead_trees", "names": ["Drowned Trees", "Hollow Stumps"], "tags": ["trees"], "distance_label": "about 25 ft across", "cover": "half"},
+      {"key": "stilt_hut", "names": ["Stilt Hut", "Fisher's Shack"], "tags": ["building"], "distance_label": "about 15 ft across", "cover": "three_quarters"}
+    ]
+  },
+  {
+    "index": "keep",
+    "name": "Keep",
+    "hop_feet": 15,
+    "zones": [
+      {"key": "great_hall", "names": ["Great Hall", "Feasting Hall"], "tags": ["open"], "distance_label": "about 40 ft long"},
+      {"key": "gallery", "names": ["Upper Gallery", "Minstrel Balcony"], "tags": ["height"], "distance_label": "about 30 ft long", "high_ground": true, "cover": "half"},
+      {"key": "stairwell", "names": ["Spiral Stair", "Stone Stairwell"], "tags": ["stairs"], "distance_label": "about 10 ft across", "difficult": true},
+      {"key": "barracks", "names": ["Barracks Room", "Guard Quarters"], "tags": ["room"], "distance_label": "about 25 ft across", "cover": "half"},
+      {"key": "battlements", "names": ["Battlements", "Wall Walk"], "tags": ["height"], "distance_label": "about 35 ft long", "high_ground": true, "cover": "three_quarters"},
+      {"key": "bailey", "names": ["Inner Bailey", "Training Yard"], "tags": ["open"], "distance_label": "about 40 ft across"}
+    ]
+  },
+  {
+    "index": "crypt",
+    "name": "Crypt",
+    "hop_feet": 15,
+    "zones": [
+      {"key": "ossuary", "names": ["Bone-Lined Ossuary", "Skull Niche Hall"], "tags": ["room"], "distance_label": "about 25 ft across"},
+      {"key": "sarcophagi", "names": ["Sarcophagus Row", "Lidded Tombs"], "tags": ["tombs"], "distance_label": "about 30 ft long", "cover": "three_quarters"},
+      {"key": "dais", "names": ["Raised Dais", "Altar Step"], "tags": ["height"], "distance_label": "about 15 ft across", "high_ground": true},
+      {"key": "collapsed_vault", "names": ["Collapsed Vault", "Caved-In Crypt"], "tags": ["rubble"], "distance_label": "about 20 ft across", "cover": "half", "difficult": true},
+      {"key": "corridor", "names": ["Burial Corridor", "Dusty Passage"], "tags": ["tight"], "distance_label": "about 35 ft long"},
+      {"key": "flooded_cell", "names": ["Flooded Cell", "Seeping Chamber"], "tags": ["water"], "distance_label": "about 15 ft across", "difficult": true}
+    ]
+  }
+]
