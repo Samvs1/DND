@@ -1,0 +1,13 @@
+/goal Add AI asset generation with review to the finished game in this repo, exactly as specified in docs/ADDENDUM_ASSET_GEN.md (read it fully first; it builds on docs/ADDENDUM_ASSETS.md, docs/STYLE_BIBLE.md, ASSETS_TODO.md and the manifest). Never print, log or commit the value of IMAGE_API_KEY in ./.env. v1 at C:\Users\vanst\Desktop\DnD is read-only. Generate ONLY what is needed: P1 placeholders, never real or v1 assets, sheets for icons, hard cap 8 EUR. If a usage limit appears, continue after it resets, resume from PROGRESS.md NEXT.
+
+The goal is met ONLY when each item is proven by raw output shown in this conversation:
+1. The existing full gate (pytest, ruff, pyright, lint-imports, check_structure, check_secrets, gen_protocol --check, build_manifest --check, gen_assets_todo --check) all exit 0 after your changes, with the new FakeImageProvider tests from section B.6 included.
+2. `python scripts/gen_assets.py --dry-run` output is shown: entries, API calls, estimated cost, total under the cap, and docs/ASSET_PRIORITY.md is committed.
+3. The opt-in live smoke test (RUN_LIVE_IMAGES=1) generated exactly one small image; show its real cost and the model id actually used (queried from the API, not hardcoded).
+4. A real run `python scripts/gen_assets.py --yes --cap 8` completed for the P1 list; print logs/asset_spend.json showing total spend <= cap, and a verdict table (key, attempts, scores, accept/reject) built from the review JSON files that YOU wrote after opening each contact sheet image.
+5. Every accepted asset has style-match >= 4 against the v1 references; rejected or exhausted ones are listed in ASSETS_REPORT.md and left as placeholders. Show the report.
+6. artifacts/assets/FINAL_REVIEW.png exists and you opened it; list the image paths. Then the Playwright UI run shows screenshots (wizard, combat, sheet) with the new art, which you opened and judged, fixing any bad crops or sizes.
+7. scripts/revert_asset.py works on one asset (show before/after manifest status), and no tracked file contains key material (check_secrets output shown).
+8. Final message: a VERIFICATION REPORT quoting each command above with its output tail, total spend, count generated vs left as placeholder, and your honest quality assessment including weakest assets.
+
+Rules: commit after each checkpoint with a NEXT line in PROGRESS.md; never skip or weaken gates; never exceed the cap; stop and report instead of guessing if the API rejects the key or needs organisation verification.
