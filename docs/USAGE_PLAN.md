@@ -30,7 +30,8 @@ The milestone spine M0 -> M9 is fixed by SPEC 0.2 and by real dependencies. Insi
    risk (API changes, cost) and add polish, not core value.
 6. **Hardening at the end only finds bugs.** Every v1 regression test is written inside the milestone that owns it.
 
-## Ordered checkpoint list (69 total: 33 H, 36 M; A1-A3 come from docs/ADDENDUM_ASSETS.md)
+## Ordered checkpoint list (76 total: 35 H, 38 M, 3 ORCH; A1-A3 from docs/ADDENDUM_ASSETS.md, M10 from docs/ADDENDUM_ASSET_GEN.md)
+ORCH = done by the main (orchestrator) session itself, not delegated, because it requires viewing images and judging them.
 Value: 3 = core and blocks everything, 2 = needed for a playable game, 1 = polish or verification.
 Risk: L/M/H = chance of rework or getting stuck.
 
@@ -105,6 +106,13 @@ Risk: L/M/H = chance of rework or getting stuck.
 | 64 | M9.4 Live DeepSeek and Fish tests | H | 2 | H | costs API credits |
 | 65 | M9.5 Adversarial QA plus fixes | H | 2 | M | the QA itself is a fresh read-only subagent |
 | 66 | M9.6 Docs plus verification report -> `M9: Hardening` | M | 1 | L | |
+| 67 | M10.1 Generator core plus budget guard plus FakeImageProvider | H | 2 | M | money safety |
+| 68 | M10.2 Auto-checks, slicer, contact sheet, install/revert | M | 2 | L | |
+| 69 | M10.3 Dry run plus ASSET_PRIORITY.md | M | 2 | L | |
+| 70 | M10.4 Live smoke (1 image) | H | 2 | H | BLOCKED path if key or org verification fails |
+| 71 | M10.5 P1 generation run | ORCH | 2 | M | the main session itself |
+| 72 | M10.6 Review loop | ORCH | 2 | M | the main session opens every sheet |
+| 73 | M10.7 Final review plus UI screenshots -> `M10: AI assets` | ORCH | 1 | L | then the final VERIFICATION REPORT |
 
 Classification rule: **H** = rules core, combat, AI layer, guard, plus the table actor (it owns combat turn
 order) and defect fixing, which needs cross-layer reasoning. Everything else is **M**.

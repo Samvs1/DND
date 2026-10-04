@@ -101,6 +101,17 @@ Stashes and blockers: record them in the Notes section at the bottom.
 - [ ] M9.5 **H** Adversarial QA by a fresh subagent (read-only report) and fix the defects. Gate: full gate plus the sim.
 - [ ] M9.6 **M** README (run, `--lan`, firewall note, SRD attribution), `docs/ARCHITECTURE.md`, a server boot plus `/healthz`, the VERIFICATION REPORT, and an honest list of Tier-2 items not built. FULL gate. Commit `M9: Hardening`.
 
+## M10 AI assets (docs/ADDENDUM_ASSET_GEN.md = Addendum B; starts only after M9; part of THIS goal)
+Budget: hard cap 8 EUR (`--cap 8`). Only P1 placeholders. Never touch `status: real` or `source: v1`, never overwrite an existing file. The IMAGE_API_KEY value is never printed, logged or committed.
+If the API rejects the key or needs organisation verification: stop M10 generation only, write `BLOCKED: <exact reason>` in Notes, finish everything else and say so in the final report.
+- [ ] M10.1 **H** Generator core: an image provider interface, an OpenAI provider (lists models and picks the current GPT Image model, never a hardcoded retired id, no other network), `FakeImageProvider`, `data/asset_costs.json`, the budget guard with the `logs/asset_spend.json` ledger (written before each call at worst case, updated after with the actual cost, refuses calls past the cap, retries count), `scripts/gen_assets.py` (`--dry-run` default, `--yes`, `--cap`, `--tier`), and P1/P2 derivation into `docs/ASSET_PRIORITY.md`; B.6 tests (dry-run spends nothing, cap refusal, ledger before and after, retries count, key never in logs or ledger). Gate: FULL gate.
+- [ ] M10.2 **M** Pipeline tools: Pillow auto-checks (size, alpha corners, blankness, uniform borders, file size), a 4x4 sheet slicer modelled on v1 `assets_src/slice.py`, `scripts/contact_sheet.py` (<=12 labelled candidates plus 2 v1 reference thumbnails), atomic install with a manifest update (`source: generated:<model>`, prompt, cost, license, reviewed), `scripts/revert_asset.py <key>`, ASSETS_TODO regeneration; B.6 tests (slicer, contact sheet, install/revert, real/v1 never overwritten). Gate: FULL gate.
+- [ ] M10.3 **M** Dry run: `python scripts/gen_assets.py --dry-run` shows the entries, API calls, cost per call and a total under the cap; commit `docs/ASSET_PRIORITY.md`. Gate: dry-run output plus the FULL gate.
+- [ ] M10.4 **H** Live smoke: `RUN_LIVE_IMAGES=1` opt-in test generates exactly ONE small image; record the real cost and the model id queried from the API. Gate: live smoke passes, ledger shown, check_secrets PASS.
+- [ ] M10.5 **ORCH** P1 generation: `python scripts/gen_assets.py --yes --cap 8` in batches, with portraits and banners passing 2-3 real v1 references through the edit endpoint and icons generated as 4x4 sheets. Gate: ledger total <= cap, check_secrets PASS.
+- [ ] M10.6 **ORCH** Review loop: the main session OPENS every contact sheet and writes `artifacts/assets/review_<n>.json` (5 scores; accept only if all >= 4), with up to 3 attempts per key; install the accepted ones. Gate: every accepted asset scores >= 4 on style match; the FULL gate passes.
+- [ ] M10.7 **ORCH** Final review: `artifacts/assets/FINAL_REVIEW.png` (opened), `ASSETS_REPORT.md` (spend vs cap, accepted, rejected, kept as placeholder), a Playwright UI run with wizard, combat and sheet screenshots viewed and crops fixed, a revert_asset demo (manifest status before and after), README art section updated. FULL gate. Commit `M10: AI assets`.
+
 ---
 
 ## Goal acceptance (from the owner's /goal; the final report must prove each with raw output)
@@ -114,6 +125,7 @@ Stashes and blockers: record them in the Notes section at the bottom.
 8. A fresh adversarial subagent attacks the game (invalid input, 20+ injections, disconnects, hallucination probes), its defects are fixed, and everything re-runs green.
 9. README.md, docs/ARCHITECTURE.md and docs/RULES_DECISIONS.md exist.
 11. Addendum A (docs/ADDENDUM_ASSETS.md, binding): build_manifest and gen_assets_todo `--check` pass; ASSETS_TODO.md, docs/STYLE_BIBLE.md and the README art section exist.
+12. M10 (owner addendum): every M10 box is checked before the final report, and the report includes the evidence from items 2-7 of docs/next/GOAL_ASSETS.txt: the dry-run output, the live smoke cost and model id, the spend ledger under the 8 EUR cap, the review verdict table, FINAL_REVIEW.png opened, and UI screenshots with the new art (or BLOCKED with its exact reason).
 10. The final message is a VERIFICATION REPORT plus the Tier-2 items not built.
 
 ## Notes (stashes, blockers, decisions pending)

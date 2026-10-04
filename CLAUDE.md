@@ -96,6 +96,12 @@ The full gate is `pytest -q`, `ruff check .`, `ruff format --check .`, `pyright`
 `C:\Users\vanst\Desktop\DnD`. Its lessons are digested once into `docs/V1_LESSONS.md` (M0.4). Read that digest, not v1.
 Assets are COPIED from v1 into `aidm/web/static/` in M0.4. Never edit the originals.
 
+## Asset policy
+- Missing art is fine: it shows as a placeholder through the manifest and `asset_url`/`assetUrl` (docs/ADDENDUM_ASSETS.md).
+- Image generation goes ONLY through the M10 pipeline (`scripts/gen_assets.py`, docs/ADDENDUM_ASSET_GEN.md): budget-capped,
+  reviewed, with P1 placeholders only. Never make ad hoc image API calls. Never overwrite real or v1 assets.
+- M10.5-M10.7 (marked ORCH) are done by the main session itself, because it must open and judge every contact sheet.
+
 ## Token discipline (Claude Pro: 5-hour window plus weekly cap)
 - Keep gate output to its tail. Never paste whole files. Do not re-read files you already know.
 - Prefer `Grep` and targeted `Read` with offset and limit. Large data files are only touched by scripts.
