@@ -1,5 +1,7 @@
 # AI Dungeon Master (BG3 Edition) — Build Specification
 
+> **ADDENDA (binding, read with this spec):** `docs/ADDENDUM_ASSETS.md` (asset manifest, placeholders, ASSETS_TODO).
+
 Working package name: `aidm`. This file is the single source of truth for the build. Read all of it
 before writing code. Where this spec is silent, choose the simplest option that keeps the layering
 rules in section 5 intact and record the decision in `docs/DECISIONS.md`.

@@ -30,7 +30,7 @@ The milestone spine M0 -> M9 is fixed by SPEC 0.2 and by real dependencies. Insi
    risk (API changes, cost) and add polish, not core value.
 6. **Hardening at the end only finds bugs.** Every v1 regression test is written inside the milestone that owns it.
 
-## Ordered checkpoint list (66 total: 33 H, 33 M)
+## Ordered checkpoint list (69 total: 33 H, 36 M; A1-A3 come from docs/ADDENDUM_ASSETS.md)
 Value: 3 = core and blocks everything, 2 = needed for a playable game, 1 = polish or verification.
 Risk: L/M/H = chance of rework or getting stuck.
 
@@ -87,6 +87,7 @@ Risk: L/M/H = chance of rework or getting stuck.
 | 49 | M6.4 Server, WS, reconnect, healthz, LAN | M | 3 | M | |
 | 50 | M6.5 Host controls -> `M6: Session and server` | M | 2 | L | |
 | 51 | M7.1 Frontend shell plus lobby | M | 3 | L | |
+| 51a | A1 Asset manifest, assetUrl, SVG placeholders | M | 2 | L | Addendum A |
 | 52 | M7.2 Character wizard | M | 3 | L | |
 | 53 | M7.3 Table view | M | 3 | M | |
 | 54 | M7.4 Combat view plus hotbar | M | 3 | M | |
@@ -95,6 +96,8 @@ Risk: L/M/H = chance of rework or getting stuck.
 | 57 | M8.1 Fish adapter plus cache | M | 1 | M | external API; pull-forward OK |
 | 58 | M8.2 TTS sentence pipeline | M | 1 | M | |
 | 59 | M8.3 Music plus /screen | M | 1 | L | |
+| 59a | A2 Style bible plus ASSETS_TODO | M | 1 | L | Addendum A |
+| 59b | A3 Placeholder-only Playwright proof | M | 1 | M | Addendum A |
 | 60 | M8.4 Accessibility -> `M8: Audio and polish` | M | 1 | L | |
 | 61 | M9.1 simulate_party.py | M | 2 | L | |
 | 62 | M9.2 Fix sim defects | H | 3 | H | |

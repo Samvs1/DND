@@ -78,17 +78,20 @@ Stashes and blockers: record them in the Notes section at the bottom.
 
 ## M7 Frontend (SPEC 12)
 - [ ] M7.1 **M** Shell: theme CSS variables with v1 art, `strings.js`, ws client plus a handler registry, a test that every ServerMsg type has a JS handler, lobby/join plus QR. Gate: pytest (handler coverage) plus a manual boot.
+- [ ] A1 **M** Asset manifest (docs/ADDENDUM_ASSETS.md A.2, A.3, A.5): `aidm/web/static/assets/manifest.json` with keys derived from the data registries, `scripts/build_manifest.py [--check]`, the ONE server `asset_url(key)` and the ONE frontend `assetUrl(key)`, pure deterministic SVG placeholders in `aidm/server/placeholders.py` served at `/assets/placeholder/<kind>/<slug>.svg` (never raise; unknown key = generic), missing audio = silence; tests: every data key resolves, no hardcoded `/static/img` outside the helper, dropping a file flips it to real; add `build_manifest.py --check` to gate.ps1. Gate: FULL gate.
 - [ ] M7.2 **M** Character wizard (all SPEC 8 steps, validation via the server). Gate: pytest plus a Playwright smoke if available, otherwise a manual boot note.
 - [ ] M7.3 **M** Table view: streaming story feed, scene header, party panel, queue tracker, dice tray (adv/disadv), action input, ready vote, point-of-no-return dialog, fallback banner. Gate: as above.
 - [ ] M7.4 **M** Combat view: zone cards with token chips, initiative strip, hotbar with hit-chance tooltips, action/bonus/move pips. Gate: as above.
 - [ ] M7.5 **M** Sheet drawer, inventory (equip/unequip), spellbook with slot trackers. Gate: as above.
-- [ ] M7.6 **M** Journal, map (fog), shop, host panel, settings; responsive check at 390px and 1920px. FULL gate. Commit `M7: Frontend`.
+- [ ] M7.6 **M** Journal, map (fog), shop, host panel, settings; responsive check at 390px and 1920px; all art goes through `assetUrl` (Addendum A gates green). FULL gate. Commit `M7: Frontend`.
 
 ## M8 Audio and polish (SPEC 4 Fish, 11)
 - [ ] M8.1 **M** `synthesize(text, tone) -> Path | None` (check the current Fish SDK/docs first), cache by hash, lazy guarded import, zero cost when disabled, `/tts/<hash>.mp3`. Gate: pytest (mocked).
 - [ ] M8.2 **M** Sentence pipeline (synthesize N+1 while N plays), `narration_chunk`/`narration_done`, typewriter fallback, per-client mute/volume, autoplay hint. Gate: pytest plus a manual boot.
-- [ ] M8.3 **M** Music crossfade by game state, `/screen` spectator view (default audio device). Gate: pytest.
-- [ ] M8.4 **M** Accessibility pass (keyboard, focus-visible, text size, reduced motion, contrast). FULL gate. Commit `M8: Audio and polish`.
+- [ ] M8.3 **M** Music crossfade by game state (the v1 ambient/combat beds were skipped for size in M0.4: re-encode smaller copies from v1 if ffmpeg is available, else log it and rely on silence fallback), `/screen` spectator view (default audio device). Gate: pytest.
+- [ ] A2 **M** Style bible and TODO (Addendum A.4, A.6): view 3-4 v1 portraits once and write `docs/STYLE_BIBLE.md`; `scripts/gen_assets_todo.py [--check]` writes root `ASSETS_TODO.md` (key, target path, size, transparency, prompt = style prefix + data details, no BG3/IP references); add its `--check` to gate.ps1; reserve `IMAGE_PROVIDER` and `IMAGE_API_KEY` names in `.env.example`. Gate: FULL gate.
+- [ ] A3 **M** Placeholder-only play proof (Addendum A.5, A.7): install Playwright chromium; a Playwright test that runs the app from a temp copy with the real img folder hidden and proves join, create, act and combat render on placeholders; screenshots in `artifacts/ui/`; README section "Adding or replacing art". Gate: that test plus the FULL gate.
+- [ ] M8.4 **M** Accessibility pass (keyboard, focus-visible, text size, reduced motion, contrast); Addendum A gates green. FULL gate. Commit `M8: Audio and polish`.
 
 ## M9 Hardening (SPEC 13, 15)
 - [ ] M9.1 **M** `scripts/simulate_party.py --seeds N [--live-ai]`: 3 WS bots (fighter, explorer, chaotic) plus the SPEC 13 assertions, printing `SIMULATION OK ...`. Gate: script runs (failures are allowed and logged to Notes for M9.2).
@@ -110,6 +113,7 @@ Stashes and blockers: record them in the Notes section at the bottom.
 7. `python -m aidm` boots on 127.0.0.1:8000 and /healthz returns ok, deepseek and fish all true, with no key material.
 8. A fresh adversarial subagent attacks the game (invalid input, 20+ injections, disconnects, hallucination probes), its defects are fixed, and everything re-runs green.
 9. README.md, docs/ARCHITECTURE.md and docs/RULES_DECISIONS.md exist.
+11. Addendum A (docs/ADDENDUM_ASSETS.md, binding): build_manifest and gen_assets_todo `--check` pass; ASSETS_TODO.md, docs/STYLE_BIBLE.md and the README art section exist.
 10. The final message is a VERIFICATION REPORT plus the Tier-2 items not built.
 
 ## Notes (stashes, blockers, decisions pending)
