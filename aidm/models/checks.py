@@ -6,7 +6,8 @@ Public API:
 - `CheckKind`: ABILITY / SKILL / SAVE.
 - `CheckResult(kind, ability, skill, roll, dc, success, margin)`: a resolved test. `margin` is
   `roll.total - dc` (>= 0 means the total met the DC). `success` can differ from `margin >= 0`
-  only through the natural 20 / natural 1 rule for checks (see docs/RULES_DECISIONS.md).
+  only through the natural 20 / natural 1 rule for checks (see docs/RULES_DECISIONS.md) and a
+  condition that makes a save fail automatically (`aidm.rules.conditions.save_with_conditions`).
 
 Frozen so a result can be embedded in a `CheckResolved` event.
 """

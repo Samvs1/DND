@@ -154,3 +154,36 @@ def test_events_are_frozen_and_strict() -> None:
 def test_logged_event_round_trip() -> None:
     entry = LoggedEvent(seq=4, event=HpChanged(creature_id="a", delta=-2, new_hp=3))
     assert LoggedEvent.model_validate_json(entry.model_dump_json()) == entry
+
+
+def test_condition_ticked_and_exact_removal() -> None:
+    from aidm.models.events import ConditionTicked
+
+    state = make_state()
+    apply(state, CreatureAdded(creature=goblin()))
+    timed = ActiveCondition(name="prone", rounds_left=3)
+    lasting = ActiveCondition(name="prone", source_id="trap")
+    apply(state, ConditionApplied(creature_id="gob1", condition=timed))
+    apply(state, ConditionApplied(creature_id="gob1", condition=lasting))
+    apply(state, ConditionTicked(creature_id="gob1", name="prone", rounds_left=2))
+    assert state.creatures["gob1"].conditions[0].rounds_left == 2
+    with pytest.raises(ReducerError):
+        apply(
+            state,
+            ConditionTicked(creature_id="gob1", name="prone", source_id="trap", rounds_left=1),
+        )
+    apply(state, ConditionRemoved(creature_id="gob1", name="prone", exact_source=True))
+    assert [c.source_id for c in state.creatures["gob1"].conditions] == ["trap"]
+
+
+def test_concentration_started_and_ended() -> None:
+    from aidm.models.conditions import Concentration
+    from aidm.models.events import ConcentrationEnded, ConcentrationStarted
+
+    state = make_state()
+    apply(state, CreatureAdded(creature=goblin()))
+    conc = Concentration(spell_id="bless")
+    apply(state, ConcentrationStarted(creature_id="gob1", concentration=conc))
+    assert state.creatures["gob1"].concentrating_on == conc
+    apply(state, ConcentrationEnded(creature_id="gob1", spell_id="bless"))
+    assert state.creatures["gob1"].concentrating_on is None

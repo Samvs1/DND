@@ -1,0 +1,154 @@
+[
+  {
+    "index": "blinded",
+    "name": "Blinded",
+    "source": "SRD 5.1 Conditions: Blinded (sight-based checks auto-fail: adjudicated by the DM)",
+    "own_attacks": "disadvantage",
+    "attacks_against_melee": "advantage",
+    "attacks_against_ranged": "advantage"
+  },
+  {
+    "index": "charmed",
+    "name": "Charmed",
+    "source": "SRD 5.1 Conditions: Charmed (cannot attack the charmer; social advantage for the charmer is DM-adjudicated)",
+    "cannot_attack_source": true
+  },
+  {
+    "index": "deafened",
+    "name": "Deafened",
+    "source": "SRD 5.1 Conditions: Deafened (hearing-based checks auto-fail: adjudicated by the DM)"
+  },
+  {
+    "index": "exhaustion",
+    "name": "Exhaustion",
+    "source": "SRD 5.1 Conditions: Exhaustion level 1 only (disadvantage on ability checks); a long rest removes it",
+    "own_checks": "disadvantage",
+    "duration": {"kind": "until_long_rest"}
+  },
+  {
+    "index": "frightened",
+    "name": "Frightened",
+    "source": "SRD 5.1 Conditions: Frightened (source assumed in sight)",
+    "own_attacks": "disadvantage",
+    "own_checks": "disadvantage"
+  },
+  {
+    "index": "grappled",
+    "name": "Grappled",
+    "source": "SRD 5.1 Conditions: Grappled",
+    "speed_factor": 0
+  },
+  {
+    "index": "incapacitated",
+    "name": "Incapacitated",
+    "source": "SRD 5.1 Conditions: Incapacitated",
+    "can_act": false,
+    "can_react": false
+  },
+  {
+    "index": "invisible",
+    "name": "Invisible",
+    "source": "SRD 5.1 Conditions: Invisible",
+    "own_attacks": "advantage",
+    "attacks_against_melee": "disadvantage",
+    "attacks_against_ranged": "disadvantage"
+  },
+  {
+    "index": "paralyzed",
+    "name": "Paralyzed",
+    "source": "SRD 5.1 Conditions: Paralyzed",
+    "implies": ["incapacitated"],
+    "speed_factor": 0,
+    "auto_fail_saves": ["str", "dex"],
+    "attacks_against_melee": "advantage",
+    "attacks_against_ranged": "advantage",
+    "auto_crit_melee": true
+  },
+  {
+    "index": "petrified",
+    "name": "Petrified",
+    "source": "SRD 5.1 Conditions: Petrified",
+    "implies": ["incapacitated"],
+    "speed_factor": 0,
+    "auto_fail_saves": ["str", "dex"],
+    "attacks_against_melee": "advantage",
+    "attacks_against_ranged": "advantage",
+    "resist_all_damage": true,
+    "damage_immunities": ["poison"]
+  },
+  {
+    "index": "poisoned",
+    "name": "Poisoned",
+    "source": "SRD 5.1 Conditions: Poisoned",
+    "own_attacks": "disadvantage",
+    "own_checks": "disadvantage"
+  },
+  {
+    "index": "prone",
+    "name": "Prone",
+    "source": "SRD 5.1 Conditions: Prone (melee = attacker in the same zone)",
+    "own_attacks": "disadvantage",
+    "attacks_against_melee": "advantage",
+    "attacks_against_ranged": "disadvantage"
+  },
+  {
+    "index": "restrained",
+    "name": "Restrained",
+    "source": "SRD 5.1 Conditions: Restrained",
+    "speed_factor": 0,
+    "own_attacks": "disadvantage",
+    "attacks_against_melee": "advantage",
+    "attacks_against_ranged": "advantage",
+    "save_disadvantage": ["dex"]
+  },
+  {
+    "index": "stunned",
+    "name": "Stunned",
+    "source": "SRD 5.1 Conditions: Stunned",
+    "implies": ["incapacitated"],
+    "speed_factor": 0,
+    "auto_fail_saves": ["str", "dex"],
+    "attacks_against_melee": "advantage",
+    "attacks_against_ranged": "advantage"
+  },
+  {
+    "index": "unconscious",
+    "name": "Unconscious",
+    "source": "SRD 5.1 Conditions: Unconscious (no separate prone instance, see RULES_DECISIONS)",
+    "implies": ["incapacitated"],
+    "speed_factor": 0,
+    "auto_fail_saves": ["str", "dex"],
+    "attacks_against_melee": "advantage",
+    "attacks_against_ranged": "advantage",
+    "auto_crit_melee": true
+  },
+  {
+    "index": "dodging",
+    "name": "Dodging",
+    "source": "SRD 5.1 Actions in Combat: Dodge (until the start of the creature's next turn)",
+    "srd_condition": false,
+    "attacks_against_melee": "disadvantage",
+    "attacks_against_ranged": "disadvantage",
+    "save_advantage": ["dex"],
+    "duration": {"kind": "rounds", "rounds": 1, "tick_on": "start_of_turn"}
+  },
+  {
+    "index": "hidden",
+    "name": "Hidden",
+    "source": "SRD 5.1 Unseen Attackers and Targets (set by the Hide action)",
+    "srd_condition": false,
+    "own_attacks": "advantage",
+    "attacks_against_melee": "disadvantage",
+    "attacks_against_ranged": "disadvantage"
+  },
+  {
+    "index": "surprised",
+    "name": "Surprised",
+    "source": "SRD 5.1 Surprise (BG3: no movement, actions or reactions until the end of the first turn)",
+    "srd_condition": false,
+    "speed_factor": 0,
+    "can_act": false,
+    "can_react": false,
+    "duration": {"kind": "rounds", "rounds": 1, "tick_on": "end_of_turn"}
+  }
+]

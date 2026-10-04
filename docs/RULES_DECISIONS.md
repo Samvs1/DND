@@ -15,3 +15,11 @@ M1.4 damage at 0 | 1 death save failure, 2 on a crit, stable is lost; damage ful
 M1.4 death saves | DC 10, situational bonus allowed (Bless); nat 20 regains 1 HP and resets counters; nat 1 = 2 failures; 3 successes stable; 3 failures dead | SRD 5.1 Death Saving Throws
 M1.4 stabilize | effect (Spare the Dying) or DC 10 Wisdom (Medicine) check; a stable creature stays unconscious at 0 HP; regaining 1 HP after 1d4 hours is not modelled (rests heal) | SRD 5.1 Stabilizing a Creature; time skips go through rests
 M1.4 healing | capped at max HP; nothing for the dead; healing from 0 removes the zero_hp unconscious condition and resets death-save state | SRD 5.1 Healing
+M1.5 exhaustion | single level = SRD level 1 (disadvantage on ability checks), ends on a long rest | BG3 has no exhaustion; SRD levels 2-6 add bookkeeping with no BG3 counterpart
+M1.5 unconscious | no separate prone instance; attacks against have advantage (melee and ranged), melee hits crit | BG3 downed behaviour; SRD ranged-vs-prone disadvantage would cancel the advantage
+M1.5 frightened/charmed | the source is assumed in sight; "cannot move closer" and the charmer's social advantage are DM-adjudicated | zones have no line of sight
+M1.5 blinded/deafened | sight/hearing-based checks auto-fail by DM adjudication, not data | no perception model in zones
+M1.5 combat end | ROUNDS durations expire when combat ends; until_long_rest and until_removed persist | 1-minute effects are combat-scale; v1 wiped every condition (SPEC 13)
+M1.5 auto-fail saves | paralyzed/petrified/stunned/unconscious STR and DEX saves still roll for display but fail | SRD 5.1 Conditions
+M1.5 concentration | CON save DC max(10, DamageTaken.total // 2) per damage instance (temp-HP-absorbed damage counts); dead or incapacitated ends it with no roll; surprised does not | SRD 5.1 Concentration
+M1.5 extras | dodging (SRD Dodge action, until start of own next turn), hidden (SRD unseen attacker), surprised (BG3: no move/action/reaction until the end of its first turn) as non-SRD condition data | M3.2/M3.3 need them

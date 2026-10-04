@@ -5,7 +5,8 @@ Public API:
   with `source_id="zero_hp"`; healing above 0 removes exactly that instance.
 - `uses_death_saves(creature) -> bool`: `creature.death_saves`, or PC-only when it is None.
 - `damage_after_defenses(creature, packet) -> int`: SRD 5.1 "Damage Resistance and
-  Vulnerability": immunity -> 0; resistance halves (round down); vulnerability doubles; with both
+  Vulnerability" (the creature's own defences plus those its conditions grant, e.g. petrified):
+  immunity -> 0; resistance halves (round down); vulnerability doubles; with both
   resistance and vulnerability, halve then double. Negative raw amounts clamp to 0 first.
 - `resolve_damage(target, packets, *, crit=False, source_id=None) -> list[AnyEvent]`: one hit or
   source of damage (all its typed packets together). Emits, in order: `DamageTaken` (log, with
@@ -37,6 +38,7 @@ from aidm.models.events import (
     TempHpSet,
 )
 from aidm.models.state import ActiveCondition, Creature, CreatureKind
+from aidm.rules.conditions import condition_immune, condition_resists_all
 
 UNCONSCIOUS = "unconscious"
 ZERO_HP_SOURCE = "zero_hp"
@@ -51,9 +53,9 @@ def uses_death_saves(creature: Creature) -> bool:
 
 def damage_after_defenses(creature: Creature, packet: DamagePacket) -> int:
     amount = max(0, packet.amount)
-    if packet.damage_type in creature.immunities:
+    if packet.damage_type in creature.immunities or condition_immune(creature, packet.damage_type):
         return 0
-    if packet.damage_type in creature.resistances:
+    if packet.damage_type in creature.resistances or condition_resists_all(creature):
         amount //= 2
     if packet.damage_type in creature.vulnerabilities:
         amount *= 2

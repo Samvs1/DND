@@ -9,12 +9,22 @@ from hypothesis import strategies as st
 
 from aidm.models.abilities import Ability, Skill
 from aidm.models.checks import DcTier
+from aidm.models.conditions import (
+    Concentration,
+    ConditionDuration,
+    ConditionLink,
+    SaveEnds,
+    TurnBoundary,
+)
 from aidm.models.damage import DamagePart, DamageType
 from aidm.models.events import (
     AnyEvent,
     CheckResolved,
+    ConcentrationEnded,
+    ConcentrationStarted,
     ConditionApplied,
     ConditionRemoved,
+    ConditionTicked,
     CreatureAdded,
     CreatureDied,
     CreatureRemoved,
@@ -69,10 +79,22 @@ def _temp(data: st.DataObject, c: Creature) -> AnyEvent:
 
 
 def _cond_on(data: st.DataObject, c: Creature) -> AnyEvent:
+    rounds = data.draw(st.one_of(st.none(), st.integers(0, 10)))
+    if rounds is None:
+        duration = data.draw(
+            st.sampled_from([ConditionDuration.UNTIL_REMOVED, ConditionDuration.UNTIL_LONG_REST])
+        )
+    else:
+        duration = ConditionDuration.ROUNDS
+    save = data.draw(st.sampled_from([None, SaveEnds(ability=Ability.WIS, dc=13)]))
     cond = ActiveCondition(
         name=data.draw(st.sampled_from(CONDITIONS)),
         source_id=data.draw(st.sampled_from(SOURCES)),
-        rounds_left=data.draw(st.one_of(st.none(), st.integers(0, 10))),
+        duration=duration,
+        rounds_left=rounds,
+        tick_on=data.draw(st.sampled_from(list(TurnBoundary))),
+        tick_creature_id=data.draw(st.sampled_from(SOURCES)),
+        save_ends=save,
     )
     return ConditionApplied(creature_id=c.id, condition=cond)
 
@@ -82,6 +104,37 @@ def _cond_off(data: st.DataObject, c: Creature) -> AnyEvent:
         creature_id=c.id,
         name=data.draw(st.sampled_from(CONDITIONS)),
         source_id=data.draw(st.sampled_from(SOURCES)),
+        exact_source=data.draw(st.booleans()),
+    )
+
+
+def _cond_tick(data: st.DataObject, c: Creature) -> AnyEvent:
+    ticking = [x for x in c.conditions if x.rounds_left is not None]
+    if not ticking:
+        return _cond_on(data, c)
+    target = data.draw(st.sampled_from(ticking))
+    return ConditionTicked(
+        creature_id=c.id,
+        name=target.name,
+        source_id=target.source_id,
+        rounds_left=data.draw(st.integers(1, 10)),
+    )
+
+
+def _conc_on(data: st.DataObject, c: Creature) -> AnyEvent:
+    links = data.draw(
+        st.lists(
+            st.builds(
+                ConditionLink,
+                creature_id=st.sampled_from(["c0", "c1", "c2"]),
+                name=st.sampled_from(CONDITIONS),
+            ),
+            max_size=3,
+        )
+    )
+    spell = data.draw(st.sampled_from(["bless", "hold-person", "hex"]))
+    return ConcentrationStarted(
+        creature_id=c.id, concentration=Concentration(spell_id=spell, links=tuple(links))
     )
 
 
@@ -142,6 +195,9 @@ TARGETED: list[Callable[[st.DataObject, Creature], AnyEvent]] = [
     _temp,
     _cond_on,
     _cond_off,
+    _cond_tick,
+    _conc_on,
+    lambda _d, c: ConcentrationEnded(creature_id=c.id, spell_id="bless", reason="test"),
     _death_save,
     _dice,
     _check,

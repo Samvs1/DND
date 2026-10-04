@@ -23,8 +23,11 @@ from typing import assert_never
 from aidm.models.events import (
     AnyEvent,
     CheckResolved,
+    ConcentrationEnded,
+    ConcentrationStarted,
     ConditionApplied,
     ConditionRemoved,
+    ConditionTicked,
     CreatureAdded,
     CreatureDied,
     CreatureRemoved,
@@ -66,12 +69,27 @@ def _apply_condition(creature: Creature, condition: ActiveCondition) -> None:
     creature.conditions = kept
 
 
-def _remove_condition(creature: Creature, name: str, source_id: str | None) -> None:
+def _remove_condition(creature: Creature, event: ConditionRemoved) -> None:
+    name, source_id = event.name, event.source_id
+    if event.exact_source:
+        creature.conditions = [
+            c for c in creature.conditions if (c.name, c.source_id) != (name, source_id)
+        ]
+        return
     creature.conditions = [
         c
         for c in creature.conditions
         if c.name != name or (source_id is not None and c.source_id != source_id)
     ]
+
+
+def _tick_condition(creature: Creature, event: ConditionTicked) -> None:
+    key = (event.name, event.source_id)
+    for i, c in enumerate(creature.conditions):
+        if (c.name, c.source_id) == key and c.rounds_left is not None:
+            creature.conditions[i] = c.model_copy(update={"rounds_left": event.rounds_left})
+            return
+    raise ReducerError(f"{creature.id!r} has no ROUNDS condition {key!r} to tick")
 
 
 def apply(state: GameState, event: AnyEvent) -> GameState:
@@ -87,8 +105,14 @@ def apply(state: GameState, event: AnyEvent) -> GameState:
             _creature(state, cid).temp_hp = temp_hp
         case ConditionApplied(creature_id=cid, condition=condition):
             _apply_condition(_creature(state, cid), condition)
-        case ConditionRemoved(creature_id=cid, name=name, source_id=source_id):
-            _remove_condition(_creature(state, cid), name, source_id)
+        case ConditionRemoved(creature_id=cid):
+            _remove_condition(_creature(state, cid), event)
+        case ConditionTicked(creature_id=cid):
+            _tick_condition(_creature(state, cid), event)
+        case ConcentrationStarted(creature_id=cid, concentration=concentration):
+            _creature(state, cid).concentrating_on = concentration
+        case ConcentrationEnded(creature_id=cid):
+            _creature(state, cid).concentrating_on = None
         case DeathSaveRolled(creature_id=cid, successes=successes, failures=failures):
             target = _creature(state, cid)
             target.death_save_successes = successes

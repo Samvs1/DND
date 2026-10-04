@@ -16,7 +16,8 @@ Design rules (binding for every new event):
 Public API:
 - Events: `CreatureAdded`, `CreatureRemoved`, `HpChanged`, `TempHpSet`, `ConditionApplied`,
   `ConditionRemoved`, `DeathSaveRolled`, `Stabilized`, `CreatureDied`, `DiceRolled`,
-  `CheckResolved`, `DamageTaken`, `DeathSavesSet`.
+  `CheckResolved`, `DamageTaken`, `DeathSavesSet`, `ConditionTicked`, `ConcentrationStarted`,
+  `ConcentrationEnded`.
 - `AnyEvent` (plain union), `Event` (union annotated with the `type` discriminator),
   `EVENT_TYPES` (every event class), `event_adapter` (`TypeAdapter` for validate/dump of `Event`).
 - `LoggedEvent(seq, event)`: the persisted envelope (events.jsonl line).
@@ -27,6 +28,7 @@ from typing import Annotated, Literal
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
 
 from aidm.models.checks import CheckResult
+from aidm.models.conditions import Concentration
 from aidm.models.damage import DamagePart
 from aidm.models.dice import D20Roll, Roll
 from aidm.models.state import ActiveCondition, Creature
@@ -76,12 +78,44 @@ class ConditionApplied(_EventBase):
 
 
 class ConditionRemoved(_EventBase):
-    """Remove instances of `name`; only those from `source_id` when it is given."""
+    """Remove instances of `name`; only those from `source_id` when it is given.
+
+    With `exact_source=True` only the instance whose source equals `source_id` (None included) is
+    removed: duration expiry and save-ends remove exactly one instance.
+    """
 
     type: Literal["condition_removed"] = "condition_removed"
     creature_id: str
     name: str
     source_id: str | None = None
+    exact_source: bool = False
+
+
+class ConditionTicked(_EventBase):
+    """The (name, source_id) instance's ROUNDS duration counted down to `rounds_left` (>= 1)."""
+
+    type: Literal["condition_ticked"] = "condition_ticked"
+    creature_id: str
+    name: str
+    source_id: str | None = None
+    rounds_left: int = Field(ge=1)
+
+
+class ConcentrationStarted(_EventBase):
+    """The creature now concentrates on `concentration` (any previous one already ended)."""
+
+    type: Literal["concentration_started"] = "concentration_started"
+    creature_id: str
+    concentration: Concentration
+
+
+class ConcentrationEnded(_EventBase):
+    """The creature's concentration ended; its linked conditions were removed by earlier events."""
+
+    type: Literal["concentration_ended"] = "concentration_ended"
+    creature_id: str
+    spell_id: str
+    reason: str = ""
 
 
 class DeathSaveRolled(_EventBase):
@@ -174,6 +208,9 @@ type AnyEvent = (
     | CheckResolved
     | DamageTaken
     | DeathSavesSet
+    | ConditionTicked
+    | ConcentrationStarted
+    | ConcentrationEnded
 )
 
 Event = Annotated[AnyEvent, Field(discriminator="type")]
@@ -192,6 +229,9 @@ EVENT_TYPES: tuple[type[BaseModel], ...] = (
     CheckResolved,
     DamageTaken,
     DeathSavesSet,
+    ConditionTicked,
+    ConcentrationStarted,
+    ConcentrationEnded,
 )
 
 event_adapter: TypeAdapter[AnyEvent] = TypeAdapter(Event)
