@@ -1,0 +1,16 @@
+{
+  "index": "fire-bolt",
+  "level": 0,
+  "school": "evocation",
+  "classes": ["sorcerer", "wizard"],
+  "casting_time": "action",
+  "range": {"kind": "feet", "feet": 120},
+  "targeting": {"kind": "creature"},
+  "effects": [
+    {
+      "type": "attack_roll",
+      "attack": "ranged",
+      "on_hit": [{"type": "damage", "dice": "1d10", "damage_type": "fire", "cantrip_scaling": true}]
+    }
+  ]
+}

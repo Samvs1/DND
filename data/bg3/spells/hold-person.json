@@ -1,0 +1,19 @@
+{
+  "index": "hold-person",
+  "level": 2,
+  "school": "enchantment",
+  "classes": ["bard", "cleric", "druid", "sorcerer", "warlock", "wizard"],
+  "casting_time": "action",
+  "range": {"kind": "feet", "feet": 60},
+  "concentration": true,
+  "duration_rounds": 10,
+  "targeting": {"kind": "creatures", "count": 1, "count_per_slot": 1},
+  "effects": [
+    {
+      "type": "save",
+      "ability": "wis",
+      "on_fail": [{"type": "apply_condition", "condition": "paralyzed", "save_ends": "wis"}],
+      "on_success": "none"
+    }
+  ]
+}

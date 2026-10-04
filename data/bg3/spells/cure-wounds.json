@@ -1,0 +1,10 @@
+{
+  "index": "cure-wounds",
+  "level": 1,
+  "school": "evocation",
+  "classes": ["bard", "cleric", "druid", "paladin", "ranger"],
+  "casting_time": "action",
+  "range": {"kind": "touch"},
+  "targeting": {"kind": "creature"},
+  "effects": [{"type": "heal", "dice": "1d8", "add_modifier": true, "upcast_dice": "1d8"}]
+}

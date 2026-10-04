@@ -1,0 +1,17 @@
+{
+  "index": "sacred-flame",
+  "level": 0,
+  "school": "evocation",
+  "classes": ["cleric"],
+  "casting_time": "action",
+  "range": {"kind": "feet", "feet": 60},
+  "targeting": {"kind": "creature"},
+  "effects": [
+    {
+      "type": "save",
+      "ability": "dex",
+      "on_fail": [{"type": "damage", "dice": "1d8", "damage_type": "radiant", "cantrip_scaling": true}],
+      "on_success": "none"
+    }
+  ]
+}

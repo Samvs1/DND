@@ -161,5 +161,20 @@
     "own_checks": "advantage",
     "consumed_by_attack": true,
     "duration": {"kind": "rounds", "rounds": 1, "tick_on": "start_of_turn"}
+  },
+  {
+    "index": "blessed",
+    "name": "Blessed",
+    "source": "SRD 5.1 Bless (add 1d4 to attack rolls and saving throws)",
+    "srd_condition": false,
+    "attack_dice": "1d4",
+    "save_dice": "1d4"
+  },
+  {
+    "index": "shield-of-faith",
+    "name": "Shield of Faith",
+    "source": "SRD 5.1 Shield of Faith (+2 AC)",
+    "srd_condition": false,
+    "ac_bonus": 2
   }
 ]

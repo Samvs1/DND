@@ -1,0 +1,12 @@
+{
+  "index": "shield-of-faith",
+  "level": 1,
+  "school": "abjuration",
+  "classes": ["cleric", "paladin"],
+  "casting_time": "bonus_action",
+  "range": {"kind": "feet", "feet": 60},
+  "concentration": true,
+  "duration_rounds": 100,
+  "targeting": {"kind": "creature"},
+  "effects": [{"type": "ac_buff", "condition": "shield-of-faith"}]
+}

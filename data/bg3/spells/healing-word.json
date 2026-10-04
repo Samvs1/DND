@@ -1,0 +1,10 @@
+{
+  "index": "healing-word",
+  "level": 1,
+  "school": "evocation",
+  "classes": ["bard", "cleric", "druid"],
+  "casting_time": "bonus_action",
+  "range": {"kind": "feet", "feet": 60},
+  "targeting": {"kind": "creature"},
+  "effects": [{"type": "heal", "dice": "1d4", "add_modifier": true, "upcast_dice": "1d4"}]
+}

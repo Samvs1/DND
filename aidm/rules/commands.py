@@ -8,8 +8,9 @@ Invalid input raises `CommandRefused(code, reason)` before any event exists, so 
 (`EconomyRefused`, `EncounterRefused`, `ZoneError`) are converted to `CommandRefused` here.
 
 Per-command rules live in `rules.combat_moves` (move, dash, disengage, jump, shove),
-`rules.combat_actions` (attack, throw, hide, help, dodge), `rules.items` (use_item) and the
-spell DSL (cast). `end_turn` closes the actor's turn via `rules.turns.end_turn`.
+`rules.combat_actions` (attack, throw, hide, help, dodge), `rules.items` (use_item) and
+`rules.spells` (cast, the spell effect DSL). `end_turn` closes the actor's turn via
+`rules.turns.end_turn`.
 
 Public API: `execute_command(state, command, regs, rng) -> list[AnyEvent]`.
 """
@@ -29,7 +30,6 @@ from aidm.models.commands import (
     HideCommand,
     JumpCommand,
     MoveCommand,
-    RefusalCode,
     ShoveCommand,
     ThrowCommand,
     UseItemCommand,
@@ -50,10 +50,11 @@ from aidm.rules.combat_moves import (
     move_command,
     shove_command,
 )
-from aidm.rules.command_checks import CommandRefused, acting, refusal_from
+from aidm.rules.command_checks import acting, refusal_from
 from aidm.rules.dice import Rng
 from aidm.rules.encounter import EncounterRefused
 from aidm.rules.items import use_item_command
+from aidm.rules.spells import cast_command
 from aidm.rules.turns import EconomyRefused, end_turn
 from aidm.rules.zones import ZoneError
 
@@ -63,11 +64,6 @@ def _end_turn(state: GameState, cmd: EndTurnCommand, rng: Rng) -> list[AnyEvent]
     return end_turn(rng, state)
 
 
-def _cast(state: GameState, cmd: CastCommand) -> list[AnyEvent]:
-    acting(state, cmd.actor_id)
-    raise CommandRefused(RefusalCode.UNKNOWN_SPELL, "Spellcasting is not available yet.")
-
-
 def _dispatch(
     state: GameState, command: AnyCommand, regs: CombatRegistries, rng: Rng
 ) -> list[AnyEvent]:
@@ -75,7 +71,7 @@ def _dispatch(
         case AttackCommand():
             return attack_command(state, command, regs, rng)
         case CastCommand():
-            return _cast(state, command)
+            return cast_command(state, command, regs, rng)
         case MoveCommand():
             return move_command(state, command, regs)
         case DashCommand():

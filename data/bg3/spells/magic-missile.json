@@ -1,0 +1,10 @@
+{
+  "index": "magic-missile",
+  "level": 1,
+  "school": "evocation",
+  "classes": ["sorcerer", "wizard"],
+  "casting_time": "action",
+  "range": {"kind": "feet", "feet": 120},
+  "targeting": {"kind": "creatures", "count": 3, "count_per_slot": 1, "repeat": true},
+  "effects": [{"type": "damage", "dice": "1d4+1", "damage_type": "force"}]
+}

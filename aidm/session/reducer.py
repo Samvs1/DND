@@ -23,7 +23,7 @@ from collections.abc import Iterable
 from typing import assert_never
 
 from aidm.models.character import InventoryItem, PcData
-from aidm.models.combat_events import AttackRolled, CombatantMoved
+from aidm.models.combat_events import AttackRolled, CombatantMoved, SpellCast, ZoneSurfaceAdded
 from aidm.models.encounter_events import (
     CombatantWithdrew,
     EconomyChanged,
@@ -229,9 +229,10 @@ def apply(state: GameState, event: AnyEvent) -> GameState:
             | CombatantWithdrew()
             | EncounterEnded()
             | CombatantMoved()
+            | ZoneSurfaceAdded()
         ):
             apply_encounter_event(state, event)
-        case DiceRolled() | CheckResolved() | DamageTaken() | AttackRolled():
+        case DiceRolled() | CheckResolved() | DamageTaken() | AttackRolled() | SpellCast():
             pass
         case _:
             assert_never(event)

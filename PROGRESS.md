@@ -1,4 +1,4 @@
-NEXT: M3.4 Spell effect DSL (wire CastCommand in rules/commands.py to the interpreter). Delegate to hard-engineer. Files in flight: none. Last gate: M3.3 GATE PASS 8/8.
+NEXT: M3.5 Spells batch 1. Delegate to mechanical-engineer. Last gate: M3.4 GATE PASS 8/8.
 
 # PROGRESS
 
@@ -41,7 +41,7 @@ Stashes and blockers: record them in the Notes section at the bottom.
 - [x] M3.1 **H** Zones: model (3-6 zones, adjacency, distance label, cover, high ground, surfaces slot), seeded generation from terrain tags, movement cost per hop, range bands, high-ground adv/disadv. Gate: pytest rules.
 - [x] M3.2 **H** Encounter lifecycle: start (surprise), 1d4+DEX initiative, turn order, action/bonus/movement/reaction state, end turn, victory/flee/party wipe, CR budget builder. Gate: pytest rules.
 - [x] M3.3 **H** Commands: attack (melee/ranged/finesse/crit double dice/nat 1), `rules.hit_chance` preview, dash, disengage, bonus-action shove/jump, hide, help, throw, use_item (potion bonus action, give to adjacent ally); `test_v1_potion_full_hp_refused_not_consumed`, `test_v1_invalid_input_never_consumes_turn`. Gate: pytest rules. (commit see git log, `WIP M3.3`)
-- [ ] M3.4 **H** Spell effect DSL: schema plus ONE interpreter (attack_roll, save half/none/condition, typed damage with upcast, heal, apply/remove_condition, temp_hp, ac_buff, surface, multi_target), slot validation, upcasting, concentration hookup; 10 spells with goldens. Gate: pytest rules.
+- [x] M3.4 **H** Spell effect DSL: schema plus ONE interpreter (attack_roll, save half/none/condition, typed damage with upcast, heal, apply/remove_condition, temp_hp, ac_buff, surface, multi_target), slot validation, upcasting, concentration hookup; 10 spells with goldens. Gate: pytest rules. (commit see git log, `WIP M3.4`)
 - [ ] M3.5 **M** Spell content batch 1: all cantrips and level 1 for the 6 classes' lists as DSL JSON, a golden test each. Gate: pytest spells.
 - [ ] M3.6 **M** Spell content batch 2: levels 2-3 until >=50 shipped; unsupported spells listed in RULES_DECISIONS and hidden from pickers. Gate: pytest spells plus a count assertion >=50.
 - [ ] M3.7 **H** Surfaces lite: `data/bg3/surfaces.json` (fire, oil/grease, water, ice, poison cloud), interactions (fire+oil, water+lightning, water+cold, fire clears ice/water), turn-start and enter triggers, attached to zones. Gate: pytest rules.
@@ -130,5 +130,6 @@ If the API rejects the key or needs organisation verification: stop M10 generati
 
 ## Notes (stashes, blockers, decisions pending)
 - M2.4 resolved the M2.2 deferred hooks (hill dwarf HP, racial resistances, life domain heavy armor, rogue expertise, domain/patron spells). Unsupported feature mechanics are listed in RULES_DECISIONS M2.4 for M3 (reactions, DSL effects).
+- M3.4: spells are data/bg3/spells/<index>.json read by ONE interpreter (rules/spells.py, spell_effects.py, spell_targets.py); authoring guide in docs/DECISIONS.md ("Spell DSL authoring guide"); goldens in tests/unit/rules/test_golden_spells.py with spell_fixtures.py.
 - M3.3: commands enter via `rules.commands.execute_command`; refusals are `CommandRefused(code, reason)`; one attack path (`rules.attacks`, `AttackProfile`) shared with the hit-chance preview (DECISIONS M3.3).
 - M3.2: combat state model documented in docs/DECISIONS.md ("Combat state model"). models/events.py is at 393 lines: new M3.3+ events go in their own models module (like models/encounter_events.py) and only join the union in events.py.

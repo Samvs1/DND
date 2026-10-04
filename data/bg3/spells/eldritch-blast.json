@@ -1,0 +1,20 @@
+{
+  "index": "eldritch-blast",
+  "level": 0,
+  "school": "evocation",
+  "classes": ["warlock"],
+  "casting_time": "action",
+  "range": {"kind": "feet", "feet": 120},
+  "targeting": {
+    "kind": "creatures",
+    "count_by_character_level": {"1": 1, "5": 2, "11": 3, "17": 4},
+    "repeat": true
+  },
+  "effects": [
+    {
+      "type": "attack_roll",
+      "attack": "ranged",
+      "on_hit": [{"type": "damage", "dice": "1d10", "damage_type": "force"}]
+    }
+  ]
+}

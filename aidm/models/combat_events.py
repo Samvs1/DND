@@ -8,6 +8,9 @@ Public API:
 - `CombatantMoved(creature_id, from_zone, to_zone, path, feet, reason)`: the combatant now
   stands in `to_zone` ("move", "jump", "shoved"); `path` lists the zones from start to goal and
   `feet` the movement it cost (0 when pushed). Applied by `aidm.session.encounter_apply`.
+- `SpellCast(caster_id, spell_id, cast_level, target_ids, target_zone)`: a spell was cast (log
+  only; the slot, effects and concentration events follow). `cast_level` 0 for a cantrip.
+- `ZoneSurfaceAdded(zone_id, surface)`: a surface now lies in the zone (M3.7 gives it effects).
 """
 
 from typing import Literal
@@ -15,6 +18,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from aidm.models.dice import D20Roll, Roll
+from aidm.models.zones import ZoneSurface
 
 
 class _CombatEvent(BaseModel):
@@ -41,3 +45,18 @@ class CombatantMoved(_CombatEvent):
     path: tuple[str, ...] = ()
     feet: int = Field(default=0, ge=0)
     reason: str = "move"
+
+
+class SpellCast(_CombatEvent):
+    type: Literal["spell_cast"] = "spell_cast"
+    caster_id: str
+    spell_id: str
+    cast_level: int = Field(default=0, ge=0, le=9)
+    target_ids: tuple[str, ...] = ()
+    target_zone: str | None = None
+
+
+class ZoneSurfaceAdded(_CombatEvent):
+    type: Literal["zone_surface_added"] = "zone_surface_added"
+    zone_id: str
+    surface: ZoneSurface

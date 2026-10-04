@@ -1,0 +1,221 @@
+"""Spell casting checks before any event: caster numbers, the slot, and the targets in range.
+
+All functions raise `CommandRefused` for invalid input, so a refused cast consumes nothing.
+
+Public API:
+- `CasterNumbers(save_dc, attack_bonus, modifier, resource)`; `caster_numbers(creature, spell_id,
+  regs) -> CasterNumbers`: the spell must be on the caster's sheet and prepared (cantrips,
+  known spells, prepared or always-prepared domain spells, racial spells); numbers come from
+  the ONE sheet builder (`rules.sheet_spells.spellcasting_block`). `resource` names the
+  per-rest resource of an innate (racial) spell.
+- `cast_slot(creature, spell, slot_level, resource) -> tuple[int, list[AnyEvent]]`: the cast
+  level and the spend events: cantrips are free (level 0, no slot allowed); an innate spell
+  with its resource left spends that; otherwise `rules.spellcasting.choose_slot/spend_slot`
+  (the lowest usable slot, or exactly `slot_level` to upcast).
+- `instance_count(spell, cast_level, char_level) -> int`: how many target instances the
+  targeting block allows at this cast (count + count_per_slot per level above, or the cantrip
+  table by character level).
+- `spell_band(spell) -> RangeBand`: self and touch = the same zone, feet = its range band.
+- `area_creatures(state, zone_id, area, exclude) -> tuple[str, ...]`: living, present
+  combatants in the zone (and its neighbours for "zone_and_adjacent").
+- `SpellTargets(instances, zone, chosen)`; `resolve_targets(state, caster_id, spell, cast_level,
+  char_level, target_ids, target_zone) -> SpellTargets`: validated targets. Outside an active
+  fight there are no zones: range is not checked, and spells with an attack roll, a save or
+  damage (hostile acts start a fight first) and area spells are refused.
+"""
+
+from collections.abc import Collection, Sequence
+from dataclasses import dataclass
+
+from aidm.data.character_data import CharacterRegistries
+from aidm.data.spell_defs import (
+    AreaKey,
+    AttackRollEffect,
+    DamageEffect,
+    Effect,
+    SaveEffect,
+    SpellDef,
+)
+from aidm.models.commands import RefusalCode
+from aidm.models.encounter import Encounter, EncounterStatus
+from aidm.models.events import AnyEvent
+from aidm.models.sheet import SpellLine
+from aidm.models.state import Creature, GameState
+from aidm.models.zones import RangeBand
+from aidm.rules.abilities import ability_modifier
+from aidm.rules.command_checks import CommandRefused
+from aidm.rules.features import dice_at_level
+from aidm.rules.resources import resource_left, spend_resource
+from aidm.rules.sheet_spells import spellcasting_block
+from aidm.rules.spellcasting import SlotError, choose_slot, spend_slot
+from aidm.rules.zones import MELEE_BAND, range_band, zone_neighbors, zone_range_check
+
+
+@dataclass(frozen=True)
+class CasterNumbers:
+    save_dc: int
+    attack_bonus: int
+    modifier: int
+    resource: str | None = None
+
+
+@dataclass(frozen=True)
+class SpellTargets:
+    instances: tuple[str, ...]
+    zone: str | None = None
+    chosen: tuple[str, ...] = ()
+
+
+def _refuse(code: RefusalCode, reason: str) -> CommandRefused:
+    return CommandRefused(code, reason)
+
+
+def caster_numbers(creature: Creature, spell_id: str, regs: CharacterRegistries) -> CasterNumbers:
+    block = spellcasting_block(creature, regs)
+    if block is None:
+        raise _refuse(RefusalCode.NOT_A_CASTER, "You cannot cast spells.")
+    lines: list[SpellLine] = [*block.cantrips, *(s for g in block.levels for s in g.spells)]
+    line = next((s for s in lines if s.index == spell_id), None)
+    if line is None or not line.prepared:
+        raise _refuse(RefusalCode.SPELL_NOT_READY, "You do not have that spell ready.")
+    return CasterNumbers(
+        save_dc=block.save_dc,
+        attack_bonus=block.attack_bonus,
+        modifier=ability_modifier(creature.abilities[block.ability]),
+        resource=line.resource,
+    )
+
+
+def cast_slot(
+    creature: Creature, spell: SpellDef, slot_level: int | None, resource: str | None
+) -> tuple[int, list[AnyEvent]]:
+    if spell.level == 0:
+        if slot_level is not None:
+            raise _refuse(RefusalCode.NO_SLOT, "Cantrips do not use spell slots.")
+        return 0, []
+    if resource and slot_level is None and resource_left(creature, resource) > 0:
+        return spell.level, spend_resource(creature, resource)
+    try:
+        ref = choose_slot(creature, spell.level, slot_level)
+        return ref.level, spend_slot(creature, spell.level, slot_level)
+    except SlotError:
+        raise _refuse(RefusalCode.NO_SLOT, "You have no spell slot left for that.") from None
+
+
+def instance_count(spell: SpellDef, cast_level: int, char_level: int) -> int:
+    targeting = spell.targeting
+    if targeting.count_by_character_level:
+        table = {lvl: str(n) for lvl, n in targeting.count_by_character_level.items()}
+        return int(dice_at_level(table, char_level) or targeting.count)
+    return targeting.count + targeting.count_per_slot * max(0, cast_level - spell.level)
+
+
+def spell_band(spell: SpellDef) -> RangeBand:
+    if spell.range.kind == "feet" and spell.range.feet is not None:
+        return range_band(spell.range.feet)
+    return MELEE_BAND
+
+
+def _active(state: GameState) -> Encounter | None:
+    enc = state.encounter
+    return enc if enc is not None and enc.status is EncounterStatus.ACTIVE else None
+
+
+def area_creatures(
+    state: GameState, zone_id: str, area: AreaKey, exclude: Collection[str]
+) -> tuple[str, ...]:
+    enc = _active(state)
+    if enc is None:
+        return ()
+    zones = {zone_id}
+    if area == "zone_and_adjacent":
+        zones |= {z for z, _ in zone_neighbors(enc.zone_map, zone_id)}
+    found: list[str] = []
+    for cid, combatant in enc.combatants.items():
+        creature = state.creatures.get(cid)
+        if creature is None or creature.dead or combatant.withdrawn is not None:
+            continue
+        if combatant.zone_id in zones and cid not in exclude:
+            found.append(cid)
+    return tuple(found)
+
+
+def _needs_fight(effects: Sequence[Effect]) -> bool:
+    return any(isinstance(e, (AttackRollEffect, SaveEffect, DamageEffect)) for e in effects)
+
+
+def _check_creature(
+    state: GameState, enc: Encounter | None, caster_id: str, cid: str, band: RangeBand
+) -> None:
+    creature = state.creatures.get(cid)
+    if creature is None:
+        raise _refuse(RefusalCode.UNKNOWN_TARGET, "There is no one like that here.")
+    if creature.dead:
+        raise _refuse(RefusalCode.INVALID_TARGET, f"It is too late for {creature.name}.")
+    if enc is None:
+        return
+    combatant = enc.combatants.get(cid)
+    if combatant is None or combatant.withdrawn is not None:
+        raise _refuse(RefusalCode.INVALID_TARGET, f"{creature.name} is not in this fight.")
+    start = enc.combatant(caster_id).zone_id
+    if not zone_range_check(enc.zone_map, start, combatant.zone_id, band).in_range:
+        raise _refuse(RefusalCode.OUT_OF_RANGE, f"{creature.name} is out of range.")
+
+
+def _area_targets(
+    state: GameState,
+    enc: Encounter | None,
+    caster_id: str,
+    spell: SpellDef,
+    target_zone: str | None,
+) -> SpellTargets:
+    if enc is None:
+        raise _refuse(RefusalCode.NOT_IN_COMBAT, "That spell needs a battlefield.")
+    start = enc.combatant(caster_id).zone_id
+    zone = start if spell.range.kind == "self" else target_zone
+    if zone is None or not enc.zone_map.has_zone(zone):
+        raise _refuse(RefusalCode.UNKNOWN_ZONE, "Choose an area for that spell.")
+    if not zone_range_check(enc.zone_map, start, zone, spell_band(spell)).in_range:
+        raise _refuse(RefusalCode.OUT_OF_RANGE, "That area is out of range.")
+    area = spell.targeting.area or "zone"
+    return SpellTargets(instances=area_creatures(state, zone, area, {caster_id}), zone=zone)
+
+
+def _picked(spell: SpellDef, target_ids: Sequence[str], allowed: int) -> tuple[str, ...]:
+    if not target_ids:
+        raise _refuse(RefusalCode.BAD_TARGETS, "Choose a target.")
+    if len(target_ids) > allowed:
+        raise _refuse(RefusalCode.BAD_TARGETS, f"Choose at most {allowed} target(s).")
+    if spell.targeting.repeat:
+        return tuple(target_ids[i % len(target_ids)] for i in range(allowed))
+    if len(set(target_ids)) != len(target_ids):
+        raise _refuse(RefusalCode.BAD_TARGETS, "Each creature can only be chosen once.")
+    return tuple(target_ids)
+
+
+def resolve_targets(
+    state: GameState,
+    caster_id: str,
+    spell: SpellDef,
+    cast_level: int,
+    char_level: int,
+    target_ids: Sequence[str],
+    target_zone: str | None,
+) -> SpellTargets:
+    enc = _active(state)
+    if enc is not None and caster_id not in enc.combatants:
+        enc = None
+    kind = spell.targeting.kind
+    if enc is None and _needs_fight(spell.effects):
+        raise _refuse(RefusalCode.NOT_IN_COMBAT, "That spell needs a battlefield.")
+    if kind == "area":
+        return _area_targets(state, enc, caster_id, spell, target_zone)
+    if kind == "self":
+        if any(t != caster_id for t in target_ids):
+            raise _refuse(RefusalCode.BAD_TARGETS, "That spell only affects you.")
+        return SpellTargets(instances=(caster_id,), chosen=(caster_id,))
+    allowed = 1 if kind == "creature" else instance_count(spell, cast_level, char_level)
+    instances = _picked(spell, target_ids, allowed)
+    for cid in dict.fromkeys(instances):
+        _check_creature(state, enc, caster_id, cid, spell_band(spell))
+    return SpellTargets(instances=instances, chosen=tuple(target_ids))

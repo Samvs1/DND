@@ -1,0 +1,12 @@
+{
+  "index": "bless",
+  "level": 1,
+  "school": "enchantment",
+  "classes": ["cleric", "paladin"],
+  "casting_time": "action",
+  "range": {"kind": "feet", "feet": 30},
+  "concentration": true,
+  "duration_rounds": 10,
+  "targeting": {"kind": "creatures", "count": 3, "count_per_slot": 1},
+  "effects": [{"type": "apply_condition", "condition": "blessed"}]
+}

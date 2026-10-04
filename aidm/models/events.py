@@ -22,7 +22,7 @@ Public API:
   `GoldChanged`, `InventoryChanged`, and the encounter events of `aidm.models.encounter_events`
   (`EncounterStarted`, `TurnStarted`, `TurnEnded`, `EconomyChanged`, `CombatantWithdrew`,
   `EncounterEnded`), and the combat events of `aidm.models.combat_events` (`AttackRolled`,
-  `CombatantMoved`).
+  `CombatantMoved`, `SpellCast`, `ZoneSurfaceAdded`).
 - `AnyEvent` (plain union), `Event` (union annotated with the `type` discriminator),
   `EVENT_TYPES` (every event class, derived from the union), `event_adapter` (`TypeAdapter`
   for validate/dump of `Event`).
@@ -36,7 +36,12 @@ from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
 from aidm.models.abilities import Ability, Skill
 from aidm.models.character import PcData
 from aidm.models.checks import CheckResult
-from aidm.models.combat_events import AttackRolled, CombatantMoved
+from aidm.models.combat_events import (
+    AttackRolled,
+    CombatantMoved,
+    SpellCast,
+    ZoneSurfaceAdded,
+)
 from aidm.models.conditions import Concentration
 from aidm.models.damage import DamagePart, DamageType
 from aidm.models.dice import D20Roll, Roll
@@ -347,6 +352,8 @@ type AnyEvent = (
     | EncounterEnded
     | AttackRolled
     | CombatantMoved
+    | SpellCast
+    | ZoneSurfaceAdded
 )
 
 Event = Annotated[AnyEvent, Field(discriminator="type")]
