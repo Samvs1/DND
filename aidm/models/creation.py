@@ -19,7 +19,8 @@ Public API:
 - `CreationErrorCode`, `CreationError(code, field, detail)`: one problem with one field. Level-up
   (`aidm.models.leveling`) reports its problems with the same type; its own codes are
   NOT_A_PC, CANNOT_LEVEL_NOW (dead or at 0 HP), MAX_LEVEL_REACHED, NOT_ENOUGH_XP,
-  SUBCLASS_INVALID, ASI_INVALID and REPLACEMENT_INVALID.
+  SUBCLASS_INVALID, ASI_INVALID and REPLACEMENT_INVALID; character import
+  (`aidm.rules.character_io`) adds IMPORT_INVALID (malformed or unsupported JSON).
 """
 
 from enum import StrEnum
@@ -91,6 +92,7 @@ class CreationErrorCode(StrEnum):
     SUBCLASS_INVALID = "subclass_invalid"
     ASI_INVALID = "asi_invalid"
     REPLACEMENT_INVALID = "replacement_invalid"
+    IMPORT_INVALID = "import_invalid"
 
 
 class CreationError(BaseModel):

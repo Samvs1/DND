@@ -1,4 +1,4 @@
-NEXT: M2.6 Per-class goldens (closes M2). Delegate to mechanical-engineer. Last gate: M2.5 GATE PASS 8/8.
+NEXT: M3.1 Zones. Delegate to hard-engineer. Last gate: M2 FULL GATE PASS 8/8.
 
 # PROGRESS
 
@@ -35,7 +35,7 @@ Stashes and blockers: record them in the Notes section at the bottom.
 - [x] M2.3 **H** The ONE spell-slot model (full, pact magic), known vs prepared, cantrip picks, spell DC and attack bonus. Gate: pytest rules.
 - [x] M2.4 **H** Feature hooks: data entries plus a generic hook interpreter (damage_rider, bonus_action, resource, fighting_style, expertise, resistance, advantage_on, extra_attack, sneak_attack, toggle). Gate: pytest rules. (commit b4b76a0)
 - [x] M2.5 **H** Level-up 1->5: XP table, HP gain, subclass at the right level, ASI, BG3-style spell learning, wizard scroll copy (rules only); derived sheet model (everything SPEC 8 lists). Gate: pytest rules.
-- [ ] M2.6 **M** Per-class goldens: AC, attack bonus, save DC, slots and HP at levels 1-5 for all 6 classes; JSON export/import round trip. FULL gate. Commit `M2: Characters`.
+- [x] M2.6 **M** Per-class goldens: AC, attack bonus, save DC, slots and HP at levels 1-5 for all 6 classes; JSON export/import round trip. FULL gate. Commit `M2: Characters`. (commit M2: Characters)
 
 ## M3 Combat (SPEC 6.1, 7.2-7.4)
 - [ ] M3.1 **H** Zones: model (3-6 zones, adjacency, distance label, cover, high ground, surfaces slot), seeded generation from terrain tags, movement cost per hop, range bands, high-ground adv/disadv. Gate: pytest rules.

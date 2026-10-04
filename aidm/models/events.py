@@ -253,8 +253,8 @@ class XpGained(_EventBase):
 class LevelGained(_EventBase):
     """The PC gained a level: every changed sheet value, resolved (`pc` is the new PcData).
 
-    Resource maxima (spell slots, feature pools) change through the `ResourceSet` /
-    `ResourceRemoved` events that follow it.
+    `ac` is the AC after the ASI (None leaves it unchanged). Resource maxima (spell slots,
+    feature pools) change through the `ResourceSet` / `ResourceRemoved` events that follow it.
     """
 
     type: Literal["level_gained"] = "level_gained"
@@ -269,6 +269,7 @@ class LevelGained(_EventBase):
     speed: int = Field(ge=0)
     darkvision: int = Field(ge=0)
     pc: PcData
+    ac: int | None = Field(default=None, ge=0)  # None keeps the current AC
 
 
 class SpellbookChanged(_EventBase):

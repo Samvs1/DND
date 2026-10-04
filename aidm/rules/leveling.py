@@ -11,10 +11,11 @@ Public API:
 - `validate_level_up(creature, choices, regs) -> list[CreationError]`: every problem; [] = valid.
 - `level_up(creature, choices, regs) -> list[AnyEvent]`: `LevelGained` (HP: fixed average + CON
   modifier per level with the new CON for every level, plus feature HP per level; current HP
-  rises by the same amount; proficiency bonus; new class/subclass features and class/feature
-  picks; ASI; spells), then the spell-slot (`slot_maximum_events`) and feature-resource
-  (`feature_resource_events`) changes. `LevelUpInvalid(errors)` for choices that do not validate
-  (nothing is produced, so nothing is consumed).
+  rises by the same amount; proficiency bonus; AC shifted by an ASI's effect on the armor
+  formula; new class/subclass features and class/feature picks; ASI; spells), then the spell-slot
+  (`slot_maximum_events`) and feature-resource (`feature_resource_events`) changes.
+  `LevelUpInvalid(errors)` for choices that do not validate (nothing is produced, so nothing is
+  consumed).
 """
 
 from collections.abc import Mapping
@@ -29,6 +30,7 @@ from aidm.models.leveling import LevelUpChoices
 from aidm.models.state import Creature
 from aidm.rules.abilities import ability_modifier, proficiency_bonus
 from aidm.rules.creation_checks import pick_errors
+from aidm.rules.defense import armor_class
 from aidm.rules.feature_build import (
     expertise_picks,
     feature_choice_errors,
@@ -202,6 +204,17 @@ def _new_pc(
     )
 
 
+def _ac_after_asi(
+    creature: Creature, abilities: Mapping[Ability, int], regs: CharacterRegistries
+) -> int:
+    """Current AC shifted by the change in the armor formula (keeps style and other bonuses)."""
+    equipped = creature.pc.equipped if creature.pc else None
+    armor = regs.equipment.get(equipped.armor) if equipped and equipped.armor else None
+    shield = regs.equipment.get(equipped.shield) if equipped and equipped.shield else None
+    before = armor_class(creature.abilities, armor=armor, shield=shield)
+    return creature.ac + armor_class(abilities, armor=armor, shield=shield) - before
+
+
 def level_up(
     creature: Creature, choices: LevelUpChoices, regs: CharacterRegistries
 ) -> list[AnyEvent]:
@@ -234,6 +247,7 @@ def level_up(
         speed=creature.speed + effects.speed - before.speed,
         darkvision=max(creature.darkvision, effects.darkvision),
         pc=pc,
+        ac=_ac_after_asi(creature, abilities, regs),
     )
     resources = slot_maximum_events(creature, cls, pc.level)
     return [gained, *resources, *feature_resource_events(creature, ids, pc.level, regs.features)]

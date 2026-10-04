@@ -127,6 +127,8 @@ def _level_gained(creature: Creature, event: LevelGained) -> None:
     creature.speed = event.speed
     creature.darkvision = event.darkvision
     creature.pc = event.pc.model_copy(deep=True)
+    if event.ac is not None:
+        creature.ac = event.ac
 
 
 def _set_item(pc: PcData, item: str, qty: int) -> None:
