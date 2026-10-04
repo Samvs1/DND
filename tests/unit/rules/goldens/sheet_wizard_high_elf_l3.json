@@ -1,0 +1,547 @@
+{
+ "id": "pc2",
+ "name": "Test Hero",
+ "race": "elf",
+ "subrace": "high-elf",
+ "class_index": "wizard",
+ "subclass": "evocation",
+ "level": 3,
+ "background": "acolyte",
+ "xp": 900,
+ "xp_next": 2700,
+ "abilities": [
+  {
+   "ability": "str",
+   "score": 15,
+   "modifier": 2,
+   "save_bonus": 2,
+   "save_proficient": false
+  },
+  {
+   "ability": "dex",
+   "score": 16,
+   "modifier": 3,
+   "save_bonus": 3,
+   "save_proficient": false
+  },
+  {
+   "ability": "con",
+   "score": 13,
+   "modifier": 1,
+   "save_bonus": 1,
+   "save_proficient": false
+  },
+  {
+   "ability": "int",
+   "score": 13,
+   "modifier": 1,
+   "save_bonus": 3,
+   "save_proficient": true
+  },
+  {
+   "ability": "wis",
+   "score": 10,
+   "modifier": 0,
+   "save_bonus": 2,
+   "save_proficient": true
+  },
+  {
+   "ability": "cha",
+   "score": 8,
+   "modifier": -1,
+   "save_bonus": -1,
+   "save_proficient": false
+  }
+ ],
+ "skills": [
+  {
+   "skill": "acrobatics",
+   "ability": "dex",
+   "bonus": 3,
+   "proficient": false,
+   "expertise": false
+  },
+  {
+   "skill": "animal-handling",
+   "ability": "wis",
+   "bonus": 0,
+   "proficient": false,
+   "expertise": false
+  },
+  {
+   "skill": "arcana",
+   "ability": "int",
+   "bonus": 3,
+   "proficient": true,
+   "expertise": false
+  },
+  {
+   "skill": "athletics",
+   "ability": "str",
+   "bonus": 2,
+   "proficient": false,
+   "expertise": false
+  },
+  {
+   "skill": "deception",
+   "ability": "cha",
+   "bonus": -1,
+   "proficient": false,
+   "expertise": false
+  },
+  {
+   "skill": "history",
+   "ability": "int",
+   "bonus": 3,
+   "proficient": true,
+   "expertise": false
+  },
+  {
+   "skill": "insight",
+   "ability": "wis",
+   "bonus": 2,
+   "proficient": true,
+   "expertise": false
+  },
+  {
+   "skill": "intimidation",
+   "ability": "cha",
+   "bonus": -1,
+   "proficient": false,
+   "expertise": false
+  },
+  {
+   "skill": "investigation",
+   "ability": "int",
+   "bonus": 1,
+   "proficient": false,
+   "expertise": false
+  },
+  {
+   "skill": "medicine",
+   "ability": "wis",
+   "bonus": 0,
+   "proficient": false,
+   "expertise": false
+  },
+  {
+   "skill": "nature",
+   "ability": "int",
+   "bonus": 1,
+   "proficient": false,
+   "expertise": false
+  },
+  {
+   "skill": "perception",
+   "ability": "wis",
+   "bonus": 2,
+   "proficient": true,
+   "expertise": false
+  },
+  {
+   "skill": "performance",
+   "ability": "cha",
+   "bonus": -1,
+   "proficient": false,
+   "expertise": false
+  },
+  {
+   "skill": "persuasion",
+   "ability": "cha",
+   "bonus": -1,
+   "proficient": false,
+   "expertise": false
+  },
+  {
+   "skill": "religion",
+   "ability": "int",
+   "bonus": 3,
+   "proficient": true,
+   "expertise": false
+  },
+  {
+   "skill": "sleight-of-hand",
+   "ability": "dex",
+   "bonus": 3,
+   "proficient": false,
+   "expertise": false
+  },
+  {
+   "skill": "stealth",
+   "ability": "dex",
+   "bonus": 3,
+   "proficient": false,
+   "expertise": false
+  },
+  {
+   "skill": "survival",
+   "ability": "wis",
+   "bonus": 0,
+   "proficient": false,
+   "expertise": false
+  }
+ ],
+ "passive_perception": 12,
+ "proficiency_bonus": 2,
+ "ac": 13,
+ "hp": 17,
+ "temp_hp": 0,
+ "max_hp": 17,
+ "speed": 30,
+ "initiative_bonus": 3,
+ "initiative_die": "1d4",
+ "attacks": [
+  {
+   "name": "Quarterstaff",
+   "item": "quarterstaff",
+   "hand": "main_hand",
+   "ability": "str",
+   "attack_bonus": 4,
+   "damage": "1d8+2",
+   "damage_type": "bludgeoning",
+   "range_band": "melee",
+   "range_normal": 5,
+   "range_long": null,
+   "hit_chance": null
+  },
+  {
+   "name": "Unarmed Strike",
+   "item": null,
+   "hand": "unarmed",
+   "ability": "str",
+   "attack_bonus": 4,
+   "damage": "3",
+   "damage_type": "bludgeoning",
+   "range_band": "melee",
+   "range_normal": 5,
+   "range_long": null,
+   "hit_chance": null
+  }
+ ],
+ "attacks_per_action": 1,
+ "spellcasting": {
+  "ability": "int",
+  "save_dc": 11,
+  "attack_bonus": 3,
+  "prepared_limit": 4,
+  "cantrips": [
+   {
+    "index": "acid-splash",
+    "name": "Acid Splash",
+    "level": 0,
+    "prepared": true,
+    "always_prepared": false,
+    "source": "class",
+    "resource": null
+   },
+   {
+    "index": "chill-touch",
+    "name": "Chill Touch",
+    "level": 0,
+    "prepared": true,
+    "always_prepared": false,
+    "source": "class",
+    "resource": null
+   },
+   {
+    "index": "dancing-lights",
+    "name": "Dancing Lights",
+    "level": 0,
+    "prepared": true,
+    "always_prepared": false,
+    "source": "class",
+    "resource": null
+   },
+   {
+    "index": "fire-bolt",
+    "name": "Fire Bolt",
+    "level": 0,
+    "prepared": true,
+    "always_prepared": false,
+    "source": "race",
+    "resource": null
+   }
+  ],
+  "levels": [
+   {
+    "level": 1,
+    "slots": [
+     {
+      "kind": "standard",
+      "current": 4,
+      "maximum": 4
+     }
+    ],
+    "spells": [
+     {
+      "index": "alarm",
+      "name": "Alarm",
+      "level": 1,
+      "prepared": true,
+      "always_prepared": false,
+      "source": "class",
+      "resource": null
+     },
+     {
+      "index": "burning-hands",
+      "name": "Burning Hands",
+      "level": 1,
+      "prepared": false,
+      "always_prepared": false,
+      "source": "class",
+      "resource": null
+     },
+     {
+      "index": "charm-person",
+      "name": "Charm Person",
+      "level": 1,
+      "prepared": false,
+      "always_prepared": false,
+      "source": "class",
+      "resource": null
+     },
+     {
+      "index": "color-spray",
+      "name": "Color Spray",
+      "level": 1,
+      "prepared": false,
+      "always_prepared": false,
+      "source": "class",
+      "resource": null
+     },
+     {
+      "index": "comprehend-languages",
+      "name": "Comprehend Languages",
+      "level": 1,
+      "prepared": false,
+      "always_prepared": false,
+      "source": "class",
+      "resource": null
+     },
+     {
+      "index": "detect-magic",
+      "name": "Detect Magic",
+      "level": 1,
+      "prepared": false,
+      "always_prepared": false,
+      "source": "class",
+      "resource": null
+     },
+     {
+      "index": "disguise-self",
+      "name": "Disguise Self",
+      "level": 1,
+      "prepared": false,
+      "always_prepared": false,
+      "source": "class",
+      "resource": null
+     },
+     {
+      "index": "expeditious-retreat",
+      "name": "Expeditious Retreat",
+      "level": 1,
+      "prepared": false,
+      "always_prepared": false,
+      "source": "class",
+      "resource": null
+     }
+    ]
+   },
+   {
+    "level": 2,
+    "slots": [
+     {
+      "kind": "standard",
+      "current": 2,
+      "maximum": 2
+     }
+    ],
+    "spells": [
+     {
+      "index": "acid-arrow",
+      "name": "Acid Arrow",
+      "level": 2,
+      "prepared": false,
+      "always_prepared": false,
+      "source": "class",
+      "resource": null
+     },
+     {
+      "index": "alter-self",
+      "name": "Alter Self",
+      "level": 2,
+      "prepared": false,
+      "always_prepared": false,
+      "source": "class",
+      "resource": null
+     }
+    ]
+   }
+  ]
+ },
+ "features": [
+  {
+   "index": "spellcasting-wizard",
+   "name": "Spellcasting",
+   "summary": "Cast wizard spells prepared from your spellbook (Intelligence).",
+   "source": "class"
+  },
+  {
+   "index": "arcane-recovery",
+   "name": "Arcane Recovery",
+   "summary": "Once per long rest, after a short rest regain spell slots totalling half your wizard level.",
+   "source": "class"
+  },
+  {
+   "index": "bg3-scroll-copy",
+   "name": "Scroll Copying",
+   "summary": "Copy a spell scroll into your spellbook for 50 gold per spell level.",
+   "source": "class"
+  },
+  {
+   "index": "arcane-tradition",
+   "name": "Arcane Tradition",
+   "summary": "Choose an arcane tradition at 2nd level.",
+   "source": "class"
+  },
+  {
+   "index": "evocation-savant",
+   "name": "Evocation Savant",
+   "summary": "Copying evocation spells costs half the gold.",
+   "source": "class"
+  },
+  {
+   "index": "sculpt-spells",
+   "name": "Sculpt Spells",
+   "summary": "Shield allies from your evocation spells' area.",
+   "source": "class"
+  },
+  {
+   "index": "darkvision",
+   "name": "Darkvision",
+   "summary": "You see in dim light within 60 feet as if it were bright.",
+   "source": "race"
+  },
+  {
+   "index": "fey-ancestry",
+   "name": "Fey Ancestry",
+   "summary": "Advantage on saves against being charmed; magic cannot put you to sleep.",
+   "source": "race"
+  },
+  {
+   "index": "trance",
+   "name": "Trance",
+   "summary": "You meditate instead of sleeping.",
+   "source": "race"
+  },
+  {
+   "index": "keen-senses",
+   "name": "Keen Senses",
+   "summary": "Proficiency in Perception.",
+   "source": "race"
+  },
+  {
+   "index": "elf-weapon-training",
+   "name": "Elf Weapon Training",
+   "summary": "Trained with swords and bows.",
+   "source": "race"
+  },
+  {
+   "index": "high-elf-cantrip",
+   "name": "Cantrip",
+   "summary": "You know one wizard cantrip, cast with Intelligence.",
+   "source": "race"
+  },
+  {
+   "index": "extra-language",
+   "name": "Extra Language",
+   "summary": "You speak one more language.",
+   "source": "race"
+  }
+ ],
+ "resources": [
+  {
+   "key": "arcane-recovery",
+   "current": 1,
+   "maximum": 1,
+   "recharge": "long_rest"
+  }
+ ],
+ "armor_proficiencies": [],
+ "weapon_proficiencies": [
+  "daggers",
+  "darts",
+  "slings",
+  "quarterstaffs",
+  "crossbows-light",
+  "longswords",
+  "shortswords",
+  "shortbows",
+  "longbows"
+ ],
+ "tool_proficiencies": [],
+ "languages": [
+  "common",
+  "elvish",
+  "dwarvish"
+ ],
+ "resistances": [],
+ "inventory": [
+  {
+   "item": "spellbook",
+   "name": "Spellbook",
+   "qty": 1,
+   "equipped_slot": null
+  },
+  {
+   "item": "quarterstaff",
+   "name": "Quarterstaff",
+   "qty": 1,
+   "equipped_slot": "main_hand"
+  },
+  {
+   "item": "component-pouch",
+   "name": "Component pouch",
+   "qty": 1,
+   "equipped_slot": null
+  },
+  {
+   "item": "scholars-pack",
+   "name": "Scholar's Pack",
+   "qty": 1,
+   "equipped_slot": null
+  },
+  {
+   "item": "clothes-common",
+   "name": "Clothes, common",
+   "qty": 1,
+   "equipped_slot": null
+  },
+  {
+   "item": "pouch",
+   "name": "Pouch",
+   "qty": 1,
+   "equipped_slot": null
+  },
+  {
+   "item": "amulet",
+   "name": "Amulet",
+   "qty": 1,
+   "equipped_slot": null
+  },
+  {
+   "item": "block-of-incense",
+   "name": "Block of incense",
+   "qty": 5,
+   "equipped_slot": null
+  }
+ ],
+ "gold": 0,
+ "conditions": [],
+ "death_saves": {
+  "successes": 0,
+  "failures": 0,
+  "stable": false,
+  "dead": false
+ }
+}

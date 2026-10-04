@@ -16,7 +16,10 @@ Public API:
   `feature_choices` (feature id -> picks: expertise skills, a draconic ancestry option);
   spells: `cantrips` (class), `race_cantrips` (high elf), `spells` (known spells, or a wizard's
   spellbook), `prepared` (prepared casters).
-- `CreationErrorCode`, `CreationError(code, field, detail)`: one problem with one field.
+- `CreationErrorCode`, `CreationError(code, field, detail)`: one problem with one field. Level-up
+  (`aidm.models.leveling`) reports its problems with the same type; its own codes are
+  NOT_A_PC, CANNOT_LEVEL_NOW (dead or at 0 HP), MAX_LEVEL_REACHED, NOT_ENOUGH_XP,
+  SUBCLASS_INVALID, ASI_INVALID and REPLACEMENT_INVALID.
 """
 
 from enum import StrEnum
@@ -81,6 +84,13 @@ class CreationErrorCode(StrEnum):
     PREPARED_OVER_LIMIT = "prepared_over_limit"
     NAME_INVALID = "name_invalid"
     TEXT_TOO_LONG = "text_too_long"
+    NOT_A_PC = "not_a_pc"
+    CANNOT_LEVEL_NOW = "cannot_level_now"
+    MAX_LEVEL_REACHED = "max_level_reached"
+    NOT_ENOUGH_XP = "not_enough_xp"
+    SUBCLASS_INVALID = "subclass_invalid"
+    ASI_INVALID = "asi_invalid"
+    REPLACEMENT_INVALID = "replacement_invalid"
 
 
 class CreationError(BaseModel):

@@ -21,7 +21,8 @@ Public API:
 - `granted_spells(ids, level, subclass, feats) -> list[GrantedSpell]`: grants active at `level`
   for this subclass (or for any subclass); `expanded_spell_indexes(...) -> set[str]`: the
   `expanded` ones (warlock patron lists, added to what the class may learn).
-- `race_cantrip_ability(ids, level, feats) -> Ability | None`.
+- `innate_casting_ability(ids, level, feats) -> Ability | None`: the casting ability of spells
+  granted by features and of picked race cantrips (the hook covering race cantrips first).
 - `scroll_copy_cost(ids, level, feats, spell_level, school) -> int | None`: gold to copy a
   scroll of this level and school (None = no scroll-copy feature).
 - `SlotRecoveryError(ValueError)`; `recover_spell_slots(creature, feats, slot_levels)`:
@@ -205,13 +206,11 @@ def expanded_spell_indexes(
     return {g.spell for g in granted if g.mode == "expanded"}
 
 
-def race_cantrip_ability(
+def innate_casting_ability(
     ids: Sequence[str], level: int, feats: Registry[FeatureDef]
 ) -> Ability | None:
-    for hook in _grants(ids, level, feats):
-        if hook.covers_race_cantrips and hook.ability is not None:
-            return Ability(hook.ability)
-    return None
+    grants = sorted(_grants(ids, level, feats), key=lambda h: not h.covers_race_cantrips)
+    return next((Ability(h.ability) for h in grants if h.ability is not None), None)
 
 
 def scroll_copy_cost(

@@ -1,0 +1,392 @@
+{
+ "id": "pc1",
+ "name": "Test Hero",
+ "race": "dwarf",
+ "subrace": "hill-dwarf",
+ "class_index": "fighter",
+ "subclass": null,
+ "level": 1,
+ "background": "acolyte",
+ "xp": 0,
+ "xp_next": 300,
+ "abilities": [
+  {
+   "ability": "str",
+   "score": 15,
+   "modifier": 2,
+   "save_bonus": 4,
+   "save_proficient": true
+  },
+  {
+   "ability": "dex",
+   "score": 14,
+   "modifier": 2,
+   "save_bonus": 2,
+   "save_proficient": false
+  },
+  {
+   "ability": "con",
+   "score": 15,
+   "modifier": 2,
+   "save_bonus": 4,
+   "save_proficient": true
+  },
+  {
+   "ability": "int",
+   "score": 12,
+   "modifier": 1,
+   "save_bonus": 1,
+   "save_proficient": false
+  },
+  {
+   "ability": "wis",
+   "score": 11,
+   "modifier": 0,
+   "save_bonus": 0,
+   "save_proficient": false
+  },
+  {
+   "ability": "cha",
+   "score": 8,
+   "modifier": -1,
+   "save_bonus": -1,
+   "save_proficient": false
+  }
+ ],
+ "skills": [
+  {
+   "skill": "acrobatics",
+   "ability": "dex",
+   "bonus": 4,
+   "proficient": true,
+   "expertise": false
+  },
+  {
+   "skill": "animal-handling",
+   "ability": "wis",
+   "bonus": 2,
+   "proficient": true,
+   "expertise": false
+  },
+  {
+   "skill": "arcana",
+   "ability": "int",
+   "bonus": 1,
+   "proficient": false,
+   "expertise": false
+  },
+  {
+   "skill": "athletics",
+   "ability": "str",
+   "bonus": 2,
+   "proficient": false,
+   "expertise": false
+  },
+  {
+   "skill": "deception",
+   "ability": "cha",
+   "bonus": -1,
+   "proficient": false,
+   "expertise": false
+  },
+  {
+   "skill": "history",
+   "ability": "int",
+   "bonus": 1,
+   "proficient": false,
+   "expertise": false
+  },
+  {
+   "skill": "insight",
+   "ability": "wis",
+   "bonus": 2,
+   "proficient": true,
+   "expertise": false
+  },
+  {
+   "skill": "intimidation",
+   "ability": "cha",
+   "bonus": -1,
+   "proficient": false,
+   "expertise": false
+  },
+  {
+   "skill": "investigation",
+   "ability": "int",
+   "bonus": 1,
+   "proficient": false,
+   "expertise": false
+  },
+  {
+   "skill": "medicine",
+   "ability": "wis",
+   "bonus": 0,
+   "proficient": false,
+   "expertise": false
+  },
+  {
+   "skill": "nature",
+   "ability": "int",
+   "bonus": 1,
+   "proficient": false,
+   "expertise": false
+  },
+  {
+   "skill": "perception",
+   "ability": "wis",
+   "bonus": 0,
+   "proficient": false,
+   "expertise": false
+  },
+  {
+   "skill": "performance",
+   "ability": "cha",
+   "bonus": -1,
+   "proficient": false,
+   "expertise": false
+  },
+  {
+   "skill": "persuasion",
+   "ability": "cha",
+   "bonus": -1,
+   "proficient": false,
+   "expertise": false
+  },
+  {
+   "skill": "religion",
+   "ability": "int",
+   "bonus": 3,
+   "proficient": true,
+   "expertise": false
+  },
+  {
+   "skill": "sleight-of-hand",
+   "ability": "dex",
+   "bonus": 2,
+   "proficient": false,
+   "expertise": false
+  },
+  {
+   "skill": "stealth",
+   "ability": "dex",
+   "bonus": 2,
+   "proficient": false,
+   "expertise": false
+  },
+  {
+   "skill": "survival",
+   "ability": "wis",
+   "bonus": 0,
+   "proficient": false,
+   "expertise": false
+  }
+ ],
+ "passive_perception": 10,
+ "proficiency_bonus": 2,
+ "ac": 18,
+ "hp": 13,
+ "temp_hp": 0,
+ "max_hp": 13,
+ "speed": 25,
+ "initiative_bonus": 2,
+ "initiative_die": "1d4",
+ "attacks": [
+  {
+   "name": "Longsword",
+   "item": "longsword",
+   "hand": "main_hand",
+   "ability": "str",
+   "attack_bonus": 4,
+   "damage": "1d8+2",
+   "damage_type": "slashing",
+   "range_band": "melee",
+   "range_normal": 5,
+   "range_long": null,
+   "hit_chance": null
+  },
+  {
+   "name": "Crossbow, light",
+   "item": "crossbow-light",
+   "hand": "ranged",
+   "ability": "dex",
+   "attack_bonus": 6,
+   "damage": "1d8+2",
+   "damage_type": "piercing",
+   "range_band": "ranged",
+   "range_normal": 80,
+   "range_long": 320,
+   "hit_chance": null
+  },
+  {
+   "name": "Unarmed Strike",
+   "item": null,
+   "hand": "unarmed",
+   "ability": "str",
+   "attack_bonus": 4,
+   "damage": "3",
+   "damage_type": "bludgeoning",
+   "range_band": "melee",
+   "range_normal": 5,
+   "range_long": null,
+   "hit_chance": null
+  }
+ ],
+ "attacks_per_action": 1,
+ "spellcasting": null,
+ "features": [
+  {
+   "index": "fighter-fighting-style",
+   "name": "Fighting Style",
+   "summary": "Pick a combat specialty at 1st level.",
+   "source": "class"
+  },
+  {
+   "index": "second-wind",
+   "name": "Second Wind",
+   "summary": "Once per short rest, use a bonus action to regain 1d10 + fighter level hit points.",
+   "source": "class"
+  },
+  {
+   "index": "fighter-fighting-style-archery",
+   "name": "Fighting Style: Archery",
+   "summary": "+2 to attack rolls with ranged weapons.",
+   "source": "class"
+  },
+  {
+   "index": "darkvision",
+   "name": "Darkvision",
+   "summary": "You see in dim light within 60 feet as if it were bright.",
+   "source": "race"
+  },
+  {
+   "index": "dwarven-resilience",
+   "name": "Dwarven Resilience",
+   "summary": "Advantage on saves against poison and resistance to poison damage.",
+   "source": "race"
+  },
+  {
+   "index": "stonecunning",
+   "name": "Stonecunning",
+   "summary": "You read the history of stonework with ease.",
+   "source": "race"
+  },
+  {
+   "index": "dwarven-combat-training",
+   "name": "Dwarven Combat Training",
+   "summary": "Trained with axes and hammers.",
+   "source": "race"
+  },
+  {
+   "index": "tool-proficiency",
+   "name": "Tool Proficiency",
+   "summary": "Proficiency with one set of artisan's tools.",
+   "source": "race"
+  },
+  {
+   "index": "dwarven-toughness",
+   "name": "Dwarven Toughness",
+   "summary": "+1 maximum HP per level.",
+   "source": "race"
+  }
+ ],
+ "resources": [
+  {
+   "key": "second-wind",
+   "current": 1,
+   "maximum": 1,
+   "recharge": "short_rest"
+  }
+ ],
+ "armor_proficiencies": [
+  "all-armor",
+  "shields"
+ ],
+ "weapon_proficiencies": [
+  "simple-weapons",
+  "martial-weapons",
+  "battleaxes",
+  "handaxes",
+  "light-hammers",
+  "warhammers"
+ ],
+ "tool_proficiencies": [
+  "smiths-tools"
+ ],
+ "languages": [
+  "common",
+  "dwarvish"
+ ],
+ "resistances": [
+  "poison"
+ ],
+ "inventory": [
+  {
+   "item": "chain-mail",
+   "name": "Chain Mail",
+   "qty": 1,
+   "equipped_slot": "armor"
+  },
+  {
+   "item": "longsword",
+   "name": "Longsword",
+   "qty": 1,
+   "equipped_slot": "main_hand"
+  },
+  {
+   "item": "shield",
+   "name": "Shield",
+   "qty": 1,
+   "equipped_slot": "shield"
+  },
+  {
+   "item": "crossbow-light",
+   "name": "Crossbow, light",
+   "qty": 1,
+   "equipped_slot": "ranged"
+  },
+  {
+   "item": "crossbow-bolt",
+   "name": "Crossbow bolt",
+   "qty": 20,
+   "equipped_slot": null
+  },
+  {
+   "item": "dungeoneers-pack",
+   "name": "Dungeoneer's Pack",
+   "qty": 1,
+   "equipped_slot": null
+  },
+  {
+   "item": "clothes-common",
+   "name": "Clothes, common",
+   "qty": 1,
+   "equipped_slot": null
+  },
+  {
+   "item": "pouch",
+   "name": "Pouch",
+   "qty": 1,
+   "equipped_slot": null
+  },
+  {
+   "item": "amulet",
+   "name": "Amulet",
+   "qty": 1,
+   "equipped_slot": null
+  },
+  {
+   "item": "block-of-incense",
+   "name": "Block of incense",
+   "qty": 5,
+   "equipped_slot": null
+  }
+ ],
+ "gold": 0,
+ "conditions": [],
+ "death_saves": {
+  "successes": 0,
+  "failures": 0,
+  "stable": false,
+  "dead": false
+ }
+}

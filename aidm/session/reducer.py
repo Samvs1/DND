@@ -20,6 +20,7 @@ fails pyright via `assert_never`.
 from collections.abc import Iterable
 from typing import assert_never
 
+from aidm.models.character import InventoryItem, PcData
 from aidm.models.events import (
     AnyEvent,
     CampSuppliesChanged,
@@ -36,13 +37,18 @@ from aidm.models.events import (
     DeathSaveRolled,
     DeathSavesSet,
     DiceRolled,
+    GoldChanged,
     HpChanged,
+    InventoryChanged,
+    LevelGained,
     LongRestTaken,
     ResourceRemoved,
     ResourceSet,
     ShortRestTaken,
+    SpellbookChanged,
     Stabilized,
     TempHpSet,
+    XpGained,
 )
 from aidm.models.state import ActiveCondition, Creature, GameState
 
@@ -103,6 +109,49 @@ def _remove_resource(creature: Creature, key: str) -> None:
     del creature.resources[key]
 
 
+def _pc(creature: Creature) -> PcData:
+    if creature.pc is None:
+        raise ReducerError(f"{creature.id!r} is not a player character")
+    return creature.pc
+
+
+def _level_gained(creature: Creature, event: LevelGained) -> None:
+    _pc(creature)
+    creature.max_hp = event.max_hp
+    creature.hp = event.hp
+    creature.proficiency_bonus = event.proficiency_bonus
+    creature.abilities = dict(event.abilities)
+    creature.skill_proficiencies = list(event.skill_proficiencies)
+    creature.skill_expertise = list(event.skill_expertise)
+    creature.resistances = list(event.resistances)
+    creature.speed = event.speed
+    creature.darkvision = event.darkvision
+    creature.pc = event.pc.model_copy(deep=True)
+
+
+def _set_item(pc: PcData, item: str, qty: int) -> None:
+    kept = [row for row in pc.inventory if row.item != item]
+    if qty > 0:
+        position = next((i for i, row in enumerate(pc.inventory) if row.item == item), len(kept))
+        kept.insert(position, InventoryItem(item=item, qty=qty))
+    pc.inventory = kept
+
+
+def _apply_pc_event(
+    state: GameState, event: XpGained | SpellbookChanged | GoldChanged | InventoryChanged
+) -> None:
+    pc = _pc(_creature(state, event.creature_id))
+    match event:
+        case XpGained(xp=xp):
+            pc.xp = xp
+        case SpellbookChanged(spellbook=spellbook):
+            pc.spellbook = list(spellbook)
+        case GoldChanged(gold=gold):
+            pc.gold = gold
+        case InventoryChanged(item=item, qty=qty):
+            _set_item(pc, item, qty)
+
+
 def apply(state: GameState, event: AnyEvent) -> GameState:
     match event:
         case CreatureAdded(creature=creature):
@@ -153,6 +202,10 @@ def apply(state: GameState, event: AnyEvent) -> GameState:
         case LongRestTaken(camp_supplies=supplies):
             state.camp_supplies = supplies
             state.short_rests_used = 0
+        case LevelGained(creature_id=cid):
+            _level_gained(_creature(state, cid), event)
+        case XpGained() | SpellbookChanged() | GoldChanged() | InventoryChanged():
+            _apply_pc_event(state, event)
         case DiceRolled() | CheckResolved() | DamageTaken():
             pass
         case _:

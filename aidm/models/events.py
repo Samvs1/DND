@@ -18,7 +18,8 @@ Public API:
   `ConditionRemoved`, `DeathSaveRolled`, `Stabilized`, `CreatureDied`, `DiceRolled`,
   `CheckResolved`, `DamageTaken`, `DeathSavesSet`, `ConditionTicked`, `ConcentrationStarted`,
   `ConcentrationEnded`, `ResourceSet`, `ResourceRemoved`, `CampSuppliesChanged`,
-  `ShortRestTaken`, `LongRestTaken`.
+  `ShortRestTaken`, `LongRestTaken`, `XpGained`, `LevelGained`, `SpellbookChanged`,
+  `GoldChanged`, `InventoryChanged`.
 - `AnyEvent` (plain union), `Event` (union annotated with the `type` discriminator),
   `EVENT_TYPES` (every event class), `event_adapter` (`TypeAdapter` for validate/dump of `Event`).
 - `LoggedEvent(seq, event)`: the persisted envelope (events.jsonl line).
@@ -28,9 +29,11 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
 
+from aidm.models.abilities import Ability, Skill
+from aidm.models.character import PcData
 from aidm.models.checks import CheckResult
 from aidm.models.conditions import Concentration
-from aidm.models.damage import DamagePart
+from aidm.models.damage import DamagePart, DamageType
 from aidm.models.dice import D20Roll, Roll
 from aidm.models.state import ActiveCondition, Creature, Resource
 
@@ -238,6 +241,63 @@ class LongRestTaken(_EventBase):
     camp_supplies: int = Field(ge=0)
 
 
+class XpGained(_EventBase):
+    """The PC earned `amount` experience points; `xp` is its new total."""
+
+    type: Literal["xp_gained"] = "xp_gained"
+    creature_id: str
+    amount: int = Field(ge=0)
+    xp: int = Field(ge=0)
+
+
+class LevelGained(_EventBase):
+    """The PC gained a level: every changed sheet value, resolved (`pc` is the new PcData).
+
+    Resource maxima (spell slots, feature pools) change through the `ResourceSet` /
+    `ResourceRemoved` events that follow it.
+    """
+
+    type: Literal["level_gained"] = "level_gained"
+    creature_id: str
+    max_hp: int = Field(ge=1)
+    hp: int = Field(ge=0)
+    proficiency_bonus: int = Field(ge=0, le=10)
+    abilities: dict[Ability, int]
+    skill_proficiencies: list[Skill] = Field(default_factory=list[Skill])
+    skill_expertise: list[Skill] = Field(default_factory=list[Skill])
+    resistances: list[DamageType] = Field(default_factory=list[DamageType])
+    speed: int = Field(ge=0)
+    darkvision: int = Field(ge=0)
+    pc: PcData
+
+
+class SpellbookChanged(_EventBase):
+    """The PC's spellbook is now exactly `spellbook` (a scroll was copied into it)."""
+
+    type: Literal["spellbook_changed"] = "spellbook_changed"
+    creature_id: str
+    spellbook: list[str]
+
+
+class GoldChanged(_EventBase):
+    """The PC's gold changed by `delta`; `gold` is the new amount."""
+
+    type: Literal["gold_changed"] = "gold_changed"
+    creature_id: str
+    delta: int
+    gold: int = Field(ge=0)
+
+
+class InventoryChanged(_EventBase):
+    """The PC's stack of `item` changed by `delta`; `qty` is the new count (0 removes it)."""
+
+    type: Literal["inventory_changed"] = "inventory_changed"
+    creature_id: str
+    item: str = Field(min_length=1)
+    delta: int
+    qty: int = Field(ge=0)
+
+
 type AnyEvent = (
     CreatureAdded
     | CreatureRemoved
@@ -260,6 +320,11 @@ type AnyEvent = (
     | CampSuppliesChanged
     | ShortRestTaken
     | LongRestTaken
+    | XpGained
+    | LevelGained
+    | SpellbookChanged
+    | GoldChanged
+    | InventoryChanged
 )
 
 Event = Annotated[AnyEvent, Field(discriminator="type")]
@@ -286,6 +351,11 @@ EVENT_TYPES: tuple[type[BaseModel], ...] = (
     CampSuppliesChanged,
     ShortRestTaken,
     LongRestTaken,
+    XpGained,
+    LevelGained,
+    SpellbookChanged,
+    GoldChanged,
+    InventoryChanged,
 )
 
 event_adapter: TypeAdapter[AnyEvent] = TypeAdapter(Event)

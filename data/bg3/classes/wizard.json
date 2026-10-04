@@ -121,7 +121,8 @@
   "ability": "int",
   "kind": "prepared",
   "first_level": 1,
-  "spellbook_start": 6
+  "spellbook_start": 6,
+  "spellbook_per_level": 2
  },
  "subclass_level": 2,
  "subclass_index": "evocation",
