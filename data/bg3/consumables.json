@@ -1,0 +1,26 @@
+[
+  {
+    "index": "potion-of-healing",
+    "name": "Potion of Healing",
+    "source": "SRD 5.1 Magic Items: Potion of Healing (common, 2d4 + 2)",
+    "heal": "2d4+2"
+  },
+  {
+    "index": "potion-of-healing-greater",
+    "name": "Potion of Greater Healing",
+    "source": "SRD 5.1 Magic Items: Potion of Healing (uncommon, 4d4 + 4)",
+    "heal": "4d4+4"
+  },
+  {
+    "index": "potion-of-healing-superior",
+    "name": "Potion of Superior Healing",
+    "source": "SRD 5.1 Magic Items: Potion of Healing (rare, 8d4 + 8)",
+    "heal": "8d4+8"
+  },
+  {
+    "index": "potion-of-healing-supreme",
+    "name": "Potion of Supreme Healing",
+    "source": "SRD 5.1 Magic Items: Potion of Healing (very rare, 10d4 + 20)",
+    "heal": "10d4+20"
+  }
+]

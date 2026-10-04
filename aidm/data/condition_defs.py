@@ -13,6 +13,9 @@ Fields of `ConditionDef` (all but index/name/source default to "no effect"):
 - `cannot_attack_source`: the bearer cannot attack the creature that applied it (charmed).
 - `resist_all_damage`, `damage_immunities`: damage defences while the condition lasts.
 - `implies`: other condition keys that apply too (paralyzed implies incapacitated).
+- `ac_bonus`: added to the bearer's AC (AC buffs such as Shield of Faith). `attack_dice` /
+  `save_dice`: a dice expression added to the bearer's attack rolls / saving throws (Bless).
+  `consumed_by_attack`: the instance ends when the bearer makes an attack roll (hidden, helped).
 - `duration`: the default `DefaultDuration(kind, rounds, tick_on)` for a new instance when the
   applying effect does not say otherwise. `srd_condition` is False for the BG3/SRD-action extras.
 
@@ -91,6 +94,10 @@ class ConditionDef(BaseModel):
     resist_all_damage: bool = False
     damage_immunities: tuple[DamageKey, ...] = ()
     implies: tuple[str, ...] = ()
+    ac_bonus: int = 0
+    attack_dice: str | None = None
+    save_dice: str | None = None
+    consumed_by_attack: bool = False
     duration: DefaultDuration = DefaultDuration()
 
 

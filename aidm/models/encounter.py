@@ -8,10 +8,13 @@ State model (all mutable state models, changed only by the reducer, new fields n
 - `Side`: PARTY (PCs and allied NPCs), HOSTILE, NEUTRAL (bystanders: never decide the outcome).
 - `WithdrawReason`: FLED / SURRENDERED. A withdrawn combatant is out of the turn order and no
   longer counts for victory or defeat, but stays in state.
-- `TurnEconomy(action, bonus_action, movement_left, reaction, dashed, disengaged)`: the per-turn
-  budget (BG3: action, bonus action, movement in feet, one reaction). Only the active creature's
-  action/bonus/movement are meaningful; `reaction` refreshes at the start of the creature's own
-  turn. `dashed` / `disengaged` are flags the M3.3 commands set.
+- `TurnEconomy(action, bonus_action, movement_left, reaction, dashed, disengaged, attacks_left,
+  once_per_turn_used)`: the per-turn budget (BG3: action, bonus action, movement in feet, one
+  reaction). Only the active creature's action/bonus/movement are meaningful; `reaction`
+  refreshes at the start of the creature's own turn. `dashed` / `disengaged` are flags the M3.3
+  commands set. `attacks_left` counts the further attacks of an Attack action already taken
+  (Extra Attack); `once_per_turn_used` lists feature ids whose once-per-turn rider applied
+  (Sneak Attack). Both reset with the fresh economy of the next turn.
 - `Combatant(creature_id, side, zone_id, economy, xp, withdrawn, surprised)`: one participant.
   `zone_id` IS the creature's position (a zone of `Encounter.zone_map`). `xp` is the kill XP it is
   worth (SRD monster `xp`; 0 for PCs and allies). `surprised` records the start-of-fight state
@@ -82,6 +85,8 @@ class TurnEconomy(BaseModel):
     reaction: bool = True
     dashed: bool = False
     disengaged: bool = False
+    attacks_left: int = Field(default=0, ge=0)
+    once_per_turn_used: tuple[str, ...] = ()
 
 
 class Combatant(BaseModel):

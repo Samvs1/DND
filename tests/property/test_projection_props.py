@@ -1,0 +1,64 @@
+"""Property: `rules.projection.project_state` agrees with the reducer on every covered event."""
+
+from __future__ import annotations
+
+from hypothesis import given, settings
+from hypothesis import strategies as st
+
+from aidm.models.events import (
+    AnyEvent,
+    ConcentrationEnded,
+    ConcentrationStarted,
+    ConditionApplied,
+    ConditionRemoved,
+    ConditionTicked,
+    CreatureDied,
+    DeathSaveRolled,
+    DeathSavesSet,
+    HpChanged,
+    ResourceSet,
+    Stabilized,
+    TempHpSet,
+)
+from aidm.models.state import GameState
+from aidm.rules.projection import project_state
+from aidm.session.reducer import apply
+from tests.property.event_strategies import TARGETED, draw_creature
+
+COVERED = (
+    HpChanged,
+    TempHpSet,
+    ConditionApplied,
+    ConditionRemoved,
+    ConditionTicked,
+    ConcentrationStarted,
+    ConcentrationEnded,
+    DeathSaveRolled,
+    DeathSavesSet,
+    Stabilized,
+    CreatureDied,
+    ResourceSet,
+)
+
+
+@settings(max_examples=150)
+@given(st.data())
+def test_projection_matches_reducer(data: st.DataObject) -> None:
+    initial = GameState(campaign_id="proj", seed=1)
+    for i in range(data.draw(st.integers(1, 3))):
+        creature = draw_creature(data, f"c{i}")
+        initial.creatures[creature.id] = creature
+    live = initial.model_copy(deep=True)
+    events: list[AnyEvent] = []
+    for _ in range(data.draw(st.integers(0, 25))):
+        target = live.creatures[data.draw(st.sampled_from(sorted(live.creatures)))]
+        event = data.draw(st.sampled_from(TARGETED))(data, target)
+        if not isinstance(event, COVERED):
+            continue
+        apply(live, event)
+        events.append(event)
+    before = initial.model_dump()
+    projected = project_state(initial, events)
+    assert initial.model_dump() == before
+    for cid, creature in live.creatures.items():
+        assert projected.creatures[cid].model_dump() == creature.model_dump()

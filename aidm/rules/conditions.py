@@ -22,9 +22,15 @@ Public API:
   concentration; surprised forbids actions without incapacitating).
 - `condition_resists_all(creature)`, `condition_immune(creature, damage_type)`: damage defences
   granted by conditions (petrified); read by the damage choke point.
+- `condition_ac_bonus(creature) -> int`: AC added by conditions (Shield of Faith).
+- `condition_bonus_dice(creature, *, save) -> tuple[str, ...]`: dice added to the bearer's attack
+  rolls (`save` False) or saving throws (True), e.g. Bless "1d4".
+- `attack_consumed_conditions(creature) -> list[ActiveCondition]`: instances that end when the
+  bearer makes an attack roll (hidden, helped).
 - `save_with_conditions(rng, creature, ability, dc, *, adv_sources=0, dis_sources=0, bonus=0)
   -> CheckResult`: the saving throw every effect uses. Condition advantage is combined with the
-  caller's sources; an auto-failed save still rolls (for the dice tray) but `success` is False.
+  caller's sources and condition save dice are rolled (before the d20) into the bonus; an
+  auto-failed save still rolls (for the dice tray) but `success` is False.
 """
 
 from collections.abc import Sequence
@@ -34,10 +40,10 @@ from aidm.models.abilities import Ability
 from aidm.models.checks import CheckResult
 from aidm.models.damage import DamageType
 from aidm.models.dice import AdvState
-from aidm.models.state import Creature
+from aidm.models.state import ActiveCondition, Creature
 from aidm.rules.checks import saving_throw
 from aidm.rules.d20 import combine_adv
-from aidm.rules.dice import Rng
+from aidm.rules.dice import Rng, roll
 
 INCAPACITATED = "incapacitated"
 
@@ -137,6 +143,19 @@ def condition_immune(creature: Creature, damage_type: DamageType) -> bool:
     return any(damage_type.value in d.damage_immunities for d in _defs(creature))
 
 
+def condition_ac_bonus(creature: Creature) -> int:
+    return sum(d.ac_bonus for d in _defs(creature))
+
+
+def condition_bonus_dice(creature: Creature, *, save: bool) -> tuple[str, ...]:
+    dice = [d.save_dice if save else d.attack_dice for d in _defs(creature)]
+    return tuple(d for d in dice if d)
+
+
+def attack_consumed_conditions(creature: Creature) -> list[ActiveCondition]:
+    return [c for c in creature.conditions if condition_def(c.name).consumed_by_attack]
+
+
 def save_with_conditions(
     rng: Rng,
     creature: Creature,
@@ -149,6 +168,7 @@ def save_with_conditions(
 ) -> CheckResult:
     adv, dis = save_adv_counts(creature, ability)
     state = combine_adv(adv + adv_sources, dis + dis_sources)
+    bonus += sum(roll(dice, rng).total for dice in condition_bonus_dice(creature, save=True))
     result = saving_throw(rng, creature, ability, dc, adv=state, bonus=bonus)
     if save_auto_fails(creature, ability) and result.success:
         return result.model_copy(update={"success": False})

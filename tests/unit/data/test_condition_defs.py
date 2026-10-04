@@ -24,7 +24,7 @@ def test_every_srd_condition_is_defined() -> None:
 
 def test_extras_are_marked_non_srd() -> None:
     extras = {c.index for c in condition_defs().all() if not c.srd_condition}
-    assert extras == {"dodging", "hidden", "surprised"}
+    assert extras == {"dodging", "hidden", "surprised", "helped"}
 
 
 def test_entries_use_known_keys() -> None:

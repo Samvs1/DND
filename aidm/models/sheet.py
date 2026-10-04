@@ -8,8 +8,8 @@ Public API:
 - `SkillLine(skill, ability, bonus, proficient, expertise)`.
 - `AttackLine(name, item, hand, ability, attack_bonus, damage, damage_type, range_band,
   range_normal, range_long, hit_chance)`: `damage` is a dice expression with the modifier
-  ("1d8+3"); `range_band` "melee" or "ranged"; `hit_chance` stays None until the combat layer
-  (M3.3) fills it for a target.
+  ("1d8+3"); `range_band` "melee" or "ranged"; `hit_chance` stays None (a sheet has no target;
+  the hotbar preview is `aidm.rules.hit_chance.hit_chances`).
 - `SlotLine(kind, current, maximum)`; `SpellLine(index, name, level, prepared, always_prepared,
   source, resource)`; `SpellLevelGroup(level, slots, spells)`; `SpellcastingBlock(ability,
   save_dc, attack_bonus, prepared_limit, cantrips, levels)`.

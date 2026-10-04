@@ -10,6 +10,7 @@ Public API: `EncounterEvent` (the union of the encounter events),
 
 from typing import assert_never
 
+from aidm.models.combat_events import CombatantMoved
 from aidm.models.encounter import Combatant, Encounter, EncounterStatus
 from aidm.models.encounter_events import (
     CombatantWithdrew,
@@ -23,7 +24,13 @@ from aidm.models.state import GameState
 from aidm.session.reducer_errors import ReducerError
 
 type EncounterEvent = (
-    EncounterStarted | TurnStarted | TurnEnded | EconomyChanged | CombatantWithdrew | EncounterEnded
+    EncounterStarted
+    | TurnStarted
+    | TurnEnded
+    | EconomyChanged
+    | CombatantWithdrew
+    | EncounterEnded
+    | CombatantMoved
 )
 
 
@@ -77,6 +84,10 @@ def apply_encounter_event(state: GameState, event: EncounterEvent) -> None:
             _combatant(enc, cid).economy = economy
         case CombatantWithdrew(creature_id=cid, reason=reason):
             _combatant(enc, cid).withdrawn = reason
+        case CombatantMoved(creature_id=cid, to_zone=zone):
+            if not enc.zone_map.has_zone(zone):
+                raise ReducerError(f"unknown zone {zone!r}")
+            _combatant(enc, cid).zone_id = zone
         case EncounterEnded(status=status):
             enc.status = status
             enc.turn_open = False

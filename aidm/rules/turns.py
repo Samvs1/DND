@@ -32,13 +32,14 @@ from enum import StrEnum
 
 from aidm.models.encounter import Combatant, Encounter, TurnEconomy
 from aidm.models.encounter_events import EconomyChanged, TurnEnded, TurnStarted
-from aidm.models.events import AnyEvent, ConditionRemoved, CreatureDied, HpChanged
+from aidm.models.events import AnyEvent
 from aidm.models.state import Creature, GameState
 from aidm.rules.condition_timing import turn_end_events, turn_start_events
 from aidm.rules.conditions import can_take_actions, can_take_reactions, speed_multiplier
 from aidm.rules.death import is_dying, roll_death_save
 from aidm.rules.dice import Rng
 from aidm.rules.encounter import EncounterRefusal, EncounterRefused, active_encounter
+from aidm.rules.projection import project_creature
 
 
 class EconomyRefusal(StrEnum):
@@ -96,30 +97,6 @@ def fresh_economy(creature: Creature) -> TurnEconomy:
     )
 
 
-def _project(creature: Creature, events: list[AnyEvent]) -> Creature:
-    """The creature after `events` (only the fields the economy reads), without mutation."""
-    conditions = list(creature.conditions)
-    hp, dead = creature.hp, creature.dead
-    for event in events:
-        match event:
-            case ConditionRemoved(creature_id=cid, name=name, source_id=src, exact_source=exact):
-                if cid == creature.id:
-                    conditions = [
-                        c
-                        for c in conditions
-                        if c.name != name
-                        or (exact and c.source_id != src)
-                        or (not exact and src is not None and c.source_id != src)
-                    ]
-            case HpChanged(creature_id=cid, new_hp=new_hp) if cid == creature.id:
-                hp = new_hp
-            case CreatureDied(creature_id=cid) if cid == creature.id:
-                dead = True
-            case _:
-                pass
-    return creature.model_copy(update={"conditions": conditions, "hp": hp, "dead": dead})
-
-
 def begin_turn(rng: Rng, state: GameState) -> list[AnyEvent]:
     enc = active_encounter(state)
     if enc.turn_open:
@@ -132,7 +109,7 @@ def begin_turn(rng: Rng, state: GameState) -> list[AnyEvent]:
     consequences = turn_start_events(state, creature.id)
     if is_dying(creature):
         consequences.extend(roll_death_save(rng, creature))
-    economy = fresh_economy(_project(creature, consequences))
+    economy = fresh_economy(project_creature(creature, consequences))
     started = TurnStarted(
         creature_id=creature.id, round=round_no, active_index=index, economy=economy
     )
