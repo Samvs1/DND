@@ -1,0 +1,114 @@
+"""The reducer: the ONLY code that mutates `GameState` (SPEC 2.5, 5).
+
+Public API:
+- `apply(state, event) -> GameState`: applies one event IN PLACE and returns the same `state`
+  object (for chaining). In-place mutation is deliberate: the table actor owns its state
+  exclusively, and combat sims apply many thousands of events, so copying per event is too slow.
+  Callers that need the old value must `state.model_copy(deep=True)` first.
+- `replay(initial, events) -> GameState`: deep-copies `initial` and applies every event in order.
+  `initial` is never modified. `replay(s0, log)` must equal the live state (tested).
+- `ReducerError(ValueError)`: the event does not fit the state (unknown creature id, duplicate
+  id). This is always an engine bug: rules must only emit events valid for the current state.
+
+Semantics: every event increments `state.event_count` (log-only events included) and then does
+plain assignment of the resolved values it carries. The reducer never rolls dice, reads data or
+re-derives rules, so replay is exact. Payload objects are copied on insert, so later mutation of
+state never changes a logged event. Exhaustiveness: a new `AnyEvent` member without a `case` here
+fails pyright via `assert_never`.
+"""
+
+from collections.abc import Iterable
+from typing import assert_never
+
+from aidm.models.events import (
+    AnyEvent,
+    ConditionApplied,
+    ConditionRemoved,
+    CreatureAdded,
+    CreatureDied,
+    CreatureRemoved,
+    DeathSaveRolled,
+    DiceRolled,
+    HpChanged,
+    Stabilized,
+    TempHpSet,
+)
+from aidm.models.state import ActiveCondition, Creature, GameState
+
+
+class ReducerError(ValueError):
+    """An event that cannot apply to the current state (an engine bug)."""
+
+
+def _creature(state: GameState, creature_id: str) -> Creature:
+    try:
+        return state.creatures[creature_id]
+    except KeyError:
+        raise ReducerError(f"unknown creature id {creature_id!r}") from None
+
+
+def _add_creature(state: GameState, creature: Creature) -> None:
+    if creature.id in state.creatures:
+        raise ReducerError(f"duplicate creature id {creature.id!r}")
+    state.creatures[creature.id] = creature.model_copy(deep=True)
+
+
+def _apply_condition(creature: Creature, condition: ActiveCondition) -> None:
+    kept = [
+        c
+        for c in creature.conditions
+        if (c.name, c.source_id) != (condition.name, condition.source_id)
+    ]
+    kept.append(condition)
+    creature.conditions = kept
+
+
+def _remove_condition(creature: Creature, name: str, source_id: str | None) -> None:
+    creature.conditions = [
+        c
+        for c in creature.conditions
+        if c.name != name or (source_id is not None and c.source_id != source_id)
+    ]
+
+
+def apply(state: GameState, event: AnyEvent) -> GameState:
+    match event:
+        case CreatureAdded(creature=creature):
+            _add_creature(state, creature)
+        case CreatureRemoved(creature_id=cid):
+            _creature(state, cid)
+            del state.creatures[cid]
+        case HpChanged(creature_id=cid, new_hp=new_hp):
+            _creature(state, cid).hp = new_hp
+        case TempHpSet(creature_id=cid, temp_hp=temp_hp):
+            _creature(state, cid).temp_hp = temp_hp
+        case ConditionApplied(creature_id=cid, condition=condition):
+            _apply_condition(_creature(state, cid), condition)
+        case ConditionRemoved(creature_id=cid, name=name, source_id=source_id):
+            _remove_condition(_creature(state, cid), name, source_id)
+        case DeathSaveRolled(creature_id=cid, successes=successes, failures=failures):
+            target = _creature(state, cid)
+            target.death_save_successes = successes
+            target.death_save_failures = failures
+        case Stabilized(creature_id=cid):
+            target = _creature(state, cid)
+            target.stable = True
+            target.death_save_successes = 0
+            target.death_save_failures = 0
+        case CreatureDied(creature_id=cid):
+            target = _creature(state, cid)
+            target.dead = True
+            target.stable = False
+        case DiceRolled():
+            pass
+        case _:
+            assert_never(event)
+    state.event_count += 1
+    return state
+
+
+def replay(initial: GameState, events: Iterable[AnyEvent]) -> GameState:
+    state = initial.model_copy(deep=True)
+    for event in events:
+        apply(state, event)
+    return state

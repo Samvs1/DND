@@ -1,4 +1,4 @@
-NEXT: M1.2 Event sourcing. Delegate to hard-engineer. Files in flight: none. Last gate: M1.1 GATE PASS 8/8.
+NEXT: M1.3 Checks and defences. Delegate to hard-engineer. Last gate: M1.2 GATE PASS 8/8.
 
 # PROGRESS
 
@@ -22,8 +22,8 @@ Stashes and blockers: record them in the Notes section at the bottom.
 - [x] M0.7 **M** Monster loader: preserves breath-weapon DCs and recharge, multiattack, legendary actions and spellcasting; golden tests (adult red dragon breath DC/damage, young green dragon, mage spell list, ogre multiattack, 6 more). FULL gate. Commit `M0: Foundation`. (commit see git log, `M0: Foundation`)
 
 ## M1 Rules core (SPEC 2, 5, 7.1, 13)
-- [x] M1.1 **H** Dice and abilities: an injected-RNG dice roller returning typed Roll results (expression, rolls, kept, total), ability modifiers, proficiency by level, advantage/disadvantage cancellation; property tests (seeded determinism, bounds). Gate: `pytest -q tests/unit/rules tests/property`.
-- [ ] M1.2 **H** Event sourcing: `models` GameState (minimal) plus an Event discriminated union, `session/reducer.apply`, hypothesis test replay(events) == snapshot. Gate: pytest plus lint-imports.
+- [x] M1.1 **H** Dice and abilities: an injected-RNG dice roller returning typed Roll results (expression, rolls, kept, total), ability modifiers, proficiency by level, advantage/disadvantage cancellation; property tests (seeded determinism, bounds). Gate: `pytest -q tests/unit/rules tests/property`. (commit c5d141b)
+- [x] M1.2 **H** Event sourcing: `models` GameState (minimal) plus an Event discriminated union, `session/reducer.apply`, hypothesis test replay(events) == snapshot. Gate: pytest plus lint-imports.
 - [ ] M1.3 **H** Checks and defences: skills (18), checks, saves, passives, DC tier map (5-30); AC (armor, shield, Unarmored Defense for Barbarian/Monk data, Mage Armor); HP by level; temp HP. Gate: pytest rules.
 - [ ] M1.4 **H** Damage choke point: typed damage only, resist/immune/vuln, temp HP absorbs first, HP clamped to [0, max], healing, death saves, stabilise, instant death; properties (never negative, within bounds). Gate: pytest rules plus property.
 - [ ] M1.5 **H** Conditions: `data/bg3/conditions.json` (all 15 SRD conditions as data: attack/save/speed/action effects, duration, save-ends) plus a generic interpreter; concentration (damage check, single concentration); `test_v1_conditions_persist_after_combat`. Gate: pytest rules.

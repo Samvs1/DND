@@ -14,3 +14,10 @@ M1.1 negative totals | Roll.total is raw arithmetic and may be negative; the dam
 M1.1 crit | roll(..., crit=True) / double_dice doubles dice counts (and keep counts), never the modifier; recorded expression is the doubled one | SRD Critical Hits; audit shows what was rolled
 M1.1 d20 | roll_d20 records both dice under adv/disadv, is_crit = natural >= crit_on (default 20, for Improved Critical), is_fumble = natural 1; callers decide what crits mean | one d20 roller for attacks, checks and saves
 M1.1 naming | `combine_adv` and `ability_modifier` instead of bare `combine`/`modifier` | check_structure forbids duplicate public names across rules/ and dm/; bare names would collide
+M1.2 event payloads | events carry resolved results (HpChanged has delta AND new_hp; DeathSaveRolled has the roll AND the new counters); reducer only assigns | replay is exact and trivial; delta kept for audit/narration
+M1.2 seq | seq is not in event payloads; persisted log lines are LoggedEvent(seq, event) with seq == state.event_count before apply (0-based) | events stay pure values; GameState.event_count doubles as the next seq
+M1.2 reducer mutation | apply mutates the actor-owned state IN PLACE and returns it; replay deep-copies the initial state once; inserted payloads (CreatureAdded) are deep-copied so logged events never alias state | combat sims apply thousands of events (about 1 us per HpChanged)
+M1.2 reducer errors | unknown/duplicate creature ids raise ReducerError before any mutation | an invalid event is an engine bug, never silently ignored
+M1.2 log-only events | DiceRolled changes nothing but event_count; no roll history kept in state | the event log is the history; snapshots stay small
+M1.2 conditions | ConditionApplied replaces an instance with the same (name, source_id); ConditionRemoved removes all of a name, or only one source when source_id is given | stacking/exhaustion semantics refined in M1.5
+M1.2 schema growth | state/event models use extra="forbid"; every later field must have a default | old snapshots and logs keep validating and replaying

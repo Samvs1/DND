@@ -1,0 +1,75 @@
+"""Game state: the single mutable aggregate, changed ONLY by `aidm.session.reducer.apply`.
+
+Public API:
+- `CreatureKind`: PC / NPC / MONSTER.
+- `ActiveCondition(name, source_id=None, rounds_left=None)`: one condition instance on a creature
+  (frozen). `name` is the condition key (SRD index, e.g. "prone"); `source_id` is the creature or
+  effect that applied it; `rounds_left=None` means "until removed".
+- `Creature`: one combatant or character, general enough for PCs, NPCs and monsters. Derived
+  numbers (AC from armor, attack bonus, save DC) are computed by `aidm.rules`, not stored, unless a
+  later checkpoint adds a base field with a default.
+- `GameState(campaign_id, seed, event_count, creatures)`: `event_count` is the number of events
+  applied so far, so the session can use it as the next event `seq`.
+
+Growth rule: every field added later MUST have a default, so snapshots and event logs written by
+older builds still validate and replay. Models use `extra="forbid"` to catch typos early.
+State models are deliberately NOT frozen and NOT `validate_assignment` (the reducer mutates them in
+place for speed); they validate fully when constructed or loaded from JSON.
+"""
+
+from enum import StrEnum
+
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+from aidm.models.abilities import Ability
+
+
+class CreatureKind(StrEnum):
+    PC = "pc"
+    NPC = "npc"
+    MONSTER = "monster"
+
+
+class ActiveCondition(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    name: str = Field(min_length=1)
+    source_id: str | None = None
+    rounds_left: int | None = Field(default=None, ge=0)
+
+
+def _default_abilities() -> dict[Ability, int]:
+    return dict.fromkeys(Ability, 10)
+
+
+class Creature(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    id: str = Field(min_length=1)
+    name: str = Field(min_length=1)
+    kind: CreatureKind
+    abilities: dict[Ability, int] = Field(default_factory=_default_abilities)
+    max_hp: int = Field(ge=1)
+    hp: int = Field(ge=0)
+    temp_hp: int = Field(default=0, ge=0)
+    ac: int = Field(default=10, ge=0)
+    conditions: list[ActiveCondition] = Field(default_factory=list[ActiveCondition])
+    death_save_successes: int = Field(default=0, ge=0, le=3)
+    death_save_failures: int = Field(default=0, ge=0, le=3)
+    stable: bool = False
+    dead: bool = False
+
+    @model_validator(mode="after")
+    def _check_hp(self) -> "Creature":
+        if self.hp > self.max_hp:
+            raise ValueError(f"hp {self.hp} exceeds max_hp {self.max_hp}")
+        return self
+
+
+class GameState(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    campaign_id: str = Field(min_length=1)
+    seed: int
+    event_count: int = Field(default=0, ge=0)
+    creatures: dict[str, Creature] = Field(default_factory=dict[str, Creature])
