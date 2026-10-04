@@ -11,6 +11,10 @@ Public API:
   Check inputs (M1.3): `proficiency_bonus` (PCs: from level at creation/level-up; monsters: the
   SRD value), `save_proficiencies`, `skill_proficiencies` and `skill_expertise` (expertise doubles
   the proficiency bonus and implies proficiency).
+  Damage inputs (M1.4): `resistances`, `immunities`, `vulnerabilities` (damage types), and
+  `death_saves`: None means "PCs make death saves at 0 HP, NPCs and monsters die"; True/False
+  overrides that (an important NPC that should go down dying, a PC-like companion).
+  Death state: `death_save_successes/failures`, `stable`, `dead`; dying = 0 HP, alive, unstable.
 - `GameState(campaign_id, seed, event_count, creatures)`: `event_count` is the number of events
   applied so far, so the session can use it as the next event `seq`.
 
@@ -25,6 +29,7 @@ from enum import StrEnum
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from aidm.models.abilities import Ability, Skill
+from aidm.models.damage import DamageType
 
 
 class CreatureKind(StrEnum):
@@ -60,6 +65,10 @@ class Creature(BaseModel):
     save_proficiencies: list[Ability] = Field(default_factory=list[Ability])
     skill_proficiencies: list[Skill] = Field(default_factory=list[Skill])
     skill_expertise: list[Skill] = Field(default_factory=list[Skill])
+    resistances: list[DamageType] = Field(default_factory=list[DamageType])
+    immunities: list[DamageType] = Field(default_factory=list[DamageType])
+    vulnerabilities: list[DamageType] = Field(default_factory=list[DamageType])
+    death_saves: bool | None = None
     conditions: list[ActiveCondition] = Field(default_factory=list[ActiveCondition])
     death_save_successes: int = Field(default=0, ge=0, le=3)
     death_save_failures: int = Field(default=0, ge=0, le=3)

@@ -9,6 +9,7 @@ from hypothesis import strategies as st
 
 from aidm.models.abilities import Ability, Skill
 from aidm.models.checks import DcTier
+from aidm.models.damage import DamagePart, DamageType
 from aidm.models.events import (
     AnyEvent,
     CheckResolved,
@@ -17,7 +18,9 @@ from aidm.models.events import (
     CreatureAdded,
     CreatureDied,
     CreatureRemoved,
+    DamageTaken,
     DeathSaveRolled,
+    DeathSavesSet,
     DiceRolled,
     HpChanged,
     Stabilized,
@@ -30,10 +33,11 @@ from aidm.rules.dice import roll
 
 CONDITIONS = ["prone", "poisoned", "frightened", "blinded"]
 SOURCES = [None, "src1", "src2"]
+DAMAGE_TYPE_LISTS = st.lists(st.sampled_from(list(DamageType)), unique=True, max_size=3)
 NAMES = st.text(alphabet="abcdefghijklmnopqrstuvwxyz '-", min_size=1, max_size=12)
 
 
-def _creature(data: st.DataObject, cid: str) -> Creature:
+def draw_creature(data: st.DataObject, cid: str) -> Creature:
     max_hp = data.draw(st.integers(min_value=1, max_value=200))
     scores = data.draw(st.lists(st.integers(1, 30), min_size=6, max_size=6))
     return Creature(
@@ -48,6 +52,10 @@ def _creature(data: st.DataObject, cid: str) -> Creature:
         save_proficiencies=data.draw(st.lists(st.sampled_from(list(Ability)), unique=True)),
         skill_proficiencies=data.draw(st.lists(st.sampled_from(list(Skill)), unique=True)),
         skill_expertise=data.draw(st.lists(st.sampled_from(list(Skill)), unique=True)),
+        resistances=data.draw(DAMAGE_TYPE_LISTS),
+        immunities=data.draw(DAMAGE_TYPE_LISTS),
+        vulnerabilities=data.draw(DAMAGE_TYPE_LISTS),
+        death_saves=data.draw(st.sampled_from([None, True, False])),
     )
 
 
@@ -103,6 +111,32 @@ def _check(data: st.DataObject, c: Creature) -> AnyEvent:
     return CheckResolved(creature_id=c.id, result=result, reason=data.draw(NAMES))
 
 
+def _damage_log(data: st.DataObject, c: Creature) -> AnyEvent:
+    rolled = data.draw(st.integers(0, 40))
+    part = DamagePart(
+        damage_type=data.draw(st.sampled_from(list(DamageType))),
+        rolled=rolled,
+        taken=data.draw(st.integers(0, rolled * 2)),
+    )
+    return DamageTaken(
+        creature_id=c.id,
+        parts=(part,),
+        total=part.taken,
+        temp_absorbed=min(part.taken, c.temp_hp),
+        crit=data.draw(st.booleans()),
+        source_id=data.draw(st.sampled_from(SOURCES)),
+    )
+
+
+def _death_state(data: st.DataObject, c: Creature) -> AnyEvent:
+    return DeathSavesSet(
+        creature_id=c.id,
+        successes=data.draw(st.integers(0, 3)),
+        failures=data.draw(st.integers(0, 3)),
+        stable=data.draw(st.booleans()),
+    )
+
+
 TARGETED: list[Callable[[st.DataObject, Creature], AnyEvent]] = [
     _hp,
     _temp,
@@ -111,6 +145,8 @@ TARGETED: list[Callable[[st.DataObject, Creature], AnyEvent]] = [
     _death_save,
     _dice,
     _check,
+    _damage_log,
+    _death_state,
     lambda _d, c: Stabilized(creature_id=c.id),
     lambda _d, c: CreatureDied(creature_id=c.id),
     lambda _d, c: CreatureRemoved(creature_id=c.id),
@@ -120,6 +156,6 @@ TARGETED: list[Callable[[st.DataObject, Creature], AnyEvent]] = [
 def draw_event(data: st.DataObject, state: GameState, next_id: int) -> AnyEvent:
     """Draw one event that is valid for `state` (adds a creature when there are none)."""
     if not state.creatures or data.draw(st.integers(0, 5)) == 0:
-        return CreatureAdded(creature=_creature(data, f"c{next_id}"))
+        return CreatureAdded(creature=draw_creature(data, f"c{next_id}"))
     target = state.creatures[data.draw(st.sampled_from(sorted(state.creatures)))]
     return data.draw(st.sampled_from(TARGETED))(data, target)

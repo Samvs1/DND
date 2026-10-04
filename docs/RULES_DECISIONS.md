@@ -8,3 +8,10 @@ M1.3 passive | 10 + check bonus (+ situational), +5 advantage, -5 disadvantage |
 M1.3 AC | best of (worn armor or 10+DEX) and every allowed formula (Unarmored Defense, Mage Armor), + shield + flat bonus; monk formula needs no shield | SRD 5.1: only one base-AC calculation applies, the creature picks the best
 M1.3 HP by level | level 1 = hit die max + CON; later levels fixed average (die/2+1) + CON; at least 1 per level; current CON applies to all levels | BG3 uses the fixed average, never rolls; SRD: CON changes retroactively change max HP
 M1.3 temp HP | never stack; new temp HP replace old only when higher | SRD 5.1 Temporary Hit Points (BG3 behaves the same)
+M1.4 resist+vuln | per packet: negative raw amount -> 0, immunity -> 0, resistance halves (floor), vulnerability doubles; both -> halve then double | SRD 5.1 Damage Resistance and Vulnerability
+M1.4 0 HP | PCs (or death_saves=True) fall unconscious (condition source "zero_hp") and dying; NPCs/monsters die unless death_saves=True | SRD 5.1 "Monsters and Death" option the SRD recommends; BG3 same
+M1.4 instant death | from above 0: damage left after reaching 0 >= max HP kills; at 0: a single hit >= max HP kills | SRD 5.1 Instant Death and Damage at 0 Hit Points
+M1.4 damage at 0 | 1 death save failure, 2 on a crit, stable is lost; damage fully absorbed by temp HP causes no failure | SRD 5.1 Damage at 0 Hit Points (it is the damage that triggers the failure)
+M1.4 death saves | DC 10, situational bonus allowed (Bless); nat 20 regains 1 HP and resets counters; nat 1 = 2 failures; 3 successes stable; 3 failures dead | SRD 5.1 Death Saving Throws
+M1.4 stabilize | effect (Spare the Dying) or DC 10 Wisdom (Medicine) check; a stable creature stays unconscious at 0 HP; regaining 1 HP after 1d4 hours is not modelled (rests heal) | SRD 5.1 Stabilizing a Creature; time skips go through rests
+M1.4 healing | capped at max HP; nothing for the dead; healing from 0 removes the zero_hp unconscious condition and resets death-save state | SRD 5.1 Healing

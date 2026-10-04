@@ -28,7 +28,9 @@ from aidm.models.events import (
     CreatureAdded,
     CreatureDied,
     CreatureRemoved,
+    DamageTaken,
     DeathSaveRolled,
+    DeathSavesSet,
     DiceRolled,
     HpChanged,
     Stabilized,
@@ -91,6 +93,11 @@ def apply(state: GameState, event: AnyEvent) -> GameState:
             target = _creature(state, cid)
             target.death_save_successes = successes
             target.death_save_failures = failures
+        case DeathSavesSet(creature_id=cid, successes=successes, failures=failures, stable=stable):
+            target = _creature(state, cid)
+            target.death_save_successes = successes
+            target.death_save_failures = failures
+            target.stable = stable
         case Stabilized(creature_id=cid):
             target = _creature(state, cid)
             target.stable = True
@@ -100,7 +107,7 @@ def apply(state: GameState, event: AnyEvent) -> GameState:
             target = _creature(state, cid)
             target.dead = True
             target.stable = False
-        case DiceRolled() | CheckResolved():
+        case DiceRolled() | CheckResolved() | DamageTaken():
             pass
         case _:
             assert_never(event)

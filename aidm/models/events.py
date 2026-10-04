@@ -16,7 +16,7 @@ Design rules (binding for every new event):
 Public API:
 - Events: `CreatureAdded`, `CreatureRemoved`, `HpChanged`, `TempHpSet`, `ConditionApplied`,
   `ConditionRemoved`, `DeathSaveRolled`, `Stabilized`, `CreatureDied`, `DiceRolled`,
-  `CheckResolved`.
+  `CheckResolved`, `DamageTaken`, `DeathSavesSet`.
 - `AnyEvent` (plain union), `Event` (union annotated with the `type` discriminator),
   `EVENT_TYPES` (every event class), `event_adapter` (`TypeAdapter` for validate/dump of `Event`).
 - `LoggedEvent(seq, event)`: the persisted envelope (events.jsonl line).
@@ -27,6 +27,7 @@ from typing import Annotated, Literal
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
 
 from aidm.models.checks import CheckResult
+from aidm.models.damage import DamagePart
 from aidm.models.dice import D20Roll, Roll
 from aidm.models.state import ActiveCondition, Creature
 
@@ -130,6 +131,35 @@ class CheckResolved(_EventBase):
     reason: str = ""
 
 
+class DamageTaken(_EventBase):
+    """Pure log event: one hit/source of damage resolved by `rules.damage.resolve_damage`.
+
+    `parts` holds each typed packet after immunity/resistance/vulnerability; `total` is their sum
+    (the damage TAKEN, before temp HP absorb it): the concentration hook (M1.5) uses it for the
+    Constitution save DC. `temp_absorbed` and `hp_lost` split it; the state changes themselves are
+    the `TempHpSet` / `HpChanged` events that follow. Changes nothing but `event_count`.
+    """
+
+    type: Literal["damage_taken"] = "damage_taken"
+    creature_id: str
+    parts: tuple[DamagePart, ...] = ()
+    total: int = Field(ge=0)
+    temp_absorbed: int = Field(default=0, ge=0)
+    hp_lost: int = Field(default=0, ge=0)
+    crit: bool = False
+    source_id: str | None = None
+
+
+class DeathSavesSet(_EventBase):
+    """Death-save state becomes exactly these values (damage at 0 HP, healed from 0 HP)."""
+
+    type: Literal["death_saves_set"] = "death_saves_set"
+    creature_id: str
+    successes: int = Field(default=0, ge=0, le=3)
+    failures: int = Field(default=0, ge=0, le=3)
+    stable: bool = False
+
+
 type AnyEvent = (
     CreatureAdded
     | CreatureRemoved
@@ -142,6 +172,8 @@ type AnyEvent = (
     | CreatureDied
     | DiceRolled
     | CheckResolved
+    | DamageTaken
+    | DeathSavesSet
 )
 
 Event = Annotated[AnyEvent, Field(discriminator="type")]
@@ -158,6 +190,8 @@ EVENT_TYPES: tuple[type[BaseModel], ...] = (
     CreatureDied,
     DiceRolled,
     CheckResolved,
+    DamageTaken,
+    DeathSavesSet,
 )
 
 event_adapter: TypeAdapter[AnyEvent] = TypeAdapter(Event)
