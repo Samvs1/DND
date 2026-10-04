@@ -1,4 +1,4 @@
-NEXT: M0.7 Monster loader (closes M0). Delegate to mechanical-engineer. Last gate: M0.6 GATE PASS 8/8.
+NEXT: M1.1 Dice and abilities. Delegate to hard-engineer. Last gate: M0 FULL GATE PASS 8/8.
 
 # PROGRESS
 
@@ -19,7 +19,7 @@ Stashes and blockers: record them in the Notes section at the bottom.
 - [x] M0.4 **M** v1 assets and lessons: copy v1 `web/static/{img,audio,fonts}`, `assets_src/portraits_src`, `Downloads\DnD UI` into `aidm/web/static/` (copy only); write `docs/V1_LESSONS.md` (<=80 lines) digesting the v1 files listed in SPEC 3. Gate: files present, check_secrets PASS, `git status` shows no audio or image over 5 MB (ask in Notes if so).
 - [x] M0.5 **M** SRD vendoring: `scripts/fetch_srd.py` downloads the 5e-bits/5e-database 2014 JSON (spells, monsters, equipment, magic-items, races, subraces, classes, subclasses, levels, features, traits, conditions, skills, damage-types, proficiencies, backgrounds) into `data/srd/`, plus a SOURCE.md with the commit/date and the CC-BY note. Gate: script idempotent; files committed; pytest green.
 - [x] M0.6 **M** Typed loaders: pydantic SRD entry models plus registries in `aidm/data` for spells, equipment, races/subraces, classes/levels, conditions and skills; `tests/unit/data/test_schema_*.py` checks that every entry validates. Gate: pytest data tests green, pyright green.
-- [ ] M0.7 **M** Monster loader: preserves breath-weapon DCs and recharge, multiattack, legendary actions and spellcasting; golden tests (adult red dragon breath DC/damage, young green dragon, mage spell list, ogre multiattack, 6 more). FULL gate. Commit `M0: Foundation`.
+- [x] M0.7 **M** Monster loader: preserves breath-weapon DCs and recharge, multiattack, legendary actions and spellcasting; golden tests (adult red dragon breath DC/damage, young green dragon, mage spell list, ogre multiattack, 6 more). FULL gate. Commit `M0: Foundation`. (commit see git log, `M0: Foundation`)
 
 ## M1 Rules core (SPEC 2, 5, 7.1, 13)
 - [ ] M1.1 **H** Dice and abilities: an injected-RNG dice roller returning typed Roll results (expression, rolls, kept, total), ability modifiers, proficiency by level, advantage/disadvantage cancellation; property tests (seeded determinism, bounds). Gate: `pytest -q tests/unit/rules tests/property`.

@@ -3,9 +3,6 @@
 Layering: `aidm.data` does all file I/O. `aidm.rules` receives entries or
 registries as ARGUMENTS and must never call `load_srd` or `srd` itself.
 Higher layers (dm, session, server) call `srd()` once and pass data down.
-
-Monsters are NOT loaded here yet: M0.7 adds the `monsters` slot to `SrdData`
-(and its model/loader module) without touching the other kinds.
 """
 
 from __future__ import annotations
@@ -33,6 +30,7 @@ from aidm.data.srd_characters import (
     SrdTrait,
 )
 from aidm.data.srd_equipment import SrdEquipment
+from aidm.data.srd_monsters import SrdMonster
 from aidm.data.srd_spells import SrdSpell
 
 DEFAULT_SRD_ROOT = Path(__file__).resolve().parents[2] / "data" / "srd"
@@ -40,7 +38,7 @@ DEFAULT_SRD_ROOT = Path(__file__).resolve().parents[2] / "data" / "srd"
 
 @dataclass(frozen=True)
 class SrdData:
-    """One registry per SRD kind. TODO(M0.7): add `monsters: Registry[SrdMonster]`."""
+    """One registry per SRD kind."""
 
     spells: Registry[SrdSpell]
     equipment: Registry[SrdEquipment]
@@ -56,6 +54,7 @@ class SrdData:
     damage_types: Registry[SrdDamageType]
     proficiencies: Registry[SrdProficiency]
     backgrounds: Registry[SrdBackground]
+    monsters: Registry[SrdMonster]
 
 
 def _load[M: BaseModel](path: Path, model: type[M]) -> list[M]:
@@ -81,6 +80,7 @@ def load_srd(root: Path | None = None) -> SrdData:
         damage_types=Registry(_load(base / "damage_types.json", SrdDamageType)),
         proficiencies=Registry(_load(base / "proficiencies.json", SrdProficiency)),
         backgrounds=Registry(_load(base / "backgrounds.json", SrdBackground)),
+        monsters=Registry(_load(base / "monsters.json", SrdMonster)),
     )
 
 
