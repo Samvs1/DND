@@ -1,0 +1,216 @@
+{
+ "index": "wizard",
+ "name": "Wizard",
+ "hit_die": 6,
+ "primary_abilities": [
+  "int"
+ ],
+ "saving_throws": [
+  "int",
+  "wis"
+ ],
+ "armor": [],
+ "weapons": [
+  "daggers",
+  "darts",
+  "slings",
+  "quarterstaffs",
+  "crossbows-light"
+ ],
+ "tools": [],
+ "skill_choice": {
+  "choose": 2,
+  "options": [
+   "arcana",
+   "history",
+   "insight",
+   "investigation",
+   "medicine",
+   "religion"
+  ]
+ },
+ "equipment": {
+  "fixed": [
+   {
+    "item": "spellbook",
+    "qty": 1
+   }
+  ],
+  "choices": [
+   {
+    "id": "weapon",
+    "label": "Weapon",
+    "options": [
+     [
+      {
+       "item": "quarterstaff",
+       "qty": 1
+      }
+     ],
+     [
+      {
+       "item": "dagger",
+       "qty": 1
+      }
+     ]
+    ]
+   },
+   {
+    "id": "focus",
+    "label": "Spellcasting focus",
+    "options": [
+     [
+      {
+       "item": "component-pouch",
+       "qty": 1
+      }
+     ],
+     [
+      {
+       "item": "crystal",
+       "qty": 1
+      }
+     ],
+     [
+      {
+       "item": "orb",
+       "qty": 1
+      }
+     ],
+     [
+      {
+       "item": "rod",
+       "qty": 1
+      }
+     ],
+     [
+      {
+       "item": "staff",
+       "qty": 1
+      }
+     ],
+     [
+      {
+       "item": "wand",
+       "qty": 1
+      }
+     ]
+    ]
+   },
+   {
+    "id": "pack",
+    "label": "Equipment pack",
+    "options": [
+     [
+      {
+       "item": "scholars-pack",
+       "qty": 1
+      }
+     ],
+     [
+      {
+       "item": "explorers-pack",
+       "qty": 1
+      }
+     ]
+    ]
+   }
+  ]
+ },
+ "spellcasting": {
+  "ability": "int",
+  "kind": "prepared",
+  "first_level": 1
+ },
+ "subclass_level": 2,
+ "subclass_index": "evocation",
+ "subclass_features": [
+  {
+   "level": 2,
+   "features": [
+    "evocation-savant",
+    "sculpt-spells"
+   ]
+  }
+ ],
+ "levels": [
+  {
+   "level": 1,
+   "features": [
+    "spellcasting-wizard",
+    "arcane-recovery",
+    "bg3-scroll-copy"
+   ],
+   "cantrips_known": 3,
+   "slots": [
+    2,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "level": 2,
+   "features": [
+    "arcane-tradition"
+   ],
+   "cantrips_known": 3,
+   "slots": [
+    3,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "level": 3,
+   "features": [],
+   "cantrips_known": 3,
+   "slots": [
+    4,
+    2,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "level": 4,
+   "features": [
+    "wizard-ability-score-improvement-1"
+   ],
+   "cantrips_known": 4,
+   "slots": [
+    4,
+    3,
+    0,
+    0,
+    0
+   ],
+   "asi": true
+  },
+  {
+   "level": 5,
+   "features": [],
+   "cantrips_known": 4,
+   "slots": [
+    4,
+    3,
+    2,
+    0,
+    0
+   ]
+  }
+ ],
+ "choices": [],
+ "bg3_features": [
+  {
+   "id": "bg3-scroll-copy",
+   "name": "Scroll Copying",
+   "description": "You may copy a wizard spell from a found scroll into your spellbook, learning it for later preparation.",
+   "note": "SPEC 7.2: BG3-style scroll copying. Gold and time costs of the printed rule are dropped; mechanics land in M2.5."
+  }
+ ]
+}

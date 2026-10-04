@@ -1,0 +1,356 @@
+[
+ {
+  "index": "dwarf",
+  "name": "Dwarf",
+  "size": "Medium",
+  "speed": 25,
+  "darkvision": 60,
+  "ability_bonuses": [
+   {
+    "ability": "con",
+    "bonus": 2
+   }
+  ],
+  "weapon_proficiencies": [
+   "battleaxes",
+   "handaxes",
+   "light-hammers",
+   "warhammers"
+  ],
+  "tool_choice": {
+   "choose": 1,
+   "options": [
+    "smiths-tools",
+    "brewers-supplies",
+    "masons-tools"
+   ]
+  },
+  "languages": [
+   "common",
+   "dwarvish"
+  ],
+  "traits": [
+   "darkvision",
+   "dwarven-resilience",
+   "stonecunning",
+   "dwarven-combat-training",
+   "tool-proficiency"
+  ],
+  "subraces": [
+   {
+    "index": "hill-dwarf",
+    "name": "Hill Dwarf",
+    "ability_bonuses": [
+     {
+      "ability": "wis",
+      "bonus": 1
+     }
+    ],
+    "traits": [
+     "dwarven-toughness"
+    ]
+   }
+  ]
+ },
+ {
+  "index": "elf",
+  "name": "Elf",
+  "size": "Medium",
+  "speed": 30,
+  "darkvision": 60,
+  "ability_bonuses": [
+   {
+    "ability": "dex",
+    "bonus": 2
+   }
+  ],
+  "skills": [
+   "perception"
+  ],
+  "languages": [
+   "common",
+   "elvish"
+  ],
+  "traits": [
+   "darkvision",
+   "fey-ancestry",
+   "trance",
+   "keen-senses"
+  ],
+  "subraces": [
+   {
+    "index": "high-elf",
+    "name": "High Elf",
+    "ability_bonuses": [
+     {
+      "ability": "int",
+      "bonus": 1
+     }
+    ],
+    "weapon_proficiencies": [
+     "longswords",
+     "shortswords",
+     "shortbows",
+     "longbows"
+    ],
+    "language_choices": 1,
+    "cantrip_choices": 1,
+    "traits": [
+     "elf-weapon-training",
+     "high-elf-cantrip",
+     "extra-language"
+    ]
+   }
+  ]
+ },
+ {
+  "index": "halfling",
+  "name": "Halfling",
+  "size": "Small",
+  "speed": 25,
+  "ability_bonuses": [
+   {
+    "ability": "dex",
+    "bonus": 2
+   }
+  ],
+  "languages": [
+   "common",
+   "halfling"
+  ],
+  "traits": [
+   "brave",
+   "halfling-nimbleness",
+   "lucky"
+  ],
+  "subraces": [
+   {
+    "index": "lightfoot-halfling",
+    "name": "Lightfoot Halfling",
+    "ability_bonuses": [
+     {
+      "ability": "cha",
+      "bonus": 1
+     }
+    ],
+    "traits": [
+     "naturally-stealthy"
+    ]
+   }
+  ]
+ },
+ {
+  "index": "human",
+  "name": "Human",
+  "size": "Medium",
+  "speed": 30,
+  "ability_bonuses": [
+   {
+    "ability": "str",
+    "bonus": 1
+   },
+   {
+    "ability": "dex",
+    "bonus": 1
+   },
+   {
+    "ability": "con",
+    "bonus": 1
+   },
+   {
+    "ability": "int",
+    "bonus": 1
+   },
+   {
+    "ability": "wis",
+    "bonus": 1
+   },
+   {
+    "ability": "cha",
+    "bonus": 1
+   }
+  ],
+  "languages": [
+   "common"
+  ],
+  "language_choices": 1
+ },
+ {
+  "index": "dragonborn",
+  "name": "Dragonborn",
+  "size": "Medium",
+  "speed": 30,
+  "ability_bonuses": [
+   {
+    "ability": "str",
+    "bonus": 2
+   },
+   {
+    "ability": "cha",
+    "bonus": 1
+   }
+  ],
+  "languages": [
+   "common",
+   "draconic"
+  ],
+  "traits": [
+   "draconic-ancestry",
+   "breath-weapon",
+   "damage-resistance"
+  ]
+ },
+ {
+  "index": "gnome",
+  "name": "Gnome",
+  "size": "Small",
+  "speed": 25,
+  "darkvision": 60,
+  "ability_bonuses": [
+   {
+    "ability": "int",
+    "bonus": 2
+   }
+  ],
+  "languages": [
+   "common",
+   "gnomish"
+  ],
+  "traits": [
+   "darkvision",
+   "gnome-cunning"
+  ],
+  "subraces": [
+   {
+    "index": "rock-gnome",
+    "name": "Rock Gnome",
+    "ability_bonuses": [
+     {
+      "ability": "con",
+      "bonus": 1
+     }
+    ],
+    "tool_proficiencies": [
+     "tinkers-tools"
+    ],
+    "traits": [
+     "artificers-lore",
+     "tinker"
+    ]
+   }
+  ]
+ },
+ {
+  "index": "half-elf",
+  "name": "Half-Elf",
+  "size": "Medium",
+  "speed": 30,
+  "darkvision": 60,
+  "ability_bonuses": [
+   {
+    "ability": "cha",
+    "bonus": 2
+   }
+  ],
+  "ability_choice": {
+   "choose": 2,
+   "options": [
+    "str",
+    "dex",
+    "con",
+    "int",
+    "wis"
+   ]
+  },
+  "ability_choice_bonus": 1,
+  "skill_choice": {
+   "choose": 2,
+   "options": [
+    "acrobatics",
+    "animal-handling",
+    "arcana",
+    "athletics",
+    "deception",
+    "history",
+    "insight",
+    "intimidation",
+    "investigation",
+    "medicine",
+    "nature",
+    "perception",
+    "performance",
+    "persuasion",
+    "religion",
+    "sleight-of-hand",
+    "stealth",
+    "survival"
+   ]
+  },
+  "languages": [
+   "common",
+   "elvish"
+  ],
+  "language_choices": 1,
+  "traits": [
+   "darkvision",
+   "fey-ancestry",
+   "skill-versatility"
+  ]
+ },
+ {
+  "index": "half-orc",
+  "name": "Half-Orc",
+  "size": "Medium",
+  "speed": 30,
+  "darkvision": 60,
+  "ability_bonuses": [
+   {
+    "ability": "str",
+    "bonus": 2
+   },
+   {
+    "ability": "con",
+    "bonus": 1
+   }
+  ],
+  "skills": [
+   "intimidation"
+  ],
+  "languages": [
+   "common",
+   "orc"
+  ],
+  "traits": [
+   "darkvision",
+   "savage-attacks",
+   "relentless-endurance",
+   "menacing"
+  ]
+ },
+ {
+  "index": "tiefling",
+  "name": "Tiefling",
+  "size": "Medium",
+  "speed": 30,
+  "darkvision": 60,
+  "ability_bonuses": [
+   {
+    "ability": "int",
+    "bonus": 1
+   },
+   {
+    "ability": "cha",
+    "bonus": 2
+   }
+  ],
+  "languages": [
+   "common",
+   "infernal"
+  ],
+  "traits": [
+   "darkvision",
+   "hellish-resistance",
+   "infernal-legacy"
+  ]
+ }
+]

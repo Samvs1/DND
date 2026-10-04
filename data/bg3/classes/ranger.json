@@ -1,0 +1,240 @@
+{
+ "index": "ranger",
+ "name": "Ranger",
+ "hit_die": 10,
+ "primary_abilities": [
+  "dex",
+  "wis"
+ ],
+ "saving_throws": [
+  "str",
+  "dex"
+ ],
+ "armor": [
+  "light-armor",
+  "medium-armor",
+  "shields"
+ ],
+ "weapons": [
+  "simple-weapons",
+  "martial-weapons"
+ ],
+ "tools": [],
+ "skill_choice": {
+  "choose": 3,
+  "options": [
+   "animal-handling",
+   "athletics",
+   "insight",
+   "investigation",
+   "nature",
+   "perception",
+   "stealth",
+   "survival"
+  ]
+ },
+ "equipment": {
+  "fixed": [
+   {
+    "item": "longbow",
+    "qty": 1
+   },
+   {
+    "item": "arrow",
+    "qty": 20
+   }
+  ],
+  "choices": [
+   {
+    "id": "armor",
+    "label": "Armor",
+    "options": [
+     [
+      {
+       "item": "scale-mail",
+       "qty": 1
+      }
+     ],
+     [
+      {
+       "item": "leather-armor",
+       "qty": 1
+      }
+     ]
+    ]
+   },
+   {
+    "id": "melee",
+    "label": "Melee weapons",
+    "options": [
+     [
+      {
+       "item": "shortsword",
+       "qty": 2
+      }
+     ],
+     [
+      {
+       "item": "handaxe",
+       "qty": 2
+      }
+     ],
+     [
+      {
+       "item": "spear",
+       "qty": 1
+      },
+      {
+       "item": "club",
+       "qty": 1
+      }
+     ]
+    ]
+   },
+   {
+    "id": "pack",
+    "label": "Equipment pack",
+    "options": [
+     [
+      {
+       "item": "dungeoneers-pack",
+       "qty": 1
+      }
+     ],
+     [
+      {
+       "item": "explorers-pack",
+       "qty": 1
+      }
+     ]
+    ]
+   }
+  ]
+ },
+ "spellcasting": {
+  "ability": "wis",
+  "kind": "known",
+  "first_level": 2
+ },
+ "subclass_level": 3,
+ "subclass_index": "hunter",
+ "subclass_features": [
+  {
+   "level": 3,
+   "features": [
+    "hunters-prey"
+   ]
+  }
+ ],
+ "levels": [
+  {
+   "level": 1,
+   "features": [
+    "favored-enemy-1-type",
+    "natural-explorer-1-terrain-type"
+   ],
+   "cantrips_known": 0,
+   "spells_known": 0,
+   "slots": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "level": 2,
+   "features": [
+    "ranger-fighting-style",
+    "spellcasting-ranger"
+   ],
+   "cantrips_known": 0,
+   "spells_known": 2,
+   "slots": [
+    2,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "level": 3,
+   "features": [
+    "ranger-archetype",
+    "primeval-awareness"
+   ],
+   "cantrips_known": 0,
+   "spells_known": 3,
+   "slots": [
+    3,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "level": 4,
+   "features": [
+    "ranger-ability-score-improvement-1"
+   ],
+   "cantrips_known": 0,
+   "spells_known": 3,
+   "slots": [
+    3,
+    0,
+    0,
+    0,
+    0
+   ],
+   "asi": true
+  },
+  {
+   "level": 5,
+   "features": [
+    "ranger-extra-attack"
+   ],
+   "cantrips_known": 0,
+   "spells_known": 4,
+   "slots": [
+    4,
+    2,
+    0,
+    0,
+    0
+   ]
+  }
+ ],
+ "choices": [
+  {
+   "id": "fighting-style",
+   "level": 2,
+   "kind": "fighting_style",
+   "pick": {
+    "choose": 1,
+    "options": [
+     "ranger-fighting-style-archery",
+     "ranger-fighting-style-defense",
+     "ranger-fighting-style-dueling",
+     "ranger-fighting-style-two-weapon-fighting"
+    ]
+   }
+  },
+  {
+   "id": "hunters-prey",
+   "level": 3,
+   "kind": "subclass_option",
+   "pick": {
+    "choose": 1,
+    "options": [
+     "hunters-prey-colossus-slayer",
+     "hunters-prey-giant-killer",
+     "hunters-prey-horde-breaker"
+    ]
+   }
+  }
+ ],
+ "bg3_features": []
+}

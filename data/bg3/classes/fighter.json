@@ -1,0 +1,215 @@
+{
+ "index": "fighter",
+ "name": "Fighter",
+ "hit_die": 10,
+ "primary_abilities": [
+  "str",
+  "dex"
+ ],
+ "saving_throws": [
+  "str",
+  "con"
+ ],
+ "armor": [
+  "all-armor",
+  "shields"
+ ],
+ "weapons": [
+  "simple-weapons",
+  "martial-weapons"
+ ],
+ "tools": [],
+ "skill_choice": {
+  "choose": 2,
+  "options": [
+   "acrobatics",
+   "animal-handling",
+   "athletics",
+   "history",
+   "insight",
+   "intimidation",
+   "perception",
+   "survival"
+  ]
+ },
+ "equipment": {
+  "fixed": [],
+  "choices": [
+   {
+    "id": "armor",
+    "label": "Armor and ranged kit",
+    "options": [
+     [
+      {
+       "item": "chain-mail",
+       "qty": 1
+      }
+     ],
+     [
+      {
+       "item": "leather-armor",
+       "qty": 1
+      },
+      {
+       "item": "longbow",
+       "qty": 1
+      },
+      {
+       "item": "arrow",
+       "qty": 20
+      }
+     ]
+    ]
+   },
+   {
+    "id": "weapons",
+    "label": "Martial weapons",
+    "options": [
+     [
+      {
+       "item": "longsword",
+       "qty": 1
+      },
+      {
+       "item": "shield",
+       "qty": 1
+      }
+     ],
+     [
+      {
+       "item": "warhammer",
+       "qty": 1
+      },
+      {
+       "item": "shield",
+       "qty": 1
+      }
+     ],
+     [
+      {
+       "item": "longsword",
+       "qty": 1
+      },
+      {
+       "item": "shortsword",
+       "qty": 1
+      }
+     ],
+     [
+      {
+       "item": "battleaxe",
+       "qty": 1
+      },
+      {
+       "item": "warhammer",
+       "qty": 1
+      }
+     ]
+    ]
+   },
+   {
+    "id": "ranged",
+    "label": "Ranged or thrown weapons",
+    "options": [
+     [
+      {
+       "item": "crossbow-light",
+       "qty": 1
+      },
+      {
+       "item": "crossbow-bolt",
+       "qty": 20
+      }
+     ],
+     [
+      {
+       "item": "handaxe",
+       "qty": 2
+      }
+     ]
+    ]
+   },
+   {
+    "id": "pack",
+    "label": "Equipment pack",
+    "options": [
+     [
+      {
+       "item": "dungeoneers-pack",
+       "qty": 1
+      }
+     ],
+     [
+      {
+       "item": "explorers-pack",
+       "qty": 1
+      }
+     ]
+    ]
+   }
+  ]
+ },
+ "subclass_level": 3,
+ "subclass_index": "champion",
+ "subclass_features": [
+  {
+   "level": 3,
+   "features": [
+    "improved-critical"
+   ]
+  }
+ ],
+ "levels": [
+  {
+   "level": 1,
+   "features": [
+    "fighter-fighting-style",
+    "second-wind"
+   ]
+  },
+  {
+   "level": 2,
+   "features": [
+    "action-surge-1-use"
+   ]
+  },
+  {
+   "level": 3,
+   "features": [
+    "martial-archetype"
+   ]
+  },
+  {
+   "level": 4,
+   "features": [
+    "fighter-ability-score-improvement-1"
+   ],
+   "asi": true
+  },
+  {
+   "level": 5,
+   "features": [
+    "extra-attack-1"
+   ]
+  }
+ ],
+ "choices": [
+  {
+   "id": "fighting-style",
+   "level": 1,
+   "kind": "fighting_style",
+   "pick": {
+    "choose": 1,
+    "options": [
+     "fighter-fighting-style-archery",
+     "fighter-fighting-style-defense",
+     "fighter-fighting-style-dueling",
+     "fighter-fighting-style-great-weapon-fighting",
+     "fighter-fighting-style-protection",
+     "fighter-fighting-style-two-weapon-fighting"
+    ]
+   }
+  }
+ ],
+ "bg3_features": []
+}

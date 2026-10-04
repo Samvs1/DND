@@ -1,0 +1,243 @@
+{
+ "index": "cleric",
+ "name": "Cleric",
+ "hit_die": 8,
+ "primary_abilities": [
+  "wis"
+ ],
+ "saving_throws": [
+  "wis",
+  "cha"
+ ],
+ "armor": [
+  "light-armor",
+  "medium-armor",
+  "shields"
+ ],
+ "weapons": [
+  "simple-weapons"
+ ],
+ "tools": [],
+ "skill_choice": {
+  "choose": 2,
+  "options": [
+   "history",
+   "insight",
+   "medicine",
+   "persuasion",
+   "religion"
+  ]
+ },
+ "equipment": {
+  "fixed": [
+   {
+    "item": "shield",
+    "qty": 1
+   }
+  ],
+  "choices": [
+   {
+    "id": "weapon",
+    "label": "Weapon",
+    "options": [
+     [
+      {
+       "item": "mace",
+       "qty": 1
+      }
+     ],
+     [
+      {
+       "item": "club",
+       "qty": 1
+      }
+     ]
+    ]
+   },
+   {
+    "id": "armor",
+    "label": "Armor",
+    "options": [
+     [
+      {
+       "item": "scale-mail",
+       "qty": 1
+      }
+     ],
+     [
+      {
+       "item": "leather-armor",
+       "qty": 1
+      }
+     ]
+    ]
+   },
+   {
+    "id": "ranged",
+    "label": "Ranged or simple weapon",
+    "options": [
+     [
+      {
+       "item": "crossbow-light",
+       "qty": 1
+      },
+      {
+       "item": "crossbow-bolt",
+       "qty": 20
+      }
+     ],
+     [
+      {
+       "item": "spear",
+       "qty": 1
+      }
+     ]
+    ]
+   },
+   {
+    "id": "pack",
+    "label": "Equipment pack",
+    "options": [
+     [
+      {
+       "item": "priests-pack",
+       "qty": 1
+      }
+     ],
+     [
+      {
+       "item": "explorers-pack",
+       "qty": 1
+      }
+     ]
+    ]
+   },
+   {
+    "id": "symbol",
+    "label": "Holy symbol",
+    "options": [
+     [
+      {
+       "item": "amulet",
+       "qty": 1
+      }
+     ],
+     [
+      {
+       "item": "emblem",
+       "qty": 1
+      }
+     ],
+     [
+      {
+       "item": "reliquary",
+       "qty": 1
+      }
+     ]
+    ]
+   }
+  ]
+ },
+ "spellcasting": {
+  "ability": "wis",
+  "kind": "prepared",
+  "first_level": 1
+ },
+ "subclass_level": 1,
+ "subclass_index": "life",
+ "subclass_features": [
+  {
+   "level": 1,
+   "features": [
+    "bonus-proficiency",
+    "disciple-of-life"
+   ]
+  },
+  {
+   "level": 2,
+   "features": [
+    "channel-divinity-preserve-life"
+   ]
+  }
+ ],
+ "levels": [
+  {
+   "level": 1,
+   "features": [
+    "spellcasting-cleric",
+    "divine-domain",
+    "domain-spells-1"
+   ],
+   "cantrips_known": 3,
+   "slots": [
+    2,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "level": 2,
+   "features": [
+    "channel-divinity-1-rest",
+    "channel-divinity-turn-undead",
+    "divine-domain-improvement-1"
+   ],
+   "cantrips_known": 3,
+   "slots": [
+    3,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "level": 3,
+   "features": [
+    "domain-spells-2"
+   ],
+   "cantrips_known": 3,
+   "slots": [
+    4,
+    2,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "level": 4,
+   "features": [
+    "cleric-ability-score-improvement-1"
+   ],
+   "cantrips_known": 4,
+   "slots": [
+    4,
+    3,
+    0,
+    0,
+    0
+   ],
+   "asi": true
+  },
+  {
+   "level": 5,
+   "features": [
+    "domain-spells-3",
+    "destroy-undead-cr-1-2-or-below"
+   ],
+   "cantrips_known": 4,
+   "slots": [
+    4,
+    3,
+    2,
+    0,
+    0
+   ]
+  }
+ ],
+ "choices": [],
+ "bg3_features": []
+}

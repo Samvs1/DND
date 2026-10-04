@@ -1,0 +1,253 @@
+{
+ "index": "warlock",
+ "name": "Warlock",
+ "hit_die": 8,
+ "primary_abilities": [
+  "cha"
+ ],
+ "saving_throws": [
+  "wis",
+  "cha"
+ ],
+ "armor": [
+  "light-armor"
+ ],
+ "weapons": [
+  "simple-weapons"
+ ],
+ "tools": [],
+ "skill_choice": {
+  "choose": 2,
+  "options": [
+   "arcana",
+   "deception",
+   "history",
+   "intimidation",
+   "investigation",
+   "nature",
+   "religion"
+  ]
+ },
+ "equipment": {
+  "fixed": [
+   {
+    "item": "dagger",
+    "qty": 2
+   },
+   {
+    "item": "leather-armor",
+    "qty": 1
+   }
+  ],
+  "choices": [
+   {
+    "id": "ranged",
+    "label": "Ranged or simple weapon",
+    "options": [
+     [
+      {
+       "item": "crossbow-light",
+       "qty": 1
+      },
+      {
+       "item": "crossbow-bolt",
+       "qty": 20
+      }
+     ],
+     [
+      {
+       "item": "spear",
+       "qty": 1
+      }
+     ]
+    ]
+   },
+   {
+    "id": "focus",
+    "label": "Spellcasting focus",
+    "options": [
+     [
+      {
+       "item": "component-pouch",
+       "qty": 1
+      }
+     ],
+     [
+      {
+       "item": "crystal",
+       "qty": 1
+      }
+     ],
+     [
+      {
+       "item": "orb",
+       "qty": 1
+      }
+     ],
+     [
+      {
+       "item": "rod",
+       "qty": 1
+      }
+     ],
+     [
+      {
+       "item": "staff",
+       "qty": 1
+      }
+     ],
+     [
+      {
+       "item": "wand",
+       "qty": 1
+      }
+     ]
+    ]
+   },
+   {
+    "id": "pack",
+    "label": "Equipment pack",
+    "options": [
+     [
+      {
+       "item": "scholars-pack",
+       "qty": 1
+      }
+     ],
+     [
+      {
+       "item": "dungeoneers-pack",
+       "qty": 1
+      }
+     ]
+    ]
+   },
+   {
+    "id": "weapon",
+    "label": "Simple weapon",
+    "options": [
+     [
+      {
+       "item": "quarterstaff",
+       "qty": 1
+      }
+     ],
+     [
+      {
+       "item": "mace",
+       "qty": 1
+      }
+     ],
+     [
+      {
+       "item": "handaxe",
+       "qty": 1
+      }
+     ]
+    ]
+   }
+  ]
+ },
+ "spellcasting": {
+  "ability": "cha",
+  "kind": "pact",
+  "first_level": 1
+ },
+ "subclass_level": 1,
+ "subclass_index": "fiend",
+ "subclass_features": [
+  {
+   "level": 1,
+   "features": [
+    "dark-ones-blessing"
+   ]
+  }
+ ],
+ "levels": [
+  {
+   "level": 1,
+   "features": [
+    "otherworldly-patron",
+    "pact-magic",
+    "bg3-pact-short-rest"
+   ],
+   "cantrips_known": 2,
+   "spells_known": 2,
+   "slots": [
+    1,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "level": 2,
+   "features": [
+    "eldritch-invocations"
+   ],
+   "cantrips_known": 2,
+   "spells_known": 3,
+   "slots": [
+    2,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "level": 3,
+   "features": [
+    "pact-boon"
+   ],
+   "cantrips_known": 2,
+   "spells_known": 4,
+   "slots": [
+    0,
+    2,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "level": 4,
+   "features": [
+    "warlock-ability-score-improvement-1"
+   ],
+   "cantrips_known": 3,
+   "spells_known": 5,
+   "slots": [
+    0,
+    2,
+    0,
+    0,
+    0
+   ],
+   "asi": true
+  },
+  {
+   "level": 5,
+   "features": [],
+   "cantrips_known": 3,
+   "spells_known": 6,
+   "slots": [
+    0,
+    0,
+    2,
+    0,
+    0
+   ]
+  }
+ ],
+ "choices": [],
+ "bg3_features": [
+  {
+   "id": "bg3-pact-short-rest",
+   "name": "Pact Slot Recovery",
+   "description": "Your pact slots return after a short rest, and you only get two short rests between long rests.",
+   "note": "SPEC 7.2: SRD pact magic already refreshes on a short rest; BG3 caps short rests at two per long rest."
+  }
+ ]
+}

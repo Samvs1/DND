@@ -1,0 +1,255 @@
+[
+ {
+  "index": "acolyte",
+  "name": "Acolyte",
+  "skills": [
+   "insight",
+   "religion"
+  ],
+  "tools": [],
+  "gear": [
+   {
+    "item": "clothes-common",
+    "qty": 1
+   },
+   {
+    "item": "pouch",
+    "qty": 1
+   },
+   {
+    "item": "amulet",
+    "qty": 1
+   },
+   {
+    "item": "block-of-incense",
+    "qty": 5
+   }
+  ],
+  "flavour": "You tended a shrine for years and still reach for a prayer when the road gets dark."
+ },
+ {
+  "index": "soldier",
+  "name": "Soldier",
+  "skills": [
+   "athletics",
+   "intimidation"
+  ],
+  "tools": [
+   "dice-set"
+  ],
+  "gear": [
+   {
+    "item": "clothes-common",
+    "qty": 1
+   },
+   {
+    "item": "pouch",
+    "qty": 1
+   },
+   {
+    "item": "dice-set",
+    "qty": 1
+   },
+   {
+    "item": "signal-whistle",
+    "qty": 1
+   }
+  ],
+  "flavour": "Barracks drills taught you to hold a line, and the habit of watching exits never left."
+ },
+ {
+  "index": "criminal",
+  "name": "Criminal",
+  "skills": [
+   "deception",
+   "stealth"
+  ],
+  "tools": [
+   "thieves-tools"
+  ],
+  "gear": [
+   {
+    "item": "clothes-common",
+    "qty": 1
+   },
+   {
+    "item": "pouch",
+    "qty": 1
+   },
+   {
+    "item": "crowbar",
+    "qty": 1
+   },
+   {
+    "item": "thieves-tools",
+    "qty": 1
+   }
+  ],
+  "flavour": "You made a living in back alleys and know which doors stay unlocked for the right coin."
+ },
+ {
+  "index": "sage",
+  "name": "Sage",
+  "skills": [
+   "arcana",
+   "history"
+  ],
+  "tools": [],
+  "gear": [
+   {
+    "item": "clothes-common",
+    "qty": 1
+   },
+   {
+    "item": "pouch",
+    "qty": 1
+   },
+   {
+    "item": "book",
+    "qty": 1
+   },
+   {
+    "item": "ink-pen",
+    "qty": 1
+   },
+   {
+    "item": "ink-1-ounce-bottle",
+    "qty": 1
+   },
+   {
+    "item": "small-knife",
+    "qty": 1
+   }
+  ],
+  "flavour": "Years among dusty shelves left you with more questions than answers, and a hunger to test them."
+ },
+ {
+  "index": "folk-hero",
+  "name": "Folk Hero",
+  "skills": [
+   "animal-handling",
+   "survival"
+  ],
+  "tools": [
+   "smiths-tools"
+  ],
+  "gear": [
+   {
+    "item": "clothes-common",
+    "qty": 1
+   },
+   {
+    "item": "pouch",
+    "qty": 1
+   },
+   {
+    "item": "smiths-tools",
+    "qty": 1
+   },
+   {
+    "item": "shovel",
+    "qty": 1
+   },
+   {
+    "item": "pot-iron",
+    "qty": 1
+   }
+  ],
+  "flavour": "One brave stand made your village sing your name, and now the crowds expect more of you."
+ },
+ {
+  "index": "noble",
+  "name": "Noble",
+  "skills": [
+   "history",
+   "persuasion"
+  ],
+  "tools": [
+   "playing-card-set"
+  ],
+  "gear": [
+   {
+    "item": "clothes-fine",
+    "qty": 1
+   },
+   {
+    "item": "pouch",
+    "qty": 1
+   },
+   {
+    "item": "signet-ring",
+    "qty": 1
+   },
+   {
+    "item": "playing-card-set",
+    "qty": 1
+   }
+  ],
+  "flavour": "You grew up behind high walls and fine manners, and you are still learning what the world costs."
+ },
+ {
+  "index": "outlander",
+  "name": "Outlander",
+  "skills": [
+   "athletics",
+   "survival"
+  ],
+  "tools": [
+   "drum"
+  ],
+  "gear": [
+   {
+    "item": "clothes-travelers",
+    "qty": 1
+   },
+   {
+    "item": "pouch",
+    "qty": 1
+   },
+   {
+    "item": "drum",
+    "qty": 1
+   },
+   {
+    "item": "hunting-trap",
+    "qty": 1
+   },
+   {
+    "item": "waterskin",
+    "qty": 1
+   }
+  ],
+  "flavour": "The wilds raised you, and a crowded market feels stranger to you than any forest at night."
+ },
+ {
+  "index": "entertainer",
+  "name": "Entertainer",
+  "skills": [
+   "acrobatics",
+   "performance"
+  ],
+  "tools": [
+   "disguise-kit",
+   "lute"
+  ],
+  "gear": [
+   {
+    "item": "clothes-costume",
+    "qty": 1
+   },
+   {
+    "item": "pouch",
+    "qty": 1
+   },
+   {
+    "item": "lute",
+    "qty": 1
+   },
+   {
+    "item": "disguise-kit",
+    "qty": 1
+   }
+  ],
+  "flavour": "You have worked every kind of crowd, and you know exactly how a good story lands."
+ }
+]

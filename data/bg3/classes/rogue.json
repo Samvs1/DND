@@ -1,0 +1,171 @@
+{
+ "index": "rogue",
+ "name": "Rogue",
+ "hit_die": 8,
+ "primary_abilities": [
+  "dex"
+ ],
+ "saving_throws": [
+  "dex",
+  "int"
+ ],
+ "armor": [
+  "light-armor"
+ ],
+ "weapons": [
+  "simple-weapons",
+  "longswords",
+  "rapiers",
+  "shortswords",
+  "hand-crossbows"
+ ],
+ "tools": [
+  "thieves-tools"
+ ],
+ "skill_choice": {
+  "choose": 4,
+  "options": [
+   "acrobatics",
+   "athletics",
+   "deception",
+   "insight",
+   "intimidation",
+   "investigation",
+   "perception",
+   "performance",
+   "persuasion",
+   "sleight-of-hand",
+   "stealth"
+  ]
+ },
+ "equipment": {
+  "fixed": [
+   {
+    "item": "leather-armor",
+    "qty": 1
+   },
+   {
+    "item": "dagger",
+    "qty": 2
+   },
+   {
+    "item": "thieves-tools",
+    "qty": 1
+   }
+  ],
+  "choices": [
+   {
+    "id": "melee",
+    "label": "Main weapon",
+    "options": [
+     [
+      {
+       "item": "rapier",
+       "qty": 1
+      }
+     ],
+     [
+      {
+       "item": "shortsword",
+       "qty": 1
+      }
+     ]
+    ]
+   },
+   {
+    "id": "secondary",
+    "label": "Secondary weapon",
+    "options": [
+     [
+      {
+       "item": "shortbow",
+       "qty": 1
+      },
+      {
+       "item": "arrow",
+       "qty": 20
+      }
+     ],
+     [
+      {
+       "item": "shortsword",
+       "qty": 1
+      }
+     ]
+    ]
+   },
+   {
+    "id": "pack",
+    "label": "Equipment pack",
+    "options": [
+     [
+      {
+       "item": "burglars-pack",
+       "qty": 1
+      }
+     ],
+     [
+      {
+       "item": "dungeoneers-pack",
+       "qty": 1
+      }
+     ],
+     [
+      {
+       "item": "explorers-pack",
+       "qty": 1
+      }
+     ]
+    ]
+   }
+  ]
+ },
+ "subclass_level": 3,
+ "subclass_index": "thief",
+ "subclass_features": [
+  {
+   "level": 3,
+   "features": [
+    "fast-hands",
+    "second-story-work"
+   ]
+  }
+ ],
+ "levels": [
+  {
+   "level": 1,
+   "features": [
+    "rogue-expertise-1",
+    "sneak-attack",
+    "thieves-cant"
+   ]
+  },
+  {
+   "level": 2,
+   "features": [
+    "cunning-action"
+   ]
+  },
+  {
+   "level": 3,
+   "features": [
+    "roguish-archetype"
+   ]
+  },
+  {
+   "level": 4,
+   "features": [
+    "rogue-ability-score-improvement-1"
+   ],
+   "asi": true
+  },
+  {
+   "level": 5,
+   "features": [
+    "uncanny-dodge"
+   ]
+  }
+ ],
+ "choices": [],
+ "bg3_features": []
+}
