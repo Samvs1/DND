@@ -35,3 +35,6 @@ M1.5 condition events | new ConditionTicked (countdown), ConditionRemoved.exact_
 M1.5 condition saves | effects roll saves through rules.conditions.save_with_conditions (auto-fail + condition adv); raw checks.saving_throw stays for death saves | one save path that honours conditions
 M1.5 condition damage defences | resist_all_damage / damage_immunities from conditions are read inside damage_after_defenses | the choke point stays the only place defences apply
 M1.5 condition immunity | Creature.condition_immunities (keys) blocks apply_condition | SRD monsters list condition immunities
+M1.6 resources | Creature.resources: dict[key, Resource(current, maximum, recharge short_rest|long_rest)] with one ResourceSet event (define/spend/restore); rules/resources.py | generic hook the M2.3 slot model and M2.4 feature resources plug into
+M1.6 party pool | GameState.camp_supplies and short_rests_used; events CampSuppliesChanged, ShortRestTaken, LongRestTaken (resolved values); the party = living PCs | rests are party-wide; no separate party model until M5 needs one
+M1.6 rest refusals | rules/rests.py raises RestRefused(reason: RestRefusal) instead of returning events | the tool layer maps typed refusals to in-fiction messages; nothing is consumed

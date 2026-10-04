@@ -1,4 +1,4 @@
-NEXT: M1.6 Rests and coverage. Delegate to hard-engineer. Files in flight: none. Last gate: M1.5 FULL GATE PASS 8/8.
+NEXT: M2.1 Class, race and background data. Delegate to mechanical-engineer. Last gate: M1 FULL GATE PASS 8/8, rules coverage 100%.
 
 # PROGRESS
 
@@ -26,8 +26,8 @@ Stashes and blockers: record them in the Notes section at the bottom.
 - [x] M1.2 **H** Event sourcing: `models` GameState (minimal) plus an Event discriminated union, `session/reducer.apply`, hypothesis test replay(events) == snapshot. Gate: pytest plus lint-imports.
 - [x] M1.3 **H** Checks and defences: skills (18), checks, saves, passives, DC tier map (5-30); AC (armor, shield, Unarmored Defense for Barbarian/Monk data, Mage Armor); HP by level; temp HP. Gate: pytest rules. (commit 305ab6c)
 - [x] M1.4 **H** Damage choke point: typed damage only, resist/immune/vuln, temp HP absorbs first, HP clamped to [0, max], healing, death saves, stabilise, instant death; properties (never negative, within bounds). Gate: pytest rules plus property.
-- [x] M1.5 **H** Conditions: `data/bg3/conditions.json` (all 15 SRD conditions as data: attack/save/speed/action effects, duration, save-ends) plus a generic interpreter; concentration (damage check, single concentration); `test_v1_conditions_persist_after_combat`. Gate: pytest rules. (commit see git log, `WIP M1.5`)
-- [ ] M1.6 **H** Rests and coverage: short rest (limit 2 per long rest, hit dice), long rest (camp supplies per living member, tunable), slot model stub; bring `rules/` coverage to >=90%. FULL gate plus coverage tail. Commit `M1: Rules core`.
+- [x] M1.5 **H** Conditions: `data/bg3/conditions.json` (all 15 SRD conditions as data: attack/save/speed/action effects, duration, save-ends) plus a generic interpreter; concentration (damage check, single concentration); `test_v1_conditions_persist_after_combat`. Gate: pytest rules. (commit 38a6def)
+- [x] M1.6 **H** Rests and coverage: short rest (limit 2 per long rest, hit dice), long rest (camp supplies per living member, tunable), slot model stub; bring `rules/` coverage to >=90%. FULL gate plus coverage tail. Commit `M1: Rules core`. (commit see git log, `M1: Rules core`)
 
 ## M2 Characters (SPEC 7.5, 8)
 - [ ] M2.1 **M** Class, race and background data overlay: `data/bg3/classes/*.json` (6 classes, levels 1-5, subclass level, proficiencies, equipment packages), races and subraces from SRD, `data/bg3/backgrounds.json` (original wording); schema tests. Gate: pytest data.

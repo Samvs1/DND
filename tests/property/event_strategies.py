@@ -19,6 +19,7 @@ from aidm.models.conditions import (
 from aidm.models.damage import DamagePart, DamageType
 from aidm.models.events import (
     AnyEvent,
+    CampSuppliesChanged,
     CheckResolved,
     ConcentrationEnded,
     ConcentrationStarted,
@@ -33,10 +34,20 @@ from aidm.models.events import (
     DeathSavesSet,
     DiceRolled,
     HpChanged,
+    LongRestTaken,
+    ResourceSet,
+    ShortRestTaken,
     Stabilized,
     TempHpSet,
 )
-from aidm.models.state import ActiveCondition, Creature, CreatureKind, GameState
+from aidm.models.state import (
+    ActiveCondition,
+    Creature,
+    CreatureKind,
+    GameState,
+    RechargeKind,
+    Resource,
+)
 from aidm.rules.checks import dc_for_tier, saving_throw, skill_check
 from aidm.rules.d20 import roll_d20
 from aidm.rules.dice import roll
@@ -190,6 +201,30 @@ def _death_state(data: st.DataObject, c: Creature) -> AnyEvent:
     )
 
 
+def _resource(data: st.DataObject, c: Creature) -> AnyEvent:
+    maximum = data.draw(st.integers(0, 4))
+    resource = Resource(
+        current=data.draw(st.integers(0, maximum)),
+        maximum=maximum,
+        recharge=data.draw(st.sampled_from(list(RechargeKind))),
+    )
+    key = data.draw(st.sampled_from(["pact-slot-1", "rage", "ki"]))
+    return ResourceSet(creature_id=c.id, key=key, resource=resource)
+
+
+def _party(data: st.DataObject, _c: Creature) -> AnyEvent:
+    supplies = data.draw(st.integers(0, 200))
+    return data.draw(
+        st.sampled_from(
+            [
+                CampSuppliesChanged(delta=data.draw(st.integers(-50, 50)), camp_supplies=supplies),
+                ShortRestTaken(short_rests_used=data.draw(st.integers(1, 2))),
+                LongRestTaken(supplies_spent=data.draw(st.integers(0, 40)), camp_supplies=supplies),
+            ]
+        )
+    )
+
+
 TARGETED: list[Callable[[st.DataObject, Creature], AnyEvent]] = [
     _hp,
     _temp,
@@ -199,6 +234,8 @@ TARGETED: list[Callable[[st.DataObject, Creature], AnyEvent]] = [
     _conc_on,
     lambda _d, c: ConcentrationEnded(creature_id=c.id, spell_id="bless", reason="test"),
     _death_save,
+    _resource,
+    _party,
     _dice,
     _check,
     _damage_log,

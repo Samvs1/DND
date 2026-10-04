@@ -21,8 +21,15 @@ Public API:
   Death state: `death_save_successes/failures`, `stable`, `dead`; dying = 0 HP, alive, unstable.
   Conditions (M1.5): `condition_immunities` (condition keys, e.g. SRD monster immunities) and
   `concentrating_on` (at most one `Concentration`).
-- `GameState(campaign_id, seed, event_count, creatures)`: `event_count` is the number of events
-  applied so far, so the session can use it as the next event `seq`.
+  Resources (M1.6): `resources` maps a resource key ("pact-slot-1", "second-wind") to a
+  `Resource(current, maximum, recharge)`; rests restore them by `RechargeKind`. This is the hook
+  the M2.3 slot model and M2.4 feature resources plug into.
+- `RechargeKind`: SHORT_REST (restored by short and long rests) / LONG_REST (long rests only).
+- `Resource(current, maximum, recharge)`: `current` is within [0, maximum].
+- `GameState(campaign_id, seed, event_count, creatures, camp_supplies, short_rests_used)`:
+  `event_count` is the number of events applied so far, so the session can use it as the next
+  event `seq`. `camp_supplies` is the party's supply pool and `short_rests_used` counts short
+  rests since the last long rest (BG3 limit, `aidm.rules.rests`).
 
 Growth rule: every field added later MUST have a default, so snapshots and event logs written by
 older builds still validate and replay. Models use `extra="forbid"` to catch typos early.
@@ -79,6 +86,25 @@ class ActiveCondition(BaseModel):
         return self.duration is not ConditionDuration.ROUNDS
 
 
+class RechargeKind(StrEnum):
+    SHORT_REST = "short_rest"
+    LONG_REST = "long_rest"
+
+
+class Resource(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    current: int = Field(ge=0)
+    maximum: int = Field(ge=0)
+    recharge: RechargeKind
+
+    @model_validator(mode="after")
+    def _check_current(self) -> "Resource":
+        if self.current > self.maximum:
+            raise ValueError(f"current {self.current} exceeds maximum {self.maximum}")
+        return self
+
+
 def _default_abilities() -> dict[Ability, int]:
     return dict.fromkeys(Ability, 10)
 
@@ -105,6 +131,7 @@ class Creature(BaseModel):
     conditions: list[ActiveCondition] = Field(default_factory=list[ActiveCondition])
     condition_immunities: list[str] = Field(default_factory=list[str])
     concentrating_on: Concentration | None = None
+    resources: dict[str, Resource] = Field(default_factory=dict[str, Resource])
     death_save_successes: int = Field(default=0, ge=0, le=3)
     death_save_failures: int = Field(default=0, ge=0, le=3)
     stable: bool = False
@@ -124,3 +151,5 @@ class GameState(BaseModel):
     seed: int
     event_count: int = Field(default=0, ge=0)
     creatures: dict[str, Creature] = Field(default_factory=dict[str, Creature])
+    camp_supplies: int = Field(default=0, ge=0)
+    short_rests_used: int = Field(default=0, ge=0)

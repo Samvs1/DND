@@ -187,3 +187,19 @@ def test_concentration_started_and_ended() -> None:
     assert state.creatures["gob1"].concentrating_on == conc
     apply(state, ConcentrationEnded(creature_id="gob1", spell_id="bless"))
     assert state.creatures["gob1"].concentrating_on is None
+
+
+def test_resources_and_party_pool() -> None:
+    from aidm.models.events import CampSuppliesChanged, LongRestTaken, ResourceSet, ShortRestTaken
+    from aidm.models.state import RechargeKind, Resource
+
+    state = make_state()
+    apply(state, CreatureAdded(creature=goblin()))
+    res = Resource(current=1, maximum=2, recharge=RechargeKind.SHORT_REST)
+    apply(state, ResourceSet(creature_id="gob1", key="ki", resource=res))
+    assert state.creatures["gob1"].resources == {"ki": res}
+    apply(state, CampSuppliesChanged(delta=50, camp_supplies=50))
+    apply(state, ShortRestTaken(short_rests_used=2))
+    assert (state.camp_supplies, state.short_rests_used) == (50, 2)
+    apply(state, LongRestTaken(supplies_spent=40, camp_supplies=10))
+    assert (state.camp_supplies, state.short_rests_used) == (10, 0)

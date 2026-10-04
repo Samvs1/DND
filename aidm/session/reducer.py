@@ -22,6 +22,7 @@ from typing import assert_never
 
 from aidm.models.events import (
     AnyEvent,
+    CampSuppliesChanged,
     CheckResolved,
     ConcentrationEnded,
     ConcentrationStarted,
@@ -36,6 +37,9 @@ from aidm.models.events import (
     DeathSavesSet,
     DiceRolled,
     HpChanged,
+    LongRestTaken,
+    ResourceSet,
+    ShortRestTaken,
     Stabilized,
     TempHpSet,
 )
@@ -131,6 +135,15 @@ def apply(state: GameState, event: AnyEvent) -> GameState:
             target = _creature(state, cid)
             target.dead = True
             target.stable = False
+        case ResourceSet(creature_id=cid, key=key, resource=resource):
+            _creature(state, cid).resources[key] = resource
+        case CampSuppliesChanged(camp_supplies=supplies):
+            state.camp_supplies = supplies
+        case ShortRestTaken(short_rests_used=used):
+            state.short_rests_used = used
+        case LongRestTaken(camp_supplies=supplies):
+            state.camp_supplies = supplies
+            state.short_rests_used = 0
         case DiceRolled() | CheckResolved() | DamageTaken():
             pass
         case _:

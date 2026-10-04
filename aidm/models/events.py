@@ -17,7 +17,7 @@ Public API:
 - Events: `CreatureAdded`, `CreatureRemoved`, `HpChanged`, `TempHpSet`, `ConditionApplied`,
   `ConditionRemoved`, `DeathSaveRolled`, `Stabilized`, `CreatureDied`, `DiceRolled`,
   `CheckResolved`, `DamageTaken`, `DeathSavesSet`, `ConditionTicked`, `ConcentrationStarted`,
-  `ConcentrationEnded`.
+  `ConcentrationEnded`, `ResourceSet`, `CampSuppliesChanged`, `ShortRestTaken`, `LongRestTaken`.
 - `AnyEvent` (plain union), `Event` (union annotated with the `type` discriminator),
   `EVENT_TYPES` (every event class), `event_adapter` (`TypeAdapter` for validate/dump of `Event`).
 - `LoggedEvent(seq, event)`: the persisted envelope (events.jsonl line).
@@ -31,7 +31,7 @@ from aidm.models.checks import CheckResult
 from aidm.models.conditions import Concentration
 from aidm.models.damage import DamagePart
 from aidm.models.dice import D20Roll, Roll
-from aidm.models.state import ActiveCondition, Creature
+from aidm.models.state import ActiveCondition, Creature, Resource
 
 
 class _EventBase(BaseModel):
@@ -194,6 +194,41 @@ class DeathSavesSet(_EventBase):
     stable: bool = False
 
 
+class ResourceSet(_EventBase):
+    """The creature's resource `key` becomes exactly `resource` (defined, spent or restored)."""
+
+    type: Literal["resource_set"] = "resource_set"
+    creature_id: str
+    key: str = Field(min_length=1)
+    resource: Resource
+
+
+class CampSuppliesChanged(_EventBase):
+    """The party supply pool changed by `delta` (loot, purchase); `camp_supplies` is the result."""
+
+    type: Literal["camp_supplies_changed"] = "camp_supplies_changed"
+    delta: int
+    camp_supplies: int = Field(ge=0)
+
+
+class ShortRestTaken(_EventBase):
+    """The party took a short rest; `short_rests_used` is the new count since the long rest."""
+
+    type: Literal["short_rest_taken"] = "short_rest_taken"
+    short_rests_used: int = Field(ge=1)
+
+
+class LongRestTaken(_EventBase):
+    """The party long-rested: `supplies_spent` paid, pool is now `camp_supplies`, counter reset.
+
+    The per-member effects (HP, resources, conditions) are the separate events that follow.
+    """
+
+    type: Literal["long_rest_taken"] = "long_rest_taken"
+    supplies_spent: int = Field(ge=0)
+    camp_supplies: int = Field(ge=0)
+
+
 type AnyEvent = (
     CreatureAdded
     | CreatureRemoved
@@ -211,6 +246,10 @@ type AnyEvent = (
     | ConditionTicked
     | ConcentrationStarted
     | ConcentrationEnded
+    | ResourceSet
+    | CampSuppliesChanged
+    | ShortRestTaken
+    | LongRestTaken
 )
 
 Event = Annotated[AnyEvent, Field(discriminator="type")]
@@ -232,6 +271,10 @@ EVENT_TYPES: tuple[type[BaseModel], ...] = (
     ConditionTicked,
     ConcentrationStarted,
     ConcentrationEnded,
+    ResourceSet,
+    CampSuppliesChanged,
+    ShortRestTaken,
+    LongRestTaken,
 )
 
 event_adapter: TypeAdapter[AnyEvent] = TypeAdapter(Event)
