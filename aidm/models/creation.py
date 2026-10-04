@@ -12,7 +12,8 @@ Public API:
   racial bonuses), `rolls` (the six "4d6kh3" rolls for ROLL_4D6, shown to the player; the scores
   must be an assignment of their totals), `ability_choice_picks` (half-elf style +1 picks); picks:
   `class_skills`, `race_skills`, `tool_picks`, `language_picks`, `equipment_picks` (class choice
-  id -> option index), `class_choices` (class choice id -> option ids, e.g. a fighting style);
+  id -> option index), `class_choices` (class choice id -> option ids, e.g. a fighting style),
+  `feature_choices` (feature id -> picks: expertise skills, a draconic ancestry option);
   spells: `cantrips` (class), `race_cantrips` (high elf), `spells` (known spells, or a wizard's
   spellbook), `prepared` (prepared casters).
 - `CreationErrorCode`, `CreationError(code, field, detail)`: one problem with one field.
@@ -53,6 +54,7 @@ class CreationChoices(BaseModel):
     language_picks: list[str] = Field(default_factory=list[str])
     equipment_picks: dict[str, int] = Field(default_factory=dict[str, int])
     class_choices: dict[str, list[str]] = Field(default_factory=dict[str, list[str]])
+    feature_choices: dict[str, list[str]] = Field(default_factory=dict[str, list[str]])
     cantrips: list[str] = Field(default_factory=list[str])
     race_cantrips: list[str] = Field(default_factory=list[str])
     spells: list[str] = Field(default_factory=list[str])

@@ -79,6 +79,13 @@ def default_choices(class_index: str, race_index: str, subrace: str | None) -> C
     if race.ability_choice:
         picks = [Ability(a) for a in race.ability_choice.options[: race.ability_choice.choose]]
     spells = _spell_picks(regs, refs)
+    feature_choices: dict[str, list[str]] = {}
+    if cls.index == "rogue":
+        feature_choices["rogue-expertise-1"] = class_skills[:2]
+    for trait in [*race.traits, *(sub.traits if sub else ())]:
+        pick = regs.features.get(trait).pick
+        if pick is not None:
+            feature_choices[trait] = list(pick.options[: pick.choose])
     return CreationChoices(
         name="Test Hero",
         race=race_index,
@@ -96,6 +103,7 @@ def default_choices(class_index: str, race_index: str, subrace: str | None) -> C
         class_choices={
             c.id: list(c.pick.options[: c.pick.choose]) for c in cls.choices if c.level <= 1
         },
+        feature_choices=feature_choices,
         cantrips=spells.get("cantrips", []),
         race_cantrips=spells.get("race_cantrips", []),
         spells=spells.get("spells", []),

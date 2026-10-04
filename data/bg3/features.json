@@ -1,0 +1,1188 @@
+[
+ {
+  "index": "fighter-fighting-style",
+  "name": "Fighting Style",
+  "summary": "Pick a combat specialty at 1st level.",
+  "hooks": []
+ },
+ {
+  "index": "second-wind",
+  "name": "Second Wind",
+  "summary": "Once per short rest, use a bonus action to regain 1d10 + fighter level hit points.",
+  "hooks": [
+   {
+    "kind": "resource",
+    "key": "second-wind",
+    "uses": 1,
+    "recharge": "short_rest"
+   },
+   {
+    "kind": "bonus_action",
+    "actions": [
+     "second_wind"
+    ],
+    "resource": "second-wind",
+    "heal": "1d10+LEVEL"
+   }
+  ]
+ },
+ {
+  "index": "action-surge-1-use",
+  "name": "Action Surge",
+  "summary": "Once per short rest, take one extra action on your turn.",
+  "hooks": [
+   {
+    "kind": "resource",
+    "key": "action-surge",
+    "uses": 1,
+    "recharge": "short_rest"
+   },
+   {
+    "kind": "extra_action",
+    "actions": 1,
+    "resource": "action-surge"
+   }
+  ]
+ },
+ {
+  "index": "martial-archetype",
+  "name": "Martial Archetype",
+  "summary": "Choose a fighter archetype at 3rd level.",
+  "hooks": []
+ },
+ {
+  "index": "fighter-ability-score-improvement-1",
+  "name": "Ability Score Improvement",
+  "summary": "Raise one ability score by 2 or two scores by 1 (maximum 20).",
+  "hooks": []
+ },
+ {
+  "index": "extra-attack-1",
+  "name": "Extra Attack",
+  "summary": "Attack twice whenever you take the Attack action.",
+  "hooks": [
+   {
+    "kind": "extra_attack",
+    "attacks": 1
+   }
+  ]
+ },
+ {
+  "index": "improved-critical",
+  "name": "Improved Critical",
+  "summary": "Your weapon attacks score a critical hit on 19 or 20.",
+  "hooks": [
+   {
+    "kind": "improved_critical",
+    "crit_on": 19
+   }
+  ]
+ },
+ {
+  "index": "fighter-fighting-style-archery",
+  "name": "Fighting Style: Archery",
+  "summary": "+2 to attack rolls with ranged weapons.",
+  "hooks": [
+   {
+    "kind": "fighting_style",
+    "attack_bonus": 2,
+    "weapon": "ranged"
+   }
+  ]
+ },
+ {
+  "index": "fighter-fighting-style-defense",
+  "name": "Fighting Style: Defense",
+  "summary": "+1 AC while you wear body armor.",
+  "hooks": [
+   {
+    "kind": "fighting_style",
+    "ac_bonus": 1,
+    "requires_armor": true
+   }
+  ]
+ },
+ {
+  "index": "fighter-fighting-style-dueling",
+  "name": "Fighting Style: Dueling",
+  "summary": "+2 damage with a one-handed melee weapon when the other hand holds no weapon.",
+  "hooks": [
+   {
+    "kind": "fighting_style",
+    "damage_bonus": 2,
+    "weapon": "melee_one_handed"
+   }
+  ]
+ },
+ {
+  "index": "fighter-fighting-style-great-weapon-fighting",
+  "name": "Fighting Style: Great Weapon Fighting",
+  "summary": "Reroll 1s and 2s on damage dice of two-handed melee attacks once.",
+  "hooks": [
+   {
+    "kind": "fighting_style",
+    "reroll_damage_below": 3,
+    "weapon": "melee_two_handed"
+   }
+  ]
+ },
+ {
+  "index": "fighter-fighting-style-protection",
+  "name": "Fighting Style: Protection",
+  "summary": "Use a shield to impose disadvantage on an attack against an ally nearby.",
+  "hooks": [
+   {
+    "kind": "unsupported",
+    "reason": "Protection is a reaction; reactions are Tier 2 (SPEC 7.2)"
+   }
+  ]
+ },
+ {
+  "index": "fighter-fighting-style-two-weapon-fighting",
+  "name": "Fighting Style: Two-Weapon Fighting",
+  "summary": "Add your ability modifier to the damage of your off-hand attack.",
+  "hooks": [
+   {
+    "kind": "fighting_style",
+    "offhand_ability_damage": true,
+    "weapon": "offhand"
+   }
+  ]
+ },
+ {
+  "index": "ranger-fighting-style-archery",
+  "name": "Fighting Style: Archery",
+  "summary": "+2 to attack rolls with ranged weapons.",
+  "hooks": [
+   {
+    "kind": "fighting_style",
+    "attack_bonus": 2,
+    "weapon": "ranged"
+   }
+  ]
+ },
+ {
+  "index": "ranger-fighting-style-defense",
+  "name": "Fighting Style: Defense",
+  "summary": "+1 AC while you wear body armor.",
+  "hooks": [
+   {
+    "kind": "fighting_style",
+    "ac_bonus": 1,
+    "requires_armor": true
+   }
+  ]
+ },
+ {
+  "index": "ranger-fighting-style-dueling",
+  "name": "Fighting Style: Dueling",
+  "summary": "+2 damage with a one-handed melee weapon when the other hand holds no weapon.",
+  "hooks": [
+   {
+    "kind": "fighting_style",
+    "damage_bonus": 2,
+    "weapon": "melee_one_handed"
+   }
+  ]
+ },
+ {
+  "index": "ranger-fighting-style-two-weapon-fighting",
+  "name": "Fighting Style: Two-Weapon Fighting",
+  "summary": "Add your ability modifier to the damage of your off-hand attack.",
+  "hooks": [
+   {
+    "kind": "fighting_style",
+    "offhand_ability_damage": true,
+    "weapon": "offhand"
+   }
+  ]
+ },
+ {
+  "index": "rogue-expertise-1",
+  "name": "Expertise",
+  "summary": "Double your proficiency bonus for two proficient skills.",
+  "hooks": [
+   {
+    "kind": "expertise",
+    "choose": 2
+   }
+  ]
+ },
+ {
+  "index": "sneak-attack",
+  "name": "Sneak Attack",
+  "summary": "Once per turn, a finesse or ranged hit deals extra damage with advantage or an ally beside the target.",
+  "hooks": [
+   {
+    "kind": "sneak_attack",
+    "dice_by_level": {
+     "1": "1d6",
+     "3": "2d6",
+     "5": "3d6"
+    }
+   }
+  ]
+ },
+ {
+  "index": "thieves-cant",
+  "name": "Thieves' Cant",
+  "summary": "A secret mix of jargon and signs other rogues understand.",
+  "hooks": []
+ },
+ {
+  "index": "cunning-action",
+  "name": "Cunning Action",
+  "summary": "Dash, Disengage or Hide as a bonus action.",
+  "hooks": [
+   {
+    "kind": "bonus_action",
+    "actions": [
+     "dash",
+     "disengage",
+     "hide"
+    ]
+   }
+  ]
+ },
+ {
+  "index": "roguish-archetype",
+  "name": "Roguish Archetype",
+  "summary": "Choose a rogue archetype at 3rd level.",
+  "hooks": []
+ },
+ {
+  "index": "rogue-ability-score-improvement-1",
+  "name": "Ability Score Improvement",
+  "summary": "Raise one ability score by 2 or two scores by 1 (maximum 20).",
+  "hooks": []
+ },
+ {
+  "index": "uncanny-dodge",
+  "name": "Uncanny Dodge",
+  "summary": "Halve the damage of an attack that hits you.",
+  "hooks": [
+   {
+    "kind": "unsupported",
+    "reason": "Uncanny Dodge is a reaction; reactions are Tier 2 (SPEC 7.2)"
+   }
+  ]
+ },
+ {
+  "index": "fast-hands",
+  "name": "Fast Hands",
+  "summary": "Use an object or your thieves' tools as a bonus action.",
+  "hooks": [
+   {
+    "kind": "bonus_action",
+    "actions": [
+     "use_object"
+    ]
+   }
+  ]
+ },
+ {
+  "index": "second-story-work",
+  "name": "Second-Story Work",
+  "summary": "You climb quickly and leap farther.",
+  "hooks": [
+   {
+    "kind": "unsupported",
+    "reason": "climbing speed and jump distance are not modelled by zones"
+   }
+  ]
+ },
+ {
+  "index": "spellcasting-wizard",
+  "name": "Spellcasting",
+  "summary": "Cast wizard spells prepared from your spellbook (Intelligence).",
+  "hooks": []
+ },
+ {
+  "index": "arcane-recovery",
+  "name": "Arcane Recovery",
+  "summary": "Once per long rest, after a short rest regain spell slots totalling half your wizard level.",
+  "hooks": [
+   {
+    "kind": "resource",
+    "key": "arcane-recovery",
+    "uses": 1,
+    "recharge": "long_rest"
+   },
+   {
+    "kind": "slot_recovery",
+    "resource": "arcane-recovery",
+    "level_divisor": 2,
+    "max_slot_level": 5
+   }
+  ]
+ },
+ {
+  "index": "bg3-scroll-copy",
+  "name": "Scroll Copying",
+  "summary": "Copy a spell scroll into your spellbook for 50 gold per spell level.",
+  "hooks": [
+   {
+    "kind": "scroll_copy",
+    "gold_per_level": 50
+   }
+  ]
+ },
+ {
+  "index": "arcane-tradition",
+  "name": "Arcane Tradition",
+  "summary": "Choose an arcane tradition at 2nd level.",
+  "hooks": []
+ },
+ {
+  "index": "wizard-ability-score-improvement-1",
+  "name": "Ability Score Improvement",
+  "summary": "Raise one ability score by 2 or two scores by 1 (maximum 20).",
+  "hooks": []
+ },
+ {
+  "index": "evocation-savant",
+  "name": "Evocation Savant",
+  "summary": "Copying evocation spells costs half the gold.",
+  "hooks": [
+   {
+    "kind": "scroll_copy",
+    "school": "evocation",
+    "cost_percent": 50
+   }
+  ]
+ },
+ {
+  "index": "sculpt-spells",
+  "name": "Sculpt Spells",
+  "summary": "Shield allies from your evocation spells' area.",
+  "hooks": [
+   {
+    "kind": "unsupported",
+    "reason": "ally exclusion from areas; its effect needs the spell effect DSL (M3.4)"
+   }
+  ]
+ },
+ {
+  "index": "spellcasting-cleric",
+  "name": "Spellcasting",
+  "summary": "Prepare cleric spells each day (Wisdom).",
+  "hooks": []
+ },
+ {
+  "index": "divine-domain",
+  "name": "Divine Domain",
+  "summary": "Choose a divine domain at 1st level.",
+  "hooks": []
+ },
+ {
+  "index": "domain-spells-1",
+  "name": "Domain Spells",
+  "summary": "Domain spells are always prepared and do not count against your limit.",
+  "hooks": [
+   {
+    "kind": "spell_grant",
+    "spells": [
+     {
+      "spell": "bless",
+      "mode": "always_prepared",
+      "subclass": "life"
+     },
+     {
+      "spell": "cure-wounds",
+      "mode": "always_prepared",
+      "subclass": "life"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "index": "domain-spells-2",
+  "name": "Domain Spells",
+  "summary": "More domain spells join your always-prepared list.",
+  "hooks": [
+   {
+    "kind": "spell_grant",
+    "spells": [
+     {
+      "spell": "lesser-restoration",
+      "mode": "always_prepared",
+      "subclass": "life"
+     },
+     {
+      "spell": "spiritual-weapon",
+      "mode": "always_prepared",
+      "subclass": "life"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "index": "domain-spells-3",
+  "name": "Domain Spells",
+  "summary": "More domain spells join your always-prepared list.",
+  "hooks": [
+   {
+    "kind": "spell_grant",
+    "spells": [
+     {
+      "spell": "beacon-of-hope",
+      "mode": "always_prepared",
+      "subclass": "life"
+     },
+     {
+      "spell": "revivify",
+      "mode": "always_prepared",
+      "subclass": "life"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "index": "channel-divinity-1-rest",
+  "name": "Channel Divinity",
+  "summary": "Channel divine power once per short rest.",
+  "hooks": [
+   {
+    "kind": "resource",
+    "key": "channel-divinity",
+    "uses": 1,
+    "recharge": "short_rest"
+   }
+  ]
+ },
+ {
+  "index": "channel-divinity-turn-undead",
+  "name": "Channel Divinity: Turn Undead",
+  "summary": "Undead that fail a Wisdom save flee from you.",
+  "hooks": [
+   {
+    "kind": "unsupported",
+    "reason": "Turn Undead; its effect needs the spell effect DSL (M3.4)"
+   }
+  ]
+ },
+ {
+  "index": "divine-domain-improvement-1",
+  "name": "Divine Domain Feature",
+  "summary": "Your domain grants a new power at 2nd level.",
+  "hooks": []
+ },
+ {
+  "index": "cleric-ability-score-improvement-1",
+  "name": "Ability Score Improvement",
+  "summary": "Raise one ability score by 2 or two scores by 1 (maximum 20).",
+  "hooks": []
+ },
+ {
+  "index": "destroy-undead-cr-1-2-or-below",
+  "name": "Destroy Undead",
+  "summary": "Weak undead you turn are destroyed outright.",
+  "hooks": [
+   {
+    "kind": "unsupported",
+    "reason": "Destroy Undead; its effect needs the spell effect DSL (M3.4)"
+   }
+  ]
+ },
+ {
+  "index": "bonus-proficiency",
+  "name": "Bonus Proficiency",
+  "summary": "You can wear heavy armor.",
+  "hooks": [
+   {
+    "kind": "proficiency",
+    "armor": [
+     "heavy-armor"
+    ]
+   }
+  ]
+ },
+ {
+  "index": "disciple-of-life",
+  "name": "Disciple of Life",
+  "summary": "Healing spells of 1st level or higher restore 2 + the spell's level extra hit points.",
+  "hooks": [
+   {
+    "kind": "healing_bonus",
+    "base": 2,
+    "per_spell_level": 1,
+    "min_spell_level": 1
+   }
+  ]
+ },
+ {
+  "index": "channel-divinity-preserve-life",
+  "name": "Channel Divinity: Preserve Life",
+  "summary": "Split a pool of healing among badly hurt creatures.",
+  "hooks": [
+   {
+    "kind": "unsupported",
+    "reason": "Preserve Life; its effect needs the spell effect DSL (M3.4)"
+   }
+  ]
+ },
+ {
+  "index": "favored-enemy-1-type",
+  "name": "Favored Enemy",
+  "summary": "You know one kind of foe well and track it easily.",
+  "hooks": [
+   {
+    "kind": "unsupported",
+    "reason": "an exploration benefit the DM adjudicates; no engine model"
+   }
+  ]
+ },
+ {
+  "index": "natural-explorer-1-terrain-type",
+  "name": "Natural Explorer",
+  "summary": "You travel and forage well in one terrain.",
+  "hooks": [
+   {
+    "kind": "unsupported",
+    "reason": "an exploration benefit the DM adjudicates; no engine model"
+   }
+  ]
+ },
+ {
+  "index": "ranger-fighting-style",
+  "name": "Fighting Style",
+  "summary": "Pick a combat specialty at 2nd level.",
+  "hooks": []
+ },
+ {
+  "index": "spellcasting-ranger",
+  "name": "Spellcasting",
+  "summary": "Cast ranger spells you know (Wisdom).",
+  "hooks": []
+ },
+ {
+  "index": "ranger-archetype",
+  "name": "Ranger Archetype",
+  "summary": "Choose a ranger archetype at 3rd level.",
+  "hooks": []
+ },
+ {
+  "index": "primeval-awareness",
+  "name": "Primeval Awareness",
+  "summary": "Spend a spell slot to sense certain creatures nearby.",
+  "hooks": [
+   {
+    "kind": "unsupported",
+    "reason": "an exploration benefit the DM adjudicates; no engine model"
+   }
+  ]
+ },
+ {
+  "index": "ranger-ability-score-improvement-1",
+  "name": "Ability Score Improvement",
+  "summary": "Raise one ability score by 2 or two scores by 1 (maximum 20).",
+  "hooks": []
+ },
+ {
+  "index": "ranger-extra-attack",
+  "name": "Extra Attack",
+  "summary": "Attack twice whenever you take the Attack action.",
+  "hooks": [
+   {
+    "kind": "extra_attack",
+    "attacks": 1
+   }
+  ]
+ },
+ {
+  "index": "hunters-prey",
+  "name": "Hunter's Prey",
+  "summary": "Choose a hunting technique at 3rd level.",
+  "hooks": []
+ },
+ {
+  "index": "hunters-prey-colossus-slayer",
+  "name": "Colossus Slayer",
+  "summary": "Once per turn, a weapon hit on a wounded creature deals an extra 1d8.",
+  "hooks": [
+   {
+    "kind": "damage_rider",
+    "dice_by_level": {
+     "1": "1d8"
+    },
+    "trigger": "target_wounded",
+    "once_per_turn": true
+   }
+  ]
+ },
+ {
+  "index": "hunters-prey-giant-killer",
+  "name": "Giant Killer",
+  "summary": "Strike back at a large foe that attacks you.",
+  "hooks": [
+   {
+    "kind": "unsupported",
+    "reason": "Giant Killer is a reaction; reactions are Tier 2 (SPEC 7.2)"
+   }
+  ]
+ },
+ {
+  "index": "hunters-prey-horde-breaker",
+  "name": "Horde Breaker",
+  "summary": "Once per turn, make a second attack against another foe next to your target.",
+  "hooks": [
+   {
+    "kind": "unsupported",
+    "reason": "needs the M3.3 attack command with a second target"
+   }
+  ]
+ },
+ {
+  "index": "otherworldly-patron",
+  "name": "Otherworldly Patron",
+  "summary": "Your patron adds spells you may learn.",
+  "hooks": [
+   {
+    "kind": "spell_grant",
+    "spells": [
+     {
+      "spell": "burning-hands",
+      "mode": "expanded",
+      "subclass": "fiend"
+     },
+     {
+      "spell": "command",
+      "mode": "expanded",
+      "subclass": "fiend"
+     },
+     {
+      "spell": "blindness-deafness",
+      "mode": "expanded",
+      "subclass": "fiend"
+     },
+     {
+      "spell": "scorching-ray",
+      "mode": "expanded",
+      "subclass": "fiend"
+     },
+     {
+      "spell": "fireball",
+      "mode": "expanded",
+      "subclass": "fiend"
+     },
+     {
+      "spell": "stinking-cloud",
+      "mode": "expanded",
+      "subclass": "fiend"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "index": "pact-magic",
+  "name": "Pact Magic",
+  "summary": "Cast warlock spells from a few pact slots that return on a short rest.",
+  "hooks": []
+ },
+ {
+  "index": "bg3-pact-short-rest",
+  "name": "Pact Slot Recovery",
+  "summary": "Pact slots refill on every short and long rest.",
+  "hooks": []
+ },
+ {
+  "index": "eldritch-invocations",
+  "name": "Eldritch Invocations",
+  "summary": "Learn occult fragments that grant lasting powers.",
+  "hooks": [
+   {
+    "kind": "unsupported",
+    "reason": "invocation picks are Tier 2; none are offered yet"
+   }
+  ]
+ },
+ {
+  "index": "pact-boon",
+  "name": "Pact Boon",
+  "summary": "Your patron grants a boon: a familiar, a blade or a tome.",
+  "hooks": [
+   {
+    "kind": "unsupported",
+    "reason": "pact boon picks are Tier 2; none are offered yet"
+   }
+  ]
+ },
+ {
+  "index": "warlock-ability-score-improvement-1",
+  "name": "Ability Score Improvement",
+  "summary": "Raise one ability score by 2 or two scores by 1 (maximum 20).",
+  "hooks": []
+ },
+ {
+  "index": "dark-ones-blessing",
+  "name": "Dark One's Blessing",
+  "summary": "Dropping a hostile creature to 0 HP grants temporary HP equal to Charisma modifier + warlock level.",
+  "hooks": [
+   {
+    "kind": "kill_temp_hp",
+    "ability": "cha",
+    "add_level": true,
+    "minimum": 1
+   }
+  ]
+ },
+ {
+  "index": "darkvision",
+  "name": "Darkvision",
+  "summary": "You see in dim light within 60 feet as if it were bright.",
+  "hooks": [
+   {
+    "kind": "darkvision",
+    "range": 60
+   }
+  ]
+ },
+ {
+  "index": "dwarven-resilience",
+  "name": "Dwarven Resilience",
+  "summary": "Advantage on saves against poison and resistance to poison damage.",
+  "hooks": [
+   {
+    "kind": "resistance",
+    "damage_types": [
+     "poison"
+    ]
+   },
+   {
+    "kind": "advantage_on",
+    "saves_against": [
+     "poison",
+     "poisoned"
+    ]
+   }
+  ]
+ },
+ {
+  "index": "stonecunning",
+  "name": "Stonecunning",
+  "summary": "You read the history of stonework with ease.",
+  "hooks": []
+ },
+ {
+  "index": "dwarven-combat-training",
+  "name": "Dwarven Combat Training",
+  "summary": "Trained with axes and hammers.",
+  "hooks": []
+ },
+ {
+  "index": "tool-proficiency",
+  "name": "Tool Proficiency",
+  "summary": "Proficiency with one set of artisan's tools.",
+  "hooks": []
+ },
+ {
+  "index": "dwarven-toughness",
+  "name": "Dwarven Toughness",
+  "summary": "+1 maximum HP per level.",
+  "hooks": [
+   {
+    "kind": "stat_bonus",
+    "hp_per_level": 1
+   }
+  ]
+ },
+ {
+  "index": "fey-ancestry",
+  "name": "Fey Ancestry",
+  "summary": "Advantage on saves against being charmed; magic cannot put you to sleep.",
+  "hooks": [
+   {
+    "kind": "advantage_on",
+    "saves_against": [
+     "charmed"
+    ]
+   }
+  ]
+ },
+ {
+  "index": "trance",
+  "name": "Trance",
+  "summary": "You meditate instead of sleeping.",
+  "hooks": []
+ },
+ {
+  "index": "keen-senses",
+  "name": "Keen Senses",
+  "summary": "Proficiency in Perception.",
+  "hooks": []
+ },
+ {
+  "index": "elf-weapon-training",
+  "name": "Elf Weapon Training",
+  "summary": "Trained with swords and bows.",
+  "hooks": []
+ },
+ {
+  "index": "high-elf-cantrip",
+  "name": "Cantrip",
+  "summary": "You know one wizard cantrip, cast with Intelligence.",
+  "hooks": [
+   {
+    "kind": "spell_grant",
+    "ability": "int",
+    "covers_race_cantrips": true
+   }
+  ]
+ },
+ {
+  "index": "extra-language",
+  "name": "Extra Language",
+  "summary": "You speak one more language.",
+  "hooks": []
+ },
+ {
+  "index": "brave",
+  "name": "Brave",
+  "summary": "Advantage on saves against being frightened.",
+  "hooks": [
+   {
+    "kind": "advantage_on",
+    "saves_against": [
+     "frightened"
+    ]
+   }
+  ]
+ },
+ {
+  "index": "halfling-nimbleness",
+  "name": "Halfling Nimbleness",
+  "summary": "You slip past creatures larger than you.",
+  "hooks": []
+ },
+ {
+  "index": "lucky",
+  "name": "Lucky",
+  "summary": "Reroll a natural 1 on an attack, check or save once.",
+  "hooks": [
+   {
+    "kind": "reroll_ones",
+    "tests": [
+     "attack",
+     "check",
+     "save"
+    ]
+   }
+  ]
+ },
+ {
+  "index": "naturally-stealthy",
+  "name": "Naturally Stealthy",
+  "summary": "You can hide behind a creature larger than you.",
+  "hooks": [
+   {
+    "kind": "unsupported",
+    "reason": "hiding is resolved by the M3.3 hide command; cover by creatures is not modelled"
+   }
+  ]
+ },
+ {
+  "index": "draconic-ancestry",
+  "name": "Draconic Ancestry",
+  "summary": "Your dragon lineage sets your breath and resistance.",
+  "hooks": [],
+  "pick": {
+   "choose": 1,
+   "options": [
+    "draconic-ancestry-black",
+    "draconic-ancestry-blue",
+    "draconic-ancestry-brass",
+    "draconic-ancestry-bronze",
+    "draconic-ancestry-copper",
+    "draconic-ancestry-gold",
+    "draconic-ancestry-green",
+    "draconic-ancestry-red",
+    "draconic-ancestry-silver",
+    "draconic-ancestry-white"
+   ]
+  }
+ },
+ {
+  "index": "breath-weapon",
+  "name": "Breath Weapon",
+  "summary": "Exhale your ancestry's element once per short rest.",
+  "hooks": [
+   {
+    "kind": "resource",
+    "key": "breath-weapon",
+    "uses": 1,
+    "recharge": "short_rest"
+   },
+   {
+    "kind": "unsupported",
+    "reason": "breath weapon area damage; its effect needs the spell effect DSL (M3.4)"
+   }
+  ]
+ },
+ {
+  "index": "damage-resistance",
+  "name": "Damage Resistance",
+  "summary": "Resistance to your ancestry's damage type.",
+  "hooks": []
+ },
+ {
+  "index": "gnome-cunning",
+  "name": "Gnome Cunning",
+  "summary": "Advantage on Intelligence, Wisdom and Charisma saves against magic.",
+  "hooks": [
+   {
+    "kind": "advantage_on",
+    "saves_against": [
+     "magic"
+    ],
+    "abilities": [
+     "int",
+     "wis",
+     "cha"
+    ]
+   }
+  ]
+ },
+ {
+  "index": "artificers-lore",
+  "name": "Artificer's Lore",
+  "summary": "You know a lot about magic items and clever devices.",
+  "hooks": []
+ },
+ {
+  "index": "tinker",
+  "name": "Tinker",
+  "summary": "You build tiny clockwork toys and gadgets.",
+  "hooks": []
+ },
+ {
+  "index": "skill-versatility",
+  "name": "Skill Versatility",
+  "summary": "Proficiency in two skills of your choice.",
+  "hooks": []
+ },
+ {
+  "index": "savage-attacks",
+  "name": "Savage Attacks",
+  "summary": "A melee critical hit adds one more weapon damage die.",
+  "hooks": [
+   {
+    "kind": "damage_rider",
+    "weapon_dice": 1,
+    "weapon": "melee",
+    "trigger": "crit"
+   }
+  ]
+ },
+ {
+  "index": "relentless-endurance",
+  "name": "Relentless Endurance",
+  "summary": "Once per long rest, drop to 1 hit point instead of 0.",
+  "hooks": [
+   {
+    "kind": "resource",
+    "key": "relentless-endurance",
+    "uses": 1,
+    "recharge": "long_rest"
+   },
+   {
+    "kind": "unsupported",
+    "reason": "dropping to 1 HP instead of 0 needs a damage choke point hook (M3)"
+   }
+  ]
+ },
+ {
+  "index": "menacing",
+  "name": "Menacing",
+  "summary": "Proficiency in Intimidation.",
+  "hooks": []
+ },
+ {
+  "index": "hellish-resistance",
+  "name": "Hellish Resistance",
+  "summary": "Resistance to fire damage.",
+  "hooks": [
+   {
+    "kind": "resistance",
+    "damage_types": [
+     "fire"
+    ]
+   }
+  ]
+ },
+ {
+  "index": "infernal-legacy",
+  "name": "Infernal Legacy",
+  "summary": "Thaumaturgy at will; later Hellish Rebuke and Darkness once per long rest (Charisma).",
+  "hooks": [
+   {
+    "kind": "resource",
+    "key": "infernal-legacy-hellish-rebuke",
+    "uses": 1,
+    "recharge": "long_rest",
+    "min_level": 3
+   },
+   {
+    "kind": "resource",
+    "key": "infernal-legacy-darkness",
+    "uses": 1,
+    "recharge": "long_rest",
+    "min_level": 5
+   },
+   {
+    "kind": "spell_grant",
+    "ability": "cha",
+    "spells": [
+     {
+      "spell": "thaumaturgy"
+     },
+     {
+      "spell": "hellish-rebuke",
+      "min_level": 3,
+      "resource": "infernal-legacy-hellish-rebuke",
+      "cast_level": 2
+     },
+     {
+      "spell": "darkness",
+      "min_level": 5,
+      "resource": "infernal-legacy-darkness",
+      "cast_level": 2
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "index": "draconic-ancestry-black",
+  "name": "Draconic Ancestry (Black)",
+  "summary": "Your breath and your resistance are acid.",
+  "hooks": [
+   {
+    "kind": "resistance",
+    "damage_types": [
+     "acid"
+    ]
+   }
+  ]
+ },
+ {
+  "index": "draconic-ancestry-blue",
+  "name": "Draconic Ancestry (Blue)",
+  "summary": "Your breath and your resistance are lightning.",
+  "hooks": [
+   {
+    "kind": "resistance",
+    "damage_types": [
+     "lightning"
+    ]
+   }
+  ]
+ },
+ {
+  "index": "draconic-ancestry-brass",
+  "name": "Draconic Ancestry (Brass)",
+  "summary": "Your breath and your resistance are fire.",
+  "hooks": [
+   {
+    "kind": "resistance",
+    "damage_types": [
+     "fire"
+    ]
+   }
+  ]
+ },
+ {
+  "index": "draconic-ancestry-bronze",
+  "name": "Draconic Ancestry (Bronze)",
+  "summary": "Your breath and your resistance are lightning.",
+  "hooks": [
+   {
+    "kind": "resistance",
+    "damage_types": [
+     "lightning"
+    ]
+   }
+  ]
+ },
+ {
+  "index": "draconic-ancestry-copper",
+  "name": "Draconic Ancestry (Copper)",
+  "summary": "Your breath and your resistance are acid.",
+  "hooks": [
+   {
+    "kind": "resistance",
+    "damage_types": [
+     "acid"
+    ]
+   }
+  ]
+ },
+ {
+  "index": "draconic-ancestry-gold",
+  "name": "Draconic Ancestry (Gold)",
+  "summary": "Your breath and your resistance are fire.",
+  "hooks": [
+   {
+    "kind": "resistance",
+    "damage_types": [
+     "fire"
+    ]
+   }
+  ]
+ },
+ {
+  "index": "draconic-ancestry-green",
+  "name": "Draconic Ancestry (Green)",
+  "summary": "Your breath and your resistance are poison.",
+  "hooks": [
+   {
+    "kind": "resistance",
+    "damage_types": [
+     "poison"
+    ]
+   }
+  ]
+ },
+ {
+  "index": "draconic-ancestry-red",
+  "name": "Draconic Ancestry (Red)",
+  "summary": "Your breath and your resistance are fire.",
+  "hooks": [
+   {
+    "kind": "resistance",
+    "damage_types": [
+     "fire"
+    ]
+   }
+  ]
+ },
+ {
+  "index": "draconic-ancestry-silver",
+  "name": "Draconic Ancestry (Silver)",
+  "summary": "Your breath and your resistance are cold.",
+  "hooks": [
+   {
+    "kind": "resistance",
+    "damage_types": [
+     "cold"
+    ]
+   }
+  ]
+ },
+ {
+  "index": "draconic-ancestry-white",
+  "name": "Draconic Ancestry (White)",
+  "summary": "Your breath and your resistance are cold.",
+  "hooks": [
+   {
+    "kind": "resistance",
+    "damage_types": [
+     "cold"
+    ]
+   }
+  ]
+ }
+]

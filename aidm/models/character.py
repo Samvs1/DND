@@ -13,8 +13,9 @@ Public API:
   `background`, `base_abilities` (before racial bonuses), `armor_proficiencies`,
   `weapon_proficiencies`, `tool_proficiencies` (SRD proficiency indexes), `languages`,
   `features` (class and subclass feature ids), `traits` (race trait ids), `class_choices`
-  (choice id -> picked option ids, e.g. a fighting style), `inventory`, `equipped`, `gold`,
-  `cantrips`, `race_cantrips`, `spells_known` (known/pact casters), `spellbook` (wizards),
+  (choice id -> picked option ids, e.g. a fighting style), `feature_choices` (feature id ->
+  picks: expertise skills, ancestry option), `xp` (experience points), `inventory`, `equipped`,
+  `gold`, `cantrips`, `race_cantrips`, `spells_known` (known/pact casters), `spellbook` (wizards),
   `prepared` (prepared casters), `portrait_id`, `pronouns`, `backstory` (<= 400 chars).
 
 State models are mutable (only the reducer mutates them) and every field added later needs a
@@ -73,6 +74,8 @@ class PcData(BaseModel):
     features: list[str] = Field(default_factory=list[str])
     traits: list[str] = Field(default_factory=list[str])
     class_choices: dict[str, list[str]] = Field(default_factory=dict[str, list[str]])
+    feature_choices: dict[str, list[str]] = Field(default_factory=dict[str, list[str]])
+    xp: int = Field(default=0, ge=0)
     inventory: list[InventoryItem] = Field(default_factory=list[InventoryItem])
     equipped: Equipped = Field(default_factory=Equipped)
     gold: int = Field(default=0, ge=0)

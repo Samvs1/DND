@@ -1,4 +1,4 @@
-NEXT: M2.4 Feature hooks. Delegate to hard-engineer. Last gate: M2.3 GATE PASS 8/8.
+NEXT: M2.5 Level-up and derived sheet. Delegate to hard-engineer. Files in flight: none. Last gate: M2.4 GATE PASS 8/8.
 
 # PROGRESS
 
@@ -33,7 +33,7 @@ Stashes and blockers: record them in the Notes section at the bottom.
 - [x] M2.1 **M** Class, race and background data overlay: `data/bg3/classes/*.json` (6 classes, levels 1-5, subclass level, proficiencies, equipment packages), races and subraces from SRD, `data/bg3/backgrounds.json` (original wording); schema tests. Gate: pytest data.
 - [x] M2.2 **H** Creation pipeline: point buy 27, standard array, 4d6-drop-lowest (roll shown), racial bonuses, skill/tool picks, equipment package choice, backstory <=400 chars; validation errors are typed. Gate: pytest rules (parametrised over 6 classes x all races). (commit f4e2363)
 - [x] M2.3 **H** The ONE spell-slot model (full, pact magic), known vs prepared, cantrip picks, spell DC and attack bonus. Gate: pytest rules.
-- [ ] M2.4 **H** Feature hooks: data entries plus a generic hook interpreter (damage_rider, bonus_action, resource, fighting_style, expertise, resistance, advantage_on, extra_attack, sneak_attack, toggle). Gate: pytest rules.
+- [x] M2.4 **H** Feature hooks: data entries plus a generic hook interpreter (damage_rider, bonus_action, resource, fighting_style, expertise, resistance, advantage_on, extra_attack, sneak_attack, toggle). Gate: pytest rules.
 - [ ] M2.5 **H** Level-up 1->5: XP table, HP gain, subclass at the right level, ASI, BG3-style spell learning, wizard scroll copy (rules only); derived sheet model (everything SPEC 8 lists). Gate: pytest rules.
 - [ ] M2.6 **M** Per-class goldens: AC, attack bonus, save DC, slots and HP at levels 1-5 for all 6 classes; JSON export/import round trip. FULL gate. Commit `M2: Characters`.
 
@@ -129,4 +129,4 @@ If the API rejects the key or needs organisation verification: stop M10 generati
 10. The final message is a VERIFICATION REPORT plus the Tier-2 items not built.
 
 ## Notes (stashes, blockers, decisions pending)
-- M2.4 inherits: race/subclass trait effects not yet applied at creation (hill dwarf toughness HP, dwarf/tiefling/dragonborn resistances, life domain heavy armor, rogue expertise picks, domain/patron expanded spells); see DECISIONS M2.2 deferred hooks.
+- M2.4 resolved the M2.2 deferred hooks (hill dwarf HP, racial resistances, life domain heavy armor, rogue expertise, domain/patron spells). Unsupported feature mechanics are listed in RULES_DECISIONS M2.4 for M3 (reactions, DSL effects).

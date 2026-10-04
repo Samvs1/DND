@@ -40,7 +40,9 @@ def test_default_choices_build(class_index: str, race: str, subrace: str | None)
     pc = build_character(choices, REGS, "pc1")
     cls = REGS.classes.get(class_index)
     assert pc.kind is CreatureKind.PC and pc.pc is not None
-    assert pc.max_hp == pc.hp == cls.hit_die + ability_modifier(pc.abilities[Ability.CON])
+    toughness = 1 if subrace == "hill-dwarf" else 0  # SRD Dwarven Toughness: +1 HP per level
+    con_mod = ability_modifier(pc.abilities[Ability.CON])
+    assert pc.max_hp == pc.hp == cls.hit_die + con_mod + toughness
     assert pc.proficiency_bonus == 2
     assert [a.value for a in pc.save_proficiencies] == list(cls.saving_throws)
     assert set(choices.class_skills) <= {s.value for s in pc.skill_proficiencies}
@@ -64,10 +66,10 @@ def test_pc_creature_added_replays() -> None:
 
 def test_golden_hill_dwarf_fighter() -> None:
     # Standard array STR 15 DEX 14 CON 13 INT 12 WIS 10 CHA 8; dwarf CON +2, hill dwarf WIS +1.
-    # HP: d10 max 10 + CON +2 = 12. AC: chain mail 16 + shield 2 = 18 (SRD Armor table).
+    # HP: d10 max 10 + CON +2 + Dwarven Toughness 1 = 13. AC: chain mail 16 + shield 2 = 18.
     pc = build_character(default_choices("fighter", "dwarf", "hill-dwarf"), REGS, "f1")
     assert pc.abilities[Ability.CON] == 15 and pc.abilities[Ability.WIS] == 11
-    assert (pc.max_hp, pc.ac, pc.speed, pc.darkvision, pc.size) == (12, 18, 25, 60, Size.MEDIUM)
+    assert (pc.max_hp, pc.ac, pc.speed, pc.darkvision, pc.size) == (13, 18, 25, 60, Size.MEDIUM)
     assert pc.pc is not None
     assert pc.pc.equipped.armor == "chain-mail" and pc.pc.equipped.shield == "shield"
     assert pc.pc.languages == ["common", "dwarvish"]

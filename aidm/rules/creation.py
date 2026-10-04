@@ -22,7 +22,10 @@ Public API:
   speed, size, darkvision, languages, proficiencies, inventory (class fixed + picked packages +
   background gear), equipment and AC (via `aidm.rules.defense`), level-1 features, the subclass
   when its level is 1, race traits, the spell picks and full spell-slot pools
-  (`aidm.rules.spellcasting.slot_resources`).
+  (`aidm.rules.spellcasting.slot_resources`). Feature hooks (`aidm.rules.feature_build`) add
+  picked options (`feature_choices`, validated with the rest), expertise, resistances, HP per
+  level, speed, darkvision, proficiencies, feature resources and the Defense AC bonus; a
+  patron's expanded spells are learnable.
 """
 
 from collections.abc import Mapping, Sequence
@@ -50,6 +53,15 @@ from aidm.rules.creation_checks import (
     text_errors,
 )
 from aidm.rules.defense import SHIELD_CATEGORY, armor_class
+from aidm.rules.feature_build import (
+    expanded_spell_indexes,
+    expertise_picks,
+    feature_choice_errors,
+    feature_effects,
+    feature_resources,
+    with_picks,
+)
+from aidm.rules.features import feature_ac_bonus
 from aidm.rules.hp import max_hp_at_level
 from aidm.rules.spellcasting import (
     cantrips_known_count,
@@ -88,6 +100,12 @@ def _prepared_pool(choices: CreationChoices, refs: CreationRefs, levelled: set[s
     return set(choices.spells) & levelled if casting.spellbook_start else levelled
 
 
+def _expanded(refs: CreationRefs, regs: CharacterRegistries, top: int) -> set[str]:
+    features, _, subclass = _base_feature_ids(refs)
+    expanded = expanded_spell_indexes(features, CREATION_LEVEL, subclass, regs.features)
+    return {s for s in expanded if (spell := regs.spells.find(s)) and 1 <= spell.level <= top}
+
+
 def spell_pick_errors(
     choices: CreationChoices, refs: CreationRefs, regs: CharacterRegistries
 ) -> list[CreationError]:
@@ -105,9 +123,9 @@ def spell_pick_errors(
         allowed=race_pool,
         taken=choices.cantrips,
     )
-    levelled = class_spell_indexes(
-        regs.spells, cls_index, 1, max_spell_level(refs.cls, CREATION_LEVEL)
-    )
+    top = max_spell_level(refs.cls, CREATION_LEVEL)
+    levelled = class_spell_indexes(regs.spells, cls_index, 1, top)
+    levelled |= _expanded(refs, regs, top)
     errors += pick_errors("spells", choices.spells, count=_spell_count(refs), allowed=levelled)
     pool = _prepared_pool(choices, refs, levelled)
     errors += pick_errors("prepared", choices.prepared, count=None, allowed=pool)
@@ -129,6 +147,35 @@ def _prepared_limit_errors(choices: CreationChoices, refs: CreationRefs) -> list
     ]
 
 
+def _base_feature_ids(refs: CreationRefs) -> tuple[list[str], list[str], str | None]:
+    features = list(refs.cls.level(CREATION_LEVEL).features)
+    subclass = refs.cls.subclass_index if refs.cls.subclass_level <= CREATION_LEVEL else None
+    if subclass is not None:
+        for row in refs.cls.subclass_features:
+            if row.level <= CREATION_LEVEL:
+                features.extend(row.features)
+    sub = refs.subrace
+    traits = [*refs.race.traits, *(sub.traits if sub else ())]
+    return list(dict.fromkeys(features)), list(dict.fromkeys(traits)), subclass
+
+
+def _proficient_skills(
+    choices: CreationChoices, refs: CreationRefs, extra: Sequence[str]
+) -> list[str]:
+    granted = granted_skills(refs) + choices.class_skills + choices.race_skills
+    return list(dict.fromkeys([*granted, *extra]))
+
+
+def _feature_pick_errors(
+    choices: CreationChoices, refs: CreationRefs, regs: CharacterRegistries
+) -> list[CreationError]:
+    features, traits, _ = _base_feature_ids(refs)
+    ids = features + traits
+    effects = feature_effects(ids, CREATION_LEVEL, regs.features)
+    proficient = _proficient_skills(choices, refs, effects.skills)
+    return feature_choice_errors(ids, choices.feature_choices, regs.features, proficient)
+
+
 def validate_creation(choices: CreationChoices, regs: CharacterRegistries) -> list[CreationError]:
     errors = text_errors(choices) + ability_score_errors(choices)
     refs, ref_errors = resolve_refs(choices, regs)
@@ -141,6 +188,7 @@ def validate_creation(choices: CreationChoices, regs: CharacterRegistries) -> li
     errors += skill_tool_language_errors(choices, refs, regs)
     errors += equipment_errors(choices, refs)
     errors += class_choice_errors(choices, refs, CREATION_LEVEL)
+    errors += _feature_pick_errors(choices, refs, regs)
     errors += spell_pick_errors(choices, refs, regs)
     if not ability_score_errors(choices):
         errors += _prepared_limit_errors(choices, refs)
@@ -198,17 +246,15 @@ def auto_equip(
     )
 
 
-def _features(choices: CreationChoices, refs: CreationRefs) -> tuple[list[str], str | None]:
-    features = list(refs.cls.level(CREATION_LEVEL).features)
-    subclass = refs.cls.subclass_index if refs.cls.subclass_level <= CREATION_LEVEL else None
-    if subclass is not None:
-        for row in refs.cls.subclass_features:
-            if row.level <= CREATION_LEVEL:
-                features.extend(row.features)
+def _features(
+    choices: CreationChoices, refs: CreationRefs, regs: CharacterRegistries
+) -> tuple[list[str], list[str], str | None]:
+    features, traits, subclass = _base_feature_ids(refs)
     for choice in refs.cls.choices:
         if choice.level <= CREATION_LEVEL:
             features.extend(choices.class_choices.get(choice.id, []))
-    return list(dict.fromkeys(features)), subclass
+    picks, feats = choices.feature_choices, regs.features
+    return with_picks(features, picks, feats), with_picks(traits, picks, feats), subclass
 
 
 def _uses_spellbook(refs: CreationRefs) -> bool:
@@ -223,7 +269,8 @@ def _pc_data(
     regs: CharacterRegistries,
 ) -> PcData:
     inventory = _inventory(choices, refs)
-    features, subclass = _features(choices, refs)
+    features, traits, subclass = _features(choices, refs, regs)
+    effects = feature_effects(features + traits, CREATION_LEVEL, regs.features)
     sub = refs.subrace
     return PcData(
         race=refs.race.index,
@@ -233,18 +280,22 @@ def _pc_data(
         subclass=subclass,
         background=refs.background.index,
         base_abilities=dict(choices.base_scores),
-        armor_proficiencies=list(refs.cls.armor),
+        armor_proficiencies=list(dict.fromkeys([*refs.cls.armor, *effects.armor])),
         weapon_proficiencies=list(
             dict.fromkeys(
                 [*refs.cls.weapons, *refs.race.weapon_proficiencies]
                 + (list(sub.weapon_proficiencies) if sub else [])
+                + list(effects.weapons)
             )
         ),
-        tool_proficiencies=granted_tools(refs) + list(choices.tool_picks),
+        tool_proficiencies=list(
+            dict.fromkeys(granted_tools(refs) + list(choices.tool_picks) + list(effects.tools))
+        ),
         languages=granted_languages(refs) + list(choices.language_picks),
         features=features,
-        traits=list(dict.fromkeys([*refs.race.traits, *(sub.traits if sub else ())])),
+        traits=traits,
         class_choices={k: list(v) for k, v in choices.class_choices.items()},
+        feature_choices={k: list(v) for k, v in choices.feature_choices.items()},
         inventory=inventory,
         equipped=auto_equip(inventory, regs.equipment, abilities),
         portrait_id=choices.portrait_id,
@@ -273,10 +324,13 @@ def build_character(
         raise CreationInvalid(errors)
     abilities = _final_abilities(choices, refs)
     pc = _pc_data(choices, refs, abilities, regs)
+    ids, feats = pc.features + pc.traits, regs.features
+    effects = feature_effects(ids, CREATION_LEVEL, feats)
     con_mod = ability_modifier(abilities[Ability.CON])
     max_hp = max_hp_at_level(refs.cls.hit_die, con_mod, CREATION_LEVEL)
-    skills = granted_skills(refs) + choices.class_skills + choices.race_skills
-    return Creature(
+    max_hp += effects.hp_per_level * CREATION_LEVEL
+    skills = _proficient_skills(choices, refs, effects.skills)
+    creature = Creature(
         id=creature_id,
         name=choices.name.strip(),
         kind=CreatureKind.PC,
@@ -286,10 +340,17 @@ def build_character(
         ac=_ac(pc, regs.equipment, abilities),
         proficiency_bonus=proficiency_bonus(CREATION_LEVEL),
         save_proficiencies=[Ability(a) for a in refs.cls.saving_throws],
-        skill_proficiencies=[Skill(s) for s in dict.fromkeys(skills)],
-        speed=refs.race.speed,
+        skill_proficiencies=[Skill(s) for s in skills],
+        skill_expertise=expertise_picks(ids, choices.feature_choices, feats),
+        resistances=list(effects.resistances),
+        speed=refs.race.speed + effects.speed,
         size=Size(refs.race.size),
-        darkvision=refs.race.darkvision,
-        resources=slot_resources(refs.cls, CREATION_LEVEL),
+        darkvision=max(refs.race.darkvision, effects.darkvision),
+        resources={
+            **slot_resources(refs.cls, CREATION_LEVEL),
+            **feature_resources(ids, CREATION_LEVEL, feats),
+        },
         pc=pc,
     )
+    bonus = feature_ac_bonus(creature, feats, armored=pc.equipped.armor is not None)
+    return creature.model_copy(update={"ac": creature.ac + bonus}) if bonus else creature
