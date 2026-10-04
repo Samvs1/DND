@@ -73,7 +73,7 @@ Stashes and blockers: record them in the Notes section at the bottom.
 - [ ] M6.1 **M** Protocol: full `ClientMsg`/`ServerMsg` discriminated unions; gen_protocol writes `aidm/web/protocol.json` and `docs/PROTOCOL.md`; a staleness test. Gate: pytest plus `gen_protocol.py --check`.
 - [ ] M6.2 **H** Table actor: one asyncio task owns state; FIFO queue with one pending per player; ready votes (30s, host force); combat turn ownership, suggestions, turn timer with safe default autoplay; mechanical events broadcast before narration. Gate: pytest tests/session.
 - [ ] M6.3 **M** Persistence: atomic snapshot plus `events.jsonl`, load, replay equals snapshot on disk; autosave after every resolved action. Gate: pytest tests/session.
-- [ ] M6.4 **M** Server: FastAPI app, WS gateway (token join, snapshot plus seq catch-up on reconnect), lobby, static hosting, `/healthz` (booleans only), `--lan` with LAN URL and an inline SVG QR, `AIDM_FAKE_LLM`. Gate: pytest tests/session (TestClient WS).
+- [ ] M6.4 **M** Server: FastAPI app, WS gateway (token join, snapshot plus seq catch-up on reconnect), lobby, static hosting, `/healthz` (booleans only), `--lan` with LAN URL and an inline SVG QR, `AIDM_FAKE_LLM`, and the `python -m aidm` entrypoint (`aidm/__main__.py`, binds 127.0.0.1:8000). Gate: pytest tests/session (TestClient WS).
 - [ ] M6.5 **M** Host controls (pause/resume, kick, difficulty multipliers, TTS toggle, save/load/new, end, token totals) with tests. FULL gate. Commit `M6: Session and server`.
 
 ## M7 Frontend (SPEC 12)
@@ -99,6 +99,18 @@ Stashes and blockers: record them in the Notes section at the bottom.
 - [ ] M9.6 **M** README (run, `--lan`, firewall note, SRD attribution), `docs/ARCHITECTURE.md`, a server boot plus `/healthz`, the VERIFICATION REPORT, and an honest list of Tier-2 items not built. FULL gate. Commit `M9: Hardening`.
 
 ---
+
+## Goal acceptance (from the owner's /goal; the final report must prove each with raw output)
+1. Commits `M0: ...` to `M9: ...` exist and every box above is checked.
+2. `python -m pytest -q` exits 0 with >=300 tests, rules/ coverage >=90%, and the named v1 regression tests.
+3. ruff check, ruff format --check, pyright, lint-imports, check_structure, check_secrets and gen_protocol --check all exit 0.
+4. `RUN_LIVE=1 python -m pytest tests/live -q` passes (DeepSeek tool round trip, campaign gen, injections; Fish mp3 >5 KB with size shown).
+5. `python scripts/simulate_party.py --seeds 5` and `--seeds 1 --live-ai` both print SIMULATION OK.
+6. `python -m pytest tests/ui -q` passes (Playwright, two contexts) and screenshots exist in artifacts/ui/.
+7. `python -m aidm` boots on 127.0.0.1:8000 and /healthz returns ok, deepseek and fish all true, with no key material.
+8. A fresh adversarial subagent attacks the game (invalid input, 20+ injections, disconnects, hallucination probes), its defects are fixed, and everything re-runs green.
+9. README.md, docs/ARCHITECTURE.md and docs/RULES_DECISIONS.md exist.
+10. The final message is a VERIFICATION REPORT plus the Tier-2 items not built.
 
 ## Notes (stashes, blockers, decisions pending)
 - (none)
