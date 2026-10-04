@@ -176,5 +176,69 @@
     "source": "SRD 5.1 Shield of Faith (+2 AC)",
     "srd_condition": false,
     "ac_bonus": 2
+  },
+  {
+    "index": "chilled",
+    "name": "Chilled",
+    "source": "SRD 5.1 Ray of Frost (speed reduced by 10 ft, modelled as two thirds speed until the end of the caster's next turn)",
+    "srd_condition": false,
+    "speed_factor": 0.67
+  },
+  {
+    "index": "shocked",
+    "name": "Shocked",
+    "source": "SRD 5.1 Shocking Grasp (cannot take reactions until the end of the caster's next turn)",
+    "srd_condition": false,
+    "can_react": false
+  },
+  {
+    "index": "true-strike",
+    "name": "True Strike",
+    "source": "SRD 5.1 True Strike (advantage on the first attack roll of the caster's next turn; target-specific part not tracked)",
+    "srd_condition": false,
+    "own_attacks": "advantage",
+    "consumed_by_attack": true
+  },
+  {
+    "index": "guided",
+    "name": "Guided",
+    "source": "SRD 5.1 Guiding Bolt (attacks against the target have advantage until the end of the caster's next turn; the SRD limits it to the next attack)",
+    "srd_condition": false,
+    "attacks_against_melee": "advantage",
+    "attacks_against_ranged": "advantage"
+  },
+  {
+    "index": "mage-armor",
+    "name": "Mage Armor",
+    "source": "SRD 5.1 Mage Armor (AC 13 + DEX for an unarmored target, modelled as +3 AC)",
+    "srd_condition": false,
+    "ac_bonus": 3
+  },
+  {
+    "index": "blurred",
+    "name": "Blurred",
+    "source": "SRD 5.1 Blur (attack rolls against the bearer have disadvantage)",
+    "srd_condition": false,
+    "attacks_against_melee": "disadvantage",
+    "attacks_against_ranged": "disadvantage"
+  },
+  {
+    "index": "invisibility",
+    "name": "Invisibility",
+    "source": "SRD 5.1 Invisibility (as invisible; ends when the bearer attacks, modelled as the first attack roll)",
+    "srd_condition": false,
+    "own_attacks": "advantage",
+    "attacks_against_melee": "disadvantage",
+    "attacks_against_ranged": "disadvantage",
+    "consumed_by_attack": true
+  },
+  {
+    "index": "slowed",
+    "name": "Slowed",
+    "source": "SRD 5.1 Slow (half speed, -2 AC, no reactions; the DEX save penalty and one-action limit are not modelled)",
+    "srd_condition": false,
+    "speed_factor": 0.5,
+    "ac_bonus": -2,
+    "can_react": false
   }
 ]

@@ -1,0 +1,32 @@
+{
+  "index": "animal-friendship",
+  "level": 1,
+  "school": "enchantment",
+  "classes": [
+    "bard",
+    "druid",
+    "ranger"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "feet",
+    "feet": 30
+  },
+  "duration_rounds": 14400,
+  "targeting": {
+    "kind": "creature"
+  },
+  "effects": [
+    {
+      "type": "save",
+      "ability": "wis",
+      "on_fail": [
+        {
+          "type": "apply_condition",
+          "condition": "charmed"
+        }
+      ],
+      "on_success": "none"
+    }
+  ]
+}

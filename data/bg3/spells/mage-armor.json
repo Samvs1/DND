@@ -1,0 +1,23 @@
+{
+  "index": "mage-armor",
+  "level": 1,
+  "school": "abjuration",
+  "classes": [
+    "sorcerer",
+    "wizard"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "touch"
+  },
+  "duration_rounds": 4800,
+  "targeting": {
+    "kind": "creature"
+  },
+  "effects": [
+    {
+      "type": "ac_buff",
+      "condition": "mage-armor"
+    }
+  ]
+}

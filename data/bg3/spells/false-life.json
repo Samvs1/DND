@@ -1,0 +1,23 @@
+{
+  "index": "false-life",
+  "level": 1,
+  "school": "necromancy",
+  "classes": [
+    "sorcerer",
+    "wizard"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "self"
+  },
+  "targeting": {
+    "kind": "self"
+  },
+  "effects": [
+    {
+      "type": "temp_hp",
+      "dice": "1d4+4",
+      "upcast_dice": "5"
+    }
+  ]
+}

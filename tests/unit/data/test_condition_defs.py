@@ -24,7 +24,10 @@ def test_every_srd_condition_is_defined() -> None:
 
 def test_extras_are_marked_non_srd() -> None:
     extras = {c.index for c in condition_defs().all() if not c.srd_condition}
-    assert extras == {"dodging", "hidden", "surprised", "helped", "blessed", "shield-of-faith"}
+    spell_extras = {"chilled", "shocked", "true-strike", "guided", "mage-armor", "blurred"}
+    spell_extras |= {"invisibility", "slowed"}
+    base = {"dodging", "hidden", "surprised", "helped", "blessed", "shield-of-faith"}
+    assert extras == base | spell_extras
 
 
 def test_entries_use_known_keys() -> None:

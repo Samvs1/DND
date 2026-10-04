@@ -1,0 +1,31 @@
+{
+  "index": "grease",
+  "level": 1,
+  "school": "conjuration",
+  "classes": [
+    "wizard"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "feet",
+    "feet": 60
+  },
+  "duration_rounds": 10,
+  "targeting": {
+    "kind": "area",
+    "area": "zone"
+  },
+  "effects": [
+    {
+      "type": "save",
+      "ability": "dex",
+      "on_fail": [
+        {
+          "type": "apply_condition",
+          "condition": "prone"
+        }
+      ],
+      "on_success": "none"
+    }
+  ]
+}

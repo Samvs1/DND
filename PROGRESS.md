@@ -1,4 +1,4 @@
-NEXT: M3.5 Spells batch 1. Delegate to mechanical-engineer. Last gate: M3.4 GATE PASS 8/8.
+NEXT: M3.6 Spells batch 2 (levels 2-3, target >=50 shipped, extend tests/unit/data/test_spell_coverage.py MAX_LEVEL to 3). Delegate to mechanical-engineer. Last gate: M3.5 GATE PASS 8/8.
 
 # PROGRESS
 
@@ -42,7 +42,7 @@ Stashes and blockers: record them in the Notes section at the bottom.
 - [x] M3.2 **H** Encounter lifecycle: start (surprise), 1d4+DEX initiative, turn order, action/bonus/movement/reaction state, end turn, victory/flee/party wipe, CR budget builder. Gate: pytest rules.
 - [x] M3.3 **H** Commands: attack (melee/ranged/finesse/crit double dice/nat 1), `rules.hit_chance` preview, dash, disengage, bonus-action shove/jump, hide, help, throw, use_item (potion bonus action, give to adjacent ally); `test_v1_potion_full_hp_refused_not_consumed`, `test_v1_invalid_input_never_consumes_turn`. Gate: pytest rules. (commit see git log, `WIP M3.3`)
 - [x] M3.4 **H** Spell effect DSL: schema plus ONE interpreter (attack_roll, save half/none/condition, typed damage with upcast, heal, apply/remove_condition, temp_hp, ac_buff, surface, multi_target), slot validation, upcasting, concentration hookup; 10 spells with goldens. Gate: pytest rules. (commit see git log, `WIP M3.4`)
-- [ ] M3.5 **M** Spell content batch 1: all cantrips and level 1 for the 6 classes' lists as DSL JSON, a golden test each. Gate: pytest spells.
+- [x] M3.5 **M** Spell content batch 1: all cantrips and level 1 for the 6 classes' lists as DSL JSON, a golden test each. Gate: pytest spells.
 - [ ] M3.6 **M** Spell content batch 2: levels 2-3 until >=50 shipped; unsupported spells listed in RULES_DECISIONS and hidden from pickers. Gate: pytest spells plus a count assertion >=50.
 - [ ] M3.7 **H** Surfaces lite: `data/bg3/surfaces.json` (fire, oil/grease, water, ice, poison cloud), interactions (fire+oil, water+lightning, water+cold, fire clears ice/water), turn-start and enter triggers, attached to zones. Gate: pytest rules.
 - [ ] M3.8 **H** Monster actions: execute multiattack, breath weapon with recharge, spell kits and legendary actions through the same attack/DSL paths. Gate: pytest rules.

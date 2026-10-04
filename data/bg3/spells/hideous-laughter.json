@@ -1,0 +1,38 @@
+{
+  "index": "hideous-laughter",
+  "level": 1,
+  "school": "enchantment",
+  "classes": [
+    "bard",
+    "wizard"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "feet",
+    "feet": 30
+  },
+  "concentration": true,
+  "duration_rounds": 10,
+  "targeting": {
+    "kind": "creature"
+  },
+  "effects": [
+    {
+      "type": "save",
+      "ability": "wis",
+      "on_fail": [
+        {
+          "type": "apply_condition",
+          "condition": "prone",
+          "save_ends": "wis"
+        },
+        {
+          "type": "apply_condition",
+          "condition": "incapacitated",
+          "save_ends": "wis"
+        }
+      ],
+      "on_success": "none"
+    }
+  ]
+}

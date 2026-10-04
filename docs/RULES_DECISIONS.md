@@ -77,3 +77,49 @@ M3.4 area spells | an area covers every creature (allies included, never the cas
 M3.4 spell targets | Hold Person's humanoid restriction is not enforced (creatures carry no type yet); "creatures" spells may not pick the same creature twice unless darts/beams (`repeat`); Magic Missile darts and Eldritch Blast beams roll separately (each dart is its own damage instance and concentration check) | BG3 rolls per dart; types arrive with the monster catalogue
 M3.4 spell durations | rounds-based spell conditions count down at the end of the caster's turns; save-ends conditions repeat the save against the caster's DC at the end of the bearer's turns; a creature incapacitated by a spell loses its own concentration | SRD 5.1 durations on the combat round
 M3.4 healing spells | heal dice + spellcasting modifier + feature bonuses (Disciple of Life 2 + the CAST level); cantrip damage scales at character levels 5, 11, 17 | SRD 5.1 Cure Wounds, Life Domain, cantrip scaling
+M3.5 cantrip riders | Chill Touch drops the no-healing and undead-disadvantage riders; Acid Splash picks up to two creatures of one zone (no 5-ft adjacency check); Ray of Frost is modelled as two thirds speed until the end of the caster's next turn; Shocking Grasp drops the metal-armor advantage; True Strike gives the caster advantage on the first attack of the next turn (not tied to one target) | SRD 5.1 spell text; the DSL has no such riders
+M3.5 level 1 simplifications | Charm Person and Animal Friendship do not check creature type (humanoid, beast, INT 3 or less) and Animal Friendship does not end when the target is harmed; Guiding Bolt gives advantage to ALL attacks against the target until the end of the caster's next turn (SRD: the next attack); Mage Armor is a flat +3 AC (SRD: 13 + DEX when unarmored) and does not check armor; Thunderwave does not push; Hideous Laughter does not give advantage on saves after damage | SRD 5.1 spell text; DSL limits, the DM adjudicates the rest
+
+## Unsupported spells (hidden from pickers)
+Spells on the wizard, cleric, warlock or ranger SRD lists that the effect DSL cannot express are NOT shipped (SPEC 7.4); `tests/unit/data/test_spell_coverage.py` checks that every in-scope SRD spell is shipped or listed here. Format: `- <srd-index> (L<level>) | reason`.
+- dancing-lights (L0) | utility light effect, no combat mechanics
+- light (L0) | utility light effect on an object, no combat mechanics
+- mage-hand (L0) | utility exploration effect, summons no combat actor
+- mending (L0) | utility repair effect, no combat mechanics
+- message (L0) | utility communication effect, no combat mechanics
+- minor-illusion (L0) | illusion, needs DM adjudication of belief
+- prestidigitation (L0) | utility exploration effect, no combat mechanics
+- thaumaturgy (L0) | flavour effect, no combat mechanics
+- guidance (L0) | adds a die to ability checks; the DSL has attack and save dice only
+- resistance (L0) | adds a die to ONE saving throw once; the DSL has no consumed save dice
+- spare-the-dying (L0) | needs a stabilise effect on a dying creature (death saves are not a DSL effect)
+- alarm (L1) | ritual exploration ward, no combat mechanics
+- comprehend-languages (L1) | language utility, no combat mechanics
+- create-or-destroy-water (L1) | utility water effect, no combat mechanics
+- detect-evil-and-good (L1) | detection utility, DM adjudicated
+- detect-magic (L1) | detection utility, DM adjudicated
+- detect-poison-and-disease (L1) | detection utility, DM adjudicated
+- disguise-self (L1) | illusion, needs DM adjudication
+- find-familiar (L1) | summons a persistent companion creature, not a DSL effect
+- floating-disk (L1) | summons an object, no combat mechanics
+- identify (L1) | 10-minute ritual that reveals item properties, DM adjudicated
+- illusory-script (L1) | utility writing effect, no combat mechanics
+- purify-food-and-drink (L1) | utility effect, no combat mechanics
+- silent-image (L1) | illusion, needs DM adjudication of belief
+- speak-with-animals (L1) | social utility, DM adjudicated
+- unseen-servant (L1) | summons an object-creature, no DSL effect
+- bane (L1) | subtracts a die from attacks and saves; DSL dice cannot be negative
+- color-spray (L1) | hit-point-pool targeting (lowest HP first) is not in the DSL
+- sleep (L1) | hit-point-pool targeting (lowest HP first) is not in the DSL
+- command (L1) | one-word command with several outcomes chosen at cast time; no DSL choice effect
+- expeditious-retreat (L1) | bonus-action Dash every turn is a turn-economy grant, not a DSL effect
+- feather-fall (L1) | reaction spell (reactions are Tier 2)
+- hellish-rebuke (L1) | reaction spell (reactions are Tier 2)
+- shield (L1) | reaction spell (reactions are Tier 2)
+- fog-cloud (L1) | heavily obscured area needs the surfaces system (M3.7)
+- goodberry (L1) | creates consumable items, not a DSL effect
+- hunters-mark (L1) | extra damage on the caster's weapon hits against the mark; the DSL has no damage rider condition
+- jump (L1) | jump distance bonus, no DSL movement effect
+- longstrider (L1) | speed bonus above 1x is not expressible (speed_factor is at most 1)
+- protection-from-evil-and-good (L1) | depends on attacker creature types, which creatures do not carry yet
+- sanctuary (L1) | redirects attacks and breaks on hostile acts, no DSL effect

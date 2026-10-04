@@ -1,0 +1,34 @@
+{
+  "index": "poison-spray",
+  "level": 0,
+  "school": "conjuration",
+  "classes": [
+    "sorcerer",
+    "warlock",
+    "wizard",
+    "druid"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "feet",
+    "feet": 10
+  },
+  "targeting": {
+    "kind": "creature"
+  },
+  "effects": [
+    {
+      "type": "save",
+      "ability": "con",
+      "on_fail": [
+        {
+          "type": "damage",
+          "dice": "1d12",
+          "damage_type": "poison",
+          "cantrip_scaling": true
+        }
+      ],
+      "on_success": "none"
+    }
+  ]
+}

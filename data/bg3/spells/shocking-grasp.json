@@ -1,0 +1,35 @@
+{
+  "index": "shocking-grasp",
+  "level": 0,
+  "school": "evocation",
+  "classes": [
+    "sorcerer",
+    "wizard"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "touch"
+  },
+  "targeting": {
+    "kind": "creature"
+  },
+  "effects": [
+    {
+      "type": "attack_roll",
+      "attack": "melee",
+      "on_hit": [
+        {
+          "type": "damage",
+          "dice": "1d8",
+          "damage_type": "lightning",
+          "cantrip_scaling": true
+        },
+        {
+          "type": "apply_condition",
+          "condition": "shocked",
+          "rounds": 2
+        }
+      ]
+    }
+  ]
+}

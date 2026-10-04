@@ -1,0 +1,29 @@
+{
+  "index": "inflict-wounds",
+  "level": 1,
+  "school": "necromancy",
+  "classes": [
+    "cleric"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "touch"
+  },
+  "targeting": {
+    "kind": "creature"
+  },
+  "effects": [
+    {
+      "type": "attack_roll",
+      "attack": "melee",
+      "on_hit": [
+        {
+          "type": "damage",
+          "dice": "3d10",
+          "damage_type": "necrotic",
+          "upcast_dice": "1d10"
+        }
+      ]
+    }
+  ]
+}

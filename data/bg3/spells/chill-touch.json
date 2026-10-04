@@ -1,0 +1,32 @@
+{
+  "index": "chill-touch",
+  "level": 0,
+  "school": "necromancy",
+  "classes": [
+    "sorcerer",
+    "warlock",
+    "wizard"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "feet",
+    "feet": 120
+  },
+  "targeting": {
+    "kind": "creature"
+  },
+  "effects": [
+    {
+      "type": "attack_roll",
+      "attack": "ranged",
+      "on_hit": [
+        {
+          "type": "damage",
+          "dice": "1d8",
+          "damage_type": "necrotic",
+          "cantrip_scaling": true
+        }
+      ]
+    }
+  ]
+}
