@@ -95,6 +95,7 @@
     ],
     "language_choices": 1,
     "cantrip_choices": 1,
+    "cantrip_class": "wizard",
     "traits": [
      "elf-weapon-training",
      "high-elf-cantrip",

@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import functools
 import random
 from collections.abc import Callable
 
 from hypothesis import strategies as st
 
+from aidm.data.character_data import character_registries
 from aidm.models.abilities import Ability, Skill
 from aidm.models.checks import DcTier
 from aidm.models.conditions import (
@@ -49,8 +51,10 @@ from aidm.models.state import (
     Resource,
 )
 from aidm.rules.checks import dc_for_tier, saving_throw, skill_check
+from aidm.rules.creation import build_character
 from aidm.rules.d20 import roll_d20
 from aidm.rules.dice import roll
+from tests.unit.rules.creation_fixtures import default_choices
 
 CONDITIONS = ["prone", "poisoned", "frightened", "blinded"]
 SOURCES = [None, "src1", "src2"]
@@ -58,7 +62,16 @@ DAMAGE_TYPE_LISTS = st.lists(st.sampled_from(list(DamageType)), unique=True, max
 NAMES = st.text(alphabet="abcdefghijklmnopqrstuvwxyz '-", min_size=1, max_size=12)
 
 
+@functools.cache
+def _pc_template(class_index: str) -> Creature:
+    choices = default_choices(class_index, "human", None)
+    return build_character(choices, character_registries(), "template")
+
+
 def draw_creature(data: st.DataObject, cid: str) -> Creature:
+    if data.draw(st.integers(0, 4)) == 0:
+        template = _pc_template(data.draw(st.sampled_from(["fighter", "wizard", "warlock"])))
+        return template.model_copy(update={"id": cid}, deep=True)
     max_hp = data.draw(st.integers(min_value=1, max_value=200))
     scores = data.draw(st.lists(st.integers(1, 30), min_size=6, max_size=6))
     return Creature(

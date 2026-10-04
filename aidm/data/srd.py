@@ -21,6 +21,7 @@ from aidm.data.srd_characters import (
     SrdCondition,
     SrdDamageType,
     SrdFeature,
+    SrdLanguage,
     SrdLevel,
     SrdProficiency,
     SrdRace,
@@ -55,6 +56,7 @@ class SrdData:
     proficiencies: Registry[SrdProficiency]
     backgrounds: Registry[SrdBackground]
     monsters: Registry[SrdMonster]
+    languages: Registry[SrdLanguage]
 
 
 def _load[M: BaseModel](path: Path, model: type[M]) -> list[M]:
@@ -81,6 +83,7 @@ def load_srd(root: Path | None = None) -> SrdData:
         proficiencies=Registry(_load(base / "proficiencies.json", SrdProficiency)),
         backgrounds=Registry(_load(base / "backgrounds.json", SrdBackground)),
         monsters=Registry(_load(base / "monsters.json", SrdMonster)),
+        languages=Registry(_load(base / "languages.json", SrdLanguage)),
     )
 
 

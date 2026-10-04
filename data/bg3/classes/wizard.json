@@ -120,7 +120,8 @@
  "spellcasting": {
   "ability": "int",
   "kind": "prepared",
-  "first_level": 1
+  "first_level": 1,
+  "spellbook_start": 6
  },
  "subclass_level": 2,
  "subclass_index": "evocation",

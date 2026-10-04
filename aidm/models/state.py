@@ -24,6 +24,9 @@ Public API:
   Resources (M1.6): `resources` maps a resource key ("pact-slot-1", "second-wind") to a
   `Resource(current, maximum, recharge)`; rests restore them by `RechargeKind`. This is the hook
   the M2.3 slot model and M2.4 feature resources plug into.
+  Body (M2.2): `speed` (feet), `size`, `darkvision` (feet, 0 = none).
+  Player characters (M2.2): `pc` holds the character sheet data (`aidm.models.character.PcData`);
+  None for NPCs and monsters. A PC is a Creature with `kind` PC and `pc` set.
 - `RechargeKind`: SHORT_REST (restored by short and long rests) / LONG_REST (long rests only).
 - `Resource(current, maximum, recharge)`: `current` is within [0, maximum].
 - `GameState(campaign_id, seed, event_count, creatures, camp_supplies, short_rests_used)`:
@@ -43,6 +46,7 @@ from typing import cast
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from aidm.models.abilities import Ability, Skill
+from aidm.models.character import PcData, Size
 from aidm.models.conditions import Concentration, ConditionDuration, SaveEnds, TurnBoundary
 from aidm.models.damage import DamageType
 
@@ -136,6 +140,10 @@ class Creature(BaseModel):
     death_save_failures: int = Field(default=0, ge=0, le=3)
     stable: bool = False
     dead: bool = False
+    speed: int = Field(default=30, ge=0)
+    size: Size = Size.MEDIUM
+    darkvision: int = Field(default=0, ge=0)
+    pc: PcData | None = None
 
     @model_validator(mode="after")
     def _check_hp(self) -> "Creature":

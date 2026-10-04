@@ -11,7 +11,8 @@ Fields of `ClassDef`:
 - `skill_choice`: choose N skills from the listed skill indexes (SRD skills registry).
 - `equipment`: `fixed` items plus `choices`; each choice is a group whose `options` are item lists
   (pick exactly one option). Every item is an SRD equipment index.
-- `spellcasting`: ability, kind (`known`, `prepared`, `pact`) and `first_level`; None for non-casters.
+- `spellcasting`: ability, kind (`known`, `prepared`, `pact`), `first_level` and `spellbook_start`
+  (spells in a level-1 spellbook; wizard 6, SRD); None for non-casters.
 - `levels`: exactly levels 1 to 5. `slots` holds the slot count per spell level 1 to 5 (for a `pact`
   caster these are the pact slots: all of one spell level), `cantrips_known`, `spells_known`
   (known/pact casters only) and `asi` (an Ability Score Improvement level).
@@ -62,6 +63,7 @@ class SpellcastingDef(_Frozen):
     ability: AbilityKey
     kind: SpellcastingKind
     first_level: int = Field(ge=1, le=MAX_CLASS_LEVEL)
+    spellbook_start: int = Field(default=0, ge=0)
 
 
 class ClassLevelDef(_Frozen):

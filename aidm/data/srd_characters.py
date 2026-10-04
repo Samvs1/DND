@@ -113,6 +113,12 @@ class SrdSkill(SrdModel):
     ability_score: ApiRef
 
 
+class SrdLanguage(SrdModel):
+    index: str
+    name: str
+    type: str
+
+
 class SrdDamageType(SrdModel):
     index: str
     name: str

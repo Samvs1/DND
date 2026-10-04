@@ -1,4 +1,4 @@
-NEXT: M2.2 Creation pipeline. Delegate to hard-engineer. Last gate: M2.1 GATE PASS 8/8.
+NEXT: M2.3 Spell-slot model. Delegate to hard-engineer. Files in flight: none. Last gate: M2.2 GATE PASS 8/8.
 
 # PROGRESS
 
@@ -31,7 +31,7 @@ Stashes and blockers: record them in the Notes section at the bottom.
 
 ## M2 Characters (SPEC 7.5, 8)
 - [x] M2.1 **M** Class, race and background data overlay: `data/bg3/classes/*.json` (6 classes, levels 1-5, subclass level, proficiencies, equipment packages), races and subraces from SRD, `data/bg3/backgrounds.json` (original wording); schema tests. Gate: pytest data.
-- [ ] M2.2 **H** Creation pipeline: point buy 27, standard array, 4d6-drop-lowest (roll shown), racial bonuses, skill/tool picks, equipment package choice, backstory <=400 chars; validation errors are typed. Gate: pytest rules (parametrised over 6 classes x all races).
+- [x] M2.2 **H** Creation pipeline: point buy 27, standard array, 4d6-drop-lowest (roll shown), racial bonuses, skill/tool picks, equipment package choice, backstory <=400 chars; validation errors are typed. Gate: pytest rules (parametrised over 6 classes x all races).
 - [ ] M2.3 **H** The ONE spell-slot model (full, pact magic), known vs prepared, cantrip picks, spell DC and attack bonus. Gate: pytest rules.
 - [ ] M2.4 **H** Feature hooks: data entries plus a generic hook interpreter (damage_rider, bonus_action, resource, fighting_style, expertise, resistance, advantage_on, extra_attack, sneak_attack, toggle). Gate: pytest rules.
 - [ ] M2.5 **H** Level-up 1->5: XP table, HP gain, subclass at the right level, ASI, BG3-style spell learning, wizard scroll copy (rules only); derived sheet model (everything SPEC 8 lists). Gate: pytest rules.

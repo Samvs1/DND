@@ -6,7 +6,8 @@ never re-parse the SRD's nested JSON. A test pins every copied number to the SRD
 
 - `ability_choice`: a pick-list of abilities that each get `ability_choice_bonus` (half-elf: two
   +1 choices on top of the fixed +2 CHA).
-- `tool_choice`, `language_choices`, `skill_choice`, `cantrip_choices`: picks made at creation.
+- `tool_choice`, `language_choices`, `skill_choice`, `cantrip_choices`: picks made at creation;
+  `cantrip_class` names the class spell list the racial cantrips come from (high elf: wizard).
 - Subraces are nested `SubraceDef` entries with their own SRD subrace index; their bonuses and
   traits ADD to the parent race (the pipeline combines them, M2.2).
 
@@ -50,6 +51,7 @@ class _Grants(_Frozen):
     languages: tuple[str, ...] = ()
     language_choices: int = Field(default=0, ge=0)
     cantrip_choices: int = Field(default=0, ge=0)
+    cantrip_class: str | None = None
     traits: tuple[str, ...] = ()
 
 
