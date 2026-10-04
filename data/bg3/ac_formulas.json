@@ -1,0 +1,29 @@
+[
+  {
+    "index": "unarmored-defense-barbarian",
+    "name": "Unarmored Defense (Barbarian)",
+    "source": "SRD 5.1 Barbarian: 10 + DEX + CON while wearing no armor; a shield still applies",
+    "base": 10,
+    "abilities": ["dex", "con"],
+    "requires_unarmored": true,
+    "forbids_shield": false
+  },
+  {
+    "index": "unarmored-defense-monk",
+    "name": "Unarmored Defense (Monk)",
+    "source": "SRD 5.1 Monk: 10 + DEX + WIS while wearing no armor and not wielding a shield",
+    "base": 10,
+    "abilities": ["dex", "wis"],
+    "requires_unarmored": true,
+    "forbids_shield": true
+  },
+  {
+    "index": "mage-armor",
+    "name": "Mage Armor",
+    "source": "SRD 5.1 spell Mage Armor: base AC 13 + DEX on a creature not wearing armor",
+    "base": 13,
+    "abilities": ["dex"],
+    "requires_unarmored": true,
+    "forbids_shield": false
+  }
+]

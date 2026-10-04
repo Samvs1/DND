@@ -7,9 +7,11 @@ from collections.abc import Callable
 
 from hypothesis import strategies as st
 
-from aidm.models.abilities import Ability
+from aidm.models.abilities import Ability, Skill
+from aidm.models.checks import DcTier
 from aidm.models.events import (
     AnyEvent,
+    CheckResolved,
     ConditionApplied,
     ConditionRemoved,
     CreatureAdded,
@@ -22,6 +24,7 @@ from aidm.models.events import (
     TempHpSet,
 )
 from aidm.models.state import ActiveCondition, Creature, CreatureKind, GameState
+from aidm.rules.checks import dc_for_tier, saving_throw, skill_check
 from aidm.rules.d20 import roll_d20
 from aidm.rules.dice import roll
 
@@ -41,6 +44,10 @@ def _creature(data: st.DataObject, cid: str) -> Creature:
         max_hp=max_hp,
         hp=data.draw(st.integers(min_value=0, max_value=max_hp)),
         ac=data.draw(st.integers(min_value=5, max_value=25)),
+        proficiency_bonus=data.draw(st.integers(2, 6)),
+        save_proficiencies=data.draw(st.lists(st.sampled_from(list(Ability)), unique=True)),
+        skill_proficiencies=data.draw(st.lists(st.sampled_from(list(Skill)), unique=True)),
+        skill_expertise=data.draw(st.lists(st.sampled_from(list(Skill)), unique=True)),
     )
 
 
@@ -86,6 +93,16 @@ def _dice(data: st.DataObject, c: Creature) -> AnyEvent:
     return DiceRolled(roll=rolled, roller_id=c.id, label=data.draw(NAMES))
 
 
+def _check(data: st.DataObject, c: Creature) -> AnyEvent:
+    rng = random.Random(data.draw(st.integers(0, 10_000)))
+    dc = dc_for_tier(data.draw(st.sampled_from(list(DcTier))))
+    if data.draw(st.booleans()):
+        result = skill_check(rng, c, data.draw(st.sampled_from(list(Skill))), dc)
+    else:
+        result = saving_throw(rng, c, data.draw(st.sampled_from(list(Ability))), dc)
+    return CheckResolved(creature_id=c.id, result=result, reason=data.draw(NAMES))
+
+
 TARGETED: list[Callable[[st.DataObject, Creature], AnyEvent]] = [
     _hp,
     _temp,
@@ -93,6 +110,7 @@ TARGETED: list[Callable[[st.DataObject, Creature], AnyEvent]] = [
     _cond_off,
     _death_save,
     _dice,
+    _check,
     lambda _d, c: Stabilized(creature_id=c.id),
     lambda _d, c: CreatureDied(creature_id=c.id),
     lambda _d, c: CreatureRemoved(creature_id=c.id),

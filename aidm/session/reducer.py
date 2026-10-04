@@ -22,6 +22,7 @@ from typing import assert_never
 
 from aidm.models.events import (
     AnyEvent,
+    CheckResolved,
     ConditionApplied,
     ConditionRemoved,
     CreatureAdded,
@@ -99,7 +100,7 @@ def apply(state: GameState, event: AnyEvent) -> GameState:
             target = _creature(state, cid)
             target.dead = True
             target.stable = False
-        case DiceRolled():
+        case DiceRolled() | CheckResolved():
             pass
         case _:
             assert_never(event)

@@ -8,6 +8,9 @@ Public API:
 - `Creature`: one combatant or character, general enough for PCs, NPCs and monsters. Derived
   numbers (AC from armor, attack bonus, save DC) are computed by `aidm.rules`, not stored, unless a
   later checkpoint adds a base field with a default.
+  Check inputs (M1.3): `proficiency_bonus` (PCs: from level at creation/level-up; monsters: the
+  SRD value), `save_proficiencies`, `skill_proficiencies` and `skill_expertise` (expertise doubles
+  the proficiency bonus and implies proficiency).
 - `GameState(campaign_id, seed, event_count, creatures)`: `event_count` is the number of events
   applied so far, so the session can use it as the next event `seq`.
 
@@ -21,7 +24,7 @@ from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from aidm.models.abilities import Ability
+from aidm.models.abilities import Ability, Skill
 
 
 class CreatureKind(StrEnum):
@@ -53,6 +56,10 @@ class Creature(BaseModel):
     hp: int = Field(ge=0)
     temp_hp: int = Field(default=0, ge=0)
     ac: int = Field(default=10, ge=0)
+    proficiency_bonus: int = Field(default=2, ge=0, le=10)
+    save_proficiencies: list[Ability] = Field(default_factory=list[Ability])
+    skill_proficiencies: list[Skill] = Field(default_factory=list[Skill])
+    skill_expertise: list[Skill] = Field(default_factory=list[Skill])
     conditions: list[ActiveCondition] = Field(default_factory=list[ActiveCondition])
     death_save_successes: int = Field(default=0, ge=0, le=3)
     death_save_failures: int = Field(default=0, ge=0, le=3)

@@ -21,3 +21,7 @@ M1.2 reducer errors | unknown/duplicate creature ids raise ReducerError before a
 M1.2 log-only events | DiceRolled changes nothing but event_count; no roll history kept in state | the event log is the history; snapshots stay small
 M1.2 conditions | ConditionApplied replaces an instance with the same (name, source_id); ConditionRemoved removes all of a name, or only one source when source_id is given | stacking/exhaustion semantics refined in M1.5
 M1.2 schema growth | state/event models use extra="forbid"; every later field must have a default | old snapshots and logs keep validating and replaying
+M1.3 check logging | rules check functions return a typed CheckResult; the caller logs a log-only CheckResolved(creature_id, result, reason) event; consequences are separate events | one d20 audit record per test without coupling rules to logging
+M1.3 skills | Skill StrEnum (values = SRD index) and SKILL_ABILITY constant in models/abilities.py, verified against data/srd/skills.json by a test | rules stay free of data loading; models cannot import data
+M1.3 proficiency on Creature | proficiency_bonus (stored, default 2), save_proficiencies, skill_proficiencies, skill_expertise fields with defaults | monsters have SRD PB, PCs set it at creation/level-up via events
+M1.3 AC formulas | AcFormula schema + loader in aidm/data/ac_formulas.py, entries in data/bg3/ac_formulas.json (indexed); features/spells reference them by index | models and data are independent layers, so the content schema lives in data; new formulas are data only

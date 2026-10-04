@@ -15,7 +15,8 @@ Design rules (binding for every new event):
 
 Public API:
 - Events: `CreatureAdded`, `CreatureRemoved`, `HpChanged`, `TempHpSet`, `ConditionApplied`,
-  `ConditionRemoved`, `DeathSaveRolled`, `Stabilized`, `CreatureDied`, `DiceRolled`.
+  `ConditionRemoved`, `DeathSaveRolled`, `Stabilized`, `CreatureDied`, `DiceRolled`,
+  `CheckResolved`.
 - `AnyEvent` (plain union), `Event` (union annotated with the `type` discriminator),
   `EVENT_TYPES` (every event class), `event_adapter` (`TypeAdapter` for validate/dump of `Event`).
 - `LoggedEvent(seq, event)`: the persisted envelope (events.jsonl line).
@@ -25,6 +26,7 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
 
+from aidm.models.checks import CheckResult
 from aidm.models.dice import D20Roll, Roll
 from aidm.models.state import ActiveCondition, Creature
 
@@ -114,6 +116,20 @@ class DiceRolled(_EventBase):
     label: str = ""
 
 
+class CheckResolved(_EventBase):
+    """Pure log event: an ability check, skill check or saving throw and its outcome.
+
+    Rules return a `CheckResult`; whoever asked for the test (tool executor, spell interpreter)
+    logs it with this event so the dice tray, narrator and audit see the d20 and the DC. The
+    consequences of the test are separate events. Changes nothing but `GameState.event_count`.
+    """
+
+    type: Literal["check_resolved"] = "check_resolved"
+    creature_id: str
+    result: CheckResult
+    reason: str = ""
+
+
 type AnyEvent = (
     CreatureAdded
     | CreatureRemoved
@@ -125,6 +141,7 @@ type AnyEvent = (
     | Stabilized
     | CreatureDied
     | DiceRolled
+    | CheckResolved
 )
 
 Event = Annotated[AnyEvent, Field(discriminator="type")]
@@ -140,6 +157,7 @@ EVENT_TYPES: tuple[type[BaseModel], ...] = (
     Stabilized,
     CreatureDied,
     DiceRolled,
+    CheckResolved,
 )
 
 event_adapter: TypeAdapter[AnyEvent] = TypeAdapter(Event)
