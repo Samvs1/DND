@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 56">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8a6a38"/>
+      <stop offset="0.5" stop-color="#523d1c"/>
+      <stop offset="1" stop-color="#281d0e"/>
+    </linearGradient>
+    <filter id="rough" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.5" numOctaves="3" stitchTiles="stitch"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.9 0"/>
+    </filter>
+    <clipPath id="tri"><path d="M0,0 H50 L0,50 Z"/></clipPath>
+  </defs>
+  <!-- darker bronze diagonal plate -->
+  <path d="M0,0 H50 L0,50 Z" fill="url(#g)" stroke="#160f06" stroke-width="1.8" stroke-linejoin="round"/>
+  <!-- rugged pitting (dark noise) clipped to the plate -->
+  <rect x="0" y="0" width="56" height="56" clip-path="url(#tri)" filter="url(#rough)" opacity="0.3"/>
+  <!-- faint worn bevel -->
+  <path d="M41,4 L4,41" fill="none" stroke="#a8853f" stroke-opacity="0.2" stroke-width="1"/>
+  <!-- dark worn rivets -->
+  <circle cx="12" cy="12" r="3.6" fill="#5a431f" stroke="#160f06" stroke-width="1.2"/>
+  <circle cx="12" cy="12" r="1.3" fill="#0e0a04"/>
+  <circle cx="35" cy="7"  r="2.4" fill="#5a431f" stroke="#160f06" stroke-width="1"/>
+  <circle cx="7"  cy="35" r="2.4" fill="#5a431f" stroke="#160f06" stroke-width="1"/>
+</svg>
