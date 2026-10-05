@@ -20,7 +20,8 @@ Public API:
   `state` must already include the events emitted before this hit.
 - `AttackResult(events, hit, crit, riders_used)`; `resolve_attack(rng, state, attacker_id,
   target_id, profile, feats) -> AttackResult`: roll + weapon damage + feature riders (Sneak
-  Attack once per turn, Colossus Slayer...) + flat fighting-style bonuses already in the profile.
+  Attack once per turn, Colossus Slayer...) + condition riders the attacker applied to the
+  target (Hunter's Mark; doubled on a crit) + flat fighting-style bonuses already in the profile.
   `riders_used` names the once-per-turn riders spent (the command records them in the economy).
 """
 
@@ -36,7 +37,11 @@ from aidm.models.dice import DieRoll, Roll
 from aidm.models.events import AnyEvent, ConditionRemoved, DamageTaken, DiceRolled, TempHpSet
 from aidm.models.state import GameState
 from aidm.rules.concentration import concentration_after_damage
-from aidm.rules.conditions import attack_consumed_conditions
+from aidm.rules.conditions import (
+    attack_consumed_conditions,
+    condition_riders,
+    roll_bonus_dice,
+)
 from aidm.rules.d20 import roll_d20
 from aidm.rules.damage import resolve_damage
 from aidm.rules.dice import Rng, roll
@@ -73,7 +78,7 @@ def roll_attack(
     d20 = roll_d20(rng, sit.adv, profile.attack_bonus, crit_on=sit.crit_on)
     if d20.is_fumble and sit.lucky:
         d20 = roll_d20(rng, sit.adv, profile.attack_bonus, crit_on=sit.crit_on)
-    bonus = tuple(roll(dice, rng) for dice in sit.bonus_dice)
+    bonus = tuple(roll_bonus_dice(dice, rng) for dice in sit.bonus_dice)
     total = d20.total + sum(b.total for b in bonus)
     hit = not d20.is_fumble and (d20.is_crit or total >= sit.target_ac)
     crit = hit and (d20.is_crit or sit.auto_crit)
@@ -195,6 +200,10 @@ def _weapon_packets(
         )
         if rider.once_per_turn:
             spent.append(rider.feature)
+    for name, dice, kind in condition_riders(attacker_id, target):
+        extra = roll(dice, rng, crit=rolled.crit)
+        events.append(DiceRolled(roll=extra, roller_id=attacker_id, label=name))
+        packets.append(DamagePacket(amount=extra.total, damage_type=kind or profile.damage_type))
     return events, packets, tuple(spent)
 
 

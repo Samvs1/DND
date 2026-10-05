@@ -31,7 +31,7 @@ from aidm.models.encounter import Combatant, Encounter, EncounterStatus, Side, T
 from aidm.models.encounter_events import EconomyChanged
 from aidm.models.features import ActionEconomy
 from aidm.models.state import Creature, GameState
-from aidm.rules.conditions import is_incapacitated
+from aidm.rules.conditions import condition_bonus_actions, is_incapacitated
 from aidm.rules.encounter import EncounterRefusal, EncounterRefused
 from aidm.rules.features import feature_actions
 from aidm.rules.turns import EconomyRefusal, EconomyRefused, spend_economy
@@ -141,7 +141,7 @@ def spend_action_or_feature(
 ) -> TurnEconomy:
     if not bonus_action:
         return spend(state, actor.creature.id, action=True, reason=name)
-    offered = any(
+    offered = name in condition_bonus_actions(actor.creature) or any(
         option.action == name and option.economy is ActionEconomy.BONUS_ACTION and option.available
         for option in feature_actions(actor.creature, feats)
     )

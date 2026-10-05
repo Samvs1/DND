@@ -13,9 +13,18 @@ Fields of `ConditionDef` (all but index/name/source default to "no effect"):
 - `cannot_attack_source`: the bearer cannot attack the creature that applied it (charmed).
 - `resist_all_damage`, `damage_immunities`: damage defences while the condition lasts.
 - `implies`: other condition keys that apply too (paralyzed implies incapacitated).
-- `ac_bonus`: added to the bearer's AC (AC buffs such as Shield of Faith). `attack_dice` /
-  `save_dice`: a dice expression added to the bearer's attack rolls / saving throws (Bless).
+- `ac_bonus`: added to the bearer's AC (AC buffs such as Shield of Faith); `ac_floor`: the
+  bearer's AC is at least this (Barkskin). `attack_dice` / `save_dice` / `check_dice`: a dice
+  expression added to the bearer's attack rolls / saving throws / ability checks (Bless,
+  Resistance, Guidance); a leading "-" subtracts it instead (Bane: "-1d4").
   `consumed_by_attack`: the instance ends when the bearer makes an attack roll (hidden, helped).
+  `ends_on_damage`: the instance ends when the bearer takes damage (magical sleep).
+- `speed_bonus`: feet added to the bearer's speed while it can move (Longstrider).
+- `damage_resistances`: damage types the bearer resists while the condition lasts.
+- `source_rider_dice` / `source_rider_type`: extra damage when the creature that applied the
+  condition hits the bearer with a weapon attack (Hunter's Mark; type None = the weapon's).
+- `bonus_actions`: actions the bearer may take as a bonus action ("dash": Expeditious Retreat).
+- `blocks_verbal`: the bearer cannot cast spells with a verbal component (Silence).
 - `duration`: the default `DefaultDuration(kind, rounds, tick_on)` for a new instance when the
   applying effect does not say otherwise. `srd_condition` is False for the BG3/SRD-action extras.
 
@@ -54,6 +63,8 @@ type DamageKey = Literal[
     "slashing",
     "thunder",
 ]
+
+BONUS_DICE = r"^-?\d*d\d+$"
 
 DEFAULT_CONDITIONS = Path(__file__).resolve().parents[2] / "data" / "bg3" / "conditions.json"
 
@@ -95,9 +106,18 @@ class ConditionDef(BaseModel):
     damage_immunities: tuple[DamageKey, ...] = ()
     implies: tuple[str, ...] = ()
     ac_bonus: int = 0
-    attack_dice: str | None = None
-    save_dice: str | None = None
+    ac_floor: int | None = Field(default=None, ge=1)
+    attack_dice: str | None = Field(default=None, pattern=BONUS_DICE)
+    save_dice: str | None = Field(default=None, pattern=BONUS_DICE)
+    check_dice: str | None = Field(default=None, pattern=BONUS_DICE)
     consumed_by_attack: bool = False
+    ends_on_damage: bool = False
+    speed_bonus: int = Field(default=0, ge=0)
+    damage_resistances: tuple[DamageKey, ...] = ()
+    source_rider_dice: str | None = Field(default=None, pattern=r"^\d*d\d+$")
+    source_rider_type: DamageKey | None = None
+    bonus_actions: tuple[Literal["dash", "disengage", "hide"], ...] = ()
+    blocks_verbal: bool = False
     duration: DefaultDuration = DefaultDuration()
 
 

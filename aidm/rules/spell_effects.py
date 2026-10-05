@@ -26,19 +26,17 @@ Semantics (SRD 5.1 unless noted):
   and damage type per cast (fire into oil ignites); area spells hit their zone even when empty.
 - multi_target: the sub-effects run on every other creature of the current target's zone (or
   zone and neighbours), sharing rolls.
+- hp_pool, stabilize, revive, teleport: `rules.spell_special` (the pool decides who its
+  sub-effects reach). The cast state itself (`CastContext`, dice, shared rolls) lives in
+  `rules.spell_context`.
 
-Public API: `CastContext`, `cast_dice(effect_dice, ctx, *, cantrip_scaling, upcast_dice,
-add_modifier) -> str`, `spell_attack_profile(spell, name, ctx) -> AttackProfile`,
-`run_effects(ctx, effects, target_id, *, crit=False, half=False, shared=False) -> None`,
+Public API: `run_effects(ctx, effects, target_id, *, crit=False, half=False, shared=False) -> None`,
 `place_surface(ctx, effect, zone_id) -> None`, `zone_damage(ctx, zone_id, damage_type) -> None`,
 `damage_types(effects) -> list[str]`.
 """
 
 from collections.abc import Sequence
-from dataclasses import dataclass, field
 
-from aidm.data.feature_defs import FeatureDef
-from aidm.data.registry import Registry
 from aidm.data.spell_defs import (
     AcBuffEffect,
     ApplyConditionEffect,
@@ -46,109 +44,45 @@ from aidm.data.spell_defs import (
     DamageEffect,
     Effect,
     HealEffect,
+    HpPoolEffect,
     MultiTargetEffect,
     RemoveConditionEffect,
+    ReviveEffect,
     SaveEffect,
-    SpellDef,
+    StabilizeEffect,
     SurfaceEffect,
+    TeleportEffect,
     TempHpEffect,
 )
 from aidm.models.abilities import Ability
-from aidm.models.combat import AttackEconomy, AttackProfile
 from aidm.models.conditions import ConditionLink, SaveEnds
 from aidm.models.damage import DamagePacket, DamageType
-from aidm.models.dice import Roll
-from aidm.models.events import AnyEvent, CheckResolved, DiceRolled, TempHpSet
-from aidm.models.state import GameState
+from aidm.models.events import CheckResolved, TempHpSet
 from aidm.models.zones import ZoneSurface
 from aidm.rules.attacks import deal_damage, roll_attack
 from aidm.rules.concentration import concentration_upkeep
 from aidm.rules.condition_timing import apply_condition, new_condition, remove_condition
 from aidm.rules.conditions import save_with_conditions
 from aidm.rules.damage import resolve_healing
-from aidm.rules.dice import Rng, parse_dice, roll
 from aidm.rules.features import healing_bonus, save_advantage_sources
-from aidm.rules.projection import project_state
-from aidm.rules.spell_targets import CasterNumbers, area_creatures, spell_band
+from aidm.rules.spell_context import (
+    CastContext,
+    cast_dice,
+    cast_roll,
+    cast_zone_of,
+    spell_attack_profile,
+)
+from aidm.rules.spell_special import (
+    pool_admits,
+    revive_target,
+    stabilize_target,
+    teleport_target,
+)
+from aidm.rules.spell_targets import area_creatures
 from aidm.rules.surface_state import surface_def
 from aidm.rules.surfaces import place_surface_events, zone_damage_events
 
-CANTRIP_TIERS = (5, 11, 17)
 MAGIC_TAG = "magic"
-
-
-@dataclass
-class CastContext:
-    rng: Rng
-    spell: SpellDef
-    caster_id: str
-    cast_level: int
-    numbers: CasterNumbers
-    char_level: int
-    feats: Registry[FeatureDef]
-    state: GameState
-    name: str = ""
-    events: list[AnyEvent] = field(default_factory=list[AnyEvent])
-    links: list[ConditionLink] = field(default_factory=list[ConditionLink])
-    rolls: dict[int, Roll] = field(default_factory=dict[int, Roll])
-    surfaces: set[tuple[str, str]] = field(default_factory=set[tuple[str, str]])
-    zone_hits: set[tuple[str, str]] = field(default_factory=set[tuple[str, str]])
-
-    def emit(self, events: Sequence[AnyEvent]) -> None:
-        if events:
-            self.events.extend(events)
-            self.state = project_state(self.state, events)
-
-
-def _scaled(dice: str, factor: int) -> str:
-    expr = parse_dice(dice)
-    parts = [f"{t.count * factor}d{t.sides}" for t in expr.terms]
-    if expr.modifier or not parts:
-        parts.append(str(expr.modifier))
-    return "+".join(parts).replace("+-", "-")
-
-
-def cast_dice(
-    effect_dice: str,
-    ctx: CastContext,
-    *,
-    cantrip_scaling: bool = False,
-    upcast_dice: str | None = None,
-    add_modifier: bool = False,
-) -> str:
-    dice = effect_dice
-    if cantrip_scaling:
-        dice = _scaled(dice, 1 + sum(ctx.char_level >= tier for tier in CANTRIP_TIERS))
-    extra = max(0, ctx.cast_level - ctx.spell.level)
-    if upcast_dice and extra:
-        dice = "+".join([dice, *([upcast_dice] * extra)])
-    if add_modifier and ctx.numbers.modifier:
-        dice = f"{dice}+{ctx.numbers.modifier}".replace("+-", "-")
-    return str(parse_dice(dice))
-
-
-def spell_attack_profile(spell: SpellDef, name: str, ctx: CastContext) -> AttackProfile:
-    band = spell_band(spell)
-    ranged = spell.range.kind == "feet" and band.normal_hops > 0
-    return AttackProfile(
-        key=spell.index,
-        name=name,
-        attack_bonus=ctx.numbers.attack_bonus,
-        ranged=ranged,
-        range_normal=spell.range.feet or 5,
-        economy=AttackEconomy.ACTION,
-    )
-
-
-def _roll(ctx: CastContext, effect: Effect, dice: str, *, crit: bool, shared: bool) -> Roll:
-    key = id(effect)
-    if shared and key in ctx.rolls:
-        return ctx.rolls[key]
-    rolled = roll(dice, ctx.rng, crit=crit)
-    ctx.emit([DiceRolled(roll=rolled, roller_id=ctx.caster_id, label=ctx.name or ctx.spell.index)])
-    if shared:
-        ctx.rolls[key] = rolled
-    return rolled
 
 
 def _damage(
@@ -161,7 +95,7 @@ def _damage(
         upcast_dice=effect.upcast_dice,
         add_modifier=effect.add_modifier,
     )
-    total = _roll(ctx, effect, dice, crit=crit, shared=shared).total
+    total = cast_roll(ctx, effect, dice, crit=crit, shared=shared).total
     amount = max(0, total) // 2 if half else total
     packet = DamagePacket(amount=amount, damage_type=DamageType(effect.damage_type))
     ctx.emit(
@@ -169,7 +103,7 @@ def _damage(
             ctx.rng, ctx.state, ctx.caster_id, target_id, [packet], crit=crit, feats=ctx.feats
         )
     )
-    zone = _zone_of(ctx, target_id)
+    zone = cast_zone_of(ctx, target_id)
     if zone is not None:
         zone_damage(ctx, zone, effect.damage_type)
 
@@ -186,12 +120,10 @@ def damage_types(effects: Sequence[Effect]) -> list[str]:
     for effect in effects:
         if isinstance(effect, DamageEffect):
             found.append(effect.damage_type)
-        elif isinstance(effect, (AttackRollEffect, MultiTargetEffect)):
-            found.extend(
-                damage_types(
-                    effect.on_hit if isinstance(effect, AttackRollEffect) else effect.effects
-                )
-            )
+        elif isinstance(effect, AttackRollEffect):
+            found.extend(damage_types(effect.on_hit))
+        elif isinstance(effect, (MultiTargetEffect, HpPoolEffect)):
+            found.extend(damage_types(effect.effects))
         elif isinstance(effect, SaveEffect):
             found.extend(damage_types(effect.on_fail))
     return list(dict.fromkeys(found))
@@ -203,7 +135,7 @@ def _heal(
     dice = cast_dice(
         effect.dice, ctx, upcast_dice=effect.upcast_dice, add_modifier=effect.add_modifier
     )
-    amount = _roll(ctx, effect, dice, crit=False, shared=shared).total
+    amount = cast_roll(ctx, effect, dice, crit=False, shared=shared).total
     target = ctx.state.creatures[target_id]
     if isinstance(effect, TempHpEffect):
         if amount > target.temp_hp and not target.dead:
@@ -292,14 +224,8 @@ def place_surface(ctx: CastContext, effect: SurfaceEffect, zone_id: str) -> None
     ctx.emit(place_surface_events(ctx.rng, ctx.state, zone_id, surface))
 
 
-def _zone_of(ctx: CastContext, creature_id: str) -> str | None:
-    enc = ctx.state.encounter
-    combatant = enc.combatants.get(creature_id) if enc is not None else None
-    return combatant.zone_id if combatant is not None else None
-
-
 def _splash(ctx: CastContext, effect: MultiTargetEffect, target_id: str) -> None:
-    zone = _zone_of(ctx, target_id)
+    zone = cast_zone_of(ctx, target_id)
     if zone is None:
         return
     exclude = {ctx.caster_id} if effect.include_target else {ctx.caster_id, target_id}
@@ -334,8 +260,17 @@ def run_effects(
                 for name in effect.conditions:
                     ctx.emit(remove_condition(ctx.state.creatures[target_id], name))
             case SurfaceEffect():
-                zone = _zone_of(ctx, target_id)
+                zone = cast_zone_of(ctx, target_id)
                 if zone is not None:
                     place_surface(ctx, effect, zone)
             case MultiTargetEffect():
                 _splash(ctx, effect, target_id)
+            case HpPoolEffect():
+                if pool_admits(ctx, effect, target_id):
+                    run_effects(ctx, effect.effects, target_id, shared=shared)
+            case StabilizeEffect():
+                stabilize_target(ctx, target_id)
+            case ReviveEffect():
+                revive_target(ctx, effect, target_id)
+            case TeleportEffect():
+                teleport_target(ctx, target_id)

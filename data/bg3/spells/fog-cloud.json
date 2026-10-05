@@ -1,0 +1,28 @@
+{
+  "index": "fog-cloud",
+  "level": 1,
+  "school": "conjuration",
+  "classes": [
+    "druid",
+    "ranger",
+    "sorcerer",
+    "wizard"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "feet",
+    "feet": 120
+  },
+  "concentration": true,
+  "duration_rounds": 600,
+  "targeting": {
+    "kind": "area",
+    "area": "zone"
+  },
+  "effects": [
+    {
+      "type": "surface",
+      "surface": "fog"
+    }
+  ]
+}

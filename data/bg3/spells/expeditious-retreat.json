@@ -1,0 +1,25 @@
+{
+  "index": "expeditious-retreat",
+  "level": 1,
+  "school": "transmutation",
+  "classes": [
+    "sorcerer",
+    "warlock",
+    "wizard"
+  ],
+  "casting_time": "bonus_action",
+  "range": {
+    "kind": "self"
+  },
+  "concentration": true,
+  "duration_rounds": 100,
+  "targeting": {
+    "kind": "self"
+  },
+  "effects": [
+    {
+      "type": "apply_condition",
+      "condition": "expeditious-retreat"
+    }
+  ]
+}

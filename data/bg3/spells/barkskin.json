@@ -1,0 +1,24 @@
+{
+  "index": "barkskin",
+  "level": 2,
+  "school": "transmutation",
+  "classes": [
+    "druid",
+    "ranger"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "touch"
+  },
+  "concentration": true,
+  "duration_rounds": 600,
+  "targeting": {
+    "kind": "creature"
+  },
+  "effects": [
+    {
+      "type": "apply_condition",
+      "condition": "barkskin"
+    }
+  ]
+}

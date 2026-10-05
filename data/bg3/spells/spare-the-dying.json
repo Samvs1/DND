@@ -1,0 +1,20 @@
+{
+  "index": "spare-the-dying",
+  "level": 0,
+  "school": "necromancy",
+  "classes": [
+    "cleric"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "touch"
+  },
+  "targeting": {
+    "kind": "creature"
+  },
+  "effects": [
+    {
+      "type": "stabilize"
+    }
+  ]
+}

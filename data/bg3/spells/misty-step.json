@@ -1,0 +1,23 @@
+{
+  "index": "misty-step",
+  "level": 2,
+  "school": "conjuration",
+  "classes": [
+    "sorcerer",
+    "warlock",
+    "wizard"
+  ],
+  "casting_time": "bonus_action",
+  "range": {
+    "kind": "feet",
+    "feet": 30
+  },
+  "targeting": {
+    "kind": "point"
+  },
+  "effects": [
+    {
+      "type": "teleport"
+    }
+  ]
+}

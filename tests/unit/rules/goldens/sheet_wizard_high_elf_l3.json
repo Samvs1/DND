@@ -244,8 +244,8 @@
     "resource": null
    },
    {
-    "index": "dancing-lights",
-    "name": "Dancing Lights",
+    "index": "fire-bolt",
+    "name": "Fire Bolt",
     "level": 0,
     "prepared": true,
     "always_prepared": false,
@@ -253,8 +253,8 @@
     "resource": null
    },
    {
-    "index": "fire-bolt",
-    "name": "Fire Bolt",
+    "index": "poison-spray",
+    "name": "Poison Spray",
     "level": 0,
     "prepared": true,
     "always_prepared": false,
@@ -274,19 +274,10 @@
     ],
     "spells": [
      {
-      "index": "alarm",
-      "name": "Alarm",
-      "level": 1,
-      "prepared": true,
-      "always_prepared": false,
-      "source": "class",
-      "resource": null
-     },
-     {
       "index": "burning-hands",
       "name": "Burning Hands",
       "level": 1,
-      "prepared": false,
+      "prepared": true,
       "always_prepared": false,
       "source": "class",
       "resource": null
@@ -310,35 +301,44 @@
       "resource": null
      },
      {
-      "index": "comprehend-languages",
-      "name": "Comprehend Languages",
-      "level": 1,
-      "prepared": false,
-      "always_prepared": false,
-      "source": "class",
-      "resource": null
-     },
-     {
-      "index": "detect-magic",
-      "name": "Detect Magic",
-      "level": 1,
-      "prepared": false,
-      "always_prepared": false,
-      "source": "class",
-      "resource": null
-     },
-     {
-      "index": "disguise-self",
-      "name": "Disguise Self",
-      "level": 1,
-      "prepared": false,
-      "always_prepared": false,
-      "source": "class",
-      "resource": null
-     },
-     {
       "index": "expeditious-retreat",
       "name": "Expeditious Retreat",
+      "level": 1,
+      "prepared": false,
+      "always_prepared": false,
+      "source": "class",
+      "resource": null
+     },
+     {
+      "index": "false-life",
+      "name": "False Life",
+      "level": 1,
+      "prepared": false,
+      "always_prepared": false,
+      "source": "class",
+      "resource": null
+     },
+     {
+      "index": "fog-cloud",
+      "name": "Fog Cloud",
+      "level": 1,
+      "prepared": false,
+      "always_prepared": false,
+      "source": "class",
+      "resource": null
+     },
+     {
+      "index": "grease",
+      "name": "Grease",
+      "level": 1,
+      "prepared": false,
+      "always_prepared": false,
+      "source": "class",
+      "resource": null
+     },
+     {
+      "index": "hideous-laughter",
+      "name": "Hideous Laughter",
       "level": 1,
       "prepared": false,
       "always_prepared": false,
@@ -367,8 +367,8 @@
       "resource": null
      },
      {
-      "index": "alter-self",
-      "name": "Alter Self",
+      "index": "blindness-deafness",
+      "name": "Blindness/Deafness",
       "level": 2,
       "prepared": false,
       "always_prepared": false,

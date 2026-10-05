@@ -1,0 +1,24 @@
+{
+  "index": "prayer-of-healing",
+  "level": 2,
+  "school": "evocation",
+  "classes": [
+    "cleric"
+  ],
+  "casting_time": "minutes",
+  "range": {
+    "kind": "feet",
+    "feet": 30
+  },
+  "targeting": {
+    "kind": "creatures",
+    "count": 6
+  },
+  "effects": [
+    {
+      "type": "heal",
+      "dice": "2d8",
+      "upcast_dice": "1d8"
+    }
+  ]
+}

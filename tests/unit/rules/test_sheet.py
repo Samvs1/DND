@@ -63,6 +63,8 @@ def test_golden_sheet_hill_dwarf_fighter_l1() -> None:
 
 def test_golden_sheet_high_elf_wizard_l3() -> None:
     sheet = build_sheet(_wizard_l3(), REGS)
+    # M3.6b: the default picks come from SHIPPED spells only, so the snapshot's cantrip and
+    # spellbook indexes changed (Dancing Lights, Alarm... are hidden from pickers).
     _snapshot("sheet_wizard_high_elf_l3", sheet)
     casting = sheet.spellcasting
     assert casting is not None

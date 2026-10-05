@@ -7,13 +7,21 @@ all ability scores 10 (a save succeeds on a natural 13 or more).
 
 from __future__ import annotations
 
+from aidm.models.abilities import Ability, Skill
 from aidm.models.combat import AttackProfile
 from aidm.models.combat_events import AttackRolled
-from aidm.models.events import CheckResolved, DamageTaken
-from aidm.rules.conditions import can_take_reactions, speed_multiplier
+from aidm.models.events import CheckResolved, DamageTaken, Stabilized
+from aidm.rules.conditions import (
+    can_take_reactions,
+    save_with_conditions,
+    skill_check_with_conditions,
+    speed_multiplier,
+)
 from aidm.rules.hit_chance import hit_chance
 from tests.unit.rules.combat_fixtures import REGS, ScriptedRng
 from tests.unit.rules.spell_fixtures import battle, cast, caster, conditions_of, of
+
+ATHLETICS = Skill.ATHLETICS
 
 
 def test_golden_spell_acid_splash() -> None:
@@ -95,3 +103,37 @@ def test_golden_spell_true_strike() -> None:
     claw = AttackProfile(key="stab", name="Stab", attack_bonus=4)
     chance = hit_chance(state, "w", "gob", claw, REGS.chars.features)
     assert chance.adv.value == "advantage"
+
+
+def test_golden_spell_guidance() -> None:
+    # Guidance: touch, concentration up to 1 minute; BG3: +1d4 to the target's ability checks.
+    cleric = caster("c", "cleric", cantrips=["guidance"])
+    state = battle(cleric, ("gob", "gate"))
+    cast(state, "c", "guidance", ScriptedRng(), targets=["gob"])
+    assert conditions_of(state, "gob") == ["guidance"]
+    conc = state.creatures["c"].concentrating_on
+    assert conc is not None and conc.spell_id == "guidance"
+    check = skill_check_with_conditions(ScriptedRng(3, 10), state.creatures["gob"], ATHLETICS, 13)
+    assert check.roll.total == 13 and check.success  # d20 10 + STR 0 + d4 3
+
+
+def test_golden_spell_resistance() -> None:
+    # Resistance: touch, concentration up to 1 minute; BG3: +1d4 to the target's saving throws.
+    cleric = caster("c", "cleric", cantrips=["resistance"])
+    state = battle(cleric, ("gob", "gate"))
+    cast(state, "c", "resistance", ScriptedRng(), targets=["gob"])
+    save = save_with_conditions(ScriptedRng(4, 9), state.creatures["gob"], Ability.CON, 13)
+    assert save.roll.total == 13 and save.success  # d20 9 + CON 0 + d4 4
+
+
+def test_golden_spell_spare_the_dying() -> None:
+    # Spare the Dying: touch a living creature at 0 HP: it becomes stable.
+    cleric = caster("c", "cleric", cantrips=["spare-the-dying"])
+    state = battle(cleric, ("b", "gate"))
+    state.creatures["b"].hp = 0
+    state.creatures["b"].death_save_failures = 2
+    events = cast(state, "c", "spare-the-dying", ScriptedRng(), targets=["b"])
+    assert of(events, Stabilized) and state.creatures["b"].stable
+    assert state.creatures["b"].death_save_failures == 0
+    state = battle(caster("c", "cleric", cantrips=["spare-the-dying"]), ("b", "gate"))
+    assert of(cast(state, "c", "spare-the-dying", ScriptedRng(), targets=["b"]), Stabilized) == []

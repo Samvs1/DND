@@ -7,9 +7,9 @@ question on private copies: the input state and its objects are never touched.
 
 Covered events (the ones rules emit mid-command; everything else is ignored): HpChanged,
 TempHpSet, ConditionApplied, ConditionRemoved, ConditionTicked, ConcentrationStarted,
-ConcentrationEnded, DeathSaveRolled, DeathSavesSet, Stabilized, CreatureDied, ResourceSet,
-EconomyChanged, CombatantMoved and the zone surface events (added, removed, ticked). The
-semantics mirror the reducer exactly (property-tested against it in
+ConcentrationEnded, DeathSaveRolled, DeathSavesSet, Stabilized, CreatureDied, CreatureRevived,
+ResourceSet, EconomyChanged, CombatantMoved and the zone surface events (added, removed,
+ticked). The semantics mirror the reducer exactly (property-tested against it in
 tests/property/test_projection_props.py).
 
 Public API:
@@ -22,6 +22,7 @@ from collections.abc import Sequence
 
 from aidm.models.combat_events import (
     CombatantMoved,
+    CreatureRevived,
     ZoneSurfaceAdded,
     ZoneSurfaceRemoved,
     ZoneSurfaceTicked,
@@ -92,6 +93,8 @@ def _step(c: Creature, event: AnyEvent) -> None:
             c.stable, c.death_save_successes, c.death_save_failures = True, 0, 0
         case CreatureDied():
             c.dead, c.stable = True, False
+        case CreatureRevived():
+            c.dead = False
         case ResourceSet(key=key, resource=resource):
             c.resources = {**c.resources, key: resource}
         case _:

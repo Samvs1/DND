@@ -11,7 +11,11 @@ Public API:
   offered (`allowed` None = anything).
 - `granted_skills(refs)`, `granted_tools(refs)`, `granted_languages(refs)`: what the race,
   subrace, class (tools) and background give without a pick, in grant order.
-- `class_spell_indexes(spells, class_index, min_level, max_level) -> set[str]`: SRD class list.
+- `class_spell_indexes(spells, class_index, min_level, max_level) -> set[str]`: the SRD class
+  list restricted to SHIPPED spells (`aidm.data.spell_defs.shipped_spell_ids`): pickers and
+  validation never offer or accept a spell the DSL cannot cast (SPEC 7.4).
+- `pick_count(required, available, taken=()) -> int`: the picks a table asks for, capped by
+  the shipped options still open (min(table count, available - taken); RULES_DECISIONS M3.6b).
 - `skill_tool_language_errors(choices, refs, regs)`, `equipment_errors(choices, refs)`,
   `class_choice_errors(choices, refs, level)`, `text_errors(choices)`.
 - `MAX_NAME_CHARS` (40), `MAX_PRONOUN_CHARS` (30), `MAX_PORTRAIT_ID_CHARS` (64).
@@ -26,6 +30,7 @@ from aidm.data.character_data import CharacterRegistries
 from aidm.data.class_defs import ClassDef
 from aidm.data.race_defs import RaceDef, SubraceDef
 from aidm.data.registry import Registry
+from aidm.data.spell_defs import shipped_spell_ids
 from aidm.data.srd_spells import SrdSpell
 from aidm.models.abilities import Skill
 from aidm.models.character import MAX_BACKSTORY_CHARS
@@ -138,11 +143,18 @@ def granted_languages(refs: CreationRefs) -> list[str]:
 def class_spell_indexes(
     spells: Registry[SrdSpell], class_index: str, min_level: int, max_level: int
 ) -> set[str]:
+    shipped = shipped_spell_ids()
     return {
         s.index
         for s in spells.all()
-        if min_level <= s.level <= max_level and any(c.index == class_index for c in s.classes)
+        if min_level <= s.level <= max_level
+        and s.index in shipped
+        and any(c.index == class_index for c in s.classes)
     }
+
+
+def pick_count(required: int, available: Collection[str], taken: Collection[str] = ()) -> int:
+    return min(required, len(set(available) - set(taken)))
 
 
 def skill_tool_language_errors(

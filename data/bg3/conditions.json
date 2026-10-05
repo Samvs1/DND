@@ -249,5 +249,15 @@
     "can_act": false,
     "can_react": false,
     "duration": {"kind": "rounds", "rounds": 1, "tick_on": "end_of_turn"}
-  }
+  },
+  {"index": "guidance", "name": "Guidance", "source": "SRD 5.1 Guidance (BG3: +1d4 to every ability check while it lasts, not only one)", "srd_condition": false, "check_dice": "1d4"},
+  {"index": "resistance", "name": "Resistance", "source": "SRD 5.1 Resistance (BG3: +1d4 to every saving throw while it lasts, not only one)", "srd_condition": false, "save_dice": "1d4"},
+  {"index": "bane", "name": "Bane", "source": "SRD 5.1 Bane (a d4 subtracted from attack rolls and saving throws)", "srd_condition": false, "attack_dice": "-1d4", "save_dice": "-1d4"},
+  {"index": "longstrider", "name": "Longstrider", "source": "SRD 5.1 Longstrider (speed +10 feet)", "srd_condition": false, "speed_bonus": 10},
+  {"index": "barkskin", "name": "Barkskin", "source": "SRD 5.1 Barkskin (AC can't be less than 16)", "srd_condition": false, "ac_floor": 16},
+  {"index": "poison-ward", "name": "Poison Ward", "source": "SRD 5.1 Protection from Poison (resistance to poison damage; the advantage on saves against being poisoned is not modelled)", "srd_condition": false, "damage_resistances": ["poison"]},
+  {"index": "hunters-mark", "name": "Hunter's Mark", "source": "SRD 5.1 Hunter's Mark (the caster's weapon hits on the bearer deal an extra 1d6 of the weapon's type)", "srd_condition": false, "source_rider_dice": "1d6"},
+  {"index": "expeditious-retreat", "name": "Expeditious Retreat", "source": "SRD 5.1 Expeditious Retreat (Dash as a bonus action on each turn)", "srd_condition": false, "bonus_actions": ["dash"]},
+  {"index": "asleep", "name": "Asleep", "source": "SRD 5.1 Sleep (unconscious until the spell ends or the sleeper takes damage; waking by an action is DM adjudicated)", "srd_condition": false, "implies": ["unconscious"], "ends_on_damage": true},
+  {"index": "silenced", "name": "Silenced", "source": "SRD 5.1 Silence (deafened, immune to thunder damage, no spells with a verbal component)", "srd_condition": false, "implies": ["deafened"], "damage_immunities": ["thunder"], "blocks_verbal": true}
 ]

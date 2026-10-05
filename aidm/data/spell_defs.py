@@ -8,15 +8,20 @@ is in docs/DECISIONS.md ("Spell DSL authoring guide").
 `SpellDef` fields:
 - `index`: the SRD spell index (also the file name); `level` 0-9 (0 = cantrip); `school`;
   `classes` (class indexes whose lists include it); `casting_time` action / bonus_action /
-  reaction (reactions are Tier 2: refused at cast time).
+  reaction (reactions are Tier 2: refused at cast time) / minutes (ten minutes or more: only
+  outside a fight).
 - `range`: `SpellRange(kind, feet)`: self, touch (same zone) or feet (zone range band).
 - `concentration` and `duration_rounds` (1 minute = 10 rounds; None = instantaneous).
-- `targeting`: `Targeting(kind, count, count_per_slot, count_by_character_level, repeat, area)`:
+- `targeting`: `Targeting(kind, count, count_per_slot, count_by_character_level, repeat, area,
+  order, dead)`:
   "self"; "creature" (one creature); "creatures" (up to `count` + `count_per_slot` per slot
   level above the spell's level, or the `count_by_character_level` table: distinct creatures,
   or with `repeat` exactly that many instances spread round-robin over the chosen creatures,
   like darts and beams); "area" (every creature except the caster in the chosen zone, or the
-  caster's zone for range self; `area` "zone_and_adjacent" adds the neighbouring zones). This
+  caster's zone for range self; `area` "zone_and_adjacent" adds the neighbouring zones);
+  "point" (a zone in range and no creature: the caster is the only instance, e.g. a teleport).
+  `order` "hp_ascending" runs the instances from the lowest current HP up (Sleep); `dead` True
+  means the creature targets must be dead (Revivify), else dead creatures are refused. This
   block is how multi-targeting by count or area is expressed.
 - `effects`: ordered `Effect`s run for each target instance (area spells share one roll per
   damage/heal effect across targets, SRD).
@@ -40,6 +45,13 @@ Effects (`type` tag):
   or the area's zone; `rounds` None = the spell's `duration_rounds`, else the surface default.
 - `multi_target(area, include_target, effects)`: a splash: `effects` run on every other
   creature in the current target's zone (or zone and neighbours), sharing rolls.
+- `hp_pool(dice, upcast_dice, effects)`: one pool of hit points rolled per cast; each target
+  instance in order whose current HP (above 0) fits in what is left uses up its HP and gets
+  `effects` (Sleep, Color Spray; combine with `order` "hp_ascending").
+- `stabilize`: a dying target becomes stable (Spare the Dying).
+- `revive(hp)`: a dead target returns to life with `hp` hit points (Revivify).
+- `teleport`: the target instance (the caster) moves to the chosen zone without spending
+  movement; entering it triggers its surfaces (Misty Step).
 
 Public API: the models above, `Effect` (annotated union), `load_spell_defs(directory=None) ->
 Registry[SpellDef]` (one file per spell; the file stem must equal the index), `spell_defs()`
@@ -63,6 +75,7 @@ from aidm.data.registry import Registry
 DEFAULT_SPELL_DIR = Path(__file__).resolve().parents[2] / "data" / "bg3" / "spells"
 
 type AreaKey = Literal["zone", "zone_and_adjacent"]
+type CastingTime = Literal["action", "bonus_action", "reaction", "minutes"]
 
 
 class _Strict(BaseModel):
@@ -81,12 +94,14 @@ class SpellRange(_Strict):
 
 
 class Targeting(_Strict):
-    kind: Literal["self", "creature", "creatures", "area"]
+    kind: Literal["self", "creature", "creatures", "area", "point"]
     count: int = Field(default=1, ge=1)
     count_per_slot: int = Field(default=0, ge=0)
     count_by_character_level: dict[int, int] = Field(default_factory=dict[int, int])
     repeat: bool = False
     area: AreaKey | None = None
+    order: Literal["chosen", "hp_ascending"] = "chosen"
+    dead: bool = False
 
     @model_validator(mode="after")
     def _check_area(self) -> Targeting:
@@ -155,6 +170,26 @@ class SurfaceEffect(_Strict):
     rounds: int | None = Field(default=None, ge=1)
 
 
+class HpPoolEffect(_Strict):
+    type: Literal["hp_pool"] = "hp_pool"
+    dice: str = Field(min_length=1)
+    upcast_dice: str | None = None
+    effects: tuple[Effect, ...] = Field(min_length=1)
+
+
+class StabilizeEffect(_Strict):
+    type: Literal["stabilize"] = "stabilize"
+
+
+class ReviveEffect(_Strict):
+    type: Literal["revive"] = "revive"
+    hp: int = Field(default=1, ge=1)
+
+
+class TeleportEffect(_Strict):
+    type: Literal["teleport"] = "teleport"
+
+
 class MultiTargetEffect(_Strict):
     type: Literal["multi_target"] = "multi_target"
     area: AreaKey = "zone"
@@ -172,7 +207,11 @@ Effect = Annotated[
     | RemoveConditionEffect
     | AcBuffEffect
     | SurfaceEffect
-    | MultiTargetEffect,
+    | MultiTargetEffect
+    | HpPoolEffect
+    | StabilizeEffect
+    | ReviveEffect
+    | TeleportEffect,
     Field(discriminator="type"),
 ]
 
@@ -182,7 +221,7 @@ class SpellDef(_Strict):
     level: int = Field(ge=0, le=9)
     school: str = Field(min_length=1)
     classes: tuple[str, ...] = Field(min_length=1)
-    casting_time: Literal["action", "bonus_action", "reaction"] = "action"
+    casting_time: CastingTime = "action"
     range: SpellRange
     concentration: bool = False
     duration_rounds: int | None = Field(default=None, ge=1)
@@ -199,10 +238,12 @@ class SpellDef(_Strict):
             raise ValueError("count_by_character_level is for cantrips only")
         if self.level == 0 and self.targeting.count_per_slot:
             raise ValueError("count_per_slot needs a levelled spell")
+        if self.targeting.kind == "point" and self.range.kind != "feet":
+            raise ValueError("point targeting needs a range in feet")
         return self
 
 
-for _model in (AttackRollEffect, SaveEffect, MultiTargetEffect, SpellDef):
+for _model in (AttackRollEffect, SaveEffect, MultiTargetEffect, HpPoolEffect, SpellDef):
     _model.model_rebuild()
 
 

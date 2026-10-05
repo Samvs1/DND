@@ -172,19 +172,24 @@ def test_con_increase_is_retroactive() -> None:
 
 
 def test_known_caster_replacement_and_counts() -> None:
-    at1 = _ready(_state("warlock", "human", None), 1)
-    assert at1.pc is not None
-    base = script_choices(at1, REGS)
-    old = at1.pc.spells_known[0]
-    swap = base.model_copy(update={"replace_spell": old, "replacement": "unseen-servant"})
-    assert "unseen-servant" not in base.spells and _codes(at1, swap) == []
-    gained = next(e for e in level_up(at1, swap, REGS) if isinstance(e, LevelGained))
-    assert old not in gained.pc.spells_known and "unseen-servant" in gained.pc.spells_known
-    bad = base.model_copy(update={"replace_spell": "fireball", "replacement": "unseen-servant"})
-    assert (E.REPLACEMENT_INVALID, "replace_spell") in _codes(at1, bad)
-    extra = base.model_copy(update={"spells": [*base.spells, "unseen-servant"]})
-    assert (E.PICK_COUNT, "spells") in _codes(at1, extra)
-    assert (E.PICK_NOT_ALLOWED, "prepared") in _codes(at1, base.model_copy(update={"prepared": []}))
+    # Level 2 -> 3 (pact slots of level 2 open): the shipped warlock levels 1-2 pool is large
+    # enough to swap (M3.6b: only shipped spells are offered; unshipped Unseen Servant is not).
+    at2 = _ready(_state("warlock", "human", None), 2)
+    assert at2.pc is not None
+    base = script_choices(at2, REGS)
+    old = at2.pc.spells_known[0]
+    new = next(s for s in ("misty-step", "darkness") if s not in base.spells)
+    swap = base.model_copy(update={"replace_spell": old, "replacement": new})
+    assert _codes(at2, swap) == []
+    gained = next(e for e in level_up(at2, swap, REGS) if isinstance(e, LevelGained))
+    assert old not in gained.pc.spells_known and new in gained.pc.spells_known
+    bad = base.model_copy(update={"replace_spell": "fireball", "replacement": new})
+    assert (E.REPLACEMENT_INVALID, "replace_spell") in _codes(at2, bad)
+    unshipped = base.model_copy(update={"replace_spell": old, "replacement": "unseen-servant"})
+    assert (E.REPLACEMENT_INVALID, "replace_spell") in _codes(at2, unshipped)
+    extra = base.model_copy(update={"spells": [*base.spells, new]})
+    assert (E.PICK_COUNT, "spells") in _codes(at2, extra)
+    assert (E.PICK_NOT_ALLOWED, "prepared") in _codes(at2, base.model_copy(update={"prepared": []}))
 
 
 def test_prepared_limit_on_level_up() -> None:

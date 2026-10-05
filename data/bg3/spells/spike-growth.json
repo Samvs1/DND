@@ -1,0 +1,26 @@
+{
+  "index": "spike-growth",
+  "level": 2,
+  "school": "transmutation",
+  "classes": [
+    "druid",
+    "ranger"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "feet",
+    "feet": 150
+  },
+  "concentration": true,
+  "duration_rounds": 100,
+  "targeting": {
+    "kind": "area",
+    "area": "zone"
+  },
+  "effects": [
+    {
+      "type": "surface",
+      "surface": "spike-growth"
+    }
+  ]
+}

@@ -47,6 +47,7 @@ from aidm.rules.creation_checks import (
     granted_languages,
     granted_skills,
     granted_tools,
+    pick_count,
     pick_errors,
     resolve_refs,
     skill_tool_language_errors,
@@ -111,7 +112,7 @@ def spell_pick_errors(
 ) -> list[CreationError]:
     cls_index = refs.cls.index
     cantrips = class_spell_indexes(regs.spells, cls_index, 0, 0)
-    count = cantrips_known_count(refs.cls, CREATION_LEVEL)
+    count = pick_count(cantrips_known_count(refs.cls, CREATION_LEVEL), cantrips)
     errors = pick_errors("cantrips", choices.cantrips, count=count, allowed=cantrips)
     race_class = refs.race.cantrip_class or (refs.subrace.cantrip_class if refs.subrace else None)
     race_count = refs.race.cantrip_choices + (refs.subrace.cantrip_choices if refs.subrace else 0)
@@ -119,14 +120,15 @@ def spell_pick_errors(
     errors += pick_errors(
         "race_cantrips",
         choices.race_cantrips,
-        count=race_count,
+        count=pick_count(race_count, race_pool, choices.cantrips),
         allowed=race_pool,
         taken=choices.cantrips,
     )
     top = max_spell_level(refs.cls, CREATION_LEVEL)
     levelled = class_spell_indexes(regs.spells, cls_index, 1, top)
     levelled |= _expanded(refs, regs, top)
-    errors += pick_errors("spells", choices.spells, count=_spell_count(refs), allowed=levelled)
+    count = pick_count(_spell_count(refs), levelled)
+    errors += pick_errors("spells", choices.spells, count=count, allowed=levelled)
     pool = _prepared_pool(choices, refs, levelled)
     errors += pick_errors("prepared", choices.prepared, count=None, allowed=pool)
     return errors

@@ -310,8 +310,11 @@ def test_golden_scroll_copy_cost() -> None:
 
 def test_fiend_expanded_list_and_domain_grants() -> None:
     base = default_choices("warlock", "human", None)
-    picks = base.model_copy(update={"spells": ["burning-hands", "command"]})
+    picks = base.model_copy(update={"spells": ["burning-hands", "charm-person"]})
     assert validate_creation(picks, REGS) == []
+    # M3.6b picker policy: the fiend's unshipped Command is not offered.
+    unshipped = base.model_copy(update={"spells": ["burning-hands", "command"]})
+    assert [e.code.value for e in validate_creation(unshipped, REGS)] == ["pick_not_allowed"]
     cleric = _build("cleric")
     assert cleric.pc is not None
     grants = granted_spells(cleric.pc.features, 1, "life", FEATS)
@@ -323,5 +326,5 @@ def test_fiend_expanded_list_and_domain_grants() -> None:
     tiefling = _build("fighter", "tiefling")
     assert tiefling.pc is not None
     spells = [g.spell for g in granted_spells(tiefling.pc.traits, 5, None, FEATS)]
-    assert spells == ["thaumaturgy", "hellish-rebuke", "darkness"]
+    assert spells == ["darkness"]  # M3.6b: unshipped Thaumaturgy and Hellish Rebuke not granted
     assert "infernal-legacy-hellish-rebuke" not in tiefling.resources

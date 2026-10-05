@@ -33,7 +33,7 @@ from aidm.models.events import AnyEvent, CheckResolved
 from aidm.models.state import GameState
 from aidm.rules.attack_profiles import find_option, throw_profile
 from aidm.rules.attacks import resolve_attack
-from aidm.rules.checks import passive_score, skill_check
+from aidm.rules.checks import passive_score
 from aidm.rules.command_checks import (
     Actor,
     CommandRefused,
@@ -45,8 +45,11 @@ from aidm.rules.command_checks import (
     spend_action_or_feature,
 )
 from aidm.rules.condition_timing import apply_condition, new_condition
-from aidm.rules.conditions import can_attack_target, can_take_actions, check_adv_counts
-from aidm.rules.d20 import combine_adv
+from aidm.rules.conditions import (
+    can_attack_target,
+    can_take_actions,
+    skill_check_with_conditions,
+)
 from aidm.rules.damage import resolve_healing
 from aidm.rules.dice import Rng
 from aidm.rules.features import attacks_per_action
@@ -144,8 +147,7 @@ def hide_command(
     economy = spend_action_or_feature(state, actor, feats, "hide", bonus_action=cmd.bonus_action)
     watchers = opponents(state, actor)
     dc = max((passive_score(w, Skill.PERCEPTION) for w in watchers), default=0)
-    adv = combine_adv(*check_adv_counts(actor.creature))
-    result = skill_check(rng, actor.creature, Skill.STEALTH, dc, adv=adv)
+    result = skill_check_with_conditions(rng, actor.creature, Skill.STEALTH, dc)
     events: list[AnyEvent] = [
         changed(cmd.actor_id, economy, "hide"),
         CheckResolved(creature_id=cmd.actor_id, result=result, reason="hide"),

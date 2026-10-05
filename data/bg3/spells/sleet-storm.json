@@ -1,0 +1,27 @@
+{
+  "index": "sleet-storm",
+  "level": 3,
+  "school": "conjuration",
+  "classes": [
+    "druid",
+    "sorcerer",
+    "wizard"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "feet",
+    "feet": 150
+  },
+  "concentration": true,
+  "duration_rounds": 10,
+  "targeting": {
+    "kind": "area",
+    "area": "zone"
+  },
+  "effects": [
+    {
+      "type": "surface",
+      "surface": "sleet-storm"
+    }
+  ]
+}

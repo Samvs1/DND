@@ -25,6 +25,8 @@
     {"index": "sleet-storm", "name": "Sleet Storm", "difficult": true, "harms": [
       {"when": ["create", "enter", "turn_start"], "condition": "blinded", "while_inside": true},
       {"save": "dex", "condition": "prone"}]},
+    {"index": "silence", "name": "Silence", "harms": [
+      {"when": ["create", "enter", "turn_start"], "condition": "silenced", "while_inside": true}]},
     {"index": "spike-growth", "name": "Spike Growth", "difficult": true, "harms": [
       {"when": ["enter"], "damage": "4d4", "damage_type": "piercing"}]},
     {"index": "spirit-guardians", "name": "Spirit Guardians", "affects": "hostile_to_source",

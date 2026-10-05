@@ -21,7 +21,10 @@ Public API:
 - `SpellTargets(instances, zone, chosen)`; `resolve_targets(state, caster_id, spell, cast_level,
   char_level, target_ids, target_zone) -> SpellTargets`: validated targets. Outside an active
   fight there are no zones: range is not checked, and spells with an attack roll, a save or
-  damage (hostile acts start a fight first) and area spells are refused.
+  damage (hostile acts start a fight first), area and point spells are refused. A "point" spell
+  picks a zone in range and its only instance is the caster. Dead creatures are refused unless
+  the targeting asks for dead targets (then only dead ones); `order` "hp_ascending" sorts the
+  instances by current HP (stable, ties keep their order).
 """
 
 from collections.abc import Collection, Sequence
@@ -145,13 +148,16 @@ def _needs_fight(effects: Sequence[Effect]) -> bool:
 
 
 def _check_creature(
-    state: GameState, enc: Encounter | None, caster_id: str, cid: str, band: RangeBand
+    state: GameState, enc: Encounter | None, caster_id: str, cid: str, spell: SpellDef
 ) -> None:
     creature = state.creatures.get(cid)
     if creature is None:
         raise _refuse(RefusalCode.UNKNOWN_TARGET, "There is no one like that here.")
-    if creature.dead:
+    if creature.dead and not spell.targeting.dead:
         raise _refuse(RefusalCode.INVALID_TARGET, f"It is too late for {creature.name}.")
+    if spell.targeting.dead and not creature.dead:
+        raise _refuse(RefusalCode.INVALID_TARGET, f"{creature.name} is not dead.")
+    band = spell_band(spell)
     if enc is None:
         return
     combatant = enc.combatants.get(cid)
@@ -177,6 +183,8 @@ def _area_targets(
         raise _refuse(RefusalCode.UNKNOWN_ZONE, "Choose an area for that spell.")
     if not zone_range_check(enc.zone_map, start, zone, spell_band(spell)).in_range:
         raise _refuse(RefusalCode.OUT_OF_RANGE, "That area is out of range.")
+    if spell.targeting.kind == "point":
+        return SpellTargets(instances=(caster_id,), zone=zone, chosen=(caster_id,))
     area = spell.targeting.area or "zone"
     return SpellTargets(instances=area_creatures(state, zone, area, {caster_id}), zone=zone)
 
@@ -208,8 +216,8 @@ def resolve_targets(
     kind = spell.targeting.kind
     if enc is None and _needs_fight(spell.effects):
         raise _refuse(RefusalCode.NOT_IN_COMBAT, "That spell needs a battlefield.")
-    if kind == "area":
-        return _area_targets(state, enc, caster_id, spell, target_zone)
+    if kind in ("area", "point"):
+        return _ordered(state, spell, _area_targets(state, enc, caster_id, spell, target_zone))
     if kind == "self":
         if any(t != caster_id for t in target_ids):
             raise _refuse(RefusalCode.BAD_TARGETS, "That spell only affects you.")
@@ -217,5 +225,12 @@ def resolve_targets(
     allowed = 1 if kind == "creature" else instance_count(spell, cast_level, char_level)
     instances = _picked(spell, target_ids, allowed)
     for cid in dict.fromkeys(instances):
-        _check_creature(state, enc, caster_id, cid, spell_band(spell))
-    return SpellTargets(instances=instances, chosen=tuple(target_ids))
+        _check_creature(state, enc, caster_id, cid, spell)
+    return _ordered(state, spell, SpellTargets(instances=instances, chosen=tuple(target_ids)))
+
+
+def _ordered(state: GameState, spell: SpellDef, targets: SpellTargets) -> SpellTargets:
+    if spell.targeting.order != "hp_ascending":
+        return targets
+    ranked = sorted(targets.instances, key=lambda cid: state.creatures[cid].hp)
+    return SpellTargets(instances=tuple(ranked), zone=targets.zone, chosen=targets.chosen)

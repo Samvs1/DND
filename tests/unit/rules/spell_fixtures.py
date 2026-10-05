@@ -5,11 +5,13 @@ from __future__ import annotations
 from collections.abc import Sequence
 
 from aidm.models.abilities import Ability
-from aidm.models.commands import CastCommand
+from aidm.models.commands import CastCommand, EndTurnCommand
 from aidm.models.encounter import Side
 from aidm.models.events import AnyEvent
 from aidm.models.state import Creature, GameState, RechargeKind, Resource
 from aidm.rules.spellcasting import SlotKind, slot_key
+from aidm.rules.turns import begin_turn
+from aidm.session.reducer import apply
 from tests.unit.rules.combat_fixtures import ScriptedRng, do, fight, monster
 from tests.unit.rules.encounter_fixtures import make_pc
 
@@ -89,3 +91,16 @@ def battle(me: Creature, *others: tuple[str, str]) -> GameState:
 
 def conditions_of(state: GameState, cid: str) -> list[str]:
     return [c.name for c in state.creatures[cid].conditions]
+
+
+def next_turn(state: GameState, rng: ScriptedRng) -> list[AnyEvent]:
+    """End the open turn, then open the next one; returns the events that opened it."""
+    enc = state.encounter
+    assert enc is not None
+    active = enc.active_id()
+    assert active is not None
+    do(state, EndTurnCommand(actor_id=active), rng)
+    events = begin_turn(rng, state)
+    for event in events:
+        apply(state, event)
+    return events

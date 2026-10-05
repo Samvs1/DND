@@ -1,0 +1,27 @@
+{
+  "index": "silence",
+  "level": 2,
+  "school": "illusion",
+  "classes": [
+    "bard",
+    "cleric",
+    "ranger"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "feet",
+    "feet": 120
+  },
+  "concentration": true,
+  "duration_rounds": 100,
+  "targeting": {
+    "kind": "area",
+    "area": "zone"
+  },
+  "effects": [
+    {
+      "type": "surface",
+      "surface": "silence"
+    }
+  ]
+}

@@ -30,7 +30,12 @@ from aidm.data.srd import srd
 from aidm.data.surface_defs import surface_defs
 from aidm.rules.dice import parse_dice
 
-CASTING_TIME = {"1 action": "action", "1 bonus action": "bonus_action", "1 reaction": "reaction"}
+CASTING_TIME = {
+    "1 action": "action",
+    "1 bonus action": "bonus_action",
+    "1 reaction": "reaction",
+    "10 minutes": "minutes",
+}
 
 
 def _walk(effects: Sequence[Effect]) -> Iterator[Effect]:

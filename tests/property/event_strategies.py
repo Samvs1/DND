@@ -11,6 +11,7 @@ from hypothesis import strategies as st
 from aidm.data.character_data import character_registries
 from aidm.models.abilities import Ability, Skill
 from aidm.models.checks import DcTier
+from aidm.models.combat_events import CreatureRevived
 from aidm.models.conditions import (
     Concentration,
     ConditionDuration,
@@ -264,6 +265,7 @@ TARGETED: list[Callable[[st.DataObject, Creature], AnyEvent]] = [
     _death_state,
     lambda _d, c: Stabilized(creature_id=c.id),
     lambda _d, c: CreatureDied(creature_id=c.id),
+    lambda _d, c: CreatureRevived(creature_id=c.id),
     lambda _d, c: CreatureRemoved(creature_id=c.id),
 ]
 

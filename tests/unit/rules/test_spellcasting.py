@@ -142,7 +142,9 @@ def test_creation_sets_slots_and_prepared_limit() -> None:
     assert not any(parse_slot_key(k) for k in _pc("ranger").resources)
     choices = default_choices("cleric", "human", None)
     regs = character_registries()
-    too_many = choices.model_copy(update={"prepared": ["bless", "cure-wounds", "bane", "command"]})
+    too_many = choices.model_copy(
+        update={"prepared": ["bless", "cure-wounds", "bane", "guiding-bolt"]}
+    )
     # Cleric WIS: standard array 10 (+1 human) = 11 -> +0, level 1: limit 1.
     codes = [e.code.value for e in validate_creation(too_many, regs)]
     assert codes == ["prepared_over_limit"]

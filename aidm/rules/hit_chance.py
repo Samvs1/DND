@@ -5,10 +5,11 @@
 - advantage sources (combined with `combine_adv`): the attacker's and target's conditions
   (`attacks_against_melee/ranged`, hidden, helped, dodging, prone...), high ground (BG3), and
   long range (one disadvantage source);
-- target AC: the creature's AC + condition AC bonuses (Shield of Faith) + cover for a ranged
-  attack from another zone (SRD 5.1 Cover);
+- target AC: the creature's AC + condition AC bonuses (Shield of Faith), at least the condition
+  AC floor (Barkskin), + cover for a ranged attack from another zone (SRD 5.1 Cover);
 - crit threshold from features (Improved Critical), auto-crit for a melee hit on a paralyzed or
-  unconscious target (the attacker is in the same zone), condition bonus dice (Bless);
+  unconscious target (the attacker is in the same zone), condition bonus dice (Bless; a "-"
+  die such as Bane's is subtracted);
 - range: melee needs the same zone; ranged reaches the profile's range band.
 
 Public API:
@@ -42,6 +43,7 @@ from aidm.rules.attack_profiles import attack_options
 from aidm.rules.conditions import (
     attack_adv_counts,
     condition_ac_bonus,
+    condition_ac_floor,
     condition_bonus_dice,
     is_incapacitated,
     melee_hit_auto_crits,
@@ -102,13 +104,12 @@ def attack_situation(
     adv, dis = attack_adv_counts(attacker, target, melee=not ranged)
     hg_adv, hg_dis = high_ground_adv_counts(zmap, a_zone, t_zone, ranged=ranged)
     long_dis = 1 if check.long_range else 0
-    ac = (
-        target.ac + condition_ac_bonus(target) + cover_ac_bonus(zmap, a_zone, t_zone, ranged=ranged)
-    )
+    ac = max(target.ac + condition_ac_bonus(target), condition_ac_floor(target))
+    ac += cover_ac_bonus(zmap, a_zone, t_zone, ranged=ranged)
     return AttackSituation(
         adv=combine_adv(adv + hg_adv, dis + hg_dis + long_dis),
         target_ac=ac,
-        bonus_dice=condition_bonus_dice(attacker, save=False),
+        bonus_dice=condition_bonus_dice(attacker),
         crit_on=crit_threshold(attacker, feats),
         auto_crit=not ranged and melee_hit_auto_crits(target),
         range_check=check,
@@ -131,6 +132,8 @@ def natural_chances(adv: AdvState) -> dict[int, Fraction]:
 
 
 def dice_distribution(dice: str) -> dict[int, Fraction]:
+    if dice.startswith("-"):
+        return {-value: p for value, p in dice_distribution(dice[1:]).items()}
     expr = parse_dice(dice)
     dist: dict[int, Fraction] = {expr.modifier: Fraction(1)}
     for term in expr.terms:

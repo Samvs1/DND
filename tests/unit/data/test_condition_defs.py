@@ -26,6 +26,8 @@ def test_extras_are_marked_non_srd() -> None:
     extras = {c.index for c in condition_defs().all() if not c.srd_condition}
     spell_extras = {"chilled", "shocked", "true-strike", "guided", "mage-armor", "blurred"}
     spell_extras |= {"invisibility", "slowed", "nauseated"}
+    spell_extras |= {"guidance", "resistance", "bane", "longstrider", "barkskin", "poison-ward"}
+    spell_extras |= {"hunters-mark", "expeditious-retreat", "asleep", "silenced"}
     base = {"dodging", "hidden", "surprised", "helped", "blessed", "shield-of-faith"}
     assert extras == base | spell_extras
 

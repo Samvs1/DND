@@ -36,7 +36,7 @@ from aidm.models.commands import (
 from aidm.models.events import AnyEvent, CheckResolved, ConditionRemoved
 from aidm.models.state import Creature, GameState
 from aidm.models.zones import ZoneMap
-from aidm.rules.checks import skill_bonus, skill_check
+from aidm.rules.checks import skill_bonus
 from aidm.rules.command_checks import (
     CommandRefused,
     acting,
@@ -46,8 +46,7 @@ from aidm.rules.command_checks import (
     spend_action_or_feature,
 )
 from aidm.rules.condition_timing import apply_condition, new_condition
-from aidm.rules.conditions import check_adv_counts, speed_multiplier
-from aidm.rules.d20 import combine_adv
+from aidm.rules.conditions import effective_speed, skill_check_with_conditions
 from aidm.rules.dice import Rng
 from aidm.rules.projection import project_state
 from aidm.rules.surfaces import enter_zone_events
@@ -105,7 +104,7 @@ def move_command(
 
 def dash_command(state: GameState, cmd: DashCommand, regs: CombatRegistries) -> list[AnyEvent]:
     actor = acting(state, cmd.actor_id)
-    speed = int(actor.creature.speed * speed_multiplier(actor.creature))
+    speed = effective_speed(actor.creature)
     if speed <= 0:
         raise CommandRefused(RefusalCode.CANNOT_MOVE, "You cannot move right now.")
     feats = regs.chars.features
@@ -182,14 +181,8 @@ def shove_command(
     actor = state.creatures[cmd.actor_id]
     economy = spend(state, cmd.actor_id, bonus_action=True, reason="shove")
     skill = max((Skill.ATHLETICS, Skill.ACROBATICS), key=lambda s: skill_bonus(target, s))
-    defend = skill_check(rng, target, skill, 0, adv=combine_adv(*check_adv_counts(target)))
-    attack = skill_check(
-        rng,
-        actor,
-        Skill.ATHLETICS,
-        max(0, defend.roll.total + 1),
-        adv=combine_adv(*check_adv_counts(actor)),
-    )
+    defend = skill_check_with_conditions(rng, target, skill, 0)
+    attack = skill_check_with_conditions(rng, actor, Skill.ATHLETICS, max(0, defend.roll.total + 1))
     events: list[AnyEvent] = [
         changed(cmd.actor_id, economy, "shove"),
         CheckResolved(creature_id=target.id, result=defend, reason="resist shove"),

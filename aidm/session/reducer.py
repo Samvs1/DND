@@ -26,6 +26,7 @@ from aidm.models.character import InventoryItem, PcData
 from aidm.models.combat_events import (
     AttackRolled,
     CombatantMoved,
+    CreatureRevived,
     SpellCast,
     ZoneSurfaceAdded,
     ZoneSurfaceRemoved,
@@ -213,6 +214,8 @@ def apply(state: GameState, event: AnyEvent) -> GameState:
             _creature(state, cid).concentrating_on = None
         case DeathSaveRolled() | DeathSavesSet() | Stabilized() | CreatureDied():
             _apply_death_event(_creature(state, event.creature_id), event)
+        case CreatureRevived(creature_id=cid):
+            _creature(state, cid).dead = False
         case ResourceSet(creature_id=cid, key=key, resource=resource):
             _creature(state, cid).resources[key] = resource
         case ResourceRemoved(creature_id=cid, key=key):

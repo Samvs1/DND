@@ -7,6 +7,7 @@ from hypothesis import strategies as st
 
 from aidm.models.combat_events import (
     CombatantMoved,
+    CreatureRevived,
     ZoneSurfaceAdded,
     ZoneSurfaceRemoved,
     ZoneSurfaceTicked,
@@ -45,6 +46,7 @@ COVERED = (
     DeathSavesSet,
     Stabilized,
     CreatureDied,
+    CreatureRevived,
     ResourceSet,
 )
 

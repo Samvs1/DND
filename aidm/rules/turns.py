@@ -16,7 +16,8 @@ Turn flow (events only; the session applies them between calls):
 - `end_turn(rng, state) -> list[AnyEvent]`: the end-of-turn ticks and save-ends rolls
   (`condition_timing.turn_end_events`) then `TurnEnded`. Refused when no turn is open.
 - `fresh_economy(creature) -> TurnEconomy`: action and bonus action when conditions allow
-  actions; movement = speed x the condition speed factor (rounded down; 0 at 0 HP); reaction
+  actions; movement = `conditions.effective_speed` (speed x the condition factor rounded down,
+  plus condition speed bonuses; 0 at 0 HP); reaction
   when conditions allow reactions.
 
 Economy spending (`EconomyRefused(reason, detail)` on invalid input, nothing is emitted, so an
@@ -37,7 +38,12 @@ from aidm.models.encounter_events import EconomyChanged, TurnEnded, TurnStarted
 from aidm.models.events import AnyEvent
 from aidm.models.state import Creature, GameState
 from aidm.rules.condition_timing import turn_end_events, turn_start_events
-from aidm.rules.conditions import can_take_actions, can_take_reactions, speed_multiplier
+from aidm.rules.conditions import (
+    can_take_actions,
+    can_take_reactions,
+    effective_speed,
+    speed_multiplier,
+)
 from aidm.rules.death import is_dying, roll_death_save
 from aidm.rules.dice import Rng
 from aidm.rules.encounter import EncounterRefusal, EncounterRefused, active_encounter
@@ -92,7 +98,7 @@ def next_turn(state: GameState) -> tuple[int, int] | None:
 
 def fresh_economy(creature: Creature) -> TurnEconomy:
     can_act = can_take_actions(creature)
-    movement = int(creature.speed * speed_multiplier(creature)) if not creature.dead else 0
+    movement = effective_speed(creature)
     return TurnEconomy(
         action=can_act,
         bonus_action=can_act,

@@ -6,12 +6,23 @@ attack +5. Rolls are scripted. Monsters have AC 13, 30 HP and all ability scores
 
 from __future__ import annotations
 
+import pytest
+
 from aidm.models.combat import AttackProfile
-from aidm.models.combat_events import AttackRolled
+from aidm.models.combat_events import AttackRolled, CombatantMoved
+from aidm.models.commands import RefusalCode
+from aidm.models.damage import DamagePacket, DamageType
 from aidm.models.events import CheckResolved, DamageTaken
+from aidm.models.state import GameState
+from aidm.rules.command_checks import CommandRefused
 from aidm.rules.condition_timing import new_condition
+from aidm.rules.damage import damage_after_defenses
 from aidm.rules.hit_chance import hit_chance
-from tests.unit.rules.combat_fixtures import REGS, ScriptedRng
+from aidm.rules.spells import cast_spell
+from aidm.rules.surfaces import enter_zone_events
+from aidm.rules.zones import zone_path
+from aidm.session.reducer import apply
+from tests.unit.rules.combat_fixtures import REGS, ScriptedRng, economy
 from tests.unit.rules.spell_fixtures import battle, cast, caster, conditions_of, of, slots_left
 
 CLAW = AttackProfile(key="claw", name="Claw", attack_bonus=4)
@@ -138,3 +149,97 @@ def test_golden_spell_web() -> None:
     assert state.encounter is not None
     web = state.encounter.zone_map.zone("yard").surfaces[0]
     assert (web.kind, web.dc, web.concentration, web.rounds_left) == ("web", 13, True, 600)
+
+
+def test_golden_spell_barkskin() -> None:
+    # Barkskin: touch, concentration up to an hour: the target's AC can't be less than 16.
+    ranger = caster("r", "ranger", spells=["barkskin"], level=5, slots={2: 1})
+    state = battle(ranger, ("b", "gate"), ("gob", "gate"))
+    state.creatures["b"].ac = 12
+    cast(state, "r", "barkskin", ScriptedRng(), targets=["b"])
+    assert hit_chance(state, "gob", "b", CLAW, REGS.chars.features).target_ac == 16
+    state.creatures["b"].ac = 18
+    assert hit_chance(state, "gob", "b", CLAW, REGS.chars.features).target_ac == 18
+
+
+def test_golden_spell_protection_from_poison() -> None:
+    # Protection from Poison: touch, one hour: ends the poisoned condition, resistance to poison.
+    cleric = caster("c", "cleric", spells=["protection-from-poison"], level=3, slots={2: 1})
+    state = battle(cleric, ("b", "gate"))
+    state.creatures["b"].conditions.append(new_condition("poisoned"))
+    cast(state, "c", "protection-from-poison", ScriptedRng(), targets=["b"])
+    assert conditions_of(state, "b") == ["poison-ward"]
+    packet = DamagePacket(amount=11, damage_type=DamageType.POISON)
+    assert damage_after_defenses(state.creatures["b"], packet) == 5
+
+
+def test_golden_spell_darkness() -> None:
+    # Darkness: magical darkness fills the area (BG3: blinded inside), concentration 10 minutes.
+    wiz = caster("w", "wizard", spells=["darkness"], level=3, slots={2: 1})
+    state = battle(wiz, ("gob", "yard"))
+    cast(state, "w", "darkness", ScriptedRng(), zone="yard")
+    assert conditions_of(state, "gob") == ["blinded"]
+    assert state.encounter is not None
+    dark = state.encounter.zone_map.zone("yard").surfaces[0]
+    assert (dark.kind, dark.rounds_left, dark.concentration) == ("darkness", 100, True)
+
+
+def test_golden_spell_silence() -> None:
+    # Silence: no sound in the area: creatures inside are deafened, immune to thunder damage
+    # and cannot cast spells with a verbal component.
+    spells = ["silence", "healing-word"]
+    cleric = caster("c", "cleric", spells=spells, level=3, slots={1: 1, 2: 1})
+    state = battle(cleric, ("gob", "gate"))
+    cast(state, "c", "silence", ScriptedRng(), zone="gate")
+    assert conditions_of(state, "c") == ["silenced"] and conditions_of(state, "gob") == ["silenced"]
+    thunder = DamagePacket(amount=9, damage_type=DamageType.THUNDER)
+    assert damage_after_defenses(state.creatures["gob"], thunder) == 0
+    before = state.model_dump()
+    with pytest.raises(CommandRefused) as refused:
+        cast(state, "c", "healing-word", ScriptedRng(), targets=["c"])
+    assert refused.value.code is RefusalCode.CANNOT_ACT and state.model_dump() == before
+
+
+def test_golden_spell_spike_growth() -> None:
+    # Spike Growth: difficult terrain; entering it deals 2d4 piercing per 5 ft (zones: 4d4).
+    ranger = caster("r", "ranger", spells=["spike-growth"], level=5, slots={2: 1})
+    state = battle(ranger, ("gob", "wall"))
+    cast(state, "r", "spike-growth", ScriptedRng(), zone="yard")
+    assert state.encounter is not None
+    assert zone_path(state.encounter.zone_map, "wall", "yard").feet == 30
+    apply(state, CombatantMoved(creature_id="gob", from_zone="wall", to_zone="yard"))
+    for event in enter_zone_events(ScriptedRng(1, 2, 3, 4), state, "gob", "wall"):
+        apply(state, event)
+    assert state.creatures["gob"].hp == 20
+
+
+def test_golden_spell_misty_step() -> None:
+    # Misty Step: bonus action, teleport up to 30 ft (an adjacent zone) without movement.
+    wiz = caster("w", "wizard", spells=["misty-step"], level=3, slots={2: 2})
+    state = battle(wiz, ("gob", "wall"))
+    with pytest.raises(CommandRefused) as refused:
+        cast(state, "w", "misty-step", ScriptedRng(), zone="wall")
+    assert refused.value.code is RefusalCode.OUT_OF_RANGE
+    events = cast(state, "w", "misty-step", ScriptedRng(), zone="yard")
+    assert of(events, CombatantMoved)[0].reason == "teleport"
+    assert economy(state, "w").movement_left == state.creatures["w"].speed
+    assert state.encounter is not None and state.encounter.combatant("w").zone_id == "yard"
+
+
+def test_golden_spell_prayer_of_healing() -> None:
+    # Prayer of Healing: 10 minutes, up to six creatures heal 2d8 + WIS 3 (+ Disciple of Life
+    # 2 + 2); refused in a fight.
+    cleric = caster("c", "cleric", spells=["prayer-of-healing"], level=3, slots={2: 1})
+    state = battle(cleric, ("b", "gate"))
+    with pytest.raises(CommandRefused) as refused:
+        cast(state, "c", "prayer-of-healing", ScriptedRng(), targets=["b"])
+    assert refused.value.code is RefusalCode.CANNOT_ACT
+    calm = GameState(campaign_id="camp", seed=1)
+    calm.creatures = {cid: state.creatures[cid] for cid in ("c", "b")}
+    for cid in ("c", "b"):
+        calm.creatures[cid].max_hp, calm.creatures[cid].hp = 40, 1
+    spell = REGS.spells.get("prayer-of-healing")
+    rng = ScriptedRng(1, 2, 3, 4)
+    for event in cast_spell(calm, "c", spell, None, ["c", "b"], None, rng, REGS):
+        apply(calm, event)
+    assert (calm.creatures["c"].hp, calm.creatures["b"].hp) == (1 + 3 + 7, 1 + 7 + 7)

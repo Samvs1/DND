@@ -14,6 +14,8 @@ Public API:
   kind (its effects: `aidm.rules.surfaces`).
 - `ZoneSurfaceRemoved(zone_id, kind, reason)`: the surface of that kind is gone from the zone.
 - `ZoneSurfaceTicked(zone_id, kind, rounds_left)`: its remaining duration after a round start.
+- `CreatureRevived(creature_id)`: a dead creature is alive again (still at 0 HP: the healing
+  events that follow give it its hit points). Applied by the reducer (`dead` = False).
 """
 
 from typing import Literal
@@ -77,3 +79,8 @@ class ZoneSurfaceTicked(_CombatEvent):
     zone_id: str
     kind: str
     rounds_left: int = Field(ge=1)
+
+
+class CreatureRevived(_CombatEvent):
+    type: Literal["creature_revived"] = "creature_revived"
+    creature_id: str

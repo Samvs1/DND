@@ -22,7 +22,8 @@ Public API:
   `GoldChanged`, `InventoryChanged`, and the encounter events of `aidm.models.encounter_events`
   (`EncounterStarted`, `TurnStarted`, `TurnEnded`, `EconomyChanged`, `CombatantWithdrew`,
   `EncounterEnded`), and the combat events of `aidm.models.combat_events` (`AttackRolled`,
-  `CombatantMoved`, `SpellCast`, `ZoneSurfaceAdded`).
+  `CombatantMoved`, `SpellCast`, `ZoneSurfaceAdded`, `ZoneSurfaceRemoved`, `ZoneSurfaceTicked`,
+  `CreatureRevived`).
 - `AnyEvent` (plain union), `Event` (union annotated with the `type` discriminator),
   `EVENT_TYPES` (every event class, derived from the union), `event_adapter` (`TypeAdapter`
   for validate/dump of `Event`).
@@ -39,6 +40,7 @@ from aidm.models.checks import CheckResult
 from aidm.models.combat_events import (
     AttackRolled,
     CombatantMoved,
+    CreatureRevived,
     SpellCast,
     ZoneSurfaceAdded,
     ZoneSurfaceRemoved,
@@ -358,6 +360,7 @@ type AnyEvent = (
     | ZoneSurfaceAdded
     | ZoneSurfaceRemoved
     | ZoneSurfaceTicked
+    | CreatureRevived
 )
 
 Event = Annotated[AnyEvent, Field(discriminator="type")]

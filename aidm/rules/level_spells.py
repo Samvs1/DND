@@ -1,7 +1,8 @@
 """BG3-style spell learning on level-up (SPEC 7.2): validation and the resulting spell lists.
 
-Counts come from the class level rows (`aidm.rules.spellcasting`), lists from the SRD class
-spell lists plus feature `expanded` grants (warlock patron). Rules per caster kind:
+Counts come from the class level rows (`aidm.rules.spellcasting`), capped by the shipped
+spells still open (`creation_checks.pick_count`); lists from the SRD class spell lists plus
+feature `expanded` grants (warlock patron), shipped spells only. Rules per caster kind:
 - every caster: new cantrips = `cantrips_known(new) - cantrips_known(old)`, from the class list.
 - known and pact casters: new spells = `spells_known(new) - spells_known(old)` of a level they
   have slots for; they may also swap ONE known spell (`replace_spell` -> `replacement`).
@@ -29,7 +30,7 @@ from aidm.models.abilities import Ability
 from aidm.models.character import PcData
 from aidm.models.creation import CreationError, CreationErrorCode
 from aidm.models.leveling import LevelUpChoices
-from aidm.rules.creation_checks import class_spell_indexes, pick_errors
+from aidm.rules.creation_checks import class_spell_indexes, pick_count, pick_errors
 from aidm.rules.feature_build import expanded_spell_indexes
 from aidm.rules.spellcasting import (
     cantrips_known_count,
@@ -130,21 +131,27 @@ def spell_learning_errors(
     casting = class_def.spellcasting
     if casting is None or level < casting.first_level:
         return _no_picks_errors(choices)
-    cantrip_count = cantrips_known_count(class_def, level) - cantrips_known_count(
+    new_cantrips = cantrips_known_count(class_def, level) - cantrips_known_count(
         class_def, level - 1
     )
+    cantrip_pool = class_spell_indexes(regs.spells, class_def.index, 0, 0)
+    taken = pc.cantrips + pc.race_cantrips
     errors = pick_errors(
         "cantrips",
         choices.cantrips,
-        count=cantrip_count,
-        allowed=class_spell_indexes(regs.spells, class_def.index, 0, 0),
-        taken=pc.cantrips + pc.race_cantrips,
+        count=pick_count(new_cantrips, cantrip_pool, taken),
+        allowed=cantrip_pool,
+        taken=taken,
     )
     pool = learnable_spells(class_def, level, feature_ids, subclass, regs)
     if casting.kind == "prepared":
         count = casting.spellbook_per_level if casting.spellbook_start else 0
         errors += pick_errors(
-            "spells", choices.spells, count=count, allowed=pool, taken=pc.spellbook
+            "spells",
+            choices.spells,
+            count=pick_count(count, pool, pc.spellbook),
+            allowed=pool,
+            taken=pc.spellbook,
         )
         if choices.replace_spell or choices.replacement:
             errors.append(
@@ -153,7 +160,11 @@ def spell_learning_errors(
         return errors + _prepared_errors(pc, class_def, level, abilities, choices, pool)
     count = spells_known_count(class_def, level) - spells_known_count(class_def, level - 1)
     errors += pick_errors(
-        "spells", choices.spells, count=count, allowed=pool, taken=pc.spells_known
+        "spells",
+        choices.spells,
+        count=pick_count(count, pool, pc.spells_known),
+        allowed=pool,
+        taken=pc.spells_known,
     )
     errors += _replacement_errors(pc, choices, pool)
     if choices.prepared is not None:

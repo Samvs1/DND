@@ -268,3 +268,11 @@ def test_area_spell_into_an_empty_oil_zone_ignites_it() -> None:
     events = cast(state, "w", "fireball", ScriptedRng(*[1] * 8), zone="wall")
     assert _kinds(state, "wall") == ["fire"]
     assert of(events, DamageTaken) == []
+
+
+def test_teleporting_into_a_surface_triggers_it() -> None:
+    wiz = caster("w", "wizard", spells=["misty-step"], level=3, slots={2: 1})
+    state = battle(wiz, ("gob", "wall"))
+    _lay(state, "yard", "fire")
+    cast(state, "w", "misty-step", ScriptedRng(2), zone="yard")
+    assert state.creatures["w"].hp == state.creatures["w"].max_hp - 2

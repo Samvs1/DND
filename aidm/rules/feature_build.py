@@ -19,8 +19,10 @@ Public API:
   `ids` are refused.
 - `expertise_picks(ids, picks, feats) -> list[Skill]`.
 - `granted_spells(ids, level, subclass, feats) -> list[GrantedSpell]`: grants active at `level`
-  for this subclass (or for any subclass); `expanded_spell_indexes(...) -> set[str]`: the
-  `expanded` ones (warlock patron lists, added to what the class may learn).
+  for this subclass (or for any subclass), shipped spells only (an unshipped domain, patron or
+  racial spell is simply not granted; docs/RULES_DECISIONS.md M3.6b);
+  `expanded_spell_indexes(...) -> set[str]`: the `expanded` ones (warlock patron lists, added
+  to what the class may learn).
 - `innate_casting_ability(ids, level, feats) -> Ability | None`: the casting ability of spells
   granted by features and of picked race cantrips (the hook covering race cantrips first).
 - `scroll_copy_cost(ids, level, feats, spell_level, school) -> int | None`: gold to copy a
@@ -48,6 +50,7 @@ from aidm.data.feature_hooks import (
     StatBonusHook,
 )
 from aidm.data.registry import Registry
+from aidm.data.spell_defs import shipped_spell_ids
 from aidm.models.abilities import Ability, Skill
 from aidm.models.creation import CreationError, CreationErrorCode
 from aidm.models.damage import DamageType
@@ -191,11 +194,14 @@ def _grants(ids: Sequence[str], level: int, feats: Registry[FeatureDef]) -> list
 def granted_spells(
     ids: Sequence[str], level: int, subclass: str | None, feats: Registry[FeatureDef]
 ) -> list[GrantedSpell]:
+    shipped = shipped_spell_ids()
     return [
         spell
         for hook in _grants(ids, level, feats)
         for spell in hook.spells
-        if spell.min_level <= level and spell.subclass in (None, subclass)
+        if spell.min_level <= level
+        and spell.subclass in (None, subclass)
+        and spell.spell in shipped
     ]
 
 

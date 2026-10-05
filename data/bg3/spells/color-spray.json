@@ -1,0 +1,32 @@
+{
+  "index": "color-spray",
+  "level": 1,
+  "school": "illusion",
+  "classes": [
+    "sorcerer",
+    "wizard"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "self"
+  },
+  "targeting": {
+    "kind": "area",
+    "area": "zone",
+    "order": "hp_ascending"
+  },
+  "effects": [
+    {
+      "type": "hp_pool",
+      "dice": "6d10",
+      "upcast_dice": "2d10",
+      "effects": [
+        {
+          "type": "apply_condition",
+          "condition": "blinded",
+          "rounds": 2
+        }
+      ]
+    }
+  ]
+}

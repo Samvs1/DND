@@ -15,7 +15,7 @@ from aidm.data.spell_defs import shipped_spell_ids, spell_defs
 from aidm.data.srd import srd
 
 MAX_LEVEL = 3
-SHIPPED_FLOOR = 40  # SPEC 7.4 asks for 50; see RULES_DECISIONS M3.6 shipped count
+SHIPPED_FLOOR = 50  # SPEC 7.4 (61 shipped at M3.6b)
 SHIPPED_CLASSES = {"cleric", "fighter", "ranger", "rogue", "warlock", "wizard"}
 RANGER_MAX_LEVEL = 2
 FULL_CASTERS = {"wizard", "cleric", "warlock"}
@@ -75,5 +75,16 @@ def test_every_shipped_spell_is_in_the_srd_and_on_a_shipped_class_list() -> None
 def test_shipped_spell_ids_is_the_picker_filter() -> None:
     ids = shipped_spell_ids()
     assert ids == {s.index for s in spell_defs().all()}
-    assert "fireball" in ids and "sleep" not in ids
+    assert "fireball" in ids and "sleep" in ids and "fly" not in ids
     assert ids.isdisjoint(_unsupported())
+
+
+def test_every_shipped_spell_has_a_golden_test() -> None:
+    rules_tests = Path(__file__).resolve().parents[1] / "rules"
+    text = "".join(p.read_text(encoding="utf-8") for p in rules_tests.glob("test_golden_spell*.py"))
+    missing = [
+        s.index
+        for s in spell_defs().all()
+        if f"def test_golden_spell_{s.index.replace('-', '_')}" not in text
+    ]
+    assert missing == []

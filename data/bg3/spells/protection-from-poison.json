@@ -1,0 +1,31 @@
+{
+  "index": "protection-from-poison",
+  "level": 2,
+  "school": "abjuration",
+  "classes": [
+    "cleric",
+    "druid",
+    "paladin",
+    "ranger"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "touch"
+  },
+  "duration_rounds": 600,
+  "targeting": {
+    "kind": "creature"
+  },
+  "effects": [
+    {
+      "type": "remove_condition",
+      "conditions": [
+        "poisoned"
+      ]
+    },
+    {
+      "type": "apply_condition",
+      "condition": "poison-ward"
+    }
+  ]
+}

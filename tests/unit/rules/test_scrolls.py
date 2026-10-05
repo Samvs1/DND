@@ -31,6 +31,7 @@ from tests.unit.rules.leveling_fixtures import level_to
 REGS = character_registries()
 R = ScrollCopyRefusal
 SCROLLS = ("magic-missile", "fire-bolt", "misty-step", "cure-wounds", "alarm", "shield")
+SCROLLS += ("burning-hands",)
 
 
 def _state(cls: str = "wizard", gold: int = 100, level: int = 1) -> GameState:
@@ -85,7 +86,8 @@ def test_refusals_change_nothing() -> None:
     assert _refusal(rich, "fire-bolt") is R.CANTRIP
     assert _refusal(rich, "misty-step") is R.LEVEL_TOO_HIGH
     assert _refusal(rich, "cure-wounds") is R.NOT_CLASS_SPELL
-    assert _refusal(rich, "alarm") is R.ALREADY_KNOWN
+    assert _refusal(rich, "burning-hands") is R.ALREADY_KNOWN
+    assert _refusal(rich, "alarm") is R.NOT_CLASS_SPELL  # M3.6b: unshipped spells are not learnable
     assert _refusal(rich, "sleep") is R.NO_SCROLL
     fighter = _state("fighter").creatures["w"]
     assert _refusal(fighter, "shield") is R.NO_SCROLL_COPY

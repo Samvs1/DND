@@ -1,0 +1,27 @@
+{
+  "index": "darkness",
+  "level": 2,
+  "school": "evocation",
+  "classes": [
+    "sorcerer",
+    "warlock",
+    "wizard"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "feet",
+    "feet": 60
+  },
+  "concentration": true,
+  "duration_rounds": 100,
+  "targeting": {
+    "kind": "area",
+    "area": "zone"
+  },
+  "effects": [
+    {
+      "type": "surface",
+      "surface": "darkness"
+    }
+  ]
+}

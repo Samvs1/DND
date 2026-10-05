@@ -1,0 +1,23 @@
+{
+  "index": "revivify",
+  "level": 3,
+  "school": "conjuration",
+  "classes": [
+    "cleric",
+    "paladin"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "touch"
+  },
+  "targeting": {
+    "kind": "creature",
+    "dead": true
+  },
+  "effects": [
+    {
+      "type": "revive",
+      "hp": 1
+    }
+  ]
+}

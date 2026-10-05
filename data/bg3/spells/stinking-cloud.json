@@ -1,0 +1,27 @@
+{
+  "index": "stinking-cloud",
+  "level": 3,
+  "school": "conjuration",
+  "classes": [
+    "bard",
+    "sorcerer",
+    "wizard"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "feet",
+    "feet": 90
+  },
+  "concentration": true,
+  "duration_rounds": 10,
+  "targeting": {
+    "kind": "area",
+    "area": "zone"
+  },
+  "effects": [
+    {
+      "type": "surface",
+      "surface": "stinking-cloud"
+    }
+  ]
+}

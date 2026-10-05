@@ -11,6 +11,10 @@ every target instance in order, the area's surface damage interactions (fire int
 then `ConcentrationStarted` linking the conditions this cast applied (so they end with it; its
 surfaces carry their own concentration flag).
 
+Also refused before any event: a caster whose conditions block verbal components (Silence) and
+a spell with a verbal component (SRD components), and a "minutes" spell (Prayer of Healing)
+while the caster is in an active fight.
+
 Economy (`cast_command`, in combat): the spell's casting time spends the action or the bonus
 action. BG3 rule: a bonus-action spell does NOT restrict the action to a cantrip (the SRD 5.1
 rule is dropped; docs/RULES_DECISIONS.md M3.4). Reaction spells are Tier 2 (refused).
@@ -27,21 +31,42 @@ from aidm.data.combat_data import CombatRegistries
 from aidm.data.spell_defs import SpellDef, SurfaceEffect
 from aidm.models.combat_events import SpellCast
 from aidm.models.commands import CastCommand, RefusalCode
+from aidm.models.encounter import EncounterStatus
 from aidm.models.events import AnyEvent
 from aidm.models.state import GameState
 from aidm.rules.command_checks import CommandRefused, acting, changed, spend
 from aidm.rules.concentration import end_concentration, start_concentration
+from aidm.rules.conditions import condition_blocks_verbal
 from aidm.rules.dice import Rng
 from aidm.rules.features import character_level
 from aidm.rules.projection import project_state
+from aidm.rules.spell_context import CastContext
 from aidm.rules.spell_effects import (
-    CastContext,
     damage_types,
     place_surface,
     run_effects,
     zone_damage,
 )
 from aidm.rules.spell_targets import cast_slot, caster_numbers, resolve_targets
+
+
+def _check_casting(
+    state: GameState, caster_id: str, spell: SpellDef, regs: CombatRegistries
+) -> None:
+    caster = state.creatures[caster_id]
+    srd = regs.chars.spells.find(spell.index)
+    if srd is not None and "V" in srd.components and condition_blocks_verbal(caster):
+        raise CommandRefused(
+            RefusalCode.CANNOT_ACT, "No sound leaves your lips: you cannot cast that."
+        )
+    enc = state.encounter
+    fighting = (
+        enc is not None and enc.status is EncounterStatus.ACTIVE and caster_id in enc.combatants
+    )
+    if spell.casting_time == "minutes" and fighting:
+        raise CommandRefused(
+            RefusalCode.CANNOT_ACT, "That spell takes minutes to cast, not a heartbeat."
+        )
 
 
 def cast_spell(
@@ -57,6 +82,7 @@ def cast_spell(
     caster = state.creatures.get(caster_id)
     if caster is None or caster.dead:
         raise CommandRefused(RefusalCode.CANNOT_ACT, "You cannot cast right now.")
+    _check_casting(state, caster_id, spell, regs)
     numbers = caster_numbers(caster, spell.index, regs.chars)
     cast_level, paid = cast_slot(caster, spell, slot_level, numbers.resource)
     char_level = character_level(caster)
@@ -74,6 +100,7 @@ def cast_spell(
         feats=regs.chars.features,
         state=project_state(state, paid),
         name=srd.name if srd is not None else spell.index,
+        target_zone=targets.zone,
         events=list(paid),
     )
     ctx.emit(

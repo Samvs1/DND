@@ -11,7 +11,8 @@ Public API:
 - `resolve_damage(target, packets, *, crit=False, source_id=None) -> list[AnyEvent]`: one hit or
   source of damage (all its typed packets together). Emits, in order: `DamageTaken` (log, with
   per-packet results and the total for the M1.5 concentration hook), `TempHpSet` (temp HP absorb
-  first), `HpChanged` (HP clamped to [0, max]), then the 0-HP consequences:
+  first; any damage first ends the conditions that end on damage, e.g. magical sleep),
+  `HpChanged` (HP clamped to [0, max]), then the 0-HP consequences:
   - dropped to 0 from above: creatures without death saves die (`CreatureDied`); others die
     instantly if the damage left after reaching 0 is >= max HP (SRD "Instant Death"), else become
     unconscious and dying (`ConditionApplied` unconscious, counters reset if stale);
@@ -38,7 +39,7 @@ from aidm.models.events import (
     TempHpSet,
 )
 from aidm.models.state import ActiveCondition, Creature, CreatureKind
-from aidm.rules.conditions import condition_immune, condition_resists_all
+from aidm.rules.conditions import condition_immune, condition_resists, damage_ended_conditions
 
 UNCONSCIOUS = "unconscious"
 ZERO_HP_SOURCE = "zero_hp"
@@ -55,7 +56,9 @@ def damage_after_defenses(creature: Creature, packet: DamagePacket) -> int:
     amount = max(0, packet.amount)
     if packet.damage_type in creature.immunities or condition_immune(creature, packet.damage_type):
         return 0
-    if packet.damage_type in creature.resistances or condition_resists_all(creature):
+    if packet.damage_type in creature.resistances or condition_resists(
+        creature, packet.damage_type
+    ):
         amount //= 2
     if packet.damage_type in creature.vulnerabilities:
         amount *= 2
@@ -130,6 +133,13 @@ def resolve_damage(
             source_id=source_id,
         )
     ]
+    if total > 0:
+        events.extend(
+            ConditionRemoved(
+                creature_id=target.id, name=c.name, source_id=c.source_id, exact_source=True
+            )
+            for c in damage_ended_conditions(target)
+        )
     if absorbed:
         events.append(TempHpSet(creature_id=target.id, temp_hp=target.temp_hp - absorbed))
     if hp_lost:

@@ -1,0 +1,24 @@
+{
+  "index": "guidance",
+  "level": 0,
+  "school": "divination",
+  "classes": [
+    "cleric",
+    "druid"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "touch"
+  },
+  "concentration": true,
+  "duration_rounds": 10,
+  "targeting": {
+    "kind": "creature"
+  },
+  "effects": [
+    {
+      "type": "apply_condition",
+      "condition": "guidance"
+    }
+  ]
+}

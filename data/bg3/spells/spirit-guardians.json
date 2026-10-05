@@ -1,0 +1,24 @@
+{
+  "index": "spirit-guardians",
+  "level": 3,
+  "school": "conjuration",
+  "classes": [
+    "cleric"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "self"
+  },
+  "concentration": true,
+  "duration_rounds": 100,
+  "targeting": {
+    "kind": "area",
+    "area": "zone"
+  },
+  "effects": [
+    {
+      "type": "surface",
+      "surface": "spirit-guardians"
+    }
+  ]
+}
