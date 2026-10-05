@@ -252,6 +252,11 @@
           "id": "hesper-boat",
           "text": "Fenwick Dray bought passage to the Point the day before the beacon failed.",
           "reveal": {"kind": "attitude", "band": "friendly"}
+        },
+        {
+          "id": "hesper-whistle",
+          "text": "Hesper keeps a wrecker's brass whistle and once signalled false lights for coin.",
+          "reveal": {"kind": "fact_known", "fact_tag": "wreckers"}
         }
       ],
       "voice_tag": "dry",

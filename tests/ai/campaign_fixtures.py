@@ -48,6 +48,8 @@ def draft_from_plan(plan: CampaignPlan | None = None) -> dict[str, Any]:
                 entry["quest_title"] = quests[cond.quest_id]
             if cond.item is not None:
                 entry["item"] = cond.item
+            if cond.fact_tag is not None:
+                entry["fact_tag"] = cond.fact_tag
             secrets.append(entry)
         draft_npcs.append(
             {

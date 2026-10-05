@@ -64,6 +64,7 @@ class SecretDraft(BaseModel):
     band: AttitudeBand | None = None
     quest_title: str | None = None
     item: str | None = None
+    fact_tag: str | None = Field(default=None, max_length=24)
 
 
 class NpcDraft(BaseModel):
@@ -84,6 +85,7 @@ class QuestDraft(BaseModel):
     reward_tier: RewardTier
     act: int = Field(ge=1, le=3)
     reward_item: str | None = Field(default=None, max_length=60)
+    against: str | None = Field(default=None, description="an NPC the quest works against")
 
 
 class CampaignDraft(BaseModel):
@@ -176,8 +178,10 @@ def _secret(ids: _Ids, npc_id: str, n: int, secret: SecretDraft) -> dict[str, An
     elif secret.reveal_kind is RevealKind.QUEST_COMPLETED:
         title = secret.quest_title or ""
         reveal["quest_id"] = ids.find(ids.quests, title, "quest", npc_id)
-    else:
+    elif secret.reveal_kind is RevealKind.ITEM_SHOWN:
         reveal["item"] = secret.item or ""
+    else:
+        reveal["fact_tag"] = (secret.fact_tag or "").strip().lower()
     return {"id": f"{npc_id}-secret-{n}", "text": secret.text, "reveal": reveal}
 
 
@@ -204,6 +208,9 @@ def _quest(ids: _Ids, quest_id: str, quest: QuestDraft) -> dict[str, Any]:
         "reward_tier": quest.reward_tier,
         "act": quest.act,
         "reward_item": quest.reward_item,
+        "against_npc_id": (
+            ids.find(ids.npcs, quest.against, "quest target", quest_id) if quest.against else None
+        ),
     }
 
 

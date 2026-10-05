@@ -8,8 +8,9 @@ registries (monster ids, archetypes, terrain tags, boss CR vs tier) are in
 `aidm.rules.campaign_check` because `aidm.models` may not import `aidm.data`.
 
 Public API:
-- `RevealKind` / `RevealCondition(kind, band, quest_id, item)`: when an NPC secret may be revealed:
-  attitude band reached, a quest completed, or an item shown. Exactly the field its kind needs.
+- `RevealKind` / `RevealCondition(kind, band, quest_id, item, fact_tag)`: when an NPC secret may
+  be revealed: attitude band reached, a quest completed, an item shown (the party carries it) or a
+  fact known (a ledger fact carries the tag, M5.5). Exactly the field its kind needs.
 - `SecretPlan(id, text, reveal)`; `NpcPlan(id, name, role, archetype_id, demeanor, motive,
   secrets, voice_tag, home_node)`.
 - `NodePlan(id, name, flavour, terrain_tags, encounter_themes, shop)`: one place. `encounter_themes`
@@ -20,7 +21,8 @@ Public API:
   one safe arrival (no encounters), 2 to 3 spokes (each with encounter themes), one gateway;
   `nodes()` lists them in that order.
 - `RivalPlan(npc_id, hook)`; `QuestPlan(id, title, giver_npc_id, objective, reward_tier, act,
-  reward_item)`; `Act(index, title, goal, region)`.
+  reward_item, against_npc_id)` (completing it is a deed for the giver and against the
+  target); `Act(index, title, goal, region)`.
 - `CampaignPlan(title, premise, tone, theme, acts, npcs, quests, rival)`: exactly 3 acts, act
   `i` has region tier `i`; `all_nodes()`, `all_regions()`.
 """
@@ -52,6 +54,7 @@ class RevealKind(StrEnum):
     ATTITUDE = "attitude"
     QUEST_COMPLETED = "quest_completed"
     ITEM_SHOWN = "item_shown"
+    FACT_KNOWN = "fact_known"
 
 
 class RevealCondition(_Plan):
@@ -59,14 +62,21 @@ class RevealCondition(_Plan):
     band: AttitudeBand | None = None
     quest_id: str | None = None
     item: str | None = None
+    fact_tag: str | None = Field(default=None, min_length=1, max_length=24)
 
     @model_validator(mode="after")
     def _one_field_for_kind(self) -> RevealCondition:
-        given = {"band": self.band, "quest_id": self.quest_id, "item": self.item}
+        given = {
+            "band": self.band,
+            "quest_id": self.quest_id,
+            "item": self.item,
+            "fact_tag": self.fact_tag,
+        }
         needed = {
             RevealKind.ATTITUDE: "band",
             RevealKind.QUEST_COMPLETED: "quest_id",
             RevealKind.ITEM_SHOWN: "item",
+            RevealKind.FACT_KNOWN: "fact_tag",
         }[self.kind]
         extra = [name for name, value in given.items() if value is not None and name != needed]
         if given[needed] is None or extra:
@@ -159,6 +169,7 @@ class QuestPlan(_Plan):
     reward_tier: RewardTier
     act: int = Field(ge=1, le=ACT_COUNT)
     reward_item: str | None = Field(default=None, max_length=60)
+    against_npc_id: str | None = None
 
 
 class Act(_Plan):
@@ -218,6 +229,8 @@ class CampaignPlan(_Plan):
         for quest in self.quests:
             if quest.giver_npc_id not in npc_ids:
                 raise ValueError(f"quest {quest.id!r}: unknown giver {quest.giver_npc_id!r}")
+            if quest.against_npc_id is not None and quest.against_npc_id not in npc_ids:
+                raise ValueError(f"quest {quest.id!r}: unknown target {quest.against_npc_id!r}")
         if self.rival is not None and self.rival.npc_id not in npc_ids:
             raise ValueError(f"rival {self.rival.npc_id!r} is not in the cast")
         return self

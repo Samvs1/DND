@@ -33,6 +33,7 @@ from aidm.models.world_events import (
 from aidm.rules.checks import dc_for_tier
 from aidm.rules.dice import Rng
 from aidm.rules.projection import project_state
+from aidm.rules.secrets import reveal_refusal
 from aidm.rules.social import (
     attitude_band,
     attitude_score,
@@ -63,11 +64,10 @@ def run_reveal_secret(
     state: GameState, args: RevealSecretArgs, ctx: ToolContext, rng: Rng, regs: ToolRegistries
 ) -> ToolResult:
     npc = _present_npc(state, args.npc)
-    secret = next((s for s in npc.secrets if s.id == args.secret_id), None)
-    if secret is None or secret.revealed:
-        raise ToolRefused(f"{npc.name} has no unrevealed secret {args.secret_id!r}")
-    if secret.min_score is not None and attitude_score(npc) < secret.min_score:
-        raise ToolRefused(f"{npc.name} does not trust the party enough to reveal that")
+    refusal = reveal_refusal(state, npc, args.secret_id)
+    if refusal is not None:
+        raise ToolRefused(refusal)
+    secret = next(s for s in npc.secrets if s.id == args.secret_id)
     event = SecretRevealed(npc_id=npc.id, secret_id=secret.id)
     return ToolResult(events=(event,), summary=f"{npc.name} reveals: {secret.text}")
 

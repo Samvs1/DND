@@ -16,10 +16,14 @@ Public API:
   monster/NPC stat block index. The attitude score is derived by `aidm.rules.social` from
   `base` plus the capped/floored `social` contribution plus uncapped `deeds`; `hostile` is set
   once violence against the NPC was confirmed.
+- `PublicNpcView(id, name, role, demeanor, node_id, attitude, hostile, revealed_secrets)`: the
+  client projection of an NPC (built by `aidm.rules.social.public_npc_view`; no motive, no
+  unrevealed secret, no raw scores).
 - `WorldFeature(id, kind, name, description, interactable, node_id, hidden, discover_dc,
   discovered)`: a door, lever, cache or trap. Hidden features carry a `discover_dc` and are not
   in the manifest until discovered.
-- `Quest(id, title, state, giver_npc_id)`; `Fact(id, text, entity_ids, tags)`: the fact ledger.
+- `Quest(id, title, state, giver_npc_id, against_npc_id)`; `Fact(id, text, entity_ids, tags)`:
+  the fact ledger.
 - `WorldItem(id, name, catalog_id, qty, node_id, hidden)`: an item lying in a place (dropped,
   found); visible items are part of the manifest.
 - `World(current_node, neighbours, locked_nodes, visited, region_tier, scene_index, npcs,
@@ -37,6 +41,7 @@ from enum import StrEnum
 from pydantic import BaseModel, ConfigDict, Field
 
 from aidm.models.campaign import RevealCondition
+from aidm.models.dm_tiers import AttitudeBand
 
 
 class FeatureKind(StrEnum):
@@ -86,6 +91,21 @@ class WorldNpc(BaseModel):
     secrets: list[NpcSecret] = Field(default_factory=list[NpcSecret])
 
 
+class PublicNpcView(BaseModel):
+    """What a client may see of an NPC: never the motive or an unrevealed secret (SPEC 9)."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    id: str
+    name: str
+    role: str = ""
+    demeanor: str = ""
+    node_id: str | None = None
+    attitude: AttitudeBand
+    hostile: bool = False
+    revealed_secrets: tuple[str, ...] = ()
+
+
 class WorldFeature(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -108,6 +128,7 @@ class Quest(BaseModel):
     title: str = Field(min_length=1)
     state: QuestState = QuestState.ACTIVE
     giver_npc_id: str | None = None
+    against_npc_id: str | None = None
 
 
 class Fact(BaseModel):

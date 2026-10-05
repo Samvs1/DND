@@ -2,9 +2,10 @@
 
 Quests: a new quest needs a title and starts offered or active (never already finished, so an
 invented quest cannot be "completed" for a deed); completed and failed are final. Completing a quest
-given by an NPC is a deed (`aidm.rules.social.deed_attitude_events`, moderate tier) - the only route
-past the ally bar. Facts: every entity id must name something known (creature, NPC, feature, quest
-or world node), so the ledger cannot invent entities.
+is a deed for its giver and against its target, failing one a deed against the giver
+(`aidm.rules.social_deeds.quest_deed_events`) - deeds are the only route past the ally bar.
+Facts: every entity id must name something known (creature, NPC, feature, quest or world node),
+so the ledger cannot invent entities.
 
 Public API: `run_update_quest`, `run_record_fact` -> `ToolResult`; `known_entity_ids(state)`;
 `new_fact(state, text, entity_ids, tags, offset=0) -> Fact` (the ONE way a ledger entry is built,
@@ -16,16 +17,13 @@ from collections.abc import Sequence
 from aidm.dm.tool_context import ToolContext, ToolRefused, ToolRegistries, ToolResult
 from aidm.dm.tool_exec_common import require_npc
 from aidm.dm.tools import RecordFactArgs, UpdateQuestArgs
-from aidm.models.dm_tiers import XpTier
 from aidm.models.events import AnyEvent
 from aidm.models.state import GameState
 from aidm.models.world import Fact, Quest, QuestState
 from aidm.models.world_events import FactRecorded, QuestUpdated
 from aidm.rules.dice import Rng
-from aidm.rules.dm_tiers import deed_points
-from aidm.rules.social import deed_attitude_events
+from aidm.rules.social_deeds import quest_deed_events
 
-QUEST_DEED_TIER = XpTier.MODERATE
 FINAL_QUEST_STATES = frozenset({QuestState.COMPLETED, QuestState.FAILED})
 MAX_TAG_CHARS = 24
 
@@ -51,10 +49,7 @@ def run_update_quest(
     if state.world.quests.get(quest.id) == quest:
         return ToolResult(summary=f"quest {quest.id} unchanged")
     events: list[AnyEvent] = [QuestUpdated(quest=quest)]
-    if quest.state is QuestState.COMPLETED and quest.giver_npc_id in state.world.npcs:
-        giver = state.world.npcs[quest.giver_npc_id]
-        points = deed_points(regs.tiers, QUEST_DEED_TIER)
-        events.extend(deed_attitude_events(giver, points, f"completed quest {quest.id}"))
+    events.extend(quest_deed_events(state, quest, regs.tiers))
     return ToolResult(events=tuple(events), summary=f"quest {quest.title}: {quest.state.value}")
 
 

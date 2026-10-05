@@ -38,6 +38,12 @@ def test_v1_social_score_floor() -> None:
     assert attitude_band(attitude_score(npc)) is AttitudeBand.UNFRIENDLY
     assert not npc_is_hostile(npc)
     assert social_attitude_events(npc, DeltaTier.WORSEN, "again") == []
+    # SPEC 9: "floored so failed rolls cannot spiral": recovery is never buried under failures.
+    recovered = _talk(npc, DeltaTier.IMPROVE, 1)
+    assert attitude_score(recovered) == SOCIAL_FLOOR + 10
+    deed = deed_attitude_events(npc, 20, "saved her shop")[0]
+    assert isinstance(deed, AttitudeChanged)
+    assert attitude_score(npc.model_copy(update={"deeds": deed.deeds})) == SOCIAL_FLOOR + 20
 
 
 def test_v1_talk_caps_below_ally_bar() -> None:

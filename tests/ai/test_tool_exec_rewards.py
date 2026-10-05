@@ -80,6 +80,9 @@ def test_v1_hostile_act_confirm_before_combat() -> None:
     pending = run_tool(state, "start_encounter", against_npcs=["npc-rell"])
     assert pending.pending is not None and pending.pending.tool == "start_encounter"
     assert "point of no return" in pending.pending.prompt
+    # SPEC 6.3: "the acting player must confirm before start_encounter runs"
+    assert pending.pending.actor_id == "fighter" and pending.pending.npc_ids == ("npc-rell",)
+    assert not any(isinstance(e, CreatureAdded) for e in pending.events)
     assert [type(e) for e in pending.events] == [HostileActPending]
     apply_result(state, pending)
     assert state.encounter is None

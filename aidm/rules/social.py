@@ -21,11 +21,13 @@ Public API:
   clamped social contribution (empty when nothing changes).
 - `deed_attitude_events(npc, points, reason) -> list[AnyEvent]`: deeds add `points` (uncapped).
 - `hostile_attitude_events(npc, reason) -> list[AnyEvent]`: the NPC becomes hostile.
+- `public_npc_view(npc) -> PublicNpcView`: the client projection (no motive, no unrevealed
+  secret; the server sends only this, M6). Deeds from events: `aidm.rules.social_deeds`.
 """
 
 from aidm.models.dm_tiers import AttitudeBand, DeltaTier
 from aidm.models.events import AnyEvent
-from aidm.models.world import WorldNpc
+from aidm.models.world import PublicNpcView, WorldNpc
 from aidm.models.world_events import AttitudeChanged
 
 SCORE_MIN = -100
@@ -103,3 +105,18 @@ def deed_attitude_events(npc: WorldNpc, points: int, reason: str) -> list[AnyEve
 
 def hostile_attitude_events(npc: WorldNpc, reason: str) -> list[AnyEvent]:
     return _changed(npc, npc.social, npc.deeds, True, reason)
+
+
+def public_npc_view(npc: WorldNpc) -> PublicNpcView:
+    """The only NPC shape that may leave the server: motive and unrevealed secrets stay behind."""
+    band = AttitudeBand.HOSTILE if npc.hostile else attitude_band(attitude_score(npc))
+    return PublicNpcView(
+        id=npc.id,
+        name=npc.name,
+        role=npc.role,
+        demeanor=npc.demeanor,
+        node_id=npc.node_id,
+        attitude=band,
+        hostile=npc_is_hostile(npc),
+        revealed_secrets=tuple(s.text for s in npc.secrets if s.revealed),
+    )
