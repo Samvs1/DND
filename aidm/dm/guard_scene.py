@@ -1,0 +1,135 @@
+"""What the prose guard knows about the scene, computed once per narration (SPEC 6.5).
+
+`guard_scene(state, events)` freezes the facts every check needs: the known name words (the
+entity registry, `aidm.dm.entities`), who is present, who is dead, which absent NPCs exist, the
+party's names and classes, the nouns of items the party may not see destroyed, and the words of
+the features and description of the current place. Recent `events` (already applied to
+`state`) mark items that really were lost (`InventoryChanged` with a negative delta,
+a removed world item is no longer in the scene), so describing those as gone is allowed.
+
+Public API: `GuardScene`, `guard_scene(state, events=()) -> GuardScene`, `words_of(text)`.
+"""
+
+import re
+from collections.abc import Iterable, Sequence
+from dataclasses import dataclass
+
+from aidm.data.guard_lexicon import GuardLexicon, guard_lexicon
+from aidm.dm.entities import display_name, entity_registry
+from aidm.models import events as ev
+from aidm.models.state import GameState
+from aidm.rules.scene import SceneView, current_scene, node_display_name
+
+_WORD = re.compile(r"[A-Za-z]+")
+
+
+def words_of(text: str) -> set[str]:
+    return {w.casefold() for w in _WORD.findall(text)}
+
+
+@dataclass(frozen=True)
+class GuardScene:
+    lexicon: GuardLexicon
+    known_words: frozenset[str]
+    party: dict[str, str]
+    party_classes: frozenset[str]
+    present_npcs: frozenset[str]
+    absent_npcs: dict[str, str]
+    absent_roles: frozenset[str]
+    present_roles: frozenset[str]
+    dead: frozenset[str]
+    others_present: int
+    item_nouns: dict[str, str]
+    feature_words: frozenset[str]
+
+
+def _lost_items(events: Sequence[ev.AnyEvent]) -> set[str]:
+    return {
+        display_name(e.item) for e in events if isinstance(e, ev.InventoryChanged) and e.delta < 0
+    }
+
+
+def _item_nouns(names: Iterable[str], lex: GuardLexicon) -> dict[str, str]:
+    nouns: dict[str, str] = {}
+    for name in sorted(names):
+        for word in sorted(words_of(name)):
+            if len(word) < 3 or word in lex.item_stop_words:
+                continue
+            nouns.setdefault(word, name)
+            for synonym in lex.item_synonyms.get(word, ()):
+                nouns.setdefault(synonym, name)
+    return nouns
+
+
+def _carried(state: GameState) -> set[str]:
+    names: set[str] = set()
+    for creature in state.creatures.values():
+        if creature.pc is not None:
+            names.update(display_name(i.item) for i in creature.pc.inventory)
+    return names
+
+
+def _feature_words(state: GameState, scene: SceneView) -> frozenset[str]:
+    words = words_of(scene.description) | words_of(scene.node_name)
+    for fid in scene.feature_ids:
+        feature = state.world.features[fid]
+        words |= words_of(f"{feature.name} {feature.kind.value} {feature.description}")
+    for exit_id in scene.exits:
+        words |= words_of(node_display_name(state, exit_id))
+    return frozenset(words)
+
+
+def _role_words(state: GameState, ids: Iterable[str]) -> set[str]:
+    out: set[str] = set()
+    for npc_id in ids:
+        npc = state.world.npcs[npc_id]
+        out |= words_of(f"{npc.role} {npc.archetype_id}")
+    return {w for w in out if len(w) >= 4}
+
+
+def _absent_terms(absent: set[str], here: set[str], lex: GuardLexicon) -> dict[str, str]:
+    """Each absent NPC by full name and by every distinctive word of it ("Voss")."""
+    taken = set().union(*(words_of(n) for n in here)) if here else set[str]()
+    terms: dict[str, str] = {}
+    for name in sorted(absent):
+        terms[name] = name
+        for word in re.findall(r"[A-Za-z]+", name):
+            low = word.casefold()
+            skip = low in lex.titles or low in lex.sentence_starters or low in taken
+            if len(word) >= 3 and not skip:
+                terms.setdefault(word, name)
+    return terms
+
+
+def guard_scene(state: GameState, events: Sequence[ev.AnyEvent] = ()) -> GuardScene:
+    lex = guard_lexicon()
+    reg = entity_registry(state)
+    scene = current_scene(state)
+    present_ids = set(scene.npc_ids)
+    living = {c.name for c in state.creatures.values() if not c.dead}
+    present_npcs = {state.world.npcs[i].name for i in present_ids}
+    absent_ids = [i for i in state.world.npcs if i not in present_ids]
+    absent = {state.world.npcs[i].name for i in absent_ids} - present_npcs - living
+    monsters = {state.creatures[c].name for c in scene.monster_ids}
+    present_roles = _role_words(state, present_ids) | words_of(" ".join(monsters))
+    known = set().union(*(words_of(n) for n in reg.all_names - reg.hidden_features))
+    party = {c.name: c.pc.class_index for c in state.creatures.values() if c.pc is not None}
+    carried = (_carried(state) | {state.world.items[i].name for i in scene.item_ids}) - _lost_items(
+        events
+    )
+    return GuardScene(
+        lexicon=lex,
+        known_words=frozenset(known),
+        party=party,
+        party_classes=frozenset(party.values()),
+        present_npcs=frozenset(present_npcs),
+        absent_npcs=_absent_terms(absent, present_npcs | living | set(party), lex),
+        absent_roles=frozenset(
+            _role_words(state, absent_ids) - present_roles - lex.titles - lex.sentence_starters
+        ),
+        present_roles=frozenset(present_roles),
+        dead=frozenset(reg.dead - living),
+        others_present=len(present_ids) + len(scene.monster_ids),
+        item_nouns=_item_nouns(carried, lex),
+        feature_words=_feature_words(state, scene),
+    )

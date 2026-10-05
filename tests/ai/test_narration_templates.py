@@ -5,8 +5,8 @@ from pathlib import Path
 from typing import Any
 
 from aidm.dm.fake_llm import fake_text
+from aidm.dm.guard_flow import NarrationSource
 from aidm.dm.llm_types import LlmMode
-from aidm.dm.narration_stream import NarrationSource
 from aidm.dm.narration_templates import QUIET_LINE, template_narration
 from aidm.dm.narrator import narrate
 from aidm.models.events import AnyEvent, CreatureDied, HpChanged

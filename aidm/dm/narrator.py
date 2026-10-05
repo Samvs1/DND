@@ -4,6 +4,8 @@
 no ids) plus the resolved tool results as authoritative facts, and returns a `NarrationStream`
 of sentence chunks carrying the scene tone. Style: 2 to 6 sentences, second person plural or
 character names, no mechanics numbers unless the player asked for them (`allow_numbers`).
+Every sentence passes THE guard (`aidm.dm.guard`, default `prose_checker(state, events)`)
+before it is yielded: one regeneration with a correction and scrubbed names, then the template.
 Without a model (no key, outage, timeout, empty answer) the stream falls back to the
 deterministic template narration built from the same events, so every resolution narrates.
 
@@ -28,9 +30,9 @@ from typing import Any
 from aidm.dm.adjudicator import AdjudicationResult
 from aidm.dm.context import DEFAULT_BUDGET_TOKENS, build_context, to_messages
 from aidm.dm.context_text import ContextPurpose
-from aidm.dm.guard_types import ProseCheck, no_guard
+from aidm.dm.guard import guarded_narration, prose_checker
+from aidm.dm.guard_types import ProseCheck
 from aidm.dm.llm_client import LlmClient
-from aidm.dm.llm_types import LlmRole
 from aidm.dm.narration_stream import NarrationStream, NarrationTone
 from aidm.dm.narration_templates import template_narration
 from aidm.models.encounter import EncounterStatus
@@ -123,7 +125,7 @@ def narrate(
     player_text: str | None = None,
     tone: NarrationTone | None = None,
     allow_numbers: bool = False,
-    guard: ProseCheck = no_guard,
+    guard: ProseCheck | None = None,
     budget_tokens: int = DEFAULT_BUDGET_TOKENS,
 ) -> NarrationStream:
     events, facts, notice = _unpack(source)
@@ -137,14 +139,15 @@ def narrate(
         player_text=player_text,
         budget_tokens=budget_tokens,
     )
-    return NarrationStream(
-        tone or tone_for(state, events),
-        lambda: llm.stream_text(
-            messages, LlmRole.QUALITY, max_tokens=NARRATION_MAX_TOKENS, player_text=player_text
-        ),
+    sentences = guarded_narration(
+        llm,
+        messages,
+        guard if guard is not None else prose_checker(state, events),
         template_narration(events, state, notice),
-        guard,
+        max_tokens=NARRATION_MAX_TOKENS,
+        player_text=player_text,
     )
+    return NarrationStream(tone or tone_for(state, events), sentences)
 
 
 def narrate_round_segment(
@@ -152,16 +155,18 @@ def narrate_round_segment(
     events: Sequence[AnyEvent],
     llm: LlmClient,
     *,
-    guard: ProseCheck = no_guard,
+    guard: ProseCheck | None = None,
     budget_tokens: int = DEFAULT_BUDGET_TOKENS,
 ) -> NarrationStream:
     messages = narration_messages(state, events, [], SEGMENT_STYLE, budget_tokens=budget_tokens)
-    return NarrationStream(
-        NarrationTone.COMBAT,
-        lambda: llm.stream_text(messages, LlmRole.QUALITY, max_tokens=NARRATION_MAX_TOKENS),
+    sentences = guarded_narration(
+        llm,
+        messages,
+        guard if guard is not None else prose_checker(state, events),
         template_narration(events, state),
-        guard,
+        max_tokens=NARRATION_MAX_TOKENS,
     )
+    return NarrationStream(NarrationTone.COMBAT, sentences)
 
 
 def record_narration(state: GameState, text: str) -> NarrationRecorded | None:

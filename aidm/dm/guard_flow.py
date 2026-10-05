@@ -1,0 +1,145 @@
+"""The guarded prose flow: model sentences, guard, one retry, template (SPEC 6.1, 6.5, 6.8).
+
+`GuardedSentences` is an async iterator of complete sentences (`aidm.dm.sentence_chunker`).
+Every sentence passes the `check` (`ProseCheck`) BEFORE it is yielded, so a flagged sentence
+never reaches a player, TTS or memory. Flow:
+1. attempt 1 streams; a flagged sentence stops it;
+2. ONE regeneration: the attempt factory gets the guard report and the text already shown (the
+   caller adds the correction and scrubs the offending names, `aidm.dm.guard.retry_messages`),
+   and continues after the shown sentences;
+3. still flagged, or the model failed (disabled, timeout, transport, empty): the safe template.
+
+Ending rules: nothing shown -> the whole template (`source` TEMPLATE); something shown but the
+model stopped -> the unfinished fragment is dropped and the template lines follow when fewer
+than `MIN_MODEL_SENTENCES` were shown (the outcome must be told), else `CLOSING_LINE` (`source`
+MIXED). At most `MAX_SENTENCES` sentences.
+
+Public API: `NarrationSource`, `AttemptFactory`, `model_sentences(stream)`,
+`GuardedSentences(attempt, check, fallback_lines, *, max_attempts, max_sentences)` (`sentences`,
+`text`, `source`, `failure`, `reports`, `attempts`, `retried`, `collect()`), `MAX_SENTENCES`,
+`MIN_MODEL_SENTENCES`, `MAX_ATTEMPTS`.
+"""
+
+from collections.abc import AsyncGenerator, AsyncIterator, Callable, Sequence
+from enum import StrEnum
+
+from aidm.dm.guard_types import GuardReport, ProseCheck
+from aidm.dm.llm_client import TextStream
+from aidm.dm.llm_types import LlmFailure
+from aidm.dm.narration_templates import CLOSING_LINE
+from aidm.dm.sentence_chunker import SentenceChunker
+
+MAX_SENTENCES = 8
+MIN_MODEL_SENTENCES = 2
+MAX_ATTEMPTS = 2
+
+
+class NarrationSource(StrEnum):
+    MODEL = "model"
+    TEMPLATE = "template"
+    MIXED = "mixed"
+
+
+type AttemptFactory = Callable[[GuardReport | None, str], TextStream]
+
+
+async def model_sentences(stream: TextStream) -> AsyncGenerator[str]:
+    """Complete sentences of one model stream; an unfinished fragment after a failure is dropped."""
+    chunker = SentenceChunker()
+    pieces = aiter(stream)
+    try:
+        async for piece in pieces:
+            for sentence in chunker.feed(piece):
+                yield sentence
+    finally:
+        closer = getattr(pieces, "aclose", None)
+        if closer is not None:
+            await closer()
+    if stream.failure is None:
+        for sentence in chunker.flush():
+            yield sentence
+
+
+class GuardedSentences:
+    def __init__(
+        self,
+        attempt: AttemptFactory | None,
+        check: ProseCheck,
+        fallback_lines: Sequence[str],
+        *,
+        max_attempts: int = MAX_ATTEMPTS,
+        max_sentences: int = MAX_SENTENCES,
+    ) -> None:
+        self._attempt = attempt
+        self._check = check
+        self._fallback = list(fallback_lines)
+        self._max_attempts = max_attempts
+        self._max = max_sentences
+        self._stopped: GuardReport | None = None
+        self.sentences: list[str] = []
+        self.reports: list[GuardReport] = []
+        self.failure: LlmFailure | None = None
+        self.attempts = 0
+        self.source = NarrationSource.TEMPLATE
+
+    @property
+    def text(self) -> str:
+        return " ".join(self.sentences)
+
+    @property
+    def retried(self) -> bool:
+        return self.attempts > 1
+
+    def __aiter__(self) -> AsyncIterator[str]:
+        return self._run()
+
+    async def collect(self) -> str:
+        async for _ in self:
+            pass
+        return self.text
+
+    async def _once(
+        self, attempt: AttemptFactory, previous: GuardReport | None
+    ) -> AsyncIterator[str]:
+        self.attempts += 1
+        self._stopped = None
+        stream = attempt(previous, self.text)
+        sentences = model_sentences(stream)
+        try:
+            async for sentence in sentences:
+                report = self._check(sentence)
+                if not report.ok:
+                    self.reports.append(report)
+                    self._stopped = report
+                    break
+                self.sentences.append(sentence)
+                yield sentence
+                if len(self.sentences) >= self._max:
+                    break
+        finally:
+            await sentences.aclose()
+        self.failure = stream.failure
+
+    async def _model(self) -> AsyncIterator[str]:
+        attempt = self._attempt
+        previous: GuardReport | None = None
+        while attempt is not None and self.attempts < self._max_attempts:
+            async for sentence in self._once(attempt, previous):
+                yield sentence
+            if self._stopped is None or len(self.sentences) >= self._max:
+                return
+            previous = self._stopped
+
+    async def _run(self) -> AsyncIterator[str]:
+        async for sentence in self._model():
+            yield sentence
+        shown = len(self.sentences)
+        clean = self.failure is None and self._stopped is None
+        if shown and (clean or shown >= self._max):
+            self.source = NarrationSource.MODEL
+            return
+        self.source = NarrationSource.MIXED if shown else NarrationSource.TEMPLATE
+        ending = self._fallback if shown < MIN_MODEL_SENTENCES else [CLOSING_LINE]
+        for line in ending:
+            self.sentences.append(line)
+            yield line

@@ -1,0 +1,127 @@
+{
+  "source": "aidm original vocabulary for the prose guard (SPEC 6.5, docs/V1_LESSONS.md narrator hallucination classes). Lowercase words; multi-word entries are matched as phrases.",
+  "sentence_starters": [
+    "a", "an", "the", "this", "that", "these", "those", "there", "here", "then", "now", "when", "while",
+    "as", "at", "in", "on", "by", "for", "from", "with", "without", "within", "through", "across",
+    "beyond", "behind", "before", "after", "above", "below", "beneath", "under", "over", "around",
+    "inside", "outside", "into", "onto", "toward", "towards", "against", "along", "amid", "among",
+    "near", "past", "until", "since", "during", "despite", "if", "but", "and", "or", "nor", "yet",
+    "so", "still", "even", "only", "just", "once", "again", "soon", "suddenly", "slowly", "quickly",
+    "finally", "meanwhile", "somewhere", "nowhere", "everywhere", "nothing", "something",
+    "everything", "anything", "nobody", "somebody", "everyone", "someone", "no", "not", "none",
+    "all", "both", "each", "every", "few", "many", "most", "much", "several", "some", "one", "two",
+    "three", "four", "five", "six", "you", "your", "yours", "we", "our", "they", "their", "them",
+    "he", "his", "him", "she", "her", "hers", "it", "its", "i", "my", "me", "what", "which", "who",
+    "whose", "where", "why", "how", "yes", "perhaps", "maybe", "almost", "nearly", "instead",
+    "together", "alone", "silence", "overhead", "ahead", "far", "close", "high", "low",
+    "beside", "between", "upon", "up", "down", "out", "off", "back", "away", "good", "well",
+    "oh", "ah", "hush", "wait", "look", "listen", "come", "go", "stop", "careful", "welcome",
+    "dawn", "dusk", "night", "day", "today", "tonight", "tomorrow", "morning", "evening",
+    "winter", "summer", "spring", "autumn", "fate", "death", "nature", "time", "fortune"
+  ],
+  "allowed_capitalised": [
+    "i", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday",
+    "january", "february", "march", "april", "may", "june", "july", "august", "september",
+    "october", "november", "december", "common", "elvish", "dwarvish", "draconic", "infernal",
+    "abyssal", "celestial", "giant", "gnomish", "goblin", "halfling", "orc", "orcish", "sylvan",
+    "undercommon", "primordial", "deep", "speech", "elf", "elves", "elven", "dwarf", "dwarves",
+    "dwarven", "human", "humans", "gnome", "gnomes", "tiefling", "tieflings", "dragonborn",
+    "half", "drow", "sun", "moon", "gods", "god", "goddess", "heavens", "hells", "abyss", "dm",
+    "sir", "madam", "okay"
+  ],
+  "titles": [
+    "sister", "brother", "lord", "lady", "sir", "dame", "captain", "sergeant", "lieutenant",
+    "commander", "general", "master", "mistress", "mother", "father", "king", "queen", "prince",
+    "princess", "elder", "saint", "doctor", "mr", "mrs", "ms", "dr", "st", "old", "young", "high",
+    "keeper", "warden", "magister", "priest", "priestess", "baron", "baroness", "duke", "duchess",
+    "count", "countess", "chief", "mayor", "uncle", "aunt", "grandmother", "grandfather"
+  ],
+  "person_verbs": [
+    "says", "asks", "nods", "smiles", "grins", "laughs", "whispers", "mutters", "shouts", "replies",
+    "frowns", "sighs", "bows", "waves", "winks", "chuckles", "beckons", "introduces", "greets",
+    "snaps", "growls", "calls", "answers", "explains", "insists", "warns", "steps", "approaches",
+    "leans", "shrugs", "scowls", "glares"
+  ],
+  "action_verbs": [
+    "attacks", "strikes", "swings", "lunges", "charges", "rises", "stands", "roars", "laughs",
+    "speaks", "says", "steps", "moves", "grins", "snarls", "raises", "casts", "runs", "flees",
+    "turns", "watches", "smiles", "growls", "slashes", "bites", "claws", "shouts", "whispers",
+    "nods", "blocks", "dodges", "advances", "waits", "looks", "glares", "reaches", "grabs",
+    "lifts", "draws", "fights", "presses", "retreats", "circles", "stalks", "howls", "screams",
+    "hisses", "breathes", "blinks", "walks", "approaches", "answers", "replies", "asks", "greets",
+    "leans", "stirs", "staggers", "recovers", "doesn't slow", "does not slow", "keeps coming",
+    "still stands", "is alive", "stands tall", "pushes", "hurls", "aims", "fires", "gestures"
+  ],
+  "death_words": [
+    "corpse", "body", "remains", "lifeless", "dead", "fallen", "motionless", "lies", "lay",
+    "slumped", "carcass", "bones", "grave", "killed", "slain", "death", "died", "defeated",
+    "unmoving", "still form"
+  ],
+  "recall_words": [
+    "told", "said", "mentioned", "promised", "warned", "remember", "remembers", "recall",
+    "recalls", "earlier", "spoke", "words", "gave", "asked", "sent", "wanted", "wants", "hired",
+    "memory", "thought", "thoughts", "think"
+  ],
+  "destroy_words": [
+    "destroyed", "destroys", "broken", "breaks", "shatter", "shatters", "shattered",
+    "shattering", "smashed", "smashes", "snapped", "snaps", "splinters", "splintered", "crumbles",
+    "crumbled", "ruined", "shards", "cracked", "cracks", "melts", "melted", "in pieces",
+    "falls apart", "burned away", "bursts"
+  ],
+  "negations": ["not", "no", "never", "without", "nor", "isn't", "wasn't", "aren't", "doesn't", "don't", "didn't", "hardly", "barely", "longer"],
+  "item_stop_words": [
+    "of", "the", "light", "heavy", "hand", "small", "greater", "lesser", "superior", "supreme",
+    "healing", "common", "plus", "and", "pack", "set", "block", "scale", "chain", "component",
+    "clothes", "bolt", "arrow", "dungeoneers", "burglars", "scholars", "priests", "thieves",
+    "explorers", "entertainers", "diplomats", "tools", "pouch"
+  ],
+  "item_synonyms": {
+    "potion": ["vial", "flask", "bottle", "glass"],
+    "scroll": ["parchment"],
+    "longsword": ["sword", "blade"],
+    "shortsword": ["sword", "blade"],
+    "greatsword": ["sword", "blade"],
+    "scimitar": ["blade"],
+    "dagger": ["blade", "knife"],
+    "crossbow": ["bow"],
+    "shortbow": ["bow"],
+    "longbow": ["bow"],
+    "quarterstaff": ["staff"],
+    "mail": ["armor", "armour"],
+    "leather": ["armor", "armour"]
+  },
+  "feature_nouns_always": [
+    "lever", "levers", "trapdoor", "trapdoors", "hatch", "hatches", "pressure plate",
+    "pressure plates", "tripwire", "tripwires", "trap", "traps", "mechanism", "strongbox",
+    "coffer", "coffers", "cache", "chest", "chests", "keyhole", "pulley", "winch"
+  ],
+  "feature_nouns_hidden": [
+    "door", "doors", "doorway", "passage", "passages", "passageway", "tunnel", "tunnels", "stair",
+    "stairs", "staircase", "stairway", "panel", "seam", "opening", "alcove", "niche",
+    "compartment", "entrance", "shaft", "crawlspace", "chamber", "room", "vault", "wall",
+    "recess", "grate", "portcullis", "gate", "ladder", "cellar"
+  ],
+  "hidden_qualifiers": [
+    "secret", "hidden", "concealed", "disguised", "camouflaged", "false", "cleverly", "invisible",
+    "masked", "covert", "unseen"
+  ],
+  "reveal_verbs": [
+    "reveals", "revealing", "revealed", "uncovers", "uncovering", "exposes", "exposing",
+    "slides open", "swings open", "grinds open", "slides aside", "shifts aside", "gives way to",
+    "opens onto"
+  ],
+  "body_possessives": ["his", "her", "its", "their", "your", "my", "our", "a man's", "a woman's"],
+  "crowd_nouns": [
+    "throng", "crowd", "crowds", "onlookers", "mob", "horde", "bystanders", "villagers", "patrons",
+    "spectators", "townsfolk", "multitude", "masses", "gathering", "audience", "regulars"
+  ],
+  "erase_phrases": [
+    "holds only you", "only you remain", "you are alone", "you're alone", "no one else",
+    "nobody else", "no one is here", "nobody is here", "utterly empty", "completely empty",
+    "deserted", "not a soul", "empty hall", "empty room", "empty chamber", "empty tavern"
+  ],
+  "class_words": [
+    "barbarian", "bard", "cleric", "druid", "fighter", "monk", "paladin", "ranger", "rogue",
+    "sorcerer", "warlock", "wizard"
+  ]
+}

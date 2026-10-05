@@ -5,9 +5,11 @@ from typing import Any
 
 from aidm.dm.adjudicator import AdjudicationResult, ResolvedCall
 from aidm.dm.fake_llm import FakeHang, FakeRaise, FakeStream, fake_text
+from aidm.dm.guard_flow import NarrationSource
+from aidm.dm.guard_types import GuardReport, Violation, ViolationKind, no_guard
 from aidm.dm.llm_backend import BackendError, BackendTimeout
 from aidm.dm.llm_types import FailureReason
-from aidm.dm.narration_stream import NarrationSource, NarrationTone
+from aidm.dm.narration_stream import NarrationTone
 from aidm.dm.narration_templates import CLOSING_LINE
 from aidm.dm.narrator import (
     NARRATION_STYLE,
@@ -40,7 +42,7 @@ def _check_events(dc_tier: str = "easy") -> list[AnyEvent]:
 async def test_streams_complete_sentences_in_order(tmp_path: Path) -> None:
     pieces = ("You climb", " the wall. Mr. Ash", " watches... then claps", '. "Bravo!" ', "Done")
     client, fake = fake_client(tmp_path, [FakeStream(pieces)])
-    stream = narrate(party_state(), _check_events(), client)
+    stream = narrate(party_state(), _check_events(), client, guard=no_guard)
     texts = [c.text for c in [chunk async for chunk in stream]]
     assert texts == [
         "You climb the wall.",
@@ -152,8 +154,6 @@ async def test_batched_monster_turns_use_one_call(tmp_path: Path) -> None:
 
 
 async def test_guard_hook_stops_flagged_sentence(tmp_path: Path) -> None:
-    from aidm.dm.guard_types import GuardReport, Violation, ViolationKind
-
     def guard(text: str) -> GuardReport:
         bad = "Kelene" in text
         return GuardReport((Violation(ViolationKind.UNKNOWN_NAME, "Kelene", "x"),) if bad else ())
