@@ -1,4 +1,4 @@
-NEXT: M5.1 Plan schema and sample campaign. Delegate to mechanical-engineer. Last gate: M4 FULL GATE PASS 8/8.
+NEXT: M5.2 Region graph builder. Delegate to mechanical-engineer. Last gate: M5.1 GATE PASS 8/8.
 
 # PROGRESS
 
@@ -61,7 +61,7 @@ Stashes and blockers: record them in the Notes section at the bottom.
 - [x] M4.8 **H** Injection suite (>=20 FakeLLM adversary cases), end-to-end fallback test (no key = fully playable exploration plus combat), `tests/live` scaffolding (skipped without RUN_LIVE). FULL gate. Commit `M4: AI layer`.
 
 ## M5 Campaign (SPEC 9)
-- [ ] M5.1 **M** Campaign plan schema plus a built-in sample campaign (3 acts, original setting) used as the fallback. Gate: pytest.
+- [x] M5.1 **M** Campaign plan schema plus a built-in sample campaign (3 acts, original setting) used as the fallback. Gate: pytest. (commit see git log, `WIP M5.1`)
 - [ ] M5.2 **M** Region graph builder (arrival, 2-3 spokes, gateway), connectivity and no-soft-lock validation, gateway lock until spokes are visited, defeat path always present; `test_v1_unreachable_boss_never_softlocks`. Gate: pytest.
 - [ ] M5.3 **H** `dm/campaign_gen.py`: one structured QUALITY call, validation, retry with errors, fallback to the sample; theme or "surprise me". Gate: pytest tests/ai.
 - [ ] M5.4 **H** Progression: lazy node descriptions generated once and stored, travel, world-pulled encounters (CR budget), surprise/escape/parley options, region resolution by defeat or alliance. Gate: pytest.
@@ -129,6 +129,7 @@ If the API rejects the key or needs organisation verification: stop M10 generati
 10. The final message is a VERIFICATION REPORT plus the Tier-2 items not built.
 
 ## Notes (stashes, blockers, decisions pending)
+- M5.1: plan models = aidm/models/campaign.py; `check_plan_refs(plan)` in aidm/rules/campaign_check.py (use it for the M5.3 retry feedback); `load_sample_campaign()` is in `aidm/dm/campaign_sample.py` (NOT aidm/data: data may not import models); JSON at data/campaigns/sample_campaign.json. Decisions: DECISIONS M5.1.
 - M4 exit gate (SPEC 14): LLM client + FakeLLM (M4.1), tools/executors (M4.2), context builder (M4.3), adjudicator (M4.4), narrator streaming + templates (M4.5), guard (M4.6, +secret leak, living-declared-dead, unearned reward), memory + NPC voice (M4.7), injection suite 24 FakeLLM cases (tests/ai/test_injections.py) + 6 live, no-key e2e (tests/ai/test_no_key_e2e.py: look/free text/social/travel/fight to the end/short rest, replay == state) all done. Live run 2026-10-05 (RUN_LIVE=1): 8 passed after two client fixes (names as ids, aclose). Gaps (by design, later milestones): the campaign fallback is M5; the session wiring of npc_voice/summarise/pre-check intents is M6 (order in M4.7 note); prose numeric claims (HP, XP numbers) are not guard-checked; python-dotenv warns it cannot parse line 9 of .env (the key still loads; owner may want to check that line's syntax).
 - M4.8: injection harness tests/ai/injection_harness.py (`play_turn(client, text)`, `assert_contained`), per-action tool caps `adjudicator.PER_ACTION_LIMITS`, `tool_refs.resolve_tool_refs` (names -> ids), `LlmClient.aclose()` (call at server shutdown, M6). Decisions: DECISIONS M4.8.
 - M4.7: memory = aidm/dm/memory.py (`should_summarise(state, events)`, `async summarise(state, llm, *, events) -> SummaryOutcome(summary, events, failure, dropped)`; apply `.events` = SceneSummarised + FactRecorded) + memory_fallback.py; ONE fact retrieval `context_sections.relevant_facts`. NPC voice = aidm/dm/npc_voice.py (`voice_target(state, result, text) -> npc_id | None`, `npc_voice(state, npc_id, llm, *, actor_id, player_text, result) -> NarrationStream`, SOCIAL tone). Session (M6) order: adjudicate -> narrate -> npc_voice if voice_target -> ONE record_narration(narration + speech) -> if should_summarise: summarise. Guard now flags unrevealed secrets (guard_secrets.py, ViolationKind.SECRET_LEAK). Decisions: DECISIONS M4.7.

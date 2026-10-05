@@ -1,0 +1,343 @@
+{
+  "title": "The Drowned Beacon",
+  "premise": "For three hundred years the beacon at Tallow Point kept the Kestrel Coast safe. Then came the Black Tide: the great lamp went dark, a hungry fog rolled in, and ships began to founder on the Gullgrave rocks. A choir of cultists known as the Hollow Choir sings the fog onward, and someone powerful is paying for the wrecks. The party is hired to find out who, and to light the beacon again.",
+  "tone": "grim but hopeful nautical mystery",
+  "theme": "light against the fog",
+  "acts": [
+    {
+      "index": 1,
+      "title": "Fog on the Quay",
+      "goal": "Learn who is dousing the lamps of Gullmere Quay and break the smugglers who serve the Choir.",
+      "region": {
+        "id": "gullmere-quay",
+        "name": "Gullmere Quay",
+        "flavour": "A rain-dark fishing harbour of tarred boats and shuttered windows, where the lamps keep going out.",
+        "tier": 1,
+        "terrain_tags": ["village", "swamp", "bridge"],
+        "arrival": {
+          "id": "gullmere-quay-docks",
+          "name": "Gullmere Quay",
+          "flavour": "Wet cobbles, a harbourmaster's office with one lit window, and a tavern that still has a fire.",
+          "terrain_tags": ["village", "bridge"],
+          "encounter_themes": [],
+          "shop": true
+        },
+        "spokes": [
+          {
+            "id": "rotting-boathouse",
+            "name": "Rotting Boathouse",
+            "flavour": "A collapsed boathouse on stilts, its floor boards slick with weed and its rafters full of rustling.",
+            "terrain_tags": ["swamp", "ruins"],
+            "encounter_themes": ["giant-rat", "swarm-of-rats", "zombie"]
+          },
+          {
+            "id": "saltcellar-tunnels",
+            "name": "Saltcellar Tunnels",
+            "flavour": "Old salt-merchants' tunnels under the quay, dripping and cold, with scratch marks on the walls.",
+            "terrain_tags": ["cave", "crypt"],
+            "encounter_themes": ["grimlock", "swarm-of-bats", "kobold"]
+          },
+          {
+            "id": "heron-marsh-causeway",
+            "name": "Heron Marsh Causeway",
+            "flavour": "A raised path of black planks across the reeds, with lantern-light blinking far out in the mist.",
+            "terrain_tags": ["swamp", "wilds"],
+            "encounter_themes": ["stirge", "crocodile", "lizardfolk"]
+          }
+        ],
+        "gateway": {
+          "id": "sunken-vestry",
+          "name": "The Sunken Vestry",
+          "flavour": "A drowned chapel half-sunk in the mud, where a low humming rises from beneath the floor.",
+          "terrain_tags": ["ruins", "crypt"],
+          "encounter_themes": ["cultist", "bandit"]
+        },
+        "boss": {
+          "monster_id": "bugbear",
+          "name": "Gorran Hookhand",
+          "lair_node": "sunken-vestry",
+          "ally_path": "Show Gorran the harbour ledger that proves the Choir means to leave his crew to drown on the next tide; he turns on his masters and opens the vestry's hidden stair."
+        }
+      }
+    },
+    {
+      "index": 2,
+      "title": "The Kelpglass Reach",
+      "goal": "Follow the Choir inland, win the old wardens' trust, and silence the Cantor who sings the fog.",
+      "region": {
+        "id": "kelpglass-reach",
+        "name": "The Kelpglass Reach",
+        "flavour": "A salt-bitten stretch of wood and ruin along the coast road, where the fog lies thickest and old watch-fires still smoulder.",
+        "tier": 2,
+        "terrain_tags": ["forest", "ruins", "wilds"],
+        "arrival": {
+          "id": "lamplighters-rest",
+          "name": "Lamplighters' Rest",
+          "flavour": "A fortified waystation where the last honest lamplighters keep a stove going and a ledger of the lost.",
+          "terrain_tags": ["village", "keep"],
+          "encounter_themes": [],
+          "shop": true
+        },
+        "spokes": [
+          {
+            "id": "thornwood-shrine",
+            "name": "Thornwood Shrine",
+            "flavour": "A mossy shrine to the old tide-wardens, circled by thorn and the tracks of something heavy.",
+            "terrain_tags": ["forest", "wilds"],
+            "encounter_themes": ["ankheg", "ogre"]
+          },
+          {
+            "id": "salt-barrow",
+            "name": "The Salt Barrow",
+            "flavour": "A burial mound crusted in white salt, its door ajar and its air thick with the smell of old brine.",
+            "terrain_tags": ["crypt", "ruins"],
+            "encounter_themes": ["ghast", "ogre-zombie"]
+          },
+          {
+            "id": "harrowmere-bridge",
+            "name": "Harrowmere Bridge",
+            "flavour": "A stone bridge over a fogbound gorge, with a toll-gate nobody asked for.",
+            "terrain_tags": ["bridge", "wilds"],
+            "encounter_themes": ["bandit-captain", "berserker"]
+          }
+        ],
+        "gateway": {
+          "id": "fogwrights-tower",
+          "name": "The Fogwright's Tower",
+          "flavour": "A leaning tower of pale stone whose upper windows breathe out a slow grey mist, and a chorus of voices in the stairwell.",
+          "terrain_tags": ["keep", "ruins"],
+          "encounter_themes": ["gargoyle"]
+        },
+        "boss": {
+          "monster_id": "wight",
+          "name": "Cantor Ashmere Voll",
+          "lair_node": "fogwrights-tower"
+        }
+      }
+    },
+    {
+      "index": 3,
+      "title": "The Dark Lantern",
+      "goal": "Climb Tallow Point, break the Magister's wards, and relight the beacon.",
+      "region": {
+        "id": "tallow-point",
+        "name": "Tallow Point",
+        "flavour": "A black headland of wind and gull-cry, crowned by a lighthouse whose lamp has been dark for a hundred nights.",
+        "tier": 3,
+        "terrain_tags": ["keep", "cave", "ruins"],
+        "arrival": {
+          "id": "beacon-stair-landing",
+          "name": "Beacon Stair Landing",
+          "flavour": "The foot of the great spiral stair, sheltered from the wind by a ring of old braziers.",
+          "terrain_tags": ["keep"],
+          "encounter_themes": [],
+          "shop": false
+        },
+        "spokes": [
+          {
+            "id": "cistern-of-echoes",
+            "name": "Cistern of Echoes",
+            "flavour": "A vast flooded cistern under the headland where every sound comes back as a whisper.",
+            "terrain_tags": ["cave", "ruins"],
+            "encounter_themes": ["earth-elemental", "xorn"]
+          },
+          {
+            "id": "keepers-barracks",
+            "name": "Keeper's Barracks",
+            "flavour": "The keepers' quarters, frozen as if abandoned mid-meal, with one bunk still warm.",
+            "terrain_tags": ["keep", "ruins"],
+            "encounter_themes": ["gladiator", "half-red-dragon-veteran"]
+          },
+          {
+            "id": "wreckers-gallery",
+            "name": "Wreckers' Gallery",
+            "flavour": "An open gallery cut into the cliff, hung with salvaged figureheads and the nests of something large.",
+            "terrain_tags": ["ruins", "wilds"],
+            "encounter_themes": ["wyvern", "fire-elemental"]
+          }
+        ],
+        "gateway": {
+          "id": "dark-lantern-room",
+          "name": "The Dark Lantern Room",
+          "flavour": "The lamp chamber at the top of the stair: a vast dead lens ringed by chalked wards, and a man who has been waiting.",
+          "terrain_tags": ["keep", "ruins"],
+          "encounter_themes": ["shield-guardian"]
+        },
+        "boss": {
+          "monster_id": "mage",
+          "name": "Magister Orsolo Venk",
+          "lair_node": "dark-lantern-room"
+        }
+      }
+    }
+  ],
+  "npcs": [
+    {
+      "id": "odalys-prend",
+      "name": "Harbourmaster Odalys Prend",
+      "role": "harbourmaster",
+      "archetype_id": "noble",
+      "demeanor": "brisk, weary, proud",
+      "motive": "Keep the quay alive and the Choir's smugglers off her docks without losing her post.",
+      "secrets": [
+        {
+          "id": "odalys-debt",
+          "text": "Odalys owes the Choir's smugglers a heavy debt and short-changed the lamplighters' oil to pay it.",
+          "reveal": {"kind": "attitude", "band": "friendly"}
+        }
+      ],
+      "voice_tag": "crisp",
+      "home_node": "gullmere-quay-docks"
+    },
+    {
+      "id": "tobin-marrow",
+      "name": "Tobin Marrow",
+      "role": "innkeeper",
+      "archetype_id": "commoner",
+      "demeanor": "jovial, nervous, talkative",
+      "motive": "Keep the Gull and Anchor open and avoid being noticed by the Choir.",
+      "secrets": [
+        {
+          "id": "tobin-lights",
+          "text": "Tobin saw lanterns moving out on the marsh the night the beacon died and kept quiet out of fear.",
+          "reveal": {"kind": "quest_completed", "quest_id": "missing-ledger"}
+        }
+      ],
+      "voice_tag": "warm",
+      "home_node": "gullmere-quay-docks"
+    },
+    {
+      "id": "wren-calloway",
+      "name": "Sister Wren Calloway",
+      "role": "hiding acolyte",
+      "archetype_id": "acolyte",
+      "demeanor": "hushed, guilty, quick to flinch",
+      "motive": "Atone for the years she sang with the Choir without knowing what the song was for.",
+      "secrets": [
+        {
+          "id": "wren-hum",
+          "text": "The vestry door opens to a four-note hum, each note lower than the last.",
+          "reveal": {"kind": "item_shown", "item": "Harbour ledger"}
+        }
+      ],
+      "voice_tag": "whisper",
+      "home_node": "rotting-boathouse"
+    },
+    {
+      "id": "marek-thistlewood",
+      "name": "Old Marek Thistlewood",
+      "role": "shrine keeper",
+      "archetype_id": "druid",
+      "demeanor": "gruff, patient, wry",
+      "motive": "Keep the old tide-wardens' shrine from being looted and see the coast healed.",
+      "secrets": [
+        {
+          "id": "marek-niche",
+          "text": "The third niche in the Salt Barrow hides the old warden's signet that wards against the fog.",
+          "reveal": {"kind": "attitude", "band": "friendly"}
+        }
+      ],
+      "voice_tag": "gravel",
+      "home_node": "thornwood-shrine"
+    },
+    {
+      "id": "hesper-voss",
+      "name": "Hesper Voss",
+      "role": "lamplighter captain",
+      "archetype_id": "guard",
+      "demeanor": "dry, loyal, tired",
+      "motive": "Keep her lamplighters alive and the road lit.",
+      "secrets": [
+        {
+          "id": "hesper-boat",
+          "text": "Fenwick Dray bought passage to the Point the day before the beacon failed.",
+          "reveal": {"kind": "attitude", "band": "friendly"}
+        }
+      ],
+      "voice_tag": "dry",
+      "home_node": "lamplighters-rest"
+    },
+    {
+      "id": "fenwick-dray",
+      "name": "Fenwick Dray",
+      "role": "rival treasure-hunter",
+      "archetype_id": "spy",
+      "demeanor": "charming, evasive, competitive",
+      "motive": "Reach the beacon's lamp first and sell its lens to the highest bidder.",
+      "secrets": [
+        {
+          "id": "fenwick-patron",
+          "text": "Fenwick was paid by Magister Venk to guide wreckers to the Point, and he regrets it.",
+          "reveal": {"kind": "attitude", "band": "ally"}
+        }
+      ],
+      "voice_tag": "silk",
+      "home_node": "harrowmere-bridge"
+    },
+    {
+      "id": "alder-quill",
+      "name": "Warden Alder Quill",
+      "role": "last keeper",
+      "archetype_id": "veteran",
+      "demeanor": "stoic, wounded, exact",
+      "motive": "See the beacon lit again before the last keeper's oath is broken.",
+      "secrets": [
+        {
+          "id": "alder-lens",
+          "text": "The lens relights only if turned by hand against the sea wind; the Magister's wards fail to the keeper's key.",
+          "reveal": {"kind": "quest_completed", "quest_id": "kindle-the-stair"}
+        }
+      ],
+      "voice_tag": "steady",
+      "home_node": "keepers-barracks"
+    }
+  ],
+  "quests": [
+    {
+      "id": "missing-ledger",
+      "title": "The Missing Ledger",
+      "giver_npc_id": "tobin-marrow",
+      "objective": "Recover the harbour ledger the smugglers stole from the Gull and Anchor's cellar.",
+      "reward_tier": "minor",
+      "act": 1,
+      "reward_item": "Harbour ledger"
+    },
+    {
+      "id": "douse-the-choir",
+      "title": "Break the Smugglers",
+      "giver_npc_id": "odalys-prend",
+      "objective": "Defeat or turn Gorran Hookhand in the Sunken Vestry.",
+      "reward_tier": "moderate",
+      "act": 1
+    },
+    {
+      "id": "wardens-signet",
+      "title": "The Warden's Signet",
+      "giver_npc_id": "marek-thistlewood",
+      "objective": "Recover the warden's signet from the Salt Barrow.",
+      "reward_tier": "moderate",
+      "act": 2,
+      "reward_item": "Warden's signet"
+    },
+    {
+      "id": "kindle-the-stair",
+      "title": "Kindle the Stair",
+      "giver_npc_id": "alder-quill",
+      "objective": "Relight the four braziers on the beacon stair.",
+      "reward_tier": "major",
+      "act": 3
+    },
+    {
+      "id": "relight-the-beacon",
+      "title": "Relight the Beacon",
+      "giver_npc_id": "odalys-prend",
+      "objective": "Defeat Magister Orsolo Venk and light the beacon of Tallow Point.",
+      "reward_tier": "major",
+      "act": 3
+    }
+  ],
+  "rival": {
+    "npc_id": "fenwick-dray",
+    "hook": "Fenwick keeps one step ahead of the party and may be bought, beaten, or befriended."
+  }
+}
