@@ -11,7 +11,8 @@ from aidm.models.encounter import EncounterStatus
 from aidm.models.events import InventoryChanged
 from aidm.models.state import GameState
 from aidm.models.world import Fact, NpcSecret, Quest, QuestState, WorldNpc
-from aidm.models.world_events import AttitudeChanged, FactRecorded, NpcIntroduced
+from aidm.models.world_events import AttitudeChanged, FactRecorded, NpcIntroduced, QuestUpdated
+from aidm.rules.campaign_install import act_quest_events
 from aidm.rules.secrets import party_has_item, reveal_refusal
 from aidm.rules.social import ALLY_BAR, SOCIAL_CAP, attitude_score, public_npc_view
 from aidm.rules.social_deeds import (
@@ -158,3 +159,13 @@ def test_drafts_support_fact_conditions_and_quests_against() -> None:
     assert isinstance(plan, CampaignPlan)
     assert plan.npcs[0].secrets[0].reveal.fact_tag == "wreckers"
     assert plan.quests[0].against_npc_id == plan.npcs[1].id
+
+
+def test_installed_quests_keep_their_target() -> None:
+    base = draft_from_plan()
+    base["quests"][0]["against"] = base["npcs"][1]["name"]
+    plan = assemble_plan(CampaignDraft.model_validate(base))
+    assert isinstance(plan, CampaignPlan)
+    first = act_quest_events(plan, plan.quests[0].act)[0]
+    assert isinstance(first, QuestUpdated)
+    assert first.quest.against_npc_id == plan.npcs[1].id

@@ -71,7 +71,11 @@ def act_quest_events(plan: CampaignPlan, act: int) -> list[AnyEvent]:
     return [
         QuestUpdated(
             quest=Quest(
-                id=q.id, title=q.title, state=QuestState.OFFERED, giver_npc_id=q.giver_npc_id
+                id=q.id,
+                title=q.title,
+                state=QuestState.OFFERED,
+                giver_npc_id=q.giver_npc_id,
+                against_npc_id=q.against_npc_id,
             )
         )
         for q in plan.quests
