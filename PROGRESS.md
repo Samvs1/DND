@@ -1,4 +1,4 @@
-NEXT: M3.9 Monster catalogue. Delegate to mechanical-engineer. Last gate: M3.8 GATE PASS 8/8.
+NEXT: M3.10 Monster AI. Delegate to hard-engineer. Last gate: M3.9 GATE PASS 8/8, 95 monsters ready.
 
 # PROGRESS
 
@@ -46,7 +46,7 @@ Stashes and blockers: record them in the Notes section at the bottom.
 - [x] M3.6 **M** Spell content batch 2: levels 2-3 until >=50 shipped; unsupported spells listed in RULES_DECISIONS and hidden from pickers. Gate: pytest spells plus a count assertion >=50. (M3.6 shipped 40; the >=50 floor and the picker filter were completed in commit `WIP M3.6b: spell DSL extensions, 50+ spells, picker policy`: 61 shipped)
 - [x] M3.7 **H** Surfaces lite: `data/bg3/surfaces.json` (fire, oil/grease, water, ice, poison cloud), interactions (fire+oil, water+lightning, water+cold, fire clears ice/water), turn-start and enter triggers, attached to zones. Gate: pytest rules. (commit df44111)
 - [x] M3.8 **H** Monster actions: execute multiattack, breath weapon with recharge, spell kits and legendary actions through the same attack/DSL paths. Gate: pytest rules. (commit see git log, `WIP M3.8`)
-- [ ] M3.9 **M** Monster catalogue: >=60 encounter-ready SRD monsters CR<=8 (including a breath dragon and a caster), with goldens for 10. Gate: pytest data plus a count assertion.
+- [x] M3.9 **M** Monster catalogue: >=60 encounter-ready SRD monsters CR<=8 (including a breath dragon and a caster), with goldens for 10. Gate: pytest data plus a count assertion.
 - [ ] M3.10 **H** Monster AI: value-based targeting (threat, kill chance, vulnerability, concentration breaking), zone/range awareness, spell and multiattack choice, retreat when broken; seeded determinism test. Gate: pytest rules.
 - [ ] M3.11 **H** Headless combat sim: `tests/sim/test_combat_seeds.py` runs 50 seeds (party vs encounter, both sides AI) asserting invariants (HP bounds, slot conservation, termination, replay == snapshot). FULL gate. Commit `M3: Combat`.
 
@@ -129,6 +129,7 @@ If the API rejects the key or needs organisation verification: stop M10 generati
 10. The final message is a VERIFICATION REPORT plus the Tier-2 items not built.
 
 ## Notes (stashes, blockers, decisions pending)
+- M3.9: data/bg3/encounter_monsters.json (95 monsters; tiers 38/32/25) + aidm/data/encounter_monsters.py (`encounter_candidates(tier, tags, include_lower=False)`, falls back to wilds); smoke test over every entry in tests/unit/rules/test_monster_catalogue_smoke.py; 15 goldens in test_golden_monster_catalogue.py. No engine bugs found by the smoke test; no monster needed exclusion for engine reasons. Decisions: RULES_DECISIONS M3.9.
 - M3.8: monster actions = `rules/monster_catalog.py` (pure catalog from the SRD block + data/bg3/monster_actions.json overlay), `monster_parse.py`, `monster_keys.py`, `monster_actions.py` (`MonsterActionCommand` via execute_command), `monster_legendary.py` (`legendary_ready` hook, `legendary_action`); `Creature.monster_index/creature_type/traits`, `Resource.turn_recharge`; M3.9 uses the "Monster readiness checklist" in docs/DECISIONS.md (DECISIONS M3.8, RULES_DECISIONS M3.8).
 - M3.6b: DSL extensions (condition check/save/attack dice incl. negative, ac_floor, speed_bonus, damage_resistances, ends_on_damage, source riders, bonus-action grants, blocks_verbal; targeting point/order/dead; effects hp_pool/stabilize/revive/teleport; casting time minutes); 61 spells shipped; pickers, validation, scroll copy and feature grants use shipped spells only with counts min(table, open shipped) (RULES_DECISIONS M3.6b, DECISIONS M3.6b). Remaining unsupported spells are listed in RULES_DECISIONS.
 - M3.7: surfaces are data/bg3/surfaces.json read by rules/surfaces.py (+ rules/surface_state.py); hooks in combat_moves (enter), turns.begin_turn (round ticks, turn start), spell_effects (surface placement, zone damage) and concentration (concentration surfaces end). Grease and Web now place surfaces. Decisions: DECISIONS M3.7, RULES_DECISIONS M3.7.

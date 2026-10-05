@@ -1,0 +1,1058 @@
+[
+ {
+  "index": "bandit",
+  "cr": 0.125,
+  "tier": 1,
+  "tags": [
+   "village",
+   "wilds",
+   "bridge",
+   "forest",
+   "ruins"
+  ],
+  "role": "minion"
+ },
+ {
+  "index": "cultist",
+  "cr": 0.125,
+  "tier": 1,
+  "tags": [
+   "ruins",
+   "crypt",
+   "keep",
+   "village",
+   "cave"
+  ],
+  "role": "minion"
+ },
+ {
+  "index": "giant-rat",
+  "cr": 0.125,
+  "tier": 1,
+  "tags": [
+   "cave",
+   "village",
+   "crypt",
+   "ruins"
+  ],
+  "role": "minion"
+ },
+ {
+  "index": "kobold",
+  "cr": 0.125,
+  "tier": 1,
+  "tags": [
+   "cave",
+   "ruins",
+   "wilds"
+  ],
+  "role": "minion"
+ },
+ {
+  "index": "noble",
+  "cr": 0.125,
+  "tier": 1,
+  "tags": [
+   "village",
+   "keep"
+  ],
+  "role": "leader"
+ },
+ {
+  "index": "stirge",
+  "cr": 0.125,
+  "tier": 1,
+  "tags": [
+   "swamp",
+   "cave"
+  ],
+  "role": "skirmisher"
+ },
+ {
+  "index": "acolyte",
+  "cr": 0.25,
+  "tier": 1,
+  "tags": [
+   "village",
+   "ruins",
+   "keep",
+   "crypt"
+  ],
+  "role": "caster",
+  "cosmetic_unsupported": [
+   "spell light",
+   "spell thaumaturgy",
+   "spell sanctuary"
+  ]
+ },
+ {
+  "index": "drow",
+  "cr": 0.25,
+  "tier": 1,
+  "tags": [
+   "cave",
+   "keep",
+   "ruins"
+  ],
+  "role": "caster",
+  "cosmetic_unsupported": [
+   "spell dancing-lights",
+   "spell faerie-fire"
+  ]
+ },
+ {
+  "index": "flying-sword",
+  "cr": 0.25,
+  "tier": 1,
+  "tags": [
+   "keep",
+   "ruins"
+  ],
+  "role": "skirmisher"
+ },
+ {
+  "index": "giant-wolf-spider",
+  "cr": 0.25,
+  "tier": 1,
+  "tags": [
+   "cave",
+   "forest",
+   "swamp"
+  ],
+  "role": "skirmisher"
+ },
+ {
+  "index": "goblin",
+  "cr": 0.25,
+  "tier": 1,
+  "tags": [
+   "forest",
+   "cave",
+   "ruins",
+   "wilds",
+   "bridge"
+  ],
+  "role": "skirmisher"
+ },
+ {
+  "index": "grimlock",
+  "cr": 0.25,
+  "tier": 1,
+  "tags": [
+   "cave",
+   "crypt"
+  ],
+  "role": "minion"
+ },
+ {
+  "index": "skeleton",
+  "cr": 0.25,
+  "tier": 1,
+  "tags": [
+   "crypt",
+   "ruins",
+   "keep"
+  ],
+  "role": "minion"
+ },
+ {
+  "index": "steam-mephit",
+  "cr": 0.25,
+  "tier": 1,
+  "tags": [
+   "cave",
+   "ruins"
+  ],
+  "role": "artillery"
+ },
+ {
+  "index": "swarm-of-bats",
+  "cr": 0.25,
+  "tier": 1,
+  "tags": [
+   "cave",
+   "crypt"
+  ],
+  "role": "minion"
+ },
+ {
+  "index": "swarm-of-rats",
+  "cr": 0.25,
+  "tier": 1,
+  "tags": [
+   "cave",
+   "village",
+   "crypt"
+  ],
+  "role": "minion"
+ },
+ {
+  "index": "violet-fungus",
+  "cr": 0.25,
+  "tier": 1,
+  "tags": [
+   "cave",
+   "swamp",
+   "forest"
+  ],
+  "role": "controller"
+ },
+ {
+  "index": "wolf",
+  "cr": 0.25,
+  "tier": 1,
+  "tags": [
+   "forest",
+   "wilds"
+  ],
+  "role": "skirmisher"
+ },
+ {
+  "index": "zombie",
+  "cr": 0.25,
+  "tier": 1,
+  "tags": [
+   "crypt",
+   "swamp",
+   "ruins"
+  ],
+  "role": "brute"
+ },
+ {
+  "index": "cockatrice",
+  "cr": 0.5,
+  "tier": 1,
+  "tags": [
+   "village",
+   "ruins",
+   "wilds"
+  ],
+  "role": "skirmisher"
+ },
+ {
+  "index": "crocodile",
+  "cr": 0.5,
+  "tier": 1,
+  "tags": [
+   "swamp",
+   "bridge"
+  ],
+  "role": "brute"
+ },
+ {
+  "index": "gnoll",
+  "cr": 0.5,
+  "tier": 1,
+  "tags": [
+   "wilds",
+   "ruins",
+   "swamp"
+  ],
+  "role": "brute"
+ },
+ {
+  "index": "hobgoblin",
+  "cr": 0.5,
+  "tier": 1,
+  "tags": [
+   "keep",
+   "ruins",
+   "wilds",
+   "bridge"
+  ],
+  "role": "brute"
+ },
+ {
+  "index": "ice-mephit",
+  "cr": 0.5,
+  "tier": 1,
+  "tags": [
+   "cave",
+   "ruins"
+  ],
+  "role": "artillery"
+ },
+ {
+  "index": "lizardfolk",
+  "cr": 0.5,
+  "tier": 1,
+  "tags": [
+   "swamp",
+   "wilds"
+  ],
+  "role": "brute"
+ },
+ {
+  "index": "orc",
+  "cr": 0.5,
+  "tier": 1,
+  "tags": [
+   "wilds",
+   "cave",
+   "ruins"
+  ],
+  "role": "brute"
+ },
+ {
+  "index": "sahuagin",
+  "cr": 0.5,
+  "tier": 1,
+  "tags": [
+   "swamp",
+   "bridge"
+  ],
+  "role": "skirmisher"
+ },
+ {
+  "index": "satyr",
+  "cr": 0.5,
+  "tier": 1,
+  "tags": [
+   "forest"
+  ],
+  "role": "skirmisher"
+ },
+ {
+  "index": "scout",
+  "cr": 0.5,
+  "tier": 1,
+  "tags": [
+   "forest",
+   "wilds"
+  ],
+  "role": "artillery"
+ },
+ {
+  "index": "thug",
+  "cr": 0.5,
+  "tier": 1,
+  "tags": [
+   "village",
+   "keep",
+   "bridge"
+  ],
+  "role": "brute"
+ },
+ {
+  "index": "worg",
+  "cr": 0.5,
+  "tier": 1,
+  "tags": [
+   "forest",
+   "wilds"
+  ],
+  "role": "skirmisher"
+ },
+ {
+  "index": "animated-armor",
+  "cr": 1,
+  "tier": 1,
+  "tags": [
+   "keep",
+   "ruins",
+   "crypt"
+  ],
+  "role": "brute"
+ },
+ {
+  "index": "brown-bear",
+  "cr": 1,
+  "tier": 1,
+  "tags": [
+   "forest",
+   "wilds",
+   "cave"
+  ],
+  "role": "brute"
+ },
+ {
+  "index": "bugbear",
+  "cr": 1,
+  "tier": 1,
+  "tags": [
+   "cave",
+   "forest",
+   "ruins",
+   "keep"
+  ],
+  "role": "brute"
+ },
+ {
+  "index": "death-dog",
+  "cr": 1,
+  "tier": 1,
+  "tags": [
+   "wilds",
+   "ruins"
+  ],
+  "role": "brute"
+ },
+ {
+  "index": "dire-wolf",
+  "cr": 1,
+  "tier": 1,
+  "tags": [
+   "forest",
+   "wilds"
+  ],
+  "role": "brute"
+ },
+ {
+  "index": "duergar",
+  "cr": 1,
+  "tier": 1,
+  "tags": [
+   "cave",
+   "keep"
+  ],
+  "role": "brute",
+  "cosmetic_unsupported": [
+   "Enlarge",
+   "Invisibility"
+  ]
+ },
+ {
+  "index": "ghoul",
+  "cr": 1,
+  "tier": 1,
+  "tags": [
+   "crypt",
+   "ruins",
+   "cave"
+  ],
+  "role": "skirmisher"
+ },
+ {
+  "index": "ankheg",
+  "cr": 2,
+  "tier": 2,
+  "tags": [
+   "wilds",
+   "forest"
+  ],
+  "role": "controller"
+ },
+ {
+  "index": "bandit-captain",
+  "cr": 2,
+  "tier": 2,
+  "tags": [
+   "village",
+   "wilds",
+   "bridge",
+   "keep"
+  ],
+  "role": "leader"
+ },
+ {
+  "index": "berserker",
+  "cr": 2,
+  "tier": 2,
+  "tags": [
+   "wilds",
+   "village",
+   "keep"
+  ],
+  "role": "brute"
+ },
+ {
+  "index": "black-dragon-wyrmling",
+  "cr": 2,
+  "tier": 2,
+  "tags": [
+   "swamp",
+   "cave",
+   "ruins"
+  ],
+  "role": "artillery"
+ },
+ {
+  "index": "centaur",
+  "cr": 2,
+  "tier": 2,
+  "tags": [
+   "forest",
+   "wilds"
+  ],
+  "role": "artillery"
+ },
+ {
+  "index": "cult-fanatic",
+  "cr": 2,
+  "tier": 2,
+  "tags": [
+   "ruins",
+   "crypt",
+   "keep",
+   "cave"
+  ],
+  "role": "caster",
+  "cosmetic_unsupported": [
+   "spell light",
+   "spell thaumaturgy",
+   "spell command",
+   "spell spiritual-weapon"
+  ]
+ },
+ {
+  "index": "gargoyle",
+  "cr": 2,
+  "tier": 2,
+  "tags": [
+   "ruins",
+   "keep",
+   "cave"
+  ],
+  "role": "skirmisher"
+ },
+ {
+  "index": "gelatinous-cube",
+  "cr": 2,
+  "tier": 2,
+  "tags": [
+   "cave",
+   "crypt",
+   "ruins"
+  ],
+  "role": "controller"
+ },
+ {
+  "index": "ghast",
+  "cr": 2,
+  "tier": 2,
+  "tags": [
+   "crypt",
+   "ruins"
+  ],
+  "role": "skirmisher"
+ },
+ {
+  "index": "green-dragon-wyrmling",
+  "cr": 2,
+  "tier": 2,
+  "tags": [
+   "forest",
+   "swamp",
+   "ruins"
+  ],
+  "role": "artillery"
+ },
+ {
+  "index": "grick",
+  "cr": 2,
+  "tier": 2,
+  "tags": [
+   "cave"
+  ],
+  "role": "skirmisher"
+ },
+ {
+  "index": "griffon",
+  "cr": 2,
+  "tier": 2,
+  "tags": [
+   "wilds",
+   "ruins"
+  ],
+  "role": "skirmisher"
+ },
+ {
+  "index": "mimic",
+  "cr": 2,
+  "tier": 2,
+  "tags": [
+   "ruins",
+   "keep",
+   "cave",
+   "crypt"
+  ],
+  "role": "controller"
+ },
+ {
+  "index": "ochre-jelly",
+  "cr": 2,
+  "tier": 2,
+  "tags": [
+   "cave",
+   "crypt",
+   "swamp"
+  ],
+  "role": "controller"
+ },
+ {
+  "index": "ogre",
+  "cr": 2,
+  "tier": 2,
+  "tags": [
+   "cave",
+   "wilds",
+   "forest",
+   "ruins"
+  ],
+  "role": "brute"
+ },
+ {
+  "index": "ogre-zombie",
+  "cr": 2,
+  "tier": 2,
+  "tags": [
+   "crypt",
+   "ruins",
+   "swamp"
+  ],
+  "role": "brute"
+ },
+ {
+  "index": "priest",
+  "cr": 2,
+  "tier": 2,
+  "tags": [
+   "village",
+   "keep",
+   "crypt"
+  ],
+  "role": "caster",
+  "cosmetic_unsupported": [
+   "spell light",
+   "spell thaumaturgy",
+   "spell sanctuary",
+   "spell spiritual-weapon",
+   "spell dispel-magic"
+  ]
+ },
+ {
+  "index": "white-dragon-wyrmling",
+  "cr": 2,
+  "tier": 2,
+  "tags": [
+   "cave",
+   "wilds"
+  ],
+  "role": "artillery"
+ },
+ {
+  "index": "basilisk",
+  "cr": 3,
+  "tier": 2,
+  "tags": [
+   "cave",
+   "ruins",
+   "swamp"
+  ],
+  "role": "controller"
+ },
+ {
+  "index": "bearded-devil",
+  "cr": 3,
+  "tier": 2,
+  "tags": [
+   "ruins",
+   "crypt",
+   "keep"
+  ],
+  "role": "brute"
+ },
+ {
+  "index": "blue-dragon-wyrmling",
+  "cr": 3,
+  "tier": 2,
+  "tags": [
+   "wilds",
+   "ruins",
+   "bridge"
+  ],
+  "role": "artillery"
+ },
+ {
+  "index": "giant-scorpion",
+  "cr": 3,
+  "tier": 2,
+  "tags": [
+   "wilds",
+   "cave"
+  ],
+  "role": "brute"
+ },
+ {
+  "index": "hell-hound",
+  "cr": 3,
+  "tier": 2,
+  "tags": [
+   "keep",
+   "ruins",
+   "wilds"
+  ],
+  "role": "artillery"
+ },
+ {
+  "index": "knight",
+  "cr": 3,
+  "tier": 2,
+  "tags": [
+   "keep",
+   "bridge",
+   "village"
+  ],
+  "role": "leader",
+  "cosmetic_unsupported": [
+   "Leadership"
+  ]
+ },
+ {
+  "index": "manticore",
+  "cr": 3,
+  "tier": 2,
+  "tags": [
+   "wilds",
+   "ruins"
+  ],
+  "role": "artillery"
+ },
+ {
+  "index": "minotaur",
+  "cr": 3,
+  "tier": 2,
+  "tags": [
+   "cave",
+   "ruins",
+   "keep"
+  ],
+  "role": "brute"
+ },
+ {
+  "index": "owlbear",
+  "cr": 3,
+  "tier": 2,
+  "tags": [
+   "forest",
+   "cave"
+  ],
+  "role": "brute"
+ },
+ {
+  "index": "veteran",
+  "cr": 3,
+  "tier": 2,
+  "tags": [
+   "keep",
+   "bridge",
+   "village"
+  ],
+  "role": "brute"
+ },
+ {
+  "index": "wight",
+  "cr": 3,
+  "tier": 2,
+  "tags": [
+   "crypt",
+   "ruins",
+   "keep"
+  ],
+  "role": "leader"
+ },
+ {
+  "index": "winter-wolf",
+  "cr": 3,
+  "tier": 2,
+  "tags": [
+   "wilds",
+   "forest"
+  ],
+  "role": "artillery"
+ },
+ {
+  "index": "ettin",
+  "cr": 4,
+  "tier": 2,
+  "tags": [
+   "cave",
+   "wilds",
+   "ruins"
+  ],
+  "role": "brute"
+ },
+ {
+  "index": "red-dragon-wyrmling",
+  "cr": 4,
+  "tier": 2,
+  "tags": [
+   "cave",
+   "keep",
+   "ruins"
+  ],
+  "role": "artillery"
+ },
+ {
+  "index": "barbed-devil",
+  "cr": 5,
+  "tier": 3,
+  "tags": [
+   "ruins",
+   "crypt",
+   "keep"
+  ],
+  "role": "brute"
+ },
+ {
+  "index": "earth-elemental",
+  "cr": 5,
+  "tier": 3,
+  "tags": [
+   "cave",
+   "ruins"
+  ],
+  "role": "brute"
+ },
+ {
+  "index": "fire-elemental",
+  "cr": 5,
+  "tier": 3,
+  "tags": [
+   "ruins",
+   "keep"
+  ],
+  "role": "brute"
+ },
+ {
+  "index": "giant-crocodile",
+  "cr": 5,
+  "tier": 3,
+  "tags": [
+   "swamp",
+   "bridge"
+  ],
+  "role": "brute"
+ },
+ {
+  "index": "gladiator",
+  "cr": 5,
+  "tier": 3,
+  "tags": [
+   "keep",
+   "bridge",
+   "village"
+  ],
+  "role": "leader"
+ },
+ {
+  "index": "half-red-dragon-veteran",
+  "cr": 5,
+  "tier": 3,
+  "tags": [
+   "keep",
+   "ruins"
+  ],
+  "role": "artillery"
+ },
+ {
+  "index": "hill-giant",
+  "cr": 5,
+  "tier": 3,
+  "tags": [
+   "wilds",
+   "cave"
+  ],
+  "role": "brute"
+ },
+ {
+  "index": "troll",
+  "cr": 5,
+  "tier": 3,
+  "tags": [
+   "forest",
+   "cave",
+   "swamp",
+   "ruins"
+  ],
+  "role": "brute"
+ },
+ {
+  "index": "vampire-spawn",
+  "cr": 5,
+  "tier": 3,
+  "tags": [
+   "crypt",
+   "ruins",
+   "keep"
+  ],
+  "role": "skirmisher"
+ },
+ {
+  "index": "water-elemental",
+  "cr": 5,
+  "tier": 3,
+  "tags": [
+   "swamp",
+   "bridge"
+  ],
+  "role": "brute"
+ },
+ {
+  "index": "xorn",
+  "cr": 5,
+  "tier": 3,
+  "tags": [
+   "cave"
+  ],
+  "role": "skirmisher"
+ },
+ {
+  "index": "chimera",
+  "cr": 6,
+  "tier": 3,
+  "tags": [
+   "wilds",
+   "ruins"
+  ],
+  "role": "artillery"
+ },
+ {
+  "index": "mage",
+  "cr": 6,
+  "tier": 3,
+  "tags": [
+   "keep",
+   "ruins",
+   "village",
+   "crypt"
+  ],
+  "role": "caster",
+  "cosmetic_unsupported": [
+   "spell light",
+   "spell mage-hand",
+   "spell prestidigitation",
+   "spell detect-magic",
+   "spell shield",
+   "spell suggestion",
+   "spell counterspell",
+   "spell fly",
+   "spell greater-invisibility",
+   "spell ice-storm",
+   "spell cone-of-cold"
+  ]
+ },
+ {
+  "index": "medusa",
+  "cr": 6,
+  "tier": 3,
+  "tags": [
+   "ruins",
+   "crypt"
+  ],
+  "role": "controller"
+ },
+ {
+  "index": "wyvern",
+  "cr": 6,
+  "tier": 3,
+  "tags": [
+   "wilds",
+   "ruins"
+  ],
+  "role": "skirmisher"
+ },
+ {
+  "index": "young-white-dragon",
+  "cr": 6,
+  "tier": 3,
+  "tags": [
+   "cave",
+   "wilds"
+  ],
+  "role": "artillery"
+ },
+ {
+  "index": "shield-guardian",
+  "cr": 7,
+  "tier": 3,
+  "tags": [
+   "keep",
+   "ruins"
+  ],
+  "role": "brute"
+ },
+ {
+  "index": "stone-giant",
+  "cr": 7,
+  "tier": 3,
+  "tags": [
+   "wilds",
+   "cave"
+  ],
+  "role": "artillery"
+ },
+ {
+  "index": "young-black-dragon",
+  "cr": 7,
+  "tier": 3,
+  "tags": [
+   "swamp",
+   "cave",
+   "ruins"
+  ],
+  "role": "artillery"
+ },
+ {
+  "index": "assassin",
+  "cr": 8,
+  "tier": 3,
+  "tags": [
+   "village",
+   "keep"
+  ],
+  "role": "skirmisher"
+ },
+ {
+  "index": "frost-giant",
+  "cr": 8,
+  "tier": 3,
+  "tags": [
+   "wilds",
+   "cave"
+  ],
+  "role": "brute"
+ },
+ {
+  "index": "hezrou",
+  "cr": 8,
+  "tier": 3,
+  "tags": [
+   "ruins",
+   "crypt",
+   "swamp"
+  ],
+  "role": "brute"
+ },
+ {
+  "index": "hydra",
+  "cr": 8,
+  "tier": 3,
+  "tags": [
+   "swamp",
+   "cave"
+  ],
+  "role": "brute"
+ },
+ {
+  "index": "tyrannosaurus-rex",
+  "cr": 8,
+  "tier": 3,
+  "tags": [
+   "wilds",
+   "swamp"
+  ],
+  "role": "brute"
+ },
+ {
+  "index": "young-green-dragon",
+  "cr": 8,
+  "tier": 3,
+  "tags": [
+   "forest",
+   "swamp",
+   "ruins"
+  ],
+  "role": "artillery"
+ }
+]
