@@ -1,9 +1,9 @@
 """Executors for the world tools (SPEC 2.2 closed world, 6.3, 9).
 
 `introduce_npc` / `introduce_feature` are the only ways new people and features exist (capped
-per scene, NPC stat blocks from the SRD catalogue). `move_party` only follows the neighbour list
-of the current node (the M5.2 region graph fills it) and never enters a locked node. Attitude goes
-through `aidm.rules.social` (bounded). Quests and facts: `aidm.dm.tool_exec_ledger`.
+per scene, NPC stat blocks from the SRD catalogue). `move_party` only follows `legal_neighbours`
+(the campaign graph minus the derived locks) and never moves while an encounter offer waits.
+Attitude goes through `aidm.rules.social` (bounded). Quests and facts: `aidm.dm.tool_exec_ledger`.
 
 Public API: `run_update_attitude`, `run_reveal_secret`, `run_move_party`, `run_introduce_npc`,
 `run_introduce_feature`, `run_open_shop`, each
@@ -39,6 +39,7 @@ from aidm.rules.social import (
     npc_is_hostile,
     social_attitude_events,
 )
+from aidm.rules.world_graph import legal_neighbours
 
 
 def _present_npc(state: GameState, npc_id: str) -> WorldNpc:
@@ -77,11 +78,12 @@ def run_move_party(
     world = state.world
     if state.encounter is not None and state.encounter.status is EncounterStatus.ACTIVE:
         raise ToolRefused("the party cannot travel during a fight")
-    legal = world.neighbours.get(world.current_node or "", [])
-    if args.node_id not in legal:
-        listed = ", ".join(legal) or "none"
+    if state.campaign is not None and state.campaign.offer is not None:
+        raise ToolRefused("something blocks the way: fight, sneak past, escape or parley first")
+    if args.node_id not in world.neighbours.get(world.current_node or "", []):
+        listed = ", ".join(legal_neighbours(world, world.current_node)) or "none"
         raise ToolRefused(f"{args.node_id!r} is not a neighbour; legal exits: {listed}")
-    if args.node_id in world.locked_nodes:
+    if args.node_id not in legal_neighbours(world, world.current_node):
         raise ToolRefused(f"the way to {args.node_id!r} is still barred")
     event = PartyMoved(
         from_node=world.current_node, to_node=args.node_id, scene_index=world.scene_index + 1

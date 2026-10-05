@@ -13,6 +13,9 @@
   `light_removes`: the surfaces a light effect clears.
 - `max_npcs_per_scene` / `max_features_per_scene`: creation caps per scene.
 - `deed_points`: attitude points a deed grants, by tier (`aidm.rules.social`).
+- `offer_dc_tiers` / `boss_parley_dc_tiers` (M5.4): the DC tier (a `DcTier` value) of the
+  escape / surprise / parley checks of a world-pulled encounter, by region tier; parleying
+  with a boss uses the second table.
 
 Public API: `TierRow`, `DmTiers`, `load_dm_tiers(path=None)`, `dm_tiers()` (default, cached).
 The lookups are `aidm.rules.dm_tiers`.
@@ -67,6 +70,8 @@ class DmTiers(_Strict):
     max_npcs_per_scene: int = Field(ge=0)
     max_features_per_scene: int = Field(ge=0)
     deed_points: dict[str, int]
+    offer_dc_tiers: dict[str, str] = Field(default_factory=dict[str, str])
+    boss_parley_dc_tiers: dict[str, str] = Field(default_factory=dict[str, str])
 
     @model_validator(mode="after")
     def _check(self) -> DmTiers:

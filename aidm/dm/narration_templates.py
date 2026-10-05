@@ -17,6 +17,7 @@ Public API:
 from collections.abc import Callable, Sequence
 from typing import Any
 
+from aidm.dm.campaign_text import CAMPAIGN_TEMPLATE_LINES
 from aidm.dm.entities import display_name
 from aidm.models import events as ev
 from aidm.models import world_events as we
@@ -166,6 +167,7 @@ _LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     we.ShopOpened: lambda s, e: f"{_who(s, e.npc_id)} lays out their wares.",
     we.ItemPlaced: lambda s, e: None if e.item.hidden else f"{e.item.name} lies here.",
     we.HostileActPending: lambda s, e: "You stand on the brink of violence.",
+    **CAMPAIGN_TEMPLATE_LINES,
 }
 
 

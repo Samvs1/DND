@@ -28,5 +28,7 @@
   "light_removes": ["darkness", "fog"],
   "max_npcs_per_scene": 3,
   "max_features_per_scene": 4,
-  "deed_points": {"minor": 10, "moderate": 20, "major": 35}
+  "deed_points": {"minor": 10, "moderate": 20, "major": 35},
+  "offer_dc_tiers": {"1": "easy", "2": "medium", "3": "medium"},
+  "boss_parley_dc_tiers": {"1": "medium", "2": "hard", "3": "hard"}
 }

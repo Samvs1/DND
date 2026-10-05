@@ -58,7 +58,8 @@ def test_reveal_secret_requires_condition() -> None:
 def test_move_party_only_to_unlocked_neighbours() -> None:
     state = party_state()
     bad = run_tool(state, "move_party", node_id="castle")
-    assert bad.error is not None and "legal exits: forest, crypt" in bad.error
+    assert bad.error is not None and "legal exits: forest" in bad.error
+    assert "crypt" not in bad.error  # locked exits are not offered
     locked = run_tool(state, "move_party", node_id="crypt")
     assert locked.error is not None and locked.events == ()
     ok = run_tool(state, "move_party", node_id="forest")

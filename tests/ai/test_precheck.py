@@ -68,7 +68,15 @@ def test_rest_negative(text: str) -> None:
     ],
 )
 def test_travel_positive(text: str, node: str) -> None:
-    assert precheck(_state(), "fighter", text) == TravelIntent(node)
+    state = _state()
+    state.world.locked_nodes = []
+    assert precheck(state, "fighter", text) == TravelIntent(node)
+
+
+def test_travel_to_a_locked_exit_is_not_an_intent() -> None:
+    state = _state()
+    assert "crypt" in state.world.locked_nodes
+    assert precheck(state, "fighter", "let's head back to the crypt") is None
 
 
 @pytest.mark.parametrize(

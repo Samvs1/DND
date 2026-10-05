@@ -26,6 +26,7 @@ from aidm.models.encounter import EncounterStatus
 from aidm.models.state import Creature, GameState
 from aidm.models.world import WorldNpc
 from aidm.rules.scene import SceneView, current_scene, node_display_name
+from aidm.rules.world_graph import legal_neighbours
 
 
 class RestKind(StrEnum):
@@ -149,7 +150,9 @@ def _in_fight(state: GameState) -> bool:
 
 def _travel(state: GameState, scene: SceneView, dest: str) -> TravelIntent | None:
     wanted = _words(dest)
-    for node in scene.exits:
+    if state.campaign is not None and state.campaign.offer is not None:
+        return None
+    for node in legal_neighbours(state.world, state.world.current_node):
         if wanted in (_words(node), _words(node_display_name(state, node))):
             return TravelIntent(node)
     return None

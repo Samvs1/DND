@@ -12,6 +12,7 @@ Public API: `event_line(state, event) -> str | None`, `event_lines(state, events
 from collections.abc import Callable, Sequence
 from typing import Any
 
+from aidm.dm.campaign_text import CAMPAIGN_EVENT_LINES
 from aidm.dm.entities import display_name
 from aidm.models import events as ev
 from aidm.models import world_events as we
@@ -111,6 +112,7 @@ _LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     we.ShopOpened: lambda s, e: f"{_who(s, e.npc_id)} opened their shop.",
     we.ItemPlaced: lambda s, e: None if e.item.hidden else f"{e.item.name} lies here.",
     we.ItemRemoved: lambda s, e: None,
+    **CAMPAIGN_EVENT_LINES,
 }
 
 
