@@ -10,13 +10,19 @@ an `isinstance` dispatch), `apply_world_event(state, event)`.
 
 from typing import assert_never
 
+from aidm.models.memory import MAX_NARRATION_LOG
 from aidm.models.state import GameState
 from aidm.models.world import WorldNpc
 from aidm.models.world_events import (
     AttitudeChanged,
     FactRecorded,
+    FeatureDiscovered,
     FeatureIntroduced,
     HostileActPending,
+    ItemPlaced,
+    ItemRemoved,
+    NarrationRecorded,
+    NodeDescribed,
     NpcIntroduced,
     PartyMoved,
     QuestUpdated,
@@ -35,7 +41,16 @@ type WorldEvent = (
     | FactRecorded
     | ShopOpened
     | HostileActPending
+    | FeatureDiscovered
+    | NodeDescribed
+    | ItemPlaced
+    | ItemRemoved
+    | NarrationRecorded
 )
+
+type SceneEvent = FeatureDiscovered | NodeDescribed | ItemPlaced | ItemRemoved | NarrationRecorded
+
+SCENE_EVENT_TYPES = (FeatureDiscovered, NodeDescribed, ItemPlaced, ItemRemoved, NarrationRecorded)
 
 WORLD_EVENT_TYPES = (
     NpcIntroduced,
@@ -47,6 +62,11 @@ WORLD_EVENT_TYPES = (
     FactRecorded,
     ShopOpened,
     HostileActPending,
+    FeatureDiscovered,
+    NodeDescribed,
+    ItemPlaced,
+    ItemRemoved,
+    NarrationRecorded,
 )
 
 
@@ -70,11 +90,42 @@ def _moved(state: GameState, event: PartyMoved) -> None:
     world.current_node = event.to_node
     world.scene_index = event.scene_index
     world.shop_npc_id = None
+    world.scene_turn = 0
     if event.to_node not in world.visited:
         world.visited.append(event.to_node)
 
 
+def _scene_event(state: GameState, event: SceneEvent) -> None:
+    world = state.world
+    match event:
+        case FeatureDiscovered(feature_id=feature_id):
+            feature = world.features.get(feature_id)
+            if feature is None:
+                raise ReducerError(f"unknown feature {feature_id!r}")
+            feature.discovered = True
+        case NodeDescribed(node_id=node_id, text=text):
+            if node_id in world.descriptions:
+                raise ReducerError(f"node {node_id!r} is already described")
+            world.descriptions[node_id] = text
+        case ItemPlaced(item=item):
+            if item.id in world.items:
+                raise ReducerError(f"duplicate item id {item.id!r}")
+            world.items[item.id] = item.model_copy(deep=True)
+        case ItemRemoved(item_id=item_id):
+            if world.items.pop(item_id, None) is None:
+                raise ReducerError(f"unknown item {item_id!r}")
+        case NarrationRecorded(text=text, scene_turn=turn):
+            log = [*state.memory.narration, text]
+            state.memory.narration = log[-MAX_NARRATION_LOG:]
+            world.scene_turn = turn
+        case _:
+            assert_never(event)
+
+
 def apply_world_event(state: GameState, event: WorldEvent) -> None:
+    if isinstance(event, SCENE_EVENT_TYPES):
+        _scene_event(state, event)
+        return
     world = state.world
     match event:
         case NpcIntroduced(npc=npc):

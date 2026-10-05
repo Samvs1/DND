@@ -1,7 +1,9 @@
 """Executors for `request_check` and `request_save` (SPEC 6.3): tier -> DC via `rules.checks`.
 
 Every roll goes through the condition-aware rules functions and is logged as a `CheckResolved`
-event; consequences are separate tool calls.
+event; consequences are separate tool calls. A search check (Perception, Investigation, WIS or
+INT) also discovers hidden features of the current place whose DC the total meets (M4.3,
+`aidm.rules.scene.discovery_events`).
 
 Public API: `run_request_check(state, args, ctx, rng, regs)`,
 `run_request_save(state, args, ctx, rng, regs)` -> `ToolResult`.
@@ -22,6 +24,7 @@ from aidm.rules.conditions import (
     skill_check_with_conditions,
 )
 from aidm.rules.dice import Rng
+from aidm.rules.scene import discovery_events
 
 
 def _outcome(name: str, label: str, result: CheckResult) -> str:
@@ -48,7 +51,12 @@ def run_request_check(
         )
         label = f"{what.value.upper()} check"
     event = CheckResolved(creature_id=creature.id, result=result, reason=args.reason)
-    return ToolResult(events=(event,), summary=_outcome(creature.name, label, result))
+    found = discovery_events(state, creature.id, result)
+    summary = _outcome(creature.name, label, result)
+    names = [state.world.features[e.feature_id].name for e in found]
+    if names:
+        summary += f"; discovered: {', '.join(names)}"
+    return ToolResult(events=(event, *found), summary=summary)
 
 
 def run_request_save(

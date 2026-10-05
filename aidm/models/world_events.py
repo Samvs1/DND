@@ -18,13 +18,19 @@ Public API:
 - `HostileActPending(actor_id, npc_ids, tool, reason)`: pure log event (point of no return): a
   hostile act against non-hostile NPCs waits for the acting player's confirmation; nothing
   else changed.
+- `FeatureDiscovered(feature_id, creature_id)` (M4.3): a hidden feature was found; it joins
+  the manifest.
+- `NodeDescribed(node_id, text)`: the established description of a place (stored once).
+- `ItemPlaced(item)` / `ItemRemoved(item_id)`: a world item appears in / leaves a place.
+- `NarrationRecorded(text, scene_turn)`: one narrated turn joins the rolling memory and the
+  scene turn counter becomes `scene_turn`.
 """
 
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from aidm.models.world import Fact, Quest, WorldFeature, WorldNpc
+from aidm.models.world import Fact, Quest, WorldFeature, WorldItem, WorldNpc
 
 
 class _WorldEvent(BaseModel):
@@ -84,3 +90,31 @@ class HostileActPending(_WorldEvent):
     npc_ids: tuple[str, ...]
     tool: str
     reason: str = ""
+
+
+class FeatureDiscovered(_WorldEvent):
+    type: Literal["feature_discovered"] = "feature_discovered"
+    feature_id: str
+    creature_id: str | None = None
+
+
+class NodeDescribed(_WorldEvent):
+    type: Literal["node_described"] = "node_described"
+    node_id: str = Field(min_length=1)
+    text: str = Field(min_length=1)
+
+
+class ItemPlaced(_WorldEvent):
+    type: Literal["item_placed"] = "item_placed"
+    item: WorldItem
+
+
+class ItemRemoved(_WorldEvent):
+    type: Literal["item_removed"] = "item_removed"
+    item_id: str
+
+
+class NarrationRecorded(_WorldEvent):
+    type: Literal["narration_recorded"] = "narration_recorded"
+    text: str = Field(min_length=1)
+    scene_turn: int = Field(ge=0)

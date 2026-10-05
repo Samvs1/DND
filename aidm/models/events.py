@@ -373,6 +373,11 @@ type AnyEvent = (
     | we.FactRecorded
     | we.ShopOpened
     | we.HostileActPending
+    | we.FeatureDiscovered
+    | we.NodeDescribed
+    | we.ItemPlaced
+    | we.ItemRemoved
+    | we.NarrationRecorded
 )
 
 Event = Annotated[AnyEvent, Field(discriminator="type")]

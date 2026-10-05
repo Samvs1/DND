@@ -19,10 +19,16 @@ Public API:
   discovered)`: a door, lever, cache or trap. Hidden features carry a `discover_dc` and are not
   in the manifest until discovered.
 - `Quest(id, title, state, giver_npc_id)`; `Fact(id, text, entity_ids, tags)`: the fact ledger.
+- `WorldItem(id, name, catalog_id, qty, node_id, hidden)`: an item lying in a place (dropped,
+  found); visible items are part of the manifest.
 - `World(current_node, neighbours, locked_nodes, visited, region_tier, scene_index, npcs,
-  features, quests, facts, shop_npc_id)`: `neighbours` maps a node id to its legal travel
-  neighbours (the region graph of M5.2 fills it); `scene_index` grows on every move and bounds
-  per-scene creation caps.
+  features, quests, facts, shop_npc_id, node_names, descriptions, items, lore_names,
+  scene_turn)`: `neighbours` maps a node id to its legal travel neighbours (the region graph of
+  M5.2 fills it); `scene_index` grows on every move and bounds per-scene creation caps.
+  M4.3 scene fields: `node_names` (display names, M5.2), `descriptions` (the established
+  description of a node, stored once and never regenerated), `items` (world items by id),
+  `lore_names` (world-bible names the guard allows), `scene_turn` (narrated turns in the
+  current scene; reset by a move). The derived scene view is `aidm.rules.scene.current_scene`.
 """
 
 from enum import StrEnum
@@ -109,6 +115,17 @@ class Fact(BaseModel):
     tags: tuple[str, ...] = ()
 
 
+class WorldItem(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    id: str = Field(min_length=1)
+    name: str = Field(min_length=1)
+    catalog_id: str | None = None
+    qty: int = Field(default=1, ge=1)
+    node_id: str | None = None
+    hidden: bool = False
+
+
 class World(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -123,3 +140,8 @@ class World(BaseModel):
     quests: dict[str, Quest] = Field(default_factory=dict[str, Quest])
     facts: list[Fact] = Field(default_factory=list[Fact])
     shop_npc_id: str | None = None
+    node_names: dict[str, str] = Field(default_factory=dict[str, str])
+    descriptions: dict[str, str] = Field(default_factory=dict[str, str])
+    items: dict[str, WorldItem] = Field(default_factory=dict[str, WorldItem])
+    lore_names: list[str] = Field(default_factory=list[str])
+    scene_turn: int = Field(default=0, ge=0)

@@ -42,6 +42,7 @@ Public API:
   rests since the last long rest (BG3 limit, `aidm.rules.rests`). `encounter` (M3.2) is the
   current or last fight (`aidm.models.encounter.Encounter`), None before the first one.
   `world` (M4.2) is the entity registry outside combat (`aidm.models.world.World`).
+  `memory` (M4.3) is the rolling DM memory (`aidm.models.memory.Memory`).
 
 Growth rule: every field added later MUST have a default, so snapshots and event logs written by
 older builds still validate and replay. Models use `extra="forbid"` to catch typos early.
@@ -59,6 +60,7 @@ from aidm.models.character import PcData, Size
 from aidm.models.conditions import Concentration, ConditionDuration, SaveEnds, TurnBoundary
 from aidm.models.damage import DamageType
 from aidm.models.encounter import Encounter
+from aidm.models.memory import Memory
 from aidm.models.world import World
 
 
@@ -178,3 +180,4 @@ class GameState(BaseModel):
     short_rests_used: int = Field(default=0, ge=0)
     encounter: Encounter | None = None
     world: World = Field(default_factory=World)
+    memory: Memory = Field(default_factory=Memory)
