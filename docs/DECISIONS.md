@@ -330,3 +330,21 @@ M6.5 save/load/new | `host_save` forces a snapshot (notice "Game saved."), `host
 M6.5 end | `host_end` clears the queue, closes the vote and the turn timer, runs the epilogue only when `epilogue_ready` (campaign complete), sets phase `ended`, saves | an unfinished campaign has no honest epilogue (SPEC 9: from the ledger of what happened)
 M6.5 totals | `session/stats.py`: `host_stats` goes to every host seat after each job and on the host's hello | token totals from `llm.totals`
 
+
+## Frontend guide (M7.1; read before M7.2-M7.6)
+- Layout (`aidm/web`, vanilla ES modules, no build step): `index.html` (one page for `/`, `/play`, `/screen`; `main.js` picks
+  the mode from `location.pathname`), `css/theme.css` (variables, base, buttons) + one css file per view, `js/main.js` (wiring),
+  `js/state.js` (store + the only localStorage: token, name, settings), `js/ws.js` (hello with token+last_seq, backoff reconnect,
+  next-unseen `lastSeq`, `send(type, fields)`), `js/handlers.js`, `js/strings.js`, `js/assets.js` (A1), `js/ui/*` (dom `h()`,
+  banner, shared widgets), `js/views/*` (one file per view, `views/index.js` registers them).
+- Add a view: create `views/<name>.js` exporting `mountName(root, ctx) -> unmount`, with `ctx = { store, saved, client, mode }`; build the
+  DOM once with `h()` and patch it from `store.subscribe` (never rebuild inputs); register it in `views/index.js` (`VIEWS`, `pickView`).
+- Handler registry: `handlers.js` `HANDLERS` has exactly one key per ServerMsg type (`tests/ui/test_handler_coverage.py` compares it with
+  `protocol.json`; a new server message needs a new key). Stateful ones patch the store; stream-like ones `relay` to `store.emit(type, msg)`
+  and views listen with `store.on(type, fn)`. Unknown types are ignored with `console.debug`. Repeated `welcome` (host load/new) resets
+  the world when the player id changes. `error` never shows server text: the banner maps `errors.<code>` in strings.js.
+- Strings: every visible word is a key in `strings.js` (`t('group.key', {param})`, groups at 2 spaces, keys at 4 spaces so the test can parse
+  them); the test also rejects capitalised phrases and literal `textContent =` outside strings.js. Use `h()` text children, never `innerHTML`.
+- Errors/fallback: `notice kind=fallback` sets `store.fallback` (banner with dismiss); connection loss shows the retry banner.
+- UI tests: `tests/ui/conftest.py` `live_server` runs the real app (FakeLLM, temp saves, fake LAN url) on a free port in a thread;
+  Playwright chromium is installed (`python -m playwright install chromium`); screenshots go to `artifacts/ui/` (ignored by git).

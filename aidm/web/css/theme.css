@@ -1,0 +1,203 @@
+/* Theme: dark fantasy (stone, parchment, gold). All colours are variables; no art paths here. */
+@font-face {
+  font-family: 'Jersey10';
+  src: url('/static/fonts/Jersey10.ttf') format('truetype');
+  font-display: swap;
+}
+
+:root {
+  --ink-0: #090706;
+  --stone-0: #100c0a;
+  --stone-1: #17120f;
+  --stone-2: #211a15;
+  --stone-3: #2e241c;
+  --gold: #d2a94e;
+  --gold-dim: #7d6128;
+  --parchment: #ead9ab;
+  --parchment-dim: #b9a679;
+  --muted: #9b8d73;
+  --blood: #b5453a;
+  --moss: #4f8a3b;
+  --sapphire: #3f6aa8;
+  --amethyst: #7a54a6;
+  --focus: #f4d675;
+  --font-display: 'Jersey10', 'Courier New', monospace;
+  --font-body: Georgia, 'Times New Roman', serif;
+  --text-scale: 1;
+  --radius: 4px;
+  --gap: 1rem;
+  --frame: 2px solid var(--gold-dim);
+  --glow: 0 0 0 1px #000, 0 6px 18px rgba(0, 0, 0, 0.55);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html {
+  font-size: calc(100% * var(--text-scale));
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--parchment);
+  font-family: var(--font-body);
+  line-height: 1.5;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(210, 169, 78, 0.1), transparent 55%),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.015) 0 2px, transparent 2px 4px),
+    linear-gradient(180deg, var(--stone-1), var(--ink-0));
+  background-attachment: fixed;
+}
+
+h1,
+h2,
+h3,
+.btn,
+label {
+  font-family: var(--font-display);
+  letter-spacing: 0.04em;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(2.4rem, 8vw, 3.6rem);
+  font-weight: 400;
+  color: var(--gold);
+  text-shadow: 0 2px 0 #000, 0 0 18px rgba(210, 169, 78, 0.35);
+}
+
+h2 {
+  margin: 0 0 0.6rem;
+  font-size: 1.6rem;
+  font-weight: 400;
+  color: var(--gold);
+}
+
+main {
+  outline: none;
+}
+
+.panel {
+  background: linear-gradient(180deg, var(--stone-2), var(--stone-1));
+  border: var(--frame);
+  border-radius: var(--radius);
+  box-shadow: var(--glow), inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  padding: 1.1rem 1.25rem;
+}
+
+.muted,
+.hint {
+  color: var(--muted);
+}
+
+.hint {
+  margin: 0.5rem 0;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--parchment-dim);
+  font-size: 1.15rem;
+}
+
+input[type='text'] {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  color: var(--parchment);
+  font: inherit;
+  background: var(--ink-0);
+  border: 2px solid var(--stone-3);
+  border-radius: var(--radius);
+}
+
+input[type='text']::placeholder {
+  color: var(--muted);
+  opacity: 0.8;
+}
+
+.btn {
+  display: inline-block;
+  min-height: 2.75rem;
+  padding: 0.45rem 1.25rem;
+  color: var(--parchment);
+  font-size: 1.3rem;
+  background: var(--stone-3);
+  border: 2px solid var(--gold-dim);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.btn:hover {
+  border-color: var(--gold);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  color: #1a1209;
+  background: linear-gradient(180deg, #e2bd63, var(--gold));
+  border-color: #f3dc94;
+  box-shadow: 0 2px 0 #5c4519;
+}
+
+.btn-small {
+  min-height: 2rem;
+  padding: 0.1rem 0.8rem;
+  font-size: 1.1rem;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.form-error {
+  min-height: 1.25rem;
+  margin: 0.25rem 0 0.5rem;
+  color: var(--blood);
+}
+
+#banner {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.banner {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 0.6rem 1rem;
+  color: #1a1209;
+  background: var(--gold);
+  border-bottom: 2px solid #000;
+}
+
+.banner .btn {
+  color: var(--parchment);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
