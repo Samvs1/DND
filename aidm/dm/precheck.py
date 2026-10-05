@@ -1,0 +1,262 @@
+"""Deterministic pre-checks: obvious exploration commands handled without the LLM (SPEC 6.2).
+
+`precheck(state, actor_id, text)` maps a CLEAR command to a typed intent and returns None for
+everything else (the adjudicator decides then). It is conservative on purpose: the whole
+(normalised) sentence must match one command pattern AND name something that exists (a listed
+neighbour, a present shop NPC, an item the actor carries). "Look around for traps" or "draw a
+map" therefore go to the adjudicator. Nothing here runs during a fight (combat uses structured
+commands). Intents carry ids only; the session executes them through the rules.
+
+Public API:
+- Intents (frozen): `RestIntent(kind)` (`RestKind` SHORT/LONG), `ShopIntent(npc_id)`,
+  `TravelIntent(node_id)`, `ItemIntent(actor_id, action, item)` (`ItemAction`
+  EQUIP/UNEQUIP/DROP, `item` is the inventory index), `InventoryIntent(actor_id)`,
+  `LookIntent(text)` (the deterministic description, `look_around_text`).
+- `Intent` (the union), `precheck(state, actor_id, text) -> Intent | None`.
+- `look_around_text(state) -> str`: the scene manifest as plain prose.
+- `SHOP_ROLES`: role words that make a present NPC a shopkeeper.
+"""
+
+import re
+from dataclasses import dataclass
+from enum import StrEnum
+
+from aidm.dm.entities import display_name
+from aidm.models.encounter import EncounterStatus
+from aidm.models.state import Creature, GameState
+from aidm.models.world import WorldNpc
+from aidm.rules.scene import SceneView, current_scene, node_display_name
+
+
+class RestKind(StrEnum):
+    SHORT = "short"
+    LONG = "long"
+
+
+class ItemAction(StrEnum):
+    EQUIP = "equip"
+    UNEQUIP = "unequip"
+    DROP = "drop"
+
+
+@dataclass(frozen=True)
+class RestIntent:
+    kind: RestKind
+
+
+@dataclass(frozen=True)
+class ShopIntent:
+    npc_id: str
+
+
+@dataclass(frozen=True)
+class TravelIntent:
+    node_id: str
+
+
+@dataclass(frozen=True)
+class ItemIntent:
+    actor_id: str
+    action: ItemAction
+    item: str
+
+
+@dataclass(frozen=True)
+class InventoryIntent:
+    actor_id: str
+
+
+@dataclass(frozen=True)
+class LookIntent:
+    text: str
+
+
+type Intent = RestIntent | ShopIntent | TravelIntent | ItemIntent | InventoryIntent | LookIntent
+
+SHOP_ROLES = (
+    "merchant",
+    "shopkeeper",
+    "shopkeep",
+    "trader",
+    "vendor",
+    "peddler",
+    "smith",
+    "blacksmith",
+    "armorer",
+    "armourer",
+    "alchemist",
+    "fletcher",
+    "quartermaster",
+)
+
+_SUBJECT = re.compile(
+    r"^(?:please |ok |okay )?(?:(?:i|we)(?: will| shall|'ll| want to| would like to)?|let'?s|"
+    r"let us)\s+"
+)
+_SHORT = re.compile(
+    r"(?:take |have )?(?:a )?short rest|rest (?:for )?(?:an|one|a) hour|"
+    r"(?:catch (?:our|my) breath|take a breather)"
+)
+_LONG = re.compile(
+    r"(?:take |have )?(?:a )?long rest|(?:make|set up|pitch) camp(?: for the night)?|"
+    r"camp for the night|rest for the night|rest until (?:morning|dawn)|"
+    r"(?:go to )?sleep for the night|bed down(?: for the night)?"
+)
+_SHOP = re.compile(
+    r"(?:shop|browse(?: (?:the|their|his|her) wares)?|(?:see|look at) (?:the|their|his|her) wares|"
+    r"open (?:the|their|his|her) shop|trade|barter|buy something|buy supplies|"
+    r"(?:buy|purchase|shop|trade|barter) (?:from|with) (?P<who>[a-z' -]+))"
+)
+_TRAVEL = re.compile(
+    r"(?:go|travel|head|walk|move|return|journey|ride|set off|set out|proceed|make (?:our|my) way)"
+    r"(?: back)? (?:to|towards?|into|for) (?:the )?(?P<dest>[a-z0-9' -]+)"
+)
+_EQUIP = re.compile(
+    r"(?:equip|wield|don|put on|wear|ready) (?:my |the |a |an )?(?P<item>[a-z ,'-]+)"
+)
+_UNEQUIP = re.compile(
+    r"(?:unequip|unwield|sheathe|stow|put away|take off|doff) (?:my |the )?(?P<item>[a-z ,'-]+)"
+)
+_DROP = re.compile(r"(?:drop|discard|throw away) (?:my |the |a |an )?(?P<item>[a-z ,'-]+)")
+_INVENTORY = re.compile(
+    r"(?:(?:check|open|show|see|look in|look at) )?(?:my |our )?"
+    r"(?:inventory|pack|backpack|bag|belongings)|what (?:am i|are we) carrying|"
+    r"what do (?:i|we) have"
+)
+_LOOK = re.compile(
+    r"look|look around|look about|glance around|"
+    r"(?:look|glance) around (?:the )?(?:room|area|place)|"
+    r"survey (?:the )?(?:area|room|surroundings|scene)|take in (?:the|my|our) surroundings|"
+    r"what do (?:i|we) see|where am i|where are we|"
+    r"describe (?:the )?(?:room|area|place|scene|surroundings)"
+)
+
+
+def _normalise(text: str) -> str:
+    clean = " ".join(text.lower().replace("’", "'").split())
+    clean = clean.rstrip(".!?").removesuffix(" please").strip()
+    return _SUBJECT.sub("", clean, count=1).strip()
+
+
+def _words(name: str) -> frozenset[str]:
+    return frozenset(re.findall(r"[a-z0-9']+", name.lower().replace("-", " "))) - {"the"}
+
+
+def _in_fight(state: GameState) -> bool:
+    enc = state.encounter
+    return enc is not None and enc.status is EncounterStatus.ACTIVE
+
+
+def _travel(state: GameState, scene: SceneView, dest: str) -> TravelIntent | None:
+    wanted = _words(dest)
+    for node in scene.exits:
+        if wanted in (_words(node), _words(node_display_name(state, node))):
+            return TravelIntent(node)
+    return None
+
+
+def _is_shop(state: GameState, npc: WorldNpc) -> bool:
+    role = _words(npc.role)
+    return npc.id == state.world.shop_npc_id or any(r in role for r in SHOP_ROLES)
+
+
+def _shop(state: GameState, scene: SceneView, who: str | None) -> ShopIntent | None:
+    present = [state.world.npcs[i] for i in scene.npc_ids]
+    shops = [n for n in present if _is_shop(state, n) and not n.hostile]
+    if who is not None:
+        wanted = _words(who)
+        shops = [n for n in shops if wanted in (_words(n.name), _words(n.role))]
+    if not shops:
+        return None
+    current = next((n for n in shops if n.id == state.world.shop_npc_id), shops[0])
+    return ShopIntent(current.id)
+
+
+def _equipped(pc: Creature) -> list[str]:
+    assert pc.pc is not None
+    eq = pc.pc.equipped
+    return [s for s in (eq.main_hand, eq.off_hand, eq.ranged, eq.armor, eq.shield) if s]
+
+
+def _item(actor: Creature, action: ItemAction, name: str) -> ItemIntent | None:
+    if actor.pc is None:
+        return None
+    pool = (
+        _equipped(actor) if action is ItemAction.UNEQUIP else [i.item for i in actor.pc.inventory]
+    )
+    wanted = _words(name)
+    for index in pool:
+        if wanted in (_words(index), _words(display_name(index))):
+            return ItemIntent(actor.id, action, index)
+    return None
+
+
+def _item_command(state: GameState, actor_id: str, text: str) -> ItemIntent | None:
+    actor = state.creatures.get(actor_id)
+    if actor is None:
+        return None
+    for action, pattern in (
+        (ItemAction.EQUIP, _EQUIP),
+        (ItemAction.UNEQUIP, _UNEQUIP),
+        (ItemAction.DROP, _DROP),
+    ):
+        match = pattern.fullmatch(text)
+        if match:
+            return _item(actor, action, match["item"])
+    return None
+
+
+def precheck(state: GameState, actor_id: str, text: str) -> Intent | None:
+    if _in_fight(state):
+        return None
+    clean = _normalise(text)
+    if not clean:
+        return None
+    if _SHORT.fullmatch(clean):
+        return RestIntent(RestKind.SHORT)
+    if _LONG.fullmatch(clean):
+        return RestIntent(RestKind.LONG)
+    if _LOOK.fullmatch(clean):
+        return LookIntent(look_around_text(state))
+    if _INVENTORY.fullmatch(clean):
+        return InventoryIntent(actor_id)
+    scene = current_scene(state)
+    shop = _SHOP.fullmatch(clean)
+    if shop:
+        return _shop(state, scene, shop["who"])
+    travel = _TRAVEL.fullmatch(clean)
+    if travel:
+        return _travel(state, scene, travel["dest"])
+    return _item_command(state, actor_id, clean)
+
+
+def _listing(names: list[str]) -> str:
+    if len(names) <= 1:
+        return "".join(names)
+    return ", ".join(names[:-1]) + " and " + names[-1]
+
+
+def look_around_text(state: GameState) -> str:
+    scene = current_scene(state)
+    world = state.world
+    parts = [f"You are at {scene.node_name}."]
+    if scene.description:
+        parts.append(scene.description.strip())
+    npcs = [world.npcs[i] for i in scene.npc_ids]
+    people = [f"{n.name} ({n.role})" if n.role else n.name for n in npcs]
+    parts.append(f"Here with you: {_listing(people)}." if people else "Nobody else is here.")
+    foes = [state.creatures[c].name for c in scene.monster_ids]
+    if foes:
+        parts.append(f"Hostile: {_listing(foes)}.")
+    features = [world.features[f].name for f in scene.feature_ids]
+    if features:
+        parts.append(f"You notice: {_listing(features)}.")
+    items = [world.items[i].name for i in scene.item_ids]
+    if items:
+        parts.append(f"Lying here: {_listing(items)}.")
+    exits = [
+        node_display_name(state, e) + (" (locked)" if e in scene.locked_exits else "")
+        for e in scene.exits
+    ]
+    parts.append(f"Ways on: {_listing(exits)}." if exits else "There is no obvious way on.")
+    return " ".join(parts)

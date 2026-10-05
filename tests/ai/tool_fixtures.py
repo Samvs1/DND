@@ -54,10 +54,10 @@ def add_npc(
     **fields: Any,
 ) -> WorldNpc:
     fields.setdefault("node_id", state.world.current_node)
+    fields.setdefault("role", "innkeeper")
     npc = WorldNpc(
         id=npc_id,
         name=name,
-        role="innkeeper",
         archetype_id=archetype,
         secrets=list(secrets),
         **fields,
