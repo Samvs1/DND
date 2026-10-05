@@ -1,4 +1,4 @@
-NEXT: M3.11 Headless combat sim (tests/sim/test_combat_seeds.py over aidm/session/combat_runner.py, 50 seeds, invariants, replay; FULL gate; commit `M3: Combat`). Delegate to hard-engineer. Files in flight: none. Last gate: M3.10 GATE PASS 8/8.
+NEXT: M4.1 LLM client and FakeLLM. Delegate to hard-engineer. Last gate: M3 FULL GATE PASS 8/8, 50-seed sim green.
 
 # PROGRESS
 
@@ -47,8 +47,8 @@ Stashes and blockers: record them in the Notes section at the bottom.
 - [x] M3.7 **H** Surfaces lite: `data/bg3/surfaces.json` (fire, oil/grease, water, ice, poison cloud), interactions (fire+oil, water+lightning, water+cold, fire clears ice/water), turn-start and enter triggers, attached to zones. Gate: pytest rules. (commit df44111)
 - [x] M3.8 **H** Monster actions: execute multiattack, breath weapon with recharge, spell kits and legendary actions through the same attack/DSL paths. Gate: pytest rules. (commit see git log, `WIP M3.8`)
 - [x] M3.9 **M** Monster catalogue: >=60 encounter-ready SRD monsters CR<=8 (including a breath dragon and a caster), with goldens for 10. Gate: pytest data plus a count assertion.
-- [x] M3.10 **H** Monster AI: value-based targeting (threat, kill chance, vulnerability, concentration breaking), zone/range awareness, spell and multiattack choice, retreat when broken; seeded determinism test. Gate: pytest rules. (commit see git log, `WIP M3.10`)
-- [ ] M3.11 **H** Headless combat sim: `tests/sim/test_combat_seeds.py` runs 50 seeds (party vs encounter, both sides AI) asserting invariants (HP bounds, slot conservation, termination, replay == snapshot). FULL gate. Commit `M3: Combat`.
+- [x] M3.10 **H** Monster AI: value-based targeting (threat, kill chance, vulnerability, concentration breaking), zone/range awareness, spell and multiattack choice, retreat when broken; seeded determinism test. Gate: pytest rules. (commit 9f7f858)
+- [x] M3.11 **H** Headless combat sim: `tests/sim/test_combat_seeds.py` runs 50 seeds (party vs encounter, both sides AI) asserting invariants (HP bounds, slot conservation, termination, replay == snapshot). FULL gate. Commit `M3: Combat`. (commit see git log, `M3: Combat`)
 
 ## M4 AI layer (SPEC 4 DeepSeek, 6.1-6.8)
 - [ ] M4.1 **H** `dm/llm_client.py` (openai SDK -> DeepSeek, FAST/QUALITY roles, model discovery with fallback, schema validation, bounded retries with error feedback, max_tokens >=4000 for structured calls, typed fallbacks, `logs/llm.jsonl` without keys or raw player text) plus `tests/ai/fake_llm.py` (scripted tool calls, streaming, malformed JSON, truncation, timeout, hallucination). Gate: pytest tests/ai.
@@ -129,6 +129,7 @@ If the API rejects the key or needs organisation verification: stop M10 generati
 10. The final message is a VERIFICATION REPORT plus the Tier-2 items not built.
 
 ## Notes (stashes, blockers, decisions pending)
+- M3 exit gate (SPEC 14): zones, d4 initiative, action economy, hotbar commands (+ M3.10 Flee), attacks, spell DSL (61 shipped >= 50), concentration, surfaces lite, monster AI, encounter lifecycle, party wipe (DEFEAT seen in the sim) and the 50-seed sim all done. Known gaps (Tier 2 by SPEC, not M3): reactions/opportunity attacks and reaction spells; prose-only monster traits listed in RULES_DECISIONS stay inert. M3.11 sim: `COMBAT SIM OK seeds=50 victories=47 defeats=3 fled=0 avg_rounds=3.3` (~5 s); driver `aidm/session/combat_runner.py`, scenario knobs in DECISIONS M3.11.
 - M3.10: AI = rules/monster_ai.py + rules/party_ai.py over ai_estimates/ai_view/ai_spells/ai_options/ai_plan; one validated command per call (drivers re-plan after each); new `FleeCommand` (RefusalCode.ENGAGED); driver loop in aidm/session/combat_runner.py (`CombatRunner`, used by M3.11). Decisions: DECISIONS M3.10.
 - M3.9: data/bg3/encounter_monsters.json (95 monsters; tiers 38/32/25) + aidm/data/encounter_monsters.py (`encounter_candidates(tier, tags, include_lower=False)`, falls back to wilds); smoke test over every entry in tests/unit/rules/test_monster_catalogue_smoke.py; 15 goldens in test_golden_monster_catalogue.py. No engine bugs found by the smoke test; no monster needed exclusion for engine reasons. Decisions: RULES_DECISIONS M3.9.
 - M3.8: monster actions = `rules/monster_catalog.py` (pure catalog from the SRD block + data/bg3/monster_actions.json overlay), `monster_parse.py`, `monster_keys.py`, `monster_actions.py` (`MonsterActionCommand` via execute_command), `monster_legendary.py` (`legendary_ready` hook, `legendary_action`); `Creature.monster_index/creature_type/traits`, `Resource.turn_recharge`; M3.9 uses the "Monster readiness checklist" in docs/DECISIONS.md (DECISIONS M3.8, RULES_DECISIONS M3.8).

@@ -65,7 +65,7 @@ from aidm.rules.zones import MELEE_BAND, range_band, zone_range_check
 
 type Phase = Literal["action", "attack", "bonus"]
 _AIMS_PER_SPELL = 3
-_POTION_COST = 1.0
+_POTION_COST = 3.0
 
 
 @dataclass(frozen=True)

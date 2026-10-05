@@ -139,6 +139,8 @@ def next_pc_command(
         steps.append(
             lambda: best_action_step(state, view, regs, rng, bonus, ranged=ranged, move=False)
         )
+    if economy.dashed:
+        steps.append(lambda: approach_step(state, view, regs))
     steps.append(lambda: reposition_step(state, view, regs, ranged=ranged))
     for step in steps:
         command = step()

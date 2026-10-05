@@ -15,7 +15,7 @@ every command returned is valid in the state it was planned for (`rules.ai_plan`
    concentration breaking and control (`rules.ai_options`, `rules.ai_view`); brutes close in,
    ranged and caster monsters value high ground and cover and avoid zones with enemies.
    Nothing in reach: approach (move closer, then Dash). Nothing at all: Dodge.
-4. Bonus action spells from its kit, if any are worth it.
+4. Bonus action spells from its kit, if any are worth it. After a Dash, keep closing in.
 5. A ranged monster that ends up sharing a zone with an enemy steps away.
 6. End the turn.
 Determinism: candidates are scored and ordered deterministically; exact ties use the injected RNG.
@@ -143,6 +143,8 @@ def next_monster_command(
         if bonus is not None:
             return bonus
     ranged = _has_block(creature, regs) and prefers_range(state, monster_id, regs)
+    if economy.dashed and (step := approach_step(state, view, regs)) is not None:
+        return step
     return reposition_step(state, view, regs, ranged=ranged) or end
 
 
