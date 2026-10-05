@@ -158,14 +158,14 @@ def _travel(state: GameState, scene: SceneView, dest: str) -> TravelIntent | Non
     return None
 
 
-def _is_shop(state: GameState, npc: WorldNpc) -> bool:
+def is_shop(state: GameState, npc: WorldNpc) -> bool:
     role = _words(npc.role)
     return npc.id == state.world.shop_npc_id or any(r in role for r in SHOP_ROLES)
 
 
 def _shop(state: GameState, scene: SceneView, who: str | None) -> ShopIntent | None:
     present = [state.world.npcs[i] for i in scene.npc_ids]
-    shops = [n for n in present if _is_shop(state, n) and not n.hostile]
+    shops = [n for n in present if is_shop(state, n) and not n.hostile]
     if who is not None:
         wanted = _words(who)
         shops = [n for n in shops if wanted in (_words(n.name), _words(n.role))]

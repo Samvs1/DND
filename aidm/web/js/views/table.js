@@ -9,6 +9,11 @@ import { mountInitiative } from '../combat/initiative.js';
 import { mountSheet } from '../sheet/drawer.js';
 import { mountLevelUp } from '../sheet/levelup.js';
 import { mountSheetSync } from '../sheet/sync.js';
+import { mountHostGate } from '../host/gate.js';
+import { mountJournal } from '../journal/journal.js';
+import { mountMap } from '../map/map.js';
+import { mountSettings } from '../settings/settings.js';
+import { mountShop } from '../shop/shop.js';
 import { mountAction } from '../table/action.js';
 import { mountConfirm, mountOffer } from '../table/dialogs.js';
 import { mountDice } from '../table/dice.js';
@@ -17,6 +22,7 @@ import { mountNotices } from '../table/notices.js';
 import { mountParty } from '../table/party.js';
 import { mountQueue } from '../table/queue.js';
 import { mountScene } from '../table/scene.js';
+import { mountToolbar } from '../table/toolbar.js';
 import { mountVote } from '../table/vote.js';
 
 function showWhileFighting(node, store) {
@@ -69,6 +75,7 @@ export function mountTable(root, ctx) {
     mountHotbar(hotbar, ctx, ctrl),
     showWhileFighting(combat, store),
     mountScene(scene, store),
+    mountToolbar(scene, ctx),
     mountNotices(noticeSlot, store),
     mountFeed(feed, story),
     mountParty(party, store),
@@ -80,6 +87,11 @@ export function mountTable(root, ctx) {
     mountConfirm(dialogs, ctx),
     mountOffer(dialogs, ctx),
     mountSheet(dialogs, ctx),
+    mountJournal(dialogs, store),
+    mountMap(dialogs, ctx),
+    mountShop(dialogs, ctx),
+    mountHostGate(dialogs, ctx),
+    mountSettings(dialogs, ctx),
   ];
   return () => {
     stops.forEach((stop) => stop());

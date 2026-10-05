@@ -2,6 +2,7 @@
 // store, websocket client, handler registry, banner and the active view.
 import { loadAssets } from './assets.js';
 import { createDispatch } from './handlers.js';
+import { loadSettings } from './settings/model.js';
 import { createStore, saved } from './state.js';
 import { createStory } from './story.js';
 import { mountBanner } from './ui/banner.js';
@@ -12,6 +13,7 @@ import { createClient } from './ws.js';
 const mode = window.location.pathname.startsWith('/screen') ? 'screen' : 'play';
 document.body.dataset.mode = mode;
 
+loadSettings(saved);
 const store = createStore();
 const dispatch = createDispatch({ store, saved });
 const client = createClient({ store, saved, dispatch });

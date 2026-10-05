@@ -55,6 +55,9 @@ export function initialState() {
     sheetOpen: false, // the sheet drawer
     levelUpOpen: false, // the level-up dialog
     refusal: null, // {code, n}: the latest refused command or gear change (typed, never raw text)
+    panel: null, // which table panel is open: journal | map | shop | host | settings
+    shop: null, // the latest `shop_stock` message (an open shop's stock and prices)
+    hostStats: null, // the latest `host_stats` message (host only)
     wizardOpen: null, // null = open until the player has a hero; true/false once chosen
     lan: { lan: false, url: null },
   };

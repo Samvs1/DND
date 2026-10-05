@@ -1,6 +1,7 @@
 // Dice tray: the latest rolls with every d20 shown, the kept die highlighted, an advantage or
 // disadvantage label, the modifier, the total and the outcome against its target. The newest roll
 // tumbles and its numbers cycle before settling; reduced motion shows the result at once.
+import { reducedMotion } from '../settings/model.js';
 import { t } from '../strings.js';
 import { clear, h } from '../ui/dom.js';
 import { creatureName } from './lookup.js';
@@ -8,14 +9,6 @@ import { creatureName } from './lookup.js';
 const SHOWN = 5;
 const CYCLE_MS = 600;
 const FRAME_MS = 60;
-
-function reduced() {
-  try {
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  } catch {
-    return false;
-  }
-}
 
 /** Index of the kept die: the highest on advantage, the lowest on disadvantage, else the first. */
 export function keptIndex(roll) {
@@ -30,7 +23,7 @@ function sidesOf(roll) {
 }
 
 function cycle(el, final, sides) {
-  if (reduced()) return;
+  if (reducedMotion()) return;
   const started = Date.now();
   const timer = setInterval(() => {
     if (Date.now() - started >= CYCLE_MS || !el.isConnected) {

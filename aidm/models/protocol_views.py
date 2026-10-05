@@ -12,14 +12,15 @@ Public API:
 - `PublicExit`, `PublicFeature`, `PublicScene`: the current place, its exits, visible features,
   visible items and present NPCs.
 - `MapNode`, `PublicMap`: the region graph with fog (visited nodes and their neighbours).
-- `PublicQuest`; `PublicOffer` (a pending encounter offer: foes, boss, options).
+- `PublicQuest` (title, state, giver and objective once taken on); `PublicSummary` (scene
+  summaries); `PublicOffer` (a pending encounter offer: foes, boss, options).
 - `PublicZone`, `CombatToken`, `PublicCombat`: zones (with terrain), tokens (monster index for
   art), initiative, the active creature and its economy pips.
 - `QueueEntry`, `VoteKind`, `VoteView`: the exploration queue and the open ready vote.
 - `PublicState`: the full snapshot payload.
 - `DiceView`: one visible roll for the dice tray (d20 tests, attacks, death saves, damage dice).
 - `StoryEntry`: one narration or public event line of the story history (reconnect, reload).
-- `StockLine`: one shop line (item id, name, price).
+- `StockLine`: one shop line (item id, name, price, category, camp supplies it adds).
 """
 
 from enum import StrEnum
@@ -99,6 +100,7 @@ class PublicScene(_View):
     features: tuple[PublicFeature, ...] = ()
     items: tuple[str, ...] = ()
     shop_npc_id: str | None = None
+    shopkeepers: tuple[str, ...] = ()
 
 
 class MapNode(_View):
@@ -115,9 +117,19 @@ class PublicMap(_View):
 
 
 class PublicQuest(_View):
+    """A quest line; `giver` and `objective` are empty until the quest was taken on (or, for the
+    giver, until the giver stands in the party's place)."""
+
     id: str
     title: str
     state: str
+    giver: str = ""
+    objective: str = ""
+
+
+class PublicSummary(_View):
+    title: str = ""
+    text: str
 
 
 class PublicOffer(_View):
@@ -202,6 +214,7 @@ class PublicState(_View):
     map: PublicMap | None = None
     quests: tuple[PublicQuest, ...] = ()
     facts: tuple[str, ...] = ()
+    summaries: tuple[PublicSummary, ...] = ()
     combat: PublicCombat | None = None
     offer: PublicOffer | None = None
     queue: tuple[QueueEntry, ...] = ()
@@ -245,3 +258,5 @@ class StockLine(_View):
     item_id: str
     name: str
     price_gp: int = Field(ge=0)
+    category: str = ""
+    supply: int = Field(default=0, ge=0, description="camp supplies one purchase adds")

@@ -131,4 +131,5 @@ async def test_short_rest_and_shop_go_through_votes_then_trade(tmp_path: Path) -
         assert hero.pc is not None and hero.pc.gold == 500 - line.price_gp
         refused = of_type(seat.drain(), ErrorMsg)
         assert [e.code for e in refused] == [ErrorCode.REFUSED]
+        assert refused[0].refusal == "shop_unknown_item"
         assert_replays(table)

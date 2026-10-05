@@ -23,7 +23,7 @@ function onWelcome(msg, { store, saved }) {
     joined: true,
     me: { playerId: msg.player_id, isHost: Boolean(msg.is_host) },
     errorCode: null,
-    ...(sameSeat ? {} : { snapshot: null, players: [], lastSeq: 0, notices: [], fallback: false, wizardOpen: null, confirm: null, levelUps: {}, sheet: null, sheetOpen: false, levelUpOpen: false, refusal: null }),
+    ...(sameSeat ? {} : { snapshot: null, players: [], lastSeq: 0, notices: [], fallback: false, wizardOpen: null, confirm: null, levelUps: {}, sheet: null, sheetOpen: false, levelUpOpen: false, refusal: null, panel: null, shop: null, hostStats: null }),
   });
   if (!sameSeat) store.emit('reset', {});
 }
@@ -115,6 +115,16 @@ function onSheet(msg, ctx) {
   relay(msg, ctx);
 }
 
+function onShopStock(msg, ctx) {
+  ctx.store.update({ shop: msg, panel: 'shop' });
+  relay(msg, ctx);
+}
+
+function onHostStats(msg, ctx) {
+  ctx.store.update({ hostStats: msg });
+  relay(msg, ctx);
+}
+
 function onCombat(msg, ctx) {
   patchSnapshot(ctx, { combat: msg.combat ?? null });
   relay(msg, ctx);
@@ -142,7 +152,7 @@ export const HANDLERS = {
   error: onError,
   event: relay,
   hit_chances: relay,
-  host_stats: relay,
+  host_stats: onHostStats,
   level_up_available: onLevelUp,
   lobby_roster: onRoster,
   narration_chunk: onNarration,
@@ -153,7 +163,7 @@ export const HANDLERS = {
   queue_state: onQueue,
   resolving: onResolving,
   sheet: onSheet,
-  shop_stock: relay,
+  shop_stock: onShopStock,
   snapshot: onSnapshot,
   story_history: relay,
   suggestion: relay,

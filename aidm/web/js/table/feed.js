@@ -1,21 +1,13 @@
 // Story feed: narration paragraphs (one per narration id, a span per sentence, tone class), mechanical
 // event lines and the epilogue. Live sentences without audio are revealed with a typewriter; the
 // existing story is rendered at once. Reduced motion reveals everything immediately.
+import { reducedMotion, revealMs } from '../settings/model.js';
 import { t } from '../strings.js';
 import { h } from '../ui/dom.js';
 
 const TICK_MS = 16;
-const REVEAL_MS = 1200; // a sentence takes at most this long to type
 const BACKLOG = 4; // beyond this many queued sentences, reveal at once to catch up
 const STICK_PX = 140;
-
-function prefersReducedMotion() {
-  try {
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  } catch {
-    return false;
-  }
-}
 
 function createTypist() {
   const queue = [];
@@ -33,7 +25,7 @@ function createTypist() {
       step();
       return;
     }
-    const perTick = Math.max(1, Math.ceil(job.text.length / (REVEAL_MS / TICK_MS)));
+    const perTick = Math.max(1, Math.ceil(job.text.length / (revealMs() / TICK_MS)));
     job.pos = Math.min(job.text.length, (job.pos ?? 0) + perTick);
     job.span.textContent = job.text.slice(0, job.pos);
     job.onTick?.();
@@ -47,7 +39,7 @@ function createTypist() {
 
   return {
     type(span, text, onTick) {
-      if (prefersReducedMotion() || queue.length > BACKLOG) {
+      if (reducedMotion() || revealMs() === 0 || queue.length > BACKLOG) {
         span.textContent = text;
         onTick?.();
         return;

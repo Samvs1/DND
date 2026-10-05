@@ -8,7 +8,7 @@ through THE public projection in `session.public_feed`, never as raw events (Npc
 CampaignInstalled embed motives and secrets).
 
 Public API: `public_creature`, `public_scene`, `public_map`, `public_quests`, `public_combat`,
-`public_offer`, `public_facts`, `public_state`, `dice_view`, `stock_lines`.
+`public_offer`, `public_facts`, `public_summaries`, `public_state`, `dice_view`, `stock_lines`.
 """
 
 from collections.abc import Sequence
@@ -16,6 +16,7 @@ from collections.abc import Sequence
 from aidm.data.item_catalogue import CatalogueItem
 from aidm.data.registry import Registry
 from aidm.data.zone_templates import zone_templates
+from aidm.dm.precheck import is_shop
 from aidm.dm.wording import check_subject
 from aidm.models.checks import CheckKind
 from aidm.models.combat_events import AttackRolled
@@ -36,6 +37,7 @@ from aidm.models.protocol_views import (
     PublicQuest,
     PublicScene,
     PublicState,
+    PublicSummary,
     PublicZone,
     QueueEntry,
     StockLine,
@@ -43,6 +45,7 @@ from aidm.models.protocol_views import (
     VoteView,
 )
 from aidm.models.state import Creature, GameState
+from aidm.models.world import QuestState
 from aidm.models.zones import Zone
 from aidm.rules.scene import current_scene, node_display_name
 from aidm.rules.shop import StockEntry
@@ -50,6 +53,7 @@ from aidm.rules.social import public_npc_view
 from aidm.session.public_feed import leaks, private_texts
 
 MAX_PUBLIC_FACTS = 12
+MAX_PUBLIC_SUMMARIES = 8
 
 
 def public_creature(creature: Creature) -> PublicCreature:
@@ -104,6 +108,11 @@ def public_scene(state: GameState) -> PublicScene | None:
         features=features,
         items=tuple(world.items[iid].name for iid in scene.item_ids),
         shop_npc_id=world.shop_npc_id,
+        shopkeepers=tuple(
+            n.id
+            for n in (world.npcs[i] for i in scene.npc_ids)
+            if is_shop(state, n) and not n.hostile
+        ),
     )
 
 
@@ -132,8 +141,28 @@ def public_map(state: GameState) -> PublicMap | None:
 
 
 def public_quests(state: GameState) -> tuple[PublicQuest, ...]:
-    quests = sorted(state.world.quests.values(), key=lambda q: q.id)
-    return tuple(PublicQuest(id=q.id, title=q.title, state=q.state.value) for q in quests)
+    """Quest lines. Giver and objective are shown once the quest was taken on; an offered quest
+    shows its giver only while the giver is in the party's place. Text naming private things is
+    left out."""
+    private = private_texts(state)
+    plan = {q.id: q.objective for q in state.campaign.plan.quests} if state.campaign else {}
+    out: list[PublicQuest] = []
+    for q in sorted(state.world.quests.values(), key=lambda q: q.id):
+        npc = state.world.npcs.get(q.giver_npc_id or "")
+        taken = q.state is not QuestState.OFFERED
+        here = npc is not None and npc.node_id == state.world.current_node
+        giver = npc.name if npc is not None and (taken or here) else ""
+        goal = plan.get(q.id, "") if taken else ""
+        out.append(
+            PublicQuest(
+                id=q.id,
+                title=q.title,
+                state=q.state.value,
+                giver=giver,
+                objective="" if leaks(goal, private) else goal,
+            )
+        )
+    return tuple(out)
 
 
 def public_facts(state: GameState) -> tuple[str, ...]:
@@ -141,6 +170,13 @@ def public_facts(state: GameState) -> tuple[str, ...]:
     private = private_texts(state)
     facts = [f.text for f in state.world.facts if not leaks(f.text, private)]
     return tuple(facts[-MAX_PUBLIC_FACTS:])
+
+
+def public_summaries(state: GameState) -> tuple[PublicSummary, ...]:
+    """The latest scene summaries (guarded when written), minus any carrying private text."""
+    private = private_texts(state)
+    kept = [s for s in state.memory.summaries if not leaks(s.text + " " + s.title, private)]
+    return tuple(PublicSummary(title=s.title, text=s.text) for s in kept[-MAX_PUBLIC_SUMMARIES:])
 
 
 def _terrain_of(zone_id: str) -> str:
@@ -238,6 +274,7 @@ def public_state(
         map=public_map(state),
         quests=public_quests(state),
         facts=public_facts(state),
+        summaries=public_summaries(state),
         combat=public_combat(state),
         offer=public_offer(state),
         queue=tuple(queue),
@@ -300,5 +337,13 @@ def stock_lines(
     for entry in entries:
         item = catalogue.find(entry.item)
         name = item.name if item is not None else entry.item.replace("-", " ")
-        lines.append(StockLine(item_id=entry.item, name=name, price_gp=entry.price_gp))
+        lines.append(
+            StockLine(
+                item_id=entry.item,
+                name=name,
+                price_gp=entry.price_gp,
+                category=item.category.value if item is not None else "",
+                supply=item.supply if item is not None else 0,
+            )
+        )
     return tuple(lines)

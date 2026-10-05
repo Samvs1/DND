@@ -151,7 +151,12 @@ async def buy(core: TableCore, player: Player, msg: ShopBuy) -> None:
             core.state, pc.id, msg.npc_id, msg.item_id, msg.qty, regs.catalogue, regs.shops
         )
     except ShopRefused as refused:
-        core.error(player.id, ErrorCode.REFUSED, f"No sale: {refused.detail or refused.reason}.")
+        core.error(
+            player.id,
+            ErrorCode.REFUSED,
+            f"No sale: {refused.detail or refused.reason}.",
+            refusal=f"shop_{refused.reason.value}",
+        )
         return
     _trade(core, player, events, f"Bought {msg.qty} x {msg.item_id.replace('-', ' ')}.")
 
@@ -166,7 +171,12 @@ async def sell(core: TableCore, player: Player, msg: ShopSell) -> None:
             core.state, pc.id, msg.npc_id, msg.item_id, msg.qty, regs.catalogue, regs.shops
         )
     except ShopRefused as refused:
-        core.error(player.id, ErrorCode.REFUSED, f"No sale: {refused.detail or refused.reason}.")
+        core.error(
+            player.id,
+            ErrorCode.REFUSED,
+            f"No sale: {refused.detail or refused.reason}.",
+            refusal=f"shop_{refused.reason.value}",
+        )
         return
     _trade(core, player, events, f"Sold {msg.qty} x {msg.item_id.replace('-', ' ')}.")
 

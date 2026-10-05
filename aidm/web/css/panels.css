@@ -1,0 +1,368 @@
+/* Table panels (M7.6): journal, map, shop, host controls, settings. Colours are theme variables; no art paths. */
+.tb-scene {
+  flex-wrap: wrap;
+}
+
+.tb-tools {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0 0.6rem 0.4rem auto;
+  padding: 0.2rem 0 0;
+  justify-content: flex-end;
+}
+
+.tool-btn {
+  min-height: 2.25rem;
+  background: rgba(33, 26, 21, 0.9);
+}
+
+.tool-btn.has-shop {
+  border-color: var(--gold);
+}
+
+.tool-btn.has-shop::after {
+  content: '';
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-left: 0.4rem;
+  background: var(--gold);
+  border-radius: 50%;
+}
+
+.btn-danger {
+  color: var(--parchment);
+  background: #5b211c;
+  border-color: var(--blood);
+}
+
+.panel-dialog {
+  position: fixed;
+  inset: 0;
+  width: min(42rem, calc(100vw - 1rem));
+  max-width: 100vw;
+  max-height: calc(100dvh - 1rem);
+  margin: auto;
+  padding: 0.8rem 1.1rem 1.2rem;
+  overflow-y: auto;
+  color: var(--parchment);
+  background: linear-gradient(180deg, var(--stone-2), var(--stone-1));
+  border: var(--frame);
+  border-radius: var(--radius);
+  box-shadow: var(--glow);
+}
+
+.panel-dialog:not([open]) {
+  display: none;
+}
+
+.panel-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.65);
+}
+
+.panel-dialog h2 {
+  padding-right: 5rem;
+}
+
+.panel-dialog h3 {
+  margin: 1rem 0 0.4rem;
+  color: var(--parchment);
+  font-size: 1.3rem;
+  font-weight: 400;
+}
+
+.pn-close {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.8rem;
+}
+
+.jr-list,
+.shop-list,
+.map-travel-list,
+.host-players,
+.shop-visit-list {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.jr-group {
+  margin: 0.6rem 0 0.3rem;
+  color: var(--gold);
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 400;
+}
+
+.jr-quest {
+  padding: 0.45rem 0.7rem;
+  background: var(--stone-1);
+  border-left: 4px solid var(--gold-dim);
+}
+
+.jr-quest.state-completed {
+  border-left-color: var(--moss);
+}
+
+.jr-quest.state-failed {
+  border-left-color: var(--blood);
+}
+
+.jr-quest-head {
+  display: flex;
+  gap: 0.6rem;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.jr-quest p {
+  margin: 0.2rem 0 0;
+}
+
+.jr-plain li {
+  padding: 0.3rem 0.5rem;
+  border-bottom: 1px solid var(--stone-3);
+}
+
+.map-banner {
+  position: relative;
+  min-height: 5rem;
+  overflow: hidden;
+  border: var(--frame);
+  border-radius: var(--radius);
+}
+
+.map-banner img {
+  display: block;
+  width: 100%;
+  height: 6rem;
+  object-fit: cover;
+  opacity: 0.55;
+}
+
+.map-region {
+  position: absolute;
+  inset: auto 0 0 0;
+  margin: 0;
+  padding: 0.3rem 0.7rem;
+  background: rgba(9, 7, 6, 0.7);
+}
+
+.map-wrap {
+  margin: 0.8rem 0;
+  overflow-x: auto;
+}
+
+.map-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0 auto;
+}
+
+.map-edge {
+  stroke: var(--gold-dim);
+  stroke-width: 2;
+}
+
+.map-node rect {
+  fill: var(--stone-3);
+  stroke: var(--gold-dim);
+  stroke-width: 2;
+}
+
+.map-node.here rect {
+  fill: #4a3a17;
+  stroke: var(--focus);
+  stroke-width: 3;
+}
+
+.map-node.fogged rect {
+  fill: var(--stone-1);
+  stroke: var(--muted);
+  stroke-dasharray: 5 4;
+}
+
+.map-node.locked rect {
+  fill: #3a1b18;
+  stroke: var(--blood);
+}
+
+.map-name {
+  fill: var(--parchment);
+  font-family: var(--font-body);
+  font-size: 13px;
+}
+
+.map-status {
+  fill: var(--parchment-dim);
+  font-family: var(--font-body);
+  font-size: 11px;
+}
+
+.map-node.fogged .map-name {
+  fill: var(--muted);
+  font-style: italic;
+}
+
+.map-node.here .map-status {
+  fill: var(--focus);
+}
+
+.map-exit .btn {
+  width: 100%;
+  text-align: left;
+}
+
+.shop-keeper,
+.shop-gold {
+  margin: 0.2rem 0;
+}
+
+.shop-qty-row,
+.set-row {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  margin: 0.4rem 0;
+}
+
+.shop-qty {
+  width: 5rem;
+  padding: 0.3rem;
+  color: var(--parchment);
+  font: inherit;
+  background: var(--ink-0);
+  border: 2px solid var(--stone-3);
+  border-radius: var(--radius);
+}
+
+.shop-line {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  padding: 0.3rem 0.5rem;
+  background: var(--stone-1);
+  border: 1px solid var(--stone-3);
+}
+
+.shop-line img {
+  flex: none;
+  width: 2rem;
+  height: 2rem;
+  object-fit: contain;
+}
+
+.shop-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.shop-price {
+  color: var(--gold);
+  white-space: nowrap;
+}
+
+.host-section {
+  margin-bottom: 0.5rem;
+}
+
+.host-section .btn {
+  margin: 0.2rem 0.3rem 0.2rem 0;
+}
+
+.host-player {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.2rem 0.5rem;
+  background: var(--stone-1);
+}
+
+.hc-confirm {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.hc-ask {
+  color: var(--parchment);
+}
+
+.host-section input[type='range'],
+.set-row input[type='range'] {
+  width: min(100%, 18rem);
+  accent-color: var(--gold);
+}
+
+.host-section select,
+.set-row select {
+  min-height: 2.25rem;
+  color: var(--parchment);
+  font: inherit;
+  background: var(--ink-0);
+  border: 2px solid var(--stone-3);
+  border-radius: var(--radius);
+}
+
+.host-check,
+.set-check label {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.set-check {
+  flex-wrap: wrap;
+}
+
+.host-danger {
+  margin-top: 0.6rem;
+}
+
+@media (max-width: 640px) {
+  .panel-dialog {
+    width: 100vw;
+    max-height: 100dvh;
+    margin-top: 0;
+    padding: 0.7rem 0.8rem 1rem;
+    border-width: 0;
+    border-radius: 0;
+  }
+
+  .tb-tools {
+    flex: 0 0 100%;
+    margin: 0 0.5rem 0.4rem;
+    justify-content: flex-start;
+  }
+
+  .shop-line {
+    flex-wrap: wrap;
+  }
+}
+
+/* The in-game "reduce motion" setting behaves like the device preference. */
+:root[data-motion='reduced'] *,
+:root[data-motion='reduced'] *::before,
+:root[data-motion='reduced'] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+.jr-scene strong {
+  display: block;
+  color: var(--gold);
+}
+
+.shop-gold [data-testid='shop-supplies'] {
+  margin-left: 0.8rem;
+}

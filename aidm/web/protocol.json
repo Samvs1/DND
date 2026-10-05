@@ -4126,9 +4126,20 @@
         },
         "PublicQuest": {
           "additionalProperties": false,
+          "description": "A quest line; `giver` and `objective` are empty until the quest was taken on (or, for the\ngiver, until the giver stands in the party's place).",
           "properties": {
+            "giver": {
+              "default": "",
+              "title": "Giver",
+              "type": "string"
+            },
             "id": {
               "title": "Id",
+              "type": "string"
+            },
+            "objective": {
+              "default": "",
+              "title": "Objective",
               "type": "string"
             },
             "state": {
@@ -4207,6 +4218,14 @@
               ],
               "default": null,
               "title": "Shop Npc Id"
+            },
+            "shopkeepers": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Shopkeepers",
+              "type": "array"
             }
           },
           "required": [
@@ -4369,6 +4388,14 @@
               ],
               "default": null
             },
+            "summaries": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/PublicSummary"
+              },
+              "title": "Summaries",
+              "type": "array"
+            },
             "tts_enabled": {
               "default": false,
               "title": "Tts Enabled",
@@ -4390,6 +4417,25 @@
             "campaign_id"
           ],
           "title": "PublicState",
+          "type": "object"
+        },
+        "PublicSummary": {
+          "additionalProperties": false,
+          "properties": {
+            "text": {
+              "title": "Text",
+              "type": "string"
+            },
+            "title": {
+              "default": "",
+              "title": "Title",
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ],
+          "title": "PublicSummary",
           "type": "object"
         },
         "PublicZone": {
@@ -4956,6 +5002,11 @@
         "StockLine": {
           "additionalProperties": false,
           "properties": {
+            "category": {
+              "default": "",
+              "title": "Category",
+              "type": "string"
+            },
             "item_id": {
               "title": "Item Id",
               "type": "string"
@@ -4967,6 +5018,13 @@
             "price_gp": {
               "minimum": 0,
               "title": "Price Gp",
+              "type": "integer"
+            },
+            "supply": {
+              "default": 0,
+              "description": "camp supplies one purchase adds",
+              "minimum": 0,
+              "title": "Supply",
               "type": "integer"
             }
           },
