@@ -312,3 +312,12 @@ M6.3 autosave | events are buffered by `TableCore.record` and written (fsync onc
 M6.3 ids | campaign ids are `[A-Za-z0-9_-]{1,64}` (`valid_campaign_id`), checked before any path is built; `new_game_state()` makes `c-<utc stamp>-<seed digits>` | host_load takes the id from a client
 M6.3 resume | a restored table that was in a fight sets `resume_combat`; the first hello of a seated hero schedules `combat_flow.advance` | no AI autoplay of heroes while nobody is connected
 M6.3 reconnect | `Hello.last_seq` (optional): after welcome + snapshot the table re-sends the `event` lines with seq >= last_seq (at most 500, oldest first) from `Table.log`, which a restored table keeps in full | seq catch-up
+
+## M6.4 Server
+M6.4 table per campaign | the server runs ONE active `Table` (`TableRegistry.table`): a new lobby table, or the save named by `--load`; `host_new`/`host_load` (M6.5) switch that table's contents in place so open sockets stay attached | the lobby needs no second socket; one task owns one campaign's state
+M6.4 socket | `/ws`: every text frame is parsed with `client_adapter`; invalid JSON, unknown type, binary frames and frames over 64 KB get an `error{invalid}` with a fixed player-safe text and the socket stays open; a pump task forwards `conn.outbox`; closing the socket calls `table.disconnect` | never crash the socket, never show a raw error
+M6.4 catch-up | reconnect = `hello{token, last_seq}` -> `welcome`, `snapshot`, then the missed `event` lines (seq >= last_seq) from the table log, then the roster; a snapshot carries the full state so lines are only the feed | seq catch-up from the table's log (also after a restart)
+M6.4 healthz | `{ok, deepseek, fish, tts_enabled, version}`: deepseek = key present AND client not disabled, fish = FISH_API_KEY AND FISH_VOICE_ID present, tts_enabled = the table's current flag (env `TTS_ENABLED` initially); no other fields, no values | SPEC 4 secrets
+M6.4 env | `load_env` reads `.env` with python-dotenv (unparseable lines skipped, parser warnings silenced so no line text is logged) and lets the process environment win; `ServerSettings` holds only booleans for Fish, the DeepSeek key stays private inside `LlmSettings` | never log values
+M6.4 lan | `--lan` binds 0.0.0.0 (unless `--host`), prints `LAN URL: http://<ip>:<port>/` (ASCII; IP found via a UDP connect probe, nothing sent), `/api/lan-qr.svg` serves the QR (qrcode SVG path image) and 404s without `--lan`; `/tts/<hash>.mp3` is left to M8 | SPEC 4, lobby page shows the QR
+

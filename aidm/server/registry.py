@@ -1,0 +1,47 @@
+"""One `Table` per campaign (SPEC 5): creates a new table or loads a save (M6.4).
+
+The server runs one active table. `start()` opens a new lobby table, or the save named by
+`campaign_id`; the host's `host_new` / `host_load` switch the table's contents in place
+(`session.host`), so open sockets stay attached. `stop()` saves, stops the table and closes the
+LLM client.
+
+Public API: `TableRegistry` (`table`, `start`, `stop`, `list_saves`).
+"""
+
+from aidm.dm.llm_client import LlmClient
+from aidm.models.state import GameState
+from aidm.server.settings import ServerSettings
+from aidm.session.persistence import CampaignStore, SaveInfo, new_game_state
+from aidm.session.restore import restore
+from aidm.session.table import Table
+from aidm.session.table_core import TableConfig
+
+
+class TableRegistry:
+    def __init__(
+        self,
+        settings: ServerSettings,
+        llm: LlmClient,
+        *,
+        state: GameState | None = None,
+        campaign_id: str | None = None,
+        config: TableConfig | None = None,
+    ) -> None:
+        self.llm = llm
+        self.store = CampaignStore(settings.saves_dir)
+        self._config = config or TableConfig(store=self.store, tts_enabled=settings.tts_enabled)
+        self._state = state
+        self._campaign_id = campaign_id
+        self.table = Table(state or new_game_state(), llm, self._config)
+
+    async def start(self) -> None:
+        if self._campaign_id is not None and self._state is None:
+            restore(self.table, self.store.load(self._campaign_id))
+        await self.table.start()
+
+    async def stop(self) -> None:
+        await self.table.stop()
+        await self.llm.aclose()
+
+    def list_saves(self) -> list[SaveInfo]:
+        return self.store.list_campaigns()
