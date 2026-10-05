@@ -226,6 +226,7 @@ class PublicState(_View):
     complete: bool = False
     epilogue: str | None = None
     tts_enabled: bool = False
+    screens: int = 0  # connected /screen clients (the default audio device); M8.3 fills it
     monster_hp: float = 1.0
     monster_damage: float = 1.0
 

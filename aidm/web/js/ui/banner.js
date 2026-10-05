@@ -11,6 +11,7 @@ function bannerFor(state) {
     const known = text !== `errors.${state.errorCode}`;
     return { text: known ? text : t('errors.generic'), retry: t('banner.dismiss'), action: 'dismissError' };
   }
+  if (state.audioBlocked) return { text: t('banner.audioBlocked'), retry: t('banner.audioEnable'), action: 'enableAudio' };
   return null;
 }
 

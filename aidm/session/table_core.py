@@ -55,7 +55,7 @@ _LOG = logging.getLogger(__name__)
 
 
 async def no_tts(text: str, tone: NarrationTone) -> str | None:
-    """The M6 TTS hook: no audio (M8 plugs the Fish Audio adapter in here)."""
+    """The default TTS hook: no audio (the server plugs the Fish adapter in, M8.1)."""
     return None
 
 
@@ -66,6 +66,7 @@ class TableConfig:
     turn_seconds: float | None = 90.0
     campaign_timeout_s: float = CAMPAIGN_TIMEOUT_S
     tts: TtsHook = no_tts
+    tts_wait_s: float = 8.0
     regs: ToolRegistries | None = None
     store: CampaignStore | None = None
     new_state: Callable[[], GameState] = new_game_state

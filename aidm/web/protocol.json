@@ -4388,6 +4388,11 @@
               ],
               "default": null
             },
+            "screens": {
+              "default": 0,
+              "title": "Screens",
+              "type": "integer"
+            },
             "summaries": {
               "default": [],
               "items": {

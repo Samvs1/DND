@@ -308,6 +308,7 @@ def test_settings_persist_across_reload(
     stored = host.evaluate("JSON.parse(window.localStorage.getItem('aidm.settings'))")
     assert stored == {
         "mute": True,
+        "muteSet": True,
         "volume": 35,
         "speed": "slow",
         "size": "large",

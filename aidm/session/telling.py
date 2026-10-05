@@ -4,7 +4,9 @@
 1. follow-ups of the applied mechanics: after a `PartyMoved`, `dm.arrival.on_arrival` (describe
    once, then the world's encounter offer); after `EncounterEnded` / `AttitudeChanged`,
    `rules.quest_rewards.resolution_reward_events` (region resolution + milestone rewards);
-2. narrate (streamed sentence by sentence as `narration_chunk`, then `narration_done`);
+2. narrate (streamed sentence by sentence as `narration_chunk`, each carrying its audio url when
+   the host's TTS toggle is on and the synthesis made it in time (`narration_pipe`); then
+   `narration_done`);
 3. NPC voice when `voice_target` names a present NPC (second stream);
 4. ONE `record_narration` of narration + speech, then `summarise` when due (never mid-fight);
 5. a new encounter offer goes out as `encounter_offer`; the epilogue runs once it is ready.
@@ -22,7 +24,7 @@ from aidm.dm.adjudicator import AdjudicationResult
 from aidm.dm.arrival import on_arrival
 from aidm.dm.epilogue import begin_epilogue, epilogue_event, epilogue_ready
 from aidm.dm.memory import should_summarise, summarise
-from aidm.dm.narration_stream import NarrationStream
+from aidm.dm.narration_stream import NarrationChunk, NarrationStream
 from aidm.dm.narrator import narrate, record_narration
 from aidm.dm.npc_voice import npc_voice, voice_target
 from aidm.models.campaign_events import EncounterOffered
@@ -32,26 +34,29 @@ from aidm.models.narration import NarrationTone
 from aidm.models.protocol_server import (
     EncounterOfferMsg,
     EpilogueMsg,
-    NarrationChunkMsg,
     NarrationDone,
 )
 from aidm.models.protocol_views import TablePhase
 from aidm.models.world_events import AttitudeChanged, PartyMoved
 from aidm.rules.quest_rewards import resolution_reward_events
+from aidm.session.narration_pipe import NarrationPipe
 from aidm.session.table_core import TableCore
 from aidm.session.views import public_offer
 
 
 async def tell(core: TableCore, stream: NarrationStream) -> str:
+    """Stream the sentences as `narration_chunk`s (the pipe adds audio), then `narration_done`."""
     nid = core.next_id("n")
     tone: NarrationTone | None = None
-    async for chunk in stream:
-        tone = tone or chunk.tone
-        audio = await core.config.tts(chunk.text, chunk.tone)
-        msg = NarrationChunkMsg(
-            id=nid, index=chunk.index, text=chunk.text, audio_url=audio, tone=chunk.tone
-        )
-        core.broadcast(msg)
+    pipe = NarrationPipe(core, nid)
+    try:
+        async for chunk in stream:
+            tone = tone or chunk.tone
+            pipe.add(chunk)
+        await pipe.finish()
+    except BaseException:
+        pipe.abort()
+        raise
     core.broadcast(NarrationDone(id=nid))
     core.public.add_narration(nid, stream.text, tone, core.state.event_count)
     return stream.text
@@ -61,8 +66,13 @@ async def tell_text(
     core: TableCore, text: str, tone: NarrationTone = NarrationTone.EXPLORATION
 ) -> str:
     nid = core.next_id("n")
-    audio = await core.config.tts(text, tone)
-    core.broadcast(NarrationChunkMsg(id=nid, index=0, text=text, audio_url=audio, tone=tone))
+    pipe = NarrationPipe(core, nid)
+    try:
+        pipe.add(NarrationChunk(0, text, tone))
+        await pipe.finish()
+    except BaseException:
+        pipe.abort()
+        raise
     core.broadcast(NarrationDone(id=nid))
     core.public.add_narration(nid, text, tone, core.state.event_count)
     return text

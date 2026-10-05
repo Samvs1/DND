@@ -77,7 +77,7 @@ export function mountTable(root, ctx) {
     mountScene(scene, store),
     mountToolbar(scene, ctx),
     mountNotices(noticeSlot, store),
-    mountFeed(feed, story),
+    mountFeed(feed, story, ctx.audio),
     mountParty(party, store),
     mountQueue(queue, store),
     mountDice(diceBody, { ...ctx, latest }),

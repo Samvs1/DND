@@ -1,5 +1,6 @@
 // Story feed: narration paragraphs (one per narration id, a span per sentence, tone class), mechanical
-// event lines and the epilogue. Live sentences without audio are revealed with a typewriter; the
+// event lines and the epilogue. A live sentence with audio is revealed when its clip starts playing
+// (`audio.enqueue`); one without is revealed with a typewriter; the
 // existing story is rendered at once. Reduced motion reveals everything immediately.
 import { reducedMotion, revealMs } from '../settings/model.js';
 import { t } from '../strings.js';
@@ -74,7 +75,7 @@ function plainNode(item) {
   return h('p', { class: 'epilogue', 'data-testid': 'epilogue' }, h('strong', {}, t('table.epilogue')), ' ', item.text);
 }
 
-export function mountFeed(root, story) {
+export function mountFeed(root, story, audio = null) {
   const log = h('div', { class: 'feed', role: 'log', 'aria-live': 'polite', 'aria-label': t('table.feed'), tabindex: '0', 'data-testid': 'feed' });
   const empty = h('p', { class: 'hint feed-empty' }, t('table.feedEmpty'));
   const typist = createTypist();
@@ -116,8 +117,13 @@ export function mountFeed(root, story) {
       const span = h('span', { class: 'sentence' });
       node.append(span);
       const text = `${change.sentence.text} `;
-      if (change.sentence.audio) span.textContent = text;
-      else typist.type(span, text, () => nearBottom() && toBottom());
+      const reveal = () => {
+        const stick = nearBottom();
+        span.textContent = text;
+        if (stick) toBottom();
+      };
+      // With audio the text appears when the clip starts; otherwise it is typed at the reading speed.
+      if (!audio?.enqueue(change.sentence.audio, reveal)) typist.type(span, text, () => nearBottom() && toBottom());
       toBottom();
     } else if (change.type === 'done') {
       const node = nodes.get(change.item.id);

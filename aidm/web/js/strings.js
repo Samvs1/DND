@@ -15,6 +15,8 @@ export const STRINGS = {
     fallback: 'The storyteller lost the thread and is using a plain telling for now.',
     retry: 'Try again',
     dismiss: 'Dismiss',
+    audioBlocked: 'Your browser is holding back the spoken narration. Click to enable sound.',
+    audioEnable: 'Enable sound',
   },
   errors: {
     generic: 'Something went wrong at the table. Please try again.',
@@ -694,7 +696,7 @@ export const STRINGS = {
     audio: 'Sound',
     mute: 'Mute all sound',
     volume: 'Volume',
-    audioHint: 'Sound arrives in a later version. Your choices are kept.',
+    audioHint: 'Spoken narration plays here. It starts off when a shared screen is connected, until you choose.',
     text: 'Reading',
     speed: 'Text speed',
     speed_instant: 'Instant',
