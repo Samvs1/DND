@@ -30,8 +30,9 @@ from aidm.dm.guard_types import GuardReport, ProseCheck
 from aidm.dm.llm_backend import Message
 from aidm.dm.llm_client import LlmClient
 from aidm.dm.llm_types import LlmRole
-from aidm.dm.narration_stream import NarrationStream, NarrationTone
+from aidm.dm.narration_stream import NarrationStream
 from aidm.models.campaign_events import EpilogueWritten
+from aidm.models.narration import NarrationTone
 from aidm.models.state import GameState
 from aidm.rules.progression import campaign_complete
 

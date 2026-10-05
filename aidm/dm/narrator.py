@@ -33,11 +33,12 @@ from aidm.dm.context_text import ContextPurpose
 from aidm.dm.guard import guarded_narration, prose_checker
 from aidm.dm.guard_types import ProseCheck
 from aidm.dm.llm_client import LlmClient
-from aidm.dm.narration_stream import NarrationStream, NarrationTone
+from aidm.dm.narration_stream import NarrationStream
 from aidm.dm.narration_templates import template_narration
 from aidm.models.encounter import EncounterStatus
 from aidm.models.encounter_events import EncounterEnded, EncounterStarted
 from aidm.models.events import AnyEvent
+from aidm.models.narration import NarrationTone
 from aidm.models.state import GameState
 from aidm.models.world_events import (
     AttitudeChanged,

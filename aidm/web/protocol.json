@@ -2,69 +2,4891 @@
   "client": {
     "schema": {
       "$defs": {
-        "Ping": {
+        "Ability": {
+          "enum": [
+            "str",
+            "dex",
+            "con",
+            "int",
+            "wis",
+            "cha"
+          ],
+          "title": "Ability",
+          "type": "string"
+        },
+        "AbilityMethod": {
+          "enum": [
+            "point_buy",
+            "standard_array",
+            "roll_4d6"
+          ],
+          "title": "AbilityMethod",
+          "type": "string"
+        },
+        "AnswerOffer": {
+          "additionalProperties": false,
           "properties": {
+            "choice": {
+              "$ref": "#/$defs/OfferChoice"
+            },
+            "skill": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Skill"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
             "type": {
-              "const": "ping",
+              "const": "answer_offer",
+              "default": "answer_offer",
               "title": "Type",
               "type": "string"
             }
           },
           "required": [
-            "type"
+            "choice"
           ],
+          "title": "AnswerOffer",
+          "type": "object"
+        },
+        "AttackCommand": {
+          "additionalProperties": false,
+          "properties": {
+            "actor_id": {
+              "minLength": 1,
+              "title": "Actor Id",
+              "type": "string"
+            },
+            "option": {
+              "default": "main_hand",
+              "minLength": 1,
+              "title": "Option",
+              "type": "string"
+            },
+            "target_id": {
+              "minLength": 1,
+              "title": "Target Id",
+              "type": "string"
+            },
+            "type": {
+              "const": "attack",
+              "default": "attack",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "actor_id",
+            "target_id"
+          ],
+          "title": "AttackCommand",
+          "type": "object"
+        },
+        "CancelHostile": {
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "cancel_hostile",
+              "default": "cancel_hostile",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "title": "CancelHostile",
+          "type": "object"
+        },
+        "CastCommand": {
+          "additionalProperties": false,
+          "properties": {
+            "actor_id": {
+              "minLength": 1,
+              "title": "Actor Id",
+              "type": "string"
+            },
+            "slot_level": {
+              "anyOf": [
+                {
+                  "maximum": 9,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Slot Level"
+            },
+            "spell_id": {
+              "minLength": 1,
+              "title": "Spell Id",
+              "type": "string"
+            },
+            "target_ids": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Target Ids",
+              "type": "array"
+            },
+            "target_zone": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Target Zone"
+            },
+            "type": {
+              "const": "cast",
+              "default": "cast",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "actor_id",
+            "spell_id"
+          ],
+          "title": "CastCommand",
+          "type": "object"
+        },
+        "Chat": {
+          "additionalProperties": false,
+          "properties": {
+            "text": {
+              "maxLength": 1000,
+              "minLength": 1,
+              "title": "Text",
+              "type": "string"
+            },
+            "type": {
+              "const": "chat",
+              "default": "chat",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ],
+          "title": "Chat",
+          "type": "object"
+        },
+        "CombatCommandMsg": {
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "discriminator": {
+                "mapping": {
+                  "attack": "#/$defs/AttackCommand",
+                  "cast": "#/$defs/CastCommand",
+                  "dash": "#/$defs/DashCommand",
+                  "disengage": "#/$defs/DisengageCommand",
+                  "dodge": "#/$defs/DodgeCommand",
+                  "end_turn": "#/$defs/EndTurnCommand",
+                  "flee": "#/$defs/FleeCommand",
+                  "help": "#/$defs/HelpCommand",
+                  "hide": "#/$defs/HideCommand",
+                  "jump": "#/$defs/JumpCommand",
+                  "monster_action": "#/$defs/MonsterActionCommand",
+                  "move": "#/$defs/MoveCommand",
+                  "shove": "#/$defs/ShoveCommand",
+                  "throw": "#/$defs/ThrowCommand",
+                  "use_item": "#/$defs/UseItemCommand"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/AttackCommand"
+                },
+                {
+                  "$ref": "#/$defs/CastCommand"
+                },
+                {
+                  "$ref": "#/$defs/MoveCommand"
+                },
+                {
+                  "$ref": "#/$defs/DashCommand"
+                },
+                {
+                  "$ref": "#/$defs/DisengageCommand"
+                },
+                {
+                  "$ref": "#/$defs/HideCommand"
+                },
+                {
+                  "$ref": "#/$defs/ShoveCommand"
+                },
+                {
+                  "$ref": "#/$defs/JumpCommand"
+                },
+                {
+                  "$ref": "#/$defs/ThrowCommand"
+                },
+                {
+                  "$ref": "#/$defs/UseItemCommand"
+                },
+                {
+                  "$ref": "#/$defs/HelpCommand"
+                },
+                {
+                  "$ref": "#/$defs/DodgeCommand"
+                },
+                {
+                  "$ref": "#/$defs/EndTurnCommand"
+                },
+                {
+                  "$ref": "#/$defs/FleeCommand"
+                },
+                {
+                  "$ref": "#/$defs/MonsterActionCommand"
+                }
+              ],
+              "title": "Command"
+            },
+            "type": {
+              "const": "combat_command",
+              "default": "combat_command",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "command"
+          ],
+          "title": "CombatCommandMsg",
+          "type": "object"
+        },
+        "ConfirmHostile": {
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "confirm_hostile",
+              "default": "confirm_hostile",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "title": "ConfirmHostile",
+          "type": "object"
+        },
+        "CreateCharacter": {
+          "additionalProperties": false,
+          "properties": {
+            "choices": {
+              "$ref": "#/$defs/CreationChoices"
+            },
+            "type": {
+              "const": "create_character",
+              "default": "create_character",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "choices"
+          ],
+          "title": "CreateCharacter",
+          "type": "object"
+        },
+        "CreationChoices": {
+          "additionalProperties": false,
+          "properties": {
+            "ability_choice_picks": {
+              "items": {
+                "$ref": "#/$defs/Ability"
+              },
+              "title": "Ability Choice Picks",
+              "type": "array"
+            },
+            "ability_method": {
+              "$ref": "#/$defs/AbilityMethod"
+            },
+            "background": {
+              "title": "Background",
+              "type": "string"
+            },
+            "backstory": {
+              "default": "",
+              "title": "Backstory",
+              "type": "string"
+            },
+            "base_scores": {
+              "additionalProperties": {
+                "type": "integer"
+              },
+              "propertyNames": {
+                "$ref": "#/$defs/Ability"
+              },
+              "title": "Base Scores",
+              "type": "object"
+            },
+            "cantrips": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Cantrips",
+              "type": "array"
+            },
+            "class_choices": {
+              "additionalProperties": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "title": "Class Choices",
+              "type": "object"
+            },
+            "class_index": {
+              "title": "Class Index",
+              "type": "string"
+            },
+            "class_skills": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Class Skills",
+              "type": "array"
+            },
+            "equipment_picks": {
+              "additionalProperties": {
+                "type": "integer"
+              },
+              "title": "Equipment Picks",
+              "type": "object"
+            },
+            "feature_choices": {
+              "additionalProperties": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "title": "Feature Choices",
+              "type": "object"
+            },
+            "language_picks": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Language Picks",
+              "type": "array"
+            },
+            "name": {
+              "default": "",
+              "title": "Name",
+              "type": "string"
+            },
+            "portrait_id": {
+              "default": "",
+              "title": "Portrait Id",
+              "type": "string"
+            },
+            "prepared": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Prepared",
+              "type": "array"
+            },
+            "pronouns": {
+              "default": "",
+              "title": "Pronouns",
+              "type": "string"
+            },
+            "race": {
+              "title": "Race",
+              "type": "string"
+            },
+            "race_cantrips": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Race Cantrips",
+              "type": "array"
+            },
+            "race_skills": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Race Skills",
+              "type": "array"
+            },
+            "rolls": {
+              "items": {
+                "$ref": "#/$defs/Roll"
+              },
+              "title": "Rolls",
+              "type": "array"
+            },
+            "spells": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Spells",
+              "type": "array"
+            },
+            "subrace": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Subrace"
+            },
+            "tool_picks": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Tool Picks",
+              "type": "array"
+            }
+          },
+          "required": [
+            "race",
+            "class_index",
+            "background",
+            "ability_method"
+          ],
+          "title": "CreationChoices",
+          "type": "object"
+        },
+        "DashCommand": {
+          "additionalProperties": false,
+          "properties": {
+            "actor_id": {
+              "minLength": 1,
+              "title": "Actor Id",
+              "type": "string"
+            },
+            "bonus_action": {
+              "default": false,
+              "title": "Bonus Action",
+              "type": "boolean"
+            },
+            "type": {
+              "const": "dash",
+              "default": "dash",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "actor_id"
+          ],
+          "title": "DashCommand",
+          "type": "object"
+        },
+        "DieRoll": {
+          "properties": {
+            "kept": {
+              "default": true,
+              "title": "Kept",
+              "type": "boolean"
+            },
+            "sides": {
+              "minimum": 2,
+              "title": "Sides",
+              "type": "integer"
+            },
+            "value": {
+              "minimum": 1,
+              "title": "Value",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "sides",
+            "value"
+          ],
+          "title": "DieRoll",
+          "type": "object"
+        },
+        "DisengageCommand": {
+          "additionalProperties": false,
+          "properties": {
+            "actor_id": {
+              "minLength": 1,
+              "title": "Actor Id",
+              "type": "string"
+            },
+            "bonus_action": {
+              "default": false,
+              "title": "Bonus Action",
+              "type": "boolean"
+            },
+            "type": {
+              "const": "disengage",
+              "default": "disengage",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "actor_id"
+          ],
+          "title": "DisengageCommand",
+          "type": "object"
+        },
+        "DodgeCommand": {
+          "additionalProperties": false,
+          "properties": {
+            "actor_id": {
+              "minLength": 1,
+              "title": "Actor Id",
+              "type": "string"
+            },
+            "type": {
+              "const": "dodge",
+              "default": "dodge",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "actor_id"
+          ],
+          "title": "DodgeCommand",
+          "type": "object"
+        },
+        "EndTurnCommand": {
+          "additionalProperties": false,
+          "properties": {
+            "actor_id": {
+              "minLength": 1,
+              "title": "Actor Id",
+              "type": "string"
+            },
+            "type": {
+              "const": "end_turn",
+              "default": "end_turn",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "actor_id"
+          ],
+          "title": "EndTurnCommand",
+          "type": "object"
+        },
+        "Equip": {
+          "additionalProperties": false,
+          "properties": {
+            "item_id": {
+              "title": "Item Id",
+              "type": "string"
+            },
+            "type": {
+              "const": "equip",
+              "default": "equip",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "item_id"
+          ],
+          "title": "Equip",
+          "type": "object"
+        },
+        "FleeCommand": {
+          "additionalProperties": false,
+          "properties": {
+            "actor_id": {
+              "minLength": 1,
+              "title": "Actor Id",
+              "type": "string"
+            },
+            "type": {
+              "const": "flee",
+              "default": "flee",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "actor_id"
+          ],
+          "title": "FleeCommand",
+          "type": "object"
+        },
+        "Hello": {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "maxLength": 40,
+              "minLength": 1,
+              "title": "Name",
+              "type": "string"
+            },
+            "token": {
+              "anyOf": [
+                {
+                  "maxLength": 200,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Token"
+            },
+            "type": {
+              "const": "hello",
+              "default": "hello",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "title": "Hello",
+          "type": "object"
+        },
+        "HelpCommand": {
+          "additionalProperties": false,
+          "properties": {
+            "actor_id": {
+              "minLength": 1,
+              "title": "Actor Id",
+              "type": "string"
+            },
+            "target_id": {
+              "minLength": 1,
+              "title": "Target Id",
+              "type": "string"
+            },
+            "type": {
+              "const": "help",
+              "default": "help",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "actor_id",
+            "target_id"
+          ],
+          "title": "HelpCommand",
+          "type": "object"
+        },
+        "HideCommand": {
+          "additionalProperties": false,
+          "properties": {
+            "actor_id": {
+              "minLength": 1,
+              "title": "Actor Id",
+              "type": "string"
+            },
+            "bonus_action": {
+              "default": false,
+              "title": "Bonus Action",
+              "type": "boolean"
+            },
+            "type": {
+              "const": "hide",
+              "default": "hide",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "actor_id"
+          ],
+          "title": "HideCommand",
+          "type": "object"
+        },
+        "HostDifficulty": {
+          "additionalProperties": false,
+          "properties": {
+            "monster_damage": {
+              "default": 1.0,
+              "maximum": 3.0,
+              "minimum": 0.25,
+              "title": "Monster Damage",
+              "type": "number"
+            },
+            "monster_hp": {
+              "default": 1.0,
+              "maximum": 3.0,
+              "minimum": 0.25,
+              "title": "Monster Hp",
+              "type": "number"
+            },
+            "type": {
+              "const": "host_difficulty",
+              "default": "host_difficulty",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "title": "HostDifficulty",
+          "type": "object"
+        },
+        "HostEnd": {
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "host_end",
+              "default": "host_end",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "title": "HostEnd",
+          "type": "object"
+        },
+        "HostForceVote": {
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "host_force_vote",
+              "default": "host_force_vote",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "title": "HostForceVote",
+          "type": "object"
+        },
+        "HostKick": {
+          "additionalProperties": false,
+          "properties": {
+            "player_id": {
+              "title": "Player Id",
+              "type": "string"
+            },
+            "type": {
+              "const": "host_kick",
+              "default": "host_kick",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "player_id"
+          ],
+          "title": "HostKick",
+          "type": "object"
+        },
+        "HostLoad": {
+          "additionalProperties": false,
+          "properties": {
+            "campaign_id": {
+              "title": "Campaign Id",
+              "type": "string"
+            },
+            "type": {
+              "const": "host_load",
+              "default": "host_load",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "campaign_id"
+          ],
+          "title": "HostLoad",
+          "type": "object"
+        },
+        "HostNew": {
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "host_new",
+              "default": "host_new",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "title": "HostNew",
+          "type": "object"
+        },
+        "HostPause": {
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "host_pause",
+              "default": "host_pause",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "title": "HostPause",
+          "type": "object"
+        },
+        "HostResume": {
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "host_resume",
+              "default": "host_resume",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "title": "HostResume",
+          "type": "object"
+        },
+        "HostSave": {
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "host_save",
+              "default": "host_save",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "title": "HostSave",
+          "type": "object"
+        },
+        "HostStart": {
+          "additionalProperties": false,
+          "properties": {
+            "theme": {
+              "anyOf": [
+                {
+                  "maxLength": 300,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Theme"
+            },
+            "type": {
+              "const": "host_start",
+              "default": "host_start",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "title": "HostStart",
+          "type": "object"
+        },
+        "HostTtsToggle": {
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "title": "Enabled",
+              "type": "boolean"
+            },
+            "type": {
+              "const": "host_tts_toggle",
+              "default": "host_tts_toggle",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "enabled"
+          ],
+          "title": "HostTtsToggle",
+          "type": "object"
+        },
+        "JumpCommand": {
+          "additionalProperties": false,
+          "properties": {
+            "actor_id": {
+              "minLength": 1,
+              "title": "Actor Id",
+              "type": "string"
+            },
+            "type": {
+              "const": "jump",
+              "default": "jump",
+              "title": "Type",
+              "type": "string"
+            },
+            "zone_id": {
+              "minLength": 1,
+              "title": "Zone Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "actor_id",
+            "zone_id"
+          ],
+          "title": "JumpCommand",
+          "type": "object"
+        },
+        "LevelUp": {
+          "additionalProperties": false,
+          "properties": {
+            "choices": {
+              "$ref": "#/$defs/LevelUpChoices"
+            },
+            "type": {
+              "const": "level_up",
+              "default": "level_up",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "choices"
+          ],
+          "title": "LevelUp",
+          "type": "object"
+        },
+        "LevelUpChoices": {
+          "additionalProperties": false,
+          "properties": {
+            "asi": {
+              "additionalProperties": {
+                "type": "integer"
+              },
+              "propertyNames": {
+                "$ref": "#/$defs/Ability"
+              },
+              "title": "Asi",
+              "type": "object"
+            },
+            "cantrips": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Cantrips",
+              "type": "array"
+            },
+            "class_choices": {
+              "additionalProperties": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "title": "Class Choices",
+              "type": "object"
+            },
+            "feature_choices": {
+              "additionalProperties": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "title": "Feature Choices",
+              "type": "object"
+            },
+            "prepared": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Prepared"
+            },
+            "replace_spell": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Replace Spell"
+            },
+            "replacement": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Replacement"
+            },
+            "spells": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Spells",
+              "type": "array"
+            },
+            "subclass": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Subclass"
+            }
+          },
+          "title": "LevelUpChoices",
+          "type": "object"
+        },
+        "MonsterActionCommand": {
+          "additionalProperties": false,
+          "properties": {
+            "action": {
+              "minLength": 1,
+              "title": "Action",
+              "type": "string"
+            },
+            "actor_id": {
+              "minLength": 1,
+              "title": "Actor Id",
+              "type": "string"
+            },
+            "option": {
+              "anyOf": [
+                {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Option"
+            },
+            "slot_level": {
+              "anyOf": [
+                {
+                  "maximum": 9,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Slot Level"
+            },
+            "target_ids": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Target Ids",
+              "type": "array"
+            },
+            "target_zone": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Target Zone"
+            },
+            "type": {
+              "const": "monster_action",
+              "default": "monster_action",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "actor_id",
+            "action"
+          ],
+          "title": "MonsterActionCommand",
+          "type": "object"
+        },
+        "MoveCommand": {
+          "additionalProperties": false,
+          "properties": {
+            "actor_id": {
+              "minLength": 1,
+              "title": "Actor Id",
+              "type": "string"
+            },
+            "type": {
+              "const": "move",
+              "default": "move",
+              "title": "Type",
+              "type": "string"
+            },
+            "zone_id": {
+              "minLength": 1,
+              "title": "Zone Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "actor_id",
+            "zone_id"
+          ],
+          "title": "MoveCommand",
+          "type": "object"
+        },
+        "OfferChoice": {
+          "enum": [
+            "fight",
+            "surprise",
+            "escape",
+            "parley"
+          ],
+          "title": "OfferChoice",
+          "type": "string"
+        },
+        "Ping": {
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "ping",
+              "default": "ping",
+              "title": "Type",
+              "type": "string"
+            }
+          },
           "title": "Ping",
+          "type": "object"
+        },
+        "RequestHitChances": {
+          "additionalProperties": false,
+          "properties": {
+            "target_id": {
+              "title": "Target Id",
+              "type": "string"
+            },
+            "type": {
+              "const": "request_hit_chances",
+              "default": "request_hit_chances",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "target_id"
+          ],
+          "title": "RequestHitChances",
+          "type": "object"
+        },
+        "Roll": {
+          "properties": {
+            "dice": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/DieRoll"
+              },
+              "title": "Dice",
+              "type": "array"
+            },
+            "expression": {
+              "title": "Expression",
+              "type": "string"
+            },
+            "modifier": {
+              "default": 0,
+              "title": "Modifier",
+              "type": "integer"
+            },
+            "total": {
+              "title": "Total",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "expression",
+            "total"
+          ],
+          "title": "Roll",
+          "type": "object"
+        },
+        "RollAbilities": {
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "roll_abilities",
+              "default": "roll_abilities",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "title": "RollAbilities",
+          "type": "object"
+        },
+        "ShopBuy": {
+          "additionalProperties": false,
+          "properties": {
+            "item_id": {
+              "title": "Item Id",
+              "type": "string"
+            },
+            "npc_id": {
+              "title": "Npc Id",
+              "type": "string"
+            },
+            "qty": {
+              "default": 1,
+              "maximum": 99,
+              "minimum": 1,
+              "title": "Qty",
+              "type": "integer"
+            },
+            "type": {
+              "const": "shop_buy",
+              "default": "shop_buy",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "npc_id",
+            "item_id"
+          ],
+          "title": "ShopBuy",
+          "type": "object"
+        },
+        "ShopSell": {
+          "additionalProperties": false,
+          "properties": {
+            "item_id": {
+              "title": "Item Id",
+              "type": "string"
+            },
+            "npc_id": {
+              "title": "Npc Id",
+              "type": "string"
+            },
+            "qty": {
+              "default": 1,
+              "maximum": 99,
+              "minimum": 1,
+              "title": "Qty",
+              "type": "integer"
+            },
+            "type": {
+              "const": "shop_sell",
+              "default": "shop_sell",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "npc_id",
+            "item_id"
+          ],
+          "title": "ShopSell",
+          "type": "object"
+        },
+        "ShoveCommand": {
+          "additionalProperties": false,
+          "properties": {
+            "actor_id": {
+              "minLength": 1,
+              "title": "Actor Id",
+              "type": "string"
+            },
+            "mode": {
+              "default": "prone",
+              "enum": [
+                "push",
+                "prone"
+              ],
+              "title": "Mode",
+              "type": "string"
+            },
+            "target_id": {
+              "minLength": 1,
+              "title": "Target Id",
+              "type": "string"
+            },
+            "to_zone": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "To Zone"
+            },
+            "type": {
+              "const": "shove",
+              "default": "shove",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "actor_id",
+            "target_id"
+          ],
+          "title": "ShoveCommand",
+          "type": "object"
+        },
+        "Skill": {
+          "enum": [
+            "acrobatics",
+            "animal-handling",
+            "arcana",
+            "athletics",
+            "deception",
+            "history",
+            "insight",
+            "intimidation",
+            "investigation",
+            "medicine",
+            "nature",
+            "perception",
+            "performance",
+            "persuasion",
+            "religion",
+            "sleight-of-hand",
+            "stealth",
+            "survival"
+          ],
+          "title": "Skill",
+          "type": "string"
+        },
+        "SubmitAction": {
+          "additionalProperties": false,
+          "properties": {
+            "text": {
+              "maxLength": 1000,
+              "title": "Text",
+              "type": "string"
+            },
+            "type": {
+              "const": "submit_action",
+              "default": "submit_action",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ],
+          "title": "SubmitAction",
+          "type": "object"
+        },
+        "Suggestion": {
+          "additionalProperties": false,
+          "properties": {
+            "text": {
+              "maxLength": 1000,
+              "minLength": 1,
+              "title": "Text",
+              "type": "string"
+            },
+            "type": {
+              "const": "suggestion",
+              "default": "suggestion",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ],
+          "title": "Suggestion",
+          "type": "object"
+        },
+        "ThrowCommand": {
+          "additionalProperties": false,
+          "properties": {
+            "actor_id": {
+              "minLength": 1,
+              "title": "Actor Id",
+              "type": "string"
+            },
+            "item": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Item"
+            },
+            "target_id": {
+              "minLength": 1,
+              "title": "Target Id",
+              "type": "string"
+            },
+            "type": {
+              "const": "throw",
+              "default": "throw",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "actor_id",
+            "target_id"
+          ],
+          "title": "ThrowCommand",
+          "type": "object"
+        },
+        "Unequip": {
+          "additionalProperties": false,
+          "properties": {
+            "item_id": {
+              "title": "Item Id",
+              "type": "string"
+            },
+            "type": {
+              "const": "unequip",
+              "default": "unequip",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "item_id"
+          ],
+          "title": "Unequip",
+          "type": "object"
+        },
+        "UseItemCommand": {
+          "additionalProperties": false,
+          "properties": {
+            "actor_id": {
+              "minLength": 1,
+              "title": "Actor Id",
+              "type": "string"
+            },
+            "item": {
+              "minLength": 1,
+              "title": "Item",
+              "type": "string"
+            },
+            "target_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Target Id"
+            },
+            "type": {
+              "const": "use_item",
+              "default": "use_item",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "actor_id",
+            "item"
+          ],
+          "title": "UseItemCommand",
+          "type": "object"
+        },
+        "Vote": {
+          "additionalProperties": false,
+          "properties": {
+            "ready": {
+              "title": "Ready",
+              "type": "boolean"
+            },
+            "type": {
+              "const": "vote",
+              "default": "vote",
+              "title": "Type",
+              "type": "string"
+            },
+            "vote_id": {
+              "title": "Vote Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "vote_id",
+            "ready"
+          ],
+          "title": "Vote",
           "type": "object"
         }
       },
       "discriminator": {
         "mapping": {
-          "ping": "#/$defs/Ping"
+          "answer_offer": "#/$defs/AnswerOffer",
+          "cancel_hostile": "#/$defs/CancelHostile",
+          "chat": "#/$defs/Chat",
+          "combat_command": "#/$defs/CombatCommandMsg",
+          "confirm_hostile": "#/$defs/ConfirmHostile",
+          "create_character": "#/$defs/CreateCharacter",
+          "equip": "#/$defs/Equip",
+          "hello": "#/$defs/Hello",
+          "host_difficulty": "#/$defs/HostDifficulty",
+          "host_end": "#/$defs/HostEnd",
+          "host_force_vote": "#/$defs/HostForceVote",
+          "host_kick": "#/$defs/HostKick",
+          "host_load": "#/$defs/HostLoad",
+          "host_new": "#/$defs/HostNew",
+          "host_pause": "#/$defs/HostPause",
+          "host_resume": "#/$defs/HostResume",
+          "host_save": "#/$defs/HostSave",
+          "host_start": "#/$defs/HostStart",
+          "host_tts_toggle": "#/$defs/HostTtsToggle",
+          "level_up": "#/$defs/LevelUp",
+          "ping": "#/$defs/Ping",
+          "request_hit_chances": "#/$defs/RequestHitChances",
+          "roll_abilities": "#/$defs/RollAbilities",
+          "shop_buy": "#/$defs/ShopBuy",
+          "shop_sell": "#/$defs/ShopSell",
+          "submit_action": "#/$defs/SubmitAction",
+          "suggestion": "#/$defs/Suggestion",
+          "unequip": "#/$defs/Unequip",
+          "vote": "#/$defs/Vote"
         },
         "propertyName": "type"
       },
       "oneOf": [
+        {
+          "$ref": "#/$defs/Hello"
+        },
+        {
+          "$ref": "#/$defs/CreateCharacter"
+        },
+        {
+          "$ref": "#/$defs/RollAbilities"
+        },
+        {
+          "$ref": "#/$defs/SubmitAction"
+        },
+        {
+          "$ref": "#/$defs/CombatCommandMsg"
+        },
+        {
+          "$ref": "#/$defs/Suggestion"
+        },
+        {
+          "$ref": "#/$defs/ConfirmHostile"
+        },
+        {
+          "$ref": "#/$defs/CancelHostile"
+        },
+        {
+          "$ref": "#/$defs/Vote"
+        },
+        {
+          "$ref": "#/$defs/AnswerOffer"
+        },
+        {
+          "$ref": "#/$defs/LevelUp"
+        },
+        {
+          "$ref": "#/$defs/ShopBuy"
+        },
+        {
+          "$ref": "#/$defs/ShopSell"
+        },
+        {
+          "$ref": "#/$defs/Equip"
+        },
+        {
+          "$ref": "#/$defs/Unequip"
+        },
+        {
+          "$ref": "#/$defs/RequestHitChances"
+        },
+        {
+          "$ref": "#/$defs/Chat"
+        },
+        {
+          "$ref": "#/$defs/HostStart"
+        },
+        {
+          "$ref": "#/$defs/HostPause"
+        },
+        {
+          "$ref": "#/$defs/HostResume"
+        },
+        {
+          "$ref": "#/$defs/HostKick"
+        },
+        {
+          "$ref": "#/$defs/HostDifficulty"
+        },
+        {
+          "$ref": "#/$defs/HostTtsToggle"
+        },
+        {
+          "$ref": "#/$defs/HostSave"
+        },
+        {
+          "$ref": "#/$defs/HostLoad"
+        },
+        {
+          "$ref": "#/$defs/HostNew"
+        },
+        {
+          "$ref": "#/$defs/HostEnd"
+        },
+        {
+          "$ref": "#/$defs/HostForceVote"
+        },
         {
           "$ref": "#/$defs/Ping"
         }
       ]
     },
     "types": [
-      "ping"
+      "answer_offer",
+      "cancel_hostile",
+      "chat",
+      "combat_command",
+      "confirm_hostile",
+      "create_character",
+      "equip",
+      "hello",
+      "host_difficulty",
+      "host_end",
+      "host_force_vote",
+      "host_kick",
+      "host_load",
+      "host_new",
+      "host_pause",
+      "host_resume",
+      "host_save",
+      "host_start",
+      "host_tts_toggle",
+      "level_up",
+      "ping",
+      "request_hit_chances",
+      "roll_abilities",
+      "shop_buy",
+      "shop_sell",
+      "submit_action",
+      "suggestion",
+      "unequip",
+      "vote"
     ]
   },
   "server": {
     "schema": {
       "$defs": {
-        "Pong": {
+        "Ability": {
+          "enum": [
+            "str",
+            "dex",
+            "con",
+            "int",
+            "wis",
+            "cha"
+          ],
+          "title": "Ability",
+          "type": "string"
+        },
+        "AbilityLine": {
+          "additionalProperties": false,
           "properties": {
+            "ability": {
+              "$ref": "#/$defs/Ability"
+            },
+            "modifier": {
+              "title": "Modifier",
+              "type": "integer"
+            },
+            "save_bonus": {
+              "title": "Save Bonus",
+              "type": "integer"
+            },
+            "save_proficient": {
+              "title": "Save Proficient",
+              "type": "boolean"
+            },
+            "score": {
+              "title": "Score",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "ability",
+            "score",
+            "modifier",
+            "save_bonus",
+            "save_proficient"
+          ],
+          "title": "AbilityLine",
+          "type": "object"
+        },
+        "AbilityRolls": {
+          "additionalProperties": false,
+          "properties": {
+            "rolls": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/Roll"
+              },
+              "title": "Rolls",
+              "type": "array"
+            },
             "type": {
-              "const": "pong",
+              "const": "ability_rolls",
+              "default": "ability_rolls",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "title": "AbilityRolls",
+          "type": "object"
+        },
+        "AdvState": {
+          "enum": [
+            "normal",
+            "advantage",
+            "disadvantage"
+          ],
+          "title": "AdvState",
+          "type": "string"
+        },
+        "AttackLine": {
+          "additionalProperties": false,
+          "properties": {
+            "ability": {
+              "$ref": "#/$defs/Ability"
+            },
+            "attack_bonus": {
+              "title": "Attack Bonus",
+              "type": "integer"
+            },
+            "damage": {
+              "title": "Damage",
+              "type": "string"
+            },
+            "damage_type": {
+              "$ref": "#/$defs/DamageType"
+            },
+            "hand": {
+              "enum": [
+                "main_hand",
+                "off_hand",
+                "ranged",
+                "unarmed"
+              ],
+              "title": "Hand",
+              "type": "string"
+            },
+            "hit_chance": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Hit Chance"
+            },
+            "item": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Item"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "range_band": {
+              "enum": [
+                "melee",
+                "ranged"
+              ],
+              "title": "Range Band",
+              "type": "string"
+            },
+            "range_long": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Range Long"
+            },
+            "range_normal": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Range Normal"
+            }
+          },
+          "required": [
+            "name",
+            "item",
+            "hand",
+            "ability",
+            "attack_bonus",
+            "damage",
+            "damage_type",
+            "range_band"
+          ],
+          "title": "AttackLine",
+          "type": "object"
+        },
+        "AttitudeBand": {
+          "enum": [
+            "hostile",
+            "unfriendly",
+            "indifferent",
+            "friendly",
+            "ally"
+          ],
+          "title": "AttitudeBand",
+          "type": "string"
+        },
+        "CharacterSheet": {
+          "additionalProperties": false,
+          "properties": {
+            "abilities": {
+              "items": {
+                "$ref": "#/$defs/AbilityLine"
+              },
+              "title": "Abilities",
+              "type": "array"
+            },
+            "ac": {
+              "title": "Ac",
+              "type": "integer"
+            },
+            "armor_proficiencies": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Armor Proficiencies",
+              "type": "array"
+            },
+            "attacks": {
+              "items": {
+                "$ref": "#/$defs/AttackLine"
+              },
+              "title": "Attacks",
+              "type": "array"
+            },
+            "attacks_per_action": {
+              "title": "Attacks Per Action",
+              "type": "integer"
+            },
+            "background": {
+              "title": "Background",
+              "type": "string"
+            },
+            "class_index": {
+              "title": "Class Index",
+              "type": "string"
+            },
+            "conditions": {
+              "items": {
+                "$ref": "#/$defs/ConditionLine"
+              },
+              "title": "Conditions",
+              "type": "array"
+            },
+            "death_saves": {
+              "$ref": "#/$defs/DeathSaveLine"
+            },
+            "features": {
+              "items": {
+                "$ref": "#/$defs/FeatureLine"
+              },
+              "title": "Features",
+              "type": "array"
+            },
+            "gold": {
+              "title": "Gold",
+              "type": "integer"
+            },
+            "hp": {
+              "title": "Hp",
+              "type": "integer"
+            },
+            "id": {
+              "title": "Id",
+              "type": "string"
+            },
+            "initiative_bonus": {
+              "title": "Initiative Bonus",
+              "type": "integer"
+            },
+            "initiative_die": {
+              "default": "1d4",
+              "title": "Initiative Die",
+              "type": "string"
+            },
+            "inventory": {
+              "items": {
+                "$ref": "#/$defs/InventoryLine"
+              },
+              "title": "Inventory",
+              "type": "array"
+            },
+            "languages": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Languages",
+              "type": "array"
+            },
+            "level": {
+              "title": "Level",
+              "type": "integer"
+            },
+            "max_hp": {
+              "title": "Max Hp",
+              "type": "integer"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "passive_perception": {
+              "title": "Passive Perception",
+              "type": "integer"
+            },
+            "proficiency_bonus": {
+              "title": "Proficiency Bonus",
+              "type": "integer"
+            },
+            "race": {
+              "title": "Race",
+              "type": "string"
+            },
+            "resistances": {
+              "items": {
+                "$ref": "#/$defs/DamageType"
+              },
+              "title": "Resistances",
+              "type": "array"
+            },
+            "resources": {
+              "items": {
+                "$ref": "#/$defs/ResourceLine"
+              },
+              "title": "Resources",
+              "type": "array"
+            },
+            "skills": {
+              "items": {
+                "$ref": "#/$defs/SkillLine"
+              },
+              "title": "Skills",
+              "type": "array"
+            },
+            "speed": {
+              "title": "Speed",
+              "type": "integer"
+            },
+            "spellcasting": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SpellcastingBlock"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "subclass": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Subclass"
+            },
+            "subrace": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Subrace"
+            },
+            "temp_hp": {
+              "title": "Temp Hp",
+              "type": "integer"
+            },
+            "tool_proficiencies": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Tool Proficiencies",
+              "type": "array"
+            },
+            "weapon_proficiencies": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Weapon Proficiencies",
+              "type": "array"
+            },
+            "xp": {
+              "title": "Xp",
+              "type": "integer"
+            },
+            "xp_next": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Xp Next"
+            }
+          },
+          "required": [
+            "id",
+            "name",
+            "race",
+            "subrace",
+            "class_index",
+            "subclass",
+            "level",
+            "background",
+            "xp",
+            "xp_next",
+            "abilities",
+            "skills",
+            "passive_perception",
+            "proficiency_bonus",
+            "ac",
+            "hp",
+            "temp_hp",
+            "max_hp",
+            "speed",
+            "initiative_bonus",
+            "attacks",
+            "attacks_per_action",
+            "spellcasting",
+            "features",
+            "resources",
+            "armor_proficiencies",
+            "weapon_proficiencies",
+            "tool_proficiencies",
+            "languages",
+            "resistances",
+            "inventory",
+            "gold",
+            "conditions",
+            "death_saves"
+          ],
+          "title": "CharacterSheet",
+          "type": "object"
+        },
+        "ChatRelay": {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "player_id": {
+              "title": "Player Id",
+              "type": "string"
+            },
+            "text": {
+              "title": "Text",
+              "type": "string"
+            },
+            "type": {
+              "const": "chat",
+              "default": "chat",
               "title": "Type",
               "type": "string"
             }
           },
           "required": [
-            "type"
+            "player_id",
+            "name",
+            "text"
           ],
+          "title": "ChatRelay",
+          "type": "object"
+        },
+        "CombatState": {
+          "additionalProperties": false,
+          "properties": {
+            "combat": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/PublicCombat"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "type": {
+              "const": "combat_state",
+              "default": "combat_state",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "title": "CombatState",
+          "type": "object"
+        },
+        "CombatToken": {
+          "additionalProperties": false,
+          "properties": {
+            "conditions": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Conditions",
+              "type": "array"
+            },
+            "creature_id": {
+              "title": "Creature Id",
+              "type": "string"
+            },
+            "dead": {
+              "default": false,
+              "title": "Dead",
+              "type": "boolean"
+            },
+            "hp": {
+              "title": "Hp",
+              "type": "integer"
+            },
+            "max_hp": {
+              "title": "Max Hp",
+              "type": "integer"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "side": {
+              "$ref": "#/$defs/Side"
+            },
+            "withdrawn": {
+              "default": false,
+              "title": "Withdrawn",
+              "type": "boolean"
+            },
+            "zone_id": {
+              "title": "Zone Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "creature_id",
+            "name",
+            "side",
+            "zone_id",
+            "hp",
+            "max_hp"
+          ],
+          "title": "CombatToken",
+          "type": "object"
+        },
+        "ConditionLine": {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "rounds_left": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Rounds Left"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "title": "ConditionLine",
+          "type": "object"
+        },
+        "CoverLevel": {
+          "enum": [
+            "none",
+            "half",
+            "three_quarters"
+          ],
+          "title": "CoverLevel",
+          "type": "string"
+        },
+        "CreationError": {
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "$ref": "#/$defs/CreationErrorCode"
+            },
+            "detail": {
+              "title": "Detail",
+              "type": "string"
+            },
+            "field": {
+              "title": "Field",
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "field",
+            "detail"
+          ],
+          "title": "CreationError",
+          "type": "object"
+        },
+        "CreationErrorCode": {
+          "enum": [
+            "unknown_race",
+            "unknown_subrace",
+            "subrace_required",
+            "unknown_class",
+            "unknown_background",
+            "ability_missing",
+            "score_out_of_range",
+            "point_buy_overspend",
+            "standard_array_mismatch",
+            "rolls_invalid",
+            "roll_assignment_mismatch",
+            "pick_count",
+            "pick_not_allowed",
+            "pick_duplicate",
+            "equipment_missing",
+            "equipment_invalid",
+            "prepared_over_limit",
+            "name_invalid",
+            "text_too_long",
+            "not_a_pc",
+            "cannot_level_now",
+            "max_level_reached",
+            "not_enough_xp",
+            "subclass_invalid",
+            "asi_invalid",
+            "replacement_invalid",
+            "import_invalid"
+          ],
+          "title": "CreationErrorCode",
+          "type": "string"
+        },
+        "CreationResult": {
+          "additionalProperties": false,
+          "properties": {
+            "errors": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/CreationError"
+              },
+              "title": "Errors",
+              "type": "array"
+            },
+            "ok": {
+              "title": "Ok",
+              "type": "boolean"
+            },
+            "sheet": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/CharacterSheet"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "type": {
+              "const": "creation_result",
+              "default": "creation_result",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "ok"
+          ],
+          "title": "CreationResult",
+          "type": "object"
+        },
+        "DamageType": {
+          "enum": [
+            "acid",
+            "bludgeoning",
+            "cold",
+            "fire",
+            "force",
+            "lightning",
+            "necrotic",
+            "piercing",
+            "poison",
+            "psychic",
+            "radiant",
+            "slashing",
+            "thunder"
+          ],
+          "title": "DamageType",
+          "type": "string"
+        },
+        "DeathSaveLine": {
+          "additionalProperties": false,
+          "properties": {
+            "dead": {
+              "title": "Dead",
+              "type": "boolean"
+            },
+            "failures": {
+              "title": "Failures",
+              "type": "integer"
+            },
+            "stable": {
+              "title": "Stable",
+              "type": "boolean"
+            },
+            "successes": {
+              "title": "Successes",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "successes",
+            "failures",
+            "stable",
+            "dead"
+          ],
+          "title": "DeathSaveLine",
+          "type": "object"
+        },
+        "DiceRoll": {
+          "additionalProperties": false,
+          "properties": {
+            "dice": {
+              "$ref": "#/$defs/DiceView"
+            },
+            "seq": {
+              "minimum": 0,
+              "title": "Seq",
+              "type": "integer"
+            },
+            "type": {
+              "const": "dice_roll",
+              "default": "dice_roll",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "seq",
+            "dice"
+          ],
+          "title": "DiceRoll",
+          "type": "object"
+        },
+        "DiceView": {
+          "additionalProperties": false,
+          "properties": {
+            "adv": {
+              "$ref": "#/$defs/AdvState",
+              "default": "normal"
+            },
+            "crit": {
+              "default": false,
+              "title": "Crit",
+              "type": "boolean"
+            },
+            "expression": {
+              "default": "1d20",
+              "title": "Expression",
+              "type": "string"
+            },
+            "label": {
+              "default": "",
+              "title": "Label",
+              "type": "string"
+            },
+            "modifier": {
+              "default": 0,
+              "title": "Modifier",
+              "type": "integer"
+            },
+            "roller_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Roller Id"
+            },
+            "rolls": {
+              "default": [],
+              "items": {
+                "type": "integer"
+              },
+              "title": "Rolls",
+              "type": "array"
+            },
+            "success": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Success"
+            },
+            "target": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "DC or AC when the roll is a test",
+              "title": "Target"
+            },
+            "total": {
+              "default": 0,
+              "title": "Total",
+              "type": "integer"
+            }
+          },
+          "title": "DiceView",
+          "type": "object"
+        },
+        "DieRoll": {
+          "properties": {
+            "kept": {
+              "default": true,
+              "title": "Kept",
+              "type": "boolean"
+            },
+            "sides": {
+              "minimum": 2,
+              "title": "Sides",
+              "type": "integer"
+            },
+            "value": {
+              "minimum": 1,
+              "title": "Value",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "sides",
+            "value"
+          ],
+          "title": "DieRoll",
+          "type": "object"
+        },
+        "EncounterOfferMsg": {
+          "additionalProperties": false,
+          "properties": {
+            "offer": {
+              "$ref": "#/$defs/PublicOffer"
+            },
+            "type": {
+              "const": "encounter_offer",
+              "default": "encounter_offer",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "offer"
+          ],
+          "title": "EncounterOfferMsg",
+          "type": "object"
+        },
+        "EpilogueMsg": {
+          "additionalProperties": false,
+          "properties": {
+            "text": {
+              "title": "Text",
+              "type": "string"
+            },
+            "type": {
+              "const": "epilogue",
+              "default": "epilogue",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ],
+          "title": "EpilogueMsg",
+          "type": "object"
+        },
+        "ErrorCode": {
+          "enum": [
+            "not_joined",
+            "not_host",
+            "wrong_phase",
+            "no_character",
+            "not_your_turn",
+            "already_queued",
+            "refused",
+            "invalid",
+            "unknown_target",
+            "no_vote",
+            "paused"
+          ],
+          "title": "ErrorCode",
+          "type": "string"
+        },
+        "ErrorMsg": {
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "$ref": "#/$defs/ErrorCode"
+            },
+            "text": {
+              "title": "Text",
+              "type": "string"
+            },
+            "type": {
+              "const": "error",
+              "default": "error",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "text"
+          ],
+          "title": "ErrorMsg",
+          "type": "object"
+        },
+        "EventMsg": {
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "title": "Kind",
+              "type": "string"
+            },
+            "line": {
+              "default": "",
+              "title": "Line",
+              "type": "string"
+            },
+            "seq": {
+              "minimum": 0,
+              "title": "Seq",
+              "type": "integer"
+            },
+            "type": {
+              "const": "event",
+              "default": "event",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "seq",
+            "kind"
+          ],
+          "title": "EventMsg",
+          "type": "object"
+        },
+        "FeatureLine": {
+          "additionalProperties": false,
+          "properties": {
+            "index": {
+              "title": "Index",
+              "type": "string"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "source": {
+              "enum": [
+                "class",
+                "race"
+              ],
+              "title": "Source",
+              "type": "string"
+            },
+            "summary": {
+              "title": "Summary",
+              "type": "string"
+            }
+          },
+          "required": [
+            "index",
+            "name",
+            "summary",
+            "source"
+          ],
+          "title": "FeatureLine",
+          "type": "object"
+        },
+        "HitChance": {
+          "additionalProperties": false,
+          "properties": {
+            "adv": {
+              "$ref": "#/$defs/AdvState"
+            },
+            "attack_bonus": {
+              "title": "Attack Bonus",
+              "type": "integer"
+            },
+            "bonus_dice": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Bonus Dice",
+              "type": "array"
+            },
+            "crit_chance": {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Crit Chance",
+              "type": "number"
+            },
+            "in_range": {
+              "default": true,
+              "title": "In Range",
+              "type": "boolean"
+            },
+            "long_range": {
+              "default": false,
+              "title": "Long Range",
+              "type": "boolean"
+            },
+            "option": {
+              "title": "Option",
+              "type": "string"
+            },
+            "probability": {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Probability",
+              "type": "number"
+            },
+            "target_ac": {
+              "title": "Target Ac",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "option",
+            "probability",
+            "crit_chance",
+            "adv",
+            "target_ac",
+            "attack_bonus"
+          ],
+          "title": "HitChance",
+          "type": "object"
+        },
+        "HitChances": {
+          "additionalProperties": false,
+          "properties": {
+            "attacker_id": {
+              "title": "Attacker Id",
+              "type": "string"
+            },
+            "chances": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/HitChance"
+              },
+              "title": "Chances",
+              "type": "array"
+            },
+            "target_id": {
+              "title": "Target Id",
+              "type": "string"
+            },
+            "type": {
+              "const": "hit_chances",
+              "default": "hit_chances",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "attacker_id",
+            "target_id"
+          ],
+          "title": "HitChances",
+          "type": "object"
+        },
+        "HostStats": {
+          "additionalProperties": false,
+          "properties": {
+            "calls": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Calls",
+              "type": "integer"
+            },
+            "completion_tokens": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Completion Tokens",
+              "type": "integer"
+            },
+            "prompt_tokens": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Prompt Tokens",
+              "type": "integer"
+            },
+            "type": {
+              "const": "host_stats",
+              "default": "host_stats",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "title": "HostStats",
+          "type": "object"
+        },
+        "InventoryLine": {
+          "additionalProperties": false,
+          "properties": {
+            "equipped_slot": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Equipped Slot"
+            },
+            "item": {
+              "title": "Item",
+              "type": "string"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "qty": {
+              "title": "Qty",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "item",
+            "name",
+            "qty"
+          ],
+          "title": "InventoryLine",
+          "type": "object"
+        },
+        "LevelUpAvailable": {
+          "additionalProperties": false,
+          "properties": {
+            "creature_id": {
+              "title": "Creature Id",
+              "type": "string"
+            },
+            "level": {
+              "maximum": 20,
+              "minimum": 2,
+              "title": "Level",
+              "type": "integer"
+            },
+            "type": {
+              "const": "level_up_available",
+              "default": "level_up_available",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "creature_id",
+            "level"
+          ],
+          "title": "LevelUpAvailable",
+          "type": "object"
+        },
+        "LobbyRoster": {
+          "additionalProperties": false,
+          "properties": {
+            "players": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/PlayerInfo"
+              },
+              "title": "Players",
+              "type": "array"
+            },
+            "type": {
+              "const": "lobby_roster",
+              "default": "lobby_roster",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "title": "LobbyRoster",
+          "type": "object"
+        },
+        "MapNode": {
+          "additionalProperties": false,
+          "properties": {
+            "current": {
+              "default": false,
+              "title": "Current",
+              "type": "boolean"
+            },
+            "id": {
+              "title": "Id",
+              "type": "string"
+            },
+            "locked": {
+              "default": false,
+              "title": "Locked",
+              "type": "boolean"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "visited": {
+              "default": false,
+              "title": "Visited",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "id",
+            "name"
+          ],
+          "title": "MapNode",
+          "type": "object"
+        },
+        "NarrationChunkMsg": {
+          "additionalProperties": false,
+          "properties": {
+            "audio_url": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Audio Url"
+            },
+            "id": {
+              "title": "Id",
+              "type": "string"
+            },
+            "index": {
+              "minimum": 0,
+              "title": "Index",
+              "type": "integer"
+            },
+            "text": {
+              "title": "Text",
+              "type": "string"
+            },
+            "tone": {
+              "$ref": "#/$defs/NarrationTone",
+              "default": "exploration"
+            },
+            "type": {
+              "const": "narration_chunk",
+              "default": "narration_chunk",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "index",
+            "text"
+          ],
+          "title": "NarrationChunkMsg",
+          "type": "object"
+        },
+        "NarrationDone": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "title": "Id",
+              "type": "string"
+            },
+            "type": {
+              "const": "narration_done",
+              "default": "narration_done",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "title": "NarrationDone",
+          "type": "object"
+        },
+        "NarrationTone": {
+          "enum": [
+            "combat",
+            "social",
+            "exploration"
+          ],
+          "title": "NarrationTone",
+          "type": "string"
+        },
+        "Notice": {
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "$ref": "#/$defs/NoticeKind",
+              "default": "info"
+            },
+            "text": {
+              "title": "Text",
+              "type": "string"
+            },
+            "type": {
+              "const": "notice",
+              "default": "notice",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ],
+          "title": "Notice",
+          "type": "object"
+        },
+        "NoticeKind": {
+          "enum": [
+            "info",
+            "progress",
+            "fallback",
+            "refused",
+            "host"
+          ],
+          "title": "NoticeKind",
+          "type": "string"
+        },
+        "OfferChoice": {
+          "enum": [
+            "fight",
+            "surprise",
+            "escape",
+            "parley"
+          ],
+          "title": "OfferChoice",
+          "type": "string"
+        },
+        "PendingConfirmationMsg": {
+          "additionalProperties": false,
+          "properties": {
+            "player_id": {
+              "title": "Player Id",
+              "type": "string"
+            },
+            "prompt": {
+              "title": "Prompt",
+              "type": "string"
+            },
+            "type": {
+              "const": "pending_confirmation",
+              "default": "pending_confirmation",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "player_id",
+            "prompt"
+          ],
+          "title": "PendingConfirmationMsg",
+          "type": "object"
+        },
+        "PlayerInfo": {
+          "additionalProperties": false,
+          "properties": {
+            "connected": {
+              "default": true,
+              "title": "Connected",
+              "type": "boolean"
+            },
+            "creature_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Creature Id"
+            },
+            "id": {
+              "title": "Id",
+              "type": "string"
+            },
+            "is_host": {
+              "default": false,
+              "title": "Is Host",
+              "type": "boolean"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "name"
+          ],
+          "title": "PlayerInfo",
+          "type": "object"
+        },
+        "Pong": {
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "pong",
+              "default": "pong",
+              "title": "Type",
+              "type": "string"
+            }
+          },
           "title": "Pong",
+          "type": "object"
+        },
+        "PublicCombat": {
+          "additionalProperties": false,
+          "properties": {
+            "active_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Active Id"
+            },
+            "economy": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/TurnEconomy"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "edges": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/ZoneEdge"
+              },
+              "title": "Edges",
+              "type": "array"
+            },
+            "encounter_id": {
+              "title": "Encounter Id",
+              "type": "string"
+            },
+            "initiative": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Initiative",
+              "type": "array"
+            },
+            "round": {
+              "title": "Round",
+              "type": "integer"
+            },
+            "tokens": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/CombatToken"
+              },
+              "title": "Tokens",
+              "type": "array"
+            },
+            "zones": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/Zone"
+              },
+              "title": "Zones",
+              "type": "array"
+            }
+          },
+          "required": [
+            "encounter_id",
+            "round"
+          ],
+          "title": "PublicCombat",
+          "type": "object"
+        },
+        "PublicCreature": {
+          "additionalProperties": false,
+          "properties": {
+            "ac": {
+              "default": 10,
+              "title": "Ac",
+              "type": "integer"
+            },
+            "class_index": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Class Index"
+            },
+            "conditions": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Conditions",
+              "type": "array"
+            },
+            "dead": {
+              "default": false,
+              "title": "Dead",
+              "type": "boolean"
+            },
+            "dying": {
+              "default": false,
+              "title": "Dying",
+              "type": "boolean"
+            },
+            "gold": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Gold"
+            },
+            "hp": {
+              "title": "Hp",
+              "type": "integer"
+            },
+            "id": {
+              "title": "Id",
+              "type": "string"
+            },
+            "kind": {
+              "title": "Kind",
+              "type": "string"
+            },
+            "level": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Level"
+            },
+            "max_hp": {
+              "title": "Max Hp",
+              "type": "integer"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "portrait_id": {
+              "default": "",
+              "title": "Portrait Id",
+              "type": "string"
+            },
+            "race": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Race"
+            },
+            "temp_hp": {
+              "default": 0,
+              "title": "Temp Hp",
+              "type": "integer"
+            },
+            "xp": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Xp"
+            }
+          },
+          "required": [
+            "id",
+            "name",
+            "kind",
+            "hp",
+            "max_hp"
+          ],
+          "title": "PublicCreature",
+          "type": "object"
+        },
+        "PublicExit": {
+          "additionalProperties": false,
+          "properties": {
+            "locked": {
+              "default": false,
+              "title": "Locked",
+              "type": "boolean"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "node_id": {
+              "title": "Node Id",
+              "type": "string"
+            },
+            "visited": {
+              "default": false,
+              "title": "Visited",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "node_id",
+            "name"
+          ],
+          "title": "PublicExit",
+          "type": "object"
+        },
+        "PublicFeature": {
+          "additionalProperties": false,
+          "properties": {
+            "description": {
+              "default": "",
+              "title": "Description",
+              "type": "string"
+            },
+            "id": {
+              "title": "Id",
+              "type": "string"
+            },
+            "kind": {
+              "title": "Kind",
+              "type": "string"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "kind",
+            "name"
+          ],
+          "title": "PublicFeature",
+          "type": "object"
+        },
+        "PublicMap": {
+          "additionalProperties": false,
+          "properties": {
+            "edges": {
+              "default": [],
+              "items": {
+                "maxItems": 2,
+                "minItems": 2,
+                "prefixItems": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ],
+                "type": "array"
+              },
+              "title": "Edges",
+              "type": "array"
+            },
+            "nodes": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/MapNode"
+              },
+              "title": "Nodes",
+              "type": "array"
+            }
+          },
+          "title": "PublicMap",
+          "type": "object"
+        },
+        "PublicNpcView": {
+          "additionalProperties": false,
+          "description": "What a client may see of an NPC: never the motive or an unrevealed secret (SPEC 9).",
+          "properties": {
+            "attitude": {
+              "$ref": "#/$defs/AttitudeBand"
+            },
+            "demeanor": {
+              "default": "",
+              "title": "Demeanor",
+              "type": "string"
+            },
+            "hostile": {
+              "default": false,
+              "title": "Hostile",
+              "type": "boolean"
+            },
+            "id": {
+              "title": "Id",
+              "type": "string"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "node_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Node Id"
+            },
+            "revealed_secrets": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Revealed Secrets",
+              "type": "array"
+            },
+            "role": {
+              "default": "",
+              "title": "Role",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "name",
+            "attitude"
+          ],
+          "title": "PublicNpcView",
+          "type": "object"
+        },
+        "PublicOffer": {
+          "additionalProperties": false,
+          "properties": {
+            "boss_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Boss Name"
+            },
+            "difficulty": {
+              "default": "",
+              "title": "Difficulty",
+              "type": "string"
+            },
+            "foes": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Foes",
+              "type": "array"
+            },
+            "id": {
+              "title": "Id",
+              "type": "string"
+            },
+            "node_id": {
+              "title": "Node Id",
+              "type": "string"
+            },
+            "options": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/OfferChoice"
+              },
+              "title": "Options",
+              "type": "array"
+            }
+          },
+          "required": [
+            "id",
+            "node_id"
+          ],
+          "title": "PublicOffer",
+          "type": "object"
+        },
+        "PublicQuest": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "title": "Id",
+              "type": "string"
+            },
+            "state": {
+              "title": "State",
+              "type": "string"
+            },
+            "title": {
+              "title": "Title",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "title",
+            "state"
+          ],
+          "title": "PublicQuest",
+          "type": "object"
+        },
+        "PublicScene": {
+          "additionalProperties": false,
+          "properties": {
+            "description": {
+              "default": "",
+              "title": "Description",
+              "type": "string"
+            },
+            "exits": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/PublicExit"
+              },
+              "title": "Exits",
+              "type": "array"
+            },
+            "features": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/PublicFeature"
+              },
+              "title": "Features",
+              "type": "array"
+            },
+            "items": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Items",
+              "type": "array"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "node_id": {
+              "title": "Node Id",
+              "type": "string"
+            },
+            "npcs": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/PublicNpcView"
+              },
+              "title": "Npcs",
+              "type": "array"
+            },
+            "shop_npc_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Shop Npc Id"
+            }
+          },
+          "required": [
+            "node_id",
+            "name"
+          ],
+          "title": "PublicScene",
+          "type": "object"
+        },
+        "PublicState": {
+          "additionalProperties": false,
+          "properties": {
+            "camp_supplies": {
+              "default": 0,
+              "title": "Camp Supplies",
+              "type": "integer"
+            },
+            "campaign_id": {
+              "title": "Campaign Id",
+              "type": "string"
+            },
+            "campaign_title": {
+              "default": "",
+              "title": "Campaign Title",
+              "type": "string"
+            },
+            "combat": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/PublicCombat"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "complete": {
+              "default": false,
+              "title": "Complete",
+              "type": "boolean"
+            },
+            "epilogue": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Epilogue"
+            },
+            "facts": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Facts",
+              "type": "array"
+            },
+            "map": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/PublicMap"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "offer": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/PublicOffer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "party": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/PublicCreature"
+              },
+              "title": "Party",
+              "type": "array"
+            },
+            "paused": {
+              "default": false,
+              "title": "Paused",
+              "type": "boolean"
+            },
+            "phase": {
+              "$ref": "#/$defs/TablePhase",
+              "default": "lobby"
+            },
+            "players": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/PlayerInfo"
+              },
+              "title": "Players",
+              "type": "array"
+            },
+            "quests": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/PublicQuest"
+              },
+              "title": "Quests",
+              "type": "array"
+            },
+            "queue": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/QueueEntry"
+              },
+              "title": "Queue",
+              "type": "array"
+            },
+            "region_tier": {
+              "default": 1,
+              "title": "Region Tier",
+              "type": "integer"
+            },
+            "resolving": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/QueueEntry"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "scene": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/PublicScene"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "vote": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/VoteView"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": [
+            "campaign_id"
+          ],
+          "title": "PublicState",
+          "type": "object"
+        },
+        "QueueEntry": {
+          "additionalProperties": false,
+          "properties": {
+            "creature_id": {
+              "title": "Creature Id",
+              "type": "string"
+            },
+            "player_id": {
+              "title": "Player Id",
+              "type": "string"
+            },
+            "text": {
+              "title": "Text",
+              "type": "string"
+            }
+          },
+          "required": [
+            "player_id",
+            "creature_id",
+            "text"
+          ],
+          "title": "QueueEntry",
+          "type": "object"
+        },
+        "QueueState": {
+          "additionalProperties": false,
+          "properties": {
+            "entries": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/QueueEntry"
+              },
+              "title": "Entries",
+              "type": "array"
+            },
+            "resolving": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/QueueEntry"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "type": {
+              "const": "queue_state",
+              "default": "queue_state",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "title": "QueueState",
+          "type": "object"
+        },
+        "Resolving": {
+          "additionalProperties": false,
+          "properties": {
+            "entry": {
+              "$ref": "#/$defs/QueueEntry"
+            },
+            "type": {
+              "const": "resolving",
+              "default": "resolving",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "entry"
+          ],
+          "title": "Resolving",
+          "type": "object"
+        },
+        "ResourceLine": {
+          "additionalProperties": false,
+          "properties": {
+            "current": {
+              "title": "Current",
+              "type": "integer"
+            },
+            "key": {
+              "title": "Key",
+              "type": "string"
+            },
+            "maximum": {
+              "title": "Maximum",
+              "type": "integer"
+            },
+            "recharge": {
+              "title": "Recharge",
+              "type": "string"
+            }
+          },
+          "required": [
+            "key",
+            "current",
+            "maximum",
+            "recharge"
+          ],
+          "title": "ResourceLine",
+          "type": "object"
+        },
+        "Roll": {
+          "properties": {
+            "dice": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/DieRoll"
+              },
+              "title": "Dice",
+              "type": "array"
+            },
+            "expression": {
+              "title": "Expression",
+              "type": "string"
+            },
+            "modifier": {
+              "default": 0,
+              "title": "Modifier",
+              "type": "integer"
+            },
+            "total": {
+              "title": "Total",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "expression",
+            "total"
+          ],
+          "title": "Roll",
+          "type": "object"
+        },
+        "ShopStock": {
+          "additionalProperties": false,
+          "properties": {
+            "npc_id": {
+              "title": "Npc Id",
+              "type": "string"
+            },
+            "npc_name": {
+              "default": "",
+              "title": "Npc Name",
+              "type": "string"
+            },
+            "stock": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/StockLine"
+              },
+              "title": "Stock",
+              "type": "array"
+            },
+            "type": {
+              "const": "shop_stock",
+              "default": "shop_stock",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "npc_id"
+          ],
+          "title": "ShopStock",
+          "type": "object"
+        },
+        "Side": {
+          "enum": [
+            "party",
+            "hostile",
+            "neutral"
+          ],
+          "title": "Side",
+          "type": "string"
+        },
+        "Skill": {
+          "enum": [
+            "acrobatics",
+            "animal-handling",
+            "arcana",
+            "athletics",
+            "deception",
+            "history",
+            "insight",
+            "intimidation",
+            "investigation",
+            "medicine",
+            "nature",
+            "perception",
+            "performance",
+            "persuasion",
+            "religion",
+            "sleight-of-hand",
+            "stealth",
+            "survival"
+          ],
+          "title": "Skill",
+          "type": "string"
+        },
+        "SkillLine": {
+          "additionalProperties": false,
+          "properties": {
+            "ability": {
+              "$ref": "#/$defs/Ability"
+            },
+            "bonus": {
+              "title": "Bonus",
+              "type": "integer"
+            },
+            "expertise": {
+              "title": "Expertise",
+              "type": "boolean"
+            },
+            "proficient": {
+              "title": "Proficient",
+              "type": "boolean"
+            },
+            "skill": {
+              "$ref": "#/$defs/Skill"
+            }
+          },
+          "required": [
+            "skill",
+            "ability",
+            "bonus",
+            "proficient",
+            "expertise"
+          ],
+          "title": "SkillLine",
+          "type": "object"
+        },
+        "SlotLine": {
+          "additionalProperties": false,
+          "properties": {
+            "current": {
+              "title": "Current",
+              "type": "integer"
+            },
+            "kind": {
+              "enum": [
+                "standard",
+                "pact"
+              ],
+              "title": "Kind",
+              "type": "string"
+            },
+            "maximum": {
+              "title": "Maximum",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "kind",
+            "current",
+            "maximum"
+          ],
+          "title": "SlotLine",
+          "type": "object"
+        },
+        "Snapshot": {
+          "additionalProperties": false,
+          "properties": {
+            "seq": {
+              "minimum": 0,
+              "title": "Seq",
+              "type": "integer"
+            },
+            "state": {
+              "$ref": "#/$defs/PublicState"
+            },
+            "type": {
+              "const": "snapshot",
+              "default": "snapshot",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "seq",
+            "state"
+          ],
+          "title": "Snapshot",
+          "type": "object"
+        },
+        "SpellLevelGroup": {
+          "additionalProperties": false,
+          "properties": {
+            "level": {
+              "title": "Level",
+              "type": "integer"
+            },
+            "slots": {
+              "items": {
+                "$ref": "#/$defs/SlotLine"
+              },
+              "title": "Slots",
+              "type": "array"
+            },
+            "spells": {
+              "items": {
+                "$ref": "#/$defs/SpellLine"
+              },
+              "title": "Spells",
+              "type": "array"
+            }
+          },
+          "required": [
+            "level",
+            "slots",
+            "spells"
+          ],
+          "title": "SpellLevelGroup",
+          "type": "object"
+        },
+        "SpellLine": {
+          "additionalProperties": false,
+          "properties": {
+            "always_prepared": {
+              "default": false,
+              "title": "Always Prepared",
+              "type": "boolean"
+            },
+            "index": {
+              "title": "Index",
+              "type": "string"
+            },
+            "level": {
+              "title": "Level",
+              "type": "integer"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "prepared": {
+              "title": "Prepared",
+              "type": "boolean"
+            },
+            "resource": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Resource"
+            },
+            "source": {
+              "default": "class",
+              "enum": [
+                "class",
+                "race",
+                "feature"
+              ],
+              "title": "Source",
+              "type": "string"
+            }
+          },
+          "required": [
+            "index",
+            "name",
+            "level",
+            "prepared"
+          ],
+          "title": "SpellLine",
+          "type": "object"
+        },
+        "SpellcastingBlock": {
+          "additionalProperties": false,
+          "properties": {
+            "ability": {
+              "$ref": "#/$defs/Ability"
+            },
+            "attack_bonus": {
+              "title": "Attack Bonus",
+              "type": "integer"
+            },
+            "cantrips": {
+              "items": {
+                "$ref": "#/$defs/SpellLine"
+              },
+              "title": "Cantrips",
+              "type": "array"
+            },
+            "levels": {
+              "items": {
+                "$ref": "#/$defs/SpellLevelGroup"
+              },
+              "title": "Levels",
+              "type": "array"
+            },
+            "prepared_limit": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Prepared Limit"
+            },
+            "save_dc": {
+              "title": "Save Dc",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "ability",
+            "save_dc",
+            "attack_bonus",
+            "prepared_limit",
+            "cantrips",
+            "levels"
+          ],
+          "title": "SpellcastingBlock",
+          "type": "object"
+        },
+        "StockLine": {
+          "additionalProperties": false,
+          "properties": {
+            "item_id": {
+              "title": "Item Id",
+              "type": "string"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "price_gp": {
+              "minimum": 0,
+              "title": "Price Gp",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "item_id",
+            "name",
+            "price_gp"
+          ],
+          "title": "StockLine",
+          "type": "object"
+        },
+        "SuggestionRelay": {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "player_id": {
+              "title": "Player Id",
+              "type": "string"
+            },
+            "text": {
+              "title": "Text",
+              "type": "string"
+            },
+            "type": {
+              "const": "suggestion",
+              "default": "suggestion",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "player_id",
+            "name",
+            "text"
+          ],
+          "title": "SuggestionRelay",
+          "type": "object"
+        },
+        "TablePhase": {
+          "enum": [
+            "lobby",
+            "generating",
+            "play",
+            "ended"
+          ],
+          "title": "TablePhase",
+          "type": "string"
+        },
+        "TurnEconomy": {
+          "additionalProperties": false,
+          "properties": {
+            "action": {
+              "default": false,
+              "title": "Action",
+              "type": "boolean"
+            },
+            "attacks_left": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Attacks Left",
+              "type": "integer"
+            },
+            "bonus_action": {
+              "default": false,
+              "title": "Bonus Action",
+              "type": "boolean"
+            },
+            "dashed": {
+              "default": false,
+              "title": "Dashed",
+              "type": "boolean"
+            },
+            "disengaged": {
+              "default": false,
+              "title": "Disengaged",
+              "type": "boolean"
+            },
+            "movement_left": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Movement Left",
+              "type": "integer"
+            },
+            "once_per_turn_used": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Once Per Turn Used",
+              "type": "array"
+            },
+            "reaction": {
+              "default": true,
+              "title": "Reaction",
+              "type": "boolean"
+            }
+          },
+          "title": "TurnEconomy",
+          "type": "object"
+        },
+        "TurnPrompt": {
+          "additionalProperties": false,
+          "properties": {
+            "creature_id": {
+              "title": "Creature Id",
+              "type": "string"
+            },
+            "player_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Player Id"
+            },
+            "seconds": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Seconds"
+            },
+            "type": {
+              "const": "turn_prompt",
+              "default": "turn_prompt",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "creature_id"
+          ],
+          "title": "TurnPrompt",
+          "type": "object"
+        },
+        "VoteClosed": {
+          "additionalProperties": false,
+          "properties": {
+            "passed": {
+              "title": "Passed",
+              "type": "boolean"
+            },
+            "reason": {
+              "default": "",
+              "title": "Reason",
+              "type": "string"
+            },
+            "type": {
+              "const": "vote_closed",
+              "default": "vote_closed",
+              "title": "Type",
+              "type": "string"
+            },
+            "vote_id": {
+              "title": "Vote Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "vote_id",
+            "passed"
+          ],
+          "title": "VoteClosed",
+          "type": "object"
+        },
+        "VoteKind": {
+          "enum": [
+            "travel",
+            "short_rest",
+            "long_rest",
+            "shop"
+          ],
+          "title": "VoteKind",
+          "type": "string"
+        },
+        "VoteOpen": {
+          "additionalProperties": false,
+          "properties": {
+            "detail": {
+              "default": "",
+              "title": "Detail",
+              "type": "string"
+            },
+            "kind": {
+              "$ref": "#/$defs/VoteKind"
+            },
+            "proposer_id": {
+              "title": "Proposer Id",
+              "type": "string"
+            },
+            "seconds": {
+              "minimum": 0,
+              "title": "Seconds",
+              "type": "number"
+            },
+            "type": {
+              "const": "vote_open",
+              "default": "vote_open",
+              "title": "Type",
+              "type": "string"
+            },
+            "vote_id": {
+              "title": "Vote Id",
+              "type": "string"
+            },
+            "voters": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Voters",
+              "type": "array"
+            }
+          },
+          "required": [
+            "vote_id",
+            "kind",
+            "proposer_id",
+            "seconds"
+          ],
+          "title": "VoteOpen",
+          "type": "object"
+        },
+        "VoteUpdate": {
+          "additionalProperties": false,
+          "properties": {
+            "declined": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Declined",
+              "type": "array"
+            },
+            "ready": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Ready",
+              "type": "array"
+            },
+            "type": {
+              "const": "vote_update",
+              "default": "vote_update",
+              "title": "Type",
+              "type": "string"
+            },
+            "vote_id": {
+              "title": "Vote Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "vote_id"
+          ],
+          "title": "VoteUpdate",
+          "type": "object"
+        },
+        "VoteView": {
+          "additionalProperties": false,
+          "properties": {
+            "declined": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Declined",
+              "type": "array"
+            },
+            "detail": {
+              "default": "",
+              "title": "Detail",
+              "type": "string"
+            },
+            "kind": {
+              "$ref": "#/$defs/VoteKind"
+            },
+            "proposer_id": {
+              "title": "Proposer Id",
+              "type": "string"
+            },
+            "ready": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Ready",
+              "type": "array"
+            },
+            "seconds": {
+              "default": 0.0,
+              "title": "Seconds",
+              "type": "number"
+            },
+            "vote_id": {
+              "title": "Vote Id",
+              "type": "string"
+            },
+            "voters": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Voters",
+              "type": "array"
+            }
+          },
+          "required": [
+            "vote_id",
+            "kind",
+            "proposer_id"
+          ],
+          "title": "VoteView",
+          "type": "object"
+        },
+        "Welcome": {
+          "additionalProperties": false,
+          "properties": {
+            "is_host": {
+              "default": false,
+              "title": "Is Host",
+              "type": "boolean"
+            },
+            "player_id": {
+              "title": "Player Id",
+              "type": "string"
+            },
+            "token": {
+              "title": "Token",
+              "type": "string"
+            },
+            "type": {
+              "const": "welcome",
+              "default": "welcome",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "player_id",
+            "token"
+          ],
+          "title": "Welcome",
+          "type": "object"
+        },
+        "Zone": {
+          "additionalProperties": false,
+          "properties": {
+            "cover": {
+              "$ref": "#/$defs/CoverLevel",
+              "default": "none"
+            },
+            "difficult": {
+              "default": false,
+              "title": "Difficult",
+              "type": "boolean"
+            },
+            "distance_label": {
+              "default": "",
+              "title": "Distance Label",
+              "type": "string"
+            },
+            "high_ground": {
+              "default": false,
+              "title": "High Ground",
+              "type": "boolean"
+            },
+            "id": {
+              "minLength": 1,
+              "title": "Id",
+              "type": "string"
+            },
+            "name": {
+              "minLength": 1,
+              "title": "Name",
+              "type": "string"
+            },
+            "surfaces": {
+              "items": {
+                "$ref": "#/$defs/ZoneSurface"
+              },
+              "title": "Surfaces",
+              "type": "array"
+            },
+            "tags": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Tags",
+              "type": "array"
+            }
+          },
+          "required": [
+            "id",
+            "name"
+          ],
+          "title": "Zone",
+          "type": "object"
+        },
+        "ZoneEdge": {
+          "additionalProperties": false,
+          "properties": {
+            "a": {
+              "minLength": 1,
+              "title": "A",
+              "type": "string"
+            },
+            "b": {
+              "minLength": 1,
+              "title": "B",
+              "type": "string"
+            },
+            "feet": {
+              "default": 30,
+              "minimum": 5,
+              "title": "Feet",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "a",
+            "b"
+          ],
+          "title": "ZoneEdge",
+          "type": "object"
+        },
+        "ZoneSurface": {
+          "additionalProperties": false,
+          "properties": {
+            "concentration": {
+              "default": false,
+              "title": "Concentration",
+              "type": "boolean"
+            },
+            "dc": {
+              "anyOf": [
+                {
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Dc"
+            },
+            "kind": {
+              "minLength": 1,
+              "title": "Kind",
+              "type": "string"
+            },
+            "rounds_left": {
+              "anyOf": [
+                {
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Rounds Left"
+            },
+            "source_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Source Id"
+            },
+            "upcast": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Upcast",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "title": "ZoneSurface",
           "type": "object"
         }
       },
       "discriminator": {
         "mapping": {
-          "pong": "#/$defs/Pong"
+          "ability_rolls": "#/$defs/AbilityRolls",
+          "chat": "#/$defs/ChatRelay",
+          "combat_state": "#/$defs/CombatState",
+          "creation_result": "#/$defs/CreationResult",
+          "dice_roll": "#/$defs/DiceRoll",
+          "encounter_offer": "#/$defs/EncounterOfferMsg",
+          "epilogue": "#/$defs/EpilogueMsg",
+          "error": "#/$defs/ErrorMsg",
+          "event": "#/$defs/EventMsg",
+          "hit_chances": "#/$defs/HitChances",
+          "host_stats": "#/$defs/HostStats",
+          "level_up_available": "#/$defs/LevelUpAvailable",
+          "lobby_roster": "#/$defs/LobbyRoster",
+          "narration_chunk": "#/$defs/NarrationChunkMsg",
+          "narration_done": "#/$defs/NarrationDone",
+          "notice": "#/$defs/Notice",
+          "pending_confirmation": "#/$defs/PendingConfirmationMsg",
+          "pong": "#/$defs/Pong",
+          "queue_state": "#/$defs/QueueState",
+          "resolving": "#/$defs/Resolving",
+          "shop_stock": "#/$defs/ShopStock",
+          "snapshot": "#/$defs/Snapshot",
+          "suggestion": "#/$defs/SuggestionRelay",
+          "turn_prompt": "#/$defs/TurnPrompt",
+          "vote_closed": "#/$defs/VoteClosed",
+          "vote_open": "#/$defs/VoteOpen",
+          "vote_update": "#/$defs/VoteUpdate",
+          "welcome": "#/$defs/Welcome"
         },
         "propertyName": "type"
       },
       "oneOf": [
         {
+          "$ref": "#/$defs/Welcome"
+        },
+        {
+          "$ref": "#/$defs/Snapshot"
+        },
+        {
+          "$ref": "#/$defs/EventMsg"
+        },
+        {
+          "$ref": "#/$defs/LobbyRoster"
+        },
+        {
+          "$ref": "#/$defs/AbilityRolls"
+        },
+        {
+          "$ref": "#/$defs/CreationResult"
+        },
+        {
+          "$ref": "#/$defs/QueueState"
+        },
+        {
+          "$ref": "#/$defs/Resolving"
+        },
+        {
+          "$ref": "#/$defs/DiceRoll"
+        },
+        {
+          "$ref": "#/$defs/NarrationChunkMsg"
+        },
+        {
+          "$ref": "#/$defs/NarrationDone"
+        },
+        {
+          "$ref": "#/$defs/VoteOpen"
+        },
+        {
+          "$ref": "#/$defs/VoteUpdate"
+        },
+        {
+          "$ref": "#/$defs/VoteClosed"
+        },
+        {
+          "$ref": "#/$defs/PendingConfirmationMsg"
+        },
+        {
+          "$ref": "#/$defs/EncounterOfferMsg"
+        },
+        {
+          "$ref": "#/$defs/CombatState"
+        },
+        {
+          "$ref": "#/$defs/HitChances"
+        },
+        {
+          "$ref": "#/$defs/TurnPrompt"
+        },
+        {
+          "$ref": "#/$defs/ShopStock"
+        },
+        {
+          "$ref": "#/$defs/LevelUpAvailable"
+        },
+        {
+          "$ref": "#/$defs/Notice"
+        },
+        {
+          "$ref": "#/$defs/ErrorMsg"
+        },
+        {
+          "$ref": "#/$defs/HostStats"
+        },
+        {
+          "$ref": "#/$defs/ChatRelay"
+        },
+        {
+          "$ref": "#/$defs/SuggestionRelay"
+        },
+        {
           "$ref": "#/$defs/Pong"
+        },
+        {
+          "$ref": "#/$defs/EpilogueMsg"
         }
       ]
     },
     "types": [
-      "pong"
+      "ability_rolls",
+      "chat",
+      "combat_state",
+      "creation_result",
+      "dice_roll",
+      "encounter_offer",
+      "epilogue",
+      "error",
+      "event",
+      "hit_chances",
+      "host_stats",
+      "level_up_available",
+      "lobby_roster",
+      "narration_chunk",
+      "narration_done",
+      "notice",
+      "pending_confirmation",
+      "pong",
+      "queue_state",
+      "resolving",
+      "shop_stock",
+      "snapshot",
+      "suggestion",
+      "turn_prompt",
+      "vote_closed",
+      "vote_open",
+      "vote_update",
+      "welcome"
     ]
   }
 }

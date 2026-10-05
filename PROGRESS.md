@@ -1,4 +1,4 @@
-NEXT: M6.1 Protocol and codegen. Delegate to mechanical-engineer. Last gate: M5 FULL GATE PASS 8/8.
+NEXT: M6.2 Table actor (hard-engineer, in progress in the same session). Files in flight: aidm/session/table*.py. Last gate: M6.1 GATE PASS 8/8.
 
 # PROGRESS
 
@@ -70,7 +70,7 @@ Stashes and blockers: record them in the Notes section at the bottom.
 - [x] M5.7 **M** Epilogue built from the fact ledger (FakeLLM test that it only cites ledger facts), `test_v1_dead_boss_never_described_alive` end-to-end. FULL gate. Commit `M5: Campaign`. (commit `M5: Campaign`)
 
 ## M6 Session and server (SPEC 4, 10)
-- [ ] M6.1 **M** Protocol: full `ClientMsg`/`ServerMsg` discriminated unions; gen_protocol writes `aidm/web/protocol.json` and `docs/PROTOCOL.md`; a staleness test. Gate: pytest plus `gen_protocol.py --check`.
+- [x] M6.1 **M** Protocol: full `ClientMsg`/`ServerMsg` discriminated unions; gen_protocol writes `aidm/web/protocol.json` and `docs/PROTOCOL.md`; a staleness test. Gate: pytest plus `gen_protocol.py --check`.
 - [ ] M6.2 **H** Table actor: one asyncio task owns state; FIFO queue with one pending per player; ready votes (30s, host force); combat turn ownership, suggestions, turn timer with safe default autoplay; mechanical events broadcast before narration. Gate: pytest tests/session.
 - [ ] M6.3 **M** Persistence: atomic snapshot plus `events.jsonl`, load, replay equals snapshot on disk; autosave after every resolved action. Gate: pytest tests/session.
 - [ ] M6.4 **M** Server: FastAPI app, WS gateway (token join, snapshot plus seq catch-up on reconnect), lobby, static hosting, `/healthz` (booleans only), `--lan` with LAN URL and an inline SVG QR, `AIDM_FAKE_LLM`, and the `python -m aidm` entrypoint (`aidm/__main__.py`, binds 127.0.0.1:8000). Gate: pytest tests/session (TestClient WS).

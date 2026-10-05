@@ -7,5 +7,60 @@ Machine-readable schema: `aidm/web/protocol.json`.
 
 | Direction | Type | Fields |
 |---|---|---|
+| client | `answer_offer` | `choice`: OfferChoice, `skill`: Skill or null (optional), `type`: answer_offer |
+| client | `cancel_hostile` | `type`: cancel_hostile |
+| client | `chat` | `text`: string, `type`: chat |
+| client | `combat_command` | `command`: AttackCommand or CastCommand or MoveCommand or DashCommand or DisengageCommand or HideCommand or ShoveCommand or JumpCommand or ThrowCommand or UseItemCommand or HelpCommand or DodgeCommand or EndTurnCommand or FleeCommand or MonsterActionCommand, `type`: combat_command |
+| client | `confirm_hostile` | `type`: confirm_hostile |
+| client | `create_character` | `choices`: CreationChoices, `type`: create_character |
+| client | `equip` | `item_id`: string, `type`: equip |
+| client | `hello` | `name`: string, `token`: string or null (optional), `type`: hello |
+| client | `host_difficulty` | `monster_damage`: number (optional), `monster_hp`: number (optional), `type`: host_difficulty |
+| client | `host_end` | `type`: host_end |
+| client | `host_force_vote` | `type`: host_force_vote |
+| client | `host_kick` | `player_id`: string, `type`: host_kick |
+| client | `host_load` | `campaign_id`: string, `type`: host_load |
+| client | `host_new` | `type`: host_new |
+| client | `host_pause` | `type`: host_pause |
+| client | `host_resume` | `type`: host_resume |
+| client | `host_save` | `type`: host_save |
+| client | `host_start` | `theme`: string or null (optional), `type`: host_start |
+| client | `host_tts_toggle` | `enabled`: boolean, `type`: host_tts_toggle |
+| client | `level_up` | `choices`: LevelUpChoices, `type`: level_up |
 | client | `ping` | `type`: ping |
+| client | `request_hit_chances` | `target_id`: string, `type`: request_hit_chances |
+| client | `roll_abilities` | `type`: roll_abilities |
+| client | `shop_buy` | `item_id`: string, `npc_id`: string, `qty`: integer (optional), `type`: shop_buy |
+| client | `shop_sell` | `item_id`: string, `npc_id`: string, `qty`: integer (optional), `type`: shop_sell |
+| client | `submit_action` | `text`: string, `type`: submit_action |
+| client | `suggestion` | `text`: string, `type`: suggestion |
+| client | `unequip` | `item_id`: string, `type`: unequip |
+| client | `vote` | `ready`: boolean, `type`: vote, `vote_id`: string |
+| server | `ability_rolls` | `rolls`: array of Roll (optional), `type`: ability_rolls |
+| server | `chat` | `name`: string, `player_id`: string, `text`: string, `type`: chat |
+| server | `combat_state` | `combat`: PublicCombat or null (optional), `type`: combat_state |
+| server | `creation_result` | `errors`: array of CreationError (optional), `ok`: boolean, `sheet`: CharacterSheet or null (optional), `type`: creation_result |
+| server | `dice_roll` | `dice`: DiceView, `seq`: integer, `type`: dice_roll |
+| server | `encounter_offer` | `offer`: PublicOffer, `type`: encounter_offer |
+| server | `epilogue` | `text`: string, `type`: epilogue |
+| server | `error` | `code`: ErrorCode, `text`: string, `type`: error |
+| server | `event` | `kind`: string, `line`: string (optional), `seq`: integer, `type`: event |
+| server | `hit_chances` | `attacker_id`: string, `chances`: array of HitChance (optional), `target_id`: string, `type`: hit_chances |
+| server | `host_stats` | `calls`: integer (optional), `completion_tokens`: integer (optional), `prompt_tokens`: integer (optional), `type`: host_stats |
+| server | `level_up_available` | `creature_id`: string, `level`: integer, `type`: level_up_available |
+| server | `lobby_roster` | `players`: array of PlayerInfo (optional), `type`: lobby_roster |
+| server | `narration_chunk` | `audio_url`: string or null (optional), `id`: string, `index`: integer, `text`: string, `tone`: NarrationTone (optional), `type`: narration_chunk |
+| server | `narration_done` | `id`: string, `type`: narration_done |
+| server | `notice` | `kind`: NoticeKind (optional), `text`: string, `type`: notice |
+| server | `pending_confirmation` | `player_id`: string, `prompt`: string, `type`: pending_confirmation |
 | server | `pong` | `type`: pong |
+| server | `queue_state` | `entries`: array of QueueEntry (optional), `resolving`: QueueEntry or null (optional), `type`: queue_state |
+| server | `resolving` | `entry`: QueueEntry, `type`: resolving |
+| server | `shop_stock` | `npc_id`: string, `npc_name`: string (optional), `stock`: array of StockLine (optional), `type`: shop_stock |
+| server | `snapshot` | `seq`: integer, `state`: PublicState, `type`: snapshot |
+| server | `suggestion` | `name`: string, `player_id`: string, `text`: string, `type`: suggestion |
+| server | `turn_prompt` | `creature_id`: string, `player_id`: string or null (optional), `seconds`: number or null (optional), `type`: turn_prompt |
+| server | `vote_closed` | `passed`: boolean, `reason`: string (optional), `type`: vote_closed, `vote_id`: string |
+| server | `vote_open` | `detail`: string (optional), `kind`: VoteKind, `proposer_id`: string, `seconds`: number, `type`: vote_open, `vote_id`: string, `voters`: array of string (optional) |
+| server | `vote_update` | `declined`: array of string (optional), `ready`: array of string (optional), `type`: vote_update, `vote_id`: string |
+| server | `welcome` | `is_host`: boolean (optional), `player_id`: string, `token`: string, `type`: welcome |

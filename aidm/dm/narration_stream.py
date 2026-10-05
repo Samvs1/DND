@@ -5,24 +5,18 @@ sentence each, so TTS can synthesise sentence N+1 while N plays. The sentences c
 `aidm.dm.guard_flow.GuardedSentences` (model stream, guard per sentence, one retry, template
 fallback); this class only numbers them and tags the scene tone.
 
-Public API: `NarrationTone` (COMBAT / SOCIAL / EXPLORATION), `NarrationChunk`,
+Public API (`NarrationTone` lives in `aidm.models.narration`): `NarrationChunk`,
 `NarrationStream(tone, sentences)` (`chunks`, `text`, `source`, `failure`, `reports`,
 `retried`, `collect()`).
 """
 
 from collections.abc import AsyncIterator
 from dataclasses import dataclass
-from enum import StrEnum
 
 from aidm.dm.guard_flow import GuardedSentences, NarrationSource
 from aidm.dm.guard_types import GuardReport
 from aidm.dm.llm_types import LlmFailure
-
-
-class NarrationTone(StrEnum):
-    COMBAT = "combat"
-    SOCIAL = "social"
-    EXPLORATION = "exploration"
+from aidm.models.narration import NarrationTone
 
 
 @dataclass(frozen=True)

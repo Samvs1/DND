@@ -9,7 +9,6 @@ from aidm.dm.guard_flow import NarrationSource
 from aidm.dm.guard_types import GuardReport, Violation, ViolationKind, no_guard
 from aidm.dm.llm_backend import BackendError, BackendTimeout
 from aidm.dm.llm_types import FailureReason
-from aidm.dm.narration_stream import NarrationTone
 from aidm.dm.narration_templates import CLOSING_LINE
 from aidm.dm.narrator import (
     NARRATION_STYLE,
@@ -20,6 +19,7 @@ from aidm.dm.narrator import (
     tone_for,
 )
 from aidm.models.events import AnyEvent
+from aidm.models.narration import NarrationTone
 from aidm.models.world_events import AttitudeChanged
 from aidm.session.reducer import apply
 from tests.ai.fake_scripts import fake_client

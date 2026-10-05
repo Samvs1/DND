@@ -36,9 +36,10 @@ from aidm.dm.guard import guarded_narration, prose_checker
 from aidm.dm.guard_types import ProseCheck
 from aidm.dm.llm_client import LlmClient
 from aidm.dm.llm_types import LlmRole
-from aidm.dm.narration_stream import NarrationStream, NarrationTone
+from aidm.dm.narration_stream import NarrationStream
 from aidm.models.encounter import EncounterStatus
 from aidm.models.events import AnyEvent
+from aidm.models.narration import NarrationTone
 from aidm.models.state import GameState
 from aidm.models.world import WorldNpc
 from aidm.rules.scene import current_scene

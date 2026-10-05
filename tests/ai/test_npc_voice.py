@@ -9,10 +9,10 @@ from aidm.dm.guard import check_prose
 from aidm.dm.guard_flow import NarrationSource
 from aidm.dm.guard_types import ViolationKind
 from aidm.dm.llm_client import LlmClient
-from aidm.dm.narration_stream import NarrationTone
 from aidm.dm.narrator import narrate
 from aidm.dm.npc_voice import npc_voice, npc_voice_messages, silent_line, voice_target
 from aidm.models.events import AnyEvent
+from aidm.models.narration import NarrationTone
 from aidm.models.state import GameState
 from aidm.models.world import NpcSecret
 from aidm.models.world_events import SecretRevealed

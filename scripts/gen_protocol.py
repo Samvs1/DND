@@ -40,10 +40,23 @@ def build_json() -> str:
     return json.dumps(data, indent=2, sort_keys=True) + "\n"
 
 
+def _kind(prop: dict[str, Any]) -> str:
+    if "const" in prop:
+        return str(prop["const"])
+    if "$ref" in prop:
+        return str(prop["$ref"]).rsplit("/", 1)[-1]
+    options = prop.get("anyOf") or prop.get("oneOf")
+    if isinstance(options, list):
+        return " or ".join(_kind(o) for o in options)
+    if prop.get("type") == "array":
+        items = prop.get("items")
+        return f"array of {_kind(items)}" if isinstance(items, dict) and items else "array"
+    return str(prop.get("type", "any"))
+
+
 def _field_cell(name: str, prop: dict[str, Any], required: bool) -> str:
-    kind = prop.get("const", prop.get("type", "any"))
-    label = f"`{name}`: {kind}"
-    return label if required else label + " (optional)"
+    label = f"`{name}`: {_kind(prop)}"
+    return label if required or name == "type" else label + " (optional)"
 
 
 def _row(direction: str, model: type[BaseModel]) -> str:

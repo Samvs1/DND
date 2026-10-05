@@ -1,23 +1,90 @@
-"""Websocket protocol messages (single source of truth; see scripts/gen_protocol.py)."""
+"""Websocket protocol: the `ClientMsg` and `ServerMsg` discriminated unions (SPEC 10).
 
-from typing import Annotated, Literal
+The single source of truth for the wire format; `scripts/gen_protocol.py` writes
+`aidm/web/protocol.json` and `docs/PROTOCOL.md` from it (the gate fails when they are stale).
+Message classes live in `protocol_client.py` and `protocol_server.py`, view payloads in
+`protocol_views.py`.
+
+Public API: `AnyClientMsg`, `AnyServerMsg`, `ClientMsg`, `ServerMsg` (annotated with the `type`
+discriminator), `CLIENT_MESSAGES`, `SERVER_MESSAGES` (every message class, in declaration
+order), `client_adapter`, `server_adapter` (`TypeAdapter`s for parsing and JSON schema).
+"""
+
+from typing import Annotated, get_args
 
 from pydantic import BaseModel, Field, TypeAdapter
 
+from aidm.models import protocol_client as c
+from aidm.models import protocol_server as s
 
-class Ping(BaseModel):
-    type: Literal["ping"]
+type AnyClientMsg = (
+    c.Hello
+    | c.CreateCharacter
+    | c.RollAbilities
+    | c.SubmitAction
+    | c.CombatCommandMsg
+    | c.Suggestion
+    | c.ConfirmHostile
+    | c.CancelHostile
+    | c.Vote
+    | c.AnswerOffer
+    | c.LevelUp
+    | c.ShopBuy
+    | c.ShopSell
+    | c.Equip
+    | c.Unequip
+    | c.RequestHitChances
+    | c.Chat
+    | c.HostStart
+    | c.HostPause
+    | c.HostResume
+    | c.HostKick
+    | c.HostDifficulty
+    | c.HostTtsToggle
+    | c.HostSave
+    | c.HostLoad
+    | c.HostNew
+    | c.HostEnd
+    | c.HostForceVote
+    | c.Ping
+)
 
+type AnyServerMsg = (
+    s.Welcome
+    | s.Snapshot
+    | s.EventMsg
+    | s.LobbyRoster
+    | s.AbilityRolls
+    | s.CreationResult
+    | s.QueueState
+    | s.Resolving
+    | s.DiceRoll
+    | s.NarrationChunkMsg
+    | s.NarrationDone
+    | s.VoteOpen
+    | s.VoteUpdate
+    | s.VoteClosed
+    | s.PendingConfirmationMsg
+    | s.EncounterOfferMsg
+    | s.CombatState
+    | s.HitChances
+    | s.TurnPrompt
+    | s.ShopStock
+    | s.LevelUpAvailable
+    | s.Notice
+    | s.ErrorMsg
+    | s.HostStats
+    | s.ChatRelay
+    | s.SuggestionRelay
+    | s.Pong
+    | s.EpilogueMsg
+)
 
-class Pong(BaseModel):
-    type: Literal["pong"]
+ClientMsg = Annotated[AnyClientMsg, Field(discriminator="type")]
+ServerMsg = Annotated[AnyServerMsg, Field(discriminator="type")]
 
+CLIENT_MESSAGES: tuple[type[BaseModel], ...] = get_args(AnyClientMsg.__value__)
+SERVER_MESSAGES: tuple[type[BaseModel], ...] = get_args(AnyServerMsg.__value__)
 
-ClientMsg = Annotated[Ping, Field(discriminator="type")]
-ServerMsg = Annotated[Pong, Field(discriminator="type")]
-
-CLIENT_MESSAGES: tuple[type[BaseModel], ...] = (Ping,)
-SERVER_MESSAGES: tuple[type[BaseModel], ...] = (Pong,)
-
-client_adapter: TypeAdapter[Ping] = TypeAdapter(ClientMsg)
-server_adapter: TypeAdapter[Pong] = TypeAdapter(ServerMsg)
+client_adapter: TypeAdapter[AnyClientMsg] = TypeAdapter(ClientMsg)
+server_adapter: TypeAdapter[AnyServerMsg] = TypeAdapter(ServerMsg)
