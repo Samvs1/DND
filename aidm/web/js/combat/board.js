@@ -70,11 +70,15 @@ function zoneCard(state, ctrl, combat, zone) {
     h('div', { class: 'zone-tokens' }, ...chips),
     hints(combat, zone),
     h(
-      'button',
-      { type: 'button', class: 'btn btn-small zone-go', 'data-testid': 'zone-go', disabled: !(zoneStep || isMyTurn(state)) || (here && !zoneStep), 'aria-label': zoneStep ? zone.name : t('combat.moveTo', { name: zone.name }), onclick: () => ctrl.pickZone(zone) },
-      zoneStep ? zone.name : t('combat.moveTo', { name: zone.name }),
+      'div',
+      { class: 'zone-foot' },
+      h(
+        'button',
+        { type: 'button', class: 'btn btn-small zone-go', 'data-testid': 'zone-go', disabled: !(zoneStep || isMyTurn(state)) || (here && !zoneStep), 'aria-label': zoneStep ? zone.name : t('combat.moveTo', { name: zone.name }), onclick: () => ctrl.pickZone(zone) },
+        zoneStep ? zone.name : t('combat.moveTo', { name: zone.name }),
+      ),
+      move,
     ),
-    move,
   );
 }
 
@@ -101,7 +105,7 @@ export function mountBoard(root, store, ctrl) {
     }
     const spec = a?.steps[a.step];
     prompt.hidden = !spec;
-    prompt.textContent = spec?.prompt ?? '';
+    prompt.textContent = typeof spec?.prompt === 'function' ? spec.prompt(a.picks[a.step].length) : (spec?.prompt ?? '');
   }
   render(store.get());
   const stopStore = store.subscribe(render);

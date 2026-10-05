@@ -1,6 +1,7 @@
 // Action input: free-text submit_action. Disabled while you already have an action waiting, while the
-// table is paused, during a fight (the hotbar arrives in M7.4) or before your hero exists. A refused
+// table is paused, in a fight outside your turn (on your turn it sends a creative action) or before your hero exists. A refused
 // action shows the table's gentle notice under the box; nothing raw is ever printed.
+import { isMyTurn } from '../combat/model.js';
 import { mySeat } from '../state.js';
 import { t } from '../strings.js';
 import { h } from '../ui/dom.js';
@@ -14,8 +15,8 @@ function blockedReason(state) {
   if (!view) return 'wait';
   if (!mySeat(state)?.creature_id) return 'noHero';
   if (view.paused) return 'paused';
-  if (view.combat) return 'fight';
-  if (hasPendingAction(state)) return 'pending';
+  if (view.combat) return isMyTurn(state) ? null : 'fight';
+  if (!view.combat && hasPendingAction(state)) return 'pending';
   return null;
 }
 

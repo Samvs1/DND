@@ -23,6 +23,7 @@ from aidm.models.protocol_server import (
 )
 from aidm.session.combat_runner import ai_command
 from aidm.session.table import Table
+from aidm.session.views import public_combat
 from tests.session.table_fixtures import (
     Seat,
     assert_replays,
@@ -152,3 +153,14 @@ async def test_end_turn_hands_over_and_monsters_act_in_between(tmp_path: Path) -
         on.send(CombatCommandMsg(command=EndTurnCommand(actor_id=first)))
         await table.settle()
         assert not table.in_combat or _active(table) != first or table.state.encounter is None
+
+
+async def test_combat_view_carries_monster_index_and_zone_terrain(tmp_path: Path) -> None:
+    async with running(disabled_llm(tmp_path)) as (table, _):
+        await _fight(table)
+        view = public_combat(table.state)
+        assert view is not None
+        goblins = [tk for tk in view.tokens if tk.creature_id.startswith("goblin")]
+        assert goblins and all(tk.monster_index == "goblin" for tk in goblins)
+        assert all(tk.monster_index is None for tk in view.tokens if tk.side.value == "party")
+        assert all(zone.terrain for zone in view.zones)

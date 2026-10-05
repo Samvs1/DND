@@ -2,6 +2,11 @@
 // dialogs and notices. Each component builds its DOM once and patches from the store / story.
 import { t } from '../strings.js';
 import { h } from '../ui/dom.js';
+import { mountBoard } from '../combat/board.js';
+import { createController } from '../combat/controller.js';
+import { mountHotbar } from '../combat/hotbar.js';
+import { mountInitiative } from '../combat/initiative.js';
+import { mountSheetSync } from '../sheet/sync.js';
 import { mountAction } from '../table/action.js';
 import { mountConfirm, mountLevelUp, mountOffer } from '../table/dialogs.js';
 import { mountDice } from '../table/dice.js';
@@ -11,6 +16,20 @@ import { mountParty } from '../table/party.js';
 import { mountQueue } from '../table/queue.js';
 import { mountScene } from '../table/scene.js';
 import { mountVote } from '../table/vote.js';
+
+function showWhileFighting(node, store) {
+  const apply = (state) => {
+    const fighting = Boolean(state.snapshot?.state.combat);
+    node.hidden = !fighting;
+    document.body.classList.toggle('in-combat', fighting);
+  };
+  apply(store.get());
+  const stop = store.subscribe(apply);
+  return () => {
+    stop();
+    document.body.classList.remove('in-combat');
+  };
+}
 
 export function mountTable(root, ctx) {
   const { store, story } = ctx;
@@ -22,7 +41,14 @@ export function mountTable(root, ctx) {
   const queue = slot('section', 'tb-queue panel', t('table.queue'));
   const dice = slot('details', 'tb-dice panel', t('table.dice'));
   dice.open = window.matchMedia('(min-width: 900px)').matches;
+  const combat = slot('section', 'tb-combat panel', t('combat.heading'));
+  const initiative = h('div', { class: 'init-strip', 'data-testid': 'initiative' });
+  const board = h('div', { class: 'board', 'data-testid': 'board' });
+  combat.append(initiative, board);
+  combat.hidden = true;
+  const hotbar = h('div', { class: 'hotbar', 'data-testid': 'hotbar', role: 'region', 'aria-label': t('hotbar.label') });
   const dock = slot('div', 'tb-dock');
+  dock.append(hotbar);
   const noticeSlot = slot('div', 'tb-notices');
   const dialogs = slot('div', 'tb-dialogs');
   const side = h('aside', { class: 'tb-side' }, party, queue, dice);
@@ -30,9 +56,16 @@ export function mountTable(root, ctx) {
   dice.append(h('summary', {}, t('table.dice'), ' ', latest));
   const diceBody = h('div', { class: 'dice-body' });
   dice.append(diceBody);
-  root.append(h('div', { class: 'tb' }, scene, noticeSlot, feed, side, dock, dialogs));
+  root.append(h('div', { class: 'tb' }, scene, noticeSlot, combat, feed, side, dock, dialogs));
+  const ctrl = createController(ctx);
 
   const stops = [
+    () => ctrl.stop(),
+    mountSheetSync(ctx),
+    mountInitiative(initiative, store),
+    mountBoard(board, store, ctrl),
+    mountHotbar(hotbar, ctx, ctrl),
+    showWhileFighting(combat, store),
     mountScene(scene, store),
     mountNotices(noticeSlot, store),
     mountFeed(feed, story),

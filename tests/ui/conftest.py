@@ -97,6 +97,30 @@ def scripted_server(tmp_path: Path) -> Iterator[LiveServer]:
     yield from _serve(tmp_path, make)
 
 
+def _combat_responder(request: CompletionRequest) -> FakeStep:
+    """FakeLLM that turns an "ambush" action into a start_encounter against two goblins."""
+    names = [t["function"]["name"] for t in request.tools or []]
+    last = next((m for m in reversed(request.messages) if m.get("role") == "user"), {})
+    already = any(m.get("role") == "tool" for m in request.messages)
+    if (
+        "start_encounter" in names
+        and "ambush" in str(last.get("content", "")).lower()
+        and not already
+    ):
+        return fake_tool_call("start_encounter", {"monster_ids": ["goblin", "goblin"]})
+    return default_fake_step(request)
+
+
+@pytest.fixture
+def combat_server(tmp_path: Path) -> Iterator[LiveServer]:
+    """Like `live_server`, but an "ambush" action starts a fight with two goblins."""
+
+    def make(settings: ServerSettings) -> LlmClient:
+        return LlmClient(FakeLLM(responder=_combat_responder), settings.llm, LlmMode.FAKE, None)
+
+    yield from _serve(tmp_path, make)
+
+
 @pytest.fixture(scope="session")
 def shots_dir() -> Path:
     SHOTS.mkdir(parents=True, exist_ok=True)
