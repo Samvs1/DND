@@ -12,6 +12,8 @@ Public API:
   offered; the party must choose fight / surprise / escape / parley).
 - `OfferResolved(offer_id, choice, success, detail)`: the pending offer is answered; its
   consequences (a check, a retreat, an attitude change, the fight) are separate events.
+- `EpilogueWritten(text, source)` (M5.7): the epilogue of the finished campaign (`source` is
+  "model", "template" or "mixed"); stored in `CampaignState.epilogue`, so a reconnect can show it.
 - `CampaignEvents`: the union of these classes (joins `AnyEvent`).
 """
 
@@ -55,4 +57,12 @@ class OfferResolved(_CampaignEvent):
     detail: str = ""
 
 
-CampaignEvents = CampaignInstalled | RegionResolved | EncounterOffered | OfferResolved
+class EpilogueWritten(_CampaignEvent):
+    type: Literal["epilogue_written"] = "epilogue_written"
+    text: str = Field(min_length=1)
+    source: Literal["model", "template", "mixed"]
+
+
+CampaignEvents = (
+    CampaignInstalled | RegionResolved | EncounterOffered | OfferResolved | EpilogueWritten
+)

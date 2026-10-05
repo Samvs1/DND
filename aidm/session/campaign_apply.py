@@ -15,6 +15,7 @@ from typing import assert_never
 from aidm.models.campaign_events import (
     CampaignInstalled,
     EncounterOffered,
+    EpilogueWritten,
     OfferResolved,
     RegionResolved,
 )
@@ -23,9 +24,17 @@ from aidm.models.state import GameState
 from aidm.rules.world_graph import graph_neighbours, locked_nodes_for
 from aidm.session.reducer_errors import ReducerError
 
-type CampaignEvent = CampaignInstalled | RegionResolved | EncounterOffered | OfferResolved
+type CampaignEvent = (
+    CampaignInstalled | RegionResolved | EncounterOffered | OfferResolved | EpilogueWritten
+)
 
-CAMPAIGN_EVENT_TYPES = (CampaignInstalled, RegionResolved, EncounterOffered, OfferResolved)
+CAMPAIGN_EVENT_TYPES = (
+    CampaignInstalled,
+    RegionResolved,
+    EncounterOffered,
+    OfferResolved,
+    EpilogueWritten,
+)
 
 
 def _campaign(state: GameState) -> CampaignState:
@@ -81,5 +90,10 @@ def apply_campaign_event(state: GameState, event: CampaignEvent) -> None:
             if campaign.offer is None or campaign.offer.id != offer_id:
                 raise ReducerError(f"no pending encounter offer {offer_id!r}")
             campaign.offer = None
+        case EpilogueWritten(text=text):
+            campaign = _campaign(state)
+            if not campaign.complete:
+                raise ReducerError("the campaign is not complete")
+            campaign.epilogue = text
         case _:
             assert_never(event)
