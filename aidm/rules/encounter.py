@@ -58,6 +58,7 @@ from aidm.rules.abilities import ability_modifier
 from aidm.rules.condition_timing import apply_condition, combat_end_events, new_condition
 from aidm.rules.conditions import can_take_reactions
 from aidm.rules.dice import Rng, roll
+from aidm.rules.difficulty import scale_spawn
 from aidm.rules.leveling import gain_xp
 from aidm.rules.monster_stats import creature_from_monster
 
@@ -156,6 +157,8 @@ def start_encounter(
     for spawn in setup.monsters:
         block = monsters.get(spawn.monster)
         creature = creature_from_monster(block, _spawn_id(taken, spawn.monster), name=spawn.name)
+        if spawn.side is Side.HOSTILE:
+            creature = scale_spawn(creature, state.difficulty.monster_hp)
         spawned.append((creature, spawn.side, spawn.zone_id, block.xp))
     joined = [(state.creatures[p.creature_id], p.side, p.zone_id, 0) for p in setup.party]
     everyone = joined + spawned

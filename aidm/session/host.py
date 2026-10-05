@@ -1,39 +1,71 @@
 """Host controls routed by the table actor (SPEC 10). Only the host seat may use them.
 
-M6.2 implements start (campaign generation), force vote, pause and resume; pause stops the
-exploration queue, combat commands and turn timeouts (a timer that fires while paused restarts).
-Kick, difficulty, TTS toggle, save, load, new and end are routed here and answered with a host
-notice until M6.5 implements them (`HOST_PENDING`).
+Everyone else gets `error not_host`. Pause stops the exploration queue, combat commands and turn
+timeouts (a timer that fires while paused restarts); resume continues. Start generates the
+campaign, force vote passes the open vote. Kick, TTS toggle (immediate) and difficulty, save,
+load, new and end (jobs: they touch the game state or the files) live in `host_controls` and
+`host_switch`. Token totals reach the host as `host_stats` after every job (`session.stats`).
 
-Public API: `HOST_PENDING`, `host_message`.
+Public API: `host_message`.
 """
 
+from functools import partial
+
 from aidm.models.protocol import AnyClientMsg
-from aidm.models.protocol_client import HostForceVote, HostPause, HostResume, HostStart
+from aidm.models.protocol_client import (
+    HostDifficulty,
+    HostEnd,
+    HostForceVote,
+    HostKick,
+    HostLoad,
+    HostNew,
+    HostPause,
+    HostResume,
+    HostSave,
+    HostStart,
+    HostTtsToggle,
+)
 from aidm.models.protocol_server import ErrorCode, NoticeKind
-from aidm.session import explore, lobby, votes
+from aidm.session import explore, host_controls, host_switch, lobby, votes
 from aidm.session.table_core import Player, TableCore
 
-HOST_PENDING = "That host control is not available in this build yet."
+
+def _pause(core: TableCore, paused: bool) -> None:
+    core.paused = paused
+    core.notice(
+        None, NoticeKind.HOST, "The host paused the game." if paused else "The game resumes."
+    )
+    core.broadcast_snapshot()
+    if not paused:
+        explore.kick_resolver(core)
 
 
 def host_message(core: TableCore, player: Player, msg: AnyClientMsg) -> None:
     if not player.is_host:
         core.error(player.id, ErrorCode.NOT_HOST, "Only the host can do that.")
         return
-    if isinstance(msg, HostStart):
-        theme = msg.theme
-        core.schedule(lambda: lobby.start_campaign(core, player, theme))
-    elif isinstance(msg, HostForceVote):
-        votes.force_vote(core, player)
-    elif isinstance(msg, HostPause):
-        core.paused = True
-        core.notice(None, NoticeKind.HOST, "The host paused the game.")
-        core.broadcast_snapshot()
-    elif isinstance(msg, HostResume):
-        core.paused = False
-        core.notice(None, NoticeKind.HOST, "The game resumes.")
-        core.broadcast_snapshot()
-        explore.kick_resolver(core)
-    else:
-        core.notice(player.id, NoticeKind.HOST, HOST_PENDING)
+    match msg:
+        case HostStart(theme=theme):
+            core.schedule(lambda: lobby.start_campaign(core, player, theme))
+        case HostForceVote():
+            votes.force_vote(core, player)
+        case HostPause():
+            _pause(core, True)
+        case HostResume():
+            _pause(core, False)
+        case HostKick(player_id=target):
+            host_controls.kick(core, player, target)
+        case HostTtsToggle(enabled=enabled):
+            host_controls.set_tts(core, player, enabled)
+        case HostDifficulty():
+            core.schedule(partial(host_controls.set_difficulty, core, player, msg))
+        case HostSave():
+            core.schedule(partial(host_controls.save, core, player))
+        case HostEnd():
+            core.schedule(partial(host_controls.end, core, player))
+        case HostLoad(campaign_id=campaign_id):
+            core.schedule(partial(host_switch.load, core, player, campaign_id))
+        case HostNew():
+            core.schedule(partial(host_switch.new_campaign, core, player))
+        case _:
+            core.error(player.id, ErrorCode.INVALID, "That is not a host control.")

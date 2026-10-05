@@ -3743,6 +3743,16 @@
               ],
               "default": null
             },
+            "monster_damage": {
+              "default": 1.0,
+              "title": "Monster Damage",
+              "type": "number"
+            },
+            "monster_hp": {
+              "default": 1.0,
+              "title": "Monster Hp",
+              "type": "number"
+            },
             "offer": {
               "anyOf": [
                 {
@@ -3821,6 +3831,11 @@
                 }
               ],
               "default": null
+            },
+            "tts_enabled": {
+              "default": false,
+              "title": "Tts Enabled",
+              "type": "boolean"
             },
             "vote": {
               "anyOf": [

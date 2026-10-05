@@ -189,6 +189,9 @@ class PublicState(_View):
     camp_supplies: int = 0
     complete: bool = False
     epilogue: str | None = None
+    tts_enabled: bool = False
+    monster_hp: float = 1.0
+    monster_damage: float = 1.0
 
 
 class DiceView(_View):

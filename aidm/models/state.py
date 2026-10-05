@@ -44,6 +44,7 @@ Public API:
   `world` (M4.2) is the entity registry outside combat (`aidm.models.world.World`).
   `memory` (M4.3) is the rolling DM memory (`aidm.models.memory.Memory`). `campaign` (M5.3)
   is the installed campaign and its progress (`aidm.models.campaign_state.CampaignState`).
+  `difficulty` (M6.5) holds the host's monster HP and damage multipliers (`aidm.models.difficulty`).
 
 Growth rule: every field added later MUST have a default, so snapshots and event logs written by
 older builds still validate and replay. Models use `extra="forbid"` to catch typos early.
@@ -61,6 +62,7 @@ from aidm.models.campaign_state import CampaignState
 from aidm.models.character import PcData, Size
 from aidm.models.conditions import Concentration, ConditionDuration, SaveEnds, TurnBoundary
 from aidm.models.damage import DamageType
+from aidm.models.difficulty import Difficulty
 from aidm.models.encounter import Encounter
 from aidm.models.memory import Memory
 from aidm.models.world import World
@@ -184,3 +186,4 @@ class GameState(BaseModel):
     world: World = Field(default_factory=World)
     memory: Memory = Field(default_factory=Memory)
     campaign: CampaignState | None = None
+    difficulty: Difficulty = Field(default_factory=Difficulty)

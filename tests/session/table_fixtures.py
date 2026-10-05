@@ -77,6 +77,14 @@ async def join(table: Table, name: str, creature_id: str | None = None) -> Seat:
     return Seat(table, conn, welcome.player_id, welcome.token)
 
 
+async def join_with_token(table: Table, name: str, token: str) -> Seat:
+    conn = table.connect()
+    table.submit(conn.id, Hello(name=name, token=token))
+    await table.settle()
+    welcome = next(m for m in drain_queue(conn) if isinstance(m, Welcome))
+    return Seat(table, conn, welcome.player_id, welcome.token)
+
+
 def drain_queue(conn: Connection) -> list[AnyServerMsg]:
     out: list[AnyServerMsg] = []
     while not conn.outbox.empty():

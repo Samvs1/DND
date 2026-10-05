@@ -20,6 +20,7 @@ from aidm.models.protocol_server import (
     AbilityRolls,
     CreationResult,
     ErrorCode,
+    ErrorMsg,
     NoticeKind,
     PendingConfirmationMsg,
     TurnPrompt,
@@ -32,6 +33,7 @@ from aidm.rules.campaign_install import install_campaign
 from aidm.rules.creation import build_character, validate_creation
 from aidm.rules.sheet import build_sheet
 from aidm.session import combat_flow, votes
+from aidm.session.stats import send_host_stats
 from aidm.session.table_core import Player, TableCore
 from aidm.session.telling import conclude
 from aidm.session.views import event_message
@@ -42,6 +44,10 @@ FELL_BACK = "The tale-weaver faltered, so a ready-made tale begins instead."
 
 
 def hello(core: TableCore, conn_id: str, msg: Hello) -> None:
+    if msg.token is not None and msg.token in core.kicked:
+        text = "The host removed you from this table."
+        core.send_conn(conn_id, ErrorMsg(code=ErrorCode.REFUSED, text=text))
+        return
     player = next((p for p in core.players.values() if msg.token and p.token == msg.token), None)
     if player is None:
         player = core.new_player(msg.name)
@@ -53,6 +59,7 @@ def hello(core: TableCore, conn_id: str, msg: Hello) -> None:
     if msg.last_seq is not None:
         _catch_up(core, conn_id, msg.last_seq)
     core.broadcast_roster()
+    send_host_stats(core)
     _resend_waiting(core, conn_id, player)
     if core.resume_combat and player.creature_id is not None:
         core.resume_combat = False
@@ -91,9 +98,14 @@ def closed(core: TableCore, conn_id: str) -> None:
         return
     core.broadcast_roster()
     votes.drop_voter(core, player.id)
+    release_turn(core, player.creature_id)
+
+
+def release_turn(core: TableCore, creature_id: str | None) -> None:
+    """A hero whose player left plays its current turn by the safe default."""
     enc = core.state.encounter
     key = core.turn_key
-    if key is not None and enc is not None and enc.active_id() == player.creature_id:
+    if key is not None and enc is not None and enc.active_id() == creature_id:
         core.schedule(lambda: combat_flow.turn_timeout(core, key))
 
 

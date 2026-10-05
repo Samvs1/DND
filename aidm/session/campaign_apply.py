@@ -14,18 +14,25 @@ from typing import assert_never
 
 from aidm.models.campaign_events import (
     CampaignInstalled,
+    DifficultySet,
     EncounterOffered,
     EpilogueWritten,
     OfferResolved,
     RegionResolved,
 )
 from aidm.models.campaign_state import CampaignState
+from aidm.models.difficulty import Difficulty
 from aidm.models.state import GameState
 from aidm.rules.world_graph import graph_neighbours, locked_nodes_for
 from aidm.session.reducer_errors import ReducerError
 
 type CampaignEvent = (
-    CampaignInstalled | RegionResolved | EncounterOffered | OfferResolved | EpilogueWritten
+    CampaignInstalled
+    | RegionResolved
+    | EncounterOffered
+    | OfferResolved
+    | EpilogueWritten
+    | DifficultySet
 )
 
 CAMPAIGN_EVENT_TYPES = (
@@ -34,6 +41,7 @@ CAMPAIGN_EVENT_TYPES = (
     EncounterOffered,
     OfferResolved,
     EpilogueWritten,
+    DifficultySet,
 )
 
 
@@ -95,5 +103,7 @@ def apply_campaign_event(state: GameState, event: CampaignEvent) -> None:
             if not campaign.complete:
                 raise ReducerError("the campaign is not complete")
             campaign.epilogue = text
+        case DifficultySet(monster_hp=hp, monster_damage=damage):
+            state.difficulty = Difficulty(monster_hp=hp, monster_damage=damage)
         case _:
             assert_never(event)

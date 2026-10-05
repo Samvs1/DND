@@ -189,6 +189,7 @@ def public_state(
     queue: Sequence[QueueEntry] = (),
     resolving: QueueEntry | None = None,
     vote: VoteView | None = None,
+    tts_enabled: bool = False,
 ) -> PublicState:
     campaign = state.campaign
     party = sorted((c for c in state.creatures.values() if c.pc is not None), key=lambda c: c.id)
@@ -212,6 +213,9 @@ def public_state(
         camp_supplies=state.camp_supplies,
         complete=campaign.complete if campaign is not None else False,
         epilogue=campaign.epilogue if campaign is not None else None,
+        tts_enabled=tts_enabled,
+        monster_hp=state.difficulty.monster_hp,
+        monster_damage=state.difficulty.monster_damage,
     )
 
 

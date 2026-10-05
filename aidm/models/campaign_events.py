@@ -14,6 +14,8 @@ Public API:
   consequences (a check, a retreat, an attitude change, the fight) are separate events.
 - `EpilogueWritten(text, source)` (M5.7): the epilogue of the finished campaign (`source` is
   "model", "template" or "mixed"); stored in `CampaignState.epilogue`, so a reconnect can show it.
+- `DifficultySet(monster_hp, monster_damage)` (M6.5): the host's difficulty multipliers
+  (`GameState.difficulty`).
 - `CampaignEvents`: the union of these classes (joins `AnyEvent`).
 """
 
@@ -23,6 +25,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from aidm.models.campaign import CampaignPlan
 from aidm.models.campaign_state import EncounterOffer, OfferChoice, RegionResolution
+from aidm.models.difficulty import MAX_MULTIPLIER, MIN_MULTIPLIER
 from aidm.models.region_graph import CampaignGraph
 
 
@@ -63,6 +66,17 @@ class EpilogueWritten(_CampaignEvent):
     source: Literal["model", "template", "mixed"]
 
 
+class DifficultySet(_CampaignEvent):
+    type: Literal["difficulty_set"] = "difficulty_set"
+    monster_hp: float = Field(ge=MIN_MULTIPLIER, le=MAX_MULTIPLIER)
+    monster_damage: float = Field(ge=MIN_MULTIPLIER, le=MAX_MULTIPLIER)
+
+
 CampaignEvents = (
-    CampaignInstalled | RegionResolved | EncounterOffered | OfferResolved | EpilogueWritten
+    CampaignInstalled
+    | RegionResolved
+    | EncounterOffered
+    | OfferResolved
+    | EpilogueWritten
+    | DifficultySet
 )

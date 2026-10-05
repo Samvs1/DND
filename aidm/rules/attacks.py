@@ -46,6 +46,7 @@ from aidm.rules.conditions import (
 from aidm.rules.d20 import roll_d20
 from aidm.rules.damage import resolve_damage
 from aidm.rules.dice import Rng, roll
+from aidm.rules.difficulty import scale_damage
 from aidm.rules.features import damage_reroll_below, damage_riders, kill_temp_hp
 from aidm.rules.hit_chance import AttackSituation, attack_situation
 from aidm.rules.projection import project_state
@@ -150,6 +151,7 @@ def deal_damage(
     feats: Registry[FeatureDef],
 ) -> list[AnyEvent]:
     target = state.creatures[target_id]
+    packets = scale_damage(state, attacker_id, packets)
     events = resolve_damage(target, packets, crit=crit, source_id=attacker_id)
     if not events:
         return []

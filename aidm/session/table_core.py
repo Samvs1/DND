@@ -177,6 +177,7 @@ class TableCore:
         self.next_counter = 1
         self.tts_enabled = self.config.tts_enabled
         self.resume_combat = False
+        self.kicked: set[str] = set()
         self.unsaved: list[LoggedEvent] = []
         self.save_warned = False
 
@@ -255,15 +256,16 @@ class TableCore:
         ]
         return TableMeta(seats=seats, next_id=self.next_counter, tts_enabled=self.tts_enabled)
 
-    def autosave(self) -> None:
+    def autosave(self, *, force: bool = False) -> bool:
         """Append the unsaved events (fsync) and rewrite snapshot + table metadata.
 
         Called after every job and seat change. A failing disk never stops the game: the events
-        stay buffered for the next try and the host gets one notice."""
+        stay buffered for the next try and the host gets one notice. Returns True when written
+        (`force` also saves a table that has no events yet)."""
         store = self.config.store
         cid = self.state.campaign_id
-        if store is None or (not self.log and not store.exists(cid)):
-            return
+        if store is None or (not force and not self.log and not store.exists(cid)):
+            return False
         try:
             store.save(
                 cid,
@@ -278,9 +280,10 @@ class TableCore:
                 self.save_warned = True
                 for host in (p for p in self.players.values() if p.is_host):
                     self.notice(host.id, NoticeKind.HOST, "Saving failed; the game continues.")
-            return
+            return False
         self.unsaved.clear()
         self.save_warned = False
+        return True
 
     # --- outbound ------------------------------------------------------------------------
 
@@ -317,6 +320,7 @@ class TableCore:
             queue=list(self.queue),
             resolving=self.resolving,
             vote=self.vote.view() if self.vote is not None else None,
+            tts_enabled=self.tts_enabled,
         )
         return Snapshot(seq=self.state.event_count, state=view)
 

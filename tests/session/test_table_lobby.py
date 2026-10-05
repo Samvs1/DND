@@ -32,7 +32,6 @@ from aidm.models.protocol_server import (
 )
 from aidm.models.protocol_views import TablePhase
 from aidm.models.state import GameState
-from aidm.session.host import HOST_PENDING
 from tests.session.table_fixtures import (
     assert_replays,
     disabled_llm,
@@ -116,7 +115,8 @@ async def test_host_start_installs_campaign_and_narrates(tmp_path: Path) -> None
         assert snap.state.scene is not None and snap.state.campaign_title
         ann.send(HostKick(player_id=bob.player_id))
         await table.settle()
-        assert of_type(ann.drain(), Notice)[-1].text == HOST_PENDING
+        assert bob.player_id not in table.players
+        assert of_type(ann.drain(), Notice)[-1].text.endswith("removed from the table.")
         assert_replays(table)
 
 

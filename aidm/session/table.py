@@ -31,9 +31,10 @@ from typing import Any
 from aidm.dm.llm_client import LlmClient
 from aidm.models import protocol_client as c
 from aidm.models.protocol import AnyClientMsg, AnyServerMsg
-from aidm.models.protocol_server import ErrorCode, ErrorMsg, HostStats, Notice, NoticeKind, Pong
+from aidm.models.protocol_server import ErrorCode, ErrorMsg, Notice, NoticeKind, Pong
 from aidm.models.state import GameState
 from aidm.session import combat_flow, explore, host, lobby, party_actions, relay, votes
+from aidm.session.stats import send_host_stats
 from aidm.session.table_core import (
     ClientIn,
     Closed,
@@ -164,15 +165,7 @@ class Table(TableCore):
     def _after_job(self) -> None:
         self.autosave()
         self.broadcast_snapshot()
-        hosts = [p for p in self.players.values() if p.is_host]
-        totals = self.llm.totals.by_role.values()
-        stats = HostStats(
-            prompt_tokens=sum(t.prompt_tokens for t in totals),
-            completion_tokens=sum(t.completion_tokens for t in totals),
-            calls=sum(t.calls for t in totals),
-        )
-        for player in hosts:
-            self.send(player.id, stats)
+        send_host_stats(self)
         explore.kick_resolver(self)
 
     def _dispatch(self, item: Inbound) -> None:
