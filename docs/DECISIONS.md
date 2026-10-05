@@ -360,4 +360,4 @@ M6.5 totals | `session/stats.py`: `host_stats` goes to every host seat after eac
   (pure SVG, seeded by key, corner mark, never raise), routes in `asset_routes.py` (`/assets/placeholder/<kind>/<slug>.svg`, cached 1 day).
   Per-spell and per-monster art goes at the manifest `file` path; shared v1 school/category icons are separate keys so M10 never overwrites them.
   Art in CSS: none yet (colours and gradients only); if a texture is wanted, set a CSS variable from `assetUrl` in JS.
-
+- M7.2/M7.3 UI structure: wizard = `views/wizard.js` + `js/wizard/*` (pure `model.js` with `prune` that drops picks a changed race/class no longer allows; `steps.js` problem checks; `GET /api/creation-data` supplies all rules data); store `wizardOpen` decides wizard vs lobby/table (null = open until the player has a hero). Table = `views/table.js` + `js/table/*`; stream-like messages go through `store.on` topics, and `js/story.js` records narration/dice/events from socket open so views can render history. Portrait ids are `class.<c>` or `race.<r>.<f|m>` (art key `portrait.<id>`).

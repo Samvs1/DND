@@ -3,6 +3,7 @@
 import { loadAssets } from './assets.js';
 import { createDispatch } from './handlers.js';
 import { createStore, saved } from './state.js';
+import { createStory } from './story.js';
 import { mountBanner } from './ui/banner.js';
 import { clear } from './ui/dom.js';
 import { VIEWS, pickView } from './views/index.js';
@@ -14,7 +15,8 @@ document.body.dataset.mode = mode;
 const store = createStore();
 const dispatch = createDispatch({ store, saved });
 const client = createClient({ store, saved, dispatch });
-const ctx = { store, saved, client, mode };
+const story = createStory(store);
+const ctx = { store, saved, client, mode, story };
 
 mountBanner(document.getElementById('banner'), store, {
   retry: () => client.retry(),
@@ -41,4 +43,4 @@ show(store.get());
 
 const name = saved.name();
 if (mode === 'play' && name && saved.token()) client.connect(name);
-window.aidm = { store, client };
+window.aidm = { store, client, dispatch }; // handles for tests and the console

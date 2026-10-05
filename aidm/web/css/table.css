@@ -1,1 +1,649 @@
-/* Table view (M7.3). */
+/* Table view (M7.3): story feed, party, queue, dice tray, action box, vote prompt, dialogs. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+body.is-table {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+body.is-table #app {
+  flex: 1;
+  min-height: 0;
+}
+
+textarea {
+  font: inherit;
+}
+
+.tb {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+  grid-template-areas: 'scene' 'notices' 'side' 'feed' 'dock';
+  gap: 0.6rem;
+  height: 100%;
+  padding: 0.5rem;
+}
+
+.tb-scene {
+  position: relative;
+  display: flex;
+  gap: 0.75rem;
+  grid-area: scene;
+  align-items: center;
+  min-height: 4rem;
+  overflow: hidden;
+  border: var(--frame);
+  border-radius: var(--radius);
+  background: var(--stone-1);
+}
+
+.scene-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.28;
+}
+
+.scene-text {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  padding: 0.4rem 0.8rem;
+}
+
+.scene-title,
+.scene-goal {
+  margin: 0;
+  color: var(--parchment-dim);
+  font-size: 0.85rem;
+}
+
+.scene-goal {
+  color: var(--gold);
+}
+
+.scene-place {
+  margin: 0;
+  font-size: 1.5rem;
+  text-shadow: 0 2px 0 #000;
+}
+
+.tb-scene .tag {
+  position: relative;
+  margin-right: 0.8rem;
+}
+
+.tb-notices {
+  grid-area: notices;
+  empty-cells: show;
+}
+
+.tb-notices:empty,
+.notices:empty {
+  display: none;
+}
+
+.notice {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0.75rem;
+  background: var(--stone-3);
+  border: 2px solid var(--gold-dim);
+  border-radius: var(--radius);
+}
+
+.notice-progress {
+  border-color: var(--sapphire);
+}
+
+.tb-feed {
+  display: flex;
+  grid-area: feed;
+  min-height: 0;
+}
+
+.feed {
+  flex: 1;
+  min-height: 0;
+  padding: 0.8rem 1rem;
+  overflow-y: auto;
+  background: linear-gradient(180deg, rgba(23, 18, 15, 0.92), rgba(9, 7, 6, 0.92));
+  border: var(--frame);
+  border-radius: var(--radius);
+}
+
+.feed-empty {
+  text-align: center;
+}
+
+.narr {
+  margin: 0 0 0.9rem;
+  padding-left: 0.8rem;
+  font-size: 1.12rem;
+  line-height: 1.7;
+  border-left: 3px solid var(--gold-dim);
+}
+
+.narr.tone-combat {
+  border-left-color: var(--blood);
+}
+
+.narr.tone-social {
+  border-left-color: var(--amethyst);
+}
+
+.narr.tone-exploration {
+  border-left-color: var(--gold-dim);
+}
+
+.narr.typing .sentence:last-child::after {
+  content: '|';
+  margin-left: 1px;
+  color: var(--gold);
+  animation: blink 0.9s steps(2, start) infinite;
+}
+
+@keyframes blink {
+  to {
+    visibility: hidden;
+  }
+}
+
+.event-line {
+  margin: 0 0 0.6rem;
+  padding-left: 0.8rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.epilogue {
+  margin: 1rem 0;
+  padding: 0.8rem 1rem;
+  background: var(--stone-2);
+  border: var(--frame);
+  border-radius: var(--radius);
+}
+
+.tb-side {
+  display: grid;
+  grid-area: side;
+  gap: 0.5rem;
+  align-content: start;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.tb-side .panel {
+  padding: 0.6rem 0.8rem;
+}
+
+.side-h {
+  margin: 0 0 0.4rem;
+  color: var(--gold);
+  font-size: 1.15rem;
+  font-weight: 400;
+}
+
+.party {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+  list-style: none;
+}
+
+.pcard {
+  display: flex;
+  flex: 0 0 13.5rem;
+  gap: 0.5rem;
+  padding: 0.4rem;
+  background: var(--stone-1);
+  border: 2px solid var(--stone-3);
+  border-radius: var(--radius);
+}
+
+.pcard.mine {
+  border-color: var(--gold-dim);
+}
+
+.pcard.dead {
+  opacity: 0.55;
+  filter: grayscale(0.8);
+}
+
+.pcard.dying {
+  border-color: var(--blood);
+}
+
+.pc-portrait {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  background: var(--ink-0);
+  border: 1px solid var(--gold-dim);
+  border-radius: var(--radius);
+}
+
+.pc-body {
+  display: grid;
+  flex: 1;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.pc-name {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.pc-name strong {
+  overflow: hidden;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 400;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pc-sub {
+  color: var(--parchment-dim);
+  font-size: 0.8rem;
+}
+
+.hp-wrap {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.hp {
+  flex: 1;
+  height: 0.55rem;
+  overflow: hidden;
+  background: var(--ink-0);
+  border: 1px solid var(--stone-3);
+  border-radius: 999px;
+}
+
+.hp-fill {
+  display: block;
+  height: 100%;
+  transition: width 0.4s ease;
+}
+
+.hp-fill.good {
+  background: var(--moss);
+}
+
+.hp-fill.warn {
+  background: var(--gold);
+}
+
+.hp-fill.low {
+  background: var(--blood);
+}
+
+.hp-text {
+  min-width: 3.2rem;
+  font-size: 0.85rem;
+  text-align: right;
+}
+
+.pc-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+  font-size: 0.8rem;
+}
+
+.conditions {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.cond {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.badge {
+  padding: 0 0.4rem;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  border: 1px solid currentcolor;
+  border-radius: 2px;
+}
+
+.badge.dying,
+.badge.dead {
+  color: var(--blood);
+}
+
+.badge.levelup {
+  color: var(--focus);
+}
+
+.queue {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.qentry {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: baseline;
+  padding: 0.25rem 0.4rem;
+  font-size: 0.9rem;
+  background: var(--stone-1);
+  border-left: 3px solid var(--stone-3);
+}
+
+.qentry.resolving {
+  border-left-color: var(--gold);
+}
+
+.qtext {
+  color: var(--parchment-dim);
+}
+
+.combat-note {
+  margin: 0 0 0.4rem;
+  color: var(--blood);
+}
+
+.tb-dice summary {
+  color: var(--gold);
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  cursor: pointer;
+}
+
+.dice-list {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.roll {
+  padding: 0.35rem 0.5rem;
+  background: var(--stone-1);
+  border: 2px solid var(--stone-3);
+  border-radius: var(--radius);
+}
+
+.roll.fresh {
+  border-color: var(--gold);
+}
+
+.roll-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: baseline;
+}
+
+.roll-dice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  align-items: center;
+  margin: 0.25rem 0;
+}
+
+.roll .die {
+  width: 2.2rem;
+  height: 2.2rem;
+  animation: none;
+}
+
+.roll.fresh .die {
+  animation: wz-tumble 0.5s ease-out;
+}
+
+.roll .die.kept {
+  border-color: var(--gold);
+  box-shadow: 0 0 8px rgba(210, 169, 78, 0.7);
+}
+
+.roll-total {
+  color: var(--gold);
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+}
+
+.roll-out {
+  color: var(--parchment-dim);
+  font-size: 0.85rem;
+}
+
+.adv-advantage {
+  color: var(--moss);
+}
+
+.adv-disadvantage {
+  color: var(--blood);
+}
+
+.tb-dock {
+  display: grid;
+  grid-area: dock;
+  gap: 0.4rem;
+}
+
+.action {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.action textarea {
+  flex: 1;
+  min-width: 0;
+  padding: 0.5rem 0.7rem;
+  color: var(--parchment);
+  background: var(--ink-0);
+  border: 2px solid var(--stone-3);
+  border-radius: var(--radius);
+  resize: none;
+}
+
+.action textarea:disabled {
+  opacity: 0.55;
+}
+
+.action-note,
+.action-gentle,
+.vote-result {
+  margin: 0;
+  min-height: 0;
+  font-size: 0.9rem;
+}
+
+.action-note {
+  color: var(--muted);
+}
+
+.action-gentle,
+.vote-result {
+  color: var(--gold);
+}
+
+.action-note:empty,
+.action-gentle:empty,
+.vote-result:empty {
+  display: none;
+}
+
+.levelup-btn {
+  justify-self: start;
+}
+
+.vote h3 {
+  margin: 0 0 0.3rem;
+  font-size: 1.3rem;
+}
+
+.vote p {
+  margin: 0.2rem 0;
+}
+
+.vote-timer {
+  color: var(--gold);
+}
+
+.voters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.4rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.voter {
+  padding: 0.1rem 0.6rem;
+  font-size: 0.9rem;
+  border: 1px solid var(--stone-3);
+  border-radius: 999px;
+}
+
+.voter.ready {
+  border-color: var(--moss);
+}
+
+.voter.declined {
+  border-color: var(--blood);
+}
+
+.vote-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.dialog {
+  max-width: min(32rem, calc(100% - 2rem));
+  padding: 1.1rem 1.25rem;
+  color: var(--parchment);
+  background: linear-gradient(180deg, var(--stone-2), var(--stone-1));
+  border: var(--frame);
+  border-radius: var(--radius);
+  box-shadow: var(--glow);
+}
+
+.dialog::backdrop {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.dialog-text {
+  margin: 0.4rem 0;
+}
+
+.dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.8rem;
+}
+
+.foes {
+  margin: 0.3rem 0;
+  padding-left: 1.2rem;
+}
+
+@media (min-width: 900px) {
+  .tb {
+    grid-template-columns: minmax(0, 1fr) 22rem;
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+    grid-template-areas: 'scene scene' 'notices side' 'feed side' 'dock side';
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
+
+  .party {
+    flex-direction: column;
+    overflow: visible;
+  }
+
+  .pcard {
+    flex: none;
+  }
+}
+
+@media (max-width: 899px) {
+  body.is-table {
+    display: block;
+    height: auto;
+    overflow: auto;
+  }
+
+  body.is-table #app {
+    min-height: 100dvh;
+  }
+
+  .tb {
+    grid-template-rows: auto auto auto minmax(15rem, 1fr) auto;
+    min-height: 100dvh;
+  }
+
+  .feed {
+    max-height: 60dvh;
+  }
+
+  .tb-dock {
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    padding: 0.4rem 0 0.3rem;
+    background: var(--ink-0);
+    box-shadow: 0 -8px 12px var(--ink-0);
+  }
+
+  .vote .hint,
+  .vote-detail {
+    display: none;
+  }
+
+  .tb-queue:not(:has(.qentry)):not(:has(.combat-note:not([hidden]))) {
+    display: none;
+  }
+
+  .scene-place {
+    font-size: 1.25rem;
+  }
+
+  .narr {
+    font-size: 1.05rem;
+  }
+
+  .action textarea {
+    min-height: 2.75rem;
+  }
+}

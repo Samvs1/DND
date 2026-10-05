@@ -23,8 +23,9 @@ function onWelcome(msg, { store, saved }) {
     joined: true,
     me: { playerId: msg.player_id, isHost: Boolean(msg.is_host) },
     errorCode: null,
-    ...(sameSeat ? {} : { snapshot: null, players: [], lastSeq: 0, notices: [], fallback: false, wizardOpen: null }),
+    ...(sameSeat ? {} : { snapshot: null, players: [], lastSeq: 0, notices: [], fallback: false, wizardOpen: null, confirm: null, levelUps: {} }),
   });
+  if (!sameSeat) store.emit('reset', {});
 }
 
 function onSnapshot(msg, { store }) {
@@ -44,6 +45,56 @@ function onNotice(msg, { store }) {
   }
   const notices = [...store.get().notices, { kind: msg.kind, text: msg.text }].slice(-MAX_NOTICES);
   store.update({ notices });
+}
+
+function onNarration(msg, ctx) {
+  if (ctx.store.get().confirm) ctx.store.update({ confirm: null });
+  relay(msg, ctx);
+}
+
+function onVoteOpen(msg, ctx) {
+  const vote = {
+    vote_id: msg.vote_id,
+    kind: msg.kind,
+    detail: msg.detail || '',
+    proposer_id: msg.proposer_id,
+    voters: msg.voters || [],
+    ready: [msg.proposer_id], // the proposer counts as ready from the start
+    declined: [],
+    seconds: msg.seconds,
+    openedAt: Date.now(),
+  };
+  patchSnapshot(ctx, { vote });
+  relay(msg, ctx);
+}
+
+function onVoteUpdate(msg, ctx) {
+  const vote = ctx.store.get().snapshot?.state.vote;
+  if (vote && vote.vote_id === msg.vote_id) {
+    patchSnapshot(ctx, { vote: { ...vote, ready: msg.ready || [], declined: msg.declined || [] } });
+  }
+  relay(msg, ctx);
+}
+
+function onVoteClosed(msg, ctx) {
+  patchSnapshot(ctx, { vote: null });
+  relay(msg, ctx);
+}
+
+function onOffer(msg, ctx) {
+  patchSnapshot(ctx, { offer: msg.offer ?? null });
+  relay(msg, ctx);
+}
+
+function onConfirmation(msg, ctx) {
+  ctx.store.update({ confirm: { playerId: msg.player_id, prompt: msg.prompt } });
+  relay(msg, ctx);
+}
+
+function onLevelUp(msg, ctx) {
+  const levelUps = { ...ctx.store.get().levelUps, [msg.creature_id]: msg.level };
+  ctx.store.update({ levelUps });
+  relay(msg, ctx);
 }
 
 function onError(msg, { store }) {
@@ -72,18 +123,18 @@ export const HANDLERS = {
   combat_state: onCombat,
   creation_result: relay,
   dice_roll: relay,
-  encounter_offer: relay,
+  encounter_offer: onOffer,
   epilogue: relay,
   error: onError,
   event: relay,
   hit_chances: relay,
   host_stats: relay,
-  level_up_available: relay,
+  level_up_available: onLevelUp,
   lobby_roster: onRoster,
-  narration_chunk: relay,
+  narration_chunk: onNarration,
   narration_done: relay,
   notice: onNotice,
-  pending_confirmation: relay,
+  pending_confirmation: onConfirmation,
   pong: relay,
   queue_state: onQueue,
   resolving: onResolving,
@@ -91,9 +142,9 @@ export const HANDLERS = {
   snapshot: onSnapshot,
   suggestion: relay,
   turn_prompt: relay,
-  vote_closed: relay,
-  vote_open: relay,
-  vote_update: relay,
+  vote_closed: onVoteClosed,
+  vote_open: onVoteOpen,
+  vote_update: onVoteUpdate,
   welcome: onWelcome,
 };
 

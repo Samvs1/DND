@@ -49,6 +49,8 @@ export function initialState() {
     notices: [],
     fallback: false,
     errorCode: null,
+    confirm: null, // a pending point-of-no-return prompt for this player
+    levelUps: {}, // creature id -> level offered by level_up_available
     wizardOpen: null, // null = open until the player has a hero; true/false once chosen
     lan: { lan: false, url: null },
   };
