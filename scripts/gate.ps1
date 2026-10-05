@@ -1,4 +1,4 @@
-# Full gate: runs the 9 gates in order, prints the tail of each and PASS/FAIL.
+# Full gate: runs the 10 gates in order, prints the tail of each and PASS/FAIL.
 # Usage: powershell -ExecutionPolicy Bypass -File scripts\gate.ps1
 $ErrorActionPreference = 'Continue'
 $root = Split-Path -Parent $PSScriptRoot
@@ -18,7 +18,8 @@ $gates = @(
     @{ Name = 'check_structure';  Exe = $py;      Args = 'scripts/check_structure.py' },
     @{ Name = 'check_secrets';    Exe = $py;      Args = 'scripts/check_secrets.py' },
     @{ Name = 'gen_protocol';     Exe = $py;      Args = 'scripts/gen_protocol.py --check' },
-    @{ Name = 'build_manifest';   Exe = $py;      Args = 'scripts/build_manifest.py --check' }
+    @{ Name = 'build_manifest';   Exe = $py;      Args = 'scripts/build_manifest.py --check' },
+    @{ Name = 'gen_assets_todo';  Exe = $py;      Args = 'scripts/gen_assets_todo.py --check' }
 )
 
 $failed = @()

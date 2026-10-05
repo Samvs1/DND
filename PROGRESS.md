@@ -1,4 +1,4 @@
-NEXT: A2 Style bible and ASSETS_TODO. Delegate to mechanical-engineer. Last gate: M8.3 GATE PASS 9/9.
+NEXT: A3 Placeholder-only play proof. Delegate to mechanical-engineer. Last gate: A2 GATE PASS 10/10.
 
 # PROGRESS
 
@@ -91,7 +91,7 @@ Stashes and blockers: record them in the Notes section at the bottom.
 - [x] M8.1 **M** `synthesize(text, tone) -> Path | None` (check the current Fish SDK/docs first), cache by hash, lazy guarded import, zero cost when disabled, `/tts/<hash>.mp3`. Gate: pytest (mocked).
 - [x] M8.2 **M** Sentence pipeline (synthesize N+1 while N plays), `narration_chunk`/`narration_done`, typewriter fallback, per-client mute/volume, autoplay hint. Gate: pytest plus a manual boot.
 - [x] M8.3 **M** Music crossfade by game state (the v1 ambient/combat beds were skipped for size in M0.4: re-encode smaller copies from v1 if ffmpeg is available, else log it and rely on silence fallback), `/screen` spectator view (default audio device). Gate: pytest.
-- [ ] A2 **M** Style bible and TODO (Addendum A.4, A.6): view 3-4 v1 portraits once and write `docs/STYLE_BIBLE.md`; `scripts/gen_assets_todo.py [--check]` writes root `ASSETS_TODO.md` (key, target path, size, transparency, prompt = style prefix + data details, no BG3/IP references); add its `--check` to gate.ps1; reserve `IMAGE_PROVIDER` and `IMAGE_API_KEY` names in `.env.example`. Gate: FULL gate.
+- [x] A2 **M** Style bible and TODO (Addendum A.4, A.6): view 3-4 v1 portraits once and write `docs/STYLE_BIBLE.md`; `scripts/gen_assets_todo.py [--check]` writes root `ASSETS_TODO.md` (key, target path, size, transparency, prompt = style prefix + data details, no BG3/IP references); add its `--check` to gate.ps1; reserve `IMAGE_PROVIDER` and `IMAGE_API_KEY` names in `.env.example`. Gate: FULL gate.
 - [ ] A3 **M** Placeholder-only play proof (Addendum A.5, A.7): install Playwright chromium; a Playwright test that runs the app from a temp copy with the real img folder hidden and proves join, create, act and combat render on placeholders; screenshots in `artifacts/ui/`; README section "Adding or replacing art". Gate: that test plus the FULL gate.
 - [ ] M8.4 **M** Accessibility pass (keyboard, focus-visible, text size, reduced motion, contrast); Addendum A gates green. FULL gate. Commit `M8: Audio and polish`.
 
