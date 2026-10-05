@@ -12,7 +12,7 @@ Public API: `Player`, `TableConfig`, `TtsHook`, `no_tts`, `Job`, `ClientIn`, `Cl
 """
 
 import asyncio
-import itertools
+import logging
 import random
 import secrets
 from collections import deque
@@ -42,12 +42,14 @@ from aidm.models.protocol_server import (
 from aidm.models.protocol_views import PlayerInfo, QueueEntry, TablePhase, VoteKind, VoteView
 from aidm.models.state import Creature, GameState
 from aidm.models.world_events import LevelUpReady
+from aidm.session.persistence import CampaignStore, SeatRecord, TableMeta, new_game_state
 from aidm.session.reducer import apply as reduce
 from aidm.session.table_clock import Clock, LoopClock, TimerHandle
 from aidm.session.views import dice_view, event_message, public_state
 
 type TtsHook = Callable[[str, NarrationTone], Awaitable[str | None]]
 type Job = Callable[[], Awaitable[None]]
+_LOG = logging.getLogger(__name__)
 
 
 async def no_tts(text: str, tone: NarrationTone) -> str | None:
@@ -63,6 +65,9 @@ class TableConfig:
     campaign_timeout_s: float = CAMPAIGN_TIMEOUT_S
     tts: TtsHook = no_tts
     regs: ToolRegistries | None = None
+    store: CampaignStore | None = None
+    new_state: Callable[[], GameState] = new_game_state
+    tts_enabled: bool = False
 
 
 @dataclass
@@ -169,12 +174,17 @@ class TableCore:
         self.issued_rolls: dict[str, list[Roll]] = {}
         self.inbox: asyncio.Queue[Inbound] = asyncio.Queue()
         self.jobs: asyncio.Queue[Job] = asyncio.Queue()
-        self._ids = itertools.count(1)
+        self.next_counter = 1
+        self.tts_enabled = self.config.tts_enabled
+        self.resume_combat = False
+        self.unsaved: list[LoggedEvent] = []
+        self.save_warned = False
 
     # --- ids, seats, lookups -------------------------------------------------------------
 
     def next_id(self, prefix: str) -> str:
-        return f"{prefix}{next(self._ids)}"
+        self.next_counter += 1
+        return f"{prefix}{self.next_counter - 1}"
 
     def new_player(self, name: str) -> Player:
         player = Player(
@@ -219,7 +229,9 @@ class TableCore:
 
     def record(self, event: AnyEvent, seq: int) -> None:
         """Log and broadcast an event the reducer already applied (the combat runner's hook)."""
-        self.log.append(LoggedEvent(seq=seq, event=event))
+        logged = LoggedEvent(seq=seq, event=event)
+        self.log.append(logged)
+        self.unsaved.append(logged)
         if self.in_combat:
             self.segment.append(event)
         self.broadcast(event_message(self.state, seq, event))
@@ -231,6 +243,44 @@ class TableCore:
             if owner is not None:
                 msg = LevelUpAvailable(creature_id=event.creature_id, level=event.level)
                 self.send(owner.id, msg)
+
+    # --- persistence (M6.3) --------------------------------------------------------------
+
+    def table_meta(self) -> TableMeta:
+        seats = [
+            SeatRecord(
+                id=p.id, name=p.name, token=p.token, is_host=p.is_host, creature_id=p.creature_id
+            )
+            for p in self.players.values()
+        ]
+        return TableMeta(seats=seats, next_id=self.next_counter, tts_enabled=self.tts_enabled)
+
+    def autosave(self) -> None:
+        """Append the unsaved events (fsync) and rewrite snapshot + table metadata.
+
+        Called after every job and seat change. A failing disk never stops the game: the events
+        stay buffered for the next try and the host gets one notice."""
+        store = self.config.store
+        cid = self.state.campaign_id
+        if store is None or (not self.log and not store.exists(cid)):
+            return
+        try:
+            store.save(
+                cid,
+                initial=self.initial,
+                events=self.unsaved,
+                state=self.state,
+                meta=self.table_meta(),
+            )
+        except OSError:
+            _LOG.exception("autosave failed")
+            if not self.save_warned:
+                self.save_warned = True
+                for host in (p for p in self.players.values() if p.is_host):
+                    self.notice(host.id, NoticeKind.HOST, "Saving failed; the game continues.")
+            return
+        self.unsaved.clear()
+        self.save_warned = False
 
     # --- outbound ------------------------------------------------------------------------
 

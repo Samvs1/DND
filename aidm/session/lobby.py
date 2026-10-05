@@ -34,8 +34,10 @@ from aidm.rules.sheet import build_sheet
 from aidm.session import combat_flow, votes
 from aidm.session.table_core import Player, TableCore
 from aidm.session.telling import conclude
+from aidm.session.views import event_message
 
 GENERATING = "The Dungeon Master is writing your campaign. This can take up to two minutes."
+MAX_CATCH_UP = 500
 FELL_BACK = "The tale-weaver faltered, so a ready-made tale begins instead."
 
 
@@ -48,8 +50,20 @@ def hello(core: TableCore, conn_id: str, msg: Hello) -> None:
     welcome = Welcome(player_id=player.id, token=player.token, is_host=player.is_host)
     core.send_conn(conn_id, welcome)
     core.send_conn(conn_id, core.snapshot())
+    if msg.last_seq is not None:
+        _catch_up(core, conn_id, msg.last_seq)
     core.broadcast_roster()
     _resend_waiting(core, conn_id, player)
+    if core.resume_combat and player.creature_id is not None:
+        core.resume_combat = False
+        core.schedule(lambda: combat_flow.advance(core))
+
+
+def _catch_up(core: TableCore, conn_id: str, last_seq: int) -> None:
+    """Re-send the event lines the client missed (seq >= its `last_seq`), oldest first."""
+    missed = [entry for entry in core.log if entry.seq >= last_seq][-MAX_CATCH_UP:]
+    for entry in missed:
+        core.send_conn(conn_id, event_message(core.state, entry.seq, entry.event))
 
 
 def _resend_waiting(core: TableCore, conn_id: str, player: Player) -> None:

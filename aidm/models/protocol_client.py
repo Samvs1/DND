@@ -32,6 +32,7 @@ class Hello(_Client):
     type: Literal["hello"] = "hello"
     name: str = Field(min_length=1, max_length=MAX_NAME)
     token: str | None = Field(default=None, max_length=200)
+    last_seq: int | None = Field(default=None, ge=0)
 
 
 class CreateCharacter(_Client):

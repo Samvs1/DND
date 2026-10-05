@@ -20,6 +20,7 @@ from aidm.models.protocol_server import (
     CreationResult,
     ErrorCode,
     ErrorMsg,
+    EventMsg,
     LobbyRoster,
     NarrationDone,
     Notice,
@@ -156,3 +157,18 @@ async def test_cancelled_hostile_act_changes_nothing(tmp_path: Path) -> None:
         assert table.pending is None and table.state.encounter is None
         assert of_type(ann.drain(), NarrationDone)
         assert not table.state.world.npcs["npc-mira"].hostile
+
+
+async def test_hello_with_last_seq_resends_only_missed_events(tmp_path: Path) -> None:
+    async with running(disabled_llm(tmp_path)) as (table, _):
+        host = await join(table, "Ann", "fighter")
+        for text in ("I search behind the hearth", "I study the rusted lever"):
+            host.send(SubmitAction(text=text))
+            await table.settle()
+        assert len(table.log) >= 2
+        cut = table.log[1].seq
+        conn = table.connect()
+        table.submit(conn.id, Hello(name="Ann", token=host.token, last_seq=cut))
+        await table.settle()
+        events = of_type(drain_queue(conn), EventMsg)
+        assert [e.seq for e in events] == [e.seq for e in table.log if e.seq >= cut]

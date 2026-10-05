@@ -15,7 +15,7 @@ Machine-readable schema: `aidm/web/protocol.json`.
 | client | `create_character` | `choices`: CreationChoices, `type`: create_character |
 | client | `equip` | `item_id`: string, `type`: equip |
 | client | `give` | `item_id`: string, `npc_id`: string, `type`: give |
-| client | `hello` | `name`: string, `token`: string or null (optional), `type`: hello |
+| client | `hello` | `last_seq`: integer or null (optional), `name`: string, `token`: string or null (optional), `type`: hello |
 | client | `host_difficulty` | `monster_damage`: number (optional), `monster_hp`: number (optional), `type`: host_difficulty |
 | client | `host_end` | `type`: host_end |
 | client | `host_force_vote` | `type`: host_force_vote |

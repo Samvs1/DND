@@ -102,6 +102,7 @@ class Table(TableCore):
             task.cancel()
         await asyncio.gather(*self._tasks, return_exceptions=True)
         self._tasks = []
+        self.autosave()
         combat_flow.end_player_turn(self)
         if self.vote is not None and self.vote.timer is not None:
             self.vote.timer.cancel()
@@ -161,6 +162,7 @@ class Table(TableCore):
                 self.jobs.task_done()
 
     def _after_job(self) -> None:
+        self.autosave()
         self.broadcast_snapshot()
         hosts = [p for p in self.players.values() if p.is_host]
         totals = self.llm.totals.by_role.values()
@@ -191,6 +193,7 @@ class Table(TableCore):
     def _client(self, conn_id: str, msg: AnyClientMsg) -> None:
         if isinstance(msg, c.Hello):
             lobby.hello(self, conn_id, msg)
+            self.autosave()
             return
         if isinstance(msg, c.Ping):
             self.send_conn(conn_id, Pong())

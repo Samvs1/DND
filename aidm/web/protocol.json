@@ -655,6 +655,19 @@
         "Hello": {
           "additionalProperties": false,
           "properties": {
+            "last_seq": {
+              "anyOf": [
+                {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Last Seq"
+            },
             "name": {
               "maxLength": 40,
               "minLength": 1,

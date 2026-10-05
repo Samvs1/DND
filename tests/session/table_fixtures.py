@@ -17,6 +17,7 @@ from aidm.models.protocol_client import Hello
 from aidm.models.protocol_server import Welcome
 from aidm.models.state import GameState
 from aidm.session import combat_flow
+from aidm.session.persistence import CampaignStore
 from aidm.session.reducer import replay
 from aidm.session.table import Connection, Table
 from aidm.session.table_clock import ManualClock
@@ -57,9 +58,10 @@ async def running(
     state: GameState | None = None,
     *,
     turn_seconds: float | None = 90.0,
+    store: CampaignStore | None = None,
 ) -> AsyncIterator[tuple[Table, ManualClock]]:
     clock = ManualClock()
-    config = TableConfig(clock=clock, turn_seconds=turn_seconds)
+    config = TableConfig(clock=clock, turn_seconds=turn_seconds, store=store)
     table = Table(state if state is not None else inn_state(), llm, config)
     async with table:
         yield table, clock
