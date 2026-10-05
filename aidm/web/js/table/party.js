@@ -66,7 +66,7 @@ function stateBadges(c, levelUp) {
   ];
 }
 
-function card(c, state) {
+function card(c, state, store) {
   const mine = mySeat(state)?.creature_id === c.id;
   const level = state.levelUps[c.id];
   const classes = ['pcard', mine ? 'mine' : '', c.dead ? 'dead' : '', c.dying ? 'dying' : ''].join(' ').trim();
@@ -81,6 +81,7 @@ function card(c, state) {
       h('div', { class: 'pc-sub' }, t('table.classLine', { level: c.level ?? 1, race: titleCase(c.race), cls: titleCase(c.class_index) })),
       hpBar(c),
       h('div', { class: 'pc-meta' }, h('span', {}, t('table.ac', { n: c.ac })), conditionIcons(c), ...stateBadges(c, level && (c.level ?? 1) < level)),
+      mine ? h('button', { type: 'button', class: 'btn btn-small sheet-open', 'data-testid': 'sheet-open', onclick: () => store.update({ sheetOpen: true }) }, t('sheet.open')) : null,
     ),
   );
 }
@@ -97,7 +98,7 @@ export function mountParty(root, store) {
     if (key === last) return;
     last = key;
     clear(list);
-    for (const c of view.party) list.append(card(c, state));
+    for (const c of view.party) list.append(card(c, state, store));
   }
   render(store.get());
   return store.subscribe(render);

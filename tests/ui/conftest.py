@@ -1,5 +1,6 @@
 """UI test fixtures: the real app on a free port (FakeLLM, temp saves, fake LAN url)."""
 
+import asyncio
 import socket
 import threading
 import time
@@ -9,6 +10,7 @@ from pathlib import Path
 
 import pytest
 import uvicorn
+from fastapi import FastAPI
 from playwright.sync_api import Browser, sync_playwright
 
 from aidm.dm.fake_llm import FakeLLM, FakeStep, default_fake_step, fake_tool_call
@@ -25,6 +27,8 @@ SHOTS = ROOT / "artifacts" / "ui"
 @dataclass(frozen=True)
 class LiveServer:
     base: str
+    app: FastAPI | None = None
+    loop: asyncio.AbstractEventLoop | None = None
 
 
 def free_port() -> int:
@@ -46,18 +50,23 @@ def _serve(
         lan_url=f"http://192.168.1.20:{port}/",
     )
     llm = llm_for(settings) if llm_for else None
-    config = uvicorn.Config(
-        create_app(settings, llm=llm), host="127.0.0.1", port=port, log_level="warning"
-    )
+    app = create_app(settings, llm=llm)
+    config = uvicorn.Config(app, host="127.0.0.1", port=port, log_level="warning")
     server = uvicorn.Server(config)
-    thread = threading.Thread(target=server.run, daemon=True)
+    loops: list[asyncio.AbstractEventLoop] = []
+
+    async def serve() -> None:
+        loops.append(asyncio.get_running_loop())
+        await server.serve()
+
+    thread = threading.Thread(target=lambda: asyncio.run(serve()), daemon=True)
     thread.start()
     for _ in range(100):
         if server.started:
             break
         time.sleep(0.1)
     assert server.started, "server did not start"
-    yield LiveServer(base=f"http://127.0.0.1:{port}")
+    yield LiveServer(base=f"http://127.0.0.1:{port}", app=app, loop=loops[0])
     server.should_exit = True
     thread.join(timeout=10)
 

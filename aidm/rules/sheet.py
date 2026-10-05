@@ -152,4 +152,5 @@ def build_sheet(creature: Creature, regs: CharacterRegistries) -> CharacterSheet
             stable=creature.stable,
             dead=creature.dead,
         ),
+        concentrating_on=creature.concentrating_on.spell_id if creature.concentrating_on else None,
     )

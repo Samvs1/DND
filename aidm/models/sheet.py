@@ -24,7 +24,7 @@ Public API:
   xp_next), abilities, skills, passive_perception, proficiency_bonus, ac, hp, temp_hp, max_hp,
   speed, initiative_bonus (+DEX; BG3 rolls 1d4, `initiative_die`), attacks, attacks_per_action,
   spellcasting, features, resources, proficiencies and languages, resistances, inventory, gold,
-  conditions, death_saves.
+  conditions, death_saves, concentrating_on (the spell index being concentrated on).
 """
 
 from typing import Literal
@@ -179,3 +179,4 @@ class CharacterSheet(_Line):
     gold: int
     conditions: list[ConditionLine]
     death_saves: DeathSaveLine
+    concentrating_on: str | None = None

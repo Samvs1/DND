@@ -6,9 +6,11 @@ import { mountBoard } from '../combat/board.js';
 import { createController } from '../combat/controller.js';
 import { mountHotbar } from '../combat/hotbar.js';
 import { mountInitiative } from '../combat/initiative.js';
+import { mountSheet } from '../sheet/drawer.js';
+import { mountLevelUp } from '../sheet/levelup.js';
 import { mountSheetSync } from '../sheet/sync.js';
 import { mountAction } from '../table/action.js';
-import { mountConfirm, mountLevelUp, mountOffer } from '../table/dialogs.js';
+import { mountConfirm, mountOffer } from '../table/dialogs.js';
 import { mountDice } from '../table/dice.js';
 import { mountFeed } from '../table/feed.js';
 import { mountNotices } from '../table/notices.js';
@@ -77,6 +79,7 @@ export function mountTable(root, ctx) {
     mountAction(dock, ctx),
     mountConfirm(dialogs, ctx),
     mountOffer(dialogs, ctx),
+    mountSheet(dialogs, ctx),
   ];
   return () => {
     stops.forEach((stop) => stop());

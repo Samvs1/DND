@@ -2092,6 +2092,18 @@
               "title": "Class Index",
               "type": "string"
             },
+            "concentrating_on": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Concentrating On"
+            },
             "conditions": {
               "items": {
                 "$ref": "#/$defs/ConditionLine"

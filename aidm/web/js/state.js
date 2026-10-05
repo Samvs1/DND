@@ -53,6 +53,7 @@ export function initialState() {
     levelUps: {}, // creature id -> level offered by level_up_available
     sheet: null, // the latest `sheet` message (own hero: sheet + level-up options)
     sheetOpen: false, // the sheet drawer
+    levelUpOpen: false, // the level-up dialog
     refusal: null, // {code, n}: the latest refused command or gear change (typed, never raw text)
     wizardOpen: null, // null = open until the player has a hero; true/false once chosen
     lan: { lan: false, url: null },

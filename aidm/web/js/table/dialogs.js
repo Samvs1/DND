@@ -1,10 +1,10 @@
 // Table dialogs (native <dialog>, focus trapped by the browser): the point-of-no-return confirmation,
-// the encounter offer (fight / surprise / escape / parley) and the minimal level-up notice.
+// the encounter offer (fight / surprise / escape / parley). The level-up dialog lives in sheet/levelup.js.
 import { mySeat } from '../state.js';
 import { t } from '../strings.js';
 import { clear, h } from '../ui/dom.js';
 import { titleCase } from '../ui/format.js';
-import { myHero, publicState } from './lookup.js';
+import { publicState } from './lookup.js';
 
 function openDialog(dialog) {
   if (dialog.open) return;
@@ -94,27 +94,6 @@ export function mountOffer(root, { store, client }) {
       build(offer);
     }
     openDialog(dialog);
-  }
-  render(store.get());
-  return store.subscribe(render);
-}
-
-/** A badge button while your hero can level up; it opens a short notice (the sheet arrives in M7.5). */
-export function mountLevelUp(root, { store }) {
-  const dialog = h(
-    'dialog',
-    { class: 'dialog', 'aria-labelledby': 'levelup-h', 'data-testid': 'levelup-dialog' },
-    h('h2', { id: 'levelup-h' }, t('table.levelUpTitle')),
-    h('p', { class: 'dialog-text' }, t('table.levelUpText')),
-    h('div', { class: 'dialog-actions' }, h('button', { type: 'button', class: 'btn', onclick: () => closeDialog(dialog) }, t('table.close'))),
-  );
-  const button = h('button', { type: 'button', class: 'btn btn-small levelup-btn', hidden: true, 'data-testid': 'levelup-button', onclick: () => openDialog(dialog) }, t('table.levelUp'));
-  root.append(button, dialog);
-
-  function render(state) {
-    const hero = myHero(state);
-    const offered = hero ? state.levelUps[hero.id] : 0;
-    button.hidden = !(hero && offered && (hero.level ?? 1) < offered);
   }
   render(store.get());
   return store.subscribe(render);
