@@ -1,9 +1,12 @@
 """Executors for `update_quest` and `record_fact` (SPEC 6.3, 6.6): state, not prose.
 
 Quests: a new quest needs a title and starts offered or active (never already finished, so an
-invented quest cannot be "completed" for a deed); completed and failed are final. Completing a quest
-is a deed for its giver and against its target, failing one a deed against the giver
-(`aidm.rules.social_deeds.quest_deed_events`) - deeds are the only route past the ally bar.
+invented quest cannot be "completed" for a deed); the lifecycle is offered -> active -> completed
+or failed (`aidm.rules.quest_rewards`); completed and failed are final. Completing a campaign
+quest pays its tier reward (XP, gold, plot item) as events; invented quests pay nothing.
+Completing a quest is a deed for its giver and against its target, failing one a deed
+against the giver (`aidm.rules.social_deeds.quest_deed_events`) - deeds are the only route past
+the ally bar.
 Facts: every entity id must name something known (creature, NPC, feature, quest or world node),
 so the ledger cannot invent entities.
 
@@ -22,6 +25,7 @@ from aidm.models.state import GameState
 from aidm.models.world import Fact, Quest, QuestState
 from aidm.models.world_events import FactRecorded, QuestUpdated
 from aidm.rules.dice import Rng
+from aidm.rules.quest_rewards import quest_reward_events, quest_transition_refusal
 from aidm.rules.social_deeds import quest_deed_events
 
 FINAL_QUEST_STATES = frozenset({QuestState.COMPLETED, QuestState.FAILED})
@@ -39,6 +43,9 @@ def _quest(state: GameState, args: UpdateQuestArgs) -> Quest:
         return Quest(id=args.quest_id, title=args.title, state=args.state, giver_npc_id=giver)
     if old.state in FINAL_QUEST_STATES:
         raise ToolRefused(f"quest {old.id!r} is already {old.state.value}")
+    refusal = quest_transition_refusal(old.state, args.state)
+    if refusal is not None:
+        raise ToolRefused(refusal)
     return old.model_copy(update={"state": args.state})
 
 
@@ -50,6 +57,7 @@ def run_update_quest(
         return ToolResult(summary=f"quest {quest.id} unchanged")
     events: list[AnyEvent] = [QuestUpdated(quest=quest)]
     events.extend(quest_deed_events(state, quest, regs.tiers))
+    events.extend(quest_reward_events(state, quest, regs.tiers, regs.catalogue))
     return ToolResult(events=tuple(events), summary=f"quest {quest.title}: {quest.state.value}")
 
 

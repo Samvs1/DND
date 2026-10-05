@@ -1,0 +1,112 @@
+{
+  "source": "House shop rules (docs/RULES_DECISIONS.md M5.6): buy at value x buy_markup (rounded up, at least 1 gp), sell at half value (5e PHB 'Selling Treasure' and BG3 vendors).",
+  "buy_markup": 1.0,
+  "sell_fraction": 0.5,
+  "max_qty": 10,
+  "default_kind": "general",
+  "kinds": {
+    "general": {
+      "keywords": [
+        "merchant",
+        "trader",
+        "shopkeeper",
+        "peddler",
+        "general",
+        "vendor",
+        "trade"
+      ],
+      "categories": [
+        "gear",
+        "tool",
+        "supply",
+        "key",
+        "potion"
+      ],
+      "always": [
+        "camp-ration",
+        "camp-meal-basket",
+        "potion-of-healing"
+      ],
+      "size": 14
+    },
+    "smith": {
+      "keywords": [
+        "smith",
+        "armourer",
+        "armorer",
+        "weaponsmith",
+        "blacksmith",
+        "forge",
+        "arms"
+      ],
+      "categories": [
+        "weapon",
+        "armor"
+      ],
+      "always": [
+        "camp-ration"
+      ],
+      "size": 14
+    },
+    "alchemist": {
+      "keywords": [
+        "alchemist",
+        "apothecary",
+        "herbalist",
+        "healer",
+        "physician",
+        "chemist",
+        "medic"
+      ],
+      "categories": [
+        "potion",
+        "supply"
+      ],
+      "always": [
+        "potion-of-healing",
+        "herbal-poultice"
+      ],
+      "size": 8
+    },
+    "scribe": {
+      "keywords": [
+        "scribe",
+        "scholar",
+        "sage",
+        "wizard",
+        "mage",
+        "arcanist",
+        "bookseller",
+        "librarian"
+      ],
+      "categories": [
+        "scroll"
+      ],
+      "always": [],
+      "size": 10
+    },
+    "provisioner": {
+      "keywords": [
+        "innkeeper",
+        "cook",
+        "tavern",
+        "provisioner",
+        "quartermaster",
+        "fisher",
+        "baker",
+        "host",
+        "barkeep"
+      ],
+      "categories": [
+        "supply",
+        "gear"
+      ],
+      "always": [
+        "camp-ration",
+        "camp-meal-basket",
+        "camp-stew-kit"
+      ],
+      "size": 8
+    }
+  }
+}

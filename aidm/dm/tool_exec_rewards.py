@@ -1,10 +1,11 @@
 """Executors for `grant_item`, `grant_xp` and `start_encounter` (SPEC 6.3, 6.7, 9).
 
-Rewards come only from capped tiers: items from the catalogue (SRD equipment with a cost, plus
-data/bg3/consumables.json with a value) whose total value fits the region tier's cap, XP from the
-party-level table. Fights use encounter-ready catalogue monsters within the region tier and the
-CR budget (`rules.encounter_budget.check_encounter_budget`: never above deadly). Fighting a
-non-hostile NPC stops at the point of no return until the player confirms.
+Rewards come only from capped tiers: items from the item catalogue
+(`aidm.data.item_catalogue`: SRD gear, potions, camp supplies, keys, scrolls) whose total value fits
+the region tier's cap (camp supplies go to the party pool), XP from the party-level table.
+Fights use encounter-ready catalogue monsters within the region tier and the CR budget
+(`rules.encounter_budget.check_encounter_budget`: never above deadly). Fighting a non-hostile
+NPC stops at the point of no return until the player confirms.
 
 Public API: `run_grant_item`, `run_grant_xp`, `run_start_encounter` -> `ToolResult`;
 `catalog_value_gp(regs, catalog_id) -> float | None` (None: not a grantable catalogue item).
@@ -21,29 +22,23 @@ from aidm.dm.tool_exec_common import (
 )
 from aidm.dm.tools import GrantItemArgs, GrantXpArgs, StartEncounterArgs
 from aidm.models.encounter import EncounterSetup, EncounterStatus, MonsterSpawn, PartyPlacement
-from aidm.models.events import AnyEvent, InventoryChanged
+from aidm.models.events import AnyEvent
 from aidm.models.state import GameState
 from aidm.models.world import WorldNpc
 from aidm.rules.dice import Rng
 from aidm.rules.dm_tiers import item_value_cap, party_level, party_levels, xp_award
 from aidm.rules.encounter import EncounterRefused, start_encounter
 from aidm.rules.encounter_budget import check_encounter_budget
+from aidm.rules.item_grants import gain_item_events
 from aidm.rules.leveling import gain_xp
 from aidm.rules.social import hostile_attitude_events
 from aidm.rules.zone_gen import generate_zone_map
 from aidm.rules.zones import zone_neighbors
 
-GP_PER_UNIT = {"cp": 0.01, "sp": 0.1, "ep": 0.5, "gp": 1.0, "pp": 10.0}
-
 
 def catalog_value_gp(regs: ToolRegistries, catalog_id: str) -> float | None:
-    consumable = regs.combat.consumables.find(catalog_id)
-    if consumable is not None:
-        return None if consumable.value_gp is None else float(consumable.value_gp)
-    item = regs.combat.chars.equipment.find(catalog_id)
-    if item is None or item.cost is None or item.cost.unit not in GP_PER_UNIT:
-        return None
-    return item.cost.quantity * GP_PER_UNIT[item.cost.unit]
+    entry = regs.catalogue.find(catalog_id)
+    return None if entry is None else entry.value_gp
 
 
 def run_grant_item(
@@ -58,12 +53,10 @@ def run_grant_item(
     if unit * args.qty > cap:
         raise ToolRefused(f"worth {unit * args.qty:g} gp, above this region's cap of {cap} gp")
     pc = recipient_pc(state, ctx)
-    inventory = pc.pc.inventory if pc.pc is not None else []
-    held = next((i.qty for i in inventory if i.item == args.catalog_id), 0)
-    event = InventoryChanged(
-        creature_id=pc.id, item=args.catalog_id, delta=args.qty, qty=held + args.qty
+    events = gain_item_events(state, [(pc.id, args.catalog_id, args.qty)], regs.catalogue)
+    return ToolResult(
+        events=tuple(events), summary=f"{pc.name} gains {args.qty} x {args.catalog_id}"
     )
-    return ToolResult(events=(event,), summary=f"{pc.name} gains {args.qty} x {args.catalog_id}")
 
 
 def run_grant_xp(

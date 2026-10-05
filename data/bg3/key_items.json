@@ -1,0 +1,120 @@
+[
+  {
+    "index": "iron-key",
+    "name": "Iron Key",
+    "opens": [
+      "door",
+      "passage"
+    ],
+    "value_gp": 2,
+    "weight": 0.1
+  },
+  {
+    "index": "brass-key",
+    "name": "Brass Key",
+    "opens": [
+      "door",
+      "container"
+    ],
+    "value_gp": 2,
+    "weight": 0.1
+  },
+  {
+    "index": "silver-key",
+    "name": "Silver Key",
+    "opens": [
+      "container",
+      "cache"
+    ],
+    "value_gp": 10,
+    "weight": 0.1
+  },
+  {
+    "index": "bone-key",
+    "name": "Bone Key",
+    "opens": [
+      "door"
+    ],
+    "value_gp": 5,
+    "weight": 0.1
+  },
+  {
+    "index": "cellar-key",
+    "name": "Cellar Key",
+    "opens": [
+      "door",
+      "passage"
+    ],
+    "value_gp": 3,
+    "weight": 0.1
+  },
+  {
+    "index": "chest-key",
+    "name": "Chest Key",
+    "opens": [
+      "container",
+      "cache"
+    ],
+    "value_gp": 3,
+    "weight": 0.1
+  },
+  {
+    "index": "gate-key",
+    "name": "Gate Key",
+    "opens": [
+      "door",
+      "passage"
+    ],
+    "value_gp": 4,
+    "weight": 0.2
+  },
+  {
+    "index": "tower-key",
+    "name": "Tower Key",
+    "opens": [
+      "door"
+    ],
+    "value_gp": 6,
+    "weight": 0.1
+  },
+  {
+    "index": "crypt-key",
+    "name": "Crypt Key",
+    "opens": [
+      "door",
+      "passage"
+    ],
+    "value_gp": 8,
+    "weight": 0.1
+  },
+  {
+    "index": "lockbox-key",
+    "name": "Lockbox Key",
+    "opens": [
+      "container"
+    ],
+    "value_gp": 2,
+    "weight": 0.1
+  },
+  {
+    "index": "winch-crank",
+    "name": "Winch Crank",
+    "opens": [
+      "lever"
+    ],
+    "value_gp": 5,
+    "weight": 2.0
+  },
+  {
+    "index": "skeleton-key",
+    "name": "Skeleton Key",
+    "opens": [
+      "door",
+      "container",
+      "cache",
+      "passage"
+    ],
+    "value_gp": 250,
+    "weight": 0.1
+  }
+]

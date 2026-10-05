@@ -34,6 +34,7 @@ from aidm.rules.checks import dc_for_tier
 from aidm.rules.dice import Rng
 from aidm.rules.projection import project_state
 from aidm.rules.secrets import reveal_refusal
+from aidm.rules.shop import npc_shop_stock
 from aidm.rules.social import (
     attitude_band,
     attitude_score,
@@ -151,4 +152,8 @@ def run_open_shop(
     npc = _present_npc(state, args.npc)
     if npc_is_hostile(npc):
         raise ToolRefused(f"{npc.name} will not trade with the party")
-    return ToolResult(events=(ShopOpened(npc_id=npc.id),), summary=f"{npc.name} opens shop")
+    stock = npc_shop_stock(state, npc.id, regs.catalogue, regs.shops)
+    shelves = ", ".join(f"{e.item} ({e.price_gp} gp)" for e in stock)
+    return ToolResult(
+        events=(ShopOpened(npc_id=npc.id),), summary=f"{npc.name} opens shop; stock: {shelves}"
+    )

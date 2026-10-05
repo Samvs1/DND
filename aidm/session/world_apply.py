@@ -21,11 +21,14 @@ from aidm.models.world_events import (
     HostileActPending,
     ItemPlaced,
     ItemRemoved,
+    ItemsTraded,
+    LevelUpReady,
     NarrationRecorded,
     NodeDescribed,
     NpcIntroduced,
     PartyMoved,
     QuestUpdated,
+    RewardGranted,
     SceneSummarised,
     SecretRevealed,
     ShopOpened,
@@ -43,6 +46,9 @@ type WorldEvent = (
     | FactRecorded
     | ShopOpened
     | HostileActPending
+    | ItemsTraded
+    | RewardGranted
+    | LevelUpReady
     | FeatureDiscovered
     | NodeDescribed
     | ItemPlaced
@@ -79,6 +85,9 @@ WORLD_EVENT_TYPES = (
     FactRecorded,
     ShopOpened,
     HostileActPending,
+    ItemsTraded,
+    RewardGranted,
+    LevelUpReady,
     FeatureDiscovered,
     NodeDescribed,
     ItemPlaced,
@@ -180,7 +189,7 @@ def apply_world_event(state: GameState, event: WorldEvent) -> None:
         case ShopOpened(npc_id=npc_id):
             _npc(state, npc_id)
             world.shop_npc_id = npc_id
-        case HostileActPending():
+        case HostileActPending() | ItemsTraded() | RewardGranted() | LevelUpReady():
             pass
         case _:
             assert_never(event)

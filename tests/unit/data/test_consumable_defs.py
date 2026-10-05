@@ -11,7 +11,7 @@ from aidm.data.srd import DEFAULT_SRD_ROOT
 
 def test_golden_healing_potion_tiers() -> None:
     # SRD 5.1 Potion of Healing table: common 2d4+2, greater 4d4+4, superior 8d4+8, supreme 10d4+20.
-    heal = {c.index: c.heal for c in consumable_defs().all()}
+    heal = {c.index: c.heal for c in consumable_defs().all() if c.source.startswith("SRD")}
     assert heal == {
         "potion-of-healing": "2d4+2",
         "potion-of-healing-greater": "4d4+4",
@@ -23,7 +23,8 @@ def test_golden_healing_potion_tiers() -> None:
 def test_consumables_are_srd_magic_items() -> None:
     raw = json.loads((DEFAULT_SRD_ROOT / "magic_items.json").read_text(encoding="utf-8"))
     magic = {entry["index"] for entry in raw}
-    assert {c.index for c in consumable_defs().all()} <= magic
+    srd_items = {c.index for c in consumable_defs().all() if c.source.startswith("SRD")}
+    assert srd_items <= magic
 
 
 def test_combat_registries_bundle() -> None:

@@ -1,7 +1,8 @@
 """Inputs and outputs of the DM tool executors (SPEC 6.1 step 2, 6.3).
 
 Public API:
-- `ToolRegistries(combat, tiers, encounter_monsters, encounter_tables, terrains)`: the data the
+- `ToolRegistries(combat, tiers, encounter_monsters, encounter_tables, terrains, catalogue, shops,
+  loot)`: the data the
   executors read, passed in (`tool_registries()` builds the default bundle once).
 - `ToolContext(actor_id, confirm_hostile)`: who is acting, and whether that player explicitly
   confirmed a hostile act against non-hostile NPCs (the point of no return; the session sets
@@ -22,7 +23,10 @@ from aidm.data.combat_data import CombatRegistries, combat_registries
 from aidm.data.dm_tiers import DmTiers, dm_tiers
 from aidm.data.encounter_monsters import EncounterMonster, encounter_monsters
 from aidm.data.encounter_tables import EncounterTables, encounter_tables
+from aidm.data.item_catalogue import CatalogueItem, item_catalogue
+from aidm.data.loot_defs import LootTables, loot_tables
 from aidm.data.registry import Registry
+from aidm.data.shop_defs import ShopTable, shop_table
 from aidm.data.zone_templates import TerrainTemplate, zone_templates
 from aidm.models.events import AnyEvent
 
@@ -34,6 +38,9 @@ class ToolRegistries:
     encounter_monsters: Registry[EncounterMonster]
     encounter_tables: EncounterTables
     terrains: Registry[TerrainTemplate]
+    catalogue: Registry[CatalogueItem]
+    shops: ShopTable
+    loot: LootTables
 
 
 @functools.cache
@@ -44,6 +51,9 @@ def tool_registries() -> ToolRegistries:
         encounter_monsters=encounter_monsters(),
         encounter_tables=encounter_tables(),
         terrains=zone_templates(),
+        catalogue=item_catalogue(),
+        shops=shop_table(),
+        loot=loot_tables(),
     )
 
 

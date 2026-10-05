@@ -25,6 +25,8 @@ Public API:
   (alive, HP > 0), else DEFEAT (party wipe: everyone dead, dying or stable at 0 HP);
   otherwise no HOSTILE combatant standing -> VICTORY. NEUTRAL combatants never decide it.
 - `withdraw_combatant(state, creature_id, reason) -> list[AnyEvent]`: fled or surrendered.
+- `defeated_hostiles(state) -> list[Combatant]`: the HOSTILE combatants that count as defeated
+  (loot and kill XP use it).
 - `kill_xp(state) -> int`: SRD XP of every HOSTILE combatant that is defeated (dead, at 0 HP or
   surrendered; fled enemies give nothing).
 - `end_encounter(state, status) -> list[AnyEvent]`: `EncounterEnded` (kill XP split evenly,
@@ -229,10 +231,14 @@ def _defeated(state: GameState, combatant: Combatant) -> bool:
     return creature.dead or creature.hp == 0
 
 
-def kill_xp(state: GameState) -> int:
+def defeated_hostiles(state: GameState) -> list[Combatant]:
     enc = active_encounter(state)
     hostile = [c for c in enc.combatants.values() if c.side is Side.HOSTILE]
-    return sum(c.xp for c in hostile if _defeated(state, c))
+    return [c for c in hostile if _defeated(state, c)]
+
+
+def kill_xp(state: GameState) -> int:
+    return sum(c.xp for c in defeated_hostiles(state))
 
 
 def _xp_recipients(state: GameState, enc: Encounter) -> list[Creature]:

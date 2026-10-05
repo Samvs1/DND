@@ -5,8 +5,10 @@ Public API:
 - `MAX_LEVEL` (5, the Tier-1 cap), `XP_THRESHOLDS` (SRD 5.1 "Character Advancement": 0, 300,
   900, 2700, 6500 for levels 1-5); `xp_for_level(level) -> int`, `level_for_xp(xp) -> int`
   (capped at MAX_LEVEL).
-- `gain_xp(creature, amount) -> list[AnyEvent]`: `[XpGained]` (ValueError for a non-PC or a
-  negative amount). Levels are taken with `level_up`, never automatically.
+- `gain_xp(creature, amount, already=0) -> list[AnyEvent]`: `[XpGained]` (ValueError for a non-PC
+  or a negative amount), plus a log-only `LevelUpReady` when the total newly reaches the next level
+  (M5.6 flag; `already` is XP granted earlier in the same unapplied batch). Levels are taken with
+  `level_up`, never automatically.
 - `can_level_up(creature) -> bool`: a living PC under MAX_LEVEL with enough XP.
 - `validate_level_up(creature, choices, regs) -> list[CreationError]`: every problem; [] = valid.
 - `level_up(creature, choices, regs) -> list[AnyEvent]`: `LevelGained` (HP: fixed average + CON
@@ -28,6 +30,7 @@ from aidm.models.creation import CreationError, CreationErrorCode
 from aidm.models.events import AnyEvent, LevelGained, XpGained
 from aidm.models.leveling import LevelUpChoices
 from aidm.models.state import Creature
+from aidm.models.world_events import LevelUpReady
 from aidm.rules.abilities import ability_modifier, proficiency_bonus
 from aidm.rules.creation_checks import pick_errors
 from aidm.rules.defense import armor_class
@@ -71,13 +74,18 @@ def level_for_xp(xp: int) -> int:
     return max(i + 1 for i, threshold in enumerate(XP_THRESHOLDS) if xp >= threshold)
 
 
-def gain_xp(creature: Creature, amount: int) -> list[AnyEvent]:
+def gain_xp(creature: Creature, amount: int, already: int = 0) -> list[AnyEvent]:
     if creature.pc is None:
         raise ValueError(f"{creature.id!r} is not a player character")
     if amount < 0:
         raise ValueError("experience gains are never negative")
-    total = creature.pc.xp + amount
-    return [XpGained(creature_id=creature.id, amount=amount, xp=total)]
+    before = creature.pc.xp + already
+    total = before + amount
+    events: list[AnyEvent] = [XpGained(creature_id=creature.id, amount=amount, xp=total)]
+    level = creature.pc.level
+    if level < MAX_LEVEL and level_for_xp(before) <= level < level_for_xp(total):
+        events.append(LevelUpReady(creature_id=creature.id, level=level + 1))
+    return events
 
 
 def _gate_errors(creature: Creature) -> list[CreationError]:

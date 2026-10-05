@@ -44,6 +44,8 @@ def test_attitude_condition_needs_the_band() -> None:
 def test_quest_condition_and_quest_deed() -> None:
     _, state, _ = campaign_state()
     assert run_tool(state, "reveal_secret", npc="tobin-marrow", secret_id="tobin-lights").error
+    accepted = run_tool(state, "update_quest", quest_id="missing-ledger", state="active")
+    apply_all(state, list(accepted.events))
     done = run_tool(state, "update_quest", quest_id="missing-ledger", state="completed")
     assert done.ok
     apply_all(state, list(done.events))

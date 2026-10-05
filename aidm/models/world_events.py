@@ -18,6 +18,11 @@ Public API:
 - `HostileActPending(actor_id, npc_ids, tool, reason)`: pure log event (point of no return): a
   hostile act against non-hostile NPCs waits for the acting player's confirmation; nothing
   else changed.
+- `ItemsTraded(npc_id, creature_id, item, qty, gold, sold)` (M5.6): pure log event of a shop
+  sale or purchase (gold and inventory move through `GoldChanged` / `InventoryChanged`).
+- `RewardGranted(source, kind, xp_each, gold_each, items)` (M5.6): pure log event of loot, a quest
+  or a milestone paying out (the numbers move through their own events).
+- `LevelUpReady(creature_id, level)` (M5.6): pure log event: the PC has enough XP for `level`.
 - `FeatureDiscovered(feature_id, creature_id)` (M4.3): a hidden feature was found; it joins
   the manifest.
 - `NodeDescribed(node_id, text)`: the established description of a place (stored once).
@@ -96,6 +101,31 @@ class HostileActPending(_WorldEvent):
     reason: str = ""
 
 
+class ItemsTraded(_WorldEvent):
+    type: Literal["items_traded"] = "items_traded"
+    npc_id: str
+    creature_id: str
+    item: str = Field(min_length=1)
+    qty: int = Field(ge=1)
+    gold: int = Field(ge=0)
+    sold: bool = False
+
+
+class RewardGranted(_WorldEvent):
+    type: Literal["reward_granted"] = "reward_granted"
+    source: str = Field(min_length=1)
+    kind: Literal["loot", "quest", "milestone"]
+    xp_each: int = Field(default=0, ge=0)
+    gold_each: int = Field(default=0, ge=0)
+    items: tuple[str, ...] = ()
+
+
+class LevelUpReady(_WorldEvent):
+    type: Literal["level_up_ready"] = "level_up_ready"
+    creature_id: str
+    level: int = Field(ge=2, le=20)
+
+
 class FeatureDiscovered(_WorldEvent):
     type: Literal["feature_discovered"] = "feature_discovered"
     feature_id: str
@@ -139,6 +169,9 @@ WorldEvents = (
     | FactRecorded
     | ShopOpened
     | HostileActPending
+    | ItemsTraded
+    | RewardGranted
+    | LevelUpReady
     | FeatureDiscovered
     | NodeDescribed
     | ItemPlaced

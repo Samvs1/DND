@@ -1,0 +1,527 @@
+{
+  "source": "House loot tables (docs/RULES_DECISIONS.md M5.6): gold dice, item chance in percent, weighted item picks and an optional camp supply find, per region tier and monster type; 'default' covers any other type, 'boss' the campaign bosses.",
+  "tiers": {
+    "1": {
+      "default": {
+        "gold": "1d6",
+        "item_chance": 25,
+        "items": [
+          {
+            "item": "herbal-poultice",
+            "weight": 4
+          },
+          {
+            "item": "travellers-tonic",
+            "weight": 3
+          },
+          {
+            "item": "potion-of-healing",
+            "weight": 2
+          }
+        ],
+        "supply_chance": 0,
+        "supply": 0
+      },
+      "humanoid": {
+        "gold": "2d6",
+        "item_chance": 40,
+        "items": [
+          {
+            "item": "herbal-poultice",
+            "weight": 4
+          },
+          {
+            "item": "travellers-tonic",
+            "weight": 3
+          },
+          {
+            "item": "potion-of-healing",
+            "weight": 2
+          },
+          {
+            "item": "iron-key",
+            "weight": 1
+          },
+          {
+            "item": "chest-key",
+            "weight": 1
+          },
+          {
+            "item": "scroll-of-magic-missile",
+            "weight": 1
+          }
+        ],
+        "supply_chance": 0,
+        "supply": 0
+      },
+      "beast": {
+        "gold": "0",
+        "item_chance": 20,
+        "items": [
+          {
+            "item": "camp-ration",
+            "weight": 3
+          }
+        ],
+        "supply_chance": 50,
+        "supply": 1
+      },
+      "undead": {
+        "gold": "1d8",
+        "item_chance": 30,
+        "items": [
+          {
+            "item": "bone-key",
+            "weight": 2
+          },
+          {
+            "item": "herbal-poultice",
+            "weight": 2
+          },
+          {
+            "item": "scroll-of-chill-touch",
+            "weight": 1
+          }
+        ],
+        "supply_chance": 0,
+        "supply": 0
+      },
+      "monstrosity": {
+        "gold": "1d6",
+        "item_chance": 30,
+        "items": [
+          {
+            "item": "herbal-poultice",
+            "weight": 4
+          },
+          {
+            "item": "travellers-tonic",
+            "weight": 3
+          },
+          {
+            "item": "potion-of-healing",
+            "weight": 2
+          }
+        ],
+        "supply_chance": 0,
+        "supply": 0
+      },
+      "boss": {
+        "gold": "4d10+10",
+        "item_chance": 100,
+        "items": [
+          {
+            "item": "potion-of-healing",
+            "weight": 3
+          },
+          {
+            "item": "scroll-of-sleep",
+            "weight": 2
+          },
+          {
+            "item": "silver-key",
+            "weight": 2
+          },
+          {
+            "item": "restorative-draught",
+            "weight": 2
+          }
+        ],
+        "supply_chance": 100,
+        "supply": 3
+      }
+    },
+    "2": {
+      "default": {
+        "gold": "2d8",
+        "item_chance": 30,
+        "items": [
+          {
+            "item": "potion-of-healing",
+            "weight": 4
+          },
+          {
+            "item": "restorative-draught",
+            "weight": 3
+          },
+          {
+            "item": "potion-of-healing-greater",
+            "weight": 2
+          },
+          {
+            "item": "scroll-of-cure-wounds",
+            "weight": 1
+          }
+        ],
+        "supply_chance": 0,
+        "supply": 0
+      },
+      "humanoid": {
+        "gold": "4d8",
+        "item_chance": 45,
+        "items": [
+          {
+            "item": "potion-of-healing",
+            "weight": 4
+          },
+          {
+            "item": "restorative-draught",
+            "weight": 3
+          },
+          {
+            "item": "potion-of-healing-greater",
+            "weight": 2
+          },
+          {
+            "item": "scroll-of-cure-wounds",
+            "weight": 1
+          },
+          {
+            "item": "gate-key",
+            "weight": 1
+          },
+          {
+            "item": "crypt-key",
+            "weight": 1
+          },
+          {
+            "item": "scroll-of-scorching-ray",
+            "weight": 1
+          }
+        ],
+        "supply_chance": 0,
+        "supply": 0
+      },
+      "beast": {
+        "gold": "0",
+        "item_chance": 20,
+        "items": [
+          {
+            "item": "camp-meal-basket",
+            "weight": 3
+          }
+        ],
+        "supply_chance": 50,
+        "supply": 2
+      },
+      "undead": {
+        "gold": "2d10",
+        "item_chance": 35,
+        "items": [
+          {
+            "item": "crypt-key",
+            "weight": 2
+          },
+          {
+            "item": "potion-of-healing",
+            "weight": 2
+          },
+          {
+            "item": "scroll-of-inflict-wounds",
+            "weight": 1
+          }
+        ],
+        "supply_chance": 0,
+        "supply": 0
+      },
+      "monstrosity": {
+        "gold": "2d8",
+        "item_chance": 35,
+        "items": [
+          {
+            "item": "potion-of-healing",
+            "weight": 4
+          },
+          {
+            "item": "restorative-draught",
+            "weight": 3
+          },
+          {
+            "item": "potion-of-healing-greater",
+            "weight": 2
+          },
+          {
+            "item": "scroll-of-cure-wounds",
+            "weight": 1
+          }
+        ],
+        "supply_chance": 0,
+        "supply": 0
+      },
+      "giant": {
+        "gold": "4d10",
+        "item_chance": 40,
+        "items": [
+          {
+            "item": "potion-of-healing",
+            "weight": 4
+          },
+          {
+            "item": "restorative-draught",
+            "weight": 3
+          },
+          {
+            "item": "potion-of-healing-greater",
+            "weight": 2
+          },
+          {
+            "item": "scroll-of-cure-wounds",
+            "weight": 1
+          },
+          {
+            "item": "tower-key",
+            "weight": 1
+          }
+        ],
+        "supply_chance": 0,
+        "supply": 0
+      },
+      "dragon": {
+        "gold": "6d10",
+        "item_chance": 60,
+        "items": [
+          {
+            "item": "potion-of-healing",
+            "weight": 4
+          },
+          {
+            "item": "restorative-draught",
+            "weight": 3
+          },
+          {
+            "item": "potion-of-healing-greater",
+            "weight": 2
+          },
+          {
+            "item": "scroll-of-cure-wounds",
+            "weight": 1
+          },
+          {
+            "item": "scroll-of-shatter",
+            "weight": 1
+          }
+        ],
+        "supply_chance": 0,
+        "supply": 0
+      },
+      "boss": {
+        "gold": "8d10+40",
+        "item_chance": 100,
+        "items": [
+          {
+            "item": "potion-of-healing-greater",
+            "weight": 3
+          },
+          {
+            "item": "scroll-of-hold-person",
+            "weight": 2
+          },
+          {
+            "item": "tower-key",
+            "weight": 2
+          },
+          {
+            "item": "restorative-draught",
+            "weight": 2
+          }
+        ],
+        "supply_chance": 100,
+        "supply": 5
+      }
+    },
+    "3": {
+      "default": {
+        "gold": "4d10",
+        "item_chance": 35,
+        "items": [
+          {
+            "item": "potion-of-healing-greater",
+            "weight": 4
+          },
+          {
+            "item": "healers-elixir",
+            "weight": 3
+          },
+          {
+            "item": "potion-of-healing-superior",
+            "weight": 2
+          },
+          {
+            "item": "scroll-of-revivify",
+            "weight": 1
+          }
+        ],
+        "supply_chance": 0,
+        "supply": 0
+      },
+      "humanoid": {
+        "gold": "6d10",
+        "item_chance": 50,
+        "items": [
+          {
+            "item": "potion-of-healing-greater",
+            "weight": 4
+          },
+          {
+            "item": "healers-elixir",
+            "weight": 3
+          },
+          {
+            "item": "potion-of-healing-superior",
+            "weight": 2
+          },
+          {
+            "item": "scroll-of-revivify",
+            "weight": 1
+          },
+          {
+            "item": "skeleton-key",
+            "weight": 1
+          },
+          {
+            "item": "scroll-of-fireball",
+            "weight": 1
+          }
+        ],
+        "supply_chance": 0,
+        "supply": 0
+      },
+      "beast": {
+        "gold": "0",
+        "item_chance": 20,
+        "items": [
+          {
+            "item": "camp-stew-kit",
+            "weight": 3
+          }
+        ],
+        "supply_chance": 50,
+        "supply": 3
+      },
+      "undead": {
+        "gold": "4d12",
+        "item_chance": 40,
+        "items": [
+          {
+            "item": "crypt-key",
+            "weight": 2
+          },
+          {
+            "item": "potion-of-healing-greater",
+            "weight": 2
+          },
+          {
+            "item": "scroll-of-revivify",
+            "weight": 1
+          }
+        ],
+        "supply_chance": 0,
+        "supply": 0
+      },
+      "monstrosity": {
+        "gold": "4d10",
+        "item_chance": 40,
+        "items": [
+          {
+            "item": "potion-of-healing-greater",
+            "weight": 4
+          },
+          {
+            "item": "healers-elixir",
+            "weight": 3
+          },
+          {
+            "item": "potion-of-healing-superior",
+            "weight": 2
+          },
+          {
+            "item": "scroll-of-revivify",
+            "weight": 1
+          }
+        ],
+        "supply_chance": 0,
+        "supply": 0
+      },
+      "giant": {
+        "gold": "8d10",
+        "item_chance": 45,
+        "items": [
+          {
+            "item": "potion-of-healing-greater",
+            "weight": 4
+          },
+          {
+            "item": "healers-elixir",
+            "weight": 3
+          },
+          {
+            "item": "potion-of-healing-superior",
+            "weight": 2
+          },
+          {
+            "item": "scroll-of-revivify",
+            "weight": 1
+          },
+          {
+            "item": "winch-crank",
+            "weight": 1
+          }
+        ],
+        "supply_chance": 0,
+        "supply": 0
+      },
+      "dragon": {
+        "gold": "10d10",
+        "item_chance": 70,
+        "items": [
+          {
+            "item": "potion-of-healing-greater",
+            "weight": 4
+          },
+          {
+            "item": "healers-elixir",
+            "weight": 3
+          },
+          {
+            "item": "potion-of-healing-superior",
+            "weight": 2
+          },
+          {
+            "item": "scroll-of-revivify",
+            "weight": 1
+          },
+          {
+            "item": "scroll-of-lightning-bolt",
+            "weight": 1
+          }
+        ],
+        "supply_chance": 0,
+        "supply": 0
+      },
+      "boss": {
+        "gold": "12d10+100",
+        "item_chance": 100,
+        "items": [
+          {
+            "item": "potion-of-healing-superior",
+            "weight": 3
+          },
+          {
+            "item": "scroll-of-fireball",
+            "weight": 2
+          },
+          {
+            "item": "skeleton-key",
+            "weight": 1
+          },
+          {
+            "item": "healers-elixir",
+            "weight": 2
+          }
+        ],
+        "supply_chance": 100,
+        "supply": 10
+      }
+    }
+  }
+}

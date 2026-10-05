@@ -16,6 +16,9 @@
 - `offer_dc_tiers` / `boss_parley_dc_tiers` (M5.4): the DC tier (a `DcTier` value) of the
   escape / surprise / parley checks of a world-pulled encounter, by region tier; parleying
   with a boss uses the second table.
+- `quest_gold_gp` (M5.6): gold per living PC for a completed quest, by region tier then reward
+  tier; `region_milestone_xp_tier`: the `grant_xp` tier a resolved region pays, by region tier;
+  `final_milestone_xp_tier`: the extra tier paid when the last region resolves.
 
 Public API: `TierRow`, `DmTiers`, `load_dm_tiers(path=None)`, `dm_tiers()` (default, cached).
 The lookups are `aidm.rules.dm_tiers`.
@@ -56,6 +59,17 @@ def _check_rows(rows: tuple[TierRow, ...], name: str) -> None:
         raise ValueError(f"{name}: rows must be sorted by max_level and end at 20")
 
 
+def _check_reward_tables(tiers: DmTiers) -> None:
+    region_tiers = {"1", "2", "3"}
+    if set(tiers.quest_gold_gp) != region_tiers:
+        raise ValueError("quest_gold_gp needs region tiers 1, 2 and 3")
+    if any(set(row) != TIER_KEYS for row in tiers.quest_gold_gp.values()):
+        raise ValueError("quest_gold_gp rows need exactly the keys minor, moderate, major")
+    named = [*tiers.region_milestone_xp_tier.values(), tiers.final_milestone_xp_tier]
+    if set(tiers.region_milestone_xp_tier) != region_tiers or not set(named) <= TIER_KEYS:
+        raise ValueError("milestone XP tiers need region tiers 1-3 and minor/moderate/major values")
+
+
 class DmTiers(_Strict):
     source: str = ""
     severity_dice: tuple[TierRow, ...]
@@ -72,6 +86,9 @@ class DmTiers(_Strict):
     deed_points: dict[str, int]
     offer_dc_tiers: dict[str, str] = Field(default_factory=dict[str, str])
     boss_parley_dc_tiers: dict[str, str] = Field(default_factory=dict[str, str])
+    quest_gold_gp: dict[str, dict[str, int]]
+    region_milestone_xp_tier: dict[str, str]
+    final_milestone_xp_tier: str
 
     @model_validator(mode="after")
     def _check(self) -> DmTiers:
@@ -82,6 +99,7 @@ class DmTiers(_Strict):
                 raise ValueError(f"{name} needs exactly the keys minor, moderate, major")
         if set(self.item_value_cap_gp) != {"1", "2", "3"}:
             raise ValueError("item_value_cap_gp needs region tiers 1, 2 and 3")
+        _check_reward_tables(self)
         return self
 
 

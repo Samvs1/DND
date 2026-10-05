@@ -4,27 +4,107 @@
     "name": "Potion of Healing",
     "source": "SRD 5.1 Magic Items: Potion of Healing (common, 2d4 + 2)",
     "heal": "2d4+2",
-    "value_gp": 50
+    "value_gp": 50,
+    "category": "potion",
+    "weight": 0.5
   },
   {
     "index": "potion-of-healing-greater",
     "name": "Potion of Greater Healing",
     "source": "SRD 5.1 Magic Items: Potion of Healing (uncommon, 4d4 + 4)",
     "heal": "4d4+4",
-    "value_gp": 150
+    "value_gp": 150,
+    "category": "potion",
+    "weight": 0.5
   },
   {
     "index": "potion-of-healing-superior",
     "name": "Potion of Superior Healing",
     "source": "SRD 5.1 Magic Items: Potion of Healing (rare, 8d4 + 8)",
     "heal": "8d4+8",
-    "value_gp": 500
+    "value_gp": 500,
+    "category": "potion",
+    "weight": 0.5
   },
   {
     "index": "potion-of-healing-supreme",
     "name": "Potion of Supreme Healing",
     "source": "SRD 5.1 Magic Items: Potion of Healing (very rare, 10d4 + 20)",
     "heal": "10d4+20",
-    "value_gp": 1500
+    "value_gp": 1500,
+    "category": "potion",
+    "weight": 0.5
+  },
+  {
+    "index": "herbal-poultice",
+    "name": "Herbal Poultice",
+    "source": "House recipe (docs/RULES_DECISIONS.md M5.6): a healing draught priced between SRD potion tiers",
+    "category": "potion",
+    "weight": 0.5,
+    "heal": "1d4+1",
+    "value_gp": 10
+  },
+  {
+    "index": "travellers-tonic",
+    "name": "Traveller's Tonic",
+    "source": "House recipe (docs/RULES_DECISIONS.md M5.6): a healing draught priced between SRD potion tiers",
+    "category": "potion",
+    "weight": 0.5,
+    "heal": "2d4",
+    "value_gp": 25
+  },
+  {
+    "index": "restorative-draught",
+    "name": "Restorative Draught",
+    "source": "House recipe (docs/RULES_DECISIONS.md M5.6): a healing draught priced between SRD potion tiers",
+    "category": "potion",
+    "weight": 0.5,
+    "heal": "3d4+3",
+    "value_gp": 100
+  },
+  {
+    "index": "healers-elixir",
+    "name": "Healer's Elixir",
+    "source": "House recipe (docs/RULES_DECISIONS.md M5.6): a healing draught priced between SRD potion tiers",
+    "category": "potion",
+    "weight": 0.5,
+    "heal": "6d4+6",
+    "value_gp": 300
+  },
+  {
+    "index": "camp-ration",
+    "name": "Camp Ration",
+    "source": "House camp supplies (docs/RULES_DECISIONS.md M5.6): food for the long rest pool",
+    "category": "supply",
+    "weight": 2.0,
+    "supply": 1,
+    "value_gp": 0.5
+  },
+  {
+    "index": "camp-meal-basket",
+    "name": "Hearty Meal Basket",
+    "source": "House camp supplies (docs/RULES_DECISIONS.md M5.6): food for the long rest pool",
+    "category": "supply",
+    "weight": 6.0,
+    "supply": 3,
+    "value_gp": 1.5
+  },
+  {
+    "index": "camp-stew-kit",
+    "name": "Stew Kit",
+    "source": "House camp supplies (docs/RULES_DECISIONS.md M5.6): food for the long rest pool",
+    "category": "supply",
+    "weight": 10.0,
+    "supply": 5,
+    "value_gp": 2.5
+  },
+  {
+    "index": "camp-feast-hamper",
+    "name": "Feast Hamper",
+    "source": "House camp supplies (docs/RULES_DECISIONS.md M5.6): food for the long rest pool",
+    "category": "supply",
+    "weight": 20.0,
+    "supply": 10,
+    "value_gp": 6
   }
 ]
