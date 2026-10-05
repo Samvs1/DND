@@ -240,5 +240,14 @@
     "speed_factor": 0.5,
     "ac_bonus": -2,
     "can_react": false
+  },
+  {
+    "index": "nauseated",
+    "name": "Nauseated",
+    "source": "SRD 5.1 Stinking Cloud (a failed save spends the turn retching: no actions or reactions this turn)",
+    "srd_condition": false,
+    "can_act": false,
+    "can_react": false,
+    "duration": {"kind": "rounds", "rounds": 1, "tick_on": "end_of_turn"}
   }
 ]

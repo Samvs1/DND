@@ -19,16 +19,8 @@
   },
   "effects": [
     {
-      "type": "save",
-      "ability": "dex",
-      "on_fail": [
-        {
-          "type": "apply_condition",
-          "condition": "restrained",
-          "save_ends": "str"
-        }
-      ],
-      "on_success": "none"
+      "type": "surface",
+      "surface": "web"
     }
   ]
 }

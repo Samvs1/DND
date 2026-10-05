@@ -120,7 +120,7 @@ SYNTHETIC: list[dict[str, object]] = [
         "range": {"kind": "feet", "feet": 60},
         "targeting": {"kind": "area", "area": "zone"},
         "effects": [
-            {"type": "surface", "surface": "grease", "rounds": 10},
+            {"type": "surface", "surface": "oil", "rounds": 10},
             {
                 "type": "save",
                 "ability": "dex",
@@ -216,7 +216,7 @@ def test_surface_and_area_condition() -> None:
     _cast_custom(state, "grease", ScriptedRng(5, 20), zone="yard")
     assert state.encounter is not None
     surfaces = state.encounter.zone_map.zone("yard").surfaces
-    assert [(s.kind, s.rounds_left, s.source_id) for s in surfaces] == [("grease", 10, "w")]
+    assert [(s.kind, s.rounds_left, s.source_id) for s in surfaces] == [("oil", 10, "w")]
     assert [c.name for c in state.creatures["gob"].conditions] == ["prone"]
     assert state.creatures["gob2"].conditions == []
 

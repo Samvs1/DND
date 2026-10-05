@@ -17,15 +17,8 @@
   },
   "effects": [
     {
-      "type": "save",
-      "ability": "dex",
-      "on_fail": [
-        {
-          "type": "apply_condition",
-          "condition": "prone"
-        }
-      ],
-      "on_success": "none"
+      "type": "surface",
+      "surface": "grease"
     }
   ]
 }

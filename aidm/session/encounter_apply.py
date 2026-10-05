@@ -10,7 +10,12 @@ Public API: `EncounterEvent` (the union of the encounter events),
 
 from typing import assert_never
 
-from aidm.models.combat_events import CombatantMoved, ZoneSurfaceAdded
+from aidm.models.combat_events import (
+    CombatantMoved,
+    ZoneSurfaceAdded,
+    ZoneSurfaceRemoved,
+    ZoneSurfaceTicked,
+)
 from aidm.models.encounter import Combatant, Encounter, EncounterStatus
 from aidm.models.encounter_events import (
     CombatantWithdrew,
@@ -21,6 +26,7 @@ from aidm.models.encounter_events import (
     TurnStarted,
 )
 from aidm.models.state import GameState
+from aidm.models.zones import Zone, ZoneSurface
 from aidm.session.reducer_errors import ReducerError
 
 type EncounterEvent = (
@@ -32,6 +38,8 @@ type EncounterEvent = (
     | EncounterEnded
     | CombatantMoved
     | ZoneSurfaceAdded
+    | ZoneSurfaceRemoved
+    | ZoneSurfaceTicked
 )
 
 
@@ -69,6 +77,34 @@ def _turn_started(enc: Encounter, event: TurnStarted) -> None:
     enc.turn_open = True
 
 
+def _zone(enc: Encounter, zone_id: str) -> Zone:
+    if not enc.zone_map.has_zone(zone_id):
+        raise ReducerError(f"unknown zone {zone_id!r}")
+    return enc.zone_map.zone(zone_id)
+
+
+def _surface(zone: Zone, kind: str) -> ZoneSurface:
+    found = next((s for s in zone.surfaces if s.kind == kind), None)
+    if found is None:
+        raise ReducerError(f"no {kind!r} surface in zone {zone.id!r}")
+    return found
+
+
+def _surface_event(
+    enc: Encounter, event: ZoneSurfaceAdded | ZoneSurfaceRemoved | ZoneSurfaceTicked
+) -> None:
+    zone = _zone(enc, event.zone_id)
+    match event:
+        case ZoneSurfaceAdded(surface=surface):
+            kept = [s for s in zone.surfaces if s.kind != surface.kind]
+            zone.surfaces = [*kept, surface.model_copy()]
+        case ZoneSurfaceRemoved(kind=kind):
+            _surface(zone, kind)
+            zone.surfaces = [s for s in zone.surfaces if s.kind != kind]
+        case ZoneSurfaceTicked(kind=kind, rounds_left=left):
+            _surface(zone, kind).rounds_left = left
+
+
 def apply_encounter_event(state: GameState, event: EncounterEvent) -> None:
     if isinstance(event, EncounterStarted):
         _start(state, event)
@@ -89,10 +125,8 @@ def apply_encounter_event(state: GameState, event: EncounterEvent) -> None:
             if not enc.zone_map.has_zone(zone):
                 raise ReducerError(f"unknown zone {zone!r}")
             _combatant(enc, cid).zone_id = zone
-        case ZoneSurfaceAdded(zone_id=zone, surface=surface):
-            if not enc.zone_map.has_zone(zone):
-                raise ReducerError(f"unknown zone {zone!r}")
-            enc.zone_map.zone(zone).surfaces.append(surface.model_copy())
+        case ZoneSurfaceAdded() | ZoneSurfaceRemoved() | ZoneSurfaceTicked():
+            _surface_event(enc, event)
         case EncounterEnded(status=status):
             enc.status = status
             enc.turn_open = False

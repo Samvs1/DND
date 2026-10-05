@@ -20,14 +20,18 @@ Semantics (SRD 5.1 unless noted):
   turns; `save_ends` repeats the save against the spell DC at the end of the bearer's turns; on
   a concentration spell the applied condition is linked to the concentration. A target that
   becomes incapacitated loses its own concentration.
-- surface: one `ZoneSurfaceAdded` per zone and surface for the cast.
+- surface: placed once per zone and surface for the cast through `rules.surfaces` (interactions,
+  "create" harms), carrying the caster's spell DC, the upcast levels and the concentration link.
+- damage also hits the target's zone: a matching surface damage interaction fires once per zone
+  and damage type per cast (fire into oil ignites); area spells hit their zone even when empty.
 - multi_target: the sub-effects run on every other creature of the current target's zone (or
   zone and neighbours), sharing rolls.
 
 Public API: `CastContext`, `cast_dice(effect_dice, ctx, *, cantrip_scaling, upcast_dice,
 add_modifier) -> str`, `spell_attack_profile(spell, name, ctx) -> AttackProfile`,
 `run_effects(ctx, effects, target_id, *, crit=False, half=False, shared=False) -> None`,
-`place_surface(ctx, effect, zone_id) -> None`.
+`place_surface(ctx, effect, zone_id) -> None`, `zone_damage(ctx, zone_id, damage_type) -> None`,
+`damage_types(effects) -> list[str]`.
 """
 
 from collections.abc import Sequence
@@ -51,7 +55,6 @@ from aidm.data.spell_defs import (
 )
 from aidm.models.abilities import Ability
 from aidm.models.combat import AttackEconomy, AttackProfile
-from aidm.models.combat_events import ZoneSurfaceAdded
 from aidm.models.conditions import ConditionLink, SaveEnds
 from aidm.models.damage import DamagePacket, DamageType
 from aidm.models.dice import Roll
@@ -67,6 +70,8 @@ from aidm.rules.dice import Rng, parse_dice, roll
 from aidm.rules.features import healing_bonus, save_advantage_sources
 from aidm.rules.projection import project_state
 from aidm.rules.spell_targets import CasterNumbers, area_creatures, spell_band
+from aidm.rules.surface_state import surface_def
+from aidm.rules.surfaces import place_surface_events, zone_damage_events
 
 CANTRIP_TIERS = (5, 11, 17)
 MAGIC_TAG = "magic"
@@ -87,6 +92,7 @@ class CastContext:
     links: list[ConditionLink] = field(default_factory=list[ConditionLink])
     rolls: dict[int, Roll] = field(default_factory=dict[int, Roll])
     surfaces: set[tuple[str, str]] = field(default_factory=set[tuple[str, str]])
+    zone_hits: set[tuple[str, str]] = field(default_factory=set[tuple[str, str]])
 
     def emit(self, events: Sequence[AnyEvent]) -> None:
         if events:
@@ -163,6 +169,32 @@ def _damage(
             ctx.rng, ctx.state, ctx.caster_id, target_id, [packet], crit=crit, feats=ctx.feats
         )
     )
+    zone = _zone_of(ctx, target_id)
+    if zone is not None:
+        zone_damage(ctx, zone, effect.damage_type)
+
+
+def zone_damage(ctx: CastContext, zone_id: str, damage_type: str) -> None:
+    if (zone_id, damage_type) in ctx.zone_hits:
+        return
+    ctx.zone_hits.add((zone_id, damage_type))
+    ctx.emit(zone_damage_events(ctx.rng, ctx.state, zone_id, damage_type))
+
+
+def damage_types(effects: Sequence[Effect]) -> list[str]:
+    found: list[str] = []
+    for effect in effects:
+        if isinstance(effect, DamageEffect):
+            found.append(effect.damage_type)
+        elif isinstance(effect, (AttackRollEffect, MultiTargetEffect)):
+            found.extend(
+                damage_types(
+                    effect.on_hit if isinstance(effect, AttackRollEffect) else effect.effects
+                )
+            )
+        elif isinstance(effect, SaveEffect):
+            found.extend(damage_types(effect.on_fail))
+    return list(dict.fromkeys(found))
 
 
 def _heal(
@@ -247,8 +279,17 @@ def place_surface(ctx: CastContext, effect: SurfaceEffect, zone_id: str) -> None
     if (zone_id, effect.surface) in ctx.surfaces:
         return
     ctx.surfaces.add((zone_id, effect.surface))
-    surface = ZoneSurface(kind=effect.surface, rounds_left=effect.rounds, source_id=ctx.caster_id)
-    ctx.emit([ZoneSurfaceAdded(zone_id=zone_id, surface=surface)])
+    sdef = surface_def(effect.surface)
+    default = sdef.duration_rounds if sdef is not None else None
+    surface = ZoneSurface(
+        kind=effect.surface,
+        rounds_left=effect.rounds or ctx.spell.duration_rounds or default,
+        source_id=ctx.caster_id,
+        dc=ctx.numbers.save_dc,
+        upcast=max(0, ctx.cast_level - ctx.spell.level),
+        concentration=ctx.spell.concentration,
+    )
+    ctx.emit(place_surface_events(ctx.rng, ctx.state, zone_id, surface))
 
 
 def _zone_of(ctx: CastContext, creature_id: str) -> str | None:

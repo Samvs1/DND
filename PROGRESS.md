@@ -1,4 +1,4 @@
-NEXT: M3.7 Surfaces lite. Delegate to hard-engineer. Last gate: M3.6 GATE PASS 8/8, 40 spells shipped.
+NEXT: M3.6b spell DSL extensions, 50+ spells, picker policy (hard-engineer, in flight). Files in flight: none. Last gate: M3.7 GATE PASS 8/8.
 
 # PROGRESS
 
@@ -44,7 +44,7 @@ Stashes and blockers: record them in the Notes section at the bottom.
 - [x] M3.4 **H** Spell effect DSL: schema plus ONE interpreter (attack_roll, save half/none/condition, typed damage with upcast, heal, apply/remove_condition, temp_hp, ac_buff, surface, multi_target), slot validation, upcasting, concentration hookup; 10 spells with goldens. Gate: pytest rules. (commit see git log, `WIP M3.4`)
 - [x] M3.5 **M** Spell content batch 1: all cantrips and level 1 for the 6 classes' lists as DSL JSON, a golden test each. Gate: pytest spells.
 - [x] M3.6 **M** Spell content batch 2: levels 2-3 until >=50 shipped; unsupported spells listed in RULES_DECISIONS and hidden from pickers. Gate: pytest spells plus a count assertion >=50.
-- [ ] M3.7 **H** Surfaces lite: `data/bg3/surfaces.json` (fire, oil/grease, water, ice, poison cloud), interactions (fire+oil, water+lightning, water+cold, fire clears ice/water), turn-start and enter triggers, attached to zones. Gate: pytest rules.
+- [x] M3.7 **H** Surfaces lite: `data/bg3/surfaces.json` (fire, oil/grease, water, ice, poison cloud), interactions (fire+oil, water+lightning, water+cold, fire clears ice/water), turn-start and enter triggers, attached to zones. Gate: pytest rules. (commit see git log, `WIP M3.7`)
 - [ ] M3.8 **H** Monster actions: execute multiattack, breath weapon with recharge, spell kits and legendary actions through the same attack/DSL paths. Gate: pytest rules.
 - [ ] M3.9 **M** Monster catalogue: >=60 encounter-ready SRD monsters CR<=8 (including a breath dragon and a caster), with goldens for 10. Gate: pytest data plus a count assertion.
 - [ ] M3.10 **H** Monster AI: value-based targeting (threat, kill chance, vulnerability, concentration breaking), zone/range awareness, spell and multiattack choice, retreat when broken; seeded determinism test. Gate: pytest rules.
@@ -129,6 +129,7 @@ If the API rejects the key or needs organisation verification: stop M10 generati
 10. The final message is a VERIFICATION REPORT plus the Tier-2 items not built.
 
 ## Notes (stashes, blockers, decisions pending)
+- M3.7: surfaces are data/bg3/surfaces.json read by rules/surfaces.py (+ rules/surface_state.py); hooks in combat_moves (enter), turns.begin_turn (round ticks, turn start), spell_effects (surface placement, zone damage) and concentration (concentration surfaces end). Grease and Web now place surfaces. Decisions: DECISIONS M3.7, RULES_DECISIONS M3.7.
 - M2.4 resolved the M2.2 deferred hooks (hill dwarf HP, racial resistances, life domain heavy armor, rogue expertise, domain/patron spells). Unsupported feature mechanics are listed in RULES_DECISIONS M2.4 for M3 (reactions, DSL effects).
 - M3.6 (for hard-engineer): only 40 spells are shippable with the current DSL (SPEC 7.4 asks for 50); the 80+ unsupported spells and reasons are in docs/RULES_DECISIONS.md "Unsupported spells". DSL features that would unlock >=10 more: surfaces (stinking-cloud, fog-cloud, darkness, silence, spike-growth, sleet-storm, spirit-guardians, grease/web terrain), HP-pool targeting (sleep, color-spray), negative bonus dice (bane), a damage-rider condition (hunters-mark), heal-from-damage (vampiric-touch), speed above 1x / extra action (longstrider, haste, expeditious-retreat), check dice (guidance), a dead-target heal (revivify). `tests/unit/data/test_spell_coverage.py` has SHIPPED_FLOOR = 40: raise it as spells are added.
 - M3.6 (for hard-engineer): pickers are NOT yet filtered to shipped spells. `aidm.data.spell_defs.shipped_spell_ids()` exists, but making `rules/creation_checks.class_spell_indexes` use it breaks creation (it needs 3 cantrips for a cleric and only sacred-flame is shipped; warlock has 2 cantrips and 1 level-1 spell shipped; ranger 2 level-1 spells), so a policy decision is needed first (relax pick counts to min(count, available), or ship utility cantrips such as guidance/light/thaumaturgy as flavour-only data). Domain/patron expanded spells can also name unshipped spells (e.g. spiritual-weapon).

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from hypothesis import strategies as st
 
+from aidm.models.combat_events import ZoneSurfaceAdded, ZoneSurfaceRemoved, ZoneSurfaceTicked
 from aidm.models.encounter import (
     Combatant,
     Encounter,
@@ -23,7 +24,7 @@ from aidm.models.encounter_events import (
 )
 from aidm.models.events import AnyEvent
 from aidm.models.state import GameState
-from aidm.models.zones import Zone, ZoneEdge, ZoneMap
+from aidm.models.zones import Zone, ZoneEdge, ZoneMap, ZoneSurface
 
 ZONES = ZoneMap(
     zones=[Zone(id="a", name="A"), Zone(id="b", name="B", high_ground=True)],
@@ -69,6 +70,27 @@ def _start(data: st.DataObject, state: GameState) -> AnyEvent:
     return EncounterStarted(encounter=encounter)
 
 
+SURFACE_KINDS = ["fire", "oil", "water", "fog"]
+
+
+def _surface_events(data: st.DataObject, enc: Encounter) -> list[AnyEvent]:
+    zone = data.draw(st.sampled_from(["a", "b"]))
+    surface = ZoneSurface(
+        kind=data.draw(st.sampled_from(SURFACE_KINDS)),
+        rounds_left=data.draw(st.none() | st.integers(1, 10)),
+        source_id=data.draw(st.none() | st.sampled_from(sorted(enc.combatants))),
+        dc=data.draw(st.none() | st.integers(8, 18)),
+        upcast=data.draw(st.integers(0, 2)),
+        concentration=data.draw(st.booleans()),
+    )
+    found: list[AnyEvent] = [ZoneSurfaceAdded(zone_id=zone, surface=surface)]
+    for present in enc.zone_map.zone(zone).surfaces:
+        found.append(ZoneSurfaceRemoved(zone_id=zone, kind=present.kind, reason="prop"))
+        left = data.draw(st.integers(1, 9))
+        found.append(ZoneSurfaceTicked(zone_id=zone, kind=present.kind, rounds_left=left))
+    return found
+
+
 def draw_encounter_event(data: st.DataObject, state: GameState) -> AnyEvent:
     enc = state.encounter
     if enc is None or enc.status is not EncounterStatus.ACTIVE:
@@ -88,5 +110,6 @@ def draw_encounter_event(data: st.DataObject, state: GameState) -> AnyEvent:
         EconomyChanged(creature_id=cid, economy=_economy(data), reason="prop"),
         CombatantWithdrew(creature_id=cid, reason=data.draw(st.sampled_from(list(WithdrawReason)))),
         EncounterEnded(status=data.draw(st.sampled_from(ENDINGS)), xp_total=50, xp_each=25),
+        *_surface_events(data, enc),
     ]
     return data.draw(st.sampled_from(options))

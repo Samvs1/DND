@@ -9,8 +9,11 @@ spells reach a number of hops given by their range band.
 Public API:
 - `CoverLevel`: NONE / HALF (+2 AC) / THREE_QUARTERS (+5 AC) for ranged attacks INTO the zone
   from another zone (numbers live in `aidm.rules.zones`).
-- `ZoneSurface(kind, rounds_left, source_id)`: one surface lying in a zone (fire, oil, ...).
-  The slot exists now so snapshots stay compatible; M3.7 fills it from data/bg3/surfaces.json.
+- `ZoneSurface(kind, rounds_left, source_id, dc, upcast, concentration)`: one surface lying in a
+  zone (`kind` keys data/bg3/surfaces.json; at most one per kind per zone). `rounds_left` None =
+  until removed; `source_id` the creature that made it (None for the environment); `dc` the save
+  DC it imposes (None = the data default); `upcast` slot levels above the creating spell's level;
+  `concentration` True when it ends with its source's concentration.
 - `Zone(id, name, tags, distance_label, cover, high_ground, difficult, surfaces)`: `id` is the
   stable key tools and the UI use ("ridge"); `name` is the display name ("Mossy Ridge");
   `distance_label` is flavour for the zone card ("about 30 ft across"); `difficult` doubles the
@@ -44,6 +47,9 @@ class ZoneSurface(BaseModel):
     kind: str = Field(min_length=1)
     rounds_left: int | None = Field(default=None, ge=1)
     source_id: str | None = None
+    dc: int | None = Field(default=None, ge=1)
+    upcast: int = Field(default=0, ge=0)
+    concentration: bool = False
 
 
 class Zone(BaseModel):

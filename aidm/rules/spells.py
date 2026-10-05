@@ -7,8 +7,9 @@ the innate resource) can pay at the requested level, and the targets are valid a
 
 Event order: the slot `ResourceSet` (none for cantrips), `SpellCast` (log), the old
 concentration's end (a concentration spell replaces it, SRD 5.1), area surfaces, the effects of
-every target instance in order, then `ConcentrationStarted` linking the conditions this cast
-applied (so they end with it).
+every target instance in order, the area's surface damage interactions (fire into an oil zone),
+then `ConcentrationStarted` linking the conditions this cast applied (so they end with it; its
+surfaces carry their own concentration flag).
 
 Economy (`cast_command`, in combat): the spell's casting time spends the action or the bonus
 action. BG3 rule: a bonus-action spell does NOT restrict the action to a cantrip (the SRD 5.1
@@ -33,7 +34,13 @@ from aidm.rules.concentration import end_concentration, start_concentration
 from aidm.rules.dice import Rng
 from aidm.rules.features import character_level
 from aidm.rules.projection import project_state
-from aidm.rules.spell_effects import CastContext, place_surface, run_effects
+from aidm.rules.spell_effects import (
+    CastContext,
+    damage_types,
+    place_surface,
+    run_effects,
+    zone_damage,
+)
 from aidm.rules.spell_targets import cast_slot, caster_numbers, resolve_targets
 
 
@@ -89,6 +96,9 @@ def cast_spell(
     shared = spell.targeting.kind == "area"
     for target_id in targets.instances:
         run_effects(ctx, spell.effects, target_id, shared=shared)
+    if targets.zone is not None:
+        for damage_type in damage_types(spell.effects):
+            zone_damage(ctx, targets.zone, damage_type)
     if spell.concentration:
         ctx.emit(start_concentration(ctx.state, caster_id, spell.index, ctx.links))
     return ctx.events

@@ -73,7 +73,7 @@ def _dispatch(
         case CastCommand():
             return cast_command(state, command, regs, rng)
         case MoveCommand():
-            return move_command(state, command, regs)
+            return move_command(state, command, regs, rng)
         case DashCommand():
             return dash_command(state, command, regs)
         case DisengageCommand():
@@ -83,7 +83,7 @@ def _dispatch(
         case ShoveCommand():
             return shove_command(state, command, regs, rng)
         case JumpCommand():
-            return jump_command(state, command, regs)
+            return jump_command(state, command, regs, rng)
         case ThrowCommand():
             return throw_command(state, command, regs, rng)
         case UseItemCommand():

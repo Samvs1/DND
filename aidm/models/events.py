@@ -41,6 +41,8 @@ from aidm.models.combat_events import (
     CombatantMoved,
     SpellCast,
     ZoneSurfaceAdded,
+    ZoneSurfaceRemoved,
+    ZoneSurfaceTicked,
 )
 from aidm.models.conditions import Concentration
 from aidm.models.damage import DamagePart, DamageType
@@ -354,6 +356,8 @@ type AnyEvent = (
     | CombatantMoved
     | SpellCast
     | ZoneSurfaceAdded
+    | ZoneSurfaceRemoved
+    | ZoneSurfaceTicked
 )
 
 Event = Annotated[AnyEvent, Field(discriminator="type")]

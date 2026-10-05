@@ -10,7 +10,10 @@ Public API:
   `feet` the movement it cost (0 when pushed). Applied by `aidm.session.encounter_apply`.
 - `SpellCast(caster_id, spell_id, cast_level, target_ids, target_zone)`: a spell was cast (log
   only; the slot, effects and concentration events follow). `cast_level` 0 for a cantrip.
-- `ZoneSurfaceAdded(zone_id, surface)`: a surface now lies in the zone (M3.7 gives it effects).
+- `ZoneSurfaceAdded(zone_id, surface)`: a surface now lies in the zone, replacing one of the same
+  kind (its effects: `aidm.rules.surfaces`).
+- `ZoneSurfaceRemoved(zone_id, kind, reason)`: the surface of that kind is gone from the zone.
+- `ZoneSurfaceTicked(zone_id, kind, rounds_left)`: its remaining duration after a round start.
 """
 
 from typing import Literal
@@ -60,3 +63,17 @@ class ZoneSurfaceAdded(_CombatEvent):
     type: Literal["zone_surface_added"] = "zone_surface_added"
     zone_id: str
     surface: ZoneSurface
+
+
+class ZoneSurfaceRemoved(_CombatEvent):
+    type: Literal["zone_surface_removed"] = "zone_surface_removed"
+    zone_id: str
+    kind: str
+    reason: str = "expired"
+
+
+class ZoneSurfaceTicked(_CombatEvent):
+    type: Literal["zone_surface_ticked"] = "zone_surface_ticked"
+    zone_id: str
+    kind: str
+    rounds_left: int = Field(ge=1)

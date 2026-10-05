@@ -6,7 +6,8 @@ Public API:
   concentration first (its linked conditions are removed), then `ConcentrationStarted`.
   `links` name the conditions the caster applied (with `source_id` = caster) that end with it.
 - `end_concentration(state, caster_id, reason) -> list[AnyEvent]`: `ConditionRemoved` (exact
-  source = the caster) for each linked condition still present on an existing creature, then
+  source = the caster) for each linked condition still present on an existing creature, the
+  removal of every zone surface the caster keeps up with concentration, then
   `ConcentrationEnded`. Nothing when the caster is not concentrating.
 - `concentration_after_damage(rng, state, damage, *, adv_sources=0, dis_sources=0, bonus=0)
   -> list[AnyEvent]`: call with the state AFTER the `resolve_damage` events were applied and the
@@ -33,6 +34,7 @@ from aidm.models.events import (
 from aidm.models.state import GameState
 from aidm.rules.conditions import is_incapacitated, save_with_conditions
 from aidm.rules.dice import Rng
+from aidm.rules.surface_state import concentration_surface_events
 
 CONCENTRATION_MIN_DC = 10
 
@@ -58,6 +60,7 @@ def end_concentration(state: GameState, caster_id: str, reason: str) -> list[Any
                     creature_id=target.id, name=link.name, source_id=caster_id, exact_source=True
                 )
             )
+    events.extend(concentration_surface_events(state, caster_id))
     events.append(
         ConcentrationEnded(
             creature_id=caster_id, spell_id=caster.concentrating_on.spell_id, reason=reason

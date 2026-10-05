@@ -36,7 +36,8 @@ Effects (`type` tag):
   `ac_buff(condition, rounds)`: a condition whose data entry carries `ac_bonus` (the amount
   lives in data/bg3/conditions.json so the sheet shows it). `rounds` None = the spell's
   `duration_rounds`, else the condition's default.
-- `surface(surface, rounds)`: a surface on the target's zone (effects arrive in M3.7).
+- `surface(surface, rounds)`: a surface (a key of data/bg3/surfaces.json) on the target's zone
+  or the area's zone; `rounds` None = the spell's `duration_rounds`, else the surface default.
 - `multi_target(area, include_target, effects)`: a splash: `effects` run on every other
   creature in the current target's zone (or zone and neighbours), sharing rolls.
 

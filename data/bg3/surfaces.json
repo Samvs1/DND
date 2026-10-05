@@ -1,0 +1,58 @@
+{
+  "surfaces": [
+    {"index": "fire", "name": "Fire", "duration_rounds": 3,
+     "harms": [{"damage": "1d4", "damage_type": "fire"}]},
+    {"index": "oil", "name": "Oil", "difficult": true},
+    {"index": "grease", "name": "Grease", "duration_rounds": 10, "difficult": true,
+     "harms": [{"when": ["create", "enter", "turn_start"], "save": "dex", "condition": "prone"}]},
+    {"index": "water", "name": "Water"},
+    {"index": "ice", "name": "Ice", "dc": 10, "difficult": true,
+     "harms": [{"save": "dex", "condition": "prone"}]},
+    {"index": "poison-cloud", "name": "Poison Cloud", "duration_rounds": 3,
+     "harms": [{"save": "con", "damage": "1d6", "damage_type": "poison", "condition": "poisoned",
+                "condition_rounds": 1}]},
+    {"index": "steam", "name": "Steam", "duration_rounds": 2},
+    {"index": "web", "name": "Web", "difficult": true,
+     "harms": [{"when": ["create", "enter", "turn_start"], "save": "dex",
+                "condition": "restrained", "while_inside": true}]},
+    {"index": "fog", "name": "Fog", "harms": [
+      {"when": ["create", "enter", "turn_start"], "condition": "blinded", "while_inside": true}]},
+    {"index": "darkness", "name": "Magical Darkness", "harms": [
+      {"when": ["create", "enter", "turn_start"], "condition": "blinded", "while_inside": true}]},
+    {"index": "stinking-cloud", "name": "Stinking Cloud", "harms": [
+      {"when": ["create", "enter", "turn_start"], "condition": "blinded", "while_inside": true},
+      {"when": ["turn_start"], "save": "con", "condition": "nauseated", "condition_rounds": 1}]},
+    {"index": "sleet-storm", "name": "Sleet Storm", "difficult": true, "harms": [
+      {"when": ["create", "enter", "turn_start"], "condition": "blinded", "while_inside": true},
+      {"save": "dex", "condition": "prone"}]},
+    {"index": "spike-growth", "name": "Spike Growth", "difficult": true, "harms": [
+      {"when": ["enter"], "damage": "4d4", "damage_type": "piercing"}]},
+    {"index": "spirit-guardians", "name": "Spirit Guardians", "affects": "hostile_to_source",
+     "follows_source": true, "harms": [
+      {"save": "wis", "half_on_save": true, "damage": "3d8", "damage_type": "radiant",
+       "upcast_dice": "1d8"}]}
+  ],
+  "interactions": [
+    {"surfaces": ["fire", "oil"], "consumes": ["oil"],
+     "burst": {"save": "dex", "dc": 12, "half_on_save": true, "damage": "2d6", "damage_type": "fire"}},
+    {"surface": "oil", "damage_type": "fire", "consumes": ["oil"], "creates": ["fire"],
+     "burst": {"save": "dex", "dc": 12, "half_on_save": true, "damage": "2d6", "damage_type": "fire"}},
+    {"surfaces": ["fire", "grease"], "consumes": ["grease"],
+     "burst": {"save": "dex", "dc": 12, "half_on_save": true, "damage": "2d6", "damage_type": "fire"}},
+    {"surface": "grease", "damage_type": "fire", "consumes": ["grease"], "creates": ["fire"],
+     "burst": {"save": "dex", "dc": 12, "half_on_save": true, "damage": "2d6", "damage_type": "fire"}},
+    {"surfaces": ["fire", "web"], "consumes": ["web"],
+     "burst": {"damage": "2d4", "damage_type": "fire"}},
+    {"surface": "web", "damage_type": "fire", "consumes": ["web"],
+     "burst": {"damage": "2d4", "damage_type": "fire"}},
+    {"surface": "water", "damage_type": "lightning",
+     "burst": {"save": "con", "dc": 12, "damage": "1d4", "damage_type": "lightning",
+               "condition": "shocked", "condition_rounds": 1}},
+    {"surface": "water", "damage_type": "cold", "consumes": ["water"], "creates": ["ice"]},
+    {"surfaces": ["fire", "water"], "consumes": ["fire", "water"], "creates": ["steam"]},
+    {"surfaces": ["fire", "ice"], "consumes": ["fire", "ice"], "creates": ["steam"]},
+    {"surface": "water", "damage_type": "fire", "consumes": ["water"], "creates": ["steam"]},
+    {"surface": "ice", "damage_type": "fire", "consumes": ["ice"], "creates": ["steam"]},
+    {"surfaces": ["fire", "sleet-storm"], "consumes": ["fire"]}
+  ]
+}

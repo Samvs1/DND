@@ -8,8 +8,9 @@ question on private copies: the input state and its objects are never touched.
 Covered events (the ones rules emit mid-command; everything else is ignored): HpChanged,
 TempHpSet, ConditionApplied, ConditionRemoved, ConditionTicked, ConcentrationStarted,
 ConcentrationEnded, DeathSaveRolled, DeathSavesSet, Stabilized, CreatureDied, ResourceSet,
-EconomyChanged and CombatantMoved. The semantics mirror the reducer exactly (property-tested
-against it in tests/property/test_projection_props.py).
+EconomyChanged, CombatantMoved and the zone surface events (added, removed, ticked). The
+semantics mirror the reducer exactly (property-tested against it in
+tests/property/test_projection_props.py).
 
 Public API:
 - `project_creature(creature, events) -> Creature`: the creature after the events naming it.
@@ -19,7 +20,13 @@ Public API:
 
 from collections.abc import Sequence
 
-from aidm.models.combat_events import CombatantMoved
+from aidm.models.combat_events import (
+    CombatantMoved,
+    ZoneSurfaceAdded,
+    ZoneSurfaceRemoved,
+    ZoneSurfaceTicked,
+)
+from aidm.models.encounter import Encounter
 from aidm.models.encounter_events import EconomyChanged
 from aidm.models.events import (
     AnyEvent,
@@ -103,21 +110,51 @@ def project_creature(creature: Creature, events: Sequence[AnyEvent]) -> Creature
     return projected
 
 
+type _EncounterStep = (
+    EconomyChanged | CombatantMoved | ZoneSurfaceAdded | ZoneSurfaceRemoved | ZoneSurfaceTicked
+)
+_ENCOUNTER_STEPS = (
+    EconomyChanged,
+    CombatantMoved,
+    ZoneSurfaceAdded,
+    ZoneSurfaceRemoved,
+    ZoneSurfaceTicked,
+)
+
+
+def _encounter_step(encounter: Encounter, event: _EncounterStep) -> None:
+    if isinstance(event, (ZoneSurfaceAdded, ZoneSurfaceRemoved, ZoneSurfaceTicked)):
+        if not encounter.zone_map.has_zone(event.zone_id):
+            return
+        zone = encounter.zone_map.zone(event.zone_id)
+        if isinstance(event, ZoneSurfaceAdded):
+            kept = [s for s in zone.surfaces if s.kind != event.surface.kind]
+            zone.surfaces = [*kept, event.surface.model_copy()]
+        elif isinstance(event, ZoneSurfaceRemoved):
+            zone.surfaces = [s for s in zone.surfaces if s.kind != event.kind]
+        else:
+            for surface in zone.surfaces:
+                if surface.kind == event.kind:
+                    surface.rounds_left = event.rounds_left
+        return
+    combatant = encounter.combatants.get(event.creature_id)
+    if combatant is None:
+        return
+    if isinstance(event, EconomyChanged):
+        combatant.economy = event.economy
+    else:
+        combatant.zone_id = event.to_zone
+
+
 def project_state(state: GameState, events: Sequence[AnyEvent]) -> GameState:
     touched = {cid for e in events if (cid := _target(e)) in state.creatures}
     creatures = dict(state.creatures)
     for cid in sorted(touched):
         creatures[cid] = project_creature(state.creatures[cid], events)
     encounter = state.encounter
-    moves = [e for e in events if isinstance(e, (EconomyChanged, CombatantMoved))]
-    if encounter is not None and moves:
+    steps = [e for e in events if isinstance(e, _ENCOUNTER_STEPS)]
+    if encounter is not None and steps:
         encounter = encounter.model_copy(deep=True)
-        for event in moves:
-            combatant = encounter.combatants.get(event.creature_id)
-            if combatant is None:
-                continue
-            if isinstance(event, EconomyChanged):
-                combatant.economy = event.economy
-            else:
-                combatant.zone_id = event.to_zone
+        for event in steps:
+            _encounter_step(encounter, event)
     return state.model_copy(update={"creatures": creatures, "encounter": encounter})

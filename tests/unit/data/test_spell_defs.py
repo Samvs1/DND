@@ -21,11 +21,13 @@ from aidm.data.spell_defs import (
     RemoveConditionEffect,
     SaveEffect,
     SpellDef,
+    SurfaceEffect,
     TempHpEffect,
     load_spell_defs,
     spell_defs,
 )
 from aidm.data.srd import srd
+from aidm.data.surface_defs import surface_defs
 from aidm.rules.dice import parse_dice
 
 CASTING_TIME = {"1 action": "action", "1 bonus action": "bonus_action", "1 reaction": "reaction"}
@@ -73,6 +75,8 @@ def test_spell_references_resolve(spell: SpellDef) -> None:
             assert conditions.get(effect.condition).ac_bonus > 0
         if isinstance(effect, RemoveConditionEffect):
             assert all(name in conditions for name in effect.conditions)
+        if isinstance(effect, SurfaceEffect):
+            assert effect.surface in surface_defs()
         if isinstance(effect, (DamageEffect, HealEffect, TempHpEffect)):
             parse_dice(effect.dice)
             if effect.upcast_dice:

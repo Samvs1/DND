@@ -3,7 +3,8 @@
 All distance questions are answered from the `ZoneMap` graph; there is no grid.
 
 Movement: entering an adjacent zone costs the edge's `feet`, doubled when the zone entered is
-`difficult` (SRD 5.1 Difficult Terrain: every foot costs 1 extra foot). Moving inside a zone is
+`difficult` or holds a difficult surface (grease, ice, web: data/bg3/surfaces.json) (SRD 5.1
+Difficult Terrain: every foot costs 1 extra foot). Moving inside a zone is
 free. Paths are cheapest-cost (Dijkstra; ties broken by zone id, so results are deterministic).
 
 Range bands (one mapping for weapons and spells, `hops_for_range`):
@@ -20,7 +21,8 @@ ground gets one disadvantage source. Same-zone attacks never change (both share 
 Cover: a ranged attack from ANOTHER zone into a zone with cover adds +2 (half) / +5 (three
 quarters) to the target's AC (SRD 5.1 Cover). Attacks inside the zone ignore it.
 
-Public API: `zone_neighbors(zone_map, zone_id) -> list[(zone_id, feet)]` (cost to ENTER each),
+Public API: `zone_is_difficult(zone) -> bool`,
+`zone_neighbors(zone_map, zone_id) -> list[(zone_id, feet)]` (cost to ENTER each),
 `hop_cost(zone_map, a, b) -> int | None`, `zone_path(zone_map, start, goal) -> ZonePath`,
 `reachable_zones(zone_map, start, movement_feet) -> dict[zone_id, feet]`,
 `zone_hops(zone_map, a, b) -> int`, `hops_for_range(feet) -> int`,
@@ -33,7 +35,8 @@ Unknown zone ids raise `ZoneError` (an engine bug or a tool input the caller val
 
 import heapq
 
-from aidm.models.zones import CoverLevel, RangeBand, RangeCheck, ZoneMap, ZonePath
+from aidm.data.surface_defs import surface_defs
+from aidm.models.zones import CoverLevel, RangeBand, RangeCheck, Zone, ZoneMap, ZonePath
 
 MELEE_RANGE_FEET = 10
 NEAR_RANGE_FEET = 60
@@ -56,13 +59,20 @@ def _require(zone_map: ZoneMap, *zone_ids: str) -> None:
             raise ZoneError(f"unknown zone {zone_id!r}")
 
 
+def zone_is_difficult(zone: Zone) -> bool:
+    if zone.difficult:
+        return True
+    defs = surface_defs()
+    return any((sdef := defs.find(s.kind)) is not None and sdef.difficult for s in zone.surfaces)
+
+
 def zone_neighbors(zone_map: ZoneMap, zone_id: str) -> list[tuple[str, int]]:
     _require(zone_map, zone_id)
     found: list[tuple[str, int]] = []
     for edge in zone_map.edges:
         if zone_id in (edge.a, edge.b):
             other = edge.b if zone_id == edge.a else edge.a
-            factor = 2 if zone_map.zone(other).difficult else 1
+            factor = 2 if zone_is_difficult(zone_map.zone(other)) else 1
             found.append((other, edge.feet * factor))
     return sorted(found)
 

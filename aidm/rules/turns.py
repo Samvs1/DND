@@ -6,8 +6,10 @@ Turn flow (events only; the session applies them between calls):
   starts the next round. Dying and stable PCs keep their turns (death saves); dead creatures are
   skipped. None: nobody can take a turn.
 - `begin_turn(rng, state) -> list[AnyEvent]`: opens the next turn: `TurnStarted` with a fresh
-  `TurnEconomy`, then the start-of-turn condition ticks (`condition_timing.turn_start_events`),
-  then a death saving throw when the creature is dying (SRD: at the start of each of its turns).
+  `TurnEconomy`, then (when a new round begins) the zone surface duration ticks, the
+  start-of-turn condition ticks (`condition_timing.turn_start_events`), the turn-start harms of
+  the surfaces in the creature's zone (`rules.surfaces`), then a death saving throw when the
+  creature is (still) dying (SRD: at the start of each of its turns).
   The economy reflects those consequences (a natural 20 on the death save wakes the creature
   up with its full economy; a surprised creature gets no action, bonus action, movement or
   reaction). Refused when a turn is already open or nobody can act.
@@ -39,7 +41,9 @@ from aidm.rules.conditions import can_take_actions, can_take_reactions, speed_mu
 from aidm.rules.death import is_dying, roll_death_save
 from aidm.rules.dice import Rng
 from aidm.rules.encounter import EncounterRefusal, EncounterRefused, active_encounter
-from aidm.rules.projection import project_creature
+from aidm.rules.projection import project_creature, project_state
+from aidm.rules.surface_state import surface_round_events
+from aidm.rules.surfaces import turn_start_surface_events
 
 
 class EconomyRefusal(StrEnum):
@@ -106,9 +110,13 @@ def begin_turn(rng: Rng, state: GameState) -> list[AnyEvent]:
         raise EncounterRefused(EncounterRefusal.NO_ONE_CAN_ACT, enc.id)
     index, round_no = upcoming
     creature = state.creatures[enc.initiative[index].creature_id]
-    consequences = turn_start_events(state, creature.id)
-    if is_dying(creature):
-        consequences.extend(roll_death_save(rng, creature))
+    consequences = surface_round_events(state) if round_no > enc.round else []
+    consequences.extend(turn_start_events(state, creature.id))
+    after = project_state(state, consequences)
+    consequences.extend(turn_start_surface_events(rng, after, creature.id))
+    now = project_creature(creature, consequences)
+    if is_dying(creature) and is_dying(now):
+        consequences.extend(roll_death_save(rng, now))
     economy = fresh_economy(project_creature(creature, consequences))
     started = TurnStarted(
         creature_id=creature.id, round=round_no, active_index=index, economy=economy

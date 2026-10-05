@@ -125,12 +125,16 @@ def test_golden_spell_shatter() -> None:
 
 
 def test_golden_spell_web() -> None:
-    # Web: DEX save DC 13 or restrained (a STR save frees it), concentration, one hour.
+    # Web: DEX save DC 13 or restrained, concentration, one hour. M3.7: the web is a zone
+    # surface (difficult terrain, the save repeats on entering and at turn start, the restraint
+    # lasts while inside and ends with the surface, i.e. with the concentration).
     wiz = caster("w", "wizard", spells=["web"], slots={2: 1})
     state = battle(wiz, ("gob", "yard"), ("gob2", "yard"))
     cast(state, "w", "web", ScriptedRng(5, 14), zone="yard")
     assert conditions_of(state, "gob") == ["restrained"] and conditions_of(state, "gob2") == []
-    ends = state.creatures["gob"].conditions[0].save_ends
-    assert ends is not None and ends.dc == 13 and ends.ability.value == "str"
+    assert state.creatures["gob"].conditions[0].source_id == "surface:yard:web"
     conc = state.creatures["w"].concentrating_on
-    assert conc is not None and conc.spell_id == "web" and len(conc.links) == 1
+    assert conc is not None and conc.spell_id == "web"
+    assert state.encounter is not None
+    web = state.encounter.zone_map.zone("yard").surfaces[0]
+    assert (web.kind, web.dc, web.concentration, web.rounds_left) == ("web", 13, True, 600)

@@ -13,6 +13,10 @@
   shover rolls Athletics and wins only by beating that total (a tie changes nothing). Success
   pushes the target into `to_zone` (adjacent to the target's zone) or knocks it prone.
 
+Entering a zone (move, jump, being pushed) triggers its surfaces (`rules.surfaces.
+enter_zone_events`): only the destination zone counts (zones are abstract; passing through an
+intermediate zone triggers nothing).
+
 Public API: `move_command`, `dash_command`, `disengage_command`, `jump_command`,
 `shove_command`; each `(state, command, regs[, rng]) -> list[AnyEvent]` or `CommandRefused`.
 """
@@ -45,6 +49,8 @@ from aidm.rules.condition_timing import apply_condition, new_condition
 from aidm.rules.conditions import check_adv_counts, speed_multiplier
 from aidm.rules.d20 import combine_adv
 from aidm.rules.dice import Rng
+from aidm.rules.projection import project_state
+from aidm.rules.surfaces import enter_zone_events
 from aidm.rules.zones import zone_path
 
 PRONE = "prone"
@@ -60,7 +66,18 @@ def _known_zone(zmap: ZoneMap, zone_id: str) -> None:
         raise CommandRefused(RefusalCode.UNKNOWN_ZONE, "There is no such place here.")
 
 
-def move_command(state: GameState, cmd: MoveCommand, regs: CombatRegistries) -> list[AnyEvent]:
+def _entered(rng: Rng, state: GameState, events: list[AnyEvent]) -> list[AnyEvent]:
+    """`events` plus the surface triggers of the zone the last `CombatantMoved` entered."""
+    moved = next((e for e in reversed(events) if isinstance(e, CombatantMoved)), None)
+    if moved is None:
+        return events
+    after = project_state(state, events)
+    return [*events, *enter_zone_events(rng, after, moved.creature_id, moved.from_zone)]
+
+
+def move_command(
+    state: GameState, cmd: MoveCommand, regs: CombatRegistries, rng: Rng
+) -> list[AnyEvent]:
     actor = acting(state, cmd.actor_id)
     zmap, start = actor.enc.zone_map, actor.combatant.zone_id
     _known_zone(zmap, cmd.zone_id)
@@ -83,7 +100,7 @@ def move_command(state: GameState, cmd: MoveCommand, regs: CombatRegistries) -> 
                 feet=path.feet,
             )
         )
-    return events
+    return _entered(rng, state, events)
 
 
 def dash_command(state: GameState, cmd: DashCommand, regs: CombatRegistries) -> list[AnyEvent]:
@@ -115,7 +132,9 @@ def _edge_feet(zmap: ZoneMap, a: str, b: str) -> int | None:
     return next((e.feet for e in zmap.edges if e.key() == pair), None)
 
 
-def jump_command(state: GameState, cmd: JumpCommand, regs: CombatRegistries) -> list[AnyEvent]:
+def jump_command(
+    state: GameState, cmd: JumpCommand, regs: CombatRegistries, rng: Rng
+) -> list[AnyEvent]:
     actor = acting(state, cmd.actor_id)
     zmap, start = actor.enc.zone_map, actor.combatant.zone_id
     _known_zone(zmap, cmd.zone_id)
@@ -133,7 +152,7 @@ def jump_command(state: GameState, cmd: JumpCommand, regs: CombatRegistries) -> 
         feet=feet,
         reason="jump",
     )
-    return [changed(cmd.actor_id, economy, "jump"), moved]
+    return _entered(rng, state, [changed(cmd.actor_id, economy, "jump"), moved])
 
 
 def _shove_target(state: GameState, cmd: ShoveCommand) -> tuple[Creature, str]:
@@ -182,5 +201,5 @@ def shove_command(
         moved = CombatantMoved(
             creature_id=target.id, from_zone=zone, to_zone=cmd.to_zone, reason="shoved"
         )
-        return [*events, moved]
+        return _entered(rng, state, [*events, moved])
     return [*events, *apply_condition(target, new_condition(PRONE, source_id=actor.id))]
