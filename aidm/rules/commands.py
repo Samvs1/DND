@@ -7,7 +7,7 @@ Invalid input raises `CommandRefused(code, reason)` before any event exists, so 
 (action, bonus action, movement, item, slot) is consumed. Lower-level refusals
 (`EconomyRefused`, `EncounterRefused`, `ZoneError`) are converted to `CommandRefused` here.
 
-Per-command rules live in `rules.combat_moves` (move, dash, disengage, jump, shove),
+Per-command rules live in `rules.combat_moves` (move, dash, disengage, jump, shove, flee),
 `rules.combat_actions` (attack, throw, hide, help, dodge), `rules.items` (use_item) and
 `rules.spells` (cast, the spell effect DSL), `rules.monster_actions` (a monster's stat block
 actions: attacks, save actions, multiattack, its spell kit). `end_turn` closes the actor's turn via
@@ -27,6 +27,7 @@ from aidm.models.commands import (
     DisengageCommand,
     DodgeCommand,
     EndTurnCommand,
+    FleeCommand,
     HelpCommand,
     HideCommand,
     JumpCommand,
@@ -48,6 +49,7 @@ from aidm.rules.combat_actions import (
 from aidm.rules.combat_moves import (
     dash_command,
     disengage_command,
+    flee_command,
     jump_command,
     move_command,
     shove_command,
@@ -97,6 +99,8 @@ def _dispatch(
             return dodge_command(state, command, regs)
         case EndTurnCommand():
             return _end_turn(state, command, rng)
+        case FleeCommand():
+            return flee_command(state, command, regs)
         case MonsterActionCommand():
             return monster_action_command(state, command, regs, rng)
         case _:

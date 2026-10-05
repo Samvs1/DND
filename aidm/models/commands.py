@@ -18,6 +18,7 @@ Public API:
   `ThrowCommand(actor_id, target_id, item)` (`item` None = an improvised object),
   `UseItemCommand(actor_id, item, target_id)` (`target_id` None = the actor),
   `HelpCommand(actor_id, target_id)`, `DodgeCommand(actor_id)`, `EndTurnCommand(actor_id)`,
+  `FleeCommand(actor_id)` (M3.10, BG3 Flee: leave the fight from a zone without enemies),
   `MonsterActionCommand(actor_id, action, target_ids, target_zone, option, slot_level)` (M3.8: a
   monster's catalog option key, `aidm.rules.monster_catalog`; `option` picks a multiattack
   routine (None = the first one valid for the targets); `target_ids` are spread round-robin
@@ -61,6 +62,7 @@ class RefusalCode(StrEnum):
     NOT_A_MONSTER = "not_a_monster"
     ABILITY_SPENT = "ability_spent"
     NO_LEGENDARY = "no_legendary_action"
+    ENGAGED = "engaged"
 
 
 class _Command(BaseModel):
@@ -140,6 +142,10 @@ class EndTurnCommand(_Command):
     type: Literal["end_turn"] = "end_turn"
 
 
+class FleeCommand(_Command):
+    type: Literal["flee"] = "flee"
+
+
 class MonsterActionCommand(_Command):
     type: Literal["monster_action"] = "monster_action"
     action: str = Field(min_length=1)
@@ -163,6 +169,7 @@ type AnyCommand = (
     | HelpCommand
     | DodgeCommand
     | EndTurnCommand
+    | FleeCommand
     | MonsterActionCommand
 )
 

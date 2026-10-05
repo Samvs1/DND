@@ -12,13 +12,18 @@
   "Shoving a Creature"); the target rolls the better of Athletics and Acrobatics, then the
   shover rolls Athletics and wins only by beating that total (a tie changes nothing). Success
   pushes the target into `to_zone` (adjacent to the target's zone) or knocks it prone.
+- Flee (M3.10, BG3 Flee; no action): a creature that can move and shares its zone with no
+  standing, non-incapacitated enemy leaves the fight: its movement drops to 0 and it withdraws
+  as FLED (`rules.encounter.withdraw_combatant`; out of the turn order, no kill XP). ENGAGED
+  when an enemy stands in its zone. The caller then ends the turn.
 
 Entering a zone (move, jump, being pushed) triggers its surfaces (`rules.surfaces.
 enter_zone_events`): only the destination zone counts (zones are abstract; passing through an
 intermediate zone triggers nothing).
 
 Public API: `move_command`, `dash_command`, `disengage_command`, `jump_command`,
-`shove_command`; each `(state, command, regs[, rng]) -> list[AnyEvent]` or `CommandRefused`.
+`shove_command`, `flee_command`; each `(state, command, regs[, rng]) -> list[AnyEvent]` or
+`CommandRefused`.
 """
 
 from aidm.data.combat_data import CombatRegistries
@@ -28,11 +33,13 @@ from aidm.models.combat_events import CombatantMoved
 from aidm.models.commands import (
     DashCommand,
     DisengageCommand,
+    FleeCommand,
     JumpCommand,
     MoveCommand,
     RefusalCode,
     ShoveCommand,
 )
+from aidm.models.encounter import WithdrawReason
 from aidm.models.events import AnyEvent, CheckResolved, ConditionRemoved
 from aidm.models.state import Creature, GameState
 from aidm.models.zones import ZoneMap
@@ -42,12 +49,14 @@ from aidm.rules.command_checks import (
     acting,
     changed,
     combat_target,
+    opponents,
     spend,
     spend_action_or_feature,
 )
 from aidm.rules.condition_timing import apply_condition, new_condition
 from aidm.rules.conditions import effective_speed, skill_check_with_conditions
 from aidm.rules.dice import Rng
+from aidm.rules.encounter import withdraw_combatant
 from aidm.rules.projection import project_state
 from aidm.rules.surfaces import enter_zone_events
 from aidm.rules.zones import zone_path
@@ -196,3 +205,15 @@ def shove_command(
         )
         return _entered(rng, state, [*events, moved])
     return [*events, *apply_condition(target, new_condition(PRONE, source_id=actor.id))]
+
+
+def flee_command(state: GameState, cmd: FleeCommand, regs: CombatRegistries) -> list[AnyEvent]:
+    actor = acting(state, cmd.actor_id)
+    if actor.creature.hp <= 0 or effective_speed(actor.creature) <= 0:
+        raise CommandRefused(RefusalCode.CANNOT_MOVE, "You cannot move right now.")
+    zone = actor.combatant.zone_id
+    if any(actor.enc.combatant(o.id).zone_id == zone for o in opponents(state, actor)):
+        raise CommandRefused(RefusalCode.ENGAGED, "Enemies are too close to slip away.")
+    economy = actor.combatant.economy.model_copy(update={"movement_left": 0})
+    withdrew = withdraw_combatant(state, cmd.actor_id, WithdrawReason.FLED)
+    return [changed(cmd.actor_id, economy, "flee"), *withdrew]
