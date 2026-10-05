@@ -1,6 +1,7 @@
 """UI test fixtures: the real app on a free port (FakeLLM, temp saves, fake LAN url)."""
 
 import asyncio
+import shutil
 import socket
 import threading
 import time
@@ -21,6 +22,7 @@ from aidm.server.app import create_app
 from aidm.server.settings import ServerSettings, server_settings_from_env
 
 ROOT = Path(__file__).resolve().parent.parent.parent
+WEB_SOURCE = ROOT / "aidm" / "web"
 SHOTS = ROOT / "artifacts" / "ui"
 
 
@@ -38,7 +40,9 @@ def free_port() -> int:
 
 
 def _serve(
-    tmp_path: Path, llm_for: Callable[[ServerSettings], LlmClient] | None = None
+    tmp_path: Path,
+    llm_for: Callable[[ServerSettings], LlmClient] | None = None,
+    web_root: Path | None = None,
 ) -> Iterator[LiveServer]:
     port = free_port()
     settings = server_settings_from_env(
@@ -48,6 +52,7 @@ def _serve(
         settings,
         llm=replace(settings.llm, log_path=None),
         lan_url=f"http://192.168.1.20:{port}/",
+        web_root=web_root,
     )
     llm = llm_for(settings) if llm_for else None
     app = create_app(settings, llm=llm)
@@ -128,6 +133,19 @@ def combat_server(tmp_path: Path) -> Iterator[LiveServer]:
         return LlmClient(FakeLLM(responder=_combat_responder), settings.llm, LlmMode.FAKE, None)
 
     yield from _serve(tmp_path, make)
+
+
+@pytest.fixture
+def artless_server(tmp_path: Path) -> Iterator[LiveServer]:
+    """Like `combat_server`, but serving a copy of aidm/web with ALL real art removed (A3)."""
+    web = tmp_path / "web"
+    shutil.copytree(WEB_SOURCE, web, ignore=shutil.ignore_patterns("img"))
+    assert not (web / "static" / "img").exists()
+
+    def make(settings: ServerSettings) -> LlmClient:
+        return LlmClient(FakeLLM(responder=_combat_responder), settings.llm, LlmMode.FAKE, None)
+
+    yield from _serve(tmp_path, make, web)
 
 
 @pytest.fixture(scope="session")

@@ -8,6 +8,7 @@ Routes: `/`, `/play`, `/screen` (the web shell), `/static/*` and `/web/*` (files
 `/ws`, `/healthz` (booleans only), `/api/saves`, `/api/lan`, `/api/lan-qr.svg`,
 `/assets/placeholder/<kind>/<slug>.svg` and `/api/assets/manifest` (asset_routes.py, A1),
 `/api/creation-data` (creation_data.py, M7.2), `/tts/<hash>.mp3` (tts_routes.py, M8.1).
+`settings.web_root` (env `AIDM_WEB_ROOT`) serves another copy of `aidm/web` (A3).
 
 Public API: `create_app`, `WEB_DIR`.
 """
@@ -61,24 +62,25 @@ def create_app(
     app = FastAPI(title="aidm", lifespan=lifespan, docs_url=None, redoc_url=None, openapi_url=None)
     app.state.registry = registry
     app.state.settings = settings
-    _add_pages(app)
+    web_dir = settings.web_root or WEB_DIR
+    _add_pages(app, web_dir)
     _add_api(app, settings, registry, client)
-    add_asset_routes(app, AssetCatalog(WEB_DIR))
+    add_asset_routes(app, AssetCatalog(web_dir))
     add_creation_routes(app)
     add_tts_routes(app, settings.fish.cache_dir)
     return app
 
 
-def _add_pages(app: FastAPI) -> None:
+def _add_pages(app: FastAPI, web_dir: Path) -> None:
     def index() -> Response:
-        page = WEB_DIR / "index.html"
+        page = web_dir / "index.html"
         if page.is_file():
             return FileResponse(page)
         return HTMLResponse(PLACEHOLDER)
 
     for route in ("/", "/play", "/screen"):
         app.add_api_route(route, index, methods=["GET"], include_in_schema=False)
-    for prefix, folder in (("/static", WEB_DIR / "static"), ("/web", WEB_DIR)):
+    for prefix, folder in (("/static", web_dir / "static"), ("/web", web_dir)):
         if folder.is_dir():
             app.mount(prefix, StaticFiles(directory=folder), name=prefix.strip("/"))
 

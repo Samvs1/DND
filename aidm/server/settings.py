@@ -38,6 +38,7 @@ class ServerSettings:
     tts_enabled: bool = False
     version: str = __version__
     lan_url: str | None = None
+    web_root: Path | None = None  # AIDM_WEB_ROOT: serve a copy of aidm/web (tests, art-less runs)
 
     @property
     def fish_ready(self) -> bool:
@@ -50,6 +51,10 @@ def _port(value: str | None) -> int:
     except ValueError:
         return DEFAULT_PORT
     return port if 0 < port < 65536 else DEFAULT_PORT
+
+
+def _web_root(value: str | None) -> Path | None:
+    return Path(value) if value and value.strip() else None
 
 
 def load_env(path: Path | None = None) -> dict[str, str]:
@@ -85,5 +90,6 @@ def server_settings_from_env(
         saves_dir=saves_dir if saves_dir is not None else DEFAULT_SAVES,
         llm=llm_settings_from_env(environ),
         fish=fish_settings_from_env(environ),
+        web_root=_web_root(environ.get("AIDM_WEB_ROOT")),
         tts_enabled=(environ.get("TTS_ENABLED") or "").strip().lower() in _TRUE,
     )
