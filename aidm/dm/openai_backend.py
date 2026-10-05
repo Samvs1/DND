@@ -44,6 +44,8 @@ def _kwargs(request: CompletionRequest) -> dict[str, Any]:
             kwargs["tool_choice"] = {"type": "function", "function": {"name": choice}}
     if request.json_mode:
         kwargs["response_format"] = {"type": "json_object"}
+    if request.timeout_s is not None:
+        kwargs["timeout"] = request.timeout_s
     return kwargs
 
 

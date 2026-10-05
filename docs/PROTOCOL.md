@@ -14,6 +14,7 @@ Machine-readable schema: `aidm/web/protocol.json`.
 | client | `confirm_hostile` | `type`: confirm_hostile |
 | client | `create_character` | `choices`: CreationChoices, `type`: create_character |
 | client | `equip` | `item_id`: string, `type`: equip |
+| client | `give` | `item_id`: string, `npc_id`: string, `type`: give |
 | client | `hello` | `name`: string, `token`: string or null (optional), `type`: hello |
 | client | `host_difficulty` | `monster_damage`: number (optional), `monster_hp`: number (optional), `type`: host_difficulty |
 | client | `host_end` | `type`: host_end |

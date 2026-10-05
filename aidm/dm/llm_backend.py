@@ -33,6 +33,7 @@ class CompletionRequest:
     tool_choice: str | None = None
     json_mode: bool = False
     max_tokens: int = 1024
+    timeout_s: float | None = None
 
 
 @dataclass(frozen=True)

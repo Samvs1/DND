@@ -1,0 +1,142 @@
+"""Equip, unequip and drop for heroes (SPEC 6.2 equipment pre-checks; M6.2).
+
+Slots follow `aidm.models.character.Equipped`: body armour, shield, main hand, off hand, ranged.
+Equipping a two-handed weapon frees the off hand and the shield; a weapon that is not light
+frees the off hand (SRD two-weapon fighting needs light weapons); a shield frees the off hand
+and a two-handed main weapon. The armour class moves by the DIFFERENCE between the old and the
+new gear (armour formula + shield + armour-dependent fighting styles), the same delta rule
+level-up uses, so feature bonuses already in `Creature.ac` are kept. Dropping puts ONE item on
+the ground at the current place (`ItemPlaced`), unequipping the last equipped copy first.
+
+Public API: `EquipRefusal`, `EquipRefused`, `equip_events(creature, item, regs)`,
+`unequip_events(creature, item, regs)`, `drop_events(state, creature, item, regs)`.
+"""
+
+from enum import StrEnum
+
+from aidm.data.character_data import CharacterRegistries
+from aidm.data.srd_equipment import SrdEquipment
+from aidm.models.character import Equipped
+from aidm.models.events import AnyEvent, InventoryChanged
+from aidm.models.state import Creature, GameState
+from aidm.models.world import WorldItem
+from aidm.models.world_events import EquipmentChanged, ItemPlaced
+from aidm.rules.defense import armor_class
+from aidm.rules.features import feature_ac_bonus
+from aidm.rules.item_grants import carried_qty
+
+SHIELD = "Shield"
+_SLOTS = ("armor", "shield", "main_hand", "off_hand", "ranged")
+
+
+class EquipRefusal(StrEnum):
+    NOT_A_PC = "not_a_pc"
+    NOT_CARRIED = "not_carried"
+    NOT_EQUIPMENT = "not_equipment"
+    ALREADY_EQUIPPED = "already_equipped"
+    NOT_EQUIPPED = "not_equipped"
+
+
+class EquipRefused(ValueError):
+    def __init__(self, reason: EquipRefusal, detail: str) -> None:
+        super().__init__(f"{reason.value}: {detail}")
+        self.reason = reason
+        self.detail = detail
+
+
+def _has(item: SrdEquipment | None, prop: str) -> bool:
+    return item is not None and any(p.index == prop for p in item.properties)
+
+
+def _two_handed(item: SrdEquipment | None) -> bool:
+    return _has(item, "two-handed")
+
+
+def _gear_ac(creature: Creature, gear: Equipped, regs: CharacterRegistries) -> int:
+    armor = regs.equipment.find(gear.armor) if gear.armor else None
+    shield = regs.equipment.find(gear.shield) if gear.shield else None
+    base = armor_class(creature.abilities, armor=armor, shield=shield)
+    return base + feature_ac_bonus(creature, regs.features, armored=armor is not None)
+
+
+def _changed(creature: Creature, gear: Equipped, regs: CharacterRegistries) -> EquipmentChanged:
+    old = creature.pc.equipped if creature.pc is not None else Equipped()
+    ac = creature.ac + _gear_ac(creature, gear, regs) - _gear_ac(creature, old, regs)
+    return EquipmentChanged(creature_id=creature.id, equipped=gear, ac=max(0, ac))
+
+
+def _wear(gear: Equipped, item: SrdEquipment, regs: CharacterRegistries) -> Equipped:
+    held = gear.model_copy()
+    if item.armor_category == SHIELD:
+        held.shield, held.off_hand = item.index, None
+        if _two_handed(regs.equipment.find(held.main_hand or "")):
+            held.main_hand = None
+    elif item.armor_category is not None and item.armor_class is not None:
+        held.armor = item.index
+    elif item.damage is not None and item.weapon_range == "Ranged":
+        held.ranged = item.index
+    elif item.damage is not None:
+        held.main_hand = item.index
+        if _two_handed(item):
+            held.off_hand, held.shield = None, None
+        elif not _has(item, "light"):
+            held.off_hand = None
+    else:
+        raise EquipRefused(EquipRefusal.NOT_EQUIPMENT, f"{item.name} cannot be worn or wielded")
+    return held
+
+
+def _hero(creature: Creature) -> Equipped:
+    if creature.pc is None:
+        raise EquipRefused(EquipRefusal.NOT_A_PC, f"{creature.name} has no gear slots")
+    return creature.pc.equipped
+
+
+def equip_events(creature: Creature, item: str, regs: CharacterRegistries) -> list[AnyEvent]:
+    gear = _hero(creature)
+    if carried_qty(creature, item) < 1:
+        raise EquipRefused(EquipRefusal.NOT_CARRIED, f"{creature.name} does not carry {item}")
+    entry = regs.equipment.find(item)
+    if entry is None:
+        raise EquipRefused(EquipRefusal.NOT_EQUIPMENT, f"{item} cannot be worn or wielded")
+    new = _wear(gear, entry, regs)
+    if new.main_hand == new.off_hand == item and carried_qty(creature, item) < 2:
+        new.off_hand = None
+    if new == gear:
+        raise EquipRefused(EquipRefusal.ALREADY_EQUIPPED, f"{entry.name} is already in hand")
+    return [_changed(creature, new, regs)]
+
+
+def unequip_events(creature: Creature, item: str, regs: CharacterRegistries) -> list[AnyEvent]:
+    gear = _hero(creature)
+    held = gear.model_copy()
+    for slot in _SLOTS:
+        if getattr(held, slot) == item:
+            setattr(held, slot, None)
+    if held == gear:
+        raise EquipRefused(EquipRefusal.NOT_EQUIPPED, f"{item} is not equipped")
+    return [_changed(creature, held, regs)]
+
+
+def drop_events(
+    state: GameState, creature: Creature, item: str, regs: CharacterRegistries
+) -> list[AnyEvent]:
+    gear = _hero(creature)
+    carried = carried_qty(creature, item)
+    if carried < 1:
+        raise EquipRefused(EquipRefusal.NOT_CARRIED, f"{creature.name} does not carry {item}")
+    events: list[AnyEvent] = []
+    worn = sum(1 for slot in _SLOTS if getattr(gear, slot) == item)
+    if worn >= carried:
+        events.extend(unequip_events(creature, item, regs))
+    entry = regs.equipment.find(item)
+    name = entry.name if entry is not None else item.replace("-", " ")
+    placed = WorldItem(
+        id=f"dropped-{item}-{state.event_count}",
+        name=name,
+        catalog_id=item,
+        node_id=state.world.current_node,
+    )
+    events.append(InventoryChanged(creature_id=creature.id, item=item, delta=-1, qty=carried - 1))
+    events.append(ItemPlaced(item=placed))
+    return events

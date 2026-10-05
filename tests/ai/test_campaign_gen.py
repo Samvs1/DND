@@ -6,6 +6,7 @@ from typing import Any
 
 from aidm.dm.campaign_draft import CampaignDraft, assemble_plan
 from aidm.dm.campaign_gen import (
+    CAMPAIGN_TIMEOUT_S,
     CampaignSource,
     campaign_messages,
     generate_campaign,
@@ -13,7 +14,7 @@ from aidm.dm.campaign_gen import (
     plan_problems,
 )
 from aidm.dm.campaign_sample import load_sample_campaign
-from aidm.dm.fake_llm import FakeLLM, FakeReply, fake_tool_call
+from aidm.dm.fake_llm import FakeHang, FakeLLM, FakeReply, fake_tool_call
 from aidm.dm.llm_client import LlmClient
 from aidm.dm.llm_log import LlmCallLog
 from aidm.dm.llm_settings import LlmSettings
@@ -40,6 +41,14 @@ async def test_valid_draft_is_accepted_first_try(tmp_path: Path) -> None:
     request = fake.requests[0]
     assert request.model == client.model_for(LlmRole.QUALITY)
     assert request.tool_choice == "submit_result"
+    assert request.timeout_s == CAMPAIGN_TIMEOUT_S > client.settings.timeout_s
+
+
+async def test_campaign_call_has_its_own_timeout(tmp_path: Path) -> None:
+    client, fake = fake_client(tmp_path, [FakeHang(0.3), _submit(draft_from_plan())])
+    quick = await generate_campaign("x", PARTY, client, timeout_s=0.05)
+    assert quick.source is CampaignSource.FALLBACK
+    assert fake.requests[0].timeout_s == 0.05
 
 
 async def test_invalid_refs_are_fed_back_then_accepted(tmp_path: Path) -> None:

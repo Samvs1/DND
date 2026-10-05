@@ -5,7 +5,7 @@ as untrusted (SPEC 6.7). Host messages are accepted only from the host seat.
 
 Public API: `Hello`, `CreateCharacter`, `RollAbilities`, `SubmitAction`, `CombatCommandMsg`,
 `Suggestion`, `ConfirmHostile`, `CancelHostile`, `Vote`, `AnswerOffer`, `LevelUp`, `ShopBuy`,
-`ShopSell`, `Equip`, `Unequip`, `RequestHitChances`, `Chat`, `HostStart`, `HostPause`,
+`ShopSell`, `Give`, `Equip`, `Unequip`, `RequestHitChances`, `Chat`, `HostStart`, `HostPause`,
 `HostResume`, `HostKick`, `HostDifficulty`, `HostTtsToggle`, `HostSave`, `HostLoad`, `HostNew`,
 `HostEnd`, `HostForceVote`, `Ping`; `HOST_MESSAGES` (the host-only message classes).
 """
@@ -95,6 +95,12 @@ class ShopSell(_Client):
     npc_id: str
     item_id: str
     qty: int = Field(default=1, ge=1, le=99)
+
+
+class Give(_Client):
+    type: Literal["give"] = "give"
+    npc_id: str
+    item_id: str
 
 
 class Equip(_Client):

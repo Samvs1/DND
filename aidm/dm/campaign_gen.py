@@ -10,7 +10,9 @@ gateway, defeat always possible) -> on problems a bounded retry with the problem
 Public API:
 - `CampaignSource`: model / fallback. `CampaignResult(plan, source, problems, attempts)`:
   `problems` are those of the last rejected draft (empty when the first one was accepted).
-- `async generate_campaign(theme, party, llm, *, seed=0, max_attempts=MAX_PLAN_ATTEMPTS)`.
+- `async generate_campaign(theme, party, llm, *, seed=0, max_attempts=MAX_PLAN_ATTEMPTS,
+  timeout_s=CAMPAIGN_TIMEOUT_S)`: each QUALITY call gets its own 150 s budget (the live run
+  needed ~25-45 s per call; the 45 s client default timed out, M6.2).
 - `plan_problems(plan, seed=0) -> list[Problem]`; `is_surprise(theme) -> bool`;
   `campaign_messages(theme, party) -> list[Message]`.
 The plan is then installed with `aidm.rules.campaign_install.install_campaign`.
@@ -36,6 +38,7 @@ from aidm.rules.campaign_check import check_plan_refs
 from aidm.rules.world_graph import build_campaign_graph, validate_campaign_graph
 
 MAX_PLAN_ATTEMPTS = 3
+CAMPAIGN_TIMEOUT_S = 150.0
 MAX_FEEDBACK = 12
 SURPRISE_WORDS = frozenset({"", "surprise me", "surprise", "random", "anything", "you choose"})
 MAX_ARCHETYPE_CR = 8.0
@@ -128,13 +131,14 @@ async def generate_campaign(
     *,
     seed: int = 0,
     max_attempts: int = MAX_PLAN_ATTEMPTS,
+    timeout_s: float = CAMPAIGN_TIMEOUT_S,
 ) -> CampaignResult:
     if not llm.available:
         return _fallback([], 0)
     messages = campaign_messages(theme, party)
     problems: list[Problem] = []
     for attempt in range(1, max_attempts + 1):
-        draft = await llm.structured(messages, CampaignDraft, LlmRole.QUALITY)
+        draft = await llm.structured(messages, CampaignDraft, LlmRole.QUALITY, timeout_s=timeout_s)
         if isinstance(draft, LlmFailure):
             return _fallback(problems, attempt)
         assembled = assemble_plan(draft)

@@ -1,0 +1,72 @@
+"""Table actor: gear, level up, gifts and pause through protocol messages (M6.2)."""
+
+from pathlib import Path
+
+from aidm.models.leveling import LevelUpChoices
+from aidm.models.protocol_client import (
+    Equip,
+    HostPause,
+    HostResume,
+    LevelUp,
+    SubmitAction,
+    Unequip,
+)
+from aidm.models.protocol_server import ErrorCode, ErrorMsg, Notice, Snapshot
+from aidm.rules.leveling import gain_xp, xp_for_level
+from aidm.session.reducer import apply
+from tests.ai.guard_fixtures import inn_state
+from tests.session.table_fixtures import assert_replays, disabled_llm, join, of_type, running
+
+
+async def test_gear_messages_and_equip_text(tmp_path: Path) -> None:
+    async with running(disabled_llm(tmp_path)) as (table, _):
+        ann = await join(table, "Ann", "fighter")
+        ann.send(Unequip(item_id="shield"))
+        await table.settle()
+        assert table.state.creatures["fighter"].ac == 16
+        snap = of_type(ann.drain(), Snapshot)[-1]
+        assert next(p for p in snap.state.party if p.id == "fighter").ac == 16
+        ann.send(SubmitAction(text="equip my shield"))
+        await table.settle()
+        assert table.state.creatures["fighter"].ac == 18
+        assert of_type(ann.drain(), Notice)
+        ann.send(Equip(item_id="greataxe"))
+        await table.settle()
+        assert of_type(ann.drain(), ErrorMsg)[0].code is ErrorCode.REFUSED
+        assert_replays(table)
+
+
+async def test_level_up_needs_xp_then_applies(tmp_path: Path) -> None:
+    state = inn_state()
+    async with running(disabled_llm(tmp_path), state) as (table, _):
+        ann = await join(table, "Ann", "fighter")
+        ann.send(LevelUp(choices=LevelUpChoices()))
+        await table.settle()
+        assert of_type(ann.drain(), ErrorMsg)[0].code is ErrorCode.REFUSED
+    state = inn_state()
+    for event in gain_xp(state.creatures["fighter"], xp_for_level(2)):
+        apply(state, event)
+    async with running(disabled_llm(tmp_path), state) as (table, _):
+        ann = await join(table, "Ann", "fighter")
+        ann.send(LevelUp(choices=LevelUpChoices()))
+        await table.settle()
+        hero = table.state.creatures["fighter"]
+        assert hero.pc is not None and hero.pc.level == 2, of_type(ann.drain(), ErrorMsg)
+        assert_replays(table)
+
+
+async def test_pause_holds_the_queue_and_combat_messages(tmp_path: Path) -> None:
+    async with running(disabled_llm(tmp_path)) as (table, _):
+        ann = await join(table, "Ann", "fighter")
+        bob = await join(table, "Bob", "rogue")
+        bob.send(HostPause())
+        ann.send(HostPause())
+        await table.settle()
+        assert table.paused
+        assert of_type(bob.drain(), ErrorMsg)[0].code is ErrorCode.NOT_HOST
+        ann.send(SubmitAction(text="look around"))
+        await table.settle()
+        assert table.queue and table.resolving is None
+        ann.send(HostResume())
+        await table.settle()
+        assert not table.queue and not table.paused

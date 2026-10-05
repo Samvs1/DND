@@ -13,7 +13,10 @@ A turn longer than `MAX_COMMANDS` commands is ended too (`forced_ends`).
 
 Public API: `CombatStats`, `CombatRunner(state, regs, rng, on_event=None)` with `.log` (every
 applied event), `.stats`, `.run(max_rounds) -> EncounterStatus` (ACTIVE when the round limit
-was reached), `ai_command(state, creature_id, regs, rng)`, `MAX_COMMANDS`.
+was reached), and the steps the table actor (M6.2) drives one turn at a time: `.execute(command)`
+(a refusal ends the turn instead), `.play_turn(creature_id)` (the AI's whole turn) and
+`.legendary()` (legendary actions after a turn); `ai_command(state, creature_id, regs, rng)`,
+`MAX_COMMANDS`.
 """
 
 from collections.abc import Callable
@@ -78,7 +81,7 @@ class CombatRunner:
             if self.on_event is not None:
                 self.on_event(self.state, event)
 
-    def _execute(self, command: AnyCommand) -> AnyCommand:
+    def execute(self, command: AnyCommand) -> AnyCommand:
         try:
             events = execute_command(self.state, command, self.regs, self.rng)
         except CommandRefused:
@@ -89,18 +92,18 @@ class CombatRunner:
         self._apply(events)
         return command
 
-    def _turn(self, creature_id: str) -> None:
+    def play_turn(self, creature_id: str) -> None:
         for _ in range(MAX_COMMANDS):
             command = ai_command(self.state, creature_id, self.regs, self.rng)
             if command is None:
                 command = EndTurnCommand(actor_id=creature_id)
-            done = self._execute(command)
+            done = self.execute(command)
             if isinstance(done, EndTurnCommand) or encounter_outcome(self.state) is not None:
                 return
         self.stats.forced_ends += 1
         self._apply(end_turn(self.rng, self.state))
 
-    def _legendary(self) -> None:
+    def legendary(self) -> None:
         for monster_id in legendary_ready(self.state):
             pick = choose_legendary_action(self.state, monster_id, self.regs)
             if pick is None:
@@ -134,6 +137,6 @@ class CombatRunner:
             now = self.state.encounter
             active = now.active_id() if now is not None else None
             if active is not None and encounter_outcome(self.state) is None:
-                self._turn(active)
+                self.play_turn(active)
             if encounter_outcome(self.state) is None:
-                self._legendary()
+                self.legendary()

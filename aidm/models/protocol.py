@@ -31,6 +31,7 @@ type AnyClientMsg = (
     | c.LevelUp
     | c.ShopBuy
     | c.ShopSell
+    | c.Give
     | c.Equip
     | c.Unequip
     | c.RequestHitChances

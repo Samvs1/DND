@@ -63,6 +63,7 @@ CLIENT_TYPES = {
     "level_up",
     "shop_buy",
     "shop_sell",
+    "give",
     "equip",
     "unequip",
     "request_hit_chances",

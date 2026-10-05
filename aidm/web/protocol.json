@@ -627,6 +627,31 @@
           "title": "FleeCommand",
           "type": "object"
         },
+        "Give": {
+          "additionalProperties": false,
+          "properties": {
+            "item_id": {
+              "title": "Item Id",
+              "type": "string"
+            },
+            "npc_id": {
+              "title": "Npc Id",
+              "type": "string"
+            },
+            "type": {
+              "const": "give",
+              "default": "give",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "npc_id",
+            "item_id"
+          ],
+          "title": "Give",
+          "type": "object"
+        },
         "Hello": {
           "additionalProperties": false,
           "properties": {
@@ -1554,6 +1579,7 @@
           "confirm_hostile": "#/$defs/ConfirmHostile",
           "create_character": "#/$defs/CreateCharacter",
           "equip": "#/$defs/Equip",
+          "give": "#/$defs/Give",
           "hello": "#/$defs/Hello",
           "host_difficulty": "#/$defs/HostDifficulty",
           "host_end": "#/$defs/HostEnd",
@@ -1620,6 +1646,9 @@
           "$ref": "#/$defs/ShopSell"
         },
         {
+          "$ref": "#/$defs/Give"
+        },
+        {
           "$ref": "#/$defs/Equip"
         },
         {
@@ -1677,6 +1706,7 @@
       "confirm_hostile",
       "create_character",
       "equip",
+      "give",
       "hello",
       "host_difficulty",
       "host_end",

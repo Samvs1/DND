@@ -31,6 +31,8 @@ Public API:
   scene turn counter becomes `scene_turn`.
 - `SceneSummarised(summary)` (M4.7): a scene summary joins the rolling memory and the count of
   unsummarised turns restarts at zero (its facts arrive as separate `FactRecorded` events).
+- `EquipmentChanged(creature_id, equipped, ac)` (M6.2): the hero's worn/held gear becomes
+  `equipped` and its armour class `ac` (computed by `aidm.rules.equipment`).
 - `WorldEvents`: the union of these classes (joins `AnyEvent`).
 """
 
@@ -38,6 +40,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from aidm.models.character import Equipped
 from aidm.models.memory import SceneSummary
 from aidm.models.world import Fact, Quest, WorldFeature, WorldItem, WorldNpc
 
@@ -159,6 +162,13 @@ class SceneSummarised(_WorldEvent):
     summary: SceneSummary
 
 
+class EquipmentChanged(_WorldEvent):
+    type: Literal["equipment_changed"] = "equipment_changed"
+    creature_id: str
+    equipped: Equipped
+    ac: int = Field(ge=0)
+
+
 WorldEvents = (
     NpcIntroduced
     | FeatureIntroduced
@@ -178,4 +188,5 @@ WorldEvents = (
     | ItemRemoved
     | NarrationRecorded
     | SceneSummarised
+    | EquipmentChanged
 )

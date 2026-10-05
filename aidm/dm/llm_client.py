@@ -12,14 +12,16 @@ Public API:
   - `aclose()`: closes the transport (M4.8: the live run showed the SDK's HTTP pool otherwise
     closes after the event loop, "Event loop is closed"); call it at shutdown.
   - `call_tools(messages, tools, role, *, tool_choice, max_tokens, max_retries, player_text,
-    require_call) -> ToolCallResult | LlmFailure`: every call is parsed and validated against
-    its tool model; an invalid or truncated answer is retried (bounded) with the validation
-    errors fed back as a message; truncation doubles `max_tokens` (up to the cap). Structured
-    calls use at least `settings.structured_max_tokens` (4000). Empty content is fine.
+    require_call, timeout_s) -> ToolCallResult | LlmFailure`: every call is parsed and
+    validated against its tool model; an invalid or truncated answer is retried (bounded)
+    with the validation errors fed back as a message; truncation doubles `max_tokens` (up to
+    the cap). Structured calls use at least `settings.structured_max_tokens` (4000).
+    Empty content is fine.
     Timeouts and transport errors are not retried (the turn falls back instead of stalling).
-  - `structured(messages, schema, role, *, fallback, player_text) -> T | LlmFailure`: forces a
-    single `submit_result` tool whose arguments are `schema`; on exhaustion returns `fallback`
-    when given, else the `LlmFailure`.
+    `timeout_s` overrides `settings.timeout_s` for this call (M6.2: campaign generation).
+  - `structured(messages, schema, role, *, fallback, player_text, timeout_s)
+    -> T | LlmFailure`: forces a single `submit_result` tool whose arguments are `schema`;
+    on exhaustion returns `fallback` when given, else the `LlmFailure`.
   - `stream_text(messages, role, *, max_tokens, player_text) -> TextStream`.
 - `TextStream`: async iterator of text chunks; afterwards `text` is the assembled prose and
   `failure` is set on timeout (idle or total), transport error or an empty answer.
@@ -139,7 +141,8 @@ class LlmClient:
 
     async def _send(self, request: CompletionRequest) -> Completion | LlmFailure:
         try:
-            return await asyncio.wait_for(self.backend.complete(request), self.settings.timeout_s)
+            limit = request.timeout_s or self.settings.timeout_s
+            return await asyncio.wait_for(self.backend.complete(request), limit)
         except (TimeoutError, BackendTimeout):
             return LlmFailure(FailureReason.TIMEOUT, "provider timed out")
         except BackendError as exc:
@@ -156,6 +159,7 @@ class LlmClient:
         max_retries: int | None = None,
         player_text: str | None = None,
         require_call: bool = False,
+        timeout_s: float | None = None,
     ) -> ToolCallResult | LlmFailure:
         if not self.available:
             return LlmFailure(FailureReason.DISABLED, "llm disabled")
@@ -168,7 +172,12 @@ class LlmClient:
         errors: tuple[str, ...] = ()
         for attempt in range(1, retries + 2):
             request = CompletionRequest(
-                self._models[role], convo, params, tool_choice, max_tokens=budget
+                self._models[role],
+                convo,
+                params,
+                tool_choice,
+                max_tokens=budget,
+                timeout_s=timeout_s,
             )
             start = time.perf_counter()
             sent = await self._send(request)
@@ -199,6 +208,7 @@ class LlmClient:
         *,
         fallback: T | None = None,
         player_text: str | None = None,
+        timeout_s: float | None = None,
     ) -> T | LlmFailure:
         tool = ToolDef(STRUCTURED_TOOL, schema.__doc__ or "Return the result.", schema)
         result = await self.call_tools(
@@ -208,6 +218,7 @@ class LlmClient:
             tool_choice=STRUCTURED_TOOL,
             player_text=player_text,
             require_call=True,
+            timeout_s=timeout_s,
         )
         if isinstance(result, ToolCallResult):
             args = result.calls[0].args
