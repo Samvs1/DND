@@ -221,7 +221,8 @@ def test_shop_buy_and_sell_flow(browser: Browser, live_server: LiveServer, shots
     guest.click("[data-testid=vote-ready]")
     host.wait_for_selector("[data-testid=shop-stock] [data-testid=shop-line]", timeout=30000)
     guest.wait_for_selector("[data-testid=shop][open]", timeout=20000)
-    assert "Brom Tallow" in host.locator(".shop-keeper").inner_text()
+    keeper = host.locator(".shop-keeper").inner_text()
+    assert "Brom Tallow" in keeper or "Dessa Orrin" in keeper  # staged or the sample merchant
     gold_before = host.evaluate(
         f"{SNAPSHOT}.party.find(c => c.id === window.aidm.store.get().players"
         ".find(p => p.name === 'Ann').creature_id).gold"
@@ -257,7 +258,7 @@ def test_shop_buy_and_sell_flow(browser: Browser, live_server: LiveServer, shots
     # A refusal is friendly text, never the server's words.
     host.evaluate(
         "window.aidm.client.send('shop_buy',"
-        " { npc_id: 'npc-brom', item_id: 'no-such-item', qty: 1 })"
+        " { npc_id: window.aidm.store.get().shop.npc_id, item_id: 'no-such-item', qty: 1 })"
     )
     host.wait_for_function(
         "document.querySelector('[data-testid=shop-status]').textContent.includes('knows nothing')",

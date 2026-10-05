@@ -61,6 +61,19 @@ def test_sample_cast_secrets_and_quests() -> None:
     assert {q.act for q in PLAN.quests} == {1, 2, 3}
 
 
+def test_sample_arrival_nodes_have_a_shopkeeper() -> None:
+    from aidm.dm.precheck import SHOP_ROLES
+
+    for region in PLAN.all_regions():
+        keepers = [
+            n
+            for n in PLAN.npcs
+            if n.home_node == region.arrival.id and any(r in n.role.lower() for r in SHOP_ROLES)
+        ]
+        assert region.arrival.shop and keepers
+        assert all(n.archetype_id in {"commoner", "noble"} for n in keepers)
+
+
 def test_sample_names_are_original() -> None:
     text = str(load_sample_campaign_json()).lower()
     for banned in ("baldur", "faerun", "waterdeep", "neverwinter", "gale", "astarion"):

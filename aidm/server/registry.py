@@ -11,6 +11,7 @@ Public API: `TableRegistry` (`table`, `start`, `stop`, `list_saves`).
 from aidm.dm.llm_client import LlmClient
 from aidm.models.state import GameState
 from aidm.server.settings import ServerSettings
+from aidm.server.tts import FishTts, tts_hook
 from aidm.session.persistence import CampaignStore, SaveInfo, new_game_state
 from aidm.session.restore import restore
 from aidm.session.table import Table
@@ -29,7 +30,11 @@ class TableRegistry:
     ) -> None:
         self.llm = llm
         self.store = CampaignStore(settings.saves_dir)
-        self._config = config or TableConfig(store=self.store, tts_enabled=settings.tts_enabled)
+        self._config = config or TableConfig(
+            store=self.store,
+            tts_enabled=settings.tts_enabled,
+            tts=tts_hook(FishTts(settings.fish)),
+        )
         self._state = state
         self._campaign_id = campaign_id
         self.table = Table(state or new_game_state(), llm, self._config)

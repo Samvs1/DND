@@ -1,4 +1,4 @@
-NEXT: M8.1 Fish adapter and cache. Delegate to mechanical-engineer. Last gate: M7 FULL GATE PASS 9/9.
+NEXT: M8.2 Sentence TTS pipeline. Delegate to mechanical-engineer. Last gate: M8.1 GATE PASS 9/9.
 
 # PROGRESS
 
@@ -88,7 +88,7 @@ Stashes and blockers: record them in the Notes section at the bottom.
 - [x] M7.6 **M** Journal, map (fog), shop, host panel, settings; responsive check at 390px and 1920px; all art goes through `assetUrl` (Addendum A gates green). FULL gate. Commit `M7: Frontend`. (commit see git log, `M7: Frontend`; panels in aidm/web/js/{journal,map,shop,host,settings}, tests/ui/test_panels.py, DECISIONS M7.6)
 
 ## M8 Audio and polish (SPEC 4 Fish, 11)
-- [ ] M8.1 **M** `synthesize(text, tone) -> Path | None` (check the current Fish SDK/docs first), cache by hash, lazy guarded import, zero cost when disabled, `/tts/<hash>.mp3`. Gate: pytest (mocked).
+- [x] M8.1 **M** `synthesize(text, tone) -> Path | None` (check the current Fish SDK/docs first), cache by hash, lazy guarded import, zero cost when disabled, `/tts/<hash>.mp3`. Gate: pytest (mocked).
 - [ ] M8.2 **M** Sentence pipeline (synthesize N+1 while N plays), `narration_chunk`/`narration_done`, typewriter fallback, per-client mute/volume, autoplay hint. Gate: pytest plus a manual boot.
 - [ ] M8.3 **M** Music crossfade by game state (the v1 ambient/combat beds were skipped for size in M0.4: re-encode smaller copies from v1 if ffmpeg is available, else log it and rely on silence fallback), `/screen` spectator view (default audio device). Gate: pytest.
 - [ ] A2 **M** Style bible and TODO (Addendum A.4, A.6): view 3-4 v1 portraits once and write `docs/STYLE_BIBLE.md`; `scripts/gen_assets_todo.py [--check]` writes root `ASSETS_TODO.md` (key, target path, size, transparency, prompt = style prefix + data details, no BG3/IP references); add its `--check` to gate.ps1; reserve `IMAGE_PROVIDER` and `IMAGE_API_KEY` names in `.env.example`. Gate: FULL gate.

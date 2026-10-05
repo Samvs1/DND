@@ -1,0 +1,9 @@
+{
+  "source": "Per-tone Fish Audio prosody (M8.1). speed is Prosody.speed (1.0 = normal, API range 0.5-2.0), volume is Prosody.volume in dB (0 = unchanged), temperature is TTSRequest.temperature. Numbers carried over from the v1 adapter (docs/V1_LESSONS.md): combat faster, social slower, exploration neutral.",
+  "default": {"speed": 1.0, "volume": 0.0, "temperature": 0.7},
+  "tones": {
+    "combat": {"speed": 1.12, "volume": 1.0, "temperature": 0.85},
+    "social": {"speed": 0.95, "volume": 0.0, "temperature": 0.55},
+    "exploration": {"speed": 1.0, "volume": 0.0, "temperature": 0.7}
+  }
+}

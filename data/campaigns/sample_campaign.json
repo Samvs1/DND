@@ -131,7 +131,7 @@
           "flavour": "The foot of the great spiral stair, sheltered from the wind by a ring of old braziers.",
           "terrain_tags": ["keep"],
           "encounter_themes": [],
-          "shop": false
+          "shop": true
         },
         "spokes": [
           {
@@ -295,6 +295,39 @@
       ],
       "voice_tag": "steady",
       "home_node": "keepers-barracks"
+    },
+    {
+      "id": "dessa-orrin",
+      "name": "Dessa Orrin",
+      "role": "merchant",
+      "archetype_id": "commoner",
+      "demeanor": "cheerful, sharp-eyed, always haggling",
+      "motive": "Sell lamp oil and rope to anyone still brave enough to buy, and keep her stall out of the Choir's way.",
+      "secrets": [],
+      "voice_tag": "warm",
+      "home_node": "gullmere-quay-docks"
+    },
+    {
+      "id": "corvin-tallowby",
+      "name": "Corvin Tallowby",
+      "role": "trader",
+      "archetype_id": "noble",
+      "demeanor": "polished, wry, cautious",
+      "motive": "Move his wagons of salvage and sundries through the fog and turn a fair profit on a hard season.",
+      "secrets": [],
+      "voice_tag": "silk",
+      "home_node": "lamplighters-rest"
+    },
+    {
+      "id": "imre-saltwick",
+      "name": "Imre Saltwick",
+      "role": "quartermaster",
+      "archetype_id": "commoner",
+      "demeanor": "gruff, practical, tired",
+      "motive": "Keep the stair garrison supplied and the last lamps fed, whatever the cost.",
+      "secrets": [],
+      "voice_tag": "gravel",
+      "home_node": "beacon-stair-landing"
     }
   ],
   "quests": [
