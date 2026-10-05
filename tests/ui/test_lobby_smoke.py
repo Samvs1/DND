@@ -67,3 +67,32 @@ def test_start_without_character_shows_friendly_banner_not_raw_text(
     if banner.count():
         text = banner.inner_text()
         assert "Traceback" not in text and "code" not in text.lower()
+
+
+def test_assets_helper_resolves_real_placeholder_and_silence(
+    browser: Browser, live_server: LiveServer
+) -> None:
+    page = browser.new_page()
+    page.goto(f"{live_server.base}/play")
+    page.wait_for_selector("[data-testid=join-form]")
+    result = page.evaluate(
+        """async () => {
+            const a = await import('/web/js/assets.js');
+            const placeholder = a.assetUrl('monster_token.goblin');
+            const probe = new Image();
+            probe.src = placeholder;
+            await probe.decode();
+            return {
+                real: a.assetUrl('portrait.class.fighter'),
+                placeholder,
+                width: probe.naturalWidth,
+                silence: a.assetUrl('music.combat'),
+                fallback: a.assetUrl(['spell_icon.fire-bolt', 'spell_icon.school.fire']),
+            };
+        }"""
+    )
+    assert result["real"].startswith("/static/")
+    assert result["placeholder"].startswith("/assets/placeholder/monster_token/")
+    assert result["width"] > 0
+    assert result["silence"] == ""
+    assert result["fallback"].startswith("/static/")

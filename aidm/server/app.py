@@ -5,7 +5,8 @@
 Tests may pass `llm`, `state` or `config` to start from a prepared table.
 
 Routes: `/`, `/play`, `/screen` (the web shell), `/static/*` and `/web/*` (files of `aidm/web`),
-`/ws`, `/healthz` (booleans only), `/api/saves`, `/api/lan`, `/api/lan-qr.svg`.
+`/ws`, `/healthz` (booleans only), `/api/saves`, `/api/lan`, `/api/lan-qr.svg`,
+`/assets/placeholder/<kind>/<slug>.svg` and `/api/assets/manifest` (asset_routes.py, A1).
 
 Public API: `create_app`, `WEB_DIR`.
 """
@@ -22,6 +23,8 @@ from aidm.dm.llm_client import LlmClient
 from aidm.dm.llm_factory import make_llm_client
 from aidm.dm.llm_log import LlmCallLog
 from aidm.models.state import GameState
+from aidm.server.asset_routes import add_asset_routes
+from aidm.server.assets import AssetCatalog
 from aidm.server.lan import qr_svg
 from aidm.server.registry import TableRegistry
 from aidm.server.settings import ServerSettings
@@ -57,6 +60,7 @@ def create_app(
     app.state.settings = settings
     _add_pages(app)
     _add_api(app, settings, registry, client)
+    add_asset_routes(app, AssetCatalog(WEB_DIR))
     return app
 
 

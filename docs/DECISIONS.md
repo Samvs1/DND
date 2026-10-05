@@ -348,3 +348,16 @@ M6.5 totals | `session/stats.py`: `host_stats` goes to every host seat after eac
 - Errors/fallback: `notice kind=fallback` sets `store.fallback` (banner with dismiss); connection loss shows the retry banner.
 - UI tests: `tests/ui/conftest.py` `live_server` runs the real app (FakeLLM, temp saves, fake LAN url) on a free port in a thread;
   Playwright chromium is installed (`python -m playwright install chromium`); screenshots go to `artifacts/ui/` (ignored by git).
+- Art (A1): UI code gets every image and sound from `assetUrl(key)` in `js/assets.js` (never a path; `tests/ui/test_no_hardcoded_art.py`
+  greps js, css and html). `main.js` awaits `loadAssets()` (`/api/assets/manifest`, key -> resolved URL from the server's `asset_url`). Pass an
+  array to prefer real art, e.g. `assetUrl(['spell_icon.fire-bolt', 'spell_icon.school.fire'])`, or `['item_icon.longsword', 'item_icon.weapon']`.
+  Missing music/sfx resolve to `''`: guard with `hasAsset(key)` and stay silent. Keys: `portrait.class.<c>`, `portrait.icon.<c>`,
+  `portrait.race.<race>.<f|m>`, `portrait.npc.<archetype>`, `monster_token.<id>`, `item_icon.<category|id>`, `spell_icon.<id>` and
+  `spell_icon.school.<damage>`, `condition_icon.<id>`, `zone_card.<terrain>`, `region_banner.<terrain|tier1-3>`, `music.<state>`, `sfx.<name>`.
+- A1 server side: `aidm/server/asset_keys.py` derives keys from the registries, `scripts/build_manifest.py [--check]` writes
+  `aidm/web/static/assets/manifest.json` (real = file exists; prompt/source/license preserved; v1 files recognised; a newly dropped file
+  gets source `manual`), `aidm/server/assets.py` (`asset_url`, `AssetCatalog`), `placeholders.py` + `placeholder_{art,glyphs,portraits,scenes}.py`
+  (pure SVG, seeded by key, corner mark, never raise), routes in `asset_routes.py` (`/assets/placeholder/<kind>/<slug>.svg`, cached 1 day).
+  Per-spell and per-monster art goes at the manifest `file` path; shared v1 school/category icons are separate keys so M10 never overwrites them.
+  Art in CSS: none yet (colours and gradients only); if a texture is wanted, set a CSS variable from `assetUrl` in JS.
+

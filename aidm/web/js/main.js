@@ -1,5 +1,6 @@
 // Entry point: picks the mode from the URL path (/screen = spectator, else player), wires the
 // store, websocket client, handler registry, banner and the active view.
+import { loadAssets } from './assets.js';
 import { createDispatch } from './handlers.js';
 import { createStore, saved } from './state.js';
 import { mountBanner } from './ui/banner.js';
@@ -34,6 +35,7 @@ function show(state) {
   unmount = VIEWS[key](app, ctx);
 }
 
+await loadAssets();
 store.subscribe(show);
 show(store.get());
 

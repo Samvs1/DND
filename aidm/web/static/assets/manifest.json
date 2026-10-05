@@ -1,0 +1,4504 @@
+{
+ "condition_icon.asleep": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/asleep.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "condition_icon.bane": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/baned.png",
+  "size": [
+   48,
+   48
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "condition_icon.barkskin": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/barkskin.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "condition_icon.blessed": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/blessed.png",
+  "size": [
+   48,
+   48
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "condition_icon.blinded": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/blinded.png",
+  "size": [
+   48,
+   48
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "condition_icon.blurred": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/blurred.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "condition_icon.charmed": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/charmed.png",
+  "size": [
+   48,
+   48
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "condition_icon.chilled": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/chilled.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "condition_icon.deafened": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/deafened.png",
+  "size": [
+   48,
+   48
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "condition_icon.dodging": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/dodging.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "condition_icon.exhaustion": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/exhaustion.png",
+  "size": [
+   48,
+   48
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "condition_icon.expeditious-retreat": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/expeditious_retreat.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "condition_icon.frightened": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/frightened.png",
+  "size": [
+   48,
+   48
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "condition_icon.grappled": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/grappled.png",
+  "size": [
+   48,
+   48
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "condition_icon.guidance": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/guidance.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "condition_icon.guided": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/guided.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "condition_icon.helped": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/helped.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "condition_icon.hidden": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/hidden.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "condition_icon.hunters-mark": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/marked.png",
+  "size": [
+   48,
+   48
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "condition_icon.incapacitated": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/incapacitated.png",
+  "size": [
+   48,
+   48
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "condition_icon.invisibility": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/invisibility.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "condition_icon.invisible": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/invisible.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "condition_icon.longstrider": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/longstrider.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "condition_icon.mage-armor": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/mage_armored.png",
+  "size": [
+   48,
+   48
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "condition_icon.nauseated": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/nauseated.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "condition_icon.paralyzed": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/paralyzed.png",
+  "size": [
+   48,
+   48
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "condition_icon.petrified": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/petrified.png",
+  "size": [
+   48,
+   48
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "condition_icon.poison-ward": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/poison_ward.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "condition_icon.poisoned": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/poisoned.png",
+  "size": [
+   48,
+   48
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "condition_icon.prone": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/prone.png",
+  "size": [
+   48,
+   48
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "condition_icon.resistance": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/resistance.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "condition_icon.restrained": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/restrained.png",
+  "size": [
+   48,
+   48
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "condition_icon.shield-of-faith": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/shielded.png",
+  "size": [
+   48,
+   48
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "condition_icon.shocked": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/shocked.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "condition_icon.silenced": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/silenced.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "condition_icon.slowed": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/slowed.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "condition_icon.stunned": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/stunned.png",
+  "size": [
+   48,
+   48
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "condition_icon.surprised": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/surprised.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "condition_icon.true-strike": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/true_strike.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "condition_icon.unconscious": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/unconscious.png",
+  "size": [
+   48,
+   48
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "item_icon.armor": {
+  "kind": "item_icon",
+  "file": "img/icons/equipment/armor.png",
+  "size": [
+   64,
+   64
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "item_icon.breastplate": {
+  "kind": "item_icon",
+  "file": "img/icons/equipment/breastplate.png",
+  "size": [
+   64,
+   64
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "item_icon.chain-mail": {
+  "kind": "item_icon",
+  "file": "img/icons/equipment/chain-mail.png",
+  "size": [
+   64,
+   64
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "item_icon.dagger": {
+  "kind": "item_icon",
+  "file": "img/icons/equipment/dagger.png",
+  "size": [
+   64,
+   64
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "item_icon.gear": {
+  "kind": "item_icon",
+  "file": "img/icons/items/item.png",
+  "size": [
+   64,
+   64
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "item_icon.gem": {
+  "kind": "item_icon",
+  "file": "img/icons/items/gem.png",
+  "size": [
+   64,
+   64
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "item_icon.gold": {
+  "kind": "item_icon",
+  "file": "img/icons/items/gold.png",
+  "size": [
+   64,
+   64
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "item_icon.key": {
+  "kind": "item_icon",
+  "file": "img/icons/items/key.png",
+  "size": [
+   64,
+   64
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "item_icon.leather-armor": {
+  "kind": "item_icon",
+  "file": "img/icons/equipment/leather-armor.png",
+  "size": [
+   64,
+   64
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "item_icon.longsword": {
+  "kind": "item_icon",
+  "file": "img/icons/equipment/longsword.png",
+  "size": [
+   64,
+   64
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "item_icon.mace": {
+  "kind": "item_icon",
+  "file": "img/icons/equipment/mace.png",
+  "size": [
+   64,
+   64
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "item_icon.potion": {
+  "kind": "item_icon",
+  "file": "img/icons/items/potion_healing.png",
+  "size": [
+   64,
+   64
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "item_icon.quarterstaff": {
+  "kind": "item_icon",
+  "file": "img/icons/equipment/quarterstaff.png",
+  "size": [
+   64,
+   64
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "item_icon.rapier": {
+  "kind": "item_icon",
+  "file": "img/icons/equipment/rapier.png",
+  "size": [
+   64,
+   64
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "item_icon.scale-mail": {
+  "kind": "item_icon",
+  "file": "img/icons/equipment/scale-mail.png",
+  "size": [
+   64,
+   64
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "item_icon.scroll": {
+  "kind": "item_icon",
+  "file": "img/icons/items/scroll.png",
+  "size": [
+   64,
+   64
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "item_icon.shield": {
+  "kind": "item_icon",
+  "file": "img/icons/equipment/shield.png",
+  "size": [
+   64,
+   64
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "item_icon.shortbow": {
+  "kind": "item_icon",
+  "file": "img/icons/equipment/shortbow.png",
+  "size": [
+   64,
+   64
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "item_icon.shortsword": {
+  "kind": "item_icon",
+  "file": "img/icons/equipment/shortsword.png",
+  "size": [
+   64,
+   64
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "item_icon.splint-armor": {
+  "kind": "item_icon",
+  "file": "img/icons/equipment/splint-armor.png",
+  "size": [
+   64,
+   64
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "item_icon.studded-leather-armor": {
+  "kind": "item_icon",
+  "file": "img/icons/equipment/studded-leather-armor.png",
+  "size": [
+   64,
+   64
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "item_icon.supply": {
+  "kind": "item_icon",
+  "file": "img/icons/items/camp_supplies.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "item_icon.tool": {
+  "kind": "item_icon",
+  "file": "img/icons/items/tool.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "item_icon.weapon": {
+  "kind": "item_icon",
+  "file": "img/icons/equipment/weapon.png",
+  "size": [
+   64,
+   64
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "monster_token.acolyte": {
+  "kind": "monster_token",
+  "file": "img/monsters/acolyte.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.animated-armor": {
+  "kind": "monster_token",
+  "file": "img/monsters/animated-armor.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.ankheg": {
+  "kind": "monster_token",
+  "file": "img/monsters/ankheg.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.assassin": {
+  "kind": "monster_token",
+  "file": "img/monsters/assassin.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.bandit": {
+  "kind": "monster_token",
+  "file": "img/monsters/bandit.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.bandit-captain": {
+  "kind": "monster_token",
+  "file": "img/monsters/bandit-captain.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.barbed-devil": {
+  "kind": "monster_token",
+  "file": "img/monsters/barbed-devil.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.basilisk": {
+  "kind": "monster_token",
+  "file": "img/monsters/basilisk.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.bearded-devil": {
+  "kind": "monster_token",
+  "file": "img/monsters/bearded-devil.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.berserker": {
+  "kind": "monster_token",
+  "file": "img/monsters/berserker.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.black-dragon-wyrmling": {
+  "kind": "monster_token",
+  "file": "img/monsters/black-dragon-wyrmling.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.blue-dragon-wyrmling": {
+  "kind": "monster_token",
+  "file": "img/monsters/blue-dragon-wyrmling.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.brown-bear": {
+  "kind": "monster_token",
+  "file": "img/monsters/brown-bear.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.bugbear": {
+  "kind": "monster_token",
+  "file": "img/monsters/bugbear.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.centaur": {
+  "kind": "monster_token",
+  "file": "img/monsters/centaur.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.chimera": {
+  "kind": "monster_token",
+  "file": "img/monsters/chimera.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.cockatrice": {
+  "kind": "monster_token",
+  "file": "img/monsters/cockatrice.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.crocodile": {
+  "kind": "monster_token",
+  "file": "img/monsters/crocodile.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.cult-fanatic": {
+  "kind": "monster_token",
+  "file": "img/monsters/cult-fanatic.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.cultist": {
+  "kind": "monster_token",
+  "file": "img/monsters/cultist.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.death-dog": {
+  "kind": "monster_token",
+  "file": "img/monsters/death-dog.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.dire-wolf": {
+  "kind": "monster_token",
+  "file": "img/monsters/dire-wolf.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.drow": {
+  "kind": "monster_token",
+  "file": "img/monsters/drow.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.duergar": {
+  "kind": "monster_token",
+  "file": "img/monsters/duergar.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.earth-elemental": {
+  "kind": "monster_token",
+  "file": "img/monsters/earth-elemental.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.ettin": {
+  "kind": "monster_token",
+  "file": "img/monsters/ettin.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.fire-elemental": {
+  "kind": "monster_token",
+  "file": "img/monsters/fire-elemental.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.flying-sword": {
+  "kind": "monster_token",
+  "file": "img/monsters/flying-sword.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.frost-giant": {
+  "kind": "monster_token",
+  "file": "img/monsters/frost-giant.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.gargoyle": {
+  "kind": "monster_token",
+  "file": "img/monsters/gargoyle.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.gelatinous-cube": {
+  "kind": "monster_token",
+  "file": "img/monsters/gelatinous-cube.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.ghast": {
+  "kind": "monster_token",
+  "file": "img/monsters/ghast.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.ghoul": {
+  "kind": "monster_token",
+  "file": "img/monsters/ghoul.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.giant-crocodile": {
+  "kind": "monster_token",
+  "file": "img/monsters/giant-crocodile.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.giant-rat": {
+  "kind": "monster_token",
+  "file": "img/monsters/giant-rat.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.giant-scorpion": {
+  "kind": "monster_token",
+  "file": "img/monsters/giant-scorpion.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.giant-wolf-spider": {
+  "kind": "monster_token",
+  "file": "img/monsters/giant-wolf-spider.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.gladiator": {
+  "kind": "monster_token",
+  "file": "img/monsters/gladiator.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.gnoll": {
+  "kind": "monster_token",
+  "file": "img/monsters/gnoll.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.goblin": {
+  "kind": "monster_token",
+  "file": "img/monsters/goblin.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.green-dragon-wyrmling": {
+  "kind": "monster_token",
+  "file": "img/monsters/green-dragon-wyrmling.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.grick": {
+  "kind": "monster_token",
+  "file": "img/monsters/grick.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.griffon": {
+  "kind": "monster_token",
+  "file": "img/monsters/griffon.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.grimlock": {
+  "kind": "monster_token",
+  "file": "img/monsters/grimlock.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.half-red-dragon-veteran": {
+  "kind": "monster_token",
+  "file": "img/monsters/half-red-dragon-veteran.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.hell-hound": {
+  "kind": "monster_token",
+  "file": "img/monsters/hell-hound.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.hezrou": {
+  "kind": "monster_token",
+  "file": "img/monsters/hezrou.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.hill-giant": {
+  "kind": "monster_token",
+  "file": "img/monsters/hill-giant.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.hobgoblin": {
+  "kind": "monster_token",
+  "file": "img/monsters/hobgoblin.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.hydra": {
+  "kind": "monster_token",
+  "file": "img/monsters/hydra.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.ice-mephit": {
+  "kind": "monster_token",
+  "file": "img/monsters/ice-mephit.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.knight": {
+  "kind": "monster_token",
+  "file": "img/monsters/knight.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.kobold": {
+  "kind": "monster_token",
+  "file": "img/monsters/kobold.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.lizardfolk": {
+  "kind": "monster_token",
+  "file": "img/monsters/lizardfolk.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.mage": {
+  "kind": "monster_token",
+  "file": "img/monsters/mage.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.manticore": {
+  "kind": "monster_token",
+  "file": "img/monsters/manticore.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.medusa": {
+  "kind": "monster_token",
+  "file": "img/monsters/medusa.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.mimic": {
+  "kind": "monster_token",
+  "file": "img/monsters/mimic.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.minotaur": {
+  "kind": "monster_token",
+  "file": "img/monsters/minotaur.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.noble": {
+  "kind": "monster_token",
+  "file": "img/monsters/noble.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.ochre-jelly": {
+  "kind": "monster_token",
+  "file": "img/monsters/ochre-jelly.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.ogre": {
+  "kind": "monster_token",
+  "file": "img/monsters/ogre.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.ogre-zombie": {
+  "kind": "monster_token",
+  "file": "img/monsters/ogre-zombie.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.orc": {
+  "kind": "monster_token",
+  "file": "img/monsters/orc.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.owlbear": {
+  "kind": "monster_token",
+  "file": "img/monsters/owlbear.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.priest": {
+  "kind": "monster_token",
+  "file": "img/monsters/priest.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.red-dragon-wyrmling": {
+  "kind": "monster_token",
+  "file": "img/monsters/red-dragon-wyrmling.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.sahuagin": {
+  "kind": "monster_token",
+  "file": "img/monsters/sahuagin.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.satyr": {
+  "kind": "monster_token",
+  "file": "img/monsters/satyr.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.scout": {
+  "kind": "monster_token",
+  "file": "img/monsters/scout.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.shield-guardian": {
+  "kind": "monster_token",
+  "file": "img/monsters/shield-guardian.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.skeleton": {
+  "kind": "monster_token",
+  "file": "img/monsters/skeleton.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.steam-mephit": {
+  "kind": "monster_token",
+  "file": "img/monsters/steam-mephit.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.stirge": {
+  "kind": "monster_token",
+  "file": "img/monsters/stirge.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.stone-giant": {
+  "kind": "monster_token",
+  "file": "img/monsters/stone-giant.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.swarm-of-bats": {
+  "kind": "monster_token",
+  "file": "img/monsters/swarm-of-bats.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.swarm-of-rats": {
+  "kind": "monster_token",
+  "file": "img/monsters/swarm-of-rats.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.thug": {
+  "kind": "monster_token",
+  "file": "img/monsters/thug.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.troll": {
+  "kind": "monster_token",
+  "file": "img/monsters/troll.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.tyrannosaurus-rex": {
+  "kind": "monster_token",
+  "file": "img/monsters/tyrannosaurus-rex.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.vampire-spawn": {
+  "kind": "monster_token",
+  "file": "img/monsters/vampire-spawn.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.veteran": {
+  "kind": "monster_token",
+  "file": "img/monsters/veteran.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.violet-fungus": {
+  "kind": "monster_token",
+  "file": "img/monsters/violet-fungus.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.water-elemental": {
+  "kind": "monster_token",
+  "file": "img/monsters/water-elemental.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.white-dragon-wyrmling": {
+  "kind": "monster_token",
+  "file": "img/monsters/white-dragon-wyrmling.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.wight": {
+  "kind": "monster_token",
+  "file": "img/monsters/wight.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.winter-wolf": {
+  "kind": "monster_token",
+  "file": "img/monsters/winter-wolf.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.wolf": {
+  "kind": "monster_token",
+  "file": "img/monsters/wolf.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.worg": {
+  "kind": "monster_token",
+  "file": "img/monsters/worg.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.wyvern": {
+  "kind": "monster_token",
+  "file": "img/monsters/wyvern.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.xorn": {
+  "kind": "monster_token",
+  "file": "img/monsters/xorn.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.young-black-dragon": {
+  "kind": "monster_token",
+  "file": "img/monsters/young-black-dragon.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.young-green-dragon": {
+  "kind": "monster_token",
+  "file": "img/monsters/young-green-dragon.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.young-white-dragon": {
+  "kind": "monster_token",
+  "file": "img/monsters/young-white-dragon.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "monster_token.zombie": {
+  "kind": "monster_token",
+  "file": "img/monsters/zombie.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "music.combat": {
+  "kind": "music",
+  "file": "audio/music/combat.mp3",
+  "size": null,
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "music.defeat": {
+  "kind": "music",
+  "file": "audio/music/defeat.mp3",
+  "size": null,
+  "transparent": false,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "music.exploration": {
+  "kind": "music",
+  "file": "audio/music/ambient.mp3",
+  "size": null,
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "music.social": {
+  "kind": "music",
+  "file": "audio/music/social.mp3",
+  "size": null,
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "music.victory": {
+  "kind": "music",
+  "file": "audio/music/victory.mp3",
+  "size": null,
+  "transparent": false,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "portrait.class.cleric": {
+  "kind": "portrait",
+  "file": "img/portraits/cleric_cropped.png",
+  "size": [
+   824,
+   493
+  ],
+  "transparent": false,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "portrait.class.fighter": {
+  "kind": "portrait",
+  "file": "img/portraits/fighter_cropped.png",
+  "size": [
+   824,
+   490
+  ],
+  "transparent": false,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "portrait.class.ranger": {
+  "kind": "portrait",
+  "file": "img/portraits/ranger_cropped.png",
+  "size": [
+   824,
+   485
+  ],
+  "transparent": false,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "portrait.class.rogue": {
+  "kind": "portrait",
+  "file": "img/portraits/rogue_cropped.png",
+  "size": [
+   824,
+   495
+  ],
+  "transparent": false,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "portrait.class.warlock": {
+  "kind": "portrait",
+  "file": "img/portraits/warlock_cropped.png",
+  "size": [
+   824,
+   495
+  ],
+  "transparent": false,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "portrait.class.wizard": {
+  "kind": "portrait",
+  "file": "img/portraits/wizard_cropped.png",
+  "size": [
+   824,
+   485
+  ],
+  "transparent": false,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "portrait.icon.cleric": {
+  "kind": "portrait",
+  "file": "img/portraits/Cleric_p_icon.png",
+  "size": [
+   62,
+   63
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "portrait.icon.fighter": {
+  "kind": "portrait",
+  "file": "img/portraits/Fighter_p_icon.png",
+  "size": [
+   61,
+   61
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "portrait.icon.ranger": {
+  "kind": "portrait",
+  "file": "img/portraits/Ranger_p_icon.png",
+  "size": [
+   61,
+   61
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "portrait.icon.rogue": {
+  "kind": "portrait",
+  "file": "img/portraits/Rogue_p_icon.png",
+  "size": [
+   62,
+   62
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "portrait.icon.warlock": {
+  "kind": "portrait",
+  "file": "img/portraits/Warlock_p_icon.png",
+  "size": [
+   61,
+   61
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "portrait.icon.wizard": {
+  "kind": "portrait",
+  "file": "img/portraits/Wizard_p_icon.png",
+  "size": [
+   61,
+   61
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "portrait.npc.acolyte": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/acolyte.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.assassin": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/assassin.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.bandit": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/bandit.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.bandit-captain": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/bandit-captain.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.berserker": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/berserker.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.bugbear": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/bugbear.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.commoner": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/commoner.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.cult-fanatic": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/cult-fanatic.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.cultist": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/cultist.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.deep-gnome-svirfneblin": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/deep-gnome-svirfneblin.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.drow": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/drow.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.druid": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/druid.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.duergar": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/duergar.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.gladiator": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/gladiator.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.gnoll": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/gnoll.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.goblin": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/goblin.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.grimlock": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/grimlock.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.guard": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/guard.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.half-red-dragon-veteran": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/half-red-dragon-veteran.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.hobgoblin": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/hobgoblin.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.knight": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/knight.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.kobold": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/kobold.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.lizardfolk": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/lizardfolk.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.mage": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/mage.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.merfolk": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/merfolk.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.noble": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/noble.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.orc": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/orc.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.priest": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/priest.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.sahuagin": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/sahuagin.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.scout": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/scout.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.scribe": {
+  "kind": "portrait",
+  "file": "img/portraits/scribe_cropped.png",
+  "size": [
+   824,
+   496
+  ],
+  "transparent": false,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "portrait.npc.shopkeeper": {
+  "kind": "portrait",
+  "file": "img/portraits/shopkeeper_cropped.png",
+  "size": [
+   824,
+   435
+  ],
+  "transparent": false,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "portrait.npc.spy": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/spy.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.thug": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/thug.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.tribal-warrior": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/tribal-warrior.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.veteran": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/veteran.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.werebear-bear": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/werebear-bear.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.werebear-human": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/werebear-human.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.werebear-hybrid": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/werebear-hybrid.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.wereboar-boar": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/wereboar-boar.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.wereboar-human": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/wereboar-human.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.wereboar-hybrid": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/wereboar-hybrid.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.wererat-human": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/wererat-human.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.wererat-hybrid": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/wererat-hybrid.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.wererat-rat": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/wererat-rat.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.weretiger-human": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/weretiger-human.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.weretiger-hybrid": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/weretiger-hybrid.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.weretiger-tiger": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/weretiger-tiger.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.werewolf-human": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/werewolf-human.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.werewolf-hybrid": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/werewolf-hybrid.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.npc.werewolf-wolf": {
+  "kind": "portrait",
+  "file": "img/portraits/npc/werewolf-wolf.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.race.dragonborn.f": {
+  "kind": "portrait",
+  "file": "img/portraits/race_dragonborn_f.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.race.dragonborn.m": {
+  "kind": "portrait",
+  "file": "img/portraits/race_dragonborn_m.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.race.dwarf.f": {
+  "kind": "portrait",
+  "file": "img/portraits/race_dwarf_f.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.race.dwarf.m": {
+  "kind": "portrait",
+  "file": "img/portraits/race_dwarf_m.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.race.elf.f": {
+  "kind": "portrait",
+  "file": "img/portraits/race_elf_f.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.race.elf.m": {
+  "kind": "portrait",
+  "file": "img/portraits/race_elf_m.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.race.gnome.f": {
+  "kind": "portrait",
+  "file": "img/portraits/race_gnome_f.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.race.gnome.m": {
+  "kind": "portrait",
+  "file": "img/portraits/race_gnome_m.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.race.half-elf.f": {
+  "kind": "portrait",
+  "file": "img/portraits/race_half-elf_f.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.race.half-elf.m": {
+  "kind": "portrait",
+  "file": "img/portraits/race_half-elf_m.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.race.half-orc.f": {
+  "kind": "portrait",
+  "file": "img/portraits/race_half-orc_f.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.race.half-orc.m": {
+  "kind": "portrait",
+  "file": "img/portraits/race_half-orc_m.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.race.halfling.f": {
+  "kind": "portrait",
+  "file": "img/portraits/race_halfling_f.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.race.halfling.m": {
+  "kind": "portrait",
+  "file": "img/portraits/race_halfling_m.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.race.human.f": {
+  "kind": "portrait",
+  "file": "img/portraits/race_human_f.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.race.human.m": {
+  "kind": "portrait",
+  "file": "img/portraits/race_human_m.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.race.tiefling.f": {
+  "kind": "portrait",
+  "file": "img/portraits/race_tiefling_f.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "portrait.race.tiefling.m": {
+  "kind": "portrait",
+  "file": "img/portraits/race_tiefling_m.png",
+  "size": [
+   512,
+   512
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "region_banner.bridge": {
+  "kind": "region_banner",
+  "file": "img/banners/bridge.png",
+  "size": [
+   1024,
+   256
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "region_banner.cave": {
+  "kind": "region_banner",
+  "file": "img/banners/cave.png",
+  "size": [
+   1024,
+   256
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "region_banner.crypt": {
+  "kind": "region_banner",
+  "file": "img/banners/crypt.png",
+  "size": [
+   1024,
+   256
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "region_banner.forest": {
+  "kind": "region_banner",
+  "file": "img/banners/forest.png",
+  "size": [
+   1024,
+   256
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "region_banner.keep": {
+  "kind": "region_banner",
+  "file": "img/banners/keep.png",
+  "size": [
+   1024,
+   256
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "region_banner.ruins": {
+  "kind": "region_banner",
+  "file": "img/banners/ruins.png",
+  "size": [
+   1024,
+   256
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "region_banner.swamp": {
+  "kind": "region_banner",
+  "file": "img/banners/swamp.png",
+  "size": [
+   1024,
+   256
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "region_banner.tier1": {
+  "kind": "region_banner",
+  "file": "img/banners/tier1.png",
+  "size": [
+   1024,
+   256
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "region_banner.tier2": {
+  "kind": "region_banner",
+  "file": "img/banners/tier2.png",
+  "size": [
+   1024,
+   256
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "region_banner.tier3": {
+  "kind": "region_banner",
+  "file": "img/banners/tier3.png",
+  "size": [
+   1024,
+   256
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "region_banner.village": {
+  "kind": "region_banner",
+  "file": "img/banners/village.png",
+  "size": [
+   1024,
+   256
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "region_banner.wilds": {
+  "kind": "region_banner",
+  "file": "img/banners/wilds.png",
+  "size": [
+   1024,
+   256
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "sfx.coin": {
+  "kind": "sfx",
+  "file": "audio/sfx/coin.mp3",
+  "size": null,
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "sfx.crit": {
+  "kind": "sfx",
+  "file": "audio/sfx/crit.mp3",
+  "size": null,
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "sfx.dice_roll": {
+  "kind": "sfx",
+  "file": "audio/sfx/dice_roll.mp3",
+  "size": null,
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "sfx.door": {
+  "kind": "sfx",
+  "file": "audio/sfx/door.mp3",
+  "size": null,
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "sfx.heal": {
+  "kind": "sfx",
+  "file": "audio/sfx/heal.mp3",
+  "size": null,
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "sfx.hit": {
+  "kind": "sfx",
+  "file": "audio/sfx/hit.mp3",
+  "size": null,
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "sfx.level_up": {
+  "kind": "sfx",
+  "file": "audio/sfx/level_up.mp3",
+  "size": null,
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "sfx.miss": {
+  "kind": "sfx",
+  "file": "audio/sfx/miss.mp3",
+  "size": null,
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "sfx.scribe_intro": {
+  "kind": "sfx",
+  "file": "audio/scribe_intro.mp3",
+  "size": null,
+  "transparent": false,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "sfx.spell_cast": {
+  "kind": "sfx",
+  "file": "audio/sfx/spell_cast.mp3",
+  "size": null,
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "sfx.ui_click": {
+  "kind": "sfx",
+  "file": "audio/sfx/ui_click.mp3",
+  "size": null,
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.acid-arrow": {
+  "kind": "spell_icon",
+  "file": "img/spells/acid-arrow.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.acid-splash": {
+  "kind": "spell_icon",
+  "file": "img/spells/acid-splash.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.aid": {
+  "kind": "spell_icon",
+  "file": "img/spells/aid.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.animal-friendship": {
+  "kind": "spell_icon",
+  "file": "img/spells/animal-friendship.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.bane": {
+  "kind": "spell_icon",
+  "file": "img/spells/bane.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.barkskin": {
+  "kind": "spell_icon",
+  "file": "img/spells/barkskin.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.bless": {
+  "kind": "spell_icon",
+  "file": "img/spells/bless.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.blindness-deafness": {
+  "kind": "spell_icon",
+  "file": "img/spells/blindness-deafness.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.blur": {
+  "kind": "spell_icon",
+  "file": "img/spells/blur.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.burning-hands": {
+  "kind": "spell_icon",
+  "file": "img/spells/burning-hands.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.charm-person": {
+  "kind": "spell_icon",
+  "file": "img/spells/charm-person.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.chill-touch": {
+  "kind": "spell_icon",
+  "file": "img/spells/chill-touch.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.color-spray": {
+  "kind": "spell_icon",
+  "file": "img/spells/color-spray.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.cure-wounds": {
+  "kind": "spell_icon",
+  "file": "img/spells/cure-wounds.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.darkness": {
+  "kind": "spell_icon",
+  "file": "img/spells/darkness.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.eldritch-blast": {
+  "kind": "spell_icon",
+  "file": "img/spells/eldritch-blast.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.expeditious-retreat": {
+  "kind": "spell_icon",
+  "file": "img/spells/expeditious-retreat.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.false-life": {
+  "kind": "spell_icon",
+  "file": "img/spells/false-life.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.fear": {
+  "kind": "spell_icon",
+  "file": "img/spells/fear.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.fire-bolt": {
+  "kind": "spell_icon",
+  "file": "img/spells/fire-bolt.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.fireball": {
+  "kind": "spell_icon",
+  "file": "img/spells/fireball.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.fog-cloud": {
+  "kind": "spell_icon",
+  "file": "img/spells/fog-cloud.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.grease": {
+  "kind": "spell_icon",
+  "file": "img/spells/grease.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.guidance": {
+  "kind": "spell_icon",
+  "file": "img/spells/guidance.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.guiding-bolt": {
+  "kind": "spell_icon",
+  "file": "img/spells/guiding-bolt.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.healing-word": {
+  "kind": "spell_icon",
+  "file": "img/spells/healing-word.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.hideous-laughter": {
+  "kind": "spell_icon",
+  "file": "img/spells/hideous-laughter.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.hold-person": {
+  "kind": "spell_icon",
+  "file": "img/spells/hold-person.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.hunters-mark": {
+  "kind": "spell_icon",
+  "file": "img/spells/hunters-mark.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.hypnotic-pattern": {
+  "kind": "spell_icon",
+  "file": "img/spells/hypnotic-pattern.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.inflict-wounds": {
+  "kind": "spell_icon",
+  "file": "img/spells/inflict-wounds.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.invisibility": {
+  "kind": "spell_icon",
+  "file": "img/spells/invisibility.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.lesser-restoration": {
+  "kind": "spell_icon",
+  "file": "img/spells/lesser-restoration.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.lightning-bolt": {
+  "kind": "spell_icon",
+  "file": "img/spells/lightning-bolt.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.longstrider": {
+  "kind": "spell_icon",
+  "file": "img/spells/longstrider.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.mage-armor": {
+  "kind": "spell_icon",
+  "file": "img/spells/mage-armor.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.magic-missile": {
+  "kind": "spell_icon",
+  "file": "img/spells/magic-missile.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.mass-healing-word": {
+  "kind": "spell_icon",
+  "file": "img/spells/mass-healing-word.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.misty-step": {
+  "kind": "spell_icon",
+  "file": "img/spells/misty-step.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.poison-spray": {
+  "kind": "spell_icon",
+  "file": "img/spells/poison-spray.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.prayer-of-healing": {
+  "kind": "spell_icon",
+  "file": "img/spells/prayer-of-healing.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.protection-from-poison": {
+  "kind": "spell_icon",
+  "file": "img/spells/protection-from-poison.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.ray-of-frost": {
+  "kind": "spell_icon",
+  "file": "img/spells/ray-of-frost.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.resistance": {
+  "kind": "spell_icon",
+  "file": "img/spells/resistance.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.revivify": {
+  "kind": "spell_icon",
+  "file": "img/spells/revivify.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.sacred-flame": {
+  "kind": "spell_icon",
+  "file": "img/spells/sacred-flame.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.school.acid": {
+  "kind": "spell_icon",
+  "file": "img/icons/spells/acid.png",
+  "size": [
+   64,
+   64
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "spell_icon.school.arcane": {
+  "kind": "spell_icon",
+  "file": "img/icons/spells/arcane.png",
+  "size": [
+   64,
+   64
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "spell_icon.school.cold": {
+  "kind": "spell_icon",
+  "file": "img/icons/spells/cold.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.school.fire": {
+  "kind": "spell_icon",
+  "file": "img/icons/spells/fire.png",
+  "size": [
+   64,
+   64
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "spell_icon.school.force": {
+  "kind": "spell_icon",
+  "file": "img/icons/spells/force.png",
+  "size": [
+   64,
+   64
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "spell_icon.school.frost": {
+  "kind": "spell_icon",
+  "file": "img/icons/spells/frost.png",
+  "size": [
+   64,
+   64
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "spell_icon.school.lightning": {
+  "kind": "spell_icon",
+  "file": "img/icons/spells/lightning.png",
+  "size": [
+   64,
+   64
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "spell_icon.school.nature": {
+  "kind": "spell_icon",
+  "file": "img/icons/spells/nature.png",
+  "size": [
+   64,
+   64
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "spell_icon.school.necrotic": {
+  "kind": "spell_icon",
+  "file": "img/icons/spells/necrotic.png",
+  "size": [
+   64,
+   64
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "spell_icon.school.poison": {
+  "kind": "spell_icon",
+  "file": "img/icons/spells/poison.png",
+  "size": [
+   64,
+   64
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "spell_icon.school.radiant": {
+  "kind": "spell_icon",
+  "file": "img/icons/spells/radiant.png",
+  "size": [
+   64,
+   64
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "spell_icon.school.thunder": {
+  "kind": "spell_icon",
+  "file": "img/icons/spells/thunder.png",
+  "size": [
+   64,
+   64
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
+ "spell_icon.scorching-ray": {
+  "kind": "spell_icon",
+  "file": "img/spells/scorching-ray.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.shatter": {
+  "kind": "spell_icon",
+  "file": "img/spells/shatter.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.shield-of-faith": {
+  "kind": "spell_icon",
+  "file": "img/spells/shield-of-faith.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.shocking-grasp": {
+  "kind": "spell_icon",
+  "file": "img/spells/shocking-grasp.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.silence": {
+  "kind": "spell_icon",
+  "file": "img/spells/silence.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.sleep": {
+  "kind": "spell_icon",
+  "file": "img/spells/sleep.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.sleet-storm": {
+  "kind": "spell_icon",
+  "file": "img/spells/sleet-storm.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.slow": {
+  "kind": "spell_icon",
+  "file": "img/spells/slow.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.spare-the-dying": {
+  "kind": "spell_icon",
+  "file": "img/spells/spare-the-dying.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.spike-growth": {
+  "kind": "spell_icon",
+  "file": "img/spells/spike-growth.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.spirit-guardians": {
+  "kind": "spell_icon",
+  "file": "img/spells/spirit-guardians.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.stinking-cloud": {
+  "kind": "spell_icon",
+  "file": "img/spells/stinking-cloud.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.thunderwave": {
+  "kind": "spell_icon",
+  "file": "img/spells/thunderwave.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.true-strike": {
+  "kind": "spell_icon",
+  "file": "img/spells/true-strike.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "spell_icon.web": {
+  "kind": "spell_icon",
+  "file": "img/spells/web.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "zone_card.bridge": {
+  "kind": "zone_card",
+  "file": "img/zones/bridge.png",
+  "size": [
+   640,
+   360
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "zone_card.cave": {
+  "kind": "zone_card",
+  "file": "img/zones/cave.png",
+  "size": [
+   640,
+   360
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "zone_card.crypt": {
+  "kind": "zone_card",
+  "file": "img/zones/crypt.png",
+  "size": [
+   640,
+   360
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "zone_card.forest": {
+  "kind": "zone_card",
+  "file": "img/zones/forest.png",
+  "size": [
+   640,
+   360
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "zone_card.keep": {
+  "kind": "zone_card",
+  "file": "img/zones/keep.png",
+  "size": [
+   640,
+   360
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "zone_card.ruins": {
+  "kind": "zone_card",
+  "file": "img/zones/ruins.png",
+  "size": [
+   640,
+   360
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "zone_card.swamp": {
+  "kind": "zone_card",
+  "file": "img/zones/swamp.png",
+  "size": [
+   640,
+   360
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "zone_card.village": {
+  "kind": "zone_card",
+  "file": "img/zones/village.png",
+  "size": [
+   640,
+   360
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ },
+ "zone_card.wilds": {
+  "kind": "zone_card",
+  "file": "img/zones/wilds.png",
+  "size": [
+   640,
+   360
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "",
+  "source": "",
+  "license": ""
+ }
+}

@@ -1,4 +1,4 @@
-NEXT: A1 Asset manifest and placeholders. Delegate to mechanical-engineer. Last gate: M7.1 GATE PASS 8/8.
+NEXT: M7.2 Character wizard. Delegate to mechanical-engineer. Last gate: A1 GATE PASS 9/9.
 
 # PROGRESS
 
@@ -78,7 +78,7 @@ Stashes and blockers: record them in the Notes section at the bottom.
 
 ## M7 Frontend (SPEC 12)
 - [x] M7.1 **M** Shell: theme CSS variables with v1 art, `strings.js`, ws client plus a handler registry, a test that every ServerMsg type has a JS handler, lobby/join plus QR. Gate: pytest (handler coverage) plus a manual boot. (commit see git log, `WIP M7.1`; Playwright chromium installed, screenshot artifacts/ui/lobby.png; guide in docs/DECISIONS.md "Frontend guide")
-- [ ] A1 **M** Asset manifest (docs/ADDENDUM_ASSETS.md A.2, A.3, A.5): `aidm/web/static/assets/manifest.json` with keys derived from the data registries, `scripts/build_manifest.py [--check]`, the ONE server `asset_url(key)` and the ONE frontend `assetUrl(key)`, pure deterministic SVG placeholders in `aidm/server/placeholders.py` served at `/assets/placeholder/<kind>/<slug>.svg` (never raise; unknown key = generic), missing audio = silence; tests: every data key resolves, no hardcoded `/static/img` outside the helper, dropping a file flips it to real; add `build_manifest.py --check` to gate.ps1. Gate: FULL gate.
+- [x] A1 **M** Asset manifest (docs/ADDENDUM_ASSETS.md A.2, A.3, A.5): `aidm/web/static/assets/manifest.json` with keys derived from the data registries, `scripts/build_manifest.py [--check]`, the ONE server `asset_url(key)` and the ONE frontend `assetUrl(key)`, pure deterministic SVG placeholders in `aidm/server/placeholders.py` served at `/assets/placeholder/<kind>/<slug>.svg` (never raise; unknown key = generic), missing audio = silence; tests: every data key resolves, no hardcoded `/static/img` outside the helper, dropping a file flips it to real; add `build_manifest.py --check` to gate.ps1. Gate: FULL gate. (commit see git log, `WIP A1`; 350 entries, 70 real / 280 placeholder)
 - [ ] M7.2 **M** Character wizard (all SPEC 8 steps, validation via the server). Gate: pytest plus a Playwright smoke if available, otherwise a manual boot note.
 - [ ] M7.3 **M** Table view: streaming story feed, scene header, party panel, queue tracker, dice tray (adv/disadv), action input, ready vote, point-of-no-return dialog, fallback banner. Gate: as above.
 - [ ] M7.4 **M** Combat view: zone cards with token chips, initiative strip, hotbar with hit-chance tooltips, action/bonus/move pips. Gate: as above.
