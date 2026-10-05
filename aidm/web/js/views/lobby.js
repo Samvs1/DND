@@ -1,7 +1,9 @@
 // Lobby view: join by name, roster, host start with theme ("surprise me"), invite panel.
 // Built once; store updates patch the pieces so typing in the inputs is never interrupted.
 import { t } from '../strings.js';
+import { hasHero } from '../state.js';
 import { clear, h } from '../ui/dom.js';
+import { titleCase } from '../ui/format.js';
 import { fetchLan, mountInvite } from '../ui/invite.js';
 
 function joinForm(ctx) {
@@ -37,6 +39,12 @@ function joinForm(ctx) {
   return form;
 }
 
+function heroLine(state, player) {
+  const hero = (state.snapshot?.state.party ?? []).find((c) => c.id === player.creature_id);
+  if (!hero) return t('lobby.heroReady');
+  return t('lobby.heroLine', { name: hero.name, race: titleCase(hero.race), cls: titleCase(hero.class_index) });
+}
+
 function renderRoster(list, state) {
   clear(list);
   if (!state.players.length) {
@@ -45,15 +53,17 @@ function renderRoster(list, state) {
   }
   for (const player of state.players) {
     const mine = player.id === state.me.playerId;
+    const ready = Boolean(player.creature_id);
     list.append(
       h(
         'li',
-        { class: player.connected ? 'on' : 'off', 'data-player': player.id },
+        { class: player.connected ? 'on' : 'off', 'data-player': player.id, 'data-ready': String(ready) },
         h('span', { class: 'dot', 'aria-hidden': 'true' }),
         h('span', { class: 'who' }, player.name),
         mine ? h('span', { class: 'tag' }, t('lobby.you')) : null,
         player.is_host ? h('span', { class: 'tag tag-host' }, t('lobby.host')) : null,
         player.connected ? null : h('span', { class: 'tag tag-away' }, t('lobby.away')),
+        h('span', { class: ready ? 'hero ready' : 'hero pending', 'data-testid': 'hero-state' }, ready ? heroLine(state, player) : t('lobby.noHero')),
       ),
     );
   }
@@ -77,23 +87,26 @@ function hostControls(ctx) {
   );
   form.addEventListener('submit', (event) => {
     event.preventDefault();
+    if (start.disabled) return;
     ctx.client.send('host_start', { theme: theme.value.trim() || null });
   });
-  return form;
+  return { form, start };
 }
 
 export function mountLobby(root, ctx) {
   const { store } = ctx;
   const join = joinForm(ctx);
   const roster = h('ul', { class: 'roster', 'data-testid': 'roster' });
-  const host = hostControls(ctx);
+  const { form: host, start } = hostControls(ctx);
+  const edit = h('button', { type: 'button', class: 'btn btn-small', 'data-testid': 'edit-hero', onclick: () => store.update({ wizardOpen: true }) }, t('lobby.editHero'));
+  const waitHeroes = h('p', { class: 'hint', 'data-testid': 'wait-heroes' }, t('lobby.needHeroes'));
   const wait = h('p', { class: 'hint', 'data-testid': 'wait' }, t('lobby.waitingHost'));
   const forging = h('p', { class: 'hint forging', role: 'status', 'data-testid': 'forging' }, t('lobby.generating'));
   const inviteSlot = h('div', {});
   const table = h(
     'div',
     { class: 'lobby-table' },
-    h('section', { class: 'panel', 'aria-labelledby': 'roster-h' }, h('h2', { id: 'roster-h' }, t('lobby.roster')), roster, host, wait, forging),
+    h('section', { class: 'panel', 'aria-labelledby': 'roster-h' }, h('h2', { id: 'roster-h' }, t('lobby.roster')), roster, edit, host, waitHeroes, wait, forging),
     inviteSlot,
   );
 
@@ -107,6 +120,12 @@ export function mountLobby(root, ctx) {
     table.hidden = !state.joined;
     renderRoster(roster, state);
     const generating = state.phase === 'generating';
+    const everyone = state.players.filter((p) => p.connected).every((p) => p.creature_id);
+    const ready = hasHero(state) && everyone;
+    start.disabled = !ready;
+    waitHeroes.hidden = !state.me.isHost || generating || ready;
+    edit.hidden = !state.joined || generating;
+    edit.textContent = hasHero(state) ? t('lobby.editHero') : t('lobby.createHero');
     host.hidden = !state.me.isHost || generating;
     wait.hidden = state.me.isHost || generating;
     forging.hidden = !generating;

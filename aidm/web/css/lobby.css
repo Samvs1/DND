@@ -121,3 +121,21 @@
     width: min(100% - 4rem, 900px);
   }
 }
+
+.roster li {
+  flex-wrap: wrap;
+}
+
+.roster .hero {
+  flex-basis: 100%;
+  padding-left: 1.3rem;
+  font-size: 0.9rem;
+}
+
+.roster .hero.ready {
+  color: var(--moss);
+}
+
+.roster .hero.pending {
+  color: var(--muted);
+}

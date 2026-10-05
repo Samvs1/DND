@@ -9,6 +9,7 @@ from pathlib import Path
 
 import pytest
 import uvicorn
+from playwright.sync_api import Browser, sync_playwright
 
 from aidm.server.app import create_app
 from aidm.server.settings import server_settings_from_env
@@ -57,3 +58,11 @@ def live_server(tmp_path: Path) -> Iterator[LiveServer]:
 def shots_dir() -> Path:
     SHOTS.mkdir(parents=True, exist_ok=True)
     return SHOTS
+
+
+@pytest.fixture(scope="module")
+def browser() -> Iterator[Browser]:
+    with sync_playwright() as pw:
+        chromium = pw.chromium.launch()
+        yield chromium
+        chromium.close()

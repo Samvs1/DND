@@ -49,8 +49,18 @@ export function initialState() {
     notices: [],
     fallback: false,
     errorCode: null,
+    wizardOpen: null, // null = open until the player has a hero; true/false once chosen
     lan: { lan: false, url: null },
   };
+}
+
+/** The seat of the local player, or null. */
+export function mySeat(state) {
+  return state.players.find((p) => p.id === state.me.playerId) ?? null;
+}
+
+export function hasHero(state) {
+  return Boolean(mySeat(state)?.creature_id);
 }
 
 export function createStore(start = initialState()) {

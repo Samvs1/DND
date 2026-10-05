@@ -21,6 +21,7 @@ def _join(page: Page, base: str, name: str) -> None:
     page.goto(f"{base}/play")
     page.fill("#join-name", name)
     page.click("button[type=submit]")
+    page.click("[data-testid=wizard-close]")
     page.wait_for_selector("[data-testid=roster] li[data-player]")
 
 
@@ -56,17 +57,18 @@ def test_second_player_sees_roster_and_no_start_button(
     assert guest.locator("[data-testid=wait]").is_visible()
 
 
-def test_start_without_character_shows_friendly_banner_not_raw_text(
+def test_start_is_disabled_without_a_hero_and_server_refusal_is_friendly(
     browser: Browser, live_server: LiveServer
 ) -> None:
     page = browser.new_page()
     _join(page, live_server.base, "Solo")
-    page.click("[data-testid=start]")
-    page.wait_for_selector("[data-testid=banner], [data-testid=forging]", timeout=5000)
+    assert page.locator("[data-testid=start]").is_disabled()
+    assert page.locator("[data-testid=wait-heroes]").is_visible()
+    page.evaluate("window.aidm.client.send('host_start', {theme: null})")
     banner = page.locator("[data-testid=banner]")
-    if banner.count():
-        text = banner.inner_text()
-        assert "Traceback" not in text and "code" not in text.lower()
+    banner.wait_for(timeout=5000)
+    text = banner.inner_text()
+    assert "Traceback" not in text and "no_character" not in text
 
 
 def test_assets_helper_resolves_real_placeholder_and_silence(

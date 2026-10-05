@@ -23,7 +23,7 @@ function onWelcome(msg, { store, saved }) {
     joined: true,
     me: { playerId: msg.player_id, isHost: Boolean(msg.is_host) },
     errorCode: null,
-    ...(sameSeat ? {} : { snapshot: null, players: [], lastSeq: 0, notices: [], fallback: false }),
+    ...(sameSeat ? {} : { snapshot: null, players: [], lastSeq: 0, notices: [], fallback: false, wizardOpen: null }),
   });
 }
 

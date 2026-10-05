@@ -50,6 +50,7 @@ body {
   color: var(--parchment);
   font-family: var(--font-body);
   line-height: 1.5;
+  font-variant-numeric: lining-nums;
   background:
     radial-gradient(ellipse at 50% 0%, rgba(210, 169, 78, 0.1), transparent 55%),
     repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.015) 0 2px, transparent 2px 4px),
