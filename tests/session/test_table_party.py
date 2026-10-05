@@ -1,7 +1,8 @@
-"""Table actor: gear, level up, gifts and pause through protocol messages (M6.2)."""
+"""Table actor: gear, level up, gifts, pause and item use through protocol messages (M6.2)."""
 
 from pathlib import Path
 
+from aidm.models.events import HpChanged, InventoryChanged
 from aidm.models.leveling import LevelUpChoices
 from aidm.models.protocol_client import (
     Drop,
@@ -12,12 +13,16 @@ from aidm.models.protocol_client import (
     RequestSheet,
     SubmitAction,
     Unequip,
+    UseItem,
 )
 from aidm.models.protocol_server import ErrorCode, ErrorMsg, Notice, SheetMsg, Snapshot
+from aidm.models.state import GameState
 from aidm.rules.leveling import gain_xp, xp_for_level
 from aidm.session.reducer import apply
 from tests.ai.guard_fixtures import inn_state
 from tests.session.table_fixtures import assert_replays, disabled_llm, join, of_type, running
+
+POTION = "potion-of-healing"
 
 
 async def test_gear_messages_and_equip_text(tmp_path: Path) -> None:
@@ -105,3 +110,29 @@ async def test_sheet_offers_level_up_options_when_ready(tmp_path: Path) -> None:
         await table.settle()
         sheet = of_type(ann.drain(), SheetMsg)[0]
         assert sheet.level_up is not None and sheet.level_up.level == 2
+
+
+def _potions(state: GameState) -> int:
+    pc = state.creatures["fighter"].pc
+    assert pc is not None
+    return sum(r.qty for r in pc.inventory if r.item == POTION)
+
+
+async def test_use_potion_outside_combat(tmp_path: Path) -> None:
+    state = inn_state()
+    apply(state, InventoryChanged(creature_id="fighter", item=POTION, delta=2, qty=2))
+    apply(state, HpChanged(creature_id="fighter", delta=-11, new_hp=1))
+    async with running(disabled_llm(tmp_path), state) as (table, _):
+        ann = await join(table, "Ann", "fighter")
+        ann.send(UseItem(item_id=POTION, target_id="rogue"))
+        await table.settle()
+        refusal = of_type(ann.drain(), ErrorMsg)[0]
+        assert refusal.refusal == "full_hp" and _potions(table.state) == 2
+        ann.send(UseItem(item_id=POTION, target_id="nobody"))
+        await table.settle()
+        assert of_type(ann.drain(), ErrorMsg)[0].refusal == "unknown_target"
+        ann.send(UseItem(item_id=POTION))
+        await table.settle()
+        assert table.state.creatures["fighter"].hp > 1 and _potions(table.state) == 1
+        assert of_type(ann.drain(), Notice)
+        assert_replays(table)

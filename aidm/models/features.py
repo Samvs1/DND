@@ -11,10 +11,13 @@ Public API:
 - `DamageRider(feature, dice, flat, damage_type, once_per_turn, doubles_on_crit)`: extra damage a
   feature adds to a hit; `damage_type` None = the weapon's type; `doubles_on_crit` False for dice
   that are already the critical bonus (savage attacks).
-- `ActionEconomy`: BONUS_ACTION / EXTRA_ACTION.
-- `FeatureAction(feature, action, economy, resource, available, heal)`: an action a feature
-  offers (Cunning Action's dash, Second Wind, Action Surge); `available` is False while its
-  resource is spent; `heal` is a resolved dice expression or None.
+- `ActionEconomy`: ACTION / BONUS_ACTION / EXTRA_ACTION (free: grants another action).
+- `FeatureAction(feature, action, economy, resource, available, heal, name, command,
+  target_kind, range_kind, range_feet)`: an action a feature offers (Cunning Action's dash,
+  Second Wind, Action Surge, Breath Weapon); `available` is False while its resource is spent;
+  `heal` is a resolved dice expression or None; `command` True when the `feature_action`
+  command runs it (False: an existing command uses it, e.g. a bonus-action dash); the target
+  fields say how the hotbar aims it (spell vocabulary: self / creature / area / point).
 """
 
 from enum import StrEnum
@@ -53,6 +56,7 @@ class DamageRider(BaseModel):
 
 
 class ActionEconomy(StrEnum):
+    ACTION = "action"
     BONUS_ACTION = "bonus_action"
     EXTRA_ACTION = "extra_action"
 
@@ -66,3 +70,8 @@ class FeatureAction(BaseModel):
     resource: str | None = None
     available: bool = True
     heal: str | None = None
+    name: str = ""
+    command: bool = False
+    target_kind: str = "self"
+    range_kind: str = "self"
+    range_feet: int | None = None

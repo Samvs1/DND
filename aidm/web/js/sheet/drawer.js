@@ -84,7 +84,8 @@ export function mountSheet(root, { store, client }) {
   function body(state, sheet) {
     const camp = publicState(state)?.camp_supplies ?? 0;
     const locked = Boolean(publicState(state)?.combat);
-    if (tab === 'inventory') return renderInventory(sheet, { client, camp, locked });
+    const party = (publicState(state)?.party ?? []).filter((p) => !p.dead).map((p) => ({ id: p.id, name: p.name }));
+    if (tab === 'inventory') return renderInventory(sheet, { client, camp, locked, party });
     if (tab === 'spells') return renderSpellbook(sheet);
     return renderOverview(sheet, spellNameOf(sheet));
   }
@@ -103,7 +104,7 @@ export function mountSheet(root, { store, client }) {
       status.textContent = text === `refusal.${refusal.code}` ? t('refusal.generic') : text;
     }
     const sheet = state.sheet?.sheet;
-    const key = JSON.stringify([tab, sheet, publicState(state)?.camp_supplies, Boolean(publicState(state)?.combat), state.sheet?.level_up?.level]);
+    const key = JSON.stringify([tab, sheet, publicState(state)?.camp_supplies, Boolean(publicState(state)?.combat), state.sheet?.level_up?.level, (publicState(state)?.party ?? []).map((p) => [p.id, p.dead])]);
     if (key === last) return;
     last = key;
     clear(head);

@@ -25,8 +25,8 @@ Public API:
   damage (hostile acts start a fight first), area and point spells are refused. A "point" spell
   picks a zone in range and its only instance is the caster. Dead creatures are refused unless
   the targeting asks for dead targets (then only dead ones); creatures outside the targeting's
-  `creature_types` are refused (`monster_stats.creature_type_of`); `order` "hp_ascending" sorts the
-  instances by current HP (stable, ties keep their order).
+  `creature_types` are refused (an area keeps only those types: Turn Undead); `order`
+  "hp_ascending" sorts the instances by current HP (stable, ties keep their order).
 """
 
 from collections.abc import Collection, Sequence
@@ -195,7 +195,11 @@ def _area_targets(
     if spell.targeting.kind == "point":
         return SpellTargets(instances=(caster_id,), zone=zone, chosen=(caster_id,))
     area = spell.targeting.area or "zone"
-    return SpellTargets(instances=area_creatures(state, zone, area, {caster_id}), zone=zone)
+    found = area_creatures(state, zone, area, {caster_id})
+    kinds = spell.targeting.creature_types
+    if kinds:
+        found = tuple(c for c in found if creature_type_of(state.creatures[c]) in kinds)
+    return SpellTargets(instances=found, zone=zone)
 
 
 def _picked(spell: SpellDef, target_ids: Sequence[str], allowed: int) -> tuple[str, ...]:

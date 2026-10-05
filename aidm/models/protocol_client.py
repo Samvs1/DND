@@ -5,10 +5,11 @@ as untrusted (SPEC 6.7). Host messages are accepted only from the host seat.
 
 Public API: `Hello`, `CreateCharacter`, `RollAbilities`, `SubmitAction`, `CombatCommandMsg`,
 `Suggestion`, `ConfirmHostile`, `CancelHostile`, `Vote`, `AnswerOffer`, `LevelUp`, `ShopBuy`,
-`ShopSell`, `Give`, `Equip`, `Unequip`, `RequestHitChances`, `Chat`, `HostStart`, `HostPause`,
-`HostResume`, `HostKick`, `HostDifficulty`, `HostTtsToggle`, `HostSave`, `HostLoad`, `HostNew`,
-`HostEnd`, `HostForceVote`, `ExportCharacter`, `ImportCharacter`, `Ping`; `HOST_MESSAGES`
-(the host-only message classes).
+`ShopSell`, `Give`, `Equip`, `Unequip`, `UseItem` (M7.5b: a potion outside a fight, on the
+hero or a party member; `target_id` None = the hero), `RequestHitChances`, `Chat`, `HostStart`,
+`HostPause`, `HostResume`, `HostKick`, `HostDifficulty`, `HostTtsToggle`, `HostSave`, `HostLoad`,
+`HostNew`, `HostEnd`, `HostForceVote`, `ExportCharacter`, `ImportCharacter`, `Ping`;
+`HOST_MESSAGES` (the host-only message classes).
 """
 
 from typing import Literal
@@ -119,6 +120,12 @@ class Unequip(_Client):
 class Drop(_Client):
     type: Literal["drop"] = "drop"
     item_id: str
+
+
+class UseItem(_Client):
+    type: Literal["use_item"] = "use_item"
+    item_id: str
+    target_id: str | None = None
 
 
 class RequestSheet(_Client):

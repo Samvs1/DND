@@ -22,7 +22,10 @@ Public API:
   `MonsterActionCommand(actor_id, action, target_ids, target_zone, option, slot_level)` (M3.8: a
   monster's catalog option key, `aidm.rules.monster_catalog`; `option` picks a multiattack
   routine (None = the first one valid for the targets); `target_ids` are spread round-robin
-  over a multiattack's attacks; a "spell:<index>" key casts from the monster's spell kit).
+  over a multiattack's attacks; a "spell:<index>" key casts from the monster's spell kit),
+  `FeatureActionCommand(actor_id, feature_id, target_ids, target_zone)` (M7.5b: a class or race
+  feature action from the feature data: Second Wind, Action Surge, Breath Weapon, Turn Undead;
+  `aidm.rules.feature_commands`).
 - `AnyCommand` (plain union), `Command` (annotated with the `type` discriminator),
   `command_adapter` (`TypeAdapter` for validating client JSON).
 - `RefusalCode`: the typed reason a command was refused (stable strings for the UI and tools).
@@ -63,6 +66,7 @@ class RefusalCode(StrEnum):
     ABILITY_SPENT = "ability_spent"
     NO_LEGENDARY = "no_legendary_action"
     ENGAGED = "engaged"
+    ACTION_UNUSED = "action_unused"
 
 
 class _Command(BaseModel):
@@ -155,6 +159,13 @@ class MonsterActionCommand(_Command):
     slot_level: int | None = Field(default=None, ge=1, le=9)
 
 
+class FeatureActionCommand(_Command):
+    type: Literal["feature_action"] = "feature_action"
+    feature_id: str = Field(min_length=1)
+    target_ids: tuple[str, ...] = ()
+    target_zone: str | None = None
+
+
 type AnyCommand = (
     AttackCommand
     | CastCommand
@@ -171,6 +182,7 @@ type AnyCommand = (
     | EndTurnCommand
     | FleeCommand
     | MonsterActionCommand
+    | FeatureActionCommand
 )
 
 Command = Annotated[AnyCommand, Field(discriminator="type")]

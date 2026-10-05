@@ -97,3 +97,43 @@ export function bonusSlots(ctx) {
   }
   return out;
 }
+
+// Class and race feature actions from the sheet (`feature_actions`): Second Wind, Action Surge, Breath Weapon,
+// Turn Undead. Aimed like spells; remaining uses shown under the label; the server validates everything.
+function featureOff(f, econ) {
+  if (!f.available) return 'ability_spent';
+  if (f.economy === 'action') return econ.action ? null : 'no_action';
+  if (f.economy === 'bonus_action') return econ.bonus_action ? null : 'no_bonus_action';
+  return econ.action ? 'action_unused' : null;
+}
+
+function featureTip(f) {
+  const parts = [t(`hotbar.econ_${f.economy}`)];
+  if (f.heal) parts.push(t('hotbar.tip_heal', { dice: f.heal }));
+  else if (f.target_kind === 'area') parts.push(t(f.range_kind === 'self' ? 'hotbar.tip_around' : 'hotbar.tip_aimZone'));
+  else if (f.target_kind === 'self') parts.push(t('hotbar.tip_self'));
+  else parts.push(t('hotbar.tip_aimTarget'));
+  if (f.uses_max != null) parts.push(t('hotbar.usesLeft', { n: f.uses_left, max: f.uses_max }));
+  return parts.join('. ');
+}
+
+export function featureSlots(ctx) {
+  const { ctrl, sheet, econ, me } = ctx;
+  return (sheet?.feature_actions ?? []).map((f) => {
+    const command = (extra) => ({ type: 'feature_action', actor_id: me, feature_id: f.feature, ...extra });
+    const zone = (f.target_kind === 'area' && f.range_kind !== 'self') || f.target_kind === 'point';
+    const creature = f.target_kind === 'creature' || f.target_kind === 'creatures';
+    let run = () => ctrl.send(command({}));
+    if (zone) run = () => aimAt(ctrl, [{ need: 'zone', prompt: t('combat.pickZone') }], (p) => command({ target_zone: p[0][0] }));
+    else if (creature) run = () => aimAt(ctrl, [{ need: 'creature', valid: (tk) => !tk.dead, prompt: t('combat.pickTarget') }], (p) => command({ target_ids: p[0] }));
+    return {
+      id: `feat-${f.feature}`,
+      group: 'features',
+      label: f.name,
+      sub: f.uses_max != null ? t('hotbar.usesLeft', { n: f.uses_left, max: f.uses_max }) : null,
+      tip: featureTip(f),
+      off: featureOff(f, econ),
+      run,
+    };
+  });
+}

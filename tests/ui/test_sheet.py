@@ -1,9 +1,10 @@
-"""Browser tests of the sheet drawer, inventory, spellbook and level-up dialog (M7.5)."""
+"""Browser tests of the sheet drawer, inventory and potion use, spellbook and level-up (M7.5)."""
 
 from pathlib import Path
 
 from playwright.sync_api import Browser, Page
 
+from aidm.models.events import HpChanged, InventoryChanged
 from aidm.rules.leveling import gain_xp, xp_for_level
 from tests.ui.conftest import LiveServer
 from tests.ui.table_helpers import PHONE, WIDE, snap, start_table
@@ -11,6 +12,7 @@ from tests.ui.wizard_helpers import HeroSpec
 
 WIZARD = HeroSpec(name="Elowen", race="elf", cls="wizard", background="sage", method="roll_4d6")
 SHEET = "window.aidm.store.get().sheet?.sheet"
+POTION = "potion-of-healing"
 
 
 def _open(page: Page) -> None:
@@ -42,6 +44,8 @@ def test_drawer_numbers_match_the_server_sheet(
     assert host.locator("[data-testid=sh-skills] li").count() == 18
     assert host.locator(".sh-skill.prof, .sh-skill.expert").count() >= 2
     assert host.locator("[data-testid=sh-attacks] li").count() >= 2
+    wind = host.locator("[data-testid=sh-fa-line][data-feature=second-wind]")
+    assert "Second Wind" in wind.inner_text() and "1 of 1 uses" in wind.inner_text()
     # The party card agrees with the sheet (both come from the same server state).
     snapshot_ac = host.evaluate(
         "window.aidm.store.get().snapshot.state.party.find(c => c.name === 'Brienne').ac"
@@ -73,6 +77,36 @@ def test_equip_and_unequip_change_the_armor_class(
     host.wait_for_function(f"{SHEET}.ac === {before}", timeout=20000)
     host.click("[data-testid=drop-dungeoneers-pack]")
     host.wait_for_selector("[data-testid=drop-dungeoneers-pack]", state="detached", timeout=20000)
+    assert errors == []
+
+
+def test_potion_use_outside_combat(browser: Browser, live_server: LiveServer) -> None:
+    errors: list[str] = []
+    host, _guest = start_table(browser, live_server.base, WIDE, errors)
+    _open(host)
+    pid = host.evaluate("window.aidm.store.get().players.find(p => p.name === 'Ann').creature_id")
+    assert live_server.app is not None and live_server.loop is not None
+    table = live_server.app.state.registry.table
+
+    async def wound_and_give() -> None:
+        hero = table.state.creatures[pid]
+        table.apply_all(
+            [
+                InventoryChanged(creature_id=pid, item=POTION, delta=1, qty=1),
+                HpChanged(creature_id=pid, delta=1 - hero.hp, new_hp=1),
+            ]
+        )
+
+    live_server.loop.call_soon_threadsafe(table.schedule, wound_and_give)
+    host.wait_for_function(f"{SHEET}.hp === 1", timeout=20000)
+    host.click("[data-testid=tab-inventory]")
+    host.wait_for_selector(f"[data-testid=use-{POTION}]")
+    assert (
+        host.locator(f"[data-testid=use-target-{POTION}] option").first.inner_text() == "yourself"
+    )
+    host.click(f"[data-testid=use-{POTION}]")
+    host.wait_for_function(f"{SHEET}.hp > 1", timeout=20000)
+    host.wait_for_selector(f"[data-testid=use-{POTION}]", state="detached", timeout=20000)
     assert errors == []
 
 

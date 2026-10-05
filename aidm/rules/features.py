@@ -31,7 +31,10 @@ Public API:
   "magic").
 - `crit_threshold(creature, feats) -> int` (20, or Improved Critical's 19).
 - `attacks_per_action(creature, feats) -> int` (1 + the best Extra Attack).
-- `feature_actions(creature, feats) -> list[FeatureAction]`: bonus actions and extra actions.
+- `feature_actions(creature, feats) -> list[FeatureAction]`: bonus actions, extra actions and
+  active abilities (named after the hook or the feature).
+- `command_hook(creature, feats, feature_id) -> CommandHook | None`: the hook the
+  `feature_action` command executes (healing bonus action, extra action, active ability).
 - `rerolls_natural_ones(creature, feats, test) -> bool` ("attack", "check", "save").
 - `healing_bonus(creature, feats, spell_level) -> int`; `kill_temp_hp(creature, feats) -> int`.
 - `toggle_feature(creature, feats, key, *, on) -> list[AnyEvent]`: switch a rage-style toggle:
@@ -44,6 +47,7 @@ from collections.abc import Collection, Sequence
 
 from aidm.data.feature_defs import FeatureDef
 from aidm.data.feature_hooks import (
+    ActiveAbilityHook,
     AdvantageOnHook,
     AttackAdvantageHook,
     BonusActionHook,
@@ -75,6 +79,7 @@ DEFAULT_CRIT_ON = 20
 LEVEL_PLACEHOLDER = "LEVEL"
 
 type HookPair = tuple[str, FeatureHook]
+type CommandHook = BonusActionHook | ExtraActionHook | ActiveAbilityHook
 
 
 def character_level(creature: Creature) -> int:
@@ -260,23 +265,51 @@ def _available(creature: Creature, resource: str | None) -> bool:
     return resource is None or resource_left(creature, resource) > 0
 
 
+def _bonus_options(
+    creature: Creature, feature_id: str, name: str, hook: BonusActionHook
+) -> list[FeatureAction]:
+    heal = (
+        hook.heal.replace(LEVEL_PLACEHOLDER, str(character_level(creature))) if hook.heal else None
+    )
+    return [
+        FeatureAction(
+            feature=feature_id,
+            action=action,
+            economy=ActionEconomy.BONUS_ACTION,
+            resource=hook.resource,
+            available=_available(creature, hook.resource),
+            heal=heal,
+            name=name,
+            command=heal is not None,
+        )
+        for action in hook.actions
+    ]
+
+
+def _ability_option(creature: Creature, feature_id: str, hook: ActiveAbilityHook) -> FeatureAction:
+    bonus = hook.activation == "bonus_action"
+    return FeatureAction(
+        feature=feature_id,
+        action="ability",
+        economy=ActionEconomy.BONUS_ACTION if bonus else ActionEconomy.ACTION,
+        resource=hook.resource,
+        available=_available(creature, hook.resource),
+        name=hook.name,
+        command=True,
+        target_kind=hook.targeting.kind,
+        range_kind=hook.range.kind,
+        range_feet=hook.range.feet,
+    )
+
+
 def feature_actions(creature: Creature, feats: Registry[FeatureDef]) -> list[FeatureAction]:
-    level = str(character_level(creature))
     options: list[FeatureAction] = []
     for feature_id, hook in creature_hooks(creature, feats):
+        name = feats.get(feature_id).name
         if isinstance(hook, BonusActionHook):
-            heal = hook.heal.replace(LEVEL_PLACEHOLDER, level) if hook.heal else None
-            options.extend(
-                FeatureAction(
-                    feature=feature_id,
-                    action=action,
-                    economy=ActionEconomy.BONUS_ACTION,
-                    resource=hook.resource,
-                    available=_available(creature, hook.resource),
-                    heal=heal,
-                )
-                for action in hook.actions
-            )
+            options.extend(_bonus_options(creature, feature_id, name, hook))
+        elif isinstance(hook, ActiveAbilityHook):
+            options.append(_ability_option(creature, feature_id, hook))
         elif isinstance(hook, ExtraActionHook):
             options.append(
                 FeatureAction(
@@ -285,9 +318,26 @@ def feature_actions(creature: Creature, feats: Registry[FeatureDef]) -> list[Fea
                     economy=ActionEconomy.EXTRA_ACTION,
                     resource=hook.resource,
                     available=_available(creature, hook.resource),
+                    name=name,
+                    command=True,
                 )
             )
     return options
+
+
+def command_hook(
+    creature: Creature, feats: Registry[FeatureDef], feature_id: str
+) -> CommandHook | None:
+    """The hook the `feature_action` command runs for `feature_id`: a healing bonus action, an
+    extra action or an active ability the creature has at its level (None otherwise)."""
+    for owner, hook in creature_hooks(creature, feats):
+        if owner != feature_id:
+            continue
+        if isinstance(hook, (ExtraActionHook, ActiveAbilityHook)):
+            return hook
+        if isinstance(hook, BonusActionHook) and hook.heal:
+            return hook
+    return None
 
 
 def rerolls_natural_ones(creature: Creature, feats: Registry[FeatureDef], test: str) -> bool:

@@ -79,6 +79,7 @@ JOBS: dict[type, JobMaker] = {
     c.Equip: lambda core, p, m: partial(party_actions.equip, core, p, m),
     c.Unequip: lambda core, p, m: partial(party_actions.unequip, core, p, m),
     c.Drop: lambda core, p, m: partial(party_actions.drop, core, p, m),
+    c.UseItem: lambda core, p, m: partial(party_actions.use_item, core, p, m),
 }
 
 PAUSABLE = (c.CombatCommandMsg, c.ConfirmHostile, c.AnswerOffer, c.Give)

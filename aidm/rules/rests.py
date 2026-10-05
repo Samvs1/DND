@@ -13,8 +13,10 @@ Public API:
   `long_rest_cost(state) -> int` (= living members x CAMP_SUPPLY_PER_MEMBER).
 - `adjust_camp_supplies(state, delta) -> list[AnyEvent]`: `[CampSuppliesChanged]` (loot, shops);
   ValueError if the pool would go below 0; nothing for delta 0.
-- `short_rest(state) -> list[AnyEvent]`: `ShortRestTaken`, then per living member healing of
-  max_hp // 2 (through `resolve_healing`, so a 0-HP member wakes) and its SHORT_REST resources.
+- `short_rest(state, feats=None) -> list[AnyEvent]`: `ShortRestTaken`, then per living member
+  healing of max_hp // 2 (through `resolve_healing`, so a 0-HP member wakes), its SHORT_REST
+  resources and, with the feature registry, an automatic Arcane Recovery
+  (`feature_build.auto_slot_recovery`: the highest spent slots that fit; docs/DECISIONS.md M7.5b).
 - `long_rest(state) -> list[AnyEvent]`: pays the supplies (`LongRestTaken`, which also resets the
   short-rest counter), then per living member: HP to max (death-save state reset), temporary HP
   cleared, every resource restored, ROUNDS and UNTIL_LONG_REST conditions ended, concentration
@@ -23,6 +25,8 @@ Public API:
 
 from enum import StrEnum
 
+from aidm.data.feature_defs import FeatureDef
+from aidm.data.registry import Registry
 from aidm.models.events import (
     AnyEvent,
     CampSuppliesChanged,
@@ -34,6 +38,7 @@ from aidm.models.state import Creature, CreatureKind, GameState, RechargeKind
 from aidm.rules.concentration import end_concentration
 from aidm.rules.condition_timing import long_rest_condition_events
 from aidm.rules.damage import resolve_healing
+from aidm.rules.feature_build import auto_slot_recovery
 from aidm.rules.resources import restore_resources
 
 MAX_SHORT_RESTS = 2
@@ -83,7 +88,7 @@ def _party_or_refuse(state: GameState) -> list[Creature]:
     return party
 
 
-def short_rest(state: GameState) -> list[AnyEvent]:
+def short_rest(state: GameState, feats: Registry[FeatureDef] | None = None) -> list[AnyEvent]:
     party = _party_or_refuse(state)
     if short_rests_left(state) == 0:
         raise RestRefused(
@@ -93,6 +98,8 @@ def short_rest(state: GameState) -> list[AnyEvent]:
     for member in party:
         events.extend(resolve_healing(member, member.max_hp // SHORT_REST_HEAL_DIVISOR))
         events.extend(restore_resources(member, {RechargeKind.SHORT_REST}))
+        if feats is not None:
+            events.extend(auto_slot_recovery(member, feats))
     return events
 
 

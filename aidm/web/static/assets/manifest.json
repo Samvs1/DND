@@ -506,6 +506,19 @@
   "source": "",
   "license": ""
  },
+ "condition_icon.turned": {
+  "kind": "condition_icon",
+  "file": "img/icons/conditions/turned.png",
+  "size": [
+   48,
+   48
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "",
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
+ },
  "condition_icon.unconscious": {
   "kind": "condition_icon",
   "file": "img/icons/conditions/unconscious.png",

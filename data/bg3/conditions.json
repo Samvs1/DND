@@ -259,5 +259,6 @@
   {"index": "hunters-mark", "name": "Hunter's Mark", "source": "SRD 5.1 Hunter's Mark (the caster's weapon hits on the bearer deal an extra 1d6 of the weapon's type)", "srd_condition": false, "source_rider_dice": "1d6"},
   {"index": "expeditious-retreat", "name": "Expeditious Retreat", "source": "SRD 5.1 Expeditious Retreat (Dash as a bonus action on each turn)", "srd_condition": false, "bonus_actions": ["dash"]},
   {"index": "asleep", "name": "Asleep", "source": "SRD 5.1 Sleep (unconscious until the spell ends or the sleeper takes damage; waking by an action is DM adjudicated)", "srd_condition": false, "implies": ["unconscious"], "ends_on_damage": true},
-  {"index": "silenced", "name": "Silenced", "source": "SRD 5.1 Silence (deafened, immune to thunder damage, no spells with a verbal component)", "srd_condition": false, "implies": ["deafened"], "damage_immunities": ["thunder"], "blocks_verbal": true}
+  {"index": "silenced", "name": "Silenced", "source": "SRD 5.1 Silence (deafened, immune to thunder damage, no spells with a verbal component)", "srd_condition": false, "implies": ["deafened"], "damage_immunities": ["thunder"], "blocks_verbal": true},
+  {"index": "turned", "name": "Turned", "source": "SRD 5.1 Channel Divinity: Turn Undead (must flee, no reactions, only the Dash action; modelled as unable to act or react, frightened, ends when it takes damage)", "srd_condition": false, "implies": ["frightened"], "can_act": false, "can_react": false, "ends_on_damage": true}
 ]

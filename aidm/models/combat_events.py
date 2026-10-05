@@ -17,6 +17,9 @@ Public API:
 - `MonsterActionUsed(creature_id, action, name, target_ids, target_zone, legendary)`: a monster
   used a catalog option (log only; the economy, resource, attack and effect events follow).
   `legendary` marks a legendary action taken at the end of another creature's turn.
+- `FeatureUsed(creature_id, feature, name, target_ids, target_zone)` (M7.5b): a creature used
+  a class or race feature action (Second Wind, Action Surge, Breath Weapon, Turn Undead); log
+  only, the economy, resource and effect events follow.
 - `CreatureRevived(creature_id)`: a dead creature is alive again (still at 0 HP: the healing
   events that follow give it its hit points). Applied by the reducer (`dead` = False).
 """
@@ -97,3 +100,12 @@ class MonsterActionUsed(_CombatEvent):
     target_ids: tuple[str, ...] = ()
     target_zone: str | None = None
     legendary: bool = False
+
+
+class FeatureUsed(_CombatEvent):
+    type: Literal["feature_used"] = "feature_used"
+    creature_id: str
+    feature: str = Field(min_length=1)
+    name: str = Field(min_length=1)
+    target_ids: tuple[str, ...] = ()
+    target_zone: str | None = None

@@ -1,9 +1,10 @@
 // The BG3-style hotbar for the active hero: action / bonus / movement pips, attacks with hit-chance
-// tooltips, spells and items popovers, standard and bonus actions, end turn, number-key shortcuts.
+// tooltips, spells and items popovers, standard and bonus actions, class feature actions with their uses left,
+// end turn, number-key shortcuts.
 // Non-active players see who is acting and can send suggestions (suggest.js).
 import { t } from '../strings.js';
 import { clear, h } from '../ui/dom.js';
-import { attackSlots, bonusSlots, moveSlots } from './hotbar_slots.js';
+import { attackSlots, bonusSlots, featureSlots, moveSlots } from './hotbar_slots.js';
 import { itemPopover, spellPopover } from './hotbar_magic.js';
 import { combatOf, isMyTurn, myCreatureId, tokenById } from './model.js';
 import { mountSuggest } from './suggest.js';
@@ -91,6 +92,7 @@ function fillBody(body, pop, c, ctrl) {
   n += extras.length;
   group('moves', slots.filter((s) => s.group === 'moves'));
   group('bonus', slots.filter((s) => s.group === 'bonus'));
+  group('features', featureSlots(c));
   body.append(h('button', { type: 'button', class: 'btn btn-primary hb-end', 'data-testid': 'end-turn', onclick: () => ctrl.send({ type: 'end_turn', actor_id: c.me }) }, t('hotbar.endTurn')));
   if (ctrl.ui.popup === 'spells') pop.append(spellPopover(c));
   if (ctrl.ui.popup === 'items') pop.append(itemPopover(c));

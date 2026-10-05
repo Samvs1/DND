@@ -1,5 +1,5 @@
-// Sheet "Overview" tab: vitals, abilities and saves, skills, attacks, features, conditions, death saves,
-// resources, proficiencies. Pure rendering of the derived `CharacterSheet` the server sent.
+// Sheet "Overview" tab: vitals, abilities and saves, skills, attacks, features and feature actions (uses left),
+// conditions, death saves, resources, proficiencies. Pure rendering of the derived `CharacterSheet` the server sent.
 import { t } from '../strings.js';
 import { h } from '../ui/dom.js';
 import { titleCase } from '../ui/format.js';
@@ -77,6 +77,15 @@ function features(s) {
   return h('ul', { class: 'sh-features' }, ...s.features.map((f) => h('li', {}, h('details', {}, h('summary', {}, f.name), h('p', {}, f.summary)))));
 }
 
+function featureActions(s) {
+  const list = s.feature_actions ?? [];
+  if (!list.length) return null;
+  const rows = list.map((f) =>
+    h('li', { 'data-testid': 'sh-fa-line', 'data-feature': f.feature }, h('strong', {}, f.name), ` (${t(`hotbar.econ_${f.economy}`)})`, f.uses_max != null ? `, ${t('sheet.featureUses', { n: f.uses_left, max: f.uses_max })}` : '', f.heal ? `, ${t('hotbar.tip_heal', { dice: f.heal })}` : ''),
+  );
+  return block(t('sheet.featureActions'), 'sh-fa', h('ul', { class: 'sh-list' }, ...rows));
+}
+
 function conditions(s) {
   if (!s.conditions.length) return h('p', { class: 'hint' }, t('sheet.noConditions'));
   return h('ul', { class: 'sh-list' }, ...s.conditions.map((c) => h('li', {}, titleCase(c.name), c.rounds_left ? ` (${t('sheet.rounds', { n: c.rounds_left })})` : '')));
@@ -106,6 +115,7 @@ export function renderOverview(s, spellName) {
     block(t('sheet.skills'), 'sh-sk', skills(s)),
     block(t('sheet.attacks'), 'sh-at', attacks(s)),
     block(t('sheet.features'), 'sh-ft', features(s)),
+    featureActions(s),
     block(t('sheet.conditions'), 'sh-cond', conditions(s)),
     deathSaves(s),
     resources(s),

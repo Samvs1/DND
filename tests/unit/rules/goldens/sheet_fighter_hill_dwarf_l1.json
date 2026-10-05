@@ -289,6 +289,21 @@
    "source": "race"
   }
  ],
+ "feature_actions": [
+  {
+   "feature": "second-wind",
+   "name": "Second Wind",
+   "economy": "bonus_action",
+   "available": true,
+   "resource": "second-wind",
+   "uses_left": 1,
+   "uses_max": 1,
+   "heal": "1d10+1",
+   "target_kind": "self",
+   "range_kind": "self",
+   "range_feet": null
+  }
+ ],
  "resources": [
   {
    "key": "second-wind",

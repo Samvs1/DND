@@ -35,6 +35,7 @@ type AnyClientMsg = (
     | c.Equip
     | c.Unequip
     | c.Drop
+    | c.UseItem
     | c.RequestSheet
     | c.RequestHitChances
     | c.Chat

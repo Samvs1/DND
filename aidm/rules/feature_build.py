@@ -31,6 +31,9 @@ Public API:
 - `SlotRecoveryError(ValueError)`; `recover_spell_slots(creature, feats, slot_levels)`:
   spend the slot-recovery resource and regain one slot per listed level (budget, cap, spent
   slots and the resource are checked; nothing changes on an error).
+- `auto_slot_recovery(creature, feats) -> list[AnyEvent]` (M7.5b, used by the short rest):
+  Arcane Recovery chosen automatically: the highest spent slots that fit the budget; no events
+  when there is no such feature, its resource is spent or no slot is missing.
 """
 
 from collections import Counter
@@ -59,7 +62,7 @@ from aidm.models.events import AnyEvent, ResourceSet
 from aidm.models.state import Creature, RechargeKind, Resource
 from aidm.rules.creation_checks import pick_errors
 from aidm.rules.features import character_level, creature_feature_ids, feature_hooks
-from aidm.rules.resources import ResourceError, spend_resource
+from aidm.rules.resources import ResourceError, resource_left, spend_resource
 from aidm.rules.spellcasting import SlotKind, slot_key
 
 FEATURE_CHOICES_FIELD = "feature_choices"
@@ -263,3 +266,20 @@ def recover_spell_slots(
         restored = pool.model_copy(update={"current": pool.current + count})
         events.append(ResourceSet(creature_id=creature.id, key=key, resource=restored))
     return events
+
+
+def auto_slot_recovery(creature: Creature, feats: Registry[FeatureDef]) -> list[AnyEvent]:
+    level = character_level(creature)
+    pairs = feature_hooks(creature_feature_ids(creature), level, feats)
+    hook = next((h for _, h in pairs if isinstance(h, SlotRecoveryHook)), None)
+    if hook is None or resource_left(creature, hook.resource) < 1:
+        return []
+    budget = -(-level // hook.level_divisor)
+    picks: list[int] = []
+    for slot_level in range(hook.max_slot_level, 0, -1):
+        pool = creature.resources.get(slot_key(SlotKind.STANDARD, slot_level))
+        missing = 0 if pool is None else pool.maximum - pool.current
+        take = min(missing, budget // slot_level)
+        picks.extend([slot_level] * take)
+        budget -= take * slot_level
+    return recover_spell_slots(creature, feats, picks) if picks else []

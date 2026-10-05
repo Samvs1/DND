@@ -23,8 +23,9 @@ Public API:
   (`EncounterStarted`, `TurnStarted`, `TurnEnded`, `EconomyChanged`, `CombatantWithdrew`,
   `EncounterEnded`), and the combat events of `aidm.models.combat_events` (`AttackRolled`,
   `CombatantMoved`, `SpellCast`, `ZoneSurfaceAdded`, `ZoneSurfaceRemoved`, `ZoneSurfaceTicked`,
-  `CreatureRevived`, `MonsterActionUsed`), the world events of `aidm.models.world_events`
-  (`WorldEvents`) and the campaign events of `aidm.models.campaign_events` (`CampaignEvents`).
+  `CreatureRevived`, `MonsterActionUsed`, `FeatureUsed`), the world events of
+  `aidm.models.world_events` (`WorldEvents`) and the campaign events of
+  `aidm.models.campaign_events` (`CampaignEvents`).
 - `AnyEvent` (plain union), `Event` (union annotated with the `type` discriminator),
   `EVENT_TYPES` (every event class, derived from the union), `event_adapter` (`TypeAdapter`
   for validate/dump of `Event`).
@@ -44,6 +45,7 @@ from aidm.models.combat_events import (
     AttackRolled,
     CombatantMoved,
     CreatureRevived,
+    FeatureUsed,
     MonsterActionUsed,
     SpellCast,
     ZoneSurfaceAdded,
@@ -366,6 +368,7 @@ type AnyEvent = (
     | ZoneSurfaceTicked
     | CreatureRevived
     | MonsterActionUsed
+    | FeatureUsed
     | we.WorldEvents
     | ce.CampaignEvents
 )

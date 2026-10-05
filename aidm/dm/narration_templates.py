@@ -26,6 +26,7 @@ from aidm.models.combat_events import (
     AttackRolled,
     CombatantMoved,
     CreatureRevived,
+    FeatureUsed,
     MonsterActionUsed,
     SpellCast,
 )
@@ -151,6 +152,7 @@ _LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     CreatureRevived: lambda s, e: f"{_who(s, e.creature_id)} gasps back to life.",
     SpellCast: lambda s, e: f"{_who(s, e.caster_id)} casts {display_name(e.spell_id)}.",
     MonsterActionUsed: lambda s, e: f"{_who(s, e.creature_id)} unleashes {e.name}.",
+    FeatureUsed: lambda s, e: f"{_who(s, e.creature_id)} uses {e.name}.",
     CombatantMoved: _moved,
     CombatantWithdrew: _withdrew,
     EncounterStarted: lambda s, e: "Weapons are drawn: a fight breaks out!",

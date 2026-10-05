@@ -5,11 +5,12 @@ M5.4 arrival order through `telling.conclude`), `rest_job` (`rules.rests`), `sho
 `open_shop` tool, then `shop_stock` to everyone). Hero jobs: `answer` (the pending encounter
 offer, first answer wins), `buy`/`sell` (`rules.shop`), `give` (`rules.social_deeds.gift_events`
 + region rewards), `level` (`rules.leveling.level_up`), `equip`/`unequip`/`drop` and the equip/drop
-pre-check intents (`rules.equipment`). Refusals are typed and player-safe; nothing is spent on a
-refusal.
+pre-check intents (`rules.equipment`), `use_item` (M7.5b: a potion outside a fight on the hero
+or another living hero, `rules.items.use_item_events`; full HP refuses without consuming).
+Refusals are typed and player-safe; nothing is spent on a refusal.
 
 Public API: `travel_job`, `rest_job`, `shop_job`, `item_intent`, `answer`, `buy`, `sell`, `give`,
-`level`, `equip`, `unequip`, `drop`, `send_stock`.
+`level`, `equip`, `unequip`, `drop`, `use_item`, `send_stock`.
 """
 
 from aidm.dm.arrival import offer_data
@@ -18,6 +19,7 @@ from aidm.dm.precheck import ItemAction, ItemIntent, RestKind
 from aidm.dm.tool_context import ToolContext
 from aidm.dm.tool_exec import execute_tool
 from aidm.dm.tools import dm_tool
+from aidm.models.commands import RefusalCode
 from aidm.models.events import AnyEvent
 from aidm.models.protocol_client import (
     AnswerOffer,
@@ -28,10 +30,13 @@ from aidm.models.protocol_client import (
     ShopBuy,
     ShopSell,
     Unequip,
+    UseItem,
 )
 from aidm.models.protocol_server import ErrorCode, NoticeKind, ShopStock
-from aidm.models.state import Creature
+from aidm.models.state import Creature, CreatureKind
+from aidm.rules.command_checks import CommandRefused
 from aidm.rules.equipment import EquipRefused, drop_events, equip_events, unequip_events
+from aidm.rules.items import use_item_events
 from aidm.rules.leveling import LevelUpInvalid, can_level_up, level_up
 from aidm.rules.offer_answer import OfferRefused, answer_offer
 from aidm.rules.quest_rewards import resolution_reward_events
@@ -67,7 +72,11 @@ def travel_job(core: TableCore, actor_id: str, node_id: str) -> Job:
 def rest_job(core: TableCore, kind: RestKind) -> Job:
     async def job() -> None:
         try:
-            events = short_rest(core.state) if kind is RestKind.SHORT else long_rest(core.state)
+            events = (
+                short_rest(core.state, core.regs.combat.chars.features)
+                if kind is RestKind.SHORT
+                else long_rest(core.state)
+            )
         except RestRefused:
             core.notice(None, NoticeKind.REFUSED, REST_REFUSED)
             return
@@ -215,6 +224,29 @@ async def drop(core: TableCore, player: Player, msg: Drop) -> None:
     pc = _hero(core, player)
     if pc is not None:
         await _item(core, player, pc, ItemAction.DROP, msg.item_id)
+
+
+async def use_item(core: TableCore, player: Player, msg: UseItem) -> None:
+    pc = _hero(core, player)
+    if pc is None:
+        return
+    if core.combat_active():
+        core.error(player.id, ErrorCode.WRONG_PHASE, "In a fight, use items from the hotbar.")
+        return
+    target = core.state.creatures.get(msg.target_id or pc.id)
+    if target is None or target.kind is not CreatureKind.PC:
+        code = RefusalCode.UNKNOWN_TARGET.value
+        core.error(player.id, ErrorCode.REFUSED, "No hero like that is here.", code)
+        return
+    regs, rng = core.regs.combat, core.rng
+    try:
+        events = use_item_events(rng, core.state, pc.id, msg.item_id, target.id, regs)
+    except CommandRefused as refused:
+        core.error(player.id, ErrorCode.REFUSED, refused.reason, refused.code.value)
+        return
+    name = msg.item_id.replace("-", " ")
+    who = "" if target.id == pc.id else f" to {target.name}"
+    _gear(core, player, events, f"{pc.name} uses the {name}{who}.")
 
 
 async def item_intent(core: TableCore, player: Player, intent: ItemIntent) -> None:

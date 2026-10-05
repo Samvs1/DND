@@ -14,6 +14,11 @@ Every hook has `min_level` (the character level it starts working at, default 1)
 - `bonus_action`: `actions` the feature lets the creature take as a bonus action, optional
   `resource` spent per use and `heal` (dice; "LEVEL" is replaced by the character level).
 - `extra_action`: `actions` extra actions on the turn, paid with `resource` (Action Surge).
+- `active_ability` (M7.5b): an activated ability run through THE spell effect interpreter as a
+  pseudo spell: `name`, `activation` (action / bonus_action), optional `resource` spent per
+  use, `range`/`targeting`/`effects` exactly as in a spell file (aidm.data.spell_defs), the save
+  DC 8 + proficiency + the `dc_ability` modifier, `magical` (counts as magic for save
+  advantages). Breath Weapon (per draconic ancestry), Turn Undead.
 - `resource`: a pool `key` with `uses` that recharges on a `short_rest` or `long_rest`.
 - `fighting_style`: `attack_bonus`, `damage_bonus`, `ac_bonus` (only while wearing body armor
   when `requires_armor`), `reroll_damage_below` (reroll damage dice under this value once),
@@ -55,6 +60,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from aidm.data.ac_formulas import AbilityKey
 from aidm.data.condition_defs import DamageKey
+from aidm.data.spell_defs import Effect, SpellRange, Targeting
 
 type WeaponNeed = Literal[
     "any", "melee", "ranged", "finesse_or_ranged", "melee_one_handed", "melee_two_handed", "offhand"
@@ -99,6 +105,18 @@ class ExtraActionHook(_Hook):
     kind: Literal["extra_action"] = "extra_action"
     actions: int = Field(default=1, ge=1)
     resource: str = Field(min_length=1)
+
+
+class ActiveAbilityHook(_Hook):
+    kind: Literal["active_ability"] = "active_ability"
+    name: str = Field(min_length=1)
+    activation: Literal["action", "bonus_action"] = "action"
+    resource: str | None = None
+    dc_ability: AbilityKey
+    magical: bool = False
+    range: SpellRange
+    targeting: Targeting
+    effects: tuple[Effect, ...] = Field(min_length=1)
 
 
 class ResourceHook(_Hook):
@@ -245,6 +263,7 @@ FeatureHook = Annotated[
     | SneakAttackHook
     | BonusActionHook
     | ExtraActionHook
+    | ActiveAbilityHook
     | ResourceHook
     | FightingStyleHook
     | ExpertiseHook

@@ -10,7 +10,7 @@ Machine-readable schema: `aidm/web/protocol.json`.
 | client | `answer_offer` | `choice`: OfferChoice, `skill`: Skill or null (optional), `type`: answer_offer |
 | client | `cancel_hostile` | `type`: cancel_hostile |
 | client | `chat` | `text`: string, `type`: chat |
-| client | `combat_command` | `command`: AttackCommand or CastCommand or MoveCommand or DashCommand or DisengageCommand or HideCommand or ShoveCommand or JumpCommand or ThrowCommand or UseItemCommand or HelpCommand or DodgeCommand or EndTurnCommand or FleeCommand or MonsterActionCommand, `type`: combat_command |
+| client | `combat_command` | `command`: AttackCommand or CastCommand or MoveCommand or DashCommand or DisengageCommand or HideCommand or ShoveCommand or JumpCommand or ThrowCommand or UseItemCommand or HelpCommand or DodgeCommand or EndTurnCommand or FleeCommand or MonsterActionCommand or FeatureActionCommand, `type`: combat_command |
 | client | `confirm_hostile` | `type`: confirm_hostile |
 | client | `create_character` | `choices`: CreationChoices, `type`: create_character |
 | client | `drop` | `item_id`: string, `type`: drop |
@@ -40,6 +40,7 @@ Machine-readable schema: `aidm/web/protocol.json`.
 | client | `submit_action` | `text`: string, `type`: submit_action |
 | client | `suggestion` | `text`: string, `type`: suggestion |
 | client | `unequip` | `item_id`: string, `type`: unequip |
+| client | `use_item` | `item_id`: string, `target_id`: string or null (optional), `type`: use_item |
 | client | `vote` | `ready`: boolean, `type`: vote, `vote_id`: string |
 | server | `ability_rolls` | `rolls`: array of Roll (optional), `type`: ability_rolls |
 | server | `character_export` | `creature_id`: string, `name`: string, `text`: string, `type`: character_export |

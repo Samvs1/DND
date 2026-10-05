@@ -28,6 +28,7 @@ from aidm.models.combat_events import (
     AttackRolled,
     CombatantMoved,
     CreatureRevived,
+    FeatureUsed,
     MonsterActionUsed,
     SpellCast,
     ZoneSurfaceAdded,
@@ -279,7 +280,7 @@ def apply(state: GameState, event: AnyEvent) -> GameState:
             apply_encounter_event(state, event)
         case DiceRolled() | CheckResolved() | DamageTaken():
             pass
-        case AttackRolled() | SpellCast() | MonsterActionUsed():
+        case AttackRolled() | SpellCast() | MonsterActionUsed() | FeatureUsed():
             pass
         case _:
             assert_never(event)

@@ -77,7 +77,6 @@ def test_two_players_fight_attack_move_suggest_and_end_turn(
     other.click("[data-testid=suggest-send]")
     active.wait_for_selector("[data-testid=suggestion]", timeout=10000)
     assert "left goblin" in active.locator("[data-testid=suggestion]").first.inner_text()
-    snap(active, shots_dir, "combat_hotbar", 1280)
     # Attack: the action pip is spent (or one attack is left).
     swing.click()
     active.wait_for_selector("[data-testid=pip-action].spent", timeout=20000)
@@ -100,6 +99,49 @@ def test_two_players_fight_attack_move_suggest_and_end_turn(
     active.click("[data-testid=end-turn]")
     # The turn passes (a downed partner is skipped, so the round may roll over instead).
     active.wait_for_function(f"JSON.stringify({COMBAT_POS}) !== {before!r}", timeout=45000)
+    assert errors == []
+
+
+def _fighter_turn(host: Page, guest: Page) -> None:
+    """Pass the rogue's turns until the host's fighter has the hotbar."""
+    for _ in range(60):
+        if host.locator(MAIN).count():
+            return
+        if guest.locator("[data-testid=end-turn]").count():
+            guest.click("[data-testid=end-turn]")
+            guest.wait_for_selector("[data-testid=end-turn]", state="detached", timeout=30000)
+        host.wait_for_timeout(500)
+    raise AssertionError("the fighter never got a turn")
+
+
+def test_fighter_feature_actions_on_the_hotbar(
+    browser: Browser, combat_server: LiveServer, shots_dir: Path
+) -> None:
+    errors: list[str] = []
+    host, guest = _fight(browser, combat_server.base, WIDE, errors)
+    _fighter_turn(host, guest)
+    _has_hit_chance(host)
+    wind = host.locator("[data-testid=slot-feat-second-wind]")
+    assert wind.locator("[data-testid=slot-sub]").inner_text() == "1 of 1 left"
+    assert "Bonus action" in wind.locator(".hb-tip").inner_text()
+    snap(host, shots_dir, "combat_hotbar", 1280)
+    hurt = host.evaluate(
+        "(() => { const s = window.aidm.store.get().sheet.sheet; return s.hp < s.max_hp; })()"
+    )
+    wind.click()
+    if hurt:
+        host.wait_for_function(
+            "document.querySelector('[data-testid=slot-feat-second-wind] [data-testid=slot-sub]')"
+            ".textContent === '0 of 1 left'",
+            timeout=20000,
+        )
+        assert host.locator("[data-testid=pip-bonus].spent").count() == 1
+    else:
+        host.wait_for_function(
+            "document.querySelector('[data-testid=hotbar-note]').textContent.length > 0",
+            timeout=20000,
+        )
+        assert host.locator("[data-testid=hotbar-note]").inner_text().startswith("Already at full")
     assert errors == []
 
 

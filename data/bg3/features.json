@@ -459,8 +459,35 @@
   "summary": "Undead that fail a Wisdom save flee from you.",
   "hooks": [
    {
-    "kind": "unsupported",
-    "reason": "Turn Undead; its effect needs the spell effect DSL (M3.4)"
+    "kind": "active_ability",
+    "name": "Turn Undead",
+    "activation": "action",
+    "resource": "channel-divinity",
+    "dc_ability": "wis",
+    "magical": true,
+    "range": {
+     "kind": "self"
+    },
+    "targeting": {
+     "kind": "area",
+     "area": "zone_and_adjacent",
+     "creature_types": [
+      "undead"
+     ]
+    },
+    "effects": [
+     {
+      "type": "save",
+      "ability": "wis",
+      "on_fail": [
+       {
+        "type": "apply_condition",
+        "condition": "turned",
+        "rounds": 10
+       }
+      ]
+     }
+    ]
    }
   ]
  },
@@ -908,17 +935,13 @@
  {
   "index": "breath-weapon",
   "name": "Breath Weapon",
-  "summary": "Exhale your ancestry's element once per short rest.",
+  "summary": "Exhale your ancestry's element once per short rest (2d6, half on a save, DC 8 + Constitution + proficiency).",
   "hooks": [
    {
     "kind": "resource",
     "key": "breath-weapon",
     "uses": 1,
     "recharge": "short_rest"
-   },
-   {
-    "kind": "unsupported",
-    "reason": "breath weapon area damage; its effect needs the spell effect DSL (M3.4)"
    }
   ]
  },
@@ -1065,6 +1088,35 @@
     "damage_types": [
      "acid"
     ]
+   },
+   {
+    "kind": "active_ability",
+    "name": "Breath Weapon",
+    "activation": "action",
+    "resource": "breath-weapon",
+    "dc_ability": "con",
+    "range": {
+     "kind": "feet",
+     "feet": 15
+    },
+    "targeting": {
+     "kind": "area",
+     "area": "zone"
+    },
+    "effects": [
+     {
+      "type": "save",
+      "ability": "dex",
+      "on_fail": [
+       {
+        "type": "damage",
+        "dice": "2d6",
+        "damage_type": "acid"
+       }
+      ],
+      "on_success": "half"
+     }
+    ]
    }
   ]
  },
@@ -1077,6 +1129,35 @@
     "kind": "resistance",
     "damage_types": [
      "lightning"
+    ]
+   },
+   {
+    "kind": "active_ability",
+    "name": "Breath Weapon",
+    "activation": "action",
+    "resource": "breath-weapon",
+    "dc_ability": "con",
+    "range": {
+     "kind": "feet",
+     "feet": 15
+    },
+    "targeting": {
+     "kind": "area",
+     "area": "zone"
+    },
+    "effects": [
+     {
+      "type": "save",
+      "ability": "dex",
+      "on_fail": [
+       {
+        "type": "damage",
+        "dice": "2d6",
+        "damage_type": "lightning"
+       }
+      ],
+      "on_success": "half"
+     }
     ]
    }
   ]
@@ -1091,6 +1172,35 @@
     "damage_types": [
      "fire"
     ]
+   },
+   {
+    "kind": "active_ability",
+    "name": "Breath Weapon",
+    "activation": "action",
+    "resource": "breath-weapon",
+    "dc_ability": "con",
+    "range": {
+     "kind": "feet",
+     "feet": 15
+    },
+    "targeting": {
+     "kind": "area",
+     "area": "zone"
+    },
+    "effects": [
+     {
+      "type": "save",
+      "ability": "dex",
+      "on_fail": [
+       {
+        "type": "damage",
+        "dice": "2d6",
+        "damage_type": "fire"
+       }
+      ],
+      "on_success": "half"
+     }
+    ]
    }
   ]
  },
@@ -1103,6 +1213,35 @@
     "kind": "resistance",
     "damage_types": [
      "lightning"
+    ]
+   },
+   {
+    "kind": "active_ability",
+    "name": "Breath Weapon",
+    "activation": "action",
+    "resource": "breath-weapon",
+    "dc_ability": "con",
+    "range": {
+     "kind": "feet",
+     "feet": 15
+    },
+    "targeting": {
+     "kind": "area",
+     "area": "zone"
+    },
+    "effects": [
+     {
+      "type": "save",
+      "ability": "dex",
+      "on_fail": [
+       {
+        "type": "damage",
+        "dice": "2d6",
+        "damage_type": "lightning"
+       }
+      ],
+      "on_success": "half"
+     }
     ]
    }
   ]
@@ -1117,6 +1256,35 @@
     "damage_types": [
      "acid"
     ]
+   },
+   {
+    "kind": "active_ability",
+    "name": "Breath Weapon",
+    "activation": "action",
+    "resource": "breath-weapon",
+    "dc_ability": "con",
+    "range": {
+     "kind": "feet",
+     "feet": 15
+    },
+    "targeting": {
+     "kind": "area",
+     "area": "zone"
+    },
+    "effects": [
+     {
+      "type": "save",
+      "ability": "dex",
+      "on_fail": [
+       {
+        "type": "damage",
+        "dice": "2d6",
+        "damage_type": "acid"
+       }
+      ],
+      "on_success": "half"
+     }
+    ]
    }
   ]
  },
@@ -1129,6 +1297,35 @@
     "kind": "resistance",
     "damage_types": [
      "fire"
+    ]
+   },
+   {
+    "kind": "active_ability",
+    "name": "Breath Weapon",
+    "activation": "action",
+    "resource": "breath-weapon",
+    "dc_ability": "con",
+    "range": {
+     "kind": "feet",
+     "feet": 15
+    },
+    "targeting": {
+     "kind": "area",
+     "area": "zone"
+    },
+    "effects": [
+     {
+      "type": "save",
+      "ability": "dex",
+      "on_fail": [
+       {
+        "type": "damage",
+        "dice": "2d6",
+        "damage_type": "fire"
+       }
+      ],
+      "on_success": "half"
+     }
     ]
    }
   ]
@@ -1143,6 +1340,35 @@
     "damage_types": [
      "poison"
     ]
+   },
+   {
+    "kind": "active_ability",
+    "name": "Breath Weapon",
+    "activation": "action",
+    "resource": "breath-weapon",
+    "dc_ability": "con",
+    "range": {
+     "kind": "feet",
+     "feet": 15
+    },
+    "targeting": {
+     "kind": "area",
+     "area": "zone"
+    },
+    "effects": [
+     {
+      "type": "save",
+      "ability": "con",
+      "on_fail": [
+       {
+        "type": "damage",
+        "dice": "2d6",
+        "damage_type": "poison"
+       }
+      ],
+      "on_success": "half"
+     }
+    ]
    }
   ]
  },
@@ -1155,6 +1381,35 @@
     "kind": "resistance",
     "damage_types": [
      "fire"
+    ]
+   },
+   {
+    "kind": "active_ability",
+    "name": "Breath Weapon",
+    "activation": "action",
+    "resource": "breath-weapon",
+    "dc_ability": "con",
+    "range": {
+     "kind": "feet",
+     "feet": 15
+    },
+    "targeting": {
+     "kind": "area",
+     "area": "zone"
+    },
+    "effects": [
+     {
+      "type": "save",
+      "ability": "dex",
+      "on_fail": [
+       {
+        "type": "damage",
+        "dice": "2d6",
+        "damage_type": "fire"
+       }
+      ],
+      "on_success": "half"
+     }
     ]
    }
   ]
@@ -1169,6 +1424,35 @@
     "damage_types": [
      "cold"
     ]
+   },
+   {
+    "kind": "active_ability",
+    "name": "Breath Weapon",
+    "activation": "action",
+    "resource": "breath-weapon",
+    "dc_ability": "con",
+    "range": {
+     "kind": "feet",
+     "feet": 15
+    },
+    "targeting": {
+     "kind": "area",
+     "area": "zone"
+    },
+    "effects": [
+     {
+      "type": "save",
+      "ability": "con",
+      "on_fail": [
+       {
+        "type": "damage",
+        "dice": "2d6",
+        "damage_type": "cold"
+       }
+      ],
+      "on_success": "half"
+     }
+    ]
    }
   ]
  },
@@ -1181,6 +1465,35 @@
     "kind": "resistance",
     "damage_types": [
      "cold"
+    ]
+   },
+   {
+    "kind": "active_ability",
+    "name": "Breath Weapon",
+    "activation": "action",
+    "resource": "breath-weapon",
+    "dc_ability": "con",
+    "range": {
+     "kind": "feet",
+     "feet": 15
+    },
+    "targeting": {
+     "kind": "area",
+     "area": "zone"
+    },
+    "effects": [
+     {
+      "type": "save",
+      "ability": "con",
+      "on_fail": [
+       {
+        "type": "damage",
+        "dice": "2d6",
+        "damage_type": "cold"
+       }
+      ],
+      "on_success": "half"
+     }
     ]
    }
   ]

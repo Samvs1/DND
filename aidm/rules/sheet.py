@@ -15,6 +15,7 @@ from aidm.models.sheet import (
     CharacterSheet,
     ConditionLine,
     DeathSaveLine,
+    FeatureActionLine,
     FeatureLine,
     InventoryLine,
     ResourceLine,
@@ -23,7 +24,7 @@ from aidm.models.sheet import (
 from aidm.models.state import Creature
 from aidm.rules.abilities import ability_modifier
 from aidm.rules.checks import passive_score, save_bonus, skill_bonus
-from aidm.rules.features import attacks_per_action
+from aidm.rules.features import attacks_per_action, feature_actions
 from aidm.rules.leveling import MAX_LEVEL, xp_for_level
 from aidm.rules.sheet_spells import spellcasting_block
 from aidm.rules.spellcasting import parse_slot_key
@@ -66,6 +67,30 @@ def _features(pc: PcData, regs: CharacterRegistries) -> list[FeatureLine]:
                     {"index": index, "name": entry.name, "summary": entry.summary, "source": source}
                 )
             )
+    return lines
+
+
+def _feature_actions(creature: Creature, regs: CharacterRegistries) -> list[FeatureActionLine]:
+    lines: list[FeatureActionLine] = []
+    for option in feature_actions(creature, regs.features):
+        if not option.command:
+            continue
+        pool = creature.resources.get(option.resource) if option.resource else None
+        lines.append(
+            FeatureActionLine(
+                feature=option.feature,
+                name=option.name,
+                economy=option.economy.value,
+                available=option.available,
+                resource=option.resource,
+                uses_left=pool.current if pool is not None else None,
+                uses_max=pool.maximum if pool is not None else None,
+                heal=option.heal,
+                target_kind=option.target_kind,
+                range_kind=option.range_kind,
+                range_feet=option.range_feet,
+            )
+        )
     return lines
 
 
@@ -135,6 +160,7 @@ def build_sheet(creature: Creature, regs: CharacterRegistries) -> CharacterSheet
         attacks_per_action=attacks_per_action(creature, regs.features),
         spellcasting=spellcasting_block(creature, regs),
         features=_features(pc, regs),
+        feature_actions=_feature_actions(creature, regs),
         resources=_resources(creature),
         armor_proficiencies=list(pc.armor_proficiencies),
         weapon_proficiencies=list(pc.weapon_proficiencies),

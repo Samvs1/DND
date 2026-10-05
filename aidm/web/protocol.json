@@ -194,6 +194,7 @@
                   "disengage": "#/$defs/DisengageCommand",
                   "dodge": "#/$defs/DodgeCommand",
                   "end_turn": "#/$defs/EndTurnCommand",
+                  "feature_action": "#/$defs/FeatureActionCommand",
                   "flee": "#/$defs/FleeCommand",
                   "help": "#/$defs/HelpCommand",
                   "hide": "#/$defs/HideCommand",
@@ -251,6 +252,9 @@
                 },
                 {
                   "$ref": "#/$defs/MonsterActionCommand"
+                },
+                {
+                  "$ref": "#/$defs/FeatureActionCommand"
                 }
               ],
               "title": "Command"
@@ -637,6 +641,53 @@
             }
           },
           "title": "ExportCharacter",
+          "type": "object"
+        },
+        "FeatureActionCommand": {
+          "additionalProperties": false,
+          "properties": {
+            "actor_id": {
+              "minLength": 1,
+              "title": "Actor Id",
+              "type": "string"
+            },
+            "feature_id": {
+              "minLength": 1,
+              "title": "Feature Id",
+              "type": "string"
+            },
+            "target_ids": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Target Ids",
+              "type": "array"
+            },
+            "target_zone": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Target Zone"
+            },
+            "type": {
+              "const": "feature_action",
+              "default": "feature_action",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "actor_id",
+            "feature_id"
+          ],
+          "title": "FeatureActionCommand",
           "type": "object"
         },
         "FleeCommand": {
@@ -1586,6 +1637,38 @@
           "title": "Unequip",
           "type": "object"
         },
+        "UseItem": {
+          "additionalProperties": false,
+          "properties": {
+            "item_id": {
+              "title": "Item Id",
+              "type": "string"
+            },
+            "target_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Target Id"
+            },
+            "type": {
+              "const": "use_item",
+              "default": "use_item",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "item_id"
+          ],
+          "title": "UseItem",
+          "type": "object"
+        },
         "UseItemCommand": {
           "additionalProperties": false,
           "properties": {
@@ -1686,6 +1769,7 @@
           "submit_action": "#/$defs/SubmitAction",
           "suggestion": "#/$defs/Suggestion",
           "unequip": "#/$defs/Unequip",
+          "use_item": "#/$defs/UseItem",
           "vote": "#/$defs/Vote"
         },
         "propertyName": "type"
@@ -1741,6 +1825,9 @@
         },
         {
           "$ref": "#/$defs/Drop"
+        },
+        {
+          "$ref": "#/$defs/UseItem"
         },
         {
           "$ref": "#/$defs/RequestSheet"
@@ -1829,6 +1916,7 @@
       "submit_action",
       "suggestion",
       "unequip",
+      "use_item",
       "vote"
     ]
   },
@@ -2113,6 +2201,14 @@
             },
             "death_saves": {
               "$ref": "#/$defs/DeathSaveLine"
+            },
+            "feature_actions": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/FeatureActionLine"
+              },
+              "title": "Feature Actions",
+              "type": "array"
             },
             "features": {
               "items": {
@@ -2862,6 +2958,110 @@
             "kind"
           ],
           "title": "EventMsg",
+          "type": "object"
+        },
+        "FeatureActionLine": {
+          "additionalProperties": false,
+          "properties": {
+            "available": {
+              "title": "Available",
+              "type": "boolean"
+            },
+            "economy": {
+              "enum": [
+                "action",
+                "bonus_action",
+                "extra_action"
+              ],
+              "title": "Economy",
+              "type": "string"
+            },
+            "feature": {
+              "title": "Feature",
+              "type": "string"
+            },
+            "heal": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Heal"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "range_feet": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Range Feet"
+            },
+            "range_kind": {
+              "default": "self",
+              "title": "Range Kind",
+              "type": "string"
+            },
+            "resource": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Resource"
+            },
+            "target_kind": {
+              "default": "self",
+              "title": "Target Kind",
+              "type": "string"
+            },
+            "uses_left": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Uses Left"
+            },
+            "uses_max": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Uses Max"
+            }
+          },
+          "required": [
+            "feature",
+            "name",
+            "economy",
+            "available"
+          ],
+          "title": "FeatureActionLine",
           "type": "object"
         },
         "FeatureLine": {

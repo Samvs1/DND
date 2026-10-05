@@ -17,14 +17,18 @@ Public API:
   above the spell's); `SpellLevelGroup(level, slots, spells)`; `SpellcastingBlock(ability,
   save_dc, attack_bonus, prepared_limit, cantrips, levels)`.
 - `FeatureLine(index, name, summary, source)`; `ResourceLine(key, current, maximum, recharge)`.
+- `FeatureActionLine(feature, name, economy, available, resource, uses_left, uses_max, heal,
+  target_kind, range_kind, range_feet)` (M7.5b): a feature action the `feature_action` command
+  runs (Second Wind, Action Surge, Breath Weapon, Turn Undead); `economy` action /
+  bonus_action / extra_action; the target fields aim it like a spell.
 - `InventoryLine(item, name, qty, equipped_slot, category, weight, value_gp)` (category, weight
   per item and value per item come from the item catalogue); `ConditionLine(name, rounds_left)`;
   `DeathSaveLine(successes, failures, stable, dead)`.
 - `CharacterSheet`: identity (id, name, race, subrace, class, subclass, level, background, xp,
   xp_next), abilities, skills, passive_perception, proficiency_bonus, ac, hp, temp_hp, max_hp,
   speed, initiative_bonus (+DEX; BG3 rolls 1d4, `initiative_die`), attacks, attacks_per_action,
-  spellcasting, features, resources, proficiencies and languages, resistances, inventory, gold,
-  conditions, death_saves, concentrating_on (the spell index being concentrated on).
+  spellcasting, features, feature_actions, resources, proficiencies and languages, resistances,
+  inventory, gold, conditions, death_saves, concentrating_on (the spell being concentrated on).
 """
 
 from typing import Literal
@@ -114,6 +118,20 @@ class FeatureLine(_Line):
     source: Literal["class", "race"]
 
 
+class FeatureActionLine(_Line):
+    feature: str
+    name: str
+    economy: Literal["action", "bonus_action", "extra_action"]
+    available: bool
+    resource: str | None = None
+    uses_left: int | None = None
+    uses_max: int | None = None
+    heal: str | None = None
+    target_kind: str = "self"
+    range_kind: str = "self"
+    range_feet: int | None = None
+
+
 class ResourceLine(_Line):
     key: str
     current: int
@@ -169,6 +187,7 @@ class CharacterSheet(_Line):
     attacks_per_action: int
     spellcasting: SpellcastingBlock | None
     features: list[FeatureLine]
+    feature_actions: list[FeatureActionLine] = []
     resources: list[ResourceLine]
     armor_proficiencies: list[str]
     weapon_proficiencies: list[str]

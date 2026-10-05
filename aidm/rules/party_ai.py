@@ -7,8 +7,9 @@
   surprised, incapacitated): it just ends the turn. Always ends with `EndTurnCommand`.
 - `next_pc_command(state, creature_id, regs, rng)` / `auto_pc_turn(...)` (the whole plan): a
   simple party autoplay for the headless sim and later companions, through the same planner as
-  the monsters (`rules.ai_plan`): stand up when prone; with a dying ally, the bonus action first
-  (Healing Word, a potion handed over in its zone); then the action (the best weapon attack or
+  the monsters (`rules.ai_plan`): stand up when prone; at half HP or less, a healing feature
+  bonus action (Second Wind, from the feature data; M7.5b); with a dying ally, the bonus action
+  first (Healing Word, a potion handed over in its zone); then the action (the best weapon attack or
   spell: damage, kill chance, target threat, concentration breaking, healing a dying ally with an
   action spell), further attacks of the Attack action, the bonus action (off-hand attack, bonus
   spells, potions); approach when nothing reaches, Dodge when nothing helps; a ranged creature
@@ -23,6 +24,7 @@ from aidm.models.commands import (
     DashCommand,
     DodgeCommand,
     EndTurnCommand,
+    FeatureActionCommand,
     MoveCommand,
 )
 from aidm.models.encounter import Encounter
@@ -41,7 +43,10 @@ from aidm.rules.ai_view import AiView, ai_view
 from aidm.rules.combat_moves import PRONE
 from aidm.rules.conditions import effective_speed
 from aidm.rules.dice import Rng
+from aidm.rules.features import feature_actions
 from aidm.rules.zones import zone_path
+
+LOW_HP_DIVISOR = 2
 
 
 def _ally_zones(state: GameState, enc: Encounter, creature_id: str) -> list[str]:
@@ -96,6 +101,20 @@ def _chooser(regs: CombatRegistries, phase: Phase) -> Chooser:
     return choose
 
 
+def _self_heal_step(
+    state: GameState, creature_id: str, regs: CombatRegistries
+) -> AnyCommand | None:
+    me = state.creatures[creature_id]
+    if me.hp * LOW_HP_DIVISOR > me.max_hp:
+        return None
+    for option in feature_actions(me, regs.chars.features):
+        if option.command and option.heal and option.available:
+            command = FeatureActionCommand(actor_id=creature_id, feature_id=option.feature)
+            if dry_run(state, command, regs) is not None:
+                return command
+    return None
+
+
 def _dying_ally(state: GameState, view: AiView) -> bool:
     return any(state.creatures[a].hp == 0 and not state.creatures[a].stable for a in view.allies)
 
@@ -128,6 +147,8 @@ def next_pc_command(
     ranged = prefers_range(state, creature_id, regs)
     bonus = _chooser(regs, "bonus")
     steps = [lambda: stand_step(state, view, regs)]
+    if economy.bonus_action:
+        steps.append(lambda: _self_heal_step(state, creature_id, regs))
     if economy.bonus_action and _dying_ally(state, view):
         steps.append(lambda: best_action_step(state, view, regs, rng, bonus, ranged=ranged))
     if economy.action:

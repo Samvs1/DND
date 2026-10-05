@@ -18,6 +18,7 @@ const FEED_EVENTS = new Set([
   'death_save_rolled',
   'stabilized',
   'spell_cast',
+  'feature_used',
   'condition_applied',
   'condition_removed',
   'party_moved',

@@ -18,7 +18,7 @@ from aidm.dm.entities import display_name
 from aidm.dm.wording import check_subject, with_article
 from aidm.models import events as ev
 from aidm.models import world_events as we
-from aidm.models.combat_events import AttackRolled, CombatantMoved, SpellCast
+from aidm.models.combat_events import AttackRolled, CombatantMoved, FeatureUsed, SpellCast
 from aidm.models.encounter_events import CombatantWithdrew, EncounterEnded, EncounterStarted
 from aidm.models.state import GameState
 from aidm.rules.scene import node_display_name
@@ -106,6 +106,7 @@ _LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     AttackRolled: _attack,
     CombatantMoved: lambda s, e: None,
     SpellCast: lambda s, e: None,
+    FeatureUsed: lambda s, e: f"{_who(s, e.creature_id)} uses {e.name}.",
     we.NpcIntroduced: _npc,
     we.FeatureIntroduced: _feature,
     we.FeatureDiscovered: _discovered,
