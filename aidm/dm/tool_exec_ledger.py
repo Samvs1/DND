@@ -1,8 +1,9 @@
 """Executors for `update_quest` and `record_fact` (SPEC 6.3, 6.6): state, not prose.
 
-Quests: a new quest needs a title; completed and failed are final. Completing a quest given by
-an NPC is a deed (`aidm.rules.social.deed_attitude_events`, moderate tier) - the only route past
-the ally bar. Facts: every entity id must name something known (creature, NPC, feature, quest
+Quests: a new quest needs a title and starts offered or active (never already finished, so an
+invented quest cannot be "completed" for a deed); completed and failed are final. Completing a quest
+given by an NPC is a deed (`aidm.rules.social.deed_attitude_events`, moderate tier) - the only route
+past the ally bar. Facts: every entity id must name something known (creature, NPC, feature, quest
 or world node), so the ledger cannot invent entities.
 
 Public API: `run_update_quest`, `run_record_fact` -> `ToolResult`; `known_entity_ids(state)`;
@@ -34,6 +35,8 @@ def _quest(state: GameState, args: UpdateQuestArgs) -> Quest:
     if old is None:
         if not args.title:
             raise ToolRefused(f"unknown quest {args.quest_id!r}; a new quest needs a title")
+        if args.state in FINAL_QUEST_STATES:
+            raise ToolRefused("a new quest starts offered or active, never already finished")
         giver = require_npc(state, args.giver_npc).id if args.giver_npc else None
         return Quest(id=args.quest_id, title=args.title, state=args.state, giver_npc_id=giver)
     if old.state in FINAL_QUEST_STATES:

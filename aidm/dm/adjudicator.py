@@ -6,8 +6,10 @@ callback BEFORE the next call (the callback must update `state` in place, as
 `aidm.session.reducer.apply` does), so later calls see earlier effects. The model never mutates
 anything.
 
-Loop bounds: at most `MAX_ROUNDS` model calls; each round executes at most
-`MAX_CALLS_PER_ROUND` calls (extra calls are dropped and audited). Results go back to the model
+Loop bounds: at most `MAX_ROUNDS` model calls; each round executes at most `MAX_CALLS_PER_ROUND`
+calls (extra calls are dropped and audited). Rewards, fights, travel and social shifts are capped
+per player action (`PER_ACTION_LIMITS`, M4.8): a repeated call beyond its cap is refused as a tool
+error, so "call grant_xp major ten times" grants one tier at most. Results go back to the model
 (assistant tool_calls + one `tool` message per call) only when it has something to react to: a
 refused call (tool error, bounded by the round cap) or a check/save whose outcome decides the
 consequences. Schema-invalid arguments never reach the engine: the LLM client retries them with
@@ -27,8 +29,8 @@ or chained steps: "then", "after that", ";"); FAST otherwise.
 In combat, free text is a `creative_action` (`AdjudicationOptions.creative_action=True`): only
 `CREATIVE_ACTION_TOOLS` are offered, so any other tool is rejected by the client validator.
 
-Public API: `MAX_ROUNDS`, `MAX_CALLS_PER_ROUND`, `CREATIVE_ACTION_TOOLS`, `EMPTY_NOTICE`,
-`FALLBACK_NOTICE`, `AdjudicationOptions`, `ResolvedCall`, `AdjudicationResult`,
+Public API: `MAX_ROUNDS`, `MAX_CALLS_PER_ROUND`, `PER_ACTION_LIMITS`, `CREATIVE_ACTION_TOOLS`,
+`EMPTY_NOTICE`, `FALLBACK_NOTICE`, `AdjudicationOptions`, `ResolvedCall`, `AdjudicationResult`,
 `choose_role(state, text)`, `is_social_text(text)` (quoted speech or a social verb),
 `adjudicate(state, actor_id, text, llm, ctx, rng, regs, apply)`.
 """
@@ -56,6 +58,14 @@ MAX_CALLS_PER_ROUND = 5
 MAX_ERROR_CHARS = 200
 CREATIVE_ACTION_TOOLS = ("request_check", "request_save", "creative_effect", "no_mechanics")
 FOLLOW_UP_TOOLS = frozenset({"request_check", "request_save"})
+PER_ACTION_LIMITS = {
+    "grant_xp": 1,
+    "grant_item": 1,
+    "start_encounter": 1,
+    "move_party": 1,
+    "update_attitude": 1,
+    "reveal_secret": 1,
+}
 EMPTY_NOTICE = "You hesitate, and the moment passes quietly. What do you do?"
 FALLBACK_NOTICE = "The world seems to hold its breath for a moment; nothing comes of it yet."
 
@@ -165,6 +175,14 @@ def _needs_follow_up(resolved: Sequence[ResolvedCall]) -> bool:
     return any(not r.result.ok or r.call.name in FOLLOW_UP_TOOLS for r in resolved)
 
 
+def _limited(run: _Run, call: ToolCall) -> ToolResult | None:
+    limit = PER_ACTION_LIMITS.get(call.name)
+    used = sum(1 for r in run.calls if r.call.name == call.name and r.result.ok)
+    if limit is None or used < limit:
+        return None
+    return ToolResult(error=f"at most {limit} {call.name} per player action")
+
+
 def _execute_round(
     state: GameState,
     reply: ToolCallResult,
@@ -178,7 +196,7 @@ def _execute_round(
         run.audit.append(f"round {run.rounds}: dropped {len(reply.calls) - len(kept)} extra calls")
     resolved: list[ResolvedCall] = []
     for call in kept:
-        result = execute_tool(state, call, tool_ctx, rng, regs)
+        result = _limited(run, call) or execute_tool(state, call, tool_ctx, rng, regs)
         for event in result.events:
             apply(event)
             run.events.append(event)

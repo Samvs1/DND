@@ -1,4 +1,4 @@
-NEXT: M4.8 Injection suite, no-key e2e, tests/live scaffolding (FULL gate, commit `M4: AI layer`). Delegate to hard-engineer. Files in flight: none. Last gate: M4.7 FULL GATE PASS 8/8.
+NEXT: M4.8 (partial committed): run RUN_LIVE=1 pytest tests/live once, fix any client gap with a FakeLLM regression, verify SPEC 14 M4 exit gate, DECISIONS M4.8, FULL gate, commit `M4: AI layer`. Delegate to hard-engineer. Files in flight: none. Last gate: M4.8 partial FULL GATE PASS 8/8.
 
 # PROGRESS
 

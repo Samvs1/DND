@@ -2,8 +2,9 @@
 
 Public API:
 - `ViolationKind`: UNKNOWN_NAME, DEAD_ACTING, ITEM_DESTROYED, WRONG_IDENTITY, UNLISTED_FEATURE,
-  ABSENT_NPC, INVENTED_CROWD, ERASED_PRESENT, SECRET_LEAK (M4.7); `SCRUBBED_KINDS` (names
-  removed from a retry).
+  ABSENT_NPC, INVENTED_CROWD, ERASED_PRESENT, SECRET_LEAK (M4.7), LIVING_DECLARED_DEAD and
+  UNEARNED_REWARD (M4.8);
+  `SCRUBBED_KINDS` (names removed from a retry).
 - `Violation(kind, span, detail)`: `span` is the offending text as written (a name, a phrase).
 - `GuardReport(violations)`: `ok`, `scrub_terms` (distinct offending names, removed from the
   retry context), `correction()` (the instruction for the one regeneration; it never repeats
@@ -27,6 +28,8 @@ class ViolationKind(StrEnum):
     INVENTED_CROWD = "invented_crowd"
     ERASED_PRESENT = "erased_present"
     SECRET_LEAK = "secret_leak"
+    LIVING_DECLARED_DEAD = "living_declared_dead"
+    UNEARNED_REWARD = "unearned_reward"
 
 
 SCRUBBED_KINDS = frozenset({ViolationKind.UNKNOWN_NAME, ViolationKind.ABSENT_NPC})

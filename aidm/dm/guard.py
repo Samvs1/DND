@@ -9,7 +9,9 @@ and the current scene (`aidm.dm.guard_scene`):
 - dead creatures acting, intact items described as destroyed, unlisted doors, passages, levers,
   chests and traps (`aidm.dm.guard_world`);
 - any NPC's UNREVEALED secret stated in prose (`aidm.dm.guard_secrets`, M4.7): a reveal is a
-  `reveal_secret` tool call validated by the engine, never prose.
+  `reveal_secret` tool call validated by the engine, never prose;
+- a living creature, NPC or party member declared dead (`aidm.dm.guard_alive`, M4.8);
+- gold or items handed over in prose when no event granted any (`aidm.dm.guard_rewards`, M4.8).
 Vocabulary is data (data/bg3/guard_lexicon.json); matching uses word boundaries and negation
 windows, so "unbroken" and "no hidden door" are not flagged.
 
@@ -26,8 +28,10 @@ max_sentences) -> GuardedSentences`.
 import re
 from collections.abc import Sequence
 
+from aidm.dm.guard_alive import living_declared_dead
 from aidm.dm.guard_flow import MAX_SENTENCES, GuardedSentences
 from aidm.dm.guard_names import absent_people, crowds, erased_people, unknown_names, wrong_identity
+from aidm.dm.guard_rewards import unearned_rewards
 from aidm.dm.guard_scene import GuardScene, guard_scene
 from aidm.dm.guard_secrets import leaked_secrets
 from aidm.dm.guard_text import tokenize
@@ -56,6 +60,8 @@ def _sentence_violations(sentence: str, scene: GuardScene) -> list[Violation]:
         *destroyed_items(sentence, tokens, scene),
         *unlisted_features(sentence, tokens, scene),
         *leaked_secrets(sentence, scene.secrets),
+        *living_declared_dead(sentence, tokens, scene.living_terms, scene.lexicon),
+        *unearned_rewards(sentence, scene.rewarded, scene.lexicon),
     ]
 
 

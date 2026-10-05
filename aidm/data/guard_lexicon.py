@@ -41,6 +41,11 @@ class GuardLexicon(BaseModel):
     erase_phrases: frozenset[str]
     class_words: frozenset[str]
     secret_stop_words: frozenset[str] = frozenset()
+    death_claims: frozenset[str] = frozenset()
+    death_hedges: frozenset[str] = frozenset()
+    gain_phrases: frozenset[str] = frozenset()
+    reward_nouns: frozenset[str] = frozenset()
+    promise_words: frozenset[str] = frozenset()
 
     @model_validator(mode="after")
     def _check(self) -> GuardLexicon:

@@ -1,22 +1,25 @@
 """What the prose guard knows about the scene, computed once per narration (SPEC 6.5).
 
-`guard_scene(state, events)` freezes the facts every check needs: the known name words (the
-entity registry, `aidm.dm.entities`), who is present, who is dead, which absent NPCs exist, the
-party's names and classes, the nouns of items the party may not see destroyed, and the words of
-the features and description of the current place, and the keys of every unrevealed NPC secret
-(`aidm.dm.guard_secrets`). Recent `events` (already applied to
-`state`) mark items that really were lost (`InventoryChanged` with a negative delta,
-a removed world item is no longer in the scene), so describing those as gone is allowed.
+`guard_scene(state, events)` freezes the facts every check needs: the known name words (the entity
+registry, `aidm.dm.entities`), who is present, who is dead, which absent NPCs exist, the party's
+names and classes, the nouns of items the party may not see destroyed, and the words of the features
+and description of the current place, and the keys of every unrevealed NPC secret
+(`aidm.dm.guard_secrets`), the names of the living (`aidm.dm.guard_alive`) and whether the events
+granted a reward (`aidm.dm.guard_rewards`). Recent `events` (already applied to `state`) mark items
+that really were lost (`InventoryChanged` with a negative delta, a removed world item is no longer
+in the scene), so describing those as gone is allowed.
 
 Public API: `GuardScene`, `guard_scene(state, events=()) -> GuardScene`, `words_of(text)`.
 """
 
 import re
 from collections.abc import Iterable, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from aidm.data.guard_lexicon import GuardLexicon, guard_lexicon
 from aidm.dm.entities import display_name, entity_registry
+from aidm.dm.guard_alive import living_terms
+from aidm.dm.guard_rewards import rewarded
 from aidm.dm.guard_secrets import SecretKey, secret_keys
 from aidm.models import events as ev
 from aidm.models.state import GameState
@@ -44,6 +47,8 @@ class GuardScene:
     item_nouns: dict[str, str]
     feature_words: frozenset[str]
     secrets: tuple[SecretKey, ...] = ()
+    living_terms: dict[str, str] = field(default_factory=dict[str, str])
+    rewarded: bool = False
 
 
 def _lost_items(events: Sequence[ev.AnyEvent]) -> set[str]:
@@ -142,4 +147,6 @@ def guard_scene(state: GameState, events: Sequence[ev.AnyEvent] = ()) -> GuardSc
         secrets=secret_keys(
             state, frozenset(known | _all_role_words(state)), lex.secret_stop_words
         ),
+        living_terms=living_terms(state, frozenset(reg.dead - living), lex),
+        rewarded=rewarded(events),
     )

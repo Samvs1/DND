@@ -136,5 +136,30 @@
     "through", "told", "under", "until", "upon", "very", "want", "wants", "was", "were", "what",
     "when", "where", "which", "while", "whom", "whose", "will", "with", "within", "without",
     "would", "year", "years", "your", "yours", "yourself"
+  ],
+  "death_claims": [
+    "dead", "dies", "died", "slain", "perished", "perishes", "lifeless", "corpse", "carcass",
+    "breathes its last", "breathed its last", "is no more", "drops dead", "falls dead", "lies dead"
+  ],
+  "death_hedges": [
+    "nearly", "almost", "half", "seemingly", "playing", "feigning", "if", "unless", "wants", "want"
+  ],
+  "gain_phrases": [
+    "you receive", "you received", "receive", "receives", "you gain", "you gained", "gains",
+    "pocket", "pockets", "pocketed", "hands you", "handed you", "gives you", "gave you",
+    "is yours", "are yours", "now yours", "now belongs to you", "fills your", "filling your",
+    "added to your", "adds to your", "appears in your", "appear in your", "materialises in your",
+    "materializes in your", "lands in your", "rains down", "showers you", "you now own",
+    "you now have", "you now carry", "rewards you", "rewarded with", "grants you", "granted you"
+  ],
+  "reward_nouns": [
+    "gold", "coins", "coin", "gp", "platinum", "silver", "crowns", "treasure", "fortune",
+    "riches", "purse", "jewels", "gems", "sword", "blade", "weapon", "armor", "armour", "shield",
+    "artifact", "artefact", "potion", "potions", "scroll", "ring", "amulet", "staff", "wand",
+    "item", "items", "relic"
+  ],
+  "promise_words": [
+    "if", "will", "would", "could", "might", "may", "offer", "offers", "offered", "promise",
+    "promises", "promised", "once", "when you", "after you", "should you", "unless", "for a price"
   ]
 }
