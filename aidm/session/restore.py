@@ -1,7 +1,8 @@
 """Rebuild a `TableCore` from a loaded save (M6.3) or switch it to another campaign (M6.5).
 
 `restore(core, loaded)` replaces everything the table owns about ONE campaign: state, the replay
-base (`initial`), the log (so seq catch-up works after a restart), the seats (tokens kept, nobody
+base (`initial`), the log and its public feed (so seq catch-up and the story history work after
+a restart), the seats (tokens kept, nobody
 connected), the id counter and the TTS flag. Open connections (`outboxes`, `conn_player`) are not
 touched; `rebind_connections` seats them in the new table. A save that was in a fight resumes it
 when the first seated hero connects (`resume_combat`).
@@ -15,6 +16,7 @@ from aidm.models.encounter import EncounterStatus
 from aidm.models.protocol_views import TablePhase
 from aidm.session import combat_flow
 from aidm.session.persistence import LoadedCampaign
+from aidm.session.public_feed import PublicFeed
 from aidm.session.table_core import Player, TableCore
 
 
@@ -25,6 +27,7 @@ def restore(core: TableCore, loaded: LoadedCampaign) -> None:
     core.state = loaded.state
     core.initial = loaded.initial.model_copy(deep=True)
     core.log = list(loaded.log)
+    core.public = PublicFeed.rebuild(core.initial, core.log)
     core.unsaved = []
     core.rng = random.Random(f"{loaded.state.seed}:{loaded.state.event_count}")
     core.creation_rng = random.Random(f"{loaded.state.seed}:creation:{loaded.state.event_count}")

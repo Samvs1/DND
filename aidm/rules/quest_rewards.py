@@ -51,7 +51,7 @@ def quest_transition_refusal(old: QuestState | None, new: QuestState) -> str | N
         return None
     if old is QuestState.OFFERED and new is QuestState.COMPLETED:
         return "the quest must be accepted (active) before it can be completed"
-    return f"a {old.value} quest cannot become {new.value}"
+    return f"the quest is {old.value} and cannot become {new.value}"
 
 
 def _plan_quest(state: GameState, quest_id: str) -> QuestPlan | None:

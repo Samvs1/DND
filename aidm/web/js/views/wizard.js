@@ -1,10 +1,12 @@
 // Character wizard view: a stepper over js/wizard/steps.js. The draft lives in a module variable so
 // reopening the wizard ("edit hero") starts from the previous picks. Creation goes through the
 // server (create_character -> creation_result); its errors are mapped to friendly strings per step.
+// The first step also imports a hero file (import_character); the finished sheet exports one.
 import { t } from '../strings.js';
 import { clear, h } from '../ui/dom.js';
 import { context, buildChoices, newDraft, prune } from '../wizard/model.js';
 import { STEPS, activeSteps, stepProblem } from '../wizard/steps.js';
+import { importBlock, saveExport } from '../wizard/transfer.js';
 
 let keptDraft = null;
 
@@ -37,7 +39,7 @@ export function mountWizard(root, view) {
   const { store, client } = view;
   const draft = keptDraft ?? (keptDraft = newDraft());
   if (store.get().wizardOpen === null) store.update({ wizardOpen: true });
-  const state = { data: null, stepId: 'race', result: { status: 'idle', errors: [], sheet: null } };
+  const state = { data: null, stepId: 'race', result: { status: 'idle', errors: [], sheet: null }, importState: { status: 'idle', errors: [] } };
   const title = h('h2', { tabindex: '-1', id: 'wz-title' });
   const nav = h('nav', { 'aria-label': t('wz.title') });
   const body = h('div', { class: 'wz-body', 'data-testid': 'wizard-body' });
@@ -52,7 +54,8 @@ export function mountWizard(root, view) {
 
   const env = () => {
     const ctx = context(draft, state.data);
-    return { data: state.data, draft, ctx, update, touch, send: client.send, result: state.result, create, goTo, ready };
+    const importState = state.importState;
+    return { data: state.data, draft, ctx, update, touch, send: client.send, result: state.result, create, goTo, ready, importState, importHero };
   };
 
   function status() {
@@ -82,6 +85,7 @@ export function mountWizard(root, view) {
     const active = document.activeElement;
     const focusKey = keepFocus && body.contains(active) ? active.dataset.key : null;
     clear(body);
+    if (s.index === 0 && store.get().phase === 'lobby') body.append(importBlock(s.e));
     body.append(s.problems[s.index] === 'needEarlier' ? h('p', { class: 'hint' }, t('wzProblem.needEarlier')) : s.step.render(s.e));
     if (focusKey) body.querySelector(`[data-key="${CSS.escape(focusKey)}"]`)?.focus();
     renderNav();
@@ -119,11 +123,25 @@ export function mountWizard(root, view) {
     renderBody(false);
   }
 
+  function importHero(text) {
+    state.importState = { status: 'sending', errors: [] };
+    if (!client.send('import_character', { text })) state.importState.status = 'idle';
+    renderBody(false);
+  }
+
   function ready() {
     store.update({ wizardOpen: false });
   }
 
   function onResult(msg) {
+    if (state.importState.status === 'sending') {
+      state.importState = { status: msg.ok ? 'idle' : 'errors', errors: msg.ok ? [] : msg.errors || [] };
+      if (!msg.ok) {
+        if (state.data) renderBody(false);
+        return;
+      }
+      state.stepId = 'review';
+    }
     state.result = msg.ok ? { status: 'ok', errors: [], sheet: msg.sheet } : { status: 'errors', errors: msg.errors || [], sheet: null };
     if (state.data) renderBody(false);
   }
@@ -137,7 +155,7 @@ export function mountWizard(root, view) {
   back.addEventListener('click', () => move(-1));
   next.addEventListener('click', () => move(1));
   close.addEventListener('click', ready);
-  const stops = [store.on('creation_result', onResult), store.on('ability_rolls', onRolls)];
+  const stops = [store.on('creation_result', onResult), store.on('ability_rolls', onRolls), store.on('character_export', saveExport)];
 
   async function load() {
     failed.hidden = true;

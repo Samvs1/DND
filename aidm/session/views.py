@@ -3,24 +3,24 @@ state into protocol views.
 
 Privacy rules: NPCs go out only as `rules.social.public_npc_view` (no motive, no unrevealed
 secret, no raw score); hidden features and hidden items are left out (via
-`rules.scene.current_scene`); events go out as `{seq, kind, line}` with the public log line of
-`dm.event_text.event_line`, never the raw event (NpcIntroduced and CampaignInstalled embed
-motives and secrets).
+`rules.scene.current_scene`); fact lines carrying private text are dropped; events go out only
+through THE public projection in `session.public_feed`, never as raw events (NpcIntroduced and
+CampaignInstalled embed motives and secrets).
 
 Public API: `public_creature`, `public_scene`, `public_map`, `public_quests`, `public_combat`,
-`public_offer`, `public_state`, `event_message`, `dice_view`, `stock_lines`.
+`public_offer`, `public_facts`, `public_state`, `dice_view`, `stock_lines`.
 """
 
 from collections.abc import Sequence
 
 from aidm.data.item_catalogue import CatalogueItem
 from aidm.data.registry import Registry
-from aidm.dm.event_text import event_line
+from aidm.dm.wording import check_subject
+from aidm.models.checks import CheckKind
 from aidm.models.combat_events import AttackRolled
 from aidm.models.dice import AdvState, D20Roll
 from aidm.models.encounter import EncounterStatus
 from aidm.models.events import AnyEvent, CheckResolved, DeathSaveRolled, DiceRolled
-from aidm.models.protocol_server import EventMsg
 from aidm.models.protocol_views import (
     CombatToken,
     DiceView,
@@ -44,6 +44,7 @@ from aidm.models.state import Creature, GameState
 from aidm.rules.scene import current_scene, node_display_name
 from aidm.rules.shop import StockEntry
 from aidm.rules.social import public_npc_view
+from aidm.session.public_feed import leaks, private_texts
 
 MAX_PUBLIC_FACTS = 12
 
@@ -61,6 +62,9 @@ def public_creature(creature: Creature) -> PublicCreature:
         conditions=tuple(c.name for c in creature.conditions),
         dead=creature.dead,
         dying=creature.hp == 0 and not creature.dead and not creature.stable,
+        stable=creature.stable and creature.hp == 0 and not creature.dead,
+        death_save_successes=creature.death_save_successes,
+        death_save_failures=creature.death_save_failures,
         level=pc.level if pc is not None else None,
         race=pc.race if pc is not None else None,
         class_index=pc.class_index if pc is not None else None,
@@ -127,6 +131,13 @@ def public_map(state: GameState) -> PublicMap | None:
 def public_quests(state: GameState) -> tuple[PublicQuest, ...]:
     quests = sorted(state.world.quests.values(), key=lambda q: q.id)
     return tuple(PublicQuest(id=q.id, title=q.title, state=q.state.value) for q in quests)
+
+
+def public_facts(state: GameState) -> tuple[str, ...]:
+    """The latest ledger facts, minus any that carry private text (motive, secret, hidden)."""
+    private = private_texts(state)
+    facts = [f.text for f in state.world.facts if not leaks(f.text, private)]
+    return tuple(facts[-MAX_PUBLIC_FACTS:])
 
 
 def public_combat(state: GameState) -> PublicCombat | None:
@@ -202,7 +213,7 @@ def public_state(
         scene=public_scene(state),
         map=public_map(state),
         quests=public_quests(state),
-        facts=tuple(f.text for f in state.world.facts[-MAX_PUBLIC_FACTS:]),
+        facts=public_facts(state),
         combat=public_combat(state),
         offer=public_offer(state),
         queue=tuple(queue),
@@ -217,10 +228,6 @@ def public_state(
         monster_hp=state.difficulty.monster_hp,
         monster_damage=state.difficulty.monster_damage,
     )
-
-
-def event_message(state: GameState, seq: int, event: AnyEvent) -> EventMsg:
-    return EventMsg(seq=seq, kind=event.type, line=event_line(state, event) or "")
 
 
 def _d20(roller: str | None, label: str, roll: D20Roll, target: int | None) -> DiceView:
@@ -243,7 +250,7 @@ def dice_view(event: AnyEvent) -> DiceView | None:
         return view.model_copy(update={"success": event.hit, "crit": event.crit})
     if isinstance(event, CheckResolved):
         r = event.result
-        label = r.skill.value if r.skill is not None else f"{r.ability.value} {r.kind.value}"
+        label = check_subject(r) + (" save" if r.kind is CheckKind.SAVE else "")
         view = _d20(event.creature_id, label, r.roll, r.dc)
         return view.model_copy(update={"success": r.success})
     if isinstance(event, DeathSaveRolled):

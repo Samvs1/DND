@@ -47,6 +47,8 @@ type AnyClientMsg = (
     | c.HostNew
     | c.HostEnd
     | c.HostForceVote
+    | c.ExportCharacter
+    | c.ImportCharacter
     | c.Ping
 )
 
@@ -79,6 +81,8 @@ type AnyServerMsg = (
     | s.SuggestionRelay
     | s.Pong
     | s.EpilogueMsg
+    | s.StoryHistory
+    | s.CharacterExport
 )
 
 ClientMsg = Annotated[AnyClientMsg, Field(discriminator="type")]

@@ -14,6 +14,7 @@ Machine-readable schema: `aidm/web/protocol.json`.
 | client | `confirm_hostile` | `type`: confirm_hostile |
 | client | `create_character` | `choices`: CreationChoices, `type`: create_character |
 | client | `equip` | `item_id`: string, `type`: equip |
+| client | `export_character` | `type`: export_character |
 | client | `give` | `item_id`: string, `npc_id`: string, `type`: give |
 | client | `hello` | `last_seq`: integer or null (optional), `name`: string, `token`: string or null (optional), `type`: hello |
 | client | `host_difficulty` | `monster_damage`: number (optional), `monster_hp`: number (optional), `type`: host_difficulty |
@@ -27,6 +28,7 @@ Machine-readable schema: `aidm/web/protocol.json`.
 | client | `host_save` | `type`: host_save |
 | client | `host_start` | `theme`: string or null (optional), `type`: host_start |
 | client | `host_tts_toggle` | `enabled`: boolean, `type`: host_tts_toggle |
+| client | `import_character` | `text`: string, `type`: import_character |
 | client | `level_up` | `choices`: LevelUpChoices, `type`: level_up |
 | client | `ping` | `type`: ping |
 | client | `request_hit_chances` | `target_id`: string, `type`: request_hit_chances |
@@ -38,6 +40,7 @@ Machine-readable schema: `aidm/web/protocol.json`.
 | client | `unequip` | `item_id`: string, `type`: unequip |
 | client | `vote` | `ready`: boolean, `type`: vote, `vote_id`: string |
 | server | `ability_rolls` | `rolls`: array of Roll (optional), `type`: ability_rolls |
+| server | `character_export` | `creature_id`: string, `name`: string, `text`: string, `type`: character_export |
 | server | `chat` | `name`: string, `player_id`: string, `text`: string, `type`: chat |
 | server | `combat_state` | `combat`: PublicCombat or null (optional), `type`: combat_state |
 | server | `creation_result` | `errors`: array of CreationError (optional), `ok`: boolean, `sheet`: CharacterSheet or null (optional), `type`: creation_result |
@@ -59,6 +62,7 @@ Machine-readable schema: `aidm/web/protocol.json`.
 | server | `resolving` | `entry`: QueueEntry, `type`: resolving |
 | server | `shop_stock` | `npc_id`: string, `npc_name`: string (optional), `stock`: array of StockLine (optional), `type`: shop_stock |
 | server | `snapshot` | `seq`: integer, `state`: PublicState, `type`: snapshot |
+| server | `story_history` | `entries`: array of StoryEntry (optional), `type`: story_history |
 | server | `suggestion` | `name`: string, `player_id`: string, `text`: string, `type`: suggestion |
 | server | `turn_prompt` | `creature_id`: string, `player_id`: string or null (optional), `seconds`: number or null (optional), `type`: turn_prompt |
 | server | `vote_closed` | `passed`: boolean, `reason`: string (optional), `type`: vote_closed, `vote_id`: string |

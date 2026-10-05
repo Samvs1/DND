@@ -7,10 +7,13 @@ import { clear, h } from '../ui/dom.js';
 import { titleCase } from '../ui/format.js';
 import { publicState } from './lookup.js';
 
+/** The hero's own portrait, else real class art, else a generic face (assetUrl prefers real art). */
 export function portraitKeys(creature) {
-  const own = creature.portrait_id ? `portrait.${creature.portrait_id}` : null;
-  const fallback = creature.class_index ? `portrait.class.${creature.class_index}` : 'portrait.npc.commoner';
-  return own ?? fallback;
+  const keys = [];
+  if (creature.portrait_id) keys.push(`portrait.${creature.portrait_id}`);
+  if (creature.class_index) keys.push(`portrait.class.${creature.class_index}`);
+  keys.push('portrait.npc.commoner');
+  return keys;
 }
 
 function hpBar(c) {
@@ -41,10 +44,24 @@ function conditionIcons(c) {
   );
 }
 
+function deathSaves(c) {
+  if (c.dead || !(c.dying || c.stable)) return null;
+  const marks = (n, cls) => Array.from({ length: 3 }, (_, i) => h('span', { class: i < n ? `pip ${cls}` : 'pip' }));
+  return h(
+    'span',
+    { class: 'dsaves', 'data-testid': 'death-saves', title: t('table.dyingHint') },
+    h('span', { class: 'sr-only' }, t('table.deathSaves', { ok: c.death_save_successes ?? 0, fail: c.death_save_failures ?? 0 })),
+    h('span', { 'aria-hidden': 'true', class: 'dsave-row' }, ...marks(c.death_save_successes ?? 0, 'ok')),
+    h('span', { 'aria-hidden': 'true', class: 'dsave-row' }, ...marks(c.death_save_failures ?? 0, 'fail')),
+  );
+}
+
 function stateBadges(c, levelUp) {
   return [
     c.dead ? h('span', { class: 'badge dead' }, t('table.fallen')) : null,
     !c.dead && c.dying ? h('span', { class: 'badge dying', title: t('table.dyingHint') }, t('table.dying')) : null,
+    !c.dead && c.stable ? h('span', { class: 'badge stable' }, t('table.stable')) : null,
+    deathSaves(c),
     levelUp ? h('span', { class: 'badge levelup', 'data-testid': 'levelup-badge' }, t('table.levelUp')) : null,
   ];
 }

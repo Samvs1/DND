@@ -23,6 +23,16 @@ OFFER = {
     "options": ["fight", "surprise", "escape", "parley"],
 }
 ACTION_ENABLED = "!document.querySelector('[data-testid=action-input]').disabled"
+NARRATIONS = "[...document.querySelectorAll('[data-testid=narration]')]"
+ALL_TOLD = NARRATIONS + ".every((n) => n.classList.contains('done'))"
+PORTRAITS = "[data-testid=party-card] img.pc-portrait"
+PLACEHOLDER = "/assets/placeholder/"
+CHAIN_URL = """async () => {
+    const assets = await import('/web/js/assets.js');
+    const party = await import('/web/js/table/party.js');
+    const hero = {portrait_id: 'race.human.f', class_index: 'fighter'};
+    return assets.assetUrl(party.portraitKeys(hero));
+}"""
 
 
 def _player(
@@ -46,6 +56,10 @@ def _start(browser: Browser, base: str, size: ViewportSize, errors: list[str]) -
         page.wait_for_selector("[data-testid=feed]", timeout=20000)
         page.wait_for_function(HAS_TEXT, timeout=20000)
     return host, guest
+
+
+def _texts(page: Page) -> list[str]:
+    return [" ".join(t.split()) for t in page.locator("[data-testid=narration]").all_inner_texts()]
 
 
 def _narration_count(page: Page) -> int:
@@ -83,6 +97,13 @@ def test_two_players_see_opening_narration_party_and_scene(
         assert "tone-" in (first.get_attribute("class") or "")
     assert "Brienne" in host.locator("[data-testid=party-card].mine").inner_text()
     assert "Mira" in guest.locator("[data-testid=party-card].mine").inner_text()
+    srcs = host.eval_on_selector_all(PORTRAITS, "els => els.map((e) => e.getAttribute('src'))")
+    assert len(srcs) == 2 and all(PLACEHOLDER not in s for s in srcs), srcs
+    # A race portrait without real art falls back to the real v1 class portrait.
+    chained = host.evaluate(CHAIN_URL)
+    assert "fighter" in chained and PLACEHOLDER not in chained
+    # Fake mode tells its tale cleanly: no fallback banner for a working (fake) storyteller.
+    assert host.locator("[data-testid=banner]").count() == 0
     _snap(host, shots_dir, "start", 1280)
     assert errors == []
 
@@ -104,7 +125,33 @@ def test_action_shows_dice_and_narration_for_both(
     guest.wait_for_function(count, timeout=20000)
     host.wait_for_function(ACTION_ENABLED, timeout=20000)
     assert host.locator("[data-testid=action-input]").input_value() == ""
+    line = "an Investigation check"
+    guest.wait_for_function(
+        "[...document.querySelectorAll('[data-testid=event-line]')]"
+        f".some((n) => n.textContent.includes('{line}'))",
+        timeout=20000,
+    )
+    assert guest.locator("[data-testid=banner]").count() == 0
     _snap(guest, shots_dir, "dice", 1280)
+    assert errors == []
+
+
+def test_reload_restores_the_story_feed(browser: Browser, live_server: LiveServer) -> None:
+    errors: list[str] = []
+    host, _guest = _start(browser, live_server.base, WIDE, errors)
+    host.fill("[data-testid=action-input]", "I look at the harbour")
+    host.click("[data-testid=action-send]")
+    host.wait_for_function("document.querySelectorAll('[data-testid=narration]').length >= 2")
+    host.wait_for_function(ACTION_ENABLED, timeout=20000)
+    host.wait_for_function(ALL_TOLD, timeout=20000)
+    before = _texts(host)
+    host.reload()
+    host.wait_for_selector("[data-testid=feed]", timeout=20000)
+    host.wait_for_function(
+        f"document.querySelectorAll('[data-testid=narration]').length >= {len(before)}",
+        timeout=20000,
+    )
+    assert _texts(host)[: len(before)] == before
     assert errors == []
 
 

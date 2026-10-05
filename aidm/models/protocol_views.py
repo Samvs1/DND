@@ -7,7 +7,8 @@ secrets, raw attitude scores or hidden features (NPCs are `PublicNpcView`, built
 Public API:
 - `TablePhase`: lobby / generating / play / ended.
 - `PlayerInfo(id, name, is_host, connected, creature_id)`: one seat at the table.
-- `PublicCreature`: a party member or combatant (hp, ac, conditions, level/class for PCs).
+- `PublicCreature`: a party member or combatant (hp, ac, conditions, death saves, level/class
+  for PCs).
 - `PublicExit`, `PublicFeature`, `PublicScene`: the current place, its exits, visible features,
   visible items and present NPCs.
 - `MapNode`, `PublicMap`: the region graph with fog (visited nodes and their neighbours).
@@ -17,16 +18,19 @@ Public API:
 - `QueueEntry`, `VoteKind`, `VoteView`: the exploration queue and the open ready vote.
 - `PublicState`: the full snapshot payload.
 - `DiceView`: one visible roll for the dice tray (d20 tests, attacks, death saves, damage dice).
+- `StoryEntry`: one narration or public event line of the story history (reconnect, reload).
 - `StockLine`: one shop line (item id, name, price).
 """
 
 from enum import StrEnum
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from aidm.models.campaign_state import OfferChoice
 from aidm.models.dice import AdvState
 from aidm.models.encounter import Side, TurnEconomy
+from aidm.models.narration import NarrationTone
 from aidm.models.world import PublicNpcView
 from aidm.models.zones import Zone, ZoneEdge
 
@@ -61,6 +65,9 @@ class PublicCreature(_View):
     conditions: tuple[str, ...] = ()
     dead: bool = False
     dying: bool = False
+    stable: bool = False
+    death_save_successes: int = Field(default=0, ge=0, le=3)
+    death_save_failures: int = Field(default=0, ge=0, le=3)
     level: int | None = None
     race: str | None = None
     class_index: str | None = None
@@ -205,6 +212,17 @@ class DiceView(_View):
     target: int | None = Field(default=None, description="DC or AC when the roll is a test")
     success: bool | None = None
     crit: bool = False
+
+
+class StoryEntry(_View):
+    """One line of the story history: a told narration (id, tone) or a public event line."""
+
+    kind: Literal["narration", "event"]
+    seq: int = Field(ge=0, description="event-log position the entry follows")
+    text: str
+    id: str = ""
+    tone: NarrationTone | None = None
+    event_kind: str = ""
 
 
 class StockLine(_View):

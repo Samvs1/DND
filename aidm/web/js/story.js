@@ -1,12 +1,16 @@
 // The story log: narration, mechanical event lines, epilogue and dice rolls, collected from the moment
 // the socket opens (before the table view mounts) so a view can render the whole feed when it appears.
-// Views read `items` / `dice` and subscribe to live changes: {type: 'item' | 'chunk' | 'done' | 'dice' | 'reset'}.
+// `story_history` (sent after every snapshot on hello) replaces the log, so a reload restores the feed.
+// Views read `items` / `dice` and subscribe to live changes:
+// {type: 'item' | 'chunk' | 'done' | 'dice' | 'reset' | 'load'}.
 
 const MAX_ITEMS = 400;
 const MAX_DICE = 12;
-// Only outcomes the players should read in the feed. Setup lines (cast introductions, campaign
-// install, facts, summaries) are never shown: the server sends them to every seat.
+// Only outcomes the players should read in the feed (defence in depth: the server already sends
+// only the public projection of events, never campaign setup, unmet NPCs or hidden features).
 const FEED_EVENTS = new Set([
+  'npc_introduced',
+  'feature_discovered',
   'attack_rolled',
   'check_resolved',
   'damage_taken',
@@ -78,6 +82,24 @@ export function createStory(store) {
     emit({ type: 'dice', roll });
   }
 
+  function load(msg) {
+    items = [];
+    byId.clear();
+    seenSeq.clear();
+    for (const entry of msg.entries || []) {
+      if (entry.kind === 'narration') {
+        const sentence = { index: 0, text: entry.text, audio: null };
+        const item = { kind: 'narration', id: entry.id, tone: entry.tone || 'exploration', sentences: [sentence], done: true };
+        byId.set(entry.id, item);
+        items.push(item);
+      } else if (entry.text && FEED_EVENTS.has(entry.event_kind) && !seenSeq.has(entry.seq)) {
+        seenSeq.add(entry.seq);
+        items.push({ kind: 'event', seq: entry.seq, text: entry.text, eventKind: entry.event_kind });
+      }
+    }
+    emit({ type: 'load' });
+  }
+
   function reset() {
     items = [];
     dice = [];
@@ -91,6 +113,7 @@ export function createStory(store) {
   store.on('event', onEvent);
   store.on('dice_roll', onDice);
   store.on('epilogue', (msg) => push({ kind: 'epilogue', text: msg.text }));
+  store.on('story_history', load);
   store.on('reset', reset);
 
   return {

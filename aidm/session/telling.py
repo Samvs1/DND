@@ -10,6 +10,8 @@
 5. a new encounter offer goes out as `encounter_offer`; the epilogue runs once it is ready.
 Fights that start are handled by the caller (`combat_flow.after_resolution`).
 
+Every told narration is also kept in `core.public` (the story history for reconnects).
+
 Public API: `tell`, `tell_text`, `remember`, `follow_ups`, `conclude`, `maybe_epilogue`.
 """
 
@@ -42,13 +44,16 @@ from aidm.session.views import public_offer
 
 async def tell(core: TableCore, stream: NarrationStream) -> str:
     nid = core.next_id("n")
+    tone: NarrationTone | None = None
     async for chunk in stream:
+        tone = tone or chunk.tone
         audio = await core.config.tts(chunk.text, chunk.tone)
         msg = NarrationChunkMsg(
             id=nid, index=chunk.index, text=chunk.text, audio_url=audio, tone=chunk.tone
         )
         core.broadcast(msg)
     core.broadcast(NarrationDone(id=nid))
+    core.public.add_narration(nid, stream.text, tone, core.state.event_count)
     return stream.text
 
 
@@ -59,6 +64,7 @@ async def tell_text(
     audio = await core.config.tts(text, tone)
     core.broadcast(NarrationChunkMsg(id=nid, index=0, text=text, audio_url=audio, tone=tone))
     core.broadcast(NarrationDone(id=nid))
+    core.public.add_narration(nid, text, tone, core.state.event_count)
     return text
 
 

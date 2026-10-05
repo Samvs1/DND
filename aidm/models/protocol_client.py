@@ -7,7 +7,8 @@ Public API: `Hello`, `CreateCharacter`, `RollAbilities`, `SubmitAction`, `Combat
 `Suggestion`, `ConfirmHostile`, `CancelHostile`, `Vote`, `AnswerOffer`, `LevelUp`, `ShopBuy`,
 `ShopSell`, `Give`, `Equip`, `Unequip`, `RequestHitChances`, `Chat`, `HostStart`, `HostPause`,
 `HostResume`, `HostKick`, `HostDifficulty`, `HostTtsToggle`, `HostSave`, `HostLoad`, `HostNew`,
-`HostEnd`, `HostForceVote`, `Ping`; `HOST_MESSAGES` (the host-only message classes).
+`HostEnd`, `HostForceVote`, `ExportCharacter`, `ImportCharacter`, `Ping`; `HOST_MESSAGES`
+(the host-only message classes).
 """
 
 from typing import Literal
@@ -22,6 +23,7 @@ from aidm.models.leveling import LevelUpChoices
 
 MAX_TEXT = 1000
 MAX_NAME = 40
+MAX_IMPORT = 48_000  # a character JSON document; the socket refuses frames over 64 KB
 
 
 class _Client(BaseModel):
@@ -172,6 +174,15 @@ class HostEnd(_Client):
 
 class HostForceVote(_Client):
     type: Literal["host_force_vote"] = "host_force_vote"
+
+
+class ExportCharacter(_Client):
+    type: Literal["export_character"] = "export_character"
+
+
+class ImportCharacter(_Client):
+    type: Literal["import_character"] = "import_character"
+    text: str = Field(min_length=2, max_length=MAX_IMPORT)
 
 
 class Ping(_Client):

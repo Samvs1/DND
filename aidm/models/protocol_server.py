@@ -3,14 +3,16 @@
 Rules for every payload: public views only (`aidm.models.protocol_views`), no NPC motives or
 unrevealed secrets, no hidden features, and never raw exception text (`Notice`/`ErrorMsg` carry
 player-safe text). `seq` is the event-log position: a `Snapshot` reflects every event with
-`seq < snapshot.seq`, so the next `EventMsg` a client expects has `seq == snapshot.seq`.
+`seq < snapshot.seq`; `EventMsg`s carry only PUBLIC events (`aidm.session.public_feed`), so their
+seqs have gaps where a private event (campaign setup, an unmet NPC, a hidden feature) was applied.
+`StoryHistory` follows the snapshot on every hello so a reload restores the story feed.
 
 Public API: `NoticeKind`, `ErrorCode`, `Welcome`, `Snapshot`, `EventMsg`, `LobbyRoster`,
 `AbilityRolls`, `CreationResult`, `QueueState`, `Resolving`, `DiceRoll`, `NarrationChunkMsg`,
 `NarrationDone`, `VoteOpen`, `VoteUpdate`, `VoteClosed`, `PendingConfirmationMsg`,
 `EncounterOfferMsg`, `CombatState`, `HitChances`, `TurnPrompt`, `ShopStock`,
 `LevelUpAvailable`, `Notice`, `ErrorMsg`, `HostStats`, `ChatRelay`, `SuggestionRelay`, `Pong`,
-`EpilogueMsg`.
+`EpilogueMsg`, `StoryHistory`, `CharacterExport`.
 """
 
 from enum import StrEnum
@@ -30,6 +32,7 @@ from aidm.models.protocol_views import (
     PublicState,
     QueueEntry,
     StockLine,
+    StoryEntry,
     VoteKind,
 )
 from aidm.models.sheet import CharacterSheet
@@ -235,4 +238,20 @@ class Pong(_Server):
 
 class EpilogueMsg(_Server):
     type: Literal["epilogue"] = "epilogue"
+    text: str
+
+
+class StoryHistory(_Server):
+    """The recent story (narration and public event lines, oldest first), sent after a snapshot."""
+
+    type: Literal["story_history"] = "story_history"
+    entries: tuple[StoryEntry, ...] = ()
+
+
+class CharacterExport(_Server):
+    """The player's hero as a character JSON document (`rules.character_io` format)."""
+
+    type: Literal["character_export"] = "character_export"
+    creature_id: str
+    name: str
     text: str

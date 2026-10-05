@@ -119,6 +119,7 @@ function onResolving(msg, ctx) {
 
 export const HANDLERS = {
   ability_rolls: relay,
+  character_export: relay,
   chat: relay,
   combat_state: onCombat,
   creation_result: relay,
@@ -140,6 +141,7 @@ export const HANDLERS = {
   resolving: onResolving,
   shop_stock: relay,
   snapshot: onSnapshot,
+  story_history: relay,
   suggestion: relay,
   turn_prompt: relay,
   vote_closed: onVoteClosed,

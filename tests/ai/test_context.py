@@ -139,7 +139,7 @@ def test_recent_events_rendered_as_lines() -> None:
     apply_result(state, result)
     events = build_context(state, NARR, events=list(result.events)).section(SectionKey.EVENTS)
     assert events is not None
-    assert events.lines[0].startswith("Fighter ") and "athletics check" in events.lines[0]
+    assert events.lines[0].startswith("Fighter ") and "an Athletics check" in events.lines[0]
 
 
 def _crowded(state_facts: int = 60) -> GameState:

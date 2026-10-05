@@ -344,6 +344,37 @@ textarea {
   color: var(--focus);
 }
 
+.badge.stable {
+  color: var(--moss);
+}
+
+.dsaves {
+  display: inline-grid;
+  gap: 2px;
+}
+
+.dsave-row {
+  display: flex;
+  gap: 2px;
+}
+
+.dsaves .pip {
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--muted);
+  border-radius: 50%;
+}
+
+.dsaves .pip.ok {
+  background: var(--moss);
+  border-color: var(--moss);
+}
+
+.dsaves .pip.fail {
+  background: var(--blood);
+  border-color: var(--blood);
+}
+
 .queue {
   display: grid;
   gap: 0.3rem;

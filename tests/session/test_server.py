@@ -27,6 +27,7 @@ def test_join_gets_welcome_and_snapshot(tmp_path: Path) -> None:
         hello(ws, "Ann")
         msgs = read_until(ws, "snapshot")
         assert [m["type"] for m in msgs] == ["welcome", "snapshot"]
+        assert ws.receive_json()["type"] == "story_history"
         assert msgs[0]["is_host"] is True and msgs[0]["token"]
         assert msgs[1]["seq"] == 0
         for msg in msgs:
@@ -44,10 +45,12 @@ def test_submit_action_streams_events_then_narration(tmp_path: Path) -> None:
         kinds = [m["type"] for m in msgs]
         assert "narration_chunk" in kinds and kinds[-1] == "narration_done"
         tail = read_until(ws, "snapshot")
-        events = [m for m in msgs + tail if m["type"] == "event"]
-        assert [m["kind"] for m in events] == ["narration_recorded"]
-        seqs = [m["seq"] for m in events]
-        assert seqs == sorted(seqs) and tail[-1]["seq"] == seqs[-1] + 1
+        # The recorded narration is bookkeeping, not a public event: it is never sent.
+        assert not [m for m in msgs + tail if m["type"] == "event"]
+        assert tail[-1]["seq"] == registry_of(app).table.state.event_count
+
+
+REST_ACTIONS = ("we take a short rest", "I search behind the hearth", "we take a short rest")
 
 
 def test_reconnect_with_last_seq_gets_only_missed_events(tmp_path: Path) -> None:
@@ -57,19 +60,21 @@ def test_reconnect_with_last_seq_gets_only_missed_events(tmp_path: Path) -> None
             hello(ws, "Ann")
             welcome = read_until(ws, "snapshot")[0]
             registry_of(app).table.players[welcome["player_id"]].creature_id = "fighter"
-            for text in ("I search behind the hearth", "I study the rusted lever"):
+            for text in REST_ACTIONS:
                 ws.send_json({"type": "submit_action", "text": text})
                 read_until(ws, "narration_done")
-        log = registry_of(app).table.log
-        assert len(log) >= 2
-        cut = log[1].seq
+        table = registry_of(app).table
+        public = table.public.events
+        assert len(public) == 2
+        cut = public[0].seq + 1
         with client.websocket_connect("/ws") as ws2:
             hello(ws2, "Ann", token=welcome["token"], last_seq=cut)
             msgs = read_until(ws2, "lobby_roster")
         assert msgs[0]["type"] == "welcome" and msgs[0]["player_id"] == welcome["player_id"]
-        assert msgs[1]["type"] == "snapshot" and msgs[1]["seq"] == log[-1].seq + 1
+        assert msgs[1]["type"] == "snapshot" and msgs[1]["seq"] == table.log[-1].seq + 1
+        assert msgs[2]["type"] == "story_history"
         got = [m["seq"] for m in msgs if m["type"] == "event"]
-        assert got == [e.seq for e in log if e.seq >= cut]
+        assert got == [public[1].seq]
 
 
 def test_invalid_input_gets_an_error_and_the_socket_stays_open(tmp_path: Path) -> None:

@@ -104,11 +104,18 @@ export function mountFeed(root, story) {
     if (stick) toBottom();
   }
 
+  function renderAll() {
+    typist.stop();
+    nodes.clear();
+    log.replaceChildren();
+    if (story.items.length === 0) log.append(empty);
+    for (const item of story.items) addItem(item, false);
+    toBottom();
+  }
+
   function onChange(change) {
-    if (change.type === 'reset') {
-      typist.stop();
-      nodes.clear();
-      log.replaceChildren(empty);
+    if (change.type === 'reset' || change.type === 'load') {
+      renderAll();
     } else if (change.type === 'item') {
       addItem(change.item, true);
     } else if (change.type === 'chunk') {
@@ -126,9 +133,7 @@ export function mountFeed(root, story) {
     }
   }
 
-  if (story.items.length === 0) log.append(empty);
-  for (const item of story.items) addItem(item, false);
-  toBottom();
+  renderAll();
   const stop = story.subscribe(onChange);
   return () => {
     stop();

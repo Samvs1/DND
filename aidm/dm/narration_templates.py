@@ -19,6 +19,7 @@ from typing import Any
 
 from aidm.dm.campaign_text import CAMPAIGN_TEMPLATE_LINES
 from aidm.dm.entities import display_name
+from aidm.dm.wording import ABILITY_NAMES, check_subject
 from aidm.models import events as ev
 from aidm.models import world_events as we
 from aidm.models.combat_events import (
@@ -66,11 +67,11 @@ def _check(state: GameState, e: ev.CheckResolved) -> str:
     r = e.result
     who = _who(state, e.creature_id)
     if r.kind.value == "save":
-        ability = display_name(r.ability.value)
+        ability = ABILITY_NAMES[r.ability]
         if r.success:
             return f"{who} resists, and the {ability} save holds."
         return f"{who} cannot shake it off; the {ability} save fails."
-    what = display_name(r.skill.value if r.skill is not None else r.ability.value).lower()
+    what = check_subject(r)
     if r.success:
         return f"{who} pulls it off, and the {what} attempt succeeds."
     return f"{who} gives it everything, but the {what} attempt fails."
@@ -122,7 +123,9 @@ def _inventory(state: GameState, e: ev.InventoryChanged) -> str:
     return f"{who} receives {item}." if e.delta > 0 else f"{who} parts with {item}."
 
 
-def _npc(state: GameState, e: we.NpcIntroduced) -> str:
+def _npc(state: GameState, e: we.NpcIntroduced) -> str | None:
+    if e.npc.node_id is None or e.npc.node_id != state.world.current_node:
+        return None
     role = f", {e.npc.role}," if e.npc.role else ""
     return f"{e.npc.name}{role} is here."
 

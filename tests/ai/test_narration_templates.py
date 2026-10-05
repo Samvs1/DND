@@ -44,7 +44,7 @@ async def test_v1_failed_checks_always_narrate(tmp_path: Path) -> None:
         stream = narrate(party_state(), events, client)
         text = await stream.collect()
         assert text.strip()
-        assert "Fighter" in text and "athletics attempt fails" in text
+        assert "Fighter" in text and "Athletics attempt fails" in text
         assert stream.source is NarrationSource.TEMPLATE
 
 

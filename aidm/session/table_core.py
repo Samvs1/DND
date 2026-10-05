@@ -2,7 +2,8 @@
 
 `TableCore` holds everything one table owns: the `GameState` (mutated ONLY through `apply`,
 which runs THE reducer, appends a `LoggedEvent` with a monotonic `seq` and broadcasts the
-public event line plus any dice), the seats (`Player`), the subscriber queues of the open
+event's public projection (`public_feed`; private events are not sent) plus any dice), the
+public story feed (`public`), the seats (`Player`), the subscriber queues of the open
 connections, the exploration queue, the open vote, a pending hostile act, the combat segment
 awaiting narration and the turn timer. Handlers in `lobby`, `explore`, `votes`,
 `combat_flow`, `party_actions` and `host` take a `TableCore` and never import `table.py`.
@@ -43,9 +44,10 @@ from aidm.models.protocol_views import PlayerInfo, QueueEntry, TablePhase, VoteK
 from aidm.models.state import Creature, GameState
 from aidm.models.world_events import LevelUpReady
 from aidm.session.persistence import CampaignStore, SeatRecord, TableMeta, new_game_state
+from aidm.session.public_feed import PublicFeed
 from aidm.session.reducer import apply as reduce
 from aidm.session.table_clock import Clock, LoopClock, TimerHandle
-from aidm.session.views import dice_view, event_message, public_state
+from aidm.session.views import dice_view, public_state
 
 type TtsHook = Callable[[str, NarrationTone], Awaitable[str | None]]
 type Job = Callable[[], Awaitable[None]]
@@ -157,6 +159,7 @@ class TableCore:
         self.rng = random.Random(state.seed)
         self.creation_rng = random.Random(f"{state.seed}:creation")
         self.log: list[LoggedEvent] = []
+        self.public = PublicFeed()
         self.players: dict[str, Player] = {}
         self.outboxes: dict[str, asyncio.Queue[AnyServerMsg]] = {}
         self.conn_player: dict[str, str] = {}
@@ -235,7 +238,9 @@ class TableCore:
         self.unsaved.append(logged)
         if self.in_combat:
             self.segment.append(event)
-        self.broadcast(event_message(self.state, seq, event))
+        public = self.public.add_event(self.state, seq, event)
+        if public is not None:
+            self.broadcast(public)
         dice = dice_view(event)
         if dice is not None:
             self.broadcast(DiceRoll(seq=seq, dice=dice))

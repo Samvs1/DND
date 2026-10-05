@@ -1,23 +1,31 @@
 """Seats, characters and the campaign start (SPEC 8, 9, 10 lobby phase).
 
 `hello` seats a new player (the first one is the host) or, with a known token, reconnects the
-seat: the connection gets `welcome` + a full `snapshot`, and whatever waits for that player is
-re-sent (their turn prompt, a pending hostile confirmation). `closed` drops a connection; a
-player with no connection left is away: they leave the open vote, and their hero's current
-turn is auto-played. `create` builds a hero through `rules.creation` (rolled scores must be
-the ones this table rolled for that player); `start_campaign` (host) generates the campaign
-with its own timeout (`TableConfig.campaign_timeout_s`, 150 s by default: the quality model
-needs ~25-45 s per call), installs it and narrates the opening through `telling.conclude`.
+seat: the connection gets `welcome`, a full `snapshot`, the `story_history` (recent narration
+and public event lines, so a reload restores the feed), the public event lines it missed
+(`last_seq`), and whatever waits for that player (their turn prompt, a pending hostile
+confirmation). `closed` drops a connection; a player with no connection left is away: they
+leave the open vote, and their hero's current turn is auto-played. `create` builds a hero
+through `rules.creation` (rolled scores must be the ones this table rolled for that player);
+`import_hero` (lobby only) takes a character JSON document validated by `rules.character_io`
+(problems come back as `creation_result` errors) and `export_hero` sends the player's hero as
+that document. `start_campaign` (host) generates the campaign with its own timeout
+(`TableConfig.campaign_timeout_s`, 150 s by default: the quality model needs ~25-45 s per call),
+installs it and narrates the opening through `telling.conclude`; the fallback notice is shown
+only for a live model (fake mode uses the sample campaign by design).
 
-Public API: `hello`, `closed`, `roll`, `create`, `start_campaign`, `party_text`.
+Public API: `hello`, `closed`, `roll`, `create`, `import_hero`, `export_hero`, `start_campaign`,
+`party_text`.
 """
 
 from aidm.dm.campaign_gen import CampaignSource, generate_campaign
+from aidm.dm.llm_types import LlmMode
 from aidm.models.creation import AbilityMethod, CreationError, CreationErrorCode
 from aidm.models.events import CreatureAdded, CreatureRemoved
-from aidm.models.protocol_client import CreateCharacter, Hello
+from aidm.models.protocol_client import CreateCharacter, Hello, ImportCharacter
 from aidm.models.protocol_server import (
     AbilityRolls,
+    CharacterExport,
     CreationResult,
     ErrorCode,
     ErrorMsg,
@@ -27,16 +35,16 @@ from aidm.models.protocol_server import (
     Welcome,
 )
 from aidm.models.protocol_views import TablePhase
-from aidm.models.state import GameState
+from aidm.models.state import Creature, GameState
 from aidm.rules.ability_gen import roll_ability_scores
 from aidm.rules.campaign_install import install_campaign
+from aidm.rules.character_io import CharacterImportInvalid, export_character, import_character
 from aidm.rules.creation import build_character, validate_creation
 from aidm.rules.sheet import build_sheet
 from aidm.session import combat_flow, votes
 from aidm.session.stats import send_host_stats
 from aidm.session.table_core import Player, TableCore
 from aidm.session.telling import conclude
-from aidm.session.views import event_message
 
 GENERATING = "The Dungeon Master is writing your campaign. This can take up to two minutes."
 MAX_CATCH_UP = 500
@@ -56,6 +64,7 @@ def hello(core: TableCore, conn_id: str, msg: Hello) -> None:
     welcome = Welcome(player_id=player.id, token=player.token, is_host=player.is_host)
     core.send_conn(conn_id, welcome)
     core.send_conn(conn_id, core.snapshot())
+    core.send_conn(conn_id, core.public.history())
     if msg.last_seq is not None:
         _catch_up(core, conn_id, msg.last_seq)
     core.broadcast_roster()
@@ -67,10 +76,9 @@ def hello(core: TableCore, conn_id: str, msg: Hello) -> None:
 
 
 def _catch_up(core: TableCore, conn_id: str, last_seq: int) -> None:
-    """Re-send the event lines the client missed (seq >= its `last_seq`), oldest first."""
-    missed = [entry for entry in core.log if entry.seq >= last_seq][-MAX_CATCH_UP:]
-    for entry in missed:
-        core.send_conn(conn_id, event_message(core.state, entry.seq, entry.event))
+    """Re-send the public event lines the client missed (seq >= its `last_seq`), oldest first."""
+    for msg in core.public.since(last_seq, MAX_CATCH_UP):
+        core.send_conn(conn_id, msg)
 
 
 def _resend_waiting(core: TableCore, conn_id: str, player: Player) -> None:
@@ -139,14 +147,40 @@ async def create(core: TableCore, player: Player, msg: CreateCharacter) -> None:
     if errors:
         core.send(player.id, CreationResult(ok=False, errors=tuple(errors)))
         return
+    _seat_hero(core, player, build_character(choices, chars, f"pc-{player.id}"))
+
+
+def _seat_hero(core: TableCore, player: Player, hero: Creature) -> None:
+    """Add (or replace) the player's hero `pc-<player id>` and answer with its sheet."""
     cid = f"pc-{player.id}"
     if cid in core.state.creatures:
         core.apply(CreatureRemoved(creature_id=cid))
-    core.apply(CreatureAdded(creature=build_character(choices, chars, cid)))
+    core.apply(CreatureAdded(creature=hero.model_copy(update={"id": cid})))
     player.creature_id = cid
-    sheet = build_sheet(core.state.creatures[cid], chars)
+    sheet = build_sheet(core.state.creatures[cid], core.regs.combat.chars)
     core.send(player.id, CreationResult(ok=True, sheet=sheet))
     core.broadcast_roster()
+
+
+async def import_hero(core: TableCore, player: Player, msg: ImportCharacter) -> None:
+    if core.phase is not TablePhase.LOBBY:
+        core.error(player.id, ErrorCode.WRONG_PHASE, "Heroes can be imported in the lobby.")
+        return
+    try:
+        hero = import_character(msg.text, core.regs.combat.chars)
+    except CharacterImportInvalid as refused:
+        core.send(player.id, CreationResult(ok=False, errors=tuple(refused.errors)))
+        return
+    _seat_hero(core, player, hero)
+
+
+def export_hero(core: TableCore, player: Player) -> None:
+    hero = core.state.creatures.get(player.creature_id or "")
+    if hero is None or hero.pc is None:
+        core.error(player.id, ErrorCode.NO_CHARACTER, "Create your hero first.")
+        return
+    text = export_character(hero)
+    core.send(player.id, CharacterExport(creature_id=hero.id, name=hero.name, text=text))
 
 
 def party_text(state: GameState) -> str:
@@ -180,7 +214,7 @@ async def start_campaign(core: TableCore, host: Player, theme: str | None) -> No
     except BaseException:
         core.phase = TablePhase.LOBBY
         raise
-    if result.source is CampaignSource.FALLBACK and core.llm.available:
+    if result.source is CampaignSource.FALLBACK and core.llm.mode is LlmMode.LIVE:
         core.notice(None, NoticeKind.FALLBACK, FELL_BACK)
     events = core.apply_all(install_campaign(core.state, result.plan, core.state.seed))
     core.phase = TablePhase.PLAY

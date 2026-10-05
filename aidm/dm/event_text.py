@@ -3,8 +3,9 @@
 The context builder lists the recent events with these lines so the narrator describes what the
 engine resolved; the template narration (M4.5) reuses them when no model is available. Lines are
 ASCII, name creatures by their display name and NEVER leak private data: an introduced hidden
-feature, an NPC motive or an unrevealed secret is never rendered. Pure bookkeeping events
-(turn economy, resources, dice already shown in a check) render as None.
+feature, an NPC motive or an unrevealed secret is never rendered, and an introduced NPC is named
+only when in the party's current place (the campaign cast is introduced up front). Pure
+bookkeeping events (turn economy, resources, dice already shown in a check) render as None.
 
 Public API: `event_line(state, event) -> str | None`, `event_lines(state, events) -> list[str]`.
 """
@@ -14,6 +15,7 @@ from typing import Any
 
 from aidm.dm.campaign_text import CAMPAIGN_EVENT_LINES
 from aidm.dm.entities import display_name
+from aidm.dm.wording import check_subject, with_article
 from aidm.models import events as ev
 from aidm.models import world_events as we
 from aidm.models.combat_events import AttackRolled, CombatantMoved, SpellCast
@@ -34,10 +36,17 @@ def _who(state: GameState, creature_id: str | None) -> str:
 
 def _check(state: GameState, e: ev.CheckResolved) -> str:
     r = e.result
-    what = r.skill.value if r.skill is not None else r.ability.value.upper()
     kind = "save" if r.kind.value == "save" else "check"
-    verdict = "succeeded" if r.success else "failed"
-    return f"{_who(state, e.creature_id)} {verdict} a {what} {kind} ({r.roll.total} vs DC {r.dc})."
+    verdict = "passed" if r.success else "failed"
+    test = with_article(f"{check_subject(r)} {kind}")
+    return f"{_who(state, e.creature_id)} {verdict} {test} ({r.roll.total} vs DC {r.dc})."
+
+
+def _npc(state: GameState, e: we.NpcIntroduced) -> str | None:
+    """Only an NPC in the party's current place is 'here'; the cast elsewhere stays unnamed."""
+    if e.npc.node_id is None or e.npc.node_id != state.world.current_node:
+        return None
+    return f"{e.npc.name} ({e.npc.role or 'stranger'}) is here."
 
 
 def _hp(state: GameState, e: ev.HpChanged) -> str:
@@ -97,7 +106,7 @@ _LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     AttackRolled: _attack,
     CombatantMoved: lambda s, e: None,
     SpellCast: lambda s, e: None,
-    we.NpcIntroduced: lambda s, e: f"{e.npc.name} ({e.npc.role or 'stranger'}) is here.",
+    we.NpcIntroduced: _npc,
     we.FeatureIntroduced: _feature,
     we.FeatureDiscovered: _discovered,
     we.AttitudeChanged: lambda s, e: (

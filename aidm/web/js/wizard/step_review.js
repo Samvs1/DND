@@ -7,6 +7,7 @@ import { casting, finalScores, modifier, signed, ABILITIES } from './model.js';
 import { titleCase } from '../ui/format.js';
 import { namer } from './ui.js';
 import { stepForField } from './steps_fields.js';
+import { exportButton } from './transfer.js';
 
 function row(label, value) {
   return h('div', { class: 'wz-row' }, h('dt', {}, label), h('dd', {}, value));
@@ -32,7 +33,7 @@ function draftSummary(env) {
   return h(
     'div',
     { class: 'wz-review panel' },
-    h('img', { class: 'wz-art', src: assetUrl(`portrait.${draft.portrait}`), alt: '', width: 96, height: 96 }),
+    h('img', { class: 'wz-art', src: assetUrl([`portrait.${draft.portrait}`, `portrait.class.${draft.cls}`]), alt: '', width: 96, height: 96 }),
     h('h3', {}, draft.name.trim()),
     h('dl', {}, ...rows),
   );
@@ -87,7 +88,7 @@ function sheetSummary(env) {
     attacks.length ? h('p', {}, t('wz.attacks', { list: attacks.join('; ') })) : null,
     spells ? h('p', {}, t('wz.spellsOnSheet', { list: spells })) : null,
     h('p', { class: 'hint' }, t('wz.features', { list: sheet.features.map((f) => f.name).join(', ') })),
-    h('button', { type: 'button', class: 'btn btn-primary', 'data-testid': 'hero-ready', onclick: ready }, t('wz.ready')),
+    h('div', { class: 'wz-actions' }, h('button', { type: 'button', class: 'btn btn-primary', 'data-testid': 'hero-ready', onclick: ready }, t('wz.ready')), exportButton(env)),
   );
 }
 

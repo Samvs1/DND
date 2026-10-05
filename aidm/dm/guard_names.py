@@ -31,6 +31,7 @@ from aidm.dm.guard_text import (
     singular_forms,
 )
 from aidm.dm.guard_types import Violation, ViolationKind
+from aidm.dm.wording import with_article
 
 _NEAR_MISS = 0.75
 _LOOKALIKE = 0.7
@@ -105,12 +106,12 @@ def wrong_identity(sentence: str, scene: GuardScene) -> list[Violation]:
         for pat in pats:
             for m in re.finditer(pat, sentence):
                 if m.group(1) != cls:
-                    detail = f"{name} is a {cls}, not a {m.group(1)}"
+                    detail = f"{name} is {with_article(cls)}, not {with_article(m.group(1))}"
                     out.append(Violation(ViolationKind.WRONG_IDENTITY, m.group(0), detail))
     allowed = scene.party_classes | scene.present_roles
     for m in re.finditer(rf"\b(?i:the|your|our)\s+(?:[a-z]+\s+)?({classes})\b", sentence):
         if m.group(1) not in allowed:
-            detail = f"nobody here is a {m.group(1)}"
+            detail = f"nobody here is {with_article(m.group(1))}"
             out.append(Violation(ViolationKind.WRONG_IDENTITY, m.group(0), detail))
     return out
 

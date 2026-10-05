@@ -554,3 +554,21 @@ textarea {
     height: 44px;
   }
 }
+
+.wz-import {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.wz-import .wz-errors {
+  flex-basis: 100%;
+}
+
+.wz-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}

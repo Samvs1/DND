@@ -46,6 +46,8 @@ SERVER_TYPES = {
     "chat",
     "suggestion",
     "pong",
+    "story_history",
+    "character_export",
     "epilogue",
 }
 
@@ -80,6 +82,8 @@ CLIENT_TYPES = {
     "host_end",
     "host_force_vote",
     "ping",
+    "export_character",
+    "import_character",
 }
 
 

@@ -1,11 +1,12 @@
-// Step 8: preset portraits (art through assetUrl portrait keys); the race and class portraits come first.
+// Step 8: preset portraits (art through assetUrl portrait keys). The class portrait (real v1 art) comes
+// first, then the race portraits; the table shows the class art for a portrait that has no real art yet.
 import { assetUrl } from '../assets.js';
 import { t } from '../strings.js';
 import { h } from '../ui/dom.js';
 
 function ordered(env) {
   const { data, draft } = env;
-  const first = (p) => (p.race === draft.race ? 0 : p.id === `class.${draft.cls}` ? 1 : 2);
+  const first = (p) => (p.id === `class.${draft.cls}` ? 0 : p.race === draft.race ? 1 : 2);
   return [...data.portraits].sort((a, b) => first(a) - first(b));
 }
 

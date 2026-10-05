@@ -162,13 +162,14 @@ async def test_cancelled_hostile_act_changes_nothing(tmp_path: Path) -> None:
 async def test_hello_with_last_seq_resends_only_missed_events(tmp_path: Path) -> None:
     async with running(disabled_llm(tmp_path)) as (table, _):
         host = await join(table, "Ann", "fighter")
-        for text in ("I search behind the hearth", "I study the rusted lever"):
+        for text in ("we take a short rest", "I search behind the hearth", "we take a short rest"):
             host.send(SubmitAction(text=text))
             await table.settle()
-        assert len(table.log) >= 2
-        cut = table.log[1].seq
+        public = table.public.events
+        assert [m.kind for m in public] == ["short_rest_taken", "short_rest_taken"]
+        cut = public[0].seq + 1
         conn = table.connect()
         table.submit(conn.id, Hello(name="Ann", token=host.token, last_seq=cut))
         await table.settle()
         events = of_type(drain_queue(conn), EventMsg)
-        assert [e.seq for e in events] == [e.seq for e in table.log if e.seq >= cut]
+        assert [e.seq for e in events] == [public[1].seq]

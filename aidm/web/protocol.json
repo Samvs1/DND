@@ -606,6 +606,19 @@
           "title": "Equip",
           "type": "object"
         },
+        "ExportCharacter": {
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "export_character",
+              "default": "export_character",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "title": "ExportCharacter",
+          "type": "object"
+        },
         "FleeCommand": {
           "additionalProperties": false,
           "properties": {
@@ -942,6 +955,28 @@
             "enabled"
           ],
           "title": "HostTtsToggle",
+          "type": "object"
+        },
+        "ImportCharacter": {
+          "additionalProperties": false,
+          "properties": {
+            "text": {
+              "maxLength": 48000,
+              "minLength": 2,
+              "title": "Text",
+              "type": "string"
+            },
+            "type": {
+              "const": "import_character",
+              "default": "import_character",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ],
+          "title": "ImportCharacter",
           "type": "object"
         },
         "JumpCommand": {
@@ -1592,6 +1627,7 @@
           "confirm_hostile": "#/$defs/ConfirmHostile",
           "create_character": "#/$defs/CreateCharacter",
           "equip": "#/$defs/Equip",
+          "export_character": "#/$defs/ExportCharacter",
           "give": "#/$defs/Give",
           "hello": "#/$defs/Hello",
           "host_difficulty": "#/$defs/HostDifficulty",
@@ -1605,6 +1641,7 @@
           "host_save": "#/$defs/HostSave",
           "host_start": "#/$defs/HostStart",
           "host_tts_toggle": "#/$defs/HostTtsToggle",
+          "import_character": "#/$defs/ImportCharacter",
           "level_up": "#/$defs/LevelUp",
           "ping": "#/$defs/Ping",
           "request_hit_chances": "#/$defs/RequestHitChances",
@@ -1707,6 +1744,12 @@
           "$ref": "#/$defs/HostForceVote"
         },
         {
+          "$ref": "#/$defs/ExportCharacter"
+        },
+        {
+          "$ref": "#/$defs/ImportCharacter"
+        },
+        {
           "$ref": "#/$defs/Ping"
         }
       ]
@@ -1719,6 +1762,7 @@
       "confirm_hostile",
       "create_character",
       "equip",
+      "export_character",
       "give",
       "hello",
       "host_difficulty",
@@ -1732,6 +1776,7 @@
       "host_save",
       "host_start",
       "host_tts_toggle",
+      "import_character",
       "level_up",
       "ping",
       "request_hit_chances",
@@ -1932,6 +1977,37 @@
           ],
           "title": "AttitudeBand",
           "type": "string"
+        },
+        "CharacterExport": {
+          "additionalProperties": false,
+          "description": "The player's hero as a character JSON document (`rules.character_io` format).",
+          "properties": {
+            "creature_id": {
+              "title": "Creature Id",
+              "type": "string"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "text": {
+              "title": "Text",
+              "type": "string"
+            },
+            "type": {
+              "const": "character_export",
+              "default": "character_export",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "creature_id",
+            "name",
+            "text"
+          ],
+          "title": "CharacterExport",
+          "type": "object"
         },
         "CharacterSheet": {
           "additionalProperties": false,
@@ -3291,6 +3367,20 @@
               "title": "Dead",
               "type": "boolean"
             },
+            "death_save_failures": {
+              "default": 0,
+              "maximum": 3,
+              "minimum": 0,
+              "title": "Death Save Failures",
+              "type": "integer"
+            },
+            "death_save_successes": {
+              "default": 0,
+              "maximum": 3,
+              "minimum": 0,
+              "title": "Death Save Successes",
+              "type": "integer"
+            },
             "dying": {
               "default": false,
               "title": "Dying",
@@ -3356,6 +3446,11 @@
               ],
               "default": null,
               "title": "Race"
+            },
+            "stable": {
+              "default": false,
+              "title": "Stable",
+              "type": "boolean"
             },
             "temp_hp": {
               "default": 0,
@@ -4303,6 +4398,80 @@
           "title": "StockLine",
           "type": "object"
         },
+        "StoryEntry": {
+          "additionalProperties": false,
+          "description": "One line of the story history: a told narration (id, tone) or a public event line.",
+          "properties": {
+            "event_kind": {
+              "default": "",
+              "title": "Event Kind",
+              "type": "string"
+            },
+            "id": {
+              "default": "",
+              "title": "Id",
+              "type": "string"
+            },
+            "kind": {
+              "enum": [
+                "narration",
+                "event"
+              ],
+              "title": "Kind",
+              "type": "string"
+            },
+            "seq": {
+              "description": "event-log position the entry follows",
+              "minimum": 0,
+              "title": "Seq",
+              "type": "integer"
+            },
+            "text": {
+              "title": "Text",
+              "type": "string"
+            },
+            "tone": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/NarrationTone"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": [
+            "kind",
+            "seq",
+            "text"
+          ],
+          "title": "StoryEntry",
+          "type": "object"
+        },
+        "StoryHistory": {
+          "additionalProperties": false,
+          "description": "The recent story (narration and public event lines, oldest first), sent after a snapshot.",
+          "properties": {
+            "entries": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/StoryEntry"
+              },
+              "title": "Entries",
+              "type": "array"
+            },
+            "type": {
+              "const": "story_history",
+              "default": "story_history",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "title": "StoryHistory",
+          "type": "object"
+        },
         "SuggestionRelay": {
           "additionalProperties": false,
           "properties": {
@@ -4799,6 +4968,7 @@
       "discriminator": {
         "mapping": {
           "ability_rolls": "#/$defs/AbilityRolls",
+          "character_export": "#/$defs/CharacterExport",
           "chat": "#/$defs/ChatRelay",
           "combat_state": "#/$defs/CombatState",
           "creation_result": "#/$defs/CreationResult",
@@ -4820,6 +4990,7 @@
           "resolving": "#/$defs/Resolving",
           "shop_stock": "#/$defs/ShopStock",
           "snapshot": "#/$defs/Snapshot",
+          "story_history": "#/$defs/StoryHistory",
           "suggestion": "#/$defs/SuggestionRelay",
           "turn_prompt": "#/$defs/TurnPrompt",
           "vote_closed": "#/$defs/VoteClosed",
@@ -4913,11 +5084,18 @@
         },
         {
           "$ref": "#/$defs/EpilogueMsg"
+        },
+        {
+          "$ref": "#/$defs/StoryHistory"
+        },
+        {
+          "$ref": "#/$defs/CharacterExport"
         }
       ]
     },
     "types": [
       "ability_rolls",
+      "character_export",
       "chat",
       "combat_state",
       "creation_result",
@@ -4939,6 +5117,7 @@
       "resolving",
       "shop_stock",
       "snapshot",
+      "story_history",
       "suggestion",
       "turn_prompt",
       "vote_closed",

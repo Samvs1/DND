@@ -60,11 +60,13 @@ IMMEDIATE: dict[type, Immediate] = {
     c.Chat: relay.chat,
     c.Suggestion: relay.suggest,
     c.RequestHitChances: relay.hit_chances_for,
+    c.ExportCharacter: lambda core, p, m: lobby.export_hero(core, p),
     **{cls: host.host_message for cls in c.HOST_MESSAGES},
 }
 
 JOBS: dict[type, JobMaker] = {
     c.CreateCharacter: lambda core, p, m: partial(lobby.create, core, p, m),
+    c.ImportCharacter: lambda core, p, m: partial(lobby.import_hero, core, p, m),
     c.CombatCommandMsg: lambda core, p, m: partial(combat_flow.player_command, core, p, m.command),
     c.ConfirmHostile: lambda core, p, m: partial(explore.confirm_hostile, core, p),
     c.CancelHostile: lambda core, p, m: partial(explore.cancel_hostile, core, p),
