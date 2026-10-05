@@ -48,6 +48,7 @@ SERVER_TYPES = {
     "pong",
     "story_history",
     "character_export",
+    "sheet",
     "epilogue",
 }
 
@@ -68,6 +69,8 @@ CLIENT_TYPES = {
     "give",
     "equip",
     "unequip",
+    "drop",
+    "request_sheet",
     "request_hit_chances",
     "chat",
     "host_start",

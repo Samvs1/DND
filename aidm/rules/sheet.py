@@ -7,6 +7,7 @@ Public API: `build_sheet(creature, regs) -> CharacterSheet` (ValueError for a no
 """
 
 from aidm.data.character_data import CharacterRegistries
+from aidm.data.item_catalogue import CatalogueItem, item_catalogue
 from aidm.models.abilities import ABILITIES, SKILL_ABILITY, Ability, Skill
 from aidm.models.character import PcData
 from aidm.models.sheet import (
@@ -76,16 +77,32 @@ def _resources(creature: Creature) -> list[ResourceLine]:
     ]
 
 
+def _item_name(item: str, regs: CharacterRegistries, entry: CatalogueItem | None) -> str:
+    equipment = regs.equipment.find(item)
+    if equipment is not None:
+        return equipment.name
+    return entry.name if entry is not None else item
+
+
 def _inventory(pc: PcData, regs: CharacterRegistries) -> list[InventoryLine]:
     worn = {
         slot: index for slot, index in pc.equipped.model_dump().items() if isinstance(index, str)
     }
     lines: list[InventoryLine] = []
     for row in pc.inventory:
-        entry = regs.equipment.find(row.item)
+        entry = item_catalogue().find(row.item)
         slot = next((s for s, index in worn.items() if index == row.item), None)
-        name = entry.name if entry is not None else row.item
-        lines.append(InventoryLine(item=row.item, name=name, qty=row.qty, equipped_slot=slot))
+        lines.append(
+            InventoryLine(
+                item=row.item,
+                name=_item_name(row.item, regs, entry),
+                qty=row.qty,
+                equipped_slot=slot,
+                category=entry.category.value if entry is not None else "",
+                weight=entry.weight if entry is not None else 0.0,
+                value_gp=entry.value_gp if entry is not None else 0.0,
+            )
+        )
     return lines
 
 

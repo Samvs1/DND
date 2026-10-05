@@ -4,12 +4,12 @@ Vote jobs (run once a ready vote passes): `travel_job` (the `move_party` DM tool
 M5.4 arrival order through `telling.conclude`), `rest_job` (`rules.rests`), `shop_job` (the
 `open_shop` tool, then `shop_stock` to everyone). Hero jobs: `answer` (the pending encounter
 offer, first answer wins), `buy`/`sell` (`rules.shop`), `give` (`rules.social_deeds.gift_events`
-+ region rewards), `level` (`rules.leveling.level_up`), `equip`/`unequip` and the equip/drop
++ region rewards), `level` (`rules.leveling.level_up`), `equip`/`unequip`/`drop` and the equip/drop
 pre-check intents (`rules.equipment`). Refusals are typed and player-safe; nothing is spent on a
 refusal.
 
 Public API: `travel_job`, `rest_job`, `shop_job`, `item_intent`, `answer`, `buy`, `sell`, `give`,
-`level`, `equip`, `unequip`, `send_stock`.
+`level`, `equip`, `unequip`, `drop`, `send_stock`.
 """
 
 from aidm.dm.arrival import offer_data
@@ -21,6 +21,7 @@ from aidm.dm.tools import dm_tool
 from aidm.models.events import AnyEvent
 from aidm.models.protocol_client import (
     AnswerOffer,
+    Drop,
     Equip,
     Give,
     LevelUp,
@@ -210,6 +211,12 @@ async def unequip(core: TableCore, player: Player, msg: Unequip) -> None:
         await _item(core, player, pc, ItemAction.UNEQUIP, msg.item_id)
 
 
+async def drop(core: TableCore, player: Player, msg: Drop) -> None:
+    pc = _hero(core, player)
+    if pc is not None:
+        await _item(core, player, pc, ItemAction.DROP, msg.item_id)
+
+
 async def item_intent(core: TableCore, player: Player, intent: ItemIntent) -> None:
     pc = core.state.creatures.get(intent.actor_id)
     if pc is not None:
@@ -233,4 +240,6 @@ async def _item(
             events = drop_events(core.state, pc, item, chars)
             _gear(core, player, events, f"{pc.name} sets down the {name}.")
     except EquipRefused as refused:
-        core.error(player.id, ErrorCode.REFUSED, refused.detail.capitalize() + ".")
+        core.error(
+            player.id, ErrorCode.REFUSED, refused.detail.capitalize() + ".", refused.reason.value
+        )

@@ -34,6 +34,8 @@ type AnyClientMsg = (
     | c.Give
     | c.Equip
     | c.Unequip
+    | c.Drop
+    | c.RequestSheet
     | c.RequestHitChances
     | c.Chat
     | c.HostStart
@@ -83,6 +85,7 @@ type AnyServerMsg = (
     | s.EpilogueMsg
     | s.StoryHistory
     | s.CharacterExport
+    | s.SheetMsg
 )
 
 ClientMsg = Annotated[AnyClientMsg, Field(discriminator="type")]

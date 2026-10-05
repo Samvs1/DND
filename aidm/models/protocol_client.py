@@ -116,6 +116,15 @@ class Unequip(_Client):
     item_id: str
 
 
+class Drop(_Client):
+    type: Literal["drop"] = "drop"
+    item_id: str
+
+
+class RequestSheet(_Client):
+    type: Literal["request_sheet"] = "request_sheet"
+
+
 class RequestHitChances(_Client):
     type: Literal["request_hit_chances"] = "request_hit_chances"
     target_id: str

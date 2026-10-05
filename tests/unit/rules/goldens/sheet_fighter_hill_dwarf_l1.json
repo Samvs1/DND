@@ -324,61 +324,91 @@
    "item": "chain-mail",
    "name": "Chain Mail",
    "qty": 1,
-   "equipped_slot": "armor"
+   "equipped_slot": "armor",
+   "category": "armor",
+   "weight": 55.0,
+   "value_gp": 75.0
   },
   {
    "item": "longsword",
    "name": "Longsword",
    "qty": 1,
-   "equipped_slot": "main_hand"
+   "equipped_slot": "main_hand",
+   "category": "weapon",
+   "weight": 3.0,
+   "value_gp": 15.0
   },
   {
    "item": "shield",
    "name": "Shield",
    "qty": 1,
-   "equipped_slot": "shield"
+   "equipped_slot": "shield",
+   "category": "armor",
+   "weight": 6.0,
+   "value_gp": 10.0
   },
   {
    "item": "crossbow-light",
    "name": "Crossbow, light",
    "qty": 1,
-   "equipped_slot": "ranged"
+   "equipped_slot": "ranged",
+   "category": "weapon",
+   "weight": 5.0,
+   "value_gp": 25.0
   },
   {
    "item": "crossbow-bolt",
    "name": "Crossbow bolt",
    "qty": 20,
-   "equipped_slot": null
+   "equipped_slot": null,
+   "category": "gear",
+   "weight": 1.5,
+   "value_gp": 1.0
   },
   {
    "item": "dungeoneers-pack",
    "name": "Dungeoneer's Pack",
    "qty": 1,
-   "equipped_slot": null
+   "equipped_slot": null,
+   "category": "gear",
+   "weight": 0.0,
+   "value_gp": 12.0
   },
   {
    "item": "clothes-common",
    "name": "Clothes, common",
    "qty": 1,
-   "equipped_slot": null
+   "equipped_slot": null,
+   "category": "gear",
+   "weight": 3.0,
+   "value_gp": 0.5
   },
   {
    "item": "pouch",
    "name": "Pouch",
    "qty": 1,
-   "equipped_slot": null
+   "equipped_slot": null,
+   "category": "gear",
+   "weight": 1.0,
+   "value_gp": 0.5
   },
   {
    "item": "amulet",
    "name": "Amulet",
    "qty": 1,
-   "equipped_slot": null
+   "equipped_slot": null,
+   "category": "gear",
+   "weight": 1.0,
+   "value_gp": 5.0
   },
   {
    "item": "block-of-incense",
    "name": "Block of incense",
    "qty": 5,
-   "equipped_slot": null
+   "equipped_slot": null,
+   "category": "gear",
+   "weight": 0.0,
+   "value_gp": 0.0
   }
  ],
  "gold": 0,

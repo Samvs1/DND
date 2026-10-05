@@ -17,7 +17,8 @@ Public API:
   each pick feature needs exactly `choose` of its options; each `expertise` hook needs
   `choose` skills from `proficient` that are not already in `expert`; picks for features not in
   `ids` are refused.
-- `expertise_picks(ids, picks, feats) -> list[Skill]`.
+- `expertise_picks(ids, picks, feats) -> list[Skill]`; `expertise_counts(ids, feats)`: feature id
+  -> number of expertise skills it asks for.
 - `granted_spells(ids, level, subclass, feats) -> list[GrantedSpell]`: grants active at `level`
   for this subclass (or for any subclass), shipped spells only (an unshipped domain, patron or
   racial spell is simply not granted; docs/RULES_DECISIONS.md M3.6b);
@@ -179,6 +180,11 @@ def feature_choice_errors(
             )
         )
     return errors
+
+
+def expertise_counts(ids: Sequence[str], feats: Registry[FeatureDef]) -> dict[str, int]:
+    """Feature id -> how many skills it makes the hero choose for expertise."""
+    return _expertise_counts(ids, feats)
 
 
 def expertise_picks(

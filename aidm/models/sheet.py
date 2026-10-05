@@ -11,10 +11,14 @@ Public API:
   ("1d8+3"); `range_band` "melee" or "ranged"; `hit_chance` stays None (a sheet has no target;
   the hotbar preview is `aidm.rules.hit_chance.hit_chances`).
 - `SlotLine(kind, current, maximum)`; `SpellLine(index, name, level, prepared, always_prepared,
-  source, resource)`; `SpellLevelGroup(level, slots, spells)`; `SpellcastingBlock(ability,
+  source, resource, casting_time, target_kind, target_count, count_per_slot, range_kind,
+  range_feet, concentration)` (the last seven describe how the hotbar targets it, from the spell
+  data; `target_count` is the count at the caster's level, plus `count_per_slot` per slot level
+  above the spell's); `SpellLevelGroup(level, slots, spells)`; `SpellcastingBlock(ability,
   save_dc, attack_bonus, prepared_limit, cantrips, levels)`.
 - `FeatureLine(index, name, summary, source)`; `ResourceLine(key, current, maximum, recharge)`.
-- `InventoryLine(item, name, qty, equipped_slot)`; `ConditionLine(name, rounds_left)`;
+- `InventoryLine(item, name, qty, equipped_slot, category, weight, value_gp)` (category, weight
+  per item and value per item come from the item catalogue); `ConditionLine(name, rounds_left)`;
   `DeathSaveLine(successes, failures, stable, dead)`.
 - `CharacterSheet`: identity (id, name, race, subrace, class, subclass, level, background, xp,
   xp_next), abilities, skills, passive_perception, proficiency_bonus, ac, hp, temp_hp, max_hp,
@@ -79,6 +83,13 @@ class SpellLine(_Line):
     always_prepared: bool = False
     source: Literal["class", "race", "feature"] = "class"
     resource: str | None = None
+    casting_time: str = "action"
+    target_kind: str = "creature"
+    target_count: int = 1
+    count_per_slot: int = 0
+    range_kind: str = "feet"
+    range_feet: int | None = None
+    concentration: bool = False
 
 
 class SpellLevelGroup(_Line):
@@ -115,6 +126,9 @@ class InventoryLine(_Line):
     name: str
     qty: int
     equipped_slot: str | None = None
+    category: str = ""
+    weight: float = 0.0
+    value_gp: float = 0.0
 
 
 class ConditionLine(_Line):

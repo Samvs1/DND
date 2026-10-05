@@ -12,7 +12,9 @@ Public API: `NoticeKind`, `ErrorCode`, `Welcome`, `Snapshot`, `EventMsg`, `Lobby
 `NarrationDone`, `VoteOpen`, `VoteUpdate`, `VoteClosed`, `PendingConfirmationMsg`,
 `EncounterOfferMsg`, `CombatState`, `HitChances`, `TurnPrompt`, `ShopStock`,
 `LevelUpAvailable`, `Notice`, `ErrorMsg`, `HostStats`, `ChatRelay`, `SuggestionRelay`, `Pong`,
-`EpilogueMsg`, `StoryHistory`, `CharacterExport`.
+`EpilogueMsg`, `StoryHistory`, `CharacterExport`, `SheetMsg`.
+`ErrorMsg.refusal` carries the typed reason of a refused combat command or gear change (a
+`RefusalCode` or `EquipRefusal` value) so a client shows its own friendly wording.
 """
 
 from enum import StrEnum
@@ -23,6 +25,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from aidm.models.combat import HitChance
 from aidm.models.creation import CreationError
 from aidm.models.dice import Roll
+from aidm.models.leveling import LevelUpOptions
 from aidm.models.narration import NarrationTone
 from aidm.models.protocol_views import (
     DiceView,
@@ -209,6 +212,7 @@ class ErrorMsg(_Server):
     type: Literal["error"] = "error"
     code: ErrorCode
     text: str
+    refusal: str | None = None
 
 
 class HostStats(_Server):
@@ -255,3 +259,13 @@ class CharacterExport(_Server):
     creature_id: str
     name: str
     text: str
+
+
+class SheetMsg(_Server):
+    """The asker's own derived sheet (`request_sheet`), plus what the next level asks when the
+    hero can level up now (`level_up`)."""
+
+    type: Literal["sheet"] = "sheet"
+    creature_id: str
+    sheet: CharacterSheet
+    level_up: LevelUpOptions | None = None

@@ -11,6 +11,7 @@ creature with no class casting and no granted spells).
 
 from aidm.data.character_data import CharacterRegistries
 from aidm.data.feature_hooks import GrantedSpell
+from aidm.data.spell_defs import spell_defs
 from aidm.models.abilities import Ability
 from aidm.models.character import PcData
 from aidm.models.sheet import SlotLine, SpellcastingBlock, SpellLevelGroup, SpellLine
@@ -25,10 +26,30 @@ from aidm.rules.spellcasting import (
 )
 
 
-def _line(regs: CharacterRegistries, index: str, **kw: object) -> SpellLine:
+def _targeting(index: str, level: int) -> dict[str, object]:
+    """How the hotbar targets a shipped spell (None of it for a spell the DSL does not ship)."""
+    spell = spell_defs().find(index)
+    if spell is None:
+        return {}
+    aim, count = spell.targeting, spell.targeting.count
+    for floor, value in sorted(aim.count_by_character_level.items()):
+        if floor <= level:
+            count = value
+    return {
+        "casting_time": spell.casting_time,
+        "target_kind": aim.kind,
+        "target_count": count,
+        "count_per_slot": aim.count_per_slot,
+        "range_kind": spell.range.kind,
+        "range_feet": spell.range.feet,
+        "concentration": spell.concentration,
+    }
+
+
+def _line(regs: CharacterRegistries, index: str, level: int, **kw: object) -> SpellLine:
     spell = regs.spells.get(index)
     return SpellLine.model_validate(
-        {"index": index, "name": spell.name, "level": spell.level, **kw}
+        {"index": index, "name": spell.name, "level": spell.level, **_targeting(index, level), **kw}
     )
 
 
@@ -37,13 +58,15 @@ def _class_spells(pc: PcData, regs: CharacterRegistries) -> list[SpellLine]:
     if casting is None:
         return []
     if casting.kind != "prepared":
-        return [_line(regs, s, prepared=True) for s in pc.spells_known]
+        return [_line(regs, s, pc.level, prepared=True) for s in pc.spells_known]
     if casting.spellbook_start:
-        return [_line(regs, s, prepared=s in pc.prepared) for s in pc.spellbook]
-    return [_line(regs, s, prepared=True) for s in pc.prepared]
+        return [_line(regs, s, pc.level, prepared=s in pc.prepared) for s in pc.spellbook]
+    return [_line(regs, s, pc.level, prepared=True) for s in pc.prepared]
 
 
-def _granted_lines(granted: list[GrantedSpell], regs: CharacterRegistries) -> list[SpellLine]:
+def _granted_lines(
+    granted: list[GrantedSpell], regs: CharacterRegistries, level: int
+) -> list[SpellLine]:
     lines: list[SpellLine] = []
     for grant in granted:
         if grant.mode == "expanded":
@@ -53,6 +76,7 @@ def _granted_lines(granted: list[GrantedSpell], regs: CharacterRegistries) -> li
             _line(
                 regs,
                 grant.spell,
+                level,
                 prepared=True,
                 always_prepared=always,
                 source="feature",
@@ -64,10 +88,12 @@ def _granted_lines(granted: list[GrantedSpell], regs: CharacterRegistries) -> li
 
 def _all_spells(pc: PcData, regs: CharacterRegistries) -> list[SpellLine]:
     ids = [*pc.features, *pc.traits]
-    granted = _granted_lines(granted_spells(ids, pc.level, pc.subclass, regs.features), regs)
+    granted = _granted_lines(
+        granted_spells(ids, pc.level, pc.subclass, regs.features), regs, pc.level
+    )
     lines = [
-        *(_line(regs, s, prepared=True) for s in pc.cantrips),
-        *(_line(regs, s, prepared=True, source="race") for s in pc.race_cantrips),
+        *(_line(regs, s, pc.level, prepared=True) for s in pc.cantrips),
+        *(_line(regs, s, pc.level, prepared=True, source="race") for s in pc.race_cantrips),
         *granted,
         *_class_spells(pc, regs),
     ]

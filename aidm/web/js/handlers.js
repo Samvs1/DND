@@ -23,7 +23,7 @@ function onWelcome(msg, { store, saved }) {
     joined: true,
     me: { playerId: msg.player_id, isHost: Boolean(msg.is_host) },
     errorCode: null,
-    ...(sameSeat ? {} : { snapshot: null, players: [], lastSeq: 0, notices: [], fallback: false, wizardOpen: null, confirm: null, levelUps: {} }),
+    ...(sameSeat ? {} : { snapshot: null, players: [], lastSeq: 0, notices: [], fallback: false, wizardOpen: null, confirm: null, levelUps: {}, sheet: null, sheetOpen: false, refusal: null }),
   });
   if (!sameSeat) store.emit('reset', {});
 }
@@ -97,9 +97,22 @@ function onLevelUp(msg, ctx) {
   relay(msg, ctx);
 }
 
+let refusalCount = 0;
+
 function onError(msg, { store }) {
-  // The text is never shown; the banner maps the code to a friendly string.
+  // The text is never shown. A typed refusal (combat command, gear change) is mapped to friendly
+  // wording by the combat view and the sheet; every other code goes to the banner.
+  if (msg.refusal) {
+    refusalCount += 1;
+    store.update({ refusal: { code: msg.refusal, n: refusalCount } });
+    return;
+  }
   store.update({ errorCode: msg.code || 'generic' });
+}
+
+function onSheet(msg, ctx) {
+  ctx.store.update({ sheet: msg });
+  relay(msg, ctx);
 }
 
 function onCombat(msg, ctx) {
@@ -139,6 +152,7 @@ export const HANDLERS = {
   pong: relay,
   queue_state: onQueue,
   resolving: onResolving,
+  sheet: onSheet,
   shop_stock: relay,
   snapshot: onSnapshot,
   story_history: relay,

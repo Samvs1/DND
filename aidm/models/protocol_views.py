@@ -13,8 +13,8 @@ Public API:
   visible items and present NPCs.
 - `MapNode`, `PublicMap`: the region graph with fog (visited nodes and their neighbours).
 - `PublicQuest`; `PublicOffer` (a pending encounter offer: foes, boss, options).
-- `CombatToken`, `PublicCombat`: zones, tokens, initiative, the active creature and its
-  economy pips.
+- `PublicZone`, `CombatToken`, `PublicCombat`: zones (with terrain), tokens (monster index for
+  art), initiative, the active creature and its economy pips.
 - `QueueEntry`, `VoteKind`, `VoteView`: the exploration queue and the open ready vote.
 - `PublicState`: the full snapshot payload.
 - `DiceView`: one visible roll for the dice tray (d20 tests, attacks, death saves, damage dice).
@@ -32,7 +32,7 @@ from aidm.models.dice import AdvState
 from aidm.models.encounter import Side, TurnEconomy
 from aidm.models.narration import NarrationTone
 from aidm.models.world import PublicNpcView
-from aidm.models.zones import Zone, ZoneEdge
+from aidm.models.zones import CoverLevel, ZoneEdge, ZoneSurface
 
 
 class _View(BaseModel):
@@ -139,12 +139,28 @@ class CombatToken(_View):
     conditions: tuple[str, ...] = ()
     dead: bool = False
     withdrawn: bool = False
+    monster_index: str | None = None
+
+
+class PublicZone(_View):
+    """A battlefield zone for the zone card; `terrain` is the terrain template (art key
+    `zone_card.<terrain>`) the zone came from, "" when unknown."""
+
+    id: str
+    name: str
+    terrain: str = ""
+    tags: tuple[str, ...] = ()
+    distance_label: str = ""
+    cover: CoverLevel = CoverLevel.NONE
+    high_ground: bool = False
+    difficult: bool = False
+    surfaces: tuple[ZoneSurface, ...] = ()
 
 
 class PublicCombat(_View):
     encounter_id: str
     round: int
-    zones: tuple[Zone, ...] = ()
+    zones: tuple[PublicZone, ...] = ()
     edges: tuple[ZoneEdge, ...] = ()
     tokens: tuple[CombatToken, ...] = ()
     initiative: tuple[str, ...] = ()

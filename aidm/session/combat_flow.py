@@ -170,7 +170,7 @@ async def player_command(core: TableCore, player: Player, command: AnyCommand) -
     try:
         events = execute_command(core.state, command, core.regs.combat, core.rng)
     except CommandRefused as refused:
-        core.error(player.id, ErrorCode.REFUSED, refused.reason)
+        core.error(player.id, ErrorCode.REFUSED, refused.reason, refused.code.value)
         return
     core.apply_all(events)
     await after_player_step(core, active)

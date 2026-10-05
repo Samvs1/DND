@@ -232,7 +232,14 @@
     "prepared": true,
     "always_prepared": false,
     "source": "class",
-    "resource": null
+    "resource": null,
+    "casting_time": "action",
+    "target_kind": "creatures",
+    "target_count": 2,
+    "count_per_slot": 0,
+    "range_kind": "feet",
+    "range_feet": 60,
+    "concentration": false
    },
    {
     "index": "chill-touch",
@@ -241,7 +248,14 @@
     "prepared": true,
     "always_prepared": false,
     "source": "class",
-    "resource": null
+    "resource": null,
+    "casting_time": "action",
+    "target_kind": "creature",
+    "target_count": 1,
+    "count_per_slot": 0,
+    "range_kind": "feet",
+    "range_feet": 120,
+    "concentration": false
    },
    {
     "index": "fire-bolt",
@@ -250,7 +264,14 @@
     "prepared": true,
     "always_prepared": false,
     "source": "class",
-    "resource": null
+    "resource": null,
+    "casting_time": "action",
+    "target_kind": "creature",
+    "target_count": 1,
+    "count_per_slot": 0,
+    "range_kind": "feet",
+    "range_feet": 120,
+    "concentration": false
    },
    {
     "index": "poison-spray",
@@ -259,7 +280,14 @@
     "prepared": true,
     "always_prepared": false,
     "source": "race",
-    "resource": null
+    "resource": null,
+    "casting_time": "action",
+    "target_kind": "creature",
+    "target_count": 1,
+    "count_per_slot": 0,
+    "range_kind": "feet",
+    "range_feet": 10,
+    "concentration": false
    }
   ],
   "levels": [
@@ -280,7 +308,14 @@
       "prepared": true,
       "always_prepared": false,
       "source": "class",
-      "resource": null
+      "resource": null,
+      "casting_time": "action",
+      "target_kind": "area",
+      "target_count": 1,
+      "count_per_slot": 0,
+      "range_kind": "self",
+      "range_feet": null,
+      "concentration": false
      },
      {
       "index": "charm-person",
@@ -289,7 +324,14 @@
       "prepared": false,
       "always_prepared": false,
       "source": "class",
-      "resource": null
+      "resource": null,
+      "casting_time": "action",
+      "target_kind": "creatures",
+      "target_count": 1,
+      "count_per_slot": 1,
+      "range_kind": "feet",
+      "range_feet": 30,
+      "concentration": false
      },
      {
       "index": "color-spray",
@@ -298,7 +340,14 @@
       "prepared": false,
       "always_prepared": false,
       "source": "class",
-      "resource": null
+      "resource": null,
+      "casting_time": "action",
+      "target_kind": "area",
+      "target_count": 1,
+      "count_per_slot": 0,
+      "range_kind": "self",
+      "range_feet": null,
+      "concentration": false
      },
      {
       "index": "expeditious-retreat",
@@ -307,7 +356,14 @@
       "prepared": false,
       "always_prepared": false,
       "source": "class",
-      "resource": null
+      "resource": null,
+      "casting_time": "bonus_action",
+      "target_kind": "self",
+      "target_count": 1,
+      "count_per_slot": 0,
+      "range_kind": "self",
+      "range_feet": null,
+      "concentration": true
      },
      {
       "index": "false-life",
@@ -316,7 +372,14 @@
       "prepared": false,
       "always_prepared": false,
       "source": "class",
-      "resource": null
+      "resource": null,
+      "casting_time": "action",
+      "target_kind": "self",
+      "target_count": 1,
+      "count_per_slot": 0,
+      "range_kind": "self",
+      "range_feet": null,
+      "concentration": false
      },
      {
       "index": "fog-cloud",
@@ -325,7 +388,14 @@
       "prepared": false,
       "always_prepared": false,
       "source": "class",
-      "resource": null
+      "resource": null,
+      "casting_time": "action",
+      "target_kind": "area",
+      "target_count": 1,
+      "count_per_slot": 0,
+      "range_kind": "feet",
+      "range_feet": 120,
+      "concentration": true
      },
      {
       "index": "grease",
@@ -334,7 +404,14 @@
       "prepared": false,
       "always_prepared": false,
       "source": "class",
-      "resource": null
+      "resource": null,
+      "casting_time": "action",
+      "target_kind": "area",
+      "target_count": 1,
+      "count_per_slot": 0,
+      "range_kind": "feet",
+      "range_feet": 60,
+      "concentration": false
      },
      {
       "index": "hideous-laughter",
@@ -343,7 +420,14 @@
       "prepared": false,
       "always_prepared": false,
       "source": "class",
-      "resource": null
+      "resource": null,
+      "casting_time": "action",
+      "target_kind": "creature",
+      "target_count": 1,
+      "count_per_slot": 0,
+      "range_kind": "feet",
+      "range_feet": 30,
+      "concentration": true
      }
     ]
    },
@@ -364,7 +448,14 @@
       "prepared": false,
       "always_prepared": false,
       "source": "class",
-      "resource": null
+      "resource": null,
+      "casting_time": "action",
+      "target_kind": "creature",
+      "target_count": 1,
+      "count_per_slot": 0,
+      "range_kind": "feet",
+      "range_feet": 90,
+      "concentration": false
      },
      {
       "index": "blindness-deafness",
@@ -373,7 +464,14 @@
       "prepared": false,
       "always_prepared": false,
       "source": "class",
-      "resource": null
+      "resource": null,
+      "casting_time": "action",
+      "target_kind": "creatures",
+      "target_count": 1,
+      "count_per_slot": 1,
+      "range_kind": "feet",
+      "range_feet": 30,
+      "concentration": false
      }
     ]
    }
@@ -491,49 +589,73 @@
    "item": "spellbook",
    "name": "Spellbook",
    "qty": 1,
-   "equipped_slot": null
+   "equipped_slot": null,
+   "category": "gear",
+   "weight": 3.0,
+   "value_gp": 50.0
   },
   {
    "item": "quarterstaff",
    "name": "Quarterstaff",
    "qty": 1,
-   "equipped_slot": "main_hand"
+   "equipped_slot": "main_hand",
+   "category": "weapon",
+   "weight": 4.0,
+   "value_gp": 0.2
   },
   {
    "item": "component-pouch",
    "name": "Component pouch",
    "qty": 1,
-   "equipped_slot": null
+   "equipped_slot": null,
+   "category": "gear",
+   "weight": 2.0,
+   "value_gp": 25.0
   },
   {
    "item": "scholars-pack",
    "name": "Scholar's Pack",
    "qty": 1,
-   "equipped_slot": null
+   "equipped_slot": null,
+   "category": "gear",
+   "weight": 0.0,
+   "value_gp": 40.0
   },
   {
    "item": "clothes-common",
    "name": "Clothes, common",
    "qty": 1,
-   "equipped_slot": null
+   "equipped_slot": null,
+   "category": "gear",
+   "weight": 3.0,
+   "value_gp": 0.5
   },
   {
    "item": "pouch",
    "name": "Pouch",
    "qty": 1,
-   "equipped_slot": null
+   "equipped_slot": null,
+   "category": "gear",
+   "weight": 1.0,
+   "value_gp": 0.5
   },
   {
    "item": "amulet",
    "name": "Amulet",
    "qty": 1,
-   "equipped_slot": null
+   "equipped_slot": null,
+   "category": "gear",
+   "weight": 1.0,
+   "value_gp": 5.0
   },
   {
    "item": "block-of-incense",
    "name": "Block of incense",
    "qty": 5,
-   "equipped_slot": null
+   "equipped_slot": null,
+   "category": "gear",
+   "weight": 0.0,
+   "value_gp": 0.0
   }
  ],
  "gold": 0,

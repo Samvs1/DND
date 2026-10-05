@@ -4,14 +4,16 @@ from pathlib import Path
 
 from aidm.models.leveling import LevelUpChoices
 from aidm.models.protocol_client import (
+    Drop,
     Equip,
     HostPause,
     HostResume,
     LevelUp,
+    RequestSheet,
     SubmitAction,
     Unequip,
 )
-from aidm.models.protocol_server import ErrorCode, ErrorMsg, Notice, Snapshot
+from aidm.models.protocol_server import ErrorCode, ErrorMsg, Notice, SheetMsg, Snapshot
 from aidm.rules.leveling import gain_xp, xp_for_level
 from aidm.session.reducer import apply
 from tests.ai.guard_fixtures import inn_state
@@ -70,3 +72,36 @@ async def test_pause_holds_the_queue_and_combat_messages(tmp_path: Path) -> None
         ann.send(HostResume())
         await table.settle()
         assert not table.queue and not table.paused
+
+
+async def test_request_sheet_drop_and_refusal_codes(tmp_path: Path) -> None:
+    async with running(disabled_llm(tmp_path)) as (table, _):
+        ann = await join(table, "Ann", "fighter")
+        ann.send(RequestSheet())
+        await table.settle()
+        sheets = of_type(ann.drain(), SheetMsg)
+        assert sheets and sheets[0].creature_id == "fighter" and sheets[0].level_up is None
+        sheet = sheets[0].sheet
+        assert sheet.ac == table.state.creatures["fighter"].ac
+        assert all(line.category for line in sheet.inventory)
+        ann.send(Equip(item_id="greataxe"))
+        await table.settle()
+        refusal = of_type(ann.drain(), ErrorMsg)[0]
+        assert refusal.code is ErrorCode.REFUSED and refusal.refusal == "not_carried"
+        ann.send(Drop(item_id="dungeoneers-pack"))
+        await table.settle()
+        pc = table.state.creatures["fighter"].pc
+        assert pc is not None and all(r.item != "dungeoneers-pack" for r in pc.inventory)
+        assert_replays(table)
+
+
+async def test_sheet_offers_level_up_options_when_ready(tmp_path: Path) -> None:
+    state = inn_state()
+    for event in gain_xp(state.creatures["fighter"], xp_for_level(2)):
+        apply(state, event)
+    async with running(disabled_llm(tmp_path), state) as (table, _):
+        ann = await join(table, "Ann", "fighter")
+        ann.send(RequestSheet())
+        await table.settle()
+        sheet = of_type(ann.drain(), SheetMsg)[0]
+        assert sheet.level_up is not None and sheet.level_up.level == 2

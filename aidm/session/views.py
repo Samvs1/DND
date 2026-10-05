@@ -15,6 +15,7 @@ from collections.abc import Sequence
 
 from aidm.data.item_catalogue import CatalogueItem
 from aidm.data.registry import Registry
+from aidm.data.zone_templates import zone_templates
 from aidm.dm.wording import check_subject
 from aidm.models.checks import CheckKind
 from aidm.models.combat_events import AttackRolled
@@ -35,12 +36,14 @@ from aidm.models.protocol_views import (
     PublicQuest,
     PublicScene,
     PublicState,
+    PublicZone,
     QueueEntry,
     StockLine,
     TablePhase,
     VoteView,
 )
 from aidm.models.state import Creature, GameState
+from aidm.models.zones import Zone
 from aidm.rules.scene import current_scene, node_display_name
 from aidm.rules.shop import StockEntry
 from aidm.rules.social import public_npc_view
@@ -140,6 +143,26 @@ def public_facts(state: GameState) -> tuple[str, ...]:
     return tuple(facts[-MAX_PUBLIC_FACTS:])
 
 
+def _terrain_of(zone_id: str) -> str:
+    return next(
+        (t.index for t in zone_templates().all() if any(z.key == zone_id for z in t.zones)), ""
+    )
+
+
+def _public_zone(zone: Zone) -> PublicZone:
+    return PublicZone(
+        id=zone.id,
+        name=zone.name,
+        terrain=_terrain_of(zone.id),
+        tags=tuple(zone.tags),
+        distance_label=zone.distance_label,
+        cover=zone.cover,
+        high_ground=zone.high_ground,
+        difficult=zone.difficult,
+        surfaces=tuple(zone.surfaces),
+    )
+
+
 def public_combat(state: GameState) -> PublicCombat | None:
     enc = state.encounter
     if enc is None or enc.status is not EncounterStatus.ACTIVE:
@@ -158,13 +181,14 @@ def public_combat(state: GameState) -> PublicCombat | None:
                 conditions=tuple(c.name for c in creature.conditions),
                 dead=creature.dead,
                 withdrawn=combatant.withdrawn is not None,
+                monster_index=creature.monster_index,
             )
         )
     active = enc.active_id()
     return PublicCombat(
         encounter_id=enc.id,
         round=enc.round,
-        zones=tuple(enc.zone_map.zones),
+        zones=tuple(_public_zone(z) for z in enc.zone_map.zones),
         edges=tuple(enc.zone_map.edges),
         tokens=tuple(tokens),
         initiative=tuple(e.creature_id for e in enc.initiative),

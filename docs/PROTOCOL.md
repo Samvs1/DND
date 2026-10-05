@@ -13,6 +13,7 @@ Machine-readable schema: `aidm/web/protocol.json`.
 | client | `combat_command` | `command`: AttackCommand or CastCommand or MoveCommand or DashCommand or DisengageCommand or HideCommand or ShoveCommand or JumpCommand or ThrowCommand or UseItemCommand or HelpCommand or DodgeCommand or EndTurnCommand or FleeCommand or MonsterActionCommand, `type`: combat_command |
 | client | `confirm_hostile` | `type`: confirm_hostile |
 | client | `create_character` | `choices`: CreationChoices, `type`: create_character |
+| client | `drop` | `item_id`: string, `type`: drop |
 | client | `equip` | `item_id`: string, `type`: equip |
 | client | `export_character` | `type`: export_character |
 | client | `give` | `item_id`: string, `npc_id`: string, `type`: give |
@@ -32,6 +33,7 @@ Machine-readable schema: `aidm/web/protocol.json`.
 | client | `level_up` | `choices`: LevelUpChoices, `type`: level_up |
 | client | `ping` | `type`: ping |
 | client | `request_hit_chances` | `target_id`: string, `type`: request_hit_chances |
+| client | `request_sheet` | `type`: request_sheet |
 | client | `roll_abilities` | `type`: roll_abilities |
 | client | `shop_buy` | `item_id`: string, `npc_id`: string, `qty`: integer (optional), `type`: shop_buy |
 | client | `shop_sell` | `item_id`: string, `npc_id`: string, `qty`: integer (optional), `type`: shop_sell |
@@ -47,7 +49,7 @@ Machine-readable schema: `aidm/web/protocol.json`.
 | server | `dice_roll` | `dice`: DiceView, `seq`: integer, `type`: dice_roll |
 | server | `encounter_offer` | `offer`: PublicOffer, `type`: encounter_offer |
 | server | `epilogue` | `text`: string, `type`: epilogue |
-| server | `error` | `code`: ErrorCode, `text`: string, `type`: error |
+| server | `error` | `code`: ErrorCode, `refusal`: string or null (optional), `text`: string, `type`: error |
 | server | `event` | `kind`: string, `line`: string (optional), `seq`: integer, `type`: event |
 | server | `hit_chances` | `attacker_id`: string, `chances`: array of HitChance (optional), `target_id`: string, `type`: hit_chances |
 | server | `host_stats` | `calls`: integer (optional), `completion_tokens`: integer (optional), `prompt_tokens`: integer (optional), `type`: host_stats |
@@ -60,6 +62,7 @@ Machine-readable schema: `aidm/web/protocol.json`.
 | server | `pong` | `type`: pong |
 | server | `queue_state` | `entries`: array of QueueEntry (optional), `resolving`: QueueEntry or null (optional), `type`: queue_state |
 | server | `resolving` | `entry`: QueueEntry, `type`: resolving |
+| server | `sheet` | `creature_id`: string, `level_up`: LevelUpOptions or null (optional), `sheet`: CharacterSheet, `type`: sheet |
 | server | `shop_stock` | `npc_id`: string, `npc_name`: string (optional), `stock`: array of StockLine (optional), `type`: shop_stock |
 | server | `snapshot` | `seq`: integer, `state`: PublicState, `type`: snapshot |
 | server | `story_history` | `entries`: array of StoryEntry (optional), `type`: story_history |

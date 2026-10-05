@@ -1,4 +1,4 @@
-NEXT: M7.4 Combat view and hotbar. Delegate to mechanical-engineer. Last gate: M7.3b GATE PASS 9/9.
+NEXT: M7.4 (partial): server side done (sheet/request_sheet, drop, ErrorMsg.refusal, PublicZone.terrain, CombatToken.monster_index, level_up_options). JS in progress: js/combat/{model,tokens,initiative,controller,board,hotbar_slots}.js written; STILL TO DO: hotbar_magic.js (spells/items popovers), hotbar.js, suggestions, wire into views/table.js + action.js (enable in my turn), css/combat.css + index.html link, tests/ui/test_combat_view.py, then M7.5. Delegate to mechanical-engineer. Last gate: pytest unit/session/ui static green.
 
 # PROGRESS
 

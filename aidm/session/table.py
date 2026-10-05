@@ -33,7 +33,7 @@ from aidm.models import protocol_client as c
 from aidm.models.protocol import AnyClientMsg, AnyServerMsg
 from aidm.models.protocol_server import ErrorCode, ErrorMsg, Notice, NoticeKind, Pong
 from aidm.models.state import GameState
-from aidm.session import combat_flow, explore, host, lobby, party_actions, relay, votes
+from aidm.session import combat_flow, explore, host, lobby, party_actions, relay, sheet_view, votes
 from aidm.session.stats import send_host_stats
 from aidm.session.table_core import (
     ClientIn,
@@ -60,6 +60,7 @@ IMMEDIATE: dict[type, Immediate] = {
     c.Chat: relay.chat,
     c.Suggestion: relay.suggest,
     c.RequestHitChances: relay.hit_chances_for,
+    c.RequestSheet: lambda core, p, m: sheet_view.send_sheet(core, p),
     c.ExportCharacter: lambda core, p, m: lobby.export_hero(core, p),
     **{cls: host.host_message for cls in c.HOST_MESSAGES},
 }
@@ -77,6 +78,7 @@ JOBS: dict[type, JobMaker] = {
     c.Give: lambda core, p, m: partial(party_actions.give, core, p, m),
     c.Equip: lambda core, p, m: partial(party_actions.equip, core, p, m),
     c.Unequip: lambda core, p, m: partial(party_actions.unequip, core, p, m),
+    c.Drop: lambda core, p, m: partial(party_actions.drop, core, p, m),
 }
 
 PAUSABLE = (c.CombatCommandMsg, c.ConfirmHostile, c.AnswerOffer, c.Give)

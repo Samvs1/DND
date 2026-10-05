@@ -565,6 +565,26 @@
           "title": "DodgeCommand",
           "type": "object"
         },
+        "Drop": {
+          "additionalProperties": false,
+          "properties": {
+            "item_id": {
+              "title": "Item Id",
+              "type": "string"
+            },
+            "type": {
+              "const": "drop",
+              "default": "drop",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "item_id"
+          ],
+          "title": "Drop",
+          "type": "object"
+        },
         "EndTurnCommand": {
           "additionalProperties": false,
           "properties": {
@@ -1271,6 +1291,19 @@
           "title": "RequestHitChances",
           "type": "object"
         },
+        "RequestSheet": {
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "request_sheet",
+              "default": "request_sheet",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "title": "RequestSheet",
+          "type": "object"
+        },
         "Roll": {
           "properties": {
             "dice": {
@@ -1626,6 +1659,7 @@
           "combat_command": "#/$defs/CombatCommandMsg",
           "confirm_hostile": "#/$defs/ConfirmHostile",
           "create_character": "#/$defs/CreateCharacter",
+          "drop": "#/$defs/Drop",
           "equip": "#/$defs/Equip",
           "export_character": "#/$defs/ExportCharacter",
           "give": "#/$defs/Give",
@@ -1645,6 +1679,7 @@
           "level_up": "#/$defs/LevelUp",
           "ping": "#/$defs/Ping",
           "request_hit_chances": "#/$defs/RequestHitChances",
+          "request_sheet": "#/$defs/RequestSheet",
           "roll_abilities": "#/$defs/RollAbilities",
           "shop_buy": "#/$defs/ShopBuy",
           "shop_sell": "#/$defs/ShopSell",
@@ -1705,6 +1740,12 @@
           "$ref": "#/$defs/Unequip"
         },
         {
+          "$ref": "#/$defs/Drop"
+        },
+        {
+          "$ref": "#/$defs/RequestSheet"
+        },
+        {
           "$ref": "#/$defs/RequestHitChances"
         },
         {
@@ -1761,6 +1802,7 @@
       "combat_command",
       "confirm_hostile",
       "create_character",
+      "drop",
       "equip",
       "export_character",
       "give",
@@ -1780,6 +1822,7 @@
       "level_up",
       "ping",
       "request_hit_chances",
+      "request_sheet",
       "roll_abilities",
       "shop_buy",
       "shop_sell",
@@ -2337,6 +2380,18 @@
               "title": "Max Hp",
               "type": "integer"
             },
+            "monster_index": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Monster Index"
+            },
             "name": {
               "title": "Name",
               "type": "string"
@@ -2736,6 +2791,18 @@
             "code": {
               "$ref": "#/$defs/ErrorCode"
             },
+            "refusal": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Refusal"
+            },
             "text": {
               "title": "Text",
               "type": "string"
@@ -2945,6 +3012,11 @@
         "InventoryLine": {
           "additionalProperties": false,
           "properties": {
+            "category": {
+              "default": "",
+              "title": "Category",
+              "type": "string"
+            },
             "equipped_slot": {
               "anyOf": [
                 {
@@ -2968,6 +3040,16 @@
             "qty": {
               "title": "Qty",
               "type": "integer"
+            },
+            "value_gp": {
+              "default": 0.0,
+              "title": "Value Gp",
+              "type": "number"
+            },
+            "weight": {
+              "default": 0.0,
+              "title": "Weight",
+              "type": "number"
             }
           },
           "required": [
@@ -3003,6 +3085,91 @@
             "level"
           ],
           "title": "LevelUpAvailable",
+          "type": "object"
+        },
+        "LevelUpOptions": {
+          "additionalProperties": false,
+          "properties": {
+            "asi": {
+              "default": false,
+              "title": "Asi",
+              "type": "boolean"
+            },
+            "cantrips": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/PickGroup"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "class_choices": {
+              "items": {
+                "$ref": "#/$defs/PickGroup"
+              },
+              "title": "Class Choices",
+              "type": "array"
+            },
+            "feature_choices": {
+              "items": {
+                "$ref": "#/$defs/PickGroup"
+              },
+              "title": "Feature Choices",
+              "type": "array"
+            },
+            "level": {
+              "minimum": 2,
+              "title": "Level",
+              "type": "integer"
+            },
+            "prepared": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/PickGroup"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "replace_from": {
+              "items": {
+                "$ref": "#/$defs/PickOption"
+              },
+              "title": "Replace From",
+              "type": "array"
+            },
+            "spells": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/PickGroup"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "subclass": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/PickOption"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": [
+            "level"
+          ],
+          "title": "LevelUpOptions",
           "type": "object"
         },
         "LobbyRoster": {
@@ -3206,6 +3373,69 @@
           "title": "PendingConfirmationMsg",
           "type": "object"
         },
+        "PickGroup": {
+          "additionalProperties": false,
+          "properties": {
+            "choose": {
+              "minimum": 0,
+              "title": "Choose",
+              "type": "integer"
+            },
+            "id": {
+              "title": "Id",
+              "type": "string"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "options": {
+              "items": {
+                "$ref": "#/$defs/PickOption"
+              },
+              "title": "Options",
+              "type": "array"
+            }
+          },
+          "required": [
+            "id",
+            "name",
+            "choose"
+          ],
+          "title": "PickGroup",
+          "type": "object"
+        },
+        "PickOption": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "title": "Id",
+              "type": "string"
+            },
+            "level": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Level"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "name"
+          ],
+          "title": "PickOption",
+          "type": "object"
+        },
         "PlayerInfo": {
           "additionalProperties": false,
           "properties": {
@@ -3321,7 +3551,7 @@
             "zones": {
               "default": [],
               "items": {
-                "$ref": "#/$defs/Zone"
+                "$ref": "#/$defs/PublicZone"
               },
               "title": "Zones",
               "type": "array"
@@ -3950,6 +4180,66 @@
           "title": "PublicState",
           "type": "object"
         },
+        "PublicZone": {
+          "additionalProperties": false,
+          "description": "A battlefield zone for the zone card; `terrain` is the terrain template (art key\n`zone_card.<terrain>`) the zone came from, \"\" when unknown.",
+          "properties": {
+            "cover": {
+              "$ref": "#/$defs/CoverLevel",
+              "default": "none"
+            },
+            "difficult": {
+              "default": false,
+              "title": "Difficult",
+              "type": "boolean"
+            },
+            "distance_label": {
+              "default": "",
+              "title": "Distance Label",
+              "type": "string"
+            },
+            "high_ground": {
+              "default": false,
+              "title": "High Ground",
+              "type": "boolean"
+            },
+            "id": {
+              "title": "Id",
+              "type": "string"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "surfaces": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/ZoneSurface"
+              },
+              "title": "Surfaces",
+              "type": "array"
+            },
+            "tags": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Tags",
+              "type": "array"
+            },
+            "terrain": {
+              "default": "",
+              "title": "Terrain",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "name"
+          ],
+          "title": "PublicZone",
+          "type": "object"
+        },
         "QueueEntry": {
           "additionalProperties": false,
           "properties": {
@@ -4083,6 +4373,42 @@
             "total"
           ],
           "title": "Roll",
+          "type": "object"
+        },
+        "SheetMsg": {
+          "additionalProperties": false,
+          "description": "The asker's own derived sheet (`request_sheet`), plus what the next level asks when the\nhero can level up now (`level_up`).",
+          "properties": {
+            "creature_id": {
+              "title": "Creature Id",
+              "type": "string"
+            },
+            "level_up": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/LevelUpOptions"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "sheet": {
+              "$ref": "#/$defs/CharacterSheet"
+            },
+            "type": {
+              "const": "sheet",
+              "default": "sheet",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "creature_id",
+            "sheet"
+          ],
+          "title": "SheetMsg",
           "type": "object"
         },
         "ShopStock": {
@@ -4274,6 +4600,21 @@
               "title": "Always Prepared",
               "type": "boolean"
             },
+            "casting_time": {
+              "default": "action",
+              "title": "Casting Time",
+              "type": "string"
+            },
+            "concentration": {
+              "default": false,
+              "title": "Concentration",
+              "type": "boolean"
+            },
+            "count_per_slot": {
+              "default": 0,
+              "title": "Count Per Slot",
+              "type": "integer"
+            },
             "index": {
               "title": "Index",
               "type": "string"
@@ -4289,6 +4630,23 @@
             "prepared": {
               "title": "Prepared",
               "type": "boolean"
+            },
+            "range_feet": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Range Feet"
+            },
+            "range_kind": {
+              "default": "feet",
+              "title": "Range Kind",
+              "type": "string"
             },
             "resource": {
               "anyOf": [
@@ -4310,6 +4668,16 @@
                 "feature"
               ],
               "title": "Source",
+              "type": "string"
+            },
+            "target_count": {
+              "default": 1,
+              "title": "Target Count",
+              "type": "integer"
+            },
+            "target_kind": {
+              "default": "creature",
+              "title": "Target Kind",
               "type": "string"
             }
           },
@@ -4819,60 +5187,6 @@
           "title": "Welcome",
           "type": "object"
         },
-        "Zone": {
-          "additionalProperties": false,
-          "properties": {
-            "cover": {
-              "$ref": "#/$defs/CoverLevel",
-              "default": "none"
-            },
-            "difficult": {
-              "default": false,
-              "title": "Difficult",
-              "type": "boolean"
-            },
-            "distance_label": {
-              "default": "",
-              "title": "Distance Label",
-              "type": "string"
-            },
-            "high_ground": {
-              "default": false,
-              "title": "High Ground",
-              "type": "boolean"
-            },
-            "id": {
-              "minLength": 1,
-              "title": "Id",
-              "type": "string"
-            },
-            "name": {
-              "minLength": 1,
-              "title": "Name",
-              "type": "string"
-            },
-            "surfaces": {
-              "items": {
-                "$ref": "#/$defs/ZoneSurface"
-              },
-              "title": "Surfaces",
-              "type": "array"
-            },
-            "tags": {
-              "items": {
-                "type": "string"
-              },
-              "title": "Tags",
-              "type": "array"
-            }
-          },
-          "required": [
-            "id",
-            "name"
-          ],
-          "title": "Zone",
-          "type": "object"
-        },
         "ZoneEdge": {
           "additionalProperties": false,
           "properties": {
@@ -4988,6 +5302,7 @@
           "pong": "#/$defs/Pong",
           "queue_state": "#/$defs/QueueState",
           "resolving": "#/$defs/Resolving",
+          "sheet": "#/$defs/SheetMsg",
           "shop_stock": "#/$defs/ShopStock",
           "snapshot": "#/$defs/Snapshot",
           "story_history": "#/$defs/StoryHistory",
@@ -5090,6 +5405,9 @@
         },
         {
           "$ref": "#/$defs/CharacterExport"
+        },
+        {
+          "$ref": "#/$defs/SheetMsg"
         }
       ]
     },
@@ -5115,6 +5433,7 @@
       "pong",
       "queue_state",
       "resolving",
+      "sheet",
       "shop_stock",
       "snapshot",
       "story_history",

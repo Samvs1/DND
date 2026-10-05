@@ -313,8 +313,8 @@ class TableCore:
         else:
             self.send(player_id, msg)
 
-    def error(self, player_id: str, code: ErrorCode, text: str) -> None:
-        self.send(player_id, ErrorMsg(code=code, text=text))
+    def error(self, player_id: str, code: ErrorCode, text: str, refusal: str | None = None) -> None:
+        self.send(player_id, ErrorMsg(code=code, text=text, refusal=refusal))
 
     def snapshot(self) -> Snapshot:
         view = public_state(
