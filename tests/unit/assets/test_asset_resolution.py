@@ -95,7 +95,7 @@ def test_manifest_endpoint_lists_every_key_with_a_url(client: TestClient) -> Non
     assert set(urls) == set(MANIFEST)
     assert urls["portrait.class.fighter"].startswith("/static/")
     assert urls["monster_token.goblin"].startswith("/assets/placeholder/monster_token/")
-    assert urls["music.combat"] == ""
+    assert urls["music.social"] == ""
 
 
 UNKNOWN_PATHS = [

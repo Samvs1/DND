@@ -165,3 +165,18 @@ def test_a_played_game_is_saved_and_reopened_by_campaign_id(tmp_path: Path) -> N
         msgs = read_until(ws, "snapshot")
         assert msgs[0]["player_id"] == welcome["player_id"] and msgs[0]["is_host"] is True
         assert msgs[1]["seq"] == saves[0]["seq"]
+
+
+def test_spectator_socket_gets_the_public_feed_and_cannot_act(tmp_path: Path) -> None:
+    app = make_app(tmp_path, state=inn_state())
+    with TestClient(app) as client, client.websocket_connect("/ws") as ws:
+        hello(ws, "screen", spectator=True)
+        msgs = read_until(ws, "story_history")
+        assert [m["type"] for m in msgs] == ["snapshot", "story_history"]
+        assert msgs[0]["state"]["screens"] == 1
+        assert registry_of(app).table.players == {}  # no seat
+        ws.send_json({"type": "submit_action", "text": "I attack"})
+        refusal = read_until(ws, "error")[-1]
+        assert refusal["code"] == "refused"
+        ws.send_json({"type": "ping"})
+        assert read_until(ws, "pong")[-1]["type"] == "pong"

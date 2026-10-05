@@ -696,7 +696,7 @@ export const STRINGS = {
     audio: 'Sound',
     mute: 'Mute all sound',
     volume: 'Volume',
-    audioHint: 'Spoken narration plays here. It starts off when a shared screen is connected, until you choose.',
+    audioHint: 'Narration and music play here. They start off when a shared screen is connected, until you choose.',
     text: 'Reading',
     speed: 'Text speed',
     speed_instant: 'Instant',
@@ -715,6 +715,7 @@ export const STRINGS = {
   screen: {
     heading: 'Spectator screen',
     waiting: 'Waiting for the adventure to begin.',
+    name: 'Screen',
   },
 };
 

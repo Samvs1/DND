@@ -36,6 +36,7 @@ class Hello(_Client):
     name: str = Field(min_length=1, max_length=MAX_NAME)
     token: str | None = Field(default=None, max_length=200)
     last_seq: int | None = Field(default=None, ge=0)
+    spectator: bool = False  # the /screen view: watches the public feed, is not seated, cannot act
 
 
 class CreateCharacter(_Client):

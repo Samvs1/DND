@@ -173,3 +173,29 @@ async def test_hello_with_last_seq_resends_only_missed_events(tmp_path: Path) ->
         await table.settle()
         events = of_type(drain_queue(conn), EventMsg)
         assert [e.seq for e in events] == [public[1].seq]
+
+
+async def test_screen_is_counted_watches_and_cannot_act(tmp_path: Path) -> None:
+    async with running(disabled_llm(tmp_path), GameState(campaign_id="t", seed=1)) as (table, _):
+        ann = await join(table, "Ann")
+        assert table.snapshot().state.screens == 0
+        screen = table.connect()
+        table.submit(screen.id, Hello(name="screen", spectator=True))
+        await table.settle()
+        got = drain_queue(screen)
+        assert [m.type for m in got][:2] == ["snapshot", "story_history"]
+        assert not of_type(got, Welcome) and not table.players[ann.player_id].conns & {screen.id}
+        assert of_type(got, Snapshot)[0].state.screens == 1
+        assert of_type(ann.drain(), Snapshot)[-1].state.screens == 1  # players learn of the screen
+        assert len(table.players) == 1  # a spectator takes no seat
+        table.submit(screen.id, SubmitAction(text="I attack the host"))
+        table.submit(screen.id, RollAbilities())
+        table.submit(screen.id, HostKick(player_id=ann.player_id))
+        await table.settle()
+        refused = of_type(drain_queue(screen), ErrorMsg)
+        assert [e.code for e in refused] == [ErrorCode.REFUSED] * 3
+        assert table.queue == type(table.queue)() and ann.player_id in table.players
+        table.disconnect(screen.id)
+        await table.settle()
+        assert table.snapshot().state.screens == 0
+        assert of_type(ann.drain(), Snapshot)[-1].state.screens == 0

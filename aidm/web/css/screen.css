@@ -1,0 +1,49 @@
+/* Spectator screen (/screen, M8.3): the table grid without the dock, tuned for a TV or a projector. */
+.tb.sc {
+  grid-template-columns: minmax(0, 1fr) minmax(18rem, 26rem);
+  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-areas: 'scene scene' 'combat side' 'feed side';
+}
+
+.tb.sc .tb-combat {
+  max-height: 55vh;
+}
+
+.tb.sc .tb-side {
+  max-height: 100%;
+}
+
+.tb.sc .feed {
+  font-size: calc(1.2rem * var(--text-scale, 1));
+  line-height: 1.55;
+}
+
+.tb.sc .scene-place {
+  font-size: 1.6rem;
+}
+
+body.is-screen .sc-wait {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+}
+
+@media (min-width: 1700px) {
+  .tb.sc {
+    grid-template-columns: minmax(0, 1fr) 32rem;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .tb.sc .feed {
+    font-size: calc(1.45rem * var(--text-scale, 1));
+  }
+}
+
+@media (max-width: 899px) {
+  .tb.sc {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(15rem, 1fr) auto;
+    grid-template-areas: 'scene' 'combat' 'feed' 'side';
+  }
+}

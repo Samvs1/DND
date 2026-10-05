@@ -2084,10 +2084,10 @@
   "file": "audio/music/combat.mp3",
   "size": null,
   "transparent": false,
-  "status": "placeholder",
+  "status": "real",
   "prompt": "",
-  "source": "",
-  "license": ""
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
  },
  "music.defeat": {
   "kind": "music",
@@ -2104,10 +2104,10 @@
   "file": "audio/music/ambient.mp3",
   "size": null,
   "transparent": false,
-  "status": "placeholder",
+  "status": "real",
   "prompt": "",
-  "source": "",
-  "license": ""
+  "source": "v1",
+  "license": "v1 project asset (owner's own)"
  },
  "music.social": {
   "kind": "music",

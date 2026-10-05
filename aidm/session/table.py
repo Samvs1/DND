@@ -33,7 +33,17 @@ from aidm.models import protocol_client as c
 from aidm.models.protocol import AnyClientMsg, AnyServerMsg
 from aidm.models.protocol_server import ErrorCode, ErrorMsg, Notice, NoticeKind, Pong
 from aidm.models.state import GameState
-from aidm.session import combat_flow, explore, host, lobby, party_actions, relay, sheet_view, votes
+from aidm.session import (
+    combat_flow,
+    explore,
+    host,
+    lobby,
+    party_actions,
+    relay,
+    sheet_view,
+    spectators,
+    votes,
+)
 from aidm.session.stats import send_host_stats
 from aidm.session.table_core import (
     ClientIn,
@@ -175,7 +185,8 @@ class Table(TableCore):
 
     def _dispatch(self, item: Inbound) -> None:
         if isinstance(item, Closed):
-            lobby.closed(self, item.conn_id)
+            if not spectators.leave(self, item.conn_id):
+                lobby.closed(self, item.conn_id)
         elif isinstance(item, TimerFired):
             self._timer(item)
         else:
@@ -189,12 +200,18 @@ class Table(TableCore):
             self.schedule(lambda: combat_flow.turn_timeout(self, key))
 
     def _client(self, conn_id: str, msg: AnyClientMsg) -> None:
+        if isinstance(msg, c.Ping):
+            self.send_conn(conn_id, Pong())
+            return
+        if isinstance(msg, c.Hello) and msg.spectator and conn_id not in self.conn_player:
+            spectators.join(self, conn_id, msg)
+            return
+        if conn_id in self.spectators:
+            spectators.refuse(self, conn_id)
+            return
         if isinstance(msg, c.Hello):
             lobby.hello(self, conn_id, msg)
             self.autosave()
-            return
-        if isinstance(msg, c.Ping):
-            self.send_conn(conn_id, Pong())
             return
         player = self.player_for(conn_id)
         if player is None:

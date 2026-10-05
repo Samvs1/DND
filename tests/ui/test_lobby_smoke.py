@@ -88,7 +88,7 @@ def test_assets_helper_resolves_real_placeholder_and_silence(
                 real: a.assetUrl('portrait.class.fighter'),
                 placeholder,
                 width: probe.naturalWidth,
-                silence: a.assetUrl('music.combat'),
+                silence: a.assetUrl('music.social'),
                 fallback: a.assetUrl(['spell_icon.fire-bolt', 'spell_icon.school.fire']),
             };
         }"""

@@ -164,6 +164,7 @@ class TableCore:
         self.players: dict[str, Player] = {}
         self.outboxes: dict[str, asyncio.Queue[AnyServerMsg]] = {}
         self.conn_player: dict[str, str] = {}
+        self.spectators: set[str] = set()  # /screen connections (session/spectators.py)
         self.phase = TablePhase.PLAY if state.world.current_node else TablePhase.LOBBY
         self.paused = False
         self.queue: deque[QueueEntry] = deque()
@@ -304,7 +305,7 @@ class TableCore:
             self.send_conn(conn_id, msg)
 
     def broadcast(self, msg: AnyServerMsg) -> None:
-        for conn_id in sorted(self.conn_player):
+        for conn_id in sorted(self.conn_player) + sorted(self.spectators):
             self.send_conn(conn_id, msg)
 
     def notice(self, player_id: str | None, kind: NoticeKind, text: str) -> None:
@@ -327,11 +328,12 @@ class TableCore:
             resolving=self.resolving,
             vote=self.vote.view() if self.vote is not None else None,
             tts_enabled=self.tts_enabled,
+            screens=len(self.spectators),
         )
         return Snapshot(seq=self.state.event_count, state=view)
 
     def broadcast_snapshot(self) -> None:
-        if self.conn_player:
+        if self.conn_player or self.spectators:
             self.broadcast(self.snapshot())
 
     def broadcast_roster(self) -> None:

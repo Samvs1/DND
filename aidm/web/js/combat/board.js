@@ -36,6 +36,20 @@ function moveHint(state, combat, zone, myZone) {
   return h('span', { class: far ? 'zmove far' : 'zmove', 'data-testid': 'move-cost' }, far ? t('combat.moveFar') : t('combat.moveCost', { feet: cost }));
 }
 
+function footer(state, ctrl, combat, zone, { here, zoneStep, myZone }) {
+  const move = moveHint(state, combat, zone, myZone);
+  return h(
+    'div',
+    { class: 'zone-foot' },
+    h(
+      'button',
+      { type: 'button', class: 'btn btn-small zone-go', 'data-testid': 'zone-go', disabled: !(zoneStep || isMyTurn(state)) || (here && !zoneStep), 'aria-label': zoneStep ? zone.name : t('combat.moveTo', { name: zone.name }), onclick: () => ctrl.pickZone(zone) },
+      zoneStep ? zone.name : t('combat.moveTo', { name: zone.name }),
+    ),
+    move,
+  );
+}
+
 function zoneCard(state, ctrl, combat, zone) {
   const me = myCreatureId(state);
   const myZone = tokenById(combat, me)?.zone_id ?? null;
@@ -54,7 +68,6 @@ function zoneCard(state, ctrl, combat, zone) {
   );
   const classes = ['zone', here ? 'here' : '', zoneStep ? 'pickable' : '', tokens.length ? '' : 'empty'].filter(Boolean).join(' ');
   const art = assetUrl(`zone_card.${zone.terrain || 'wilds'}`);
-  const move = moveHint(state, combat, zone, myZone);
   return h(
     'section',
     { class: classes, 'data-testid': 'zone', 'data-zone': zone.id, 'aria-label': zone.name },
@@ -69,16 +82,7 @@ function zoneCard(state, ctrl, combat, zone) {
     h('div', { class: 'zone-tags' }, ...badges(zone), ...surfaces(zone)),
     h('div', { class: 'zone-tokens' }, ...chips),
     hints(combat, zone),
-    h(
-      'div',
-      { class: 'zone-foot' },
-      h(
-        'button',
-        { type: 'button', class: 'btn btn-small zone-go', 'data-testid': 'zone-go', disabled: !(zoneStep || isMyTurn(state)) || (here && !zoneStep), 'aria-label': zoneStep ? zone.name : t('combat.moveTo', { name: zone.name }), onclick: () => ctrl.pickZone(zone) },
-        zoneStep ? zone.name : t('combat.moveTo', { name: zone.name }),
-      ),
-      move,
-    ),
+    ctrl.readOnly ? null : footer(state, ctrl, combat, zone, { here, zoneStep, myZone }),
   );
 }
 

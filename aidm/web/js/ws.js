@@ -14,8 +14,9 @@ export function socketUrl(loc = window.location) {
 /**
  * createClient({ store, saved, dispatch }) -> { connect, retry, send, close }.
  * `dispatch(msg)` is handlers.dispatch. `connect(name)` starts the session for that player name.
+ * `spectator` (the /screen view) says hello as a watcher: no token, no seat, public feed only.
  */
-export function createClient({ store, saved, dispatch, url = socketUrl(), Socket = WebSocket }) {
+export function createClient({ store, saved, dispatch, url = socketUrl(), Socket = WebSocket, spectator = false }) {
   let socket = null;
   let name = '';
   let attempt = 0;
@@ -29,7 +30,8 @@ export function createClient({ store, saved, dispatch, url = socketUrl(), Socket
     socket.onopen = () => {
       attempt = 0;
       store.update({ conn: 'open' });
-      send('hello', { name, token: saved.token(), last_seq: store.get().lastSeq || null });
+      const lastSeq = store.get().lastSeq || null;
+      send('hello', spectator ? { name, spectator: true, last_seq: lastSeq } : { name, token: saved.token(), last_seq: lastSeq });
     };
     socket.onmessage = (event) => {
       let msg = null;

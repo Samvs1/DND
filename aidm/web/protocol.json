@@ -758,6 +758,11 @@
               "title": "Name",
               "type": "string"
             },
+            "spectator": {
+              "default": false,
+              "title": "Spectator",
+              "type": "boolean"
+            },
             "token": {
               "anyOf": [
                 {
