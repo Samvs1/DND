@@ -135,6 +135,7 @@ class FakeLLM:
         self.responder = responder or default_fake_step
         self.models = list(models)
         self.requests: list[CompletionRequest] = []
+        self.closed = False
 
     def push(self, *steps: FakeStep) -> None:
         self.script.extend(steps)
@@ -181,3 +182,6 @@ class FakeLLM:
 
     async def list_models(self) -> list[str]:
         return list(self.models)
+
+    async def aclose(self) -> None:
+        self.closed = True

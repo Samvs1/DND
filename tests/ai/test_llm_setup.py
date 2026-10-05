@@ -111,3 +111,13 @@ def test_player_text_hash_is_short_and_stable() -> None:
     assert hash_player_text("abc") == hash_player_text("abc")
     assert len(hash_player_text("abc")) == 16
     assert hash_player_text("abc") != hash_player_text("abd")
+
+
+async def test_aclose_closes_the_backend(tmp_path: Path) -> None:
+    """M4.8 live finding: the transport must be closed before the event loop ends."""
+    client, fake = fake_client(tmp_path)
+    assert not fake.closed
+    await client.aclose()
+    assert fake.closed
+    disabled = make_llm_client(LlmSettings(api_key=None, log_path=None))
+    await disabled.aclose()

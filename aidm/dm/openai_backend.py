@@ -112,3 +112,6 @@ class OpenAIBackend:
         except openai.OpenAIError as exc:
             raise _map_error(exc) from None
         return [m.id for m in page.data]
+
+    async def aclose(self) -> None:
+        await self._client.close()

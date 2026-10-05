@@ -6,7 +6,8 @@ each call sees the effects of the previous ones). A refusal (unknown id, cap, bu
 move...) comes back as `ToolResult(error=...)` with no events, which the adjudicator returns to
 the model as a tool error. A hostile act against a non-hostile NPC returns
 `ToolResult(pending=...)` with only the `HostileActPending` log event until the player confirms
-(`ToolContext.confirm_hostile`).
+(`ToolContext.confirm_hostile`). Entity references are normalised first
+(`aidm.dm.tool_refs.resolve_tool_refs`: a unique name such as "Aria" becomes its id).
 
 Public API: `execute_tool`, `TOOL_EXECUTORS` (tool name -> (args model, executor)).
 """
@@ -30,6 +31,7 @@ from aidm.dm.tool_exec_world import (
     run_reveal_secret,
     run_update_attitude,
 )
+from aidm.dm.tool_refs import resolve_tool_refs
 from aidm.dm.tools import DM_TOOLS
 from aidm.models.state import GameState
 from aidm.rules.dice import Rng
@@ -83,6 +85,6 @@ def execute_tool(
         return ToolResult(error=f"unknown tool {call.name!r}")
     model, run = entry
     try:
-        return run(state, _args(call, model), ctx, rng, regs)
+        return run(state, resolve_tool_refs(state, _args(call, model)), ctx, rng, regs)
     except ToolRefused as exc:
         return ToolResult(error=exc.message)

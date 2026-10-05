@@ -25,7 +25,7 @@ from aidm.rules.social import npc_is_hostile
 def require_creature(state: GameState, creature_id: str, *, alive: bool = True) -> Creature:
     creature = state.creatures.get(creature_id)
     if creature is None:
-        raise ToolRefused(f"unknown creature {creature_id!r}")
+        raise ToolRefused(f"unknown creature {creature_id!r}; use an id shown in [brackets]")
     if alive and creature.dead:
         raise ToolRefused(f"{creature_id!r} is dead")
     return creature

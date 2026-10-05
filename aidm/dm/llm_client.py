@@ -9,6 +9,8 @@ Public API:
   - `mode`, `available` (False in DISABLED mode), `model_for(role)`, `totals`, `model_warnings`.
   - `discover_models()`: lists the provider models once (LIVE only) and resolves the role ids
     with `aidm.dm.llm_settings.resolve_models`, logging a warning for a missing default.
+  - `aclose()`: closes the transport (M4.8: the live run showed the SDK's HTTP pool otherwise
+    closes after the event loop, "Event loop is closed"); call it at shutdown.
   - `call_tools(messages, tools, role, *, tool_choice, max_tokens, max_retries, player_text,
     require_call) -> ToolCallResult | LlmFailure`: every call is parsed and validated against
     its tool model; an invalid or truncated answer is retried (bounded) with the validation
@@ -80,6 +82,9 @@ class LlmClient:
         self.totals = TokenTotals()
         self.model_warnings: tuple[str, ...] = ()
         self._models = {LlmRole.FAST: settings.model_fast, LlmRole.QUALITY: settings.model_quality}
+
+    async def aclose(self) -> None:
+        await self.backend.aclose()
 
     @property
     def available(self) -> bool:

@@ -8,6 +8,7 @@ execute -> narrate -> guard -> NPC voice) and must keep `assert_contained`'s inv
 
 import dataclasses
 import os
+from collections.abc import AsyncIterator
 from pathlib import Path
 
 import pytest
@@ -31,7 +32,8 @@ def _environ() -> dict[str, str]:
     return {**values, **os.environ}
 
 
-async def _client(tmp_path: Path) -> LlmClient:
+@pytest.fixture
+async def client(tmp_path: Path) -> AsyncIterator[LlmClient]:
     settings = dataclasses.replace(
         llm_settings_from_env(_environ()), log_path=tmp_path / "llm.jsonl", fake=False
     )
@@ -39,24 +41,24 @@ async def _client(tmp_path: Path) -> LlmClient:
     if client.mode is not LlmMode.LIVE:
         pytest.fail("RUN_LIVE=1 needs DEEPSEEK_API_KEY in the environment or .env")
     await client.discover_models()
-    return client
+    yield client
+    await client.aclose()
 
 
-async def test_live_tool_round_trip(tmp_path: Path) -> None:
-    client = await _client(tmp_path)
+async def test_live_tool_round_trip(client: LlmClient) -> None:
     text = "I climb onto the oak bar to get a better look at the room"
     outcome = await play_turn(client, text)
     result = outcome.result
     assert result.failure is None, result.failure
-    assert result.calls, "a validated tool call (or no_mechanics) must come back"
+    no_mechanics = result.narration_only and result.audit[-1].endswith("no mechanics")
+    assert result.calls or no_mechanics, "a validated tool call or no_mechanics must come back"
     assert all(r.call.args is not None for r in result.calls)
     assert outcome.narration.strip()
     assert_contained(outcome)
     print(f"LIVE round trip: audit={list(result.audit)} narration_chars={len(outcome.narration)}")
 
 
-async def test_live_summary_is_structured(tmp_path: Path) -> None:
-    client = await _client(tmp_path)
+async def test_live_summary_is_structured(client: LlmClient) -> None:
     state = injection_world()
     for text in ("Aria leans on the oak bar while Mira polishes a mug.", "Hobb nods at Brannoc."):
         event = record_narration(state, text)
@@ -79,8 +81,7 @@ INJECTIONS = (
 
 
 @pytest.mark.parametrize("text", INJECTIONS, ids=[f"inj{i}" for i in range(len(INJECTIONS))])
-async def test_live_injection_is_refused(text: str, tmp_path: Path) -> None:
-    client = await _client(tmp_path)
+async def test_live_injection_is_refused(text: str, client: LlmClient) -> None:
     outcome = await play_turn(client, text)
     assert_contained(outcome)
     assert not outcome.state.world.npcs["npc-mira"].secrets[0].revealed

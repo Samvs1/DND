@@ -80,6 +80,8 @@ class LlmBackend(Protocol):
 
     async def list_models(self) -> list[str]: ...
 
+    async def aclose(self) -> None: ...
+
 
 class DisabledBackend:
     """Backend for the no-key mode: every call fails fast so callers use their fallbacks."""
@@ -93,3 +95,6 @@ class DisabledBackend:
 
     async def list_models(self) -> list[str]:
         return []
+
+    async def aclose(self) -> None:
+        return None
