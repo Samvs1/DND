@@ -3,8 +3,9 @@
 Using a consumable is resolved by ONE generic path (`aidm.rules.items.use_item_events`); an item's
 effect is data here, never an `if` on its id.
 
-- `ConsumableDef(index, name, source, heal)`: `index` is the inventory item id (the SRD magic
-  item index for potions); `heal` is the dice expression it restores ("2d4+2").
+- `ConsumableDef(index, name, source, heal, value_gp)`: `index` is the inventory item id (the SRD
+  magic item index for potions); `heal` is the dice expression it restores ("2d4+2"); `value_gp`
+  is its price in gold (rarity-based, docs/RULES_DECISIONS.md M4.2; grant caps and shops use it).
   BG3 (SPEC 7.2): drinking one, or giving one to an ally in the same zone, is a bonus action.
 
 Public API: `load_consumable_defs(path=None) -> Registry[ConsumableDef]`, `consumable_defs()`
@@ -31,6 +32,7 @@ class ConsumableDef(BaseModel):
     name: str = Field(min_length=1)
     source: str = Field(min_length=1)
     heal: str | None = None
+    value_gp: int | None = Field(default=None, ge=0)
 
 
 def load_consumable_defs(path: Path | None = None) -> Registry[ConsumableDef]:

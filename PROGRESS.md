@@ -1,4 +1,4 @@
-NEXT: M4.2 Tools and executors. Delegate to hard-engineer. Files in flight: none. Last gate: M4.1 GATE PASS 8/8.
+NEXT: M4.3 Registry and context builder. Delegate to hard-engineer. Last gate: M4.2 GATE PASS 8/8.
 
 # PROGRESS
 
@@ -52,7 +52,7 @@ Stashes and blockers: record them in the Notes section at the bottom.
 
 ## M4 AI layer (SPEC 4 DeepSeek, 6.1-6.8)
 - [x] M4.1 **H** `dm/llm_client.py` (openai SDK -> DeepSeek, FAST/QUALITY roles, model discovery with fallback, schema validation, bounded retries with error feedback, max_tokens >=4000 for structured calls, typed fallbacks, `logs/llm.jsonl` without keys or raw player text) plus `tests/ai/fake_llm.py` (scripted tool calls, streaming, malformed JSON, truncation, timeout, hallucination). Gate: pytest tests/ai.
-- [ ] M4.2 **H** Tools: pydantic schemas for every SPEC 6.3 tool plus executors -> rules -> events; tier maps (dc, severity by party level, xp, item value cap by region tier); validation errors returned as tool errors; point-of-no-return event. Gate: pytest tests/ai.
+- [x] M4.2 **H** Tools: pydantic schemas for every SPEC 6.3 tool plus executors -> rules -> events; tier maps (dc, severity by party level, xp, item value cap by region tier); validation errors returned as tool errors; point-of-no-return event. Gate: pytest tests/ai.
 - [ ] M4.3 **H** Entity registry plus `dm/context.py` (the ONE builder): 7 sections, deterministic order, token budget with truncation priority, closed-world manifest statement, secrets only in npc_voice; tests that secrets never reach narration context. Gate: pytest tests/ai.
 - [ ] M4.4 **H** Adjudicator: tool loop (<=5 tools/round, <=3 rounds), deterministic pre-checks (rest, shop, travel to neighbour, inventory, look around), creative_action in combat. Gate: pytest tests/ai.
 - [ ] M4.5 **H** Narrator: streamed QUALITY call, sentence chunker, tone from state, template narration from events (no key or outage); `test_v1_failed_checks_always_narrate`. Gate: pytest tests/ai.
@@ -129,6 +129,7 @@ If the API rejects the key or needs organisation verification: stop M10 generati
 10. The final message is a VERIFICATION REPORT plus the Tier-2 items not built.
 
 ## Notes (stashes, blockers, decisions pending)
+- M4.2: tools = aidm/dm/tools.py (15 arg models, `DM_TOOLS`, `dm_tools_param`) + `execute_tool(state, call, ctx, rng, regs)` in aidm/dm/tool_exec.py (never mutates; apply each call's events before the next). World registry `GameState.world` (models/world.py, events models/world_events.py, reducer session/world_apply.py) with npcs/features/quests/facts/neighbours/scene_index; M4.3 builds the manifest from it, M5.2 fills `neighbours`/`locked_nodes`. Point of no return: `ToolResult.pending` + `HostileActPending`; rerun with `ToolContext.confirm_hostile=True`. Tier tables data/bg3/dm_tiers.json; attitude formula rules/social.py (DECISIONS/RULES_DECISIONS M4.2).
 - M4.1: LLM client = aidm/dm/{llm_client,llm_backend,llm_types,llm_settings,llm_validate,llm_log,openai_backend,llm_factory,fake_llm}.py; `make_llm_client(llm_settings_from_env(os.environ))` then `await client.discover_models()` once at startup. Verified DeepSeek ids: deepseek-flash (FAST), deepseek-v4-pro (QUALITY); thinking disabled on every call (DECISIONS M4.1). Test helpers: tests/ai/fake_scripts.py.
 - M3 exit gate (SPEC 14): zones, d4 initiative, action economy, hotbar commands (+ M3.10 Flee), attacks, spell DSL (61 shipped >= 50), concentration, surfaces lite, monster AI, encounter lifecycle, party wipe (DEFEAT seen in the sim) and the 50-seed sim all done. Known gaps (Tier 2 by SPEC, not M3): reactions/opportunity attacks and reaction spells; prose-only monster traits listed in RULES_DECISIONS stay inert. M3.11 sim: `COMBAT SIM OK seeds=50 victories=47 defeats=3 fled=0 avg_rounds=3.3` (~5 s); driver `aidm/session/combat_runner.py`, scenario knobs in DECISIONS M3.11.
 - M3.10: AI = rules/monster_ai.py + rules/party_ai.py over ai_estimates/ai_view/ai_spells/ai_options/ai_plan; one validated command per call (drivers re-plan after each); new `FleeCommand` (RefusalCode.ENGAGED); driver loop in aidm/session/combat_runner.py (`CombatRunner`, used by M3.11). Decisions: DECISIONS M3.10.

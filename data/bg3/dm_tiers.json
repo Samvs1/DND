@@ -1,0 +1,32 @@
+{
+  "source": "Engine-owned numbers for DM tool tiers (SPEC 6.3). DCs come from aidm.rules.checks (SRD 5.1 Typical Difficulty Classes). Other values are house numbers logged in docs/RULES_DECISIONS.md M4.2.",
+  "severity_dice": [
+    {"max_level": 2, "minor": "1d6", "moderate": "2d6", "major": "3d6"},
+    {"max_level": 4, "minor": "1d8", "moderate": "2d8", "major": "4d8"},
+    {"max_level": 20, "minor": "2d8", "moderate": "3d8", "major": "5d8"}
+  ],
+  "severity_save_dc": {"minor": 10, "moderate": 13, "major": 15},
+  "severity_max_rounds": {"minor": 1, "moderate": 2, "major": 3},
+  "xp_by_level": [
+    {"max_level": 1, "minor": 25, "moderate": 75, "major": 150},
+    {"max_level": 2, "minor": 50, "moderate": 150, "major": 300},
+    {"max_level": 3, "minor": 100, "moderate": 300, "major": 600},
+    {"max_level": 4, "minor": 200, "moderate": 500, "major": 1000},
+    {"max_level": 20, "minor": 300, "moderate": 800, "major": 1600}
+  ],
+  "item_value_cap_gp": {"1": 75, "2": 300, "3": 1500},
+  "max_item_qty": 10,
+  "creative_conditions": {
+    "prone": "dex",
+    "blinded": "con",
+    "deafened": "con",
+    "frightened": "wis",
+    "poisoned": "con",
+    "restrained": "str"
+  },
+  "zone_effect_surfaces": {"difficult_terrain": "rubble", "dark": "darkness"},
+  "light_removes": ["darkness", "fog"],
+  "max_npcs_per_scene": 3,
+  "max_features_per_scene": 4,
+  "deed_points": {"minor": 10, "moderate": 20, "major": 35}
+}

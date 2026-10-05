@@ -10,7 +10,7 @@ Public API:
 - `ReducerError(ValueError)` (defined in `reducer_errors`): the event does not fit the state
   (unknown creature id, duplicate id, no active encounter). This is always an engine bug: rules
   must only emit events valid for the current state. Encounter events are applied by
-  `aidm.session.encounter_apply`.
+  `aidm.session.encounter_apply`, world events by `aidm.session.world_apply`.
 
 Semantics: every event increments `state.event_count` (log-only events included) and then does
 plain assignment of the resolved values it carries. The reducer never rolls dice, reads data or
@@ -73,6 +73,7 @@ from aidm.models.events import (
 from aidm.models.state import ActiveCondition, Creature, GameState
 from aidm.session.encounter_apply import apply_encounter_event
 from aidm.session.reducer_errors import ReducerError
+from aidm.session.world_apply import WORLD_EVENT_TYPES, apply_world_event
 
 
 def _creature(state: GameState, creature_id: str) -> Creature:
@@ -214,6 +215,10 @@ def _apply_rest_event(
 
 
 def apply(state: GameState, event: AnyEvent) -> GameState:
+    if isinstance(event, WORLD_EVENT_TYPES):
+        apply_world_event(state, event)
+        state.event_count += 1
+        return state
     match event:
         case CreatureAdded(creature=creature):
             _add_creature(state, creature)
@@ -259,14 +264,9 @@ def apply(state: GameState, event: AnyEvent) -> GameState:
             | ZoneSurfaceTicked()
         ):
             apply_encounter_event(state, event)
-        case (
-            DiceRolled()
-            | CheckResolved()
-            | DamageTaken()
-            | AttackRolled()
-            | SpellCast()
-            | MonsterActionUsed()
-        ):
+        case DiceRolled() | CheckResolved() | DamageTaken():
+            pass
+        case AttackRolled() | SpellCast() | MonsterActionUsed():
             pass
         case _:
             assert_never(event)

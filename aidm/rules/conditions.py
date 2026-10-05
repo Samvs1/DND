@@ -43,6 +43,7 @@ Public API:
   auto-failed save still rolls (for the dice tray) but `success` is False.
 - `skill_check_with_conditions(rng, creature, skill, dc, *, adv_sources=0, dis_sources=0,
   bonus=0) -> CheckResult`: the same for a skill check (condition check advantage and dice).
+- `ability_check_with_conditions(...)`: the same for a plain ability check (DM `request_check`).
 """
 
 from collections.abc import Sequence
@@ -53,7 +54,7 @@ from aidm.models.checks import CheckResult
 from aidm.models.damage import DamageType
 from aidm.models.dice import AdvState, Roll
 from aidm.models.state import ActiveCondition, Creature
-from aidm.rules.checks import saving_throw, skill_check
+from aidm.rules.checks import ability_check, saving_throw, skill_check
 from aidm.rules.d20 import combine_adv
 from aidm.rules.dice import Rng, roll
 
@@ -250,3 +251,20 @@ def skill_check_with_conditions(
     dice = condition_bonus_dice(creature, check=True)
     bonus += sum(roll_bonus_dice(d, rng).total for d in dice)
     return skill_check(rng, creature, skill, dc, adv=state, bonus=bonus)
+
+
+def ability_check_with_conditions(
+    rng: Rng,
+    creature: Creature,
+    ability: Ability,
+    dc: int,
+    *,
+    adv_sources: int = 0,
+    dis_sources: int = 0,
+    bonus: int = 0,
+) -> CheckResult:
+    adv, dis = check_adv_counts(creature)
+    state = combine_adv(adv + adv_sources, dis + dis_sources)
+    dice = condition_bonus_dice(creature, check=True)
+    bonus += sum(roll_bonus_dice(d, rng).total for d in dice)
+    return ability_check(rng, creature, ability, dc, adv=state, bonus=bonus)

@@ -3,6 +3,7 @@
     {"index": "fire", "name": "Fire", "duration_rounds": 3,
      "harms": [{"damage": "1d4", "damage_type": "fire"}]},
     {"index": "oil", "name": "Oil", "difficult": true},
+    {"index": "rubble", "name": "Rubble", "difficult": true},
     {"index": "grease", "name": "Grease", "duration_rounds": 10, "difficult": true,
      "harms": [{"when": ["create", "enter", "turn_start"], "save": "dex", "condition": "prone"}]},
     {"index": "water", "name": "Water"},
