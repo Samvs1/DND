@@ -1,0 +1,48 @@
+{
+  "actions": {
+    "ghoul/claws": {
+      "dc": 10,
+      "exempt_types": [
+        "elf",
+        "undead"
+      ],
+      "on_hit": [
+        {
+          "type": "save",
+          "ability": "con",
+          "on_fail": [
+            {
+              "type": "apply_condition",
+              "condition": "paralyzed",
+              "rounds": 10,
+              "save_ends": "con"
+            }
+          ]
+        }
+      ]
+    },
+    "wing-attack": {
+      "on_fail": [
+        {
+          "type": "apply_condition",
+          "condition": "prone"
+        }
+      ]
+    },
+    "wolf/bite": {
+      "dc": 11,
+      "on_hit": [
+        {
+          "type": "save",
+          "ability": "str",
+          "on_fail": [
+            {
+              "type": "apply_condition",
+              "condition": "prone"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

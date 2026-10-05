@@ -18,7 +18,8 @@
   "targeting": {
     "kind": "creatures",
     "count": 1,
-    "count_per_slot": 1
+    "count_per_slot": 1,
+    "creature_types": ["humanoid"]
   },
   "effects": [
     {

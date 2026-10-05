@@ -9,12 +9,19 @@ Public API:
   `current - amount`. ResourceError when unknown or insufficient; ValueError for amount < 1.
 - `restore_resources(creature, kinds) -> list[AnyEvent]`: one `ResourceSet` per resource whose
   recharge kind is in `kinds` and that is not already full (sorted by key, deterministic).
+- `turn_recharge_events(rng, creature) -> list[AnyEvent]` (M3.8, called by `turns.begin_turn`):
+  each spent pool with a `turn_recharge` (sorted by key) refills; a value above 1 first rolls a
+  d6 (logged as `DiceRolled`, label "recharge <key>") and refills only on that value or more
+  (SRD "Recharge 5-6"); 1 refills without a roll (legendary actions).
 """
 
 from collections.abc import Collection
 
-from aidm.models.events import AnyEvent, ResourceSet
+from aidm.models.events import AnyEvent, DiceRolled, ResourceSet
 from aidm.models.state import Creature, RechargeKind, Resource
+from aidm.rules.dice import Rng, roll
+
+RECHARGE_DIE = "1d6"
 
 
 class ResourceError(ValueError):
@@ -52,4 +59,21 @@ def restore_resources(creature: Creature, kinds: Collection[RechargeKind]) -> li
         if resource.recharge in kinds and resource.current < resource.maximum:
             full = resource.model_copy(update={"current": resource.maximum})
             events.append(ResourceSet(creature_id=creature.id, key=key, resource=full))
+    return events
+
+
+def turn_recharge_events(rng: Rng, creature: Creature) -> list[AnyEvent]:
+    events: list[AnyEvent] = []
+    for key in sorted(creature.resources):
+        resource = creature.resources[key]
+        need = resource.turn_recharge
+        if need is None or resource.current >= resource.maximum:
+            continue
+        if need > 1:
+            rolled = roll(RECHARGE_DIE, rng)
+            events.append(DiceRolled(roll=rolled, roller_id=creature.id, label=f"recharge {key}"))
+            if rolled.total < need:
+                continue
+        full = resource.model_copy(update={"current": resource.maximum})
+        events.append(ResourceSet(creature_id=creature.id, key=key, resource=full))
     return events

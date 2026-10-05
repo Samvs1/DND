@@ -5,8 +5,10 @@ extends it. `emit` keeps a projected state (`rules.projection`) so later effects
 
 Public API:
 - `CastContext(rng, spell, caster_id, cast_level, numbers, char_level, feats, state, name,
-  target_zone, ...)`: `target_zone` is the zone a "point" or area spell chose; `rolls` holds
-  shared rolls (area spells: one roll for every target), `pools` what is left of each HP pool.
+  target_zone, magical, ...)`: `target_zone` is the zone a "point" or area spell chose; `rolls`
+  holds shared rolls (area spells: one roll for every target), `pools` what is left of each HP
+  pool. `magical` False for a monster's non-spell action (a breath weapon is not "magic" for
+  Magic Resistance or gnome cunning).
 - `cast_dice(effect_dice, ctx, *, cantrip_scaling, upcast_dice, add_modifier) -> str`: the dice
   of an effect at this cast (cantrip tiers at character levels 5/11/17, `upcast_dice` once per
   slot level above the spell's level, the spellcasting modifier).
@@ -46,6 +48,7 @@ class CastContext:
     state: GameState
     name: str = ""
     target_zone: str | None = None
+    magical: bool = True
     events: list[AnyEvent] = field(default_factory=list[AnyEvent])
     links: list[ConditionLink] = field(default_factory=list[ConditionLink])
     rolls: dict[int, Roll] = field(default_factory=dict[int, Roll])

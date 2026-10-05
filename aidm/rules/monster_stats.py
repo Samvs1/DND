@@ -14,7 +14,16 @@
 - Speed: the walking speed, or the best other speed (fly, swim, climb, burrow) when the stat block
   has no walking speed. Size and darkvision from the stat block. Monsters die at 0 HP
   (`death_saves` None).
+- M3.8: `monster_index` (the stat block, from which `rules.monster_catalog` derives the actions),
+  `creature_type` (the SRD type, lower case), `traits` (the slug of every special ability; the
+  ones with an entry in data/bg3/features.json work like features: Pack Tactics, Nimble Escape,
+  Magic Resistance) and `resources` (`rules.monster_keys.monster_resources`: recharge and per-day
+  pools, legendary points, spell slots, innate spell uses).
 The stat block is an ARGUMENT; rules never load data.
+
+Also: `creature_type_of(creature) -> str` (PCs and NPCs without a type are "humanoid") and
+`creature_tags(creature) -> set[str]` (the type plus a PC's race and subrace), which effects
+match against ("other than an elf or undead", Hold Person's humanoids).
 """
 
 import re
@@ -25,11 +34,26 @@ from aidm.models.character import Size
 from aidm.models.damage import DamageType
 from aidm.models.state import Creature, CreatureKind
 from aidm.rules.abilities import ability_modifier
+from aidm.rules.monster_keys import ability_slug, monster_resources
 
 _FEET = re.compile(r"(\d+)\s*ft")
 _SAVE_PREFIX = "saving-throw-"
 _SKILL_PREFIX = "skill-"
 _NONMAGICAL = "nonmagical"
+HUMANOID = "humanoid"
+
+
+def creature_type_of(creature: Creature) -> str:
+    return creature.creature_type or HUMANOID
+
+
+def creature_tags(creature: Creature) -> set[str]:
+    tags = {creature_type_of(creature)}
+    if creature.pc is not None:
+        tags.add(creature.pc.race)
+        if creature.pc.subrace:
+            tags.add(creature.pc.subrace)
+    return tags
 
 
 def _feet(text: str | None) -> int:
@@ -102,4 +126,8 @@ def creature_from_monster(
         speed=_speed(monster),
         size=Size(monster.size),
         darkvision=_feet(monster.senses.darkvision),
+        monster_index=monster.index,
+        creature_type=monster.type.lower(),
+        traits=list(dict.fromkeys(ability_slug(a.name) for a in monster.special_abilities)),
+        resources=monster_resources(monster),
     )

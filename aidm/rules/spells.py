@@ -19,9 +19,16 @@ Economy (`cast_command`, in combat): the spell's casting time spends the action 
 action. BG3 rule: a bonus-action spell does NOT restrict the action to a cantrip (the SRD 5.1
 rule is dropped; docs/RULES_DECISIONS.md M3.4). Reaction spells are Tier 2 (refused).
 
+Monsters (M3.8) cast from their SRD spell kits (`rules.monster_catalog.monster_spells`): the
+kit's DC, attack bonus and caster level (cantrip scaling), slots as `spell-slot-<n>` resources,
+innate per-day uses, at-will innate spells free; a spell outside the kit is not ready.
+
 Public API:
 - `cast_spell(state, caster_id, spell, slot_level, target_ids, target_zone, rng, regs) ->
   list[AnyEvent]` (no economy; usable outside a fight for non-attack, non-area spells).
+- `run_cast(ctx, targets) -> list[AnyEvent]`: the effect half of a cast on a prepared
+  `CastContext` (concentration swap, surfaces, every target instance, zone damage,
+  concentration start); monster save actions run their pseudo spells through it.
 - `cast_command(state, cmd, regs, rng) -> list[AnyEvent]`: the `CastCommand` with economy.
 """
 
@@ -33,12 +40,13 @@ from aidm.models.combat_events import SpellCast
 from aidm.models.commands import CastCommand, RefusalCode
 from aidm.models.encounter import EncounterStatus
 from aidm.models.events import AnyEvent
-from aidm.models.state import GameState
+from aidm.models.state import Creature, GameState
 from aidm.rules.command_checks import CommandRefused, acting, changed, spend
 from aidm.rules.concentration import end_concentration, start_concentration
 from aidm.rules.conditions import condition_blocks_verbal
 from aidm.rules.dice import Rng
 from aidm.rules.features import character_level
+from aidm.rules.monster_catalog import monster_spells
 from aidm.rules.projection import project_state
 from aidm.rules.spell_context import CastContext
 from aidm.rules.spell_effects import (
@@ -47,7 +55,13 @@ from aidm.rules.spell_effects import (
     run_effects,
     zone_damage,
 )
-from aidm.rules.spell_targets import cast_slot, caster_numbers, resolve_targets
+from aidm.rules.spell_targets import (
+    CasterNumbers,
+    SpellTargets,
+    cast_slot,
+    caster_numbers,
+    resolve_targets,
+)
 
 
 def _check_casting(
@@ -69,6 +83,44 @@ def _check_casting(
         )
 
 
+def _numbers(
+    caster: Creature, spell: SpellDef, regs: CombatRegistries
+) -> tuple[CasterNumbers, int]:
+    if caster.pc is not None or caster.monster_index is None:
+        return caster_numbers(caster, spell.index, regs.chars), character_level(caster)
+    block = regs.monsters.find(caster.monster_index)
+    kit = monster_spells(block) if block is not None else ()
+    entry = next((s for s in kit if s.index == spell.index), None)
+    if entry is None:
+        raise CommandRefused(RefusalCode.SPELL_NOT_READY, "You do not have that spell ready.")
+    numbers = CasterNumbers(
+        save_dc=entry.save_dc,
+        attack_bonus=entry.attack_bonus,
+        modifier=entry.modifier,
+        resource=entry.resource,
+    )
+    return numbers, entry.caster_level
+
+
+def run_cast(ctx: CastContext, targets: SpellTargets) -> list[AnyEvent]:
+    spell = ctx.spell
+    if spell.concentration:
+        ctx.emit(end_concentration(ctx.state, ctx.caster_id, f"cast {spell.index}"))
+    if targets.zone is not None:
+        for effect in spell.effects:
+            if isinstance(effect, SurfaceEffect):
+                place_surface(ctx, effect, targets.zone)
+    shared = spell.targeting.kind == "area"
+    for target_id in targets.instances:
+        run_effects(ctx, spell.effects, target_id, shared=shared)
+    if targets.zone is not None:
+        for damage_type in damage_types(spell.effects):
+            zone_damage(ctx, targets.zone, damage_type)
+    if spell.concentration:
+        ctx.emit(start_concentration(ctx.state, ctx.caster_id, spell.index, ctx.links))
+    return ctx.events
+
+
 def cast_spell(
     state: GameState,
     caster_id: str,
@@ -83,9 +135,8 @@ def cast_spell(
     if caster is None or caster.dead:
         raise CommandRefused(RefusalCode.CANNOT_ACT, "You cannot cast right now.")
     _check_casting(state, caster_id, spell, regs)
-    numbers = caster_numbers(caster, spell.index, regs.chars)
+    numbers, char_level = _numbers(caster, spell, regs)
     cast_level, paid = cast_slot(caster, spell, slot_level, numbers.resource)
-    char_level = character_level(caster)
     targets = resolve_targets(
         state, caster_id, spell, cast_level, char_level, target_ids, target_zone
     )
@@ -114,21 +165,7 @@ def cast_spell(
             )
         ]
     )
-    if spell.concentration:
-        ctx.emit(end_concentration(ctx.state, caster_id, f"cast {spell.index}"))
-    if targets.zone is not None:
-        for effect in spell.effects:
-            if isinstance(effect, SurfaceEffect):
-                place_surface(ctx, effect, targets.zone)
-    shared = spell.targeting.kind == "area"
-    for target_id in targets.instances:
-        run_effects(ctx, spell.effects, target_id, shared=shared)
-    if targets.zone is not None:
-        for damage_type in damage_types(spell.effects):
-            zone_damage(ctx, targets.zone, damage_type)
-    if spell.concentration:
-        ctx.emit(start_concentration(ctx.state, caster_id, spell.index, ctx.links))
-    return ctx.events
+    return run_cast(ctx, targets)
 
 
 def cast_command(

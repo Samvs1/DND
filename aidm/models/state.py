@@ -26,10 +26,16 @@ Public API:
   here (`aidm.rules.spellcasting`: `spell-slot-<n>` long rest, `pact-slot-<n>` short rest), as do
   the M2.4 feature resources.
   Body (M2.2): `speed` (feet), `size`, `darkvision` (feet, 0 = none).
+  Monsters (M3.8): `monster_index` is the SRD stat block the creature was made from (its action
+  catalog is derived from it by `aidm.rules.monster_catalog`); `creature_type` is the SRD type
+  ("humanoid", "undead"; None = humanoid for PCs and NPCs); `traits` are the slugs of its special
+  abilities (a slug with an entry in data/bg3/features.json works like a feature).
   Player characters (M2.2): `pc` holds the character sheet data (`aidm.models.character.PcData`);
   None for NPCs and monsters. A PC is a Creature with `kind` PC and `pc` set.
 - `RechargeKind`: SHORT_REST (restored by short and long rests) / LONG_REST (long rests only).
-- `Resource(current, maximum, recharge)`: `current` is within [0, maximum].
+- `Resource(current, maximum, recharge, turn_recharge)`: `current` is within [0, maximum].
+  `turn_recharge` (M3.8): at the start of the owner's turn a spent pool refills when a d6 rolls
+  at least this value (SRD "Recharge 5-6"); 1 refills it without a roll (legendary actions).
 - `GameState(campaign_id, seed, event_count, creatures, camp_supplies, short_rests_used)`:
   `event_count` is the number of events applied so far, so the session can use it as the next
   event `seq`. `camp_supplies` is the party's supply pool and `short_rests_used` counts short
@@ -104,6 +110,7 @@ class Resource(BaseModel):
     current: int = Field(ge=0)
     maximum: int = Field(ge=0)
     recharge: RechargeKind
+    turn_recharge: int | None = Field(default=None, ge=1, le=6)
 
     @model_validator(mode="after")
     def _check_current(self) -> "Resource":
@@ -146,6 +153,9 @@ class Creature(BaseModel):
     speed: int = Field(default=30, ge=0)
     size: Size = Size.MEDIUM
     darkvision: int = Field(default=0, ge=0)
+    monster_index: str | None = None
+    creature_type: str | None = None
+    traits: list[str] = Field(default_factory=list[str])
     pc: PcData | None = None
 
     @model_validator(mode="after")

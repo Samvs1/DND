@@ -1184,5 +1184,43 @@
     ]
    }
   ]
+ },
+ {
+  "index": "pack-tactics",
+  "name": "Pack Tactics",
+  "summary": "Advantage on attacks against a creature that shares its zone with one of your standing allies.",
+  "hooks": [
+   {
+    "kind": "attack_advantage",
+    "trigger": "ally_adjacent"
+   }
+  ]
+ },
+ {
+  "index": "nimble-escape",
+  "name": "Nimble Escape",
+  "summary": "Disengage or Hide as a bonus action.",
+  "hooks": [
+   {
+    "kind": "bonus_action",
+    "actions": [
+     "disengage",
+     "hide"
+    ]
+   }
+  ]
+ },
+ {
+  "index": "magic-resistance",
+  "name": "Magic Resistance",
+  "summary": "Advantage on saving throws against spells and other magical effects.",
+  "hooks": [
+   {
+    "kind": "advantage_on",
+    "saves_against": [
+     "magic"
+    ]
+   }
+  ]
  }
 ]

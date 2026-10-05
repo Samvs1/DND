@@ -21,6 +21,8 @@ Every hook has `min_level` (the character level it starts working at, default 1)
 - `expertise`: choose `choose` proficient skills; their proficiency bonus doubles.
 - `resistance`: damage types resisted. `advantage_on`: advantage on saves against any of the
   `saves_against` tags (a condition key, a damage type or "magic"), limited to `abilities`.
+- `attack_advantage` (M3.8, monster traits): advantage on attack rolls while `trigger` holds
+  ("ally_adjacent": a standing, non-incapacitated ally shares the target's zone; Pack Tactics).
 - `extra_attack`: `attacks` more attacks per Attack action (the highest one counts).
 - `toggle`: an on/off state (rage-style): activating spends `resource`, applies `condition` to
   the creature (source id = `key`) and turns on `while_active` hooks (attack-time kinds only).
@@ -133,6 +135,11 @@ class AdvantageOnHook(_Hook):
     abilities: tuple[AbilityKey, ...] = ()
 
 
+class AttackAdvantageHook(_Hook):
+    kind: Literal["attack_advantage"] = "attack_advantage"
+    trigger: Literal["ally_adjacent"] = "ally_adjacent"
+
+
 class ExtraAttackHook(_Hook):
     kind: Literal["extra_attack"] = "extra_attack"
     attacks: int = Field(default=1, ge=1)
@@ -243,6 +250,7 @@ FeatureHook = Annotated[
     | ExpertiseHook
     | ResistanceHook
     | AdvantageOnHook
+    | AttackAdvantageHook
     | ExtraAttackHook
     | ToggleHook
     | StatBonusHook

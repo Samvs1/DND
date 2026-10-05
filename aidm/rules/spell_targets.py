@@ -10,7 +10,8 @@ Public API:
   per-rest resource of an innate (racial) spell.
 - `cast_slot(creature, spell, slot_level, resource) -> tuple[int, list[AnyEvent]]`: the cast
   level and the spend events: cantrips are free (level 0, no slot allowed); an innate spell
-  with its resource left spends that; otherwise `rules.spellcasting.choose_slot/spend_slot`
+  with its resource left spends that; a monster's at-will innate spell (`resource` AT_WILL)
+  costs nothing; otherwise `rules.spellcasting.choose_slot/spend_slot`
   (the lowest usable slot, or exactly `slot_level` to upcast).
 - `instance_count(spell, cast_level, char_level) -> int`: how many target instances the
   targeting block allows at this cast (count + count_per_slot per level above, or the cantrip
@@ -23,7 +24,8 @@ Public API:
   fight there are no zones: range is not checked, and spells with an attack roll, a save or
   damage (hostile acts start a fight first), area and point spells are refused. A "point" spell
   picks a zone in range and its only instance is the caster. Dead creatures are refused unless
-  the targeting asks for dead targets (then only dead ones); `order` "hp_ascending" sorts the
+  the targeting asks for dead targets (then only dead ones); creatures outside the targeting's
+  `creature_types` are refused (`monster_stats.creature_type_of`); `order` "hp_ascending" sorts the
   instances by current HP (stable, ties keep their order).
 """
 
@@ -48,6 +50,8 @@ from aidm.models.zones import RangeBand
 from aidm.rules.abilities import ability_modifier
 from aidm.rules.command_checks import CommandRefused
 from aidm.rules.features import dice_at_level
+from aidm.rules.monster_keys import AT_WILL
+from aidm.rules.monster_stats import creature_type_of
 from aidm.rules.resources import resource_left, spend_resource
 from aidm.rules.sheet_spells import spellcasting_block
 from aidm.rules.spellcasting import SlotError, choose_slot, spend_slot
@@ -96,6 +100,8 @@ def cast_slot(
         if slot_level is not None:
             raise _refuse(RefusalCode.NO_SLOT, "Cantrips do not use spell slots.")
         return 0, []
+    if resource == AT_WILL and slot_level is None:
+        return spell.level, []
     if resource and slot_level is None and resource_left(creature, resource) > 0:
         return spell.level, spend_resource(creature, resource)
     try:
@@ -157,6 +163,9 @@ def _check_creature(
         raise _refuse(RefusalCode.INVALID_TARGET, f"It is too late for {creature.name}.")
     if spell.targeting.dead and not creature.dead:
         raise _refuse(RefusalCode.INVALID_TARGET, f"{creature.name} is not dead.")
+    kinds = spell.targeting.creature_types
+    if kinds and creature_type_of(creature) not in kinds:
+        raise _refuse(RefusalCode.INVALID_TARGET, f"That spell cannot affect {creature.name}.")
     band = spell_band(spell)
     if enc is None:
         return

@@ -27,6 +27,7 @@ from aidm.models.combat_events import (
     AttackRolled,
     CombatantMoved,
     CreatureRevived,
+    MonsterActionUsed,
     SpellCast,
     ZoneSurfaceAdded,
     ZoneSurfaceRemoved,
@@ -172,9 +173,12 @@ def _apply_pc_event(
 
 
 def _apply_death_event(
-    target: Creature, event: DeathSaveRolled | DeathSavesSet | Stabilized | CreatureDied
+    target: Creature,
+    event: DeathSaveRolled | DeathSavesSet | Stabilized | CreatureDied | CreatureRevived,
 ) -> None:
     match event:
+        case CreatureRevived():
+            target.dead = False
         case DeathSaveRolled(successes=successes, failures=failures):
             target.death_save_successes = successes
             target.death_save_failures = failures
@@ -189,6 +193,24 @@ def _apply_death_event(
         case CreatureDied():
             target.dead = True
             target.stable = False
+
+
+def _set_concentration(target: Creature, event: ConcentrationStarted | ConcentrationEnded) -> None:
+    started = isinstance(event, ConcentrationStarted)
+    target.concentrating_on = event.concentration if started else None
+
+
+def _apply_rest_event(
+    state: GameState, event: CampSuppliesChanged | ShortRestTaken | LongRestTaken
+) -> None:
+    match event:
+        case CampSuppliesChanged(camp_supplies=supplies):
+            state.camp_supplies = supplies
+        case ShortRestTaken(short_rests_used=used):
+            state.short_rests_used = used
+        case LongRestTaken(camp_supplies=supplies):
+            state.camp_supplies = supplies
+            state.short_rests_used = 0
 
 
 def apply(state: GameState, event: AnyEvent) -> GameState:
@@ -208,25 +230,18 @@ def apply(state: GameState, event: AnyEvent) -> GameState:
             _remove_condition(_creature(state, cid), event)
         case ConditionTicked(creature_id=cid):
             _tick_condition(_creature(state, cid), event)
-        case ConcentrationStarted(creature_id=cid, concentration=concentration):
-            _creature(state, cid).concentrating_on = concentration
-        case ConcentrationEnded(creature_id=cid):
-            _creature(state, cid).concentrating_on = None
-        case DeathSaveRolled() | DeathSavesSet() | Stabilized() | CreatureDied():
+        case ConcentrationStarted() | ConcentrationEnded():
+            _set_concentration(_creature(state, event.creature_id), event)
+        case (
+            DeathSaveRolled() | DeathSavesSet() | Stabilized() | CreatureDied() | CreatureRevived()
+        ):
             _apply_death_event(_creature(state, event.creature_id), event)
-        case CreatureRevived(creature_id=cid):
-            _creature(state, cid).dead = False
         case ResourceSet(creature_id=cid, key=key, resource=resource):
             _creature(state, cid).resources[key] = resource
         case ResourceRemoved(creature_id=cid, key=key):
             _remove_resource(_creature(state, cid), key)
-        case CampSuppliesChanged(camp_supplies=supplies):
-            state.camp_supplies = supplies
-        case ShortRestTaken(short_rests_used=used):
-            state.short_rests_used = used
-        case LongRestTaken(camp_supplies=supplies):
-            state.camp_supplies = supplies
-            state.short_rests_used = 0
+        case CampSuppliesChanged() | ShortRestTaken() | LongRestTaken():
+            _apply_rest_event(state, event)
         case LevelGained(creature_id=cid):
             _level_gained(_creature(state, cid), event)
         case XpGained() | SpellbookChanged() | GoldChanged() | InventoryChanged():
@@ -244,7 +259,14 @@ def apply(state: GameState, event: AnyEvent) -> GameState:
             | ZoneSurfaceTicked()
         ):
             apply_encounter_event(state, event)
-        case DiceRolled() | CheckResolved() | DamageTaken() | AttackRolled() | SpellCast():
+        case (
+            DiceRolled()
+            | CheckResolved()
+            | DamageTaken()
+            | AttackRolled()
+            | SpellCast()
+            | MonsterActionUsed()
+        ):
             pass
         case _:
             assert_never(event)

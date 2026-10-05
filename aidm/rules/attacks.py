@@ -19,7 +19,8 @@ Public API:
   concentration check and the attacker's kill temp HP (a feature hook) when a hostile drops to 0.
   `state` must already include the events emitted before this hit.
 - `AttackResult(events, hit, crit, riders_used)`; `resolve_attack(rng, state, attacker_id,
-  target_id, profile, feats) -> AttackResult`: roll + weapon damage + feature riders (Sneak
+  target_id, profile, feats) -> AttackResult`: roll + weapon damage + the profile's typed
+  `extra_damage` parts (a monster bite's fire; doubled on a crit) + feature riders (Sneak
   Attack once per turn, Colossus Slayer...) + condition riders the attacker applied to the
   target (Hunter's Mark; doubled on a crit) + flat fighting-style bonuses already in the profile.
   `riders_used` names the once-per-turn riders spent (the command records them in the economy).
@@ -188,6 +189,11 @@ def _weapon_packets(
         DiceRolled(roll=main, roller_id=attacker_id, label=f"{profile.name} damage")
     ]
     packets = [DamagePacket(amount=main.total, damage_type=profile.damage_type)]
+    for part in profile.extra_damage:
+        extra = roll(part.dice, rng, crit=rolled.crit)
+        label = f"{profile.name} {part.damage_type.value} damage"
+        events.append(DiceRolled(roll=extra, roller_id=attacker_id, label=label))
+        packets.append(DamagePacket(amount=extra.total, damage_type=part.damage_type))
     spent: list[str] = []
     for rider in damage_riders(attacker, feats, ctx):
         amount = rider.flat

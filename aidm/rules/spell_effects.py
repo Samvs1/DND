@@ -168,8 +168,8 @@ def _condition(
         ctx.emit(concentration_upkeep(ctx.state, target_id))
 
 
-def _save_tags(effects: Sequence[Effect]) -> set[str]:
-    tags = {MAGIC_TAG}
+def _save_tags(effects: Sequence[Effect], magical: bool) -> set[str]:
+    tags = {MAGIC_TAG} if magical else set[str]()
     for effect in effects:
         if isinstance(effect, (ApplyConditionEffect, AcBuffEffect)):
             tags.add(effect.condition)
@@ -183,7 +183,9 @@ def _save(ctx: CastContext, effect: SaveEffect, target_id: str, shared: bool) ->
     if target.dead:
         return
     ability = Ability(effect.ability)
-    sources = save_advantage_sources(target, ctx.feats, ability, _save_tags(effect.on_fail))
+    sources = save_advantage_sources(
+        target, ctx.feats, ability, _save_tags(effect.on_fail, ctx.magical)
+    )
     result = save_with_conditions(
         ctx.rng, target, ability, ctx.numbers.save_dc, adv_sources=min(1, len(sources))
     )

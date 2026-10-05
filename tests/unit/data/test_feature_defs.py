@@ -24,6 +24,7 @@ from aidm.data.feature_hooks import (
 from aidm.data.race_defs import race_defs
 from aidm.data.srd import srd
 from aidm.models.abilities import Skill
+from aidm.rules.monster_keys import ability_slug
 
 RULES_DECISIONS = Path(__file__).resolve().parents[3] / "docs" / "RULES_DECISIONS.md"
 
@@ -41,6 +42,10 @@ def _referenced_ids() -> set[str]:
     return ids
 
 
+def _monster_traits() -> set[str]:
+    return {ability_slug(a.name) for m in srd().monsters.all() for a in m.special_abilities}
+
+
 def test_every_referenced_feature_has_an_entry() -> None:
     registry = feature_defs()
     missing = sorted(i for i in _referenced_ids() if i not in registry)
@@ -50,7 +55,8 @@ def test_every_referenced_feature_has_an_entry() -> None:
 def test_every_entry_is_referenced_or_a_pick_option() -> None:
     registry = feature_defs()
     options = {o for e in registry.all() if e.pick for o in e.pick.options}
-    orphans = sorted(e.index for e in registry.all() if e.index not in _referenced_ids() | options)
+    known = _referenced_ids() | options | _monster_traits()
+    orphans = sorted(e.index for e in registry.all() if e.index not in known)
     assert orphans == []
 
 

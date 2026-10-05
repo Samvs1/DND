@@ -21,8 +21,10 @@ is in docs/DECISIONS.md ("Spell DSL authoring guide").
   caster's zone for range self; `area` "zone_and_adjacent" adds the neighbouring zones);
   "point" (a zone in range and no creature: the caster is the only instance, e.g. a teleport).
   `order` "hp_ascending" runs the instances from the lowest current HP up (Sleep); `dead` True
-  means the creature targets must be dead (Revivify), else dead creatures are refused. This
-  block is how multi-targeting by count or area is expressed.
+  means the creature targets must be dead (Revivify), else dead creatures are refused.
+  `creature_types` (M3.8) limits creature targets to those SRD types (Hold Person: humanoid;
+  PCs and NPCs count as humanoid). This block is how multi-targeting by count or area is
+  expressed.
 - `effects`: ordered `Effect`s run for each target instance (area spells share one roll per
   damage/heal effect across targets, SRD).
 
@@ -102,6 +104,7 @@ class Targeting(_Strict):
     area: AreaKey | None = None
     order: Literal["chosen", "hp_ascending"] = "chosen"
     dead: bool = False
+    creature_types: tuple[str, ...] = ()
 
     @model_validator(mode="after")
     def _check_area(self) -> Targeting:

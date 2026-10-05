@@ -23,7 +23,7 @@ Public API:
   (`EncounterStarted`, `TurnStarted`, `TurnEnded`, `EconomyChanged`, `CombatantWithdrew`,
   `EncounterEnded`), and the combat events of `aidm.models.combat_events` (`AttackRolled`,
   `CombatantMoved`, `SpellCast`, `ZoneSurfaceAdded`, `ZoneSurfaceRemoved`, `ZoneSurfaceTicked`,
-  `CreatureRevived`).
+  `CreatureRevived`, `MonsterActionUsed`).
 - `AnyEvent` (plain union), `Event` (union annotated with the `type` discriminator),
   `EVENT_TYPES` (every event class, derived from the union), `event_adapter` (`TypeAdapter`
   for validate/dump of `Event`).
@@ -41,6 +41,7 @@ from aidm.models.combat_events import (
     AttackRolled,
     CombatantMoved,
     CreatureRevived,
+    MonsterActionUsed,
     SpellCast,
     ZoneSurfaceAdded,
     ZoneSurfaceRemoved,
@@ -361,6 +362,7 @@ type AnyEvent = (
     | ZoneSurfaceRemoved
     | ZoneSurfaceTicked
     | CreatureRevived
+    | MonsterActionUsed
 )
 
 Event = Annotated[AnyEvent, Field(discriminator="type")]

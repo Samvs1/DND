@@ -15,6 +15,9 @@
 
 Public API: `attack_command`, `throw_command`, `hide_command`, `help_command`,
 `dodge_command`; each `(state, command, regs[, rng]) -> list[AnyEvent]` or `CommandRefused`.
+`check_attack_target(state, actor, target_id, profile, regs)`: the target checks of an attack
+(a living combatant, not the attacker's charmer, in the profile's range band); monster actions
+(M3.8) use it too.
 """
 
 from aidm.data.combat_data import CombatRegistries
@@ -60,7 +63,7 @@ HELPED = "helped"
 DODGING = "dodging"
 
 
-def _check_attack(
+def check_attack_target(
     state: GameState, actor: Actor, target_id: str, profile: AttackProfile, regs: CombatRegistries
 ) -> None:
     target = combat_target(state, actor, target_id)
@@ -98,7 +101,7 @@ def _attack_with(
     regs: CombatRegistries,
     rng: Rng,
 ) -> list[AnyEvent]:
-    _check_attack(state, actor, target_id, profile, regs)
+    check_attack_target(state, actor, target_id, profile, regs)
     economy = _attack_economy(state, actor, profile, regs)
     feats = regs.chars.features
     result = resolve_attack(rng, state, actor.creature.id, target_id, profile, feats)

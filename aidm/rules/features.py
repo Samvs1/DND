@@ -6,9 +6,10 @@ proficiencies, expertise, spell grants) live in `aidm.rules.feature_build`. The 
 arrives as an argument (`feats`); nothing here loads files and nothing branches on a feature id.
 
 A creature's features are `pc.features` + `pc.traits` (class/subclass features, picked options
-and race traits), active from each hook's `min_level` at the character level (`pc.level`; 1 for
-creatures without `pc`). A `toggle` hook's `while_active` hooks join while the creature carries
-the toggle's condition with `source_id == key`.
+and race traits), or a monster's `traits` (special ability slugs; ids without an entry in the
+registry are flavour and ignored), active from each hook's `min_level` at the character level
+(`pc.level`; 1 for creatures without `pc`). A `toggle` hook's `while_active` hooks join while
+the creature carries the toggle's condition with `source_id == key`.
 
 Public API:
 - `character_level(creature) -> int`; `creature_feature_ids(creature) -> list[str]`.
@@ -23,6 +24,8 @@ Public API:
 - `damage_reroll_below(creature, feats, ctx) -> int`: reroll damage dice under this value
   (Great Weapon Fighting), 0 = none. `offhand_adds_ability(creature, feats, ctx) -> bool`.
 - `feature_ac_bonus(creature, feats, *, armored) -> int` (Defense).
+- `attack_advantage_sources(creature, feats, *, ally_adjacent) -> list[str]`: feature ids giving
+  advantage on this attack roll (Pack Tactics while an ally shares the target's zone).
 - `save_advantage_sources(creature, feats, ability, tags) -> list[str]`: feature ids giving
   advantage on this save against an effect carrying any of `tags` (condition keys, damage types,
   "magic").
@@ -42,6 +45,7 @@ from collections.abc import Collection, Sequence
 from aidm.data.feature_defs import FeatureDef
 from aidm.data.feature_hooks import (
     AdvantageOnHook,
+    AttackAdvantageHook,
     BonusActionHook,
     DamageRiderHook,
     ExtraActionHook,
@@ -79,14 +83,15 @@ def character_level(creature: Creature) -> int:
 
 def creature_feature_ids(creature: Creature) -> list[str]:
     if creature.pc is None:
-        return []
+        return list(dict.fromkeys(creature.traits))
     return list(dict.fromkeys([*creature.pc.features, *creature.pc.traits]))
 
 
 def feature_hooks(ids: Sequence[str], level: int, feats: Registry[FeatureDef]) -> list[HookPair]:
     pairs: list[HookPair] = []
     for feature_id in dict.fromkeys(ids):
-        for hook in feats.get(feature_id).hooks:
+        feature = feats.find(feature_id)
+        for hook in feature.hooks if feature is not None else ():
             if hook.min_level <= level:
                 pairs.append((feature_id, hook))
     return pairs
@@ -211,6 +216,16 @@ def damage_riders(
             if rider.dice is not None or rider.flat:
                 riders.append(rider)
     return riders
+
+
+def attack_advantage_sources(
+    creature: Creature, feats: Registry[FeatureDef], *, ally_adjacent: bool
+) -> list[str]:
+    return [
+        feature_id
+        for feature_id, hook in creature_hooks(creature, feats)
+        if isinstance(hook, AttackAdvantageHook) and ally_adjacent
+    ]
 
 
 def save_advantage_sources(

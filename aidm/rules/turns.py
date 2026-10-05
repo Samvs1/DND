@@ -6,10 +6,11 @@ Turn flow (events only; the session applies them between calls):
   starts the next round. Dying and stable PCs keep their turns (death saves); dead creatures are
   skipped. None: nobody can take a turn.
 - `begin_turn(rng, state) -> list[AnyEvent]`: opens the next turn: `TurnStarted` with a fresh
-  `TurnEconomy`, then (when a new round begins) the zone surface duration ticks, the
-  start-of-turn condition ticks (`condition_timing.turn_start_events`), the turn-start harms of
-  the surfaces in the creature's zone (`rules.surfaces`), then a death saving throw when the
-  creature is (still) dying (SRD: at the start of each of its turns).
+  `TurnEconomy`, then (when a new round begins) the zone surface duration ticks, the creature's
+  turn-start recharges (`resources.turn_recharge_events`: Recharge 5-6 rolls, legendary
+  points), the start-of-turn condition ticks (`condition_timing.turn_start_events`), the
+  turn-start harms of the surfaces in the creature's zone (`rules.surfaces`), then a death
+  saving throw when the creature is (still) dying (SRD: at the start of each of its turns).
   The economy reflects those consequences (a natural 20 on the death save wakes the creature
   up with its full economy; a surprised creature gets no action, bonus action, movement or
   reaction). Refused when a turn is already open or nobody can act.
@@ -48,6 +49,7 @@ from aidm.rules.death import is_dying, roll_death_save
 from aidm.rules.dice import Rng
 from aidm.rules.encounter import EncounterRefusal, EncounterRefused, active_encounter
 from aidm.rules.projection import project_creature, project_state
+from aidm.rules.resources import turn_recharge_events
 from aidm.rules.surface_state import surface_round_events
 from aidm.rules.surfaces import turn_start_surface_events
 
@@ -117,6 +119,7 @@ def begin_turn(rng: Rng, state: GameState) -> list[AnyEvent]:
     index, round_no = upcoming
     creature = state.creatures[enc.initiative[index].creature_id]
     consequences = surface_round_events(state) if round_no > enc.round else []
+    consequences.extend(turn_recharge_events(rng, creature))
     consequences.extend(turn_start_events(state, creature.id))
     after = project_state(state, consequences)
     consequences.extend(turn_start_surface_events(rng, after, creature.id))

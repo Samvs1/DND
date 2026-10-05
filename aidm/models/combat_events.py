@@ -14,6 +14,9 @@ Public API:
   kind (its effects: `aidm.rules.surfaces`).
 - `ZoneSurfaceRemoved(zone_id, kind, reason)`: the surface of that kind is gone from the zone.
 - `ZoneSurfaceTicked(zone_id, kind, rounds_left)`: its remaining duration after a round start.
+- `MonsterActionUsed(creature_id, action, name, target_ids, target_zone, legendary)`: a monster
+  used a catalog option (log only; the economy, resource, attack and effect events follow).
+  `legendary` marks a legendary action taken at the end of another creature's turn.
 - `CreatureRevived(creature_id)`: a dead creature is alive again (still at 0 HP: the healing
   events that follow give it its hit points). Applied by the reducer (`dead` = False).
 """
@@ -84,3 +87,13 @@ class ZoneSurfaceTicked(_CombatEvent):
 class CreatureRevived(_CombatEvent):
     type: Literal["creature_revived"] = "creature_revived"
     creature_id: str
+
+
+class MonsterActionUsed(_CombatEvent):
+    type: Literal["monster_action_used"] = "monster_action_used"
+    creature_id: str
+    action: str = Field(min_length=1)
+    name: str = Field(min_length=1)
+    target_ids: tuple[str, ...] = ()
+    target_zone: str | None = None
+    legendary: bool = False

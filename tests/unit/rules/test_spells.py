@@ -168,6 +168,8 @@ CUSTOM = CombatRegistries(
     chars=REGS.chars,
     consumables=REGS.consumables,
     spells=Registry(SpellDef.model_validate(s) for s in SYNTHETIC),
+    monsters=REGS.monsters,
+    monster_overlay=REGS.monster_overlay,
 )
 
 

@@ -3,8 +3,8 @@
 `attack_situation` gathers EVERY input of an attack roll from state, so the roll
 (`aidm.rules.attacks`) and the hotbar preview can never disagree:
 - advantage sources (combined with `combine_adv`): the attacker's and target's conditions
-  (`attacks_against_melee/ranged`, hidden, helped, dodging, prone...), high ground (BG3), and
-  long range (one disadvantage source);
+  (`attacks_against_melee/ranged`, hidden, helped, dodging, prone...), feature attack
+  advantage (Pack Tactics, M3.8), high ground (BG3), and long range (one disadvantage source);
 - target AC: the creature's AC + condition AC bonuses (Shield of Faith), at least the condition
   AC floor (Barkskin), + cover for a ranged attack from another zone (SRD 5.1 Cover);
 - crit threshold from features (Improved Critical), auto-crit for a melee hit on a paralyzed or
@@ -50,7 +50,7 @@ from aidm.rules.conditions import (
 )
 from aidm.rules.d20 import combine_adv
 from aidm.rules.dice import parse_dice
-from aidm.rules.features import crit_threshold, rerolls_natural_ones
+from aidm.rules.features import attack_advantage_sources, crit_threshold, rerolls_natural_ones
 from aidm.rules.zones import (
     MELEE_BAND,
     cover_ac_bonus,
@@ -102,6 +102,8 @@ def attack_situation(
     band = range_band(profile.range_normal, profile.range_long) if ranged else MELEE_BAND
     check = zone_range_check(zmap, a_zone, t_zone, band)
     adv, dis = attack_adv_counts(attacker, target, melee=not ranged)
+    ally = _ally_adjacent(state, enc, attacker_id, target_id)
+    adv += min(1, len(attack_advantage_sources(attacker, feats, ally_adjacent=ally)))
     hg_adv, hg_dis = high_ground_adv_counts(zmap, a_zone, t_zone, ranged=ranged)
     long_dis = 1 if check.long_range else 0
     ac = max(target.ac + condition_ac_bonus(target), condition_ac_floor(target))
@@ -113,7 +115,7 @@ def attack_situation(
         crit_on=crit_threshold(attacker, feats),
         auto_crit=not ranged and melee_hit_auto_crits(target),
         range_check=check,
-        ally_adjacent=_ally_adjacent(state, enc, attacker_id, target_id),
+        ally_adjacent=ally,
         lucky=rerolls_natural_ones(attacker, feats, "attack"),
     )
 
