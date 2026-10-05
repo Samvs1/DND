@@ -12,14 +12,18 @@
   --stone-2: #211a15;
   --stone-3: #2e241c;
   --gold: #d2a94e;
-  --gold-dim: #7d6128;
+  --gold-dim: #8f7230;
   --parchment: #ead9ab;
   --parchment-dim: #b9a679;
   --muted: #9b8d73;
-  --blood: #b5453a;
+  --blood: #c05449;
+  --blood-text: #e0786c;
   --moss: #4f8a3b;
-  --sapphire: #3f6aa8;
-  --amethyst: #7a54a6;
+  --moss-text: #6fae52;
+  --sapphire: #4a82c8;
+  --amethyst: #9370c0;
+  --on-accent: #1a1209;
+  --on-blood: #ffffff;
   --focus: #f4d675;
   --font-display: 'Jersey10', 'Courier New', monospace;
   --font-body: Georgia, 'Times New Roman', serif;
@@ -122,7 +126,6 @@ input[type='text'] {
 
 input[type='text']::placeholder {
   color: var(--muted);
-  opacity: 0.8;
 }
 
 .btn {
@@ -147,7 +150,7 @@ input[type='text']::placeholder {
 }
 
 .btn-primary {
-  color: #1a1209;
+  color: var(--on-accent);
   background: linear-gradient(180deg, #e2bd63, var(--gold));
   border-color: #f3dc94;
   box-shadow: 0 2px 0 #5c4519;
@@ -164,10 +167,25 @@ input[type='text']::placeholder {
   outline-offset: 2px;
 }
 
+.skip-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 20;
+  padding: 0.6rem 1rem;
+  color: var(--on-accent);
+  background: var(--gold);
+  transform: translateY(-120%);
+}
+
+.skip-link:focus {
+  transform: none;
+}
+
 .form-error {
   min-height: 1.25rem;
   margin: 0.25rem 0 0.5rem;
-  color: var(--blood);
+  color: var(--blood-text);
 }
 
 #banner {
@@ -183,7 +201,7 @@ input[type='text']::placeholder {
   justify-content: center;
   flex-wrap: wrap;
   padding: 0.6rem 1rem;
-  color: #1a1209;
+  color: var(--on-accent);
   background: var(--gold);
   border-bottom: 2px solid #000;
 }

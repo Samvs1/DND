@@ -44,7 +44,7 @@ function slotButton(desc, number) {
   const adv = desc.adv && desc.adv !== 'normal' ? h('span', { class: `adv-mark ${desc.adv}`, 'data-testid': 'adv-mark' }, t(desc.adv === 'advantage' ? 'hotbar.advUp' : 'hotbar.advDown')) : null;
   return h(
     'button',
-    { type: 'button', class: `hb-slot ${desc.group}`, 'data-testid': `slot-${desc.id}`, 'data-key': number <= 9 ? String(number) : null, disabled: Boolean(desc.off), 'aria-describedby': `tip-${desc.id}`, onclick: desc.run },
+    { type: 'button', class: `hb-slot ${desc.group}`, 'data-testid': `slot-${desc.id}`, 'data-key': number <= 9 ? String(number) : null, 'aria-keyshortcuts': number <= 9 ? String(number) : null, disabled: Boolean(desc.off), 'aria-describedby': `tip-${desc.id}`, onclick: desc.run },
     keyBadge(number),
     desc.art ? h('img', { class: 'hb-art', src: desc.art, alt: '', width: 28, height: 28 }) : null,
     h('span', { class: 'hb-label' }, desc.label),
@@ -57,7 +57,7 @@ function slotButton(desc, number) {
 function popButton(id, label, tip, open, onclick, number) {
   return h(
     'button',
-    { type: 'button', class: `hb-slot pop${open ? ' open' : ''}`, 'data-testid': `slot-${id}`, 'data-key': number <= 9 ? String(number) : null, 'aria-expanded': open ? 'true' : 'false', 'aria-describedby': `tip-${id}`, onclick },
+    { type: 'button', class: `hb-slot pop${open ? ' open' : ''}`, 'data-testid': `slot-${id}`, 'data-key': number <= 9 ? String(number) : null, 'aria-keyshortcuts': number <= 9 ? String(number) : null, 'aria-expanded': open ? 'true' : 'false', 'aria-describedby': `tip-${id}`, onclick },
     keyBadge(number),
     h('span', { class: 'hb-label' }, label),
     h('span', { class: 'hb-tip', role: 'tooltip', id: `tip-${id}` }, tip),
@@ -132,7 +132,7 @@ export function mountHotbar(root, ctx, ctrl) {
     }
     const econ = combat.economy ?? NO_ECON;
     const sheet = state.sheet?.sheet ?? null;
-    head.append(h('strong', { class: 'hb-turn' }, t('combat.yourTurn')), pips(econ, sheet?.speed));
+    head.append(h('strong', { class: 'hb-turn' }, t('combat.yourTurn')), pips(econ, sheet?.speed), h('span', { class: 'hb-keys', 'data-testid': 'hotbar-keys' }, t('hotbar.keysHint')));
     const bar = aimBar(ctrl);
     if (bar) aim.append(...bar.filter(Boolean));
     fillBody(body, pop, { ctrl, sheet, econ, me: myCreatureId(state) }, ctrl);

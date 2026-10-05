@@ -91,7 +91,7 @@ def test_screen_plays_narration_and_music_follows_the_fight(
         " text: 'The screen reads this aloud.', audio_url: url, tone: 'exploration' })",
         SPEECH,
     )
-    assert screen.evaluate("window.aidm.audio.state().playing") == SPEECH
+    screen.wait_for_function(f"window.aidm.audio.state().playing === '{SPEECH}'", timeout=10000)
     host.fill("[data-testid=action-input]", "I ambush the goblins from the shadows")
     host.click("[data-testid=action-send]")
     screen.wait_for_selector("[data-testid=board]:not([hidden])", timeout=30000)
@@ -104,18 +104,20 @@ def test_screen_plays_narration_and_music_follows_the_fight(
     screen.wait_for_function(f"({LIVE_MUSIC}).length === 1", timeout=10000)  # crossfade done
     assert _names(screen)[0].endswith("/audio/music/combat.mp3")
     screen.wait_for_selector("[data-testid=token]")
+    # Wait for a hero's turn: the server is then idle, so no late snapshot can undo STAND_DOWN.
+    screen.wait_for_selector("[data-testid=init-entry].ally.current", timeout=30000)
     snap(screen, shots_dir, "screen", 1280)
     screen.set_viewport_size(FULL_HD)
     snap(screen, shots_dir, "screen", 1920)
     # The fight ends: the victory stinger plays once, then the ambient bed returns.
     screen.evaluate(STAND_DOWN)
-    assert screen.evaluate(MUSIC)["playing"] == "victory"
+    screen.wait_for_function(f"({MUSIC}).playing === 'victory'", timeout=10000)
     screen.wait_for_function(f"({LIVE_MUSIC}).length === 1", timeout=10000)
     assert _names(screen)[0].endswith("/audio/music/victory.mp3")
     screen.evaluate(
         "[...window.__clips].reverse().find((c) => c.url.includes('victory')).onended()"
     )
-    assert screen.evaluate(MUSIC)["playing"] == "exploration"
+    screen.wait_for_function(f"({MUSIC}).playing === 'exploration'", timeout=10000)
     assert errors == []
 
 

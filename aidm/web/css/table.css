@@ -140,7 +140,7 @@ textarea {
 }
 
 .narr.tone-combat {
-  border-left-color: var(--blood);
+  border-left-color: var(--blood-text);
 }
 
 .narr.tone-social {
@@ -230,7 +230,7 @@ textarea {
 }
 
 .pcard.dying {
-  border-color: var(--blood);
+  border-color: var(--blood-text);
 }
 
 .pc-portrait {
@@ -338,7 +338,7 @@ textarea {
 
 .badge.dying,
 .badge.dead {
-  color: var(--blood);
+  color: var(--blood-text);
 }
 
 .badge.levelup {
@@ -346,7 +346,7 @@ textarea {
 }
 
 .badge.stable {
-  color: var(--moss);
+  color: var(--moss-text);
 }
 
 .dsaves {
@@ -368,12 +368,12 @@ textarea {
 
 .dsaves .pip.ok {
   background: var(--moss);
-  border-color: var(--moss);
+  border-color: var(--moss-text);
 }
 
 .dsaves .pip.fail {
   background: var(--blood);
-  border-color: var(--blood);
+  border-color: var(--blood-text);
 }
 
 .queue {
@@ -405,7 +405,7 @@ textarea {
 
 .combat-note {
   margin: 0 0 0.4rem;
-  color: var(--blood);
+  color: var(--blood-text);
 }
 
 .tb-dice summary {
@@ -476,11 +476,11 @@ textarea {
 }
 
 .adv-advantage {
-  color: var(--moss);
+  color: var(--moss-text);
 }
 
 .adv-disadvantage {
-  color: var(--blood);
+  color: var(--blood-text);
 }
 
 .tb-dock {
@@ -567,11 +567,11 @@ textarea {
 }
 
 .voter.ready {
-  border-color: var(--moss);
+  border-color: var(--moss-text);
 }
 
 .voter.declined {
-  border-color: var(--blood);
+  border-color: var(--blood-text);
 }
 
 .vote-actions {

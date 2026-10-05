@@ -55,7 +55,7 @@
 }
 
 .wz-step.current button {
-  color: #1a1209;
+  color: var(--on-accent);
   background: var(--gold);
   border-color: #f3dc94;
 }
@@ -205,7 +205,7 @@
 }
 
 .wz-chip.selected {
-  color: #1a1209;
+  color: var(--on-accent);
   background: var(--gold);
   border-color: #f3dc94;
 }
@@ -235,7 +235,7 @@
 }
 
 .btn.selected {
-  color: #1a1209;
+  color: var(--on-accent);
   background: var(--gold);
   border-color: #f3dc94;
 }
@@ -345,7 +345,7 @@
   place-items: center;
   width: 2rem;
   height: 2rem;
-  color: #1a1209;
+  color: var(--on-accent);
   font-family: var(--font-display);
   font-size: 1.2rem;
   background: var(--parchment);
@@ -469,7 +469,7 @@
 
 .wz-errors h3 {
   margin: 0 0 0.4rem;
-  color: var(--blood);
+  color: var(--blood-text);
   font-size: 1.2rem;
 }
 

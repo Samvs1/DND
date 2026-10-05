@@ -35,7 +35,7 @@
 .btn-danger {
   color: var(--parchment);
   background: #5b211c;
-  border-color: var(--blood);
+  border-color: var(--blood-text);
 }
 
 .panel-dialog {
@@ -106,11 +106,11 @@
 }
 
 .jr-quest.state-completed {
-  border-left-color: var(--moss);
+  border-left-color: var(--moss-text);
 }
 
 .jr-quest.state-failed {
-  border-left-color: var(--blood);
+  border-left-color: var(--blood-text);
 }
 
 .jr-quest-head {
@@ -365,4 +365,9 @@
 
 .shop-gold [data-testid='shop-supplies'] {
   margin-left: 0.8rem;
+}
+
+.set-keys {
+  margin: 0.4rem 0;
+  padding-left: 1.2rem;
 }

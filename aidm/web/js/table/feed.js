@@ -76,11 +76,13 @@ function plainNode(item) {
 }
 
 export function mountFeed(root, story, audio = null) {
-  const log = h('div', { class: 'feed', role: 'log', 'aria-live': 'polite', 'aria-label': t('table.feed'), tabindex: '0', 'data-testid': 'feed' });
+  const log = h('div', { class: 'feed', role: 'log', 'aria-live': 'off', 'aria-label': t('table.feed'), tabindex: '0', 'data-testid': 'feed' });
   const empty = h('p', { class: 'hint feed-empty' }, t('table.feedEmpty'));
+  // The log itself is silent (its text is typed letter by letter); a finished paragraph is read out once.
+  const announce = h('p', { class: 'sr-only', role: 'status', 'aria-live': 'polite', 'data-testid': 'narration-live' });
   const typist = createTypist();
   const nodes = new Map();
-  root.append(log);
+  root.append(log, announce);
 
   const nearBottom = () => log.scrollHeight - log.scrollTop - log.clientHeight < STICK_PX;
   const toBottom = () => {
@@ -127,7 +129,13 @@ export function mountFeed(root, story, audio = null) {
       toBottom();
     } else if (change.type === 'done') {
       const node = nodes.get(change.item.id);
-      if (node) typist.after(() => node.classList.remove('typing') || node.classList.add('done'));
+      if (node) {
+        typist.after(() => {
+          node.classList.remove('typing');
+          node.classList.add('done');
+          announce.textContent = node.textContent.trim();
+        });
+      }
     }
   }
 

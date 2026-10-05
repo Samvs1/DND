@@ -5,7 +5,7 @@
 // It follows the same mute/volume settings and the same screen-is-the-audio-device default as narration.
 // Audio elements come from `makeAudio(url)` (tests install a fake as `window.__aidmMakeAudio`).
 import { assetUrl, hasAsset } from '../assets.js';
-import { audioMuted, currentSettings, onSettingsChange } from '../settings/model.js';
+import { audioMuted, currentSettings, onSettingsChange, reducedMotion } from '../settings/model.js';
 
 export const FADE_MS = 1500;
 const TICK_MS = 50;
@@ -51,7 +51,7 @@ export function createMusic({ store, mode, makeAudio = (url) => new Audio(url) }
   }
 
   function tick() {
-    const step = TICK_MS / FADE_MS;
+    const step = reducedMotion() ? 1 : TICK_MS / FADE_MS; // reduced motion: switch beds without a fade
     if (channel && channel.level < 1) setVolume(channel, Math.min(1, channel.level + step));
     for (const ch of [...fading]) {
       setVolume(ch, ch.level - step);

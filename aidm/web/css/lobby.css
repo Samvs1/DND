@@ -133,7 +133,7 @@
 }
 
 .roster .hero.ready {
-  color: var(--moss);
+  color: var(--moss-text);
 }
 
 .roster .hero.pending {

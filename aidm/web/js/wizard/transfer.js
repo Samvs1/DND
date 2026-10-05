@@ -15,7 +15,7 @@ function errorTexts(errors) {
 
 export function importBlock(env) {
   const { importState, importHero } = env;
-  const input = h('input', { type: 'file', accept: '.json,application/json', class: 'sr-only', tabindex: '-1', 'data-testid': 'import-file' });
+  const input = h('input', { type: 'file', accept: '.json,application/json', class: 'sr-only', tabindex: '-1', 'aria-label': t('wz.importHero'), 'data-testid': 'import-file' });
   input.addEventListener('change', async () => {
     const file = input.files?.[0];
     input.value = '';

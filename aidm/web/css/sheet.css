@@ -259,7 +259,7 @@
 
 .sh-conc {
   padding: 0.2rem 0.5rem;
-  color: #1a1209;
+  color: var(--on-accent);
   background: var(--amethyst);
   border-radius: var(--radius);
 }
@@ -323,7 +323,7 @@
 
 .active-conc {
   background: var(--amethyst);
-  color: #1a1209;
+  color: var(--on-accent);
 }
 
 .slot-row {

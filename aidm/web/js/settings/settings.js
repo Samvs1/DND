@@ -36,6 +36,8 @@ export function mountSettings(root, { store, saved, mode }) {
       choice('set-speed', 'settings.speed', SPEEDS, 'speed', s.speed, (speed) => set({ speed })),
       choice('set-size', 'settings.size', Object.keys(SIZES), 'size', s.size, (size) => set({ size })),
       check('set-motion', 'settings.motion', s.reduceMotion, (reduceMotion) => set({ reduceMotion }), 'settings.motionHint'),
+      h('h3', {}, t('a11y.keysTitle')),
+      h('ul', { class: 'hint set-keys', 'data-testid': 'set-keys' }, ...['keyTab', 'keyHotbar', 'keyEscape'].map((k) => h('li', {}, t(`a11y.${k}`)))),
       h('button', { type: 'button', class: 'btn btn-small', 'data-testid': 'set-reset', onclick: () => { set({ ...DEFAULTS }); build(); } }, t('settings.reset')),
     );
   }

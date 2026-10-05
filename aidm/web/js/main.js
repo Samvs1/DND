@@ -17,6 +17,11 @@ const mode = window.location.pathname.startsWith('/screen') ? 'screen' : 'play';
 document.body.dataset.mode = mode;
 
 loadSettings(saved);
+const skip = document.createElement('a');
+skip.className = 'skip-link';
+skip.href = '#app';
+skip.textContent = t('a11y.skip');
+document.body.prepend(skip);
 const store = createStore();
 const dispatch = createDispatch({ store, saved });
 const client = createClient({ store, saved, dispatch, spectator: mode === 'screen' });

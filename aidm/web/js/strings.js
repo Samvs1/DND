@@ -6,6 +6,13 @@ export const STRINGS = {
     title: 'AI Dungeon Master',
     tagline: 'A tale told by the table, for the table',
   },
+  a11y: {
+    skip: 'Skip to content',
+    keysTitle: 'Keyboard',
+    keyHotbar: 'In a fight, keys 1 to 9 use the numbered hotbar slots on your turn.',
+    keyEscape: 'Escape cancels an aim and closes any open panel.',
+    keyTab: 'Tab and Shift+Tab move between controls; Enter or Space presses the focused one.',
+  },
   conn: {
     connecting: 'Reaching the table...',
     down: 'The connection to the table was lost. Trying again.',
@@ -327,6 +334,7 @@ export const STRINGS = {
   },
   hotbar: {
     label: 'Actions',
+    keysHint: 'Keys 1-9 use the numbered slots. Esc cancels.',
     attacks: 'Attacks',
     magic: 'Spells',
     moves: 'Actions',

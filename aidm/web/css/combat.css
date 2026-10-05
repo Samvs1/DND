@@ -76,7 +76,7 @@
 }
 
 .init.current {
-  color: #1a1209;
+  color: var(--on-accent);
   background: var(--gold);
   border-color: var(--focus);
   box-shadow: 0 0 10px rgba(244, 214, 117, 0.6);
@@ -90,7 +90,7 @@
 .aim-prompt {
   margin: 0;
   padding: 0.3rem 0.6rem;
-  color: #1a1209;
+  color: var(--on-accent);
   background: var(--gold);
   border-radius: var(--radius);
 }
@@ -186,7 +186,7 @@
 }
 
 .zsurface {
-  color: #1a1209;
+  color: var(--on-accent);
   background: var(--amethyst);
   border-color: var(--amethyst);
 }
@@ -227,11 +227,11 @@ body.in-combat .scene-place {
 
 .zmove {
   font-size: 0.78rem;
-  color: var(--moss);
+  color: var(--moss-text);
 }
 
 .zmove.far {
-  color: var(--blood);
+  color: var(--blood-text);
 }
 
 .tk {
@@ -321,13 +321,13 @@ body.in-combat .scene-place {
 }
 
 .tk-state.state-bloodied {
-  color: var(--blood);
+  color: var(--blood-text);
 }
 
 .tk-flag {
   margin-left: auto;
   padding: 0 0.35rem;
-  color: #fff;
+  color: var(--on-blood);
   font-size: 0.7rem;
   background: var(--blood);
   border-radius: 999px;
@@ -365,6 +365,12 @@ body.in-combat .scene-place {
   font-family: var(--font-display);
   font-size: 1.2rem;
   font-weight: 400;
+}
+
+.hb-keys {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.8rem;
 }
 
 .hb-wait {
@@ -429,7 +435,7 @@ body.in-combat .scene-place {
 .hb-note {
   min-height: 0;
   margin: 0;
-  color: var(--blood);
+  color: var(--blood-text);
 }
 
 .hb-note:empty,
@@ -445,7 +451,7 @@ body.in-combat .scene-place {
   gap: 0.5rem;
   align-items: center;
   padding: 0.25rem 0.5rem;
-  color: #1a1209;
+  color: var(--on-accent);
   background: var(--gold);
   border-radius: var(--radius);
 }
@@ -537,7 +543,7 @@ body.in-combat .scene-place {
 }
 
 .adv-mark.disadvantage {
-  color: var(--blood);
+  color: var(--blood-text);
 }
 
 .hb-tip {
