@@ -10,7 +10,8 @@ Public API:
 - `ReducerError(ValueError)` (defined in `reducer_errors`): the event does not fit the state
   (unknown creature id, duplicate id, no active encounter). This is always an engine bug: rules
   must only emit events valid for the current state. Encounter events are applied by
-  `aidm.session.encounter_apply`, world events by `aidm.session.world_apply`.
+  `aidm.session.encounter_apply`, world events by `aidm.session.world_apply`, campaign events by
+  `aidm.session.campaign_apply` (which also derives travel locks, DECISIONS M5.4).
 
 Semantics: every event increments `state.event_count` (log-only events included) and then does
 plain assignment of the resolved values it carries. The reducer never rolls dice, reads data or
@@ -20,7 +21,7 @@ fails pyright via `assert_never`.
 """
 
 from collections.abc import Iterable
-from typing import assert_never
+from typing import TypeIs, assert_never
 
 from aidm.models.character import InventoryItem, PcData
 from aidm.models.combat_events import (
@@ -71,9 +72,10 @@ from aidm.models.events import (
     XpGained,
 )
 from aidm.models.state import ActiveCondition, Creature, GameState
+from aidm.session.campaign_apply import CAMPAIGN_EVENT_TYPES, CampaignEvent, apply_campaign_event
 from aidm.session.encounter_apply import apply_encounter_event
 from aidm.session.reducer_errors import ReducerError
-from aidm.session.world_apply import WORLD_EVENT_TYPES, apply_world_event
+from aidm.session.world_apply import WORLD_EVENT_TYPES, WorldEvent, apply_world_event
 
 
 def _creature(state: GameState, creature_id: str) -> Creature:
@@ -214,9 +216,20 @@ def _apply_rest_event(
             state.short_rests_used = 0
 
 
-def apply(state: GameState, event: AnyEvent) -> GameState:
-    if isinstance(event, WORLD_EVENT_TYPES):
+def _is_registry_event(event: AnyEvent) -> TypeIs[WorldEvent | CampaignEvent]:
+    return isinstance(event, WORLD_EVENT_TYPES + CAMPAIGN_EVENT_TYPES)
+
+
+def _apply_registry_event(state: GameState, event: WorldEvent | CampaignEvent) -> None:
+    if isinstance(event, CAMPAIGN_EVENT_TYPES):
+        apply_campaign_event(state, event)
+    else:
         apply_world_event(state, event)
+
+
+def apply(state: GameState, event: AnyEvent) -> GameState:
+    if _is_registry_event(event):
+        _apply_registry_event(state, event)
         state.event_count += 1
         return state
     match event:

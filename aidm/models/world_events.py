@@ -26,6 +26,7 @@ Public API:
   scene turn counter becomes `scene_turn`.
 - `SceneSummarised(summary)` (M4.7): a scene summary joins the rolling memory and the count of
   unsummarised turns restarts at zero (its facts arrive as separate `FactRecorded` events).
+- `WorldEvents`: the union of these classes (joins `AnyEvent`).
 """
 
 from typing import Literal
@@ -126,3 +127,22 @@ class NarrationRecorded(_WorldEvent):
 class SceneSummarised(_WorldEvent):
     type: Literal["scene_summarised"] = "scene_summarised"
     summary: SceneSummary
+
+
+WorldEvents = (
+    NpcIntroduced
+    | FeatureIntroduced
+    | AttitudeChanged
+    | SecretRevealed
+    | PartyMoved
+    | QuestUpdated
+    | FactRecorded
+    | ShopOpened
+    | HostileActPending
+    | FeatureDiscovered
+    | NodeDescribed
+    | ItemPlaced
+    | ItemRemoved
+    | NarrationRecorded
+    | SceneSummarised
+)

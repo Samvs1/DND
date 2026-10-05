@@ -7,9 +7,10 @@ sees the registry through the manifest (M4.3). M4.2 adds the minimal shape; M4.3
 Public API:
 - `FeatureKind`: door / lever / cache / trap / container / passage / object / hazard.
 - `QuestState`: offered / active / completed / failed (completed and failed are final).
-- `NpcSecret(id, text, min_score, revealed)`: private NPC knowledge (never sent to clients or
-  narration context); `reveal_secret` succeeds only when the NPC's attitude score reaches
-  `min_score` (None: no attitude condition).
+- `NpcSecret(id, text, min_score, reveal, revealed)`: private NPC knowledge (never sent to
+  clients or narration context); `reveal_secret` succeeds only when the NPC's attitude score
+  reaches `min_score` (None: no attitude condition) AND the structured campaign condition
+  `reveal` (quest completed, item possessed, fact known...) holds (`aidm.rules.secrets`).
 - `WorldNpc(id, name, role, archetype_id, demeanor, voice_tag, node_id, scene_index, base,
   social, deeds, hostile, motive, secrets)`: a registered NPC. `archetype_id` is an SRD
   monster/NPC stat block index. The attitude score is derived by `aidm.rules.social` from
@@ -34,6 +35,8 @@ Public API:
 from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field
+
+from aidm.models.campaign import RevealCondition
 
 
 class FeatureKind(StrEnum):
@@ -60,6 +63,7 @@ class NpcSecret(BaseModel):
     id: str = Field(min_length=1)
     text: str = Field(min_length=1)
     min_score: int | None = None
+    reveal: RevealCondition | None = None
     revealed: bool = False
 
 

@@ -42,7 +42,8 @@ Public API:
   rests since the last long rest (BG3 limit, `aidm.rules.rests`). `encounter` (M3.2) is the
   current or last fight (`aidm.models.encounter.Encounter`), None before the first one.
   `world` (M4.2) is the entity registry outside combat (`aidm.models.world.World`).
-  `memory` (M4.3) is the rolling DM memory (`aidm.models.memory.Memory`).
+  `memory` (M4.3) is the rolling DM memory (`aidm.models.memory.Memory`). `campaign` (M5.3)
+  is the installed campaign and its progress (`aidm.models.campaign_state.CampaignState`).
 
 Growth rule: every field added later MUST have a default, so snapshots and event logs written by
 older builds still validate and replay. Models use `extra="forbid"` to catch typos early.
@@ -56,6 +57,7 @@ from typing import cast
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from aidm.models.abilities import Ability, Skill
+from aidm.models.campaign_state import CampaignState
 from aidm.models.character import PcData, Size
 from aidm.models.conditions import Concentration, ConditionDuration, SaveEnds, TurnBoundary
 from aidm.models.damage import DamageType
@@ -181,3 +183,4 @@ class GameState(BaseModel):
     encounter: Encounter | None = None
     world: World = Field(default_factory=World)
     memory: Memory = Field(default_factory=Memory)
+    campaign: CampaignState | None = None

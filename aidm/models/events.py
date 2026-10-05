@@ -23,7 +23,8 @@ Public API:
   (`EncounterStarted`, `TurnStarted`, `TurnEnded`, `EconomyChanged`, `CombatantWithdrew`,
   `EncounterEnded`), and the combat events of `aidm.models.combat_events` (`AttackRolled`,
   `CombatantMoved`, `SpellCast`, `ZoneSurfaceAdded`, `ZoneSurfaceRemoved`, `ZoneSurfaceTicked`,
-  `CreatureRevived`, `MonsterActionUsed`), and the world events of `aidm.models.world_events`.
+  `CreatureRevived`, `MonsterActionUsed`), the world events of `aidm.models.world_events`
+  (`WorldEvents`) and the campaign events of `aidm.models.campaign_events` (`CampaignEvents`).
 - `AnyEvent` (plain union), `Event` (union annotated with the `type` discriminator),
   `EVENT_TYPES` (every event class, derived from the union), `event_adapter` (`TypeAdapter`
   for validate/dump of `Event`).
@@ -34,6 +35,7 @@ from typing import Annotated, Literal, get_args
 
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
 
+from aidm.models import campaign_events as ce
 from aidm.models import world_events as we
 from aidm.models.abilities import Ability, Skill
 from aidm.models.character import PcData
@@ -364,21 +366,8 @@ type AnyEvent = (
     | ZoneSurfaceTicked
     | CreatureRevived
     | MonsterActionUsed
-    | we.NpcIntroduced
-    | we.FeatureIntroduced
-    | we.AttitudeChanged
-    | we.SecretRevealed
-    | we.PartyMoved
-    | we.QuestUpdated
-    | we.FactRecorded
-    | we.ShopOpened
-    | we.HostileActPending
-    | we.FeatureDiscovered
-    | we.NodeDescribed
-    | we.ItemPlaced
-    | we.ItemRemoved
-    | we.NarrationRecorded
-    | we.SceneSummarised
+    | we.WorldEvents
+    | ce.CampaignEvents
 )
 
 Event = Annotated[AnyEvent, Field(discriminator="type")]

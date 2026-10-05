@@ -30,6 +30,7 @@ from aidm.models.world_events import (
     SecretRevealed,
     ShopOpened,
 )
+from aidm.session.campaign_apply import refresh_travel
 from aidm.session.reducer_errors import ReducerError
 
 type WorldEvent = (
@@ -110,6 +111,7 @@ def _moved(state: GameState, event: PartyMoved) -> None:
     world.scene_turn = 0
     if event.to_node not in world.visited:
         world.visited.append(event.to_node)
+    refresh_travel(state)
 
 
 def _narrated(state: GameState, text: str, turn: int) -> None:

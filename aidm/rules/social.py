@@ -15,6 +15,7 @@ Public API:
 - Constants: `SCORE_MIN`, `SCORE_MAX`, `ALLY_BAR`, `FRIENDLY_BAR`, `UNFRIENDLY_BAR`,
   `HOSTILE_BAR`, `SOCIAL_CAP`, `SOCIAL_FLOOR`, `DELTA_POINTS` (points per `DeltaTier`).
 - `attitude_score(npc) -> int`, `attitude_band(score) -> AttitudeBand`,
+  `band_floor(band) -> int` (lowest score of a band),
   `npc_is_hostile(npc) -> bool` (flagged hostile, or the HOSTILE band).
 - `social_attitude_events(npc, delta, reason) -> list[AnyEvent]`: one `AttitudeChanged` with the
   clamped social contribution (empty when nothing changes).
@@ -66,6 +67,17 @@ def attitude_band(score: int) -> AttitudeBand:
     if score < ALLY_BAR:
         return AttitudeBand.FRIENDLY
     return AttitudeBand.ALLY
+
+
+def band_floor(band: AttitudeBand) -> int:
+    """The lowest score inside `band` (a reveal condition "at least friendly" -> 15)."""
+    return {
+        AttitudeBand.HOSTILE: SCORE_MIN,
+        AttitudeBand.UNFRIENDLY: HOSTILE_BAR + 1,
+        AttitudeBand.INDIFFERENT: UNFRIENDLY_BAR + 1,
+        AttitudeBand.FRIENDLY: FRIENDLY_BAR,
+        AttitudeBand.ALLY: ALLY_BAR,
+    }[band]
 
 
 def npc_is_hostile(npc: WorldNpc) -> bool:
