@@ -123,5 +123,18 @@
   "class_words": [
     "barbarian", "bard", "cleric", "druid", "fighter", "monk", "paladin", "ranger", "rogue",
     "sorcerer", "warlock", "wizard"
+  ],
+  "secret_stop_words": [
+    "about", "above", "after", "again", "against", "also", "among", "another", "around", "away",
+    "back", "because", "been", "before", "behind", "being", "below", "between", "both", "came",
+    "cannot", "could", "does", "doing", "down", "during", "each", "even", "ever", "every", "from",
+    "further", "have", "having", "here", "hers", "herself", "himself", "into", "itself", "just",
+    "knew", "know", "knows", "last", "like", "long", "made", "make", "many", "more", "most",
+    "much", "must", "never", "once", "only", "other", "over", "really", "said", "same", "says",
+    "secret", "secrets", "should", "some", "still", "such", "tell", "tells", "than", "that",
+    "their", "theirs", "them", "themselves", "then", "there", "these", "they", "this", "those",
+    "through", "told", "under", "until", "upon", "very", "want", "wants", "was", "were", "what",
+    "when", "where", "which", "while", "whom", "whose", "will", "with", "within", "without",
+    "would", "year", "years", "your", "yours", "yourself"
   ]
 }

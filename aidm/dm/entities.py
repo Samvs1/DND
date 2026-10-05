@@ -13,12 +13,15 @@ Public API:
   `all_names` adds dead creatures and hidden features; `is_known(name)` is a case-insensitive
   lookup in `visible_names`.
 - `entity_registry(state) -> EntityRegistry`.
+- `named_present_npcs(state, text) -> list[str]`: ids of the NPCs at the current node whose name
+  or role word (>= 3 letters) appears in `text` as a whole word, in id order.
 """
 
+import re
 from dataclasses import dataclass
 
 from aidm.models.state import Creature, GameState
-from aidm.rules.scene import node_display_name
+from aidm.rules.scene import current_scene, node_display_name
 
 
 def display_name(index: str) -> str:
@@ -94,3 +97,14 @@ def entity_registry(state: GameState) -> EntityRegistry:
         places=frozenset(_places(state)),
         lore=frozenset(world.lore_names),
     )
+
+
+def named_present_npcs(state: GameState, text: str) -> list[str]:
+    lowered = text.lower()
+    found: list[str] = []
+    for npc_id in sorted(current_scene(state).npc_ids):
+        npc = state.world.npcs[npc_id]
+        words = set(re.findall(r"[a-z']{3,}", f"{npc.name} {npc.role}".lower()))
+        if any(re.search(rf"\b{re.escape(w)}\b", lowered) for w in words):
+            found.append(npc_id)
+    return found

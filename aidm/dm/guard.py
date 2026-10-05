@@ -7,11 +7,13 @@ and the current scene (`aidm.dm.guard_scene`):
 - absent NPCs acting or named in an empty scene, invented crowds, present people erased
   (`absent_people`, `crowds`, `erased_people`);
 - dead creatures acting, intact items described as destroyed, unlisted doors, passages, levers,
-  chests and traps (`aidm.dm.guard_world`).
+  chests and traps (`aidm.dm.guard_world`);
+- any NPC's UNREVEALED secret stated in prose (`aidm.dm.guard_secrets`, M4.7): a reveal is a
+  `reveal_secret` tool call validated by the engine, never prose.
 Vocabulary is data (data/bg3/guard_lexicon.json); matching uses word boundaries and negation
 windows, so "unbroken" and "no hidden door" are not flagged.
 
-`guarded_narration` runs the flow for any model prose (narration now, NPC speech in M4.7):
+`guarded_narration` runs the flow for any model prose (narration, NPC speech `aidm.dm.npc_voice`):
 guard every sentence, ONE regeneration with a correction and the offending names scrubbed
 from the context, then the safe template (`aidm.dm.guard_flow.GuardedSentences`).
 
@@ -27,6 +29,7 @@ from collections.abc import Sequence
 from aidm.dm.guard_flow import MAX_SENTENCES, GuardedSentences
 from aidm.dm.guard_names import absent_people, crowds, erased_people, unknown_names, wrong_identity
 from aidm.dm.guard_scene import GuardScene, guard_scene
+from aidm.dm.guard_secrets import leaked_secrets
 from aidm.dm.guard_text import tokenize
 from aidm.dm.guard_types import GuardReport, ProseCheck, Violation
 from aidm.dm.guard_world import dead_acting, destroyed_items, unlisted_features
@@ -52,6 +55,7 @@ def _sentence_violations(sentence: str, scene: GuardScene) -> list[Violation]:
         *dead_acting(sentence, scene),
         *destroyed_items(sentence, tokens, scene),
         *unlisted_features(sentence, tokens, scene),
+        *leaked_secrets(sentence, scene.secrets),
     ]
 
 

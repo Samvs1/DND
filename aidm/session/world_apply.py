@@ -26,6 +26,7 @@ from aidm.models.world_events import (
     NpcIntroduced,
     PartyMoved,
     QuestUpdated,
+    SceneSummarised,
     SecretRevealed,
     ShopOpened,
 )
@@ -46,11 +47,26 @@ type WorldEvent = (
     | ItemPlaced
     | ItemRemoved
     | NarrationRecorded
+    | SceneSummarised
 )
 
-type SceneEvent = FeatureDiscovered | NodeDescribed | ItemPlaced | ItemRemoved | NarrationRecorded
+type SceneEvent = (
+    FeatureDiscovered
+    | NodeDescribed
+    | ItemPlaced
+    | ItemRemoved
+    | NarrationRecorded
+    | SceneSummarised
+)
 
-SCENE_EVENT_TYPES = (FeatureDiscovered, NodeDescribed, ItemPlaced, ItemRemoved, NarrationRecorded)
+SCENE_EVENT_TYPES = (
+    FeatureDiscovered,
+    NodeDescribed,
+    ItemPlaced,
+    ItemRemoved,
+    NarrationRecorded,
+    SceneSummarised,
+)
 
 WORLD_EVENT_TYPES = (
     NpcIntroduced,
@@ -67,6 +83,7 @@ WORLD_EVENT_TYPES = (
     ItemPlaced,
     ItemRemoved,
     NarrationRecorded,
+    SceneSummarised,
 )
 
 
@@ -95,6 +112,16 @@ def _moved(state: GameState, event: PartyMoved) -> None:
         world.visited.append(event.to_node)
 
 
+def _narrated(state: GameState, text: str, turn: int) -> None:
+    memory = state.memory
+    if memory.turns_since_summary == 0:
+        memory.since_scene = state.world.scene_index
+        memory.since_node = state.world.current_node
+    memory.turns_since_summary += 1
+    memory.narration = [*memory.narration, text][-MAX_NARRATION_LOG:]
+    state.world.scene_turn = turn
+
+
 def _scene_event(state: GameState, event: SceneEvent) -> None:
     world = state.world
     match event:
@@ -115,9 +142,10 @@ def _scene_event(state: GameState, event: SceneEvent) -> None:
             if world.items.pop(item_id, None) is None:
                 raise ReducerError(f"unknown item {item_id!r}")
         case NarrationRecorded(text=text, scene_turn=turn):
-            log = [*state.memory.narration, text]
-            state.memory.narration = log[-MAX_NARRATION_LOG:]
-            world.scene_turn = turn
+            _narrated(state, text, turn)
+        case SceneSummarised(summary=summary):
+            state.memory.summaries.append(summary)
+            state.memory.turns_since_summary = 0
         case _:
             assert_never(event)
 

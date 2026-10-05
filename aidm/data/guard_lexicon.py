@@ -40,6 +40,7 @@ class GuardLexicon(BaseModel):
     crowd_nouns: frozenset[str]
     erase_phrases: frozenset[str]
     class_words: frozenset[str]
+    secret_stop_words: frozenset[str] = frozenset()
 
     @model_validator(mode="after")
     def _check(self) -> GuardLexicon:

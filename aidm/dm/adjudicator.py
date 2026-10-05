@@ -29,7 +29,8 @@ In combat, free text is a `creative_action` (`AdjudicationOptions.creative_actio
 
 Public API: `MAX_ROUNDS`, `MAX_CALLS_PER_ROUND`, `CREATIVE_ACTION_TOOLS`, `EMPTY_NOTICE`,
 `FALLBACK_NOTICE`, `AdjudicationOptions`, `ResolvedCall`, `AdjudicationResult`,
-`choose_role(state, text)`, `adjudicate(state, actor_id, text, llm, ctx, rng, regs, apply)`.
+`choose_role(state, text)`, `is_social_text(text)` (quoted speech or a social verb),
+`adjudicate(state, actor_id, text, llm, ctx, rng, regs, apply)`.
 """
 
 import re
@@ -39,6 +40,7 @@ from typing import Any
 
 from aidm.dm.context import DEFAULT_BUDGET_TOKENS, build_context, to_messages
 from aidm.dm.context_text import ContextPurpose
+from aidm.dm.entities import named_present_npcs
 from aidm.dm.llm_client import LlmClient
 from aidm.dm.llm_types import LlmFailure, LlmRole, ToolCall, ToolCallResult
 from aidm.dm.tool_context import PendingConfirmation, ToolContext, ToolRegistries, ToolResult
@@ -123,14 +125,14 @@ class _Run:
         )
 
 
+def is_social_text(text: str) -> bool:
+    return '"' in text or _SOCIAL.search(text.lower()) is not None
+
+
 def choose_role(state: GameState, text: str) -> LlmRole:
     lowered = text.lower()
-    npcs = [state.world.npcs[i] for i in current_scene(state).npc_ids]
-    if npcs:
-        names = {w for n in npcs for w in re.findall(r"[a-z']{3,}", f"{n.name} {n.role}".lower())}
-        named = any(re.search(rf"\b{re.escape(w)}\b", lowered) for w in names)
-        if named or '"' in text or _SOCIAL.search(lowered):
-            return LlmRole.QUALITY
+    if current_scene(state).npc_ids and (named_present_npcs(state, text) or is_social_text(text)):
+        return LlmRole.QUALITY
     if len(text.split()) > 40 or _CHAINED.search(lowered):
         return LlmRole.QUALITY
     return LlmRole.FAST

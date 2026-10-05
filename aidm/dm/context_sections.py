@@ -7,17 +7,20 @@ the other builders never read it.
 Public API:
 - `manifest_lines(state, scene, show_ids) -> list[str]` (ends with `CLOSED_WORLD`).
 - `party_lines(state, short) -> list[str]`: one compact sheet line per living PC.
-- `quest_lines(state) -> list[str]`; `fact_lines(state, focus, k) -> list[str]` (top-k facts by
-  entity overlap with `focus`, then the most recent).
+- `quest_lines(state) -> list[str]`; `relevant_facts(facts, focus, k) -> list[Fact]` (THE fact
+  retrieval: top-k by entity overlap with `focus`, ties broken by recency; deterministic);
+  `fact_lines(state, focus, k) -> list[str]` (their texts).
 - `memory_lines(state, last_n) -> list[str]`: scene summaries then the last narration turns.
 - `npc_private_lines(state, npc_id) -> list[str]`.
 - `scene_focus(state, scene, actor_id, npc_id) -> frozenset[str]`: entity ids of the scene.
 """
 
+from collections.abc import Iterable, Sequence
+
 from aidm.dm.context_text import CLOSED_WORLD
 from aidm.dm.entities import display_name
 from aidm.models.state import Creature, GameState
-from aidm.models.world import QuestState, WorldNpc
+from aidm.models.world import Fact, QuestState, WorldNpc
 from aidm.rules.scene import SceneView, node_display_name
 from aidm.rules.social import attitude_band, attitude_score
 
@@ -149,12 +152,16 @@ def scene_focus(
     return frozenset(ids)
 
 
-def fact_lines(state: GameState, focus: frozenset[str], k: int) -> list[str]:
-    facts = state.world.facts
+def relevant_facts(facts: Sequence[Fact], focus: Iterable[str], k: int) -> list[Fact]:
+    wanted = frozenset(focus)
     ranked = sorted(
-        range(len(facts)), key=lambda i: (-len(focus.intersection(facts[i].entity_ids)), -i)
+        range(len(facts)), key=lambda i: (-len(wanted.intersection(facts[i].entity_ids)), -i)
     )
-    return [facts[i].text for i in ranked[:k]]
+    return [facts[i] for i in ranked[: max(k, 0)]]
+
+
+def fact_lines(state: GameState, focus: frozenset[str], k: int) -> list[str]:
+    return [f.text for f in relevant_facts(state.world.facts, focus, k)]
 
 
 def memory_lines(state: GameState, last_n: int) -> list[str]:

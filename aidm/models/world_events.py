@@ -24,12 +24,15 @@ Public API:
 - `ItemPlaced(item)` / `ItemRemoved(item_id)`: a world item appears in / leaves a place.
 - `NarrationRecorded(text, scene_turn)`: one narrated turn joins the rolling memory and the
   scene turn counter becomes `scene_turn`.
+- `SceneSummarised(summary)` (M4.7): a scene summary joins the rolling memory and the count of
+  unsummarised turns restarts at zero (its facts arrive as separate `FactRecorded` events).
 """
 
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from aidm.models.memory import SceneSummary
 from aidm.models.world import Fact, Quest, WorldFeature, WorldItem, WorldNpc
 
 
@@ -118,3 +121,8 @@ class NarrationRecorded(_WorldEvent):
     type: Literal["narration_recorded"] = "narration_recorded"
     text: str = Field(min_length=1)
     scene_turn: int = Field(ge=0)
+
+
+class SceneSummarised(_WorldEvent):
+    type: Literal["scene_summarised"] = "scene_summarised"
+    summary: SceneSummary

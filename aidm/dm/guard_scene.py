@@ -3,7 +3,8 @@
 `guard_scene(state, events)` freezes the facts every check needs: the known name words (the
 entity registry, `aidm.dm.entities`), who is present, who is dead, which absent NPCs exist, the
 party's names and classes, the nouns of items the party may not see destroyed, and the words of
-the features and description of the current place. Recent `events` (already applied to
+the features and description of the current place, and the keys of every unrevealed NPC secret
+(`aidm.dm.guard_secrets`). Recent `events` (already applied to
 `state`) mark items that really were lost (`InventoryChanged` with a negative delta,
 a removed world item is no longer in the scene), so describing those as gone is allowed.
 
@@ -16,6 +17,7 @@ from dataclasses import dataclass
 
 from aidm.data.guard_lexicon import GuardLexicon, guard_lexicon
 from aidm.dm.entities import display_name, entity_registry
+from aidm.dm.guard_secrets import SecretKey, secret_keys
 from aidm.models import events as ev
 from aidm.models.state import GameState
 from aidm.rules.scene import SceneView, current_scene, node_display_name
@@ -41,6 +43,7 @@ class GuardScene:
     others_present: int
     item_nouns: dict[str, str]
     feature_words: frozenset[str]
+    secrets: tuple[SecretKey, ...] = ()
 
 
 def _lost_items(events: Sequence[ev.AnyEvent]) -> set[str]:
@@ -85,6 +88,10 @@ def _role_words(state: GameState, ids: Iterable[str]) -> set[str]:
         npc = state.world.npcs[npc_id]
         out |= words_of(f"{npc.role} {npc.archetype_id}")
     return {w for w in out if len(w) >= 4}
+
+
+def _all_role_words(state: GameState) -> set[str]:
+    return set().union(*(words_of(n.role) for n in state.world.npcs.values()))
 
 
 def _absent_terms(absent: set[str], here: set[str], lex: GuardLexicon) -> dict[str, str]:
@@ -132,4 +139,7 @@ def guard_scene(state: GameState, events: Sequence[ev.AnyEvent] = ()) -> GuardSc
         others_present=len(present_ids) + len(scene.monster_ids),
         item_nouns=_item_nouns(carried, lex),
         feature_words=_feature_words(state, scene),
+        secrets=secret_keys(
+            state, frozenset(known | _all_role_words(state)), lex.secret_stop_words
+        ),
     )

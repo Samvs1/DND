@@ -378,6 +378,7 @@ type AnyEvent = (
     | we.ItemPlaced
     | we.ItemRemoved
     | we.NarrationRecorded
+    | we.SceneSummarised
 )
 
 Event = Annotated[AnyEvent, Field(discriminator="type")]

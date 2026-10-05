@@ -5,8 +5,12 @@ an NPC is a deed (`aidm.rules.social.deed_attitude_events`, moderate tier) - the
 the ally bar. Facts: every entity id must name something known (creature, NPC, feature, quest
 or world node), so the ledger cannot invent entities.
 
-Public API: `run_update_quest`, `run_record_fact` -> `ToolResult`; `known_entity_ids(state)`.
+Public API: `run_update_quest`, `run_record_fact` -> `ToolResult`; `known_entity_ids(state)`;
+`new_fact(state, text, entity_ids, tags, offset=0) -> Fact` (the ONE way a ledger entry is built,
+shared with the M4.7 summariser; `offset` numbers several facts recorded together).
 """
+
+from collections.abc import Sequence
 
 from aidm.dm.tool_context import ToolContext, ToolRefused, ToolRegistries, ToolResult
 from aidm.dm.tool_exec_common import require_npc
@@ -60,6 +64,21 @@ def known_entity_ids(state: GameState) -> set[str]:
     return known
 
 
+def new_fact(
+    state: GameState,
+    text: str,
+    entity_ids: Sequence[str],
+    tags: Sequence[str],
+    offset: int = 0,
+) -> Fact:
+    return Fact(
+        id=f"fact-{len(state.world.facts) + 1 + offset}",
+        text=text.strip(),
+        entity_ids=tuple(dict.fromkeys(entity_ids)),
+        tags=tuple(dict.fromkeys(t.strip().lower()[:MAX_TAG_CHARS] for t in tags if t.strip())),
+    )
+
+
 def run_record_fact(
     state: GameState, args: RecordFactArgs, ctx: ToolContext, rng: Rng, regs: ToolRegistries
 ) -> ToolResult:
@@ -68,11 +87,5 @@ def run_record_fact(
     unknown = [e for e in args.entity_ids if e not in known_entity_ids(state)]
     if unknown:
         raise ToolRefused(f"unknown entity ids: {', '.join(unknown)}")
-    tags = tuple(dict.fromkeys(t.strip().lower()[:MAX_TAG_CHARS] for t in args.tags if t.strip()))
-    fact = Fact(
-        id=f"fact-{len(state.world.facts) + 1}",
-        text=args.text.strip(),
-        entity_ids=tuple(dict.fromkeys(args.entity_ids)),
-        tags=tags,
-    )
+    fact = new_fact(state, args.text, args.entity_ids, args.tags)
     return ToolResult(events=(FactRecorded(fact=fact),), summary=f"fact {fact.id} recorded")

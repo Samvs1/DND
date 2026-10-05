@@ -1,4 +1,4 @@
-NEXT: M4.7 Memory and NPC voice. Delegate to hard-engineer. Last gate: M4.6 GATE PASS 8/8.
+NEXT: M4.8 Injection suite, no-key e2e, tests/live scaffolding (FULL gate, commit `M4: AI layer`). Delegate to hard-engineer. Files in flight: none. Last gate: M4.7 FULL GATE PASS 8/8.
 
 # PROGRESS
 
@@ -57,7 +57,7 @@ Stashes and blockers: record them in the Notes section at the bottom.
 - [x] M4.4 **H** Adjudicator: tool loop (<=5 tools/round, <=3 rounds), deterministic pre-checks (rest, shop, travel to neighbour, inventory, look around), creative_action in combat. Gate: pytest tests/ai.
 - [x] M4.5 **H** Narrator: streamed QUALITY call, sentence chunker, tone from state, template narration from events (no key or outage); `test_v1_failed_checks_always_narrate`. Gate: pytest tests/ai. (commit 29b9b28)
 - [x] M4.6 **H** `dm/guard.py`: unlisted names (word boundary, lore allow-list), dead creatures acting, undestroyed items described destroyed, wrong class/name, unlisted features; one retry with scrubbed context, then the safe fallback; v1 tests (hidden-door synonyms, "unbroken", dead boss, crowd plurals, absent NPCs in an empty scene). Gate: pytest tests/ai.
-- [ ] M4.7 **H** Memory and NPC voice: scene summariser (FAST, structured), fact ledger with entity-tag retrieval, summarise every 12 turns or at scene end; npc_voice with private data, guarded. Gate: pytest tests/ai.
+- [x] M4.7 **H** Memory and NPC voice: scene summariser (FAST, structured), fact ledger with entity-tag retrieval, summarise every 12 turns or at scene end; npc_voice with private data, guarded. Gate: pytest tests/ai.
 - [ ] M4.8 **H** Injection suite (>=20 FakeLLM adversary cases), end-to-end fallback test (no key = fully playable exploration plus combat), `tests/live` scaffolding (skipped without RUN_LIVE). FULL gate. Commit `M4: AI layer`.
 
 ## M5 Campaign (SPEC 9)
@@ -129,6 +129,7 @@ If the API rejects the key or needs organisation verification: stop M10 generati
 10. The final message is a VERIFICATION REPORT plus the Tier-2 items not built.
 
 ## Notes (stashes, blockers, decisions pending)
+- M4.7: memory = aidm/dm/memory.py (`should_summarise(state, events)`, `async summarise(state, llm, *, events) -> SummaryOutcome(summary, events, failure, dropped)`; apply `.events` = SceneSummarised + FactRecorded) + memory_fallback.py; ONE fact retrieval `context_sections.relevant_facts`. NPC voice = aidm/dm/npc_voice.py (`voice_target(state, result, text) -> npc_id | None`, `npc_voice(state, npc_id, llm, *, actor_id, player_text, result) -> NarrationStream`, SOCIAL tone). Session (M6) order: adjudicate -> narrate -> npc_voice if voice_target -> ONE record_narration(narration + speech) -> if should_summarise: summarise. Guard now flags unrevealed secrets (guard_secrets.py, ViolationKind.SECRET_LEAK). Decisions: DECISIONS M4.7.
 - M4.6: THE guard = aidm/dm/guard.py: `check_prose(text, state, *, events, scene) -> GuardReport`, `prose_checker(state, events)` (a `ProseCheck`), `guarded_narration(llm, messages, check, fallback_lines, *, role, max_tokens, player_text) -> GuardedSentences` (one retry with scrubbed names, then the template; `collect()`, `source`, `retried`, `reports`). M4.7 npc_voice must call `guarded_narration` with `prose_checker(state)` and an in-character fallback line. Vocabulary: data/bg3/guard_lexicon.json (DECISIONS M4.6).
 - M4.5: `narrate(state, adjudication_or_events, llm, *, actor_id, player_text, tone, allow_numbers, guard, budget_tokens) -> NarrationStream` (async iterator of `NarrationChunk(index, text, tone)`; `collect()`, `text`, `source`, `failure`, `reports`) and `narrate_round_segment(state, events, llm)` in aidm/dm/narrator.py; `template_narration(events, state, notice)` in dm/narration_templates.py; `record_narration(state, text)` -> NarrationRecorded for the session. Guard hook: `guard: ProseCheck` (dm/guard_types.py) is called per sentence before yield (DECISIONS M4.5).
 - M4.4: `adjudicate(state, actor_id, text, llm, AdjudicationOptions(...), rng, regs, apply)` in aidm/dm/adjudicator.py -> `AdjudicationResult` (calls with ToolResults for the narrator, events, pending + pending_call, fallback/failure, notice, audit); pre-checks `precheck(state, actor_id, text) -> Intent | None` + `look_around_text` in aidm/dm/precheck.py (session runs the intents in M6). The narrator (M4.5) gets `result.calls`/`result.events`, and `notice` when fallback is set (DECISIONS M4.4).

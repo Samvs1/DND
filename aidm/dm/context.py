@@ -161,7 +161,7 @@ def build_context(
     narration_n: int = 6,
 ) -> ContextPack:
     scene = current_scene(state)
-    show_ids = purpose is ContextPurpose.ADJUDICATE
+    show_ids = purpose in (ContextPurpose.ADJUDICATE, ContextPurpose.SUMMARIZE)
     sections = [
         ContextSection(SectionKey.SYSTEM, "SYSTEM", (system_text(purpose),)),
         _section(SectionKey.MANIFEST, manifest_lines(state, scene, show_ids)),
