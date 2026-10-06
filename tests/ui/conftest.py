@@ -18,12 +18,15 @@ from aidm.dm.fake_llm import FakeLLM, FakeStep, default_fake_step, fake_tool_cal
 from aidm.dm.llm_backend import CompletionRequest
 from aidm.dm.llm_client import LlmClient
 from aidm.dm.llm_types import LlmMode
+from aidm.models.state import GameState
 from aidm.server.app import create_app
 from aidm.server.settings import ServerSettings, server_settings_from_env
+from aidm.session.persistence import new_game_state
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 WEB_SOURCE = ROOT / "aidm" / "web"
 SHOTS = ROOT / "artifacts" / "ui"
+JOURNEY_SEED = 2
 
 
 @dataclass(frozen=True)
@@ -43,6 +46,7 @@ def _serve(
     tmp_path: Path,
     llm_for: Callable[[ServerSettings], LlmClient] | None = None,
     web_root: Path | None = None,
+    state: GameState | None = None,
 ) -> Iterator[LiveServer]:
     port = free_port()
     settings = server_settings_from_env(
@@ -55,7 +59,7 @@ def _serve(
         web_root=web_root,
     )
     llm = llm_for(settings) if llm_for else None
-    app = create_app(settings, llm=llm)
+    app = create_app(settings, llm=llm, state=state)
     config = uvicorn.Config(app, host="127.0.0.1", port=port, log_level="warning")
     server = uvicorn.Server(config)
     loops: list[asyncio.AbstractEventLoop] = []
@@ -133,6 +137,25 @@ def combat_server(tmp_path: Path) -> Iterator[LiveServer]:
         return LlmClient(FakeLLM(responder=_combat_responder), settings.llm, LlmMode.FAKE, None)
 
     yield from _serve(tmp_path, make)
+
+
+def _journey_responder(request: CompletionRequest) -> FakeStep:
+    """FakeLLM for the full journey: "search" asks for a check, "ambush" starts a fight."""
+    last = next((m for m in reversed(request.messages) if m.get("role") == "user"), {})
+    if "ambush" in str(last.get("content", "")).lower():
+        return _combat_responder(request)
+    return _search_responder(request)
+
+
+@pytest.fixture
+def journey_server(tmp_path: Path) -> Iterator[LiveServer]:
+    """Like `live_server`, but "search" gives a skill check and "ambush" a fight (M9.3)."""
+
+    def make(settings: ServerSettings) -> LlmClient:
+        return LlmClient(FakeLLM(responder=_journey_responder), settings.llm, LlmMode.FAKE, None)
+
+    # A fixed dice seed keeps the fight's course (and so the journey) reproducible.
+    yield from _serve(tmp_path, make, state=new_game_state(seed=JOURNEY_SEED))
 
 
 @pytest.fixture

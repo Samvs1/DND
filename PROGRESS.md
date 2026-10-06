@@ -1,4 +1,4 @@
-NEXT: M9.3 Playwright suite. Delegate to mechanical-engineer. Last gate: M9.2 GATE PASS 10/10; SIMULATION OK seeds=20.
+NEXT: M9.4 Live DeepSeek and Fish tests. Delegate to hard-engineer. Last gate: M9.3 GATE PASS 10/10.
 
 # PROGRESS
 
@@ -98,7 +98,7 @@ Stashes and blockers: record them in the Notes section at the bottom.
 ## M9 Hardening (SPEC 13, 15)
 - [x] M9.1 **M** `scripts/simulate_party.py --seeds N [--live-ai]`: 3 WS bots (fighter, explorer, chaotic) plus the SPEC 13 assertions, printing `SIMULATION OK ...`. Gate: script runs (failures are allowed and logged to Notes for M9.2).
 - [x] M9.2 **H** Fix simulation defects until 20 seeds pass with the fake AI. Gate: `SIMULATION OK seeds=20` plus the full gate. (commits 3ff7a03 and the final "WIP M9.2: balance, progression, starting resources; sim green")
-- [ ] M9.3 **M** Playwright suite (`AIDM_FAKE_LLM=1`, two contexts: join, create, act, narration, combat hotbar, reconnect), screenshots in `artifacts/ui/`. Gate: pytest tests/ui.
+- [x] M9.3 **M** Playwright suite (`AIDM_FAKE_LLM=1`, two contexts: join, create, act, narration, combat hotbar, reconnect), screenshots in `artifacts/ui/`. Gate: pytest tests/ui.
 - [ ] M9.4 **H** Live: `RUN_LIVE=1 pytest tests/live` (DeepSeek tool round trip, campaign gen, guard on real output, injections, Fish mp3 >5 KB) plus `simulate_party.py --seeds 2 --live-ai`. Gate: live tests green.
 - [ ] M9.5 **H** Adversarial QA by a fresh subagent (read-only report) and fix the defects. Gate: full gate plus the sim.
 - [ ] M9.6 **M** README (run, `--lan`, firewall note, SRD attribution), `docs/ARCHITECTURE.md`, a server boot plus `/healthz`, the VERIFICATION REPORT, and an honest list of Tier-2 items not built. FULL gate. Commit `M9: Hardening`.
