@@ -48,6 +48,8 @@ class Bot:
         self.plan = Plan(role=PLAN_ROLE[role], hero_id="", rng=rng)
         self.turn_task: asyncio.Task[None] | None = None
         self.answered_prompts = 0
+        # Scales the short per-command waits (combat, sheet): 1.0 fake AI, more with --live-ai.
+        self.patience = 1.0
 
     @property
     def name(self) -> str:
@@ -126,6 +128,7 @@ class Bot:
     # --- combat ------------------------------------------------------------------------
 
     async def _command(self, cmd: Msg, timeout: float = 20.0) -> str:
+        timeout *= self.patience
         mark = self.conn.mark()
         await self.conn.send({"type": "combat_command", "command": cmd})
         got = await self.conn.wait_for(lambda m: m["type"] in ("error", "snapshot"), timeout, mark)
@@ -133,6 +136,7 @@ class Bot:
         return f"refused:{got.get('refusal') or got['code']}" if got["type"] == "error" else "ok"
 
     async def _chances(self, target_id: str, timeout: float = 10.0) -> list[Msg]:
+        timeout *= self.patience
         mark = self.conn.mark()
         await self.conn.send({"type": "request_hit_chances", "target_id": target_id})
 

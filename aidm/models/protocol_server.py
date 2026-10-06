@@ -34,6 +34,7 @@ from aidm.models.protocol_views import (
     PublicOffer,
     PublicState,
     QueueEntry,
+    RollEntry,
     StockLine,
     StoryEntry,
     VoteKind,
@@ -246,10 +247,12 @@ class EpilogueMsg(_Server):
 
 
 class StoryHistory(_Server):
-    """The recent story (narration and public event lines, oldest first), sent after a snapshot."""
+    """The recent story (narration and public event lines, oldest first), sent after a snapshot,
+    plus the recent dice rolls (oldest first)."""
 
     type: Literal["story_history"] = "story_history"
     entries: tuple[StoryEntry, ...] = ()
+    dice: tuple[RollEntry, ...] = ()
 
 
 class CharacterExport(_Server):

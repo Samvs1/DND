@@ -6,12 +6,10 @@ from the environment or the gitignored .env (read by name, never printed).
 
 import dataclasses
 import json
-import os
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Callable
 from pathlib import Path
 
 import pytest
-from dotenv import dotenv_values
 
 from aidm.dm.campaign_gen import CampaignSource, generate_campaign, plan_problems
 from aidm.dm.llm_client import LlmClient
@@ -19,7 +17,6 @@ from aidm.dm.llm_factory import make_llm_client
 from aidm.dm.llm_settings import llm_settings_from_env
 from aidm.dm.llm_types import LlmMode
 
-ROOT = Path(__file__).resolve().parents[2]
 THEME = "a haunted river delta"
 PARTY = "four level-1 adventurers: fighter, rogue, cleric, wizard"
 SEED = 5
@@ -30,15 +27,10 @@ SEED = 5
 CAMPAIGN_TIMEOUT_S = 150.0
 
 
-def _environ() -> dict[str, str]:
-    values = {k: v for k, v in dotenv_values(ROOT / ".env").items() if v is not None}
-    return {**values, **os.environ}
-
-
 @pytest.fixture
-async def client(tmp_path: Path) -> AsyncIterator[LlmClient]:
+async def client(tmp_path: Path, live_env: dict[str, str]) -> AsyncIterator[LlmClient]:
     settings = dataclasses.replace(
-        llm_settings_from_env(_environ()),
+        llm_settings_from_env(live_env),
         log_path=tmp_path / "llm.jsonl",
         fake=False,
         timeout_s=CAMPAIGN_TIMEOUT_S,
@@ -60,12 +52,12 @@ def _call_outcomes(log: Path) -> list[str]:
 
 
 async def test_live_campaign_generation_returns_a_valid_model_plan(
-    client: LlmClient, tmp_path: Path
+    client: LlmClient, tmp_path: Path, live_say: Callable[[str], None]
 ) -> None:
     result = await generate_campaign(THEME, PARTY, client, seed=SEED)
     why = [f"{p.code}: {p.message}" for p in result.problems][:5]
     why += _call_outcomes(tmp_path / "llm.jsonl")
-    print(
+    live_say(
         f"LIVE campaign: source={result.source.value} attempts={result.attempts} "
         f"title={result.plan.title!r} problems={why}"
     )

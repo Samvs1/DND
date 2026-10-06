@@ -33,6 +33,7 @@ def build_choices(options: Msg) -> Msg:
 
 async def level_up_bot(bot: Bot, timeout: float = 20.0) -> str:
     """Level the bot's hero up once; returns "ok" or the refusal text."""
+    timeout *= bot.patience
     conn = bot.conn
     mark = conn.mark()
     await conn.send({"type": "request_sheet"})

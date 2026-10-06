@@ -16,6 +16,11 @@ from tests.ui.wizard_helpers import HeroSpec, complete_wizard, join
 MAIN = "[data-testid=slot-attack-main_hand]"
 WAIT = "[data-testid=hotbar-wait]"
 NARRATION = "[data-testid=narration]"
+# The dice tray rows (newest first) as normalised text; `.fresh` animation state is ignored.
+DICE_TEXTS = (
+    "[...document.querySelectorAll('[data-testid=dice-roll]')]"
+    ".map((li) => li.textContent.split(/[ \\n\\t]+/).join(' ').trim())"
+)
 ACTION_ENABLED = "!document.querySelector('[data-testid=action-input]').disabled"
 ALL_TOLD = (
     f"[...document.querySelectorAll('{NARRATION}')].every((n) => n.classList.contains('done'))"
@@ -207,6 +212,9 @@ def _stage_reconnect(journey: Journey, base: str, guest: Page, host: Page) -> Pa
     """Close B's page (socket drops), reopen with the same token; everything must come back."""
     me = guest.evaluate("window.aidm.store.get().me.playerId")
     texts = [" ".join(t.split()) for t in guest.locator(NARRATION).all_inner_texts()]
+    guest.wait_for_timeout(800)  # a fresh roll's numbers cycle for 600 ms before settling
+    rolls = guest.evaluate(DICE_TEXTS)
+    assert rolls, "the fight so far must have shown dice"
     context = guest.context
     guest.close()
     page = journey.new_page(context, "Bo-again")
@@ -222,6 +230,9 @@ def _stage_reconnect(journey: Journey, base: str, guest: Page, host: Page) -> Pa
         : len(texts)
     ] == texts
     _same_combat(page, host)
+    # M9.4: the dice panel comes back from story_history (it was empty after a reconnect).
+    page.wait_for_function(f"{DICE_TEXTS}.length >= {len(rolls)}", timeout=20000)
+    assert rolls[0] in page.evaluate(DICE_TEXTS), "the newest roll before the drop is shown"
     assert page.locator("[data-testid=init-entry]").count() == 4
     assert page.locator("[data-testid=token][data-side=hostile]").count() == 2
     page.wait_for_selector("[data-testid=event-line]", timeout=20000)

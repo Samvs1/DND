@@ -1,6 +1,6 @@
 // The story log: narration, mechanical event lines, epilogue and dice rolls, collected from the moment
 // the socket opens (before the table view mounts) so a view can render the whole feed when it appears.
-// `story_history` (sent after every snapshot on hello) replaces the log, so a reload restores the feed.
+// `story_history` (sent after every snapshot on hello) replaces the log and the dice, so a reload restores both.
 // Views read `items` / `dice` and subscribe to live changes:
 // {type: 'item' | 'chunk' | 'done' | 'dice' | 'reset' | 'load'}.
 
@@ -98,6 +98,8 @@ export function createStory(store) {
         items.push({ kind: 'event', seq: entry.seq, text: entry.text, eventKind: entry.event_kind });
       }
     }
+    // The recent rolls come oldest first; the tray keeps the newest first (M9.4: restored on reconnect).
+    dice = (msg.dice || []).map((r) => ({ seq: r.seq, ...r.dice, at: 0 })).reverse().slice(0, MAX_DICE);
     emit({ type: 'load' });
   }
 

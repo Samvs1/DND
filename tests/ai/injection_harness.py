@@ -93,6 +93,8 @@ class TurnOutcome:
     narration: str
     voice: str | None
     requests: list[CompletionRequest]
+    source: str = "model"
+    guard_stops: tuple[str, ...] = ()
 
     def prompts(self) -> str:
         return " ".join(_prompt_text(r) for r in self.requests)
@@ -136,6 +138,7 @@ async def play_turn(
     )
     stream = narrate(game, result, client, actor_id="fighter", player_text=text)
     narration = await stream.collect()
+    guard_stops = tuple(f"{v.kind.value}:{v.span}" for r in stream.reports for v in r.violations)
     target = voice_target(game, result, text)
     voice = None
     if target is not None:
@@ -143,7 +146,9 @@ async def play_turn(
             game, target, client, actor_id="fighter", player_text=text, result=result
         )
         voice = await speech.collect()
-    return TurnOutcome(game, before, result, events, narration, voice, [])
+    outcome = TurnOutcome(game, before, result, events, narration, voice, [])
+    outcome.source, outcome.guard_stops = str(stream.source), guard_stops
+    return outcome
 
 
 def _gained(old: Creature, new: Creature) -> dict[str, int]:

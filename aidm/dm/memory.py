@@ -70,7 +70,8 @@ SUMMARY_GUARD_KINDS = frozenset(
 )
 SUMMARY_RULES = (
     "Summarise ONLY the narrated turns listed above in 2 to 4 plain past-tense sentences."
-    " Name only entities listed in the manifest; invent nothing. entity_ids: ids shown in"
+    " Name only entities listed in the manifest; invent nothing. title: 3 to 6 words in"
+    " sentence case (capitalise only the first word and names). entity_ids: ids shown in"
     " brackets in the manifest for every entity involved. facts: up to 5 durable things the"
     " party learned or changed (who wants what, where something is, what was promised), each"
     " with the bracketed ids it concerns and one or two short tags."

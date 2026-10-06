@@ -4643,6 +4643,27 @@
           "title": "Roll",
           "type": "object"
         },
+        "RollEntry": {
+          "additionalProperties": false,
+          "description": "One recent dice roll of the story history (restores the dice panel on reconnect).",
+          "properties": {
+            "dice": {
+              "$ref": "#/$defs/DiceView"
+            },
+            "seq": {
+              "description": "event-log position of the roll",
+              "minimum": 0,
+              "title": "Seq",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "seq",
+            "dice"
+          ],
+          "title": "RollEntry",
+          "type": "object"
+        },
         "SheetMsg": {
           "additionalProperties": false,
           "description": "The asker's own derived sheet (`request_sheet`), plus what the next level asks when the\nhero can level up now (`level_up`).",
@@ -5100,8 +5121,16 @@
         },
         "StoryHistory": {
           "additionalProperties": false,
-          "description": "The recent story (narration and public event lines, oldest first), sent after a snapshot.",
+          "description": "The recent story (narration and public event lines, oldest first), sent after a snapshot,\nplus the recent dice rolls (oldest first).",
           "properties": {
+            "dice": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/RollEntry"
+              },
+              "title": "Dice",
+              "type": "array"
+            },
             "entries": {
               "default": [],
               "items": {

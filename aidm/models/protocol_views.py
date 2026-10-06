@@ -244,6 +244,13 @@ class DiceView(_View):
     crit: bool = False
 
 
+class RollEntry(_View):
+    """One recent dice roll of the story history (restores the dice panel on reconnect)."""
+
+    seq: int = Field(ge=0, description="event-log position of the roll")
+    dice: DiceView
+
+
 class StoryEntry(_View):
     """One line of the story history: a told narration (id, tone) or a public event line."""
 

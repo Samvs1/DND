@@ -154,6 +154,24 @@ async def test_invented_summary_falls_back(tmp_path: Path) -> None:
     assert outcome.dropped == ("summary rejected by the guard",)
 
 
+async def test_live_finding_real_summary_shape_is_kept(tmp_path: Path) -> None:
+    """Live M9.4: DeepSeek's summary opened a sentence with "Nearby," (the guard took it for a
+    name and rejected the whole summary) and wrote Title Case titles (every word an "unknown
+    name"). The prompt now asks for a sentence-case title; both shapes are kept."""
+    state = _narrate(inn_state(), *TURNS)
+    draft = {
+        "title": "Quiet word at the Lantern Inn",
+        "summary": "Inside the smoky common room of the Lantern Inn, Aria leaned on the long"
+        " oak bar while Mira polished a mug. Nearby, Hobb gave Brannoc a nod.",
+        "entity_ids": ["npc-mira", "npc-hobb"],
+    }
+    client, fake = fake_client(tmp_path, [fake_tool_call("submit_result", draft)])
+    outcome = await summarise(state, client)
+    assert outcome.summary.source is SummarySource.MODEL, outcome.dropped
+    assert outcome.summary.title == "Quiet word at the Lantern Inn"
+    assert "sentence case" in str(fake.requests[0].messages[-1]["content"])
+
+
 def test_summary_prompt_shows_ids_and_turns_but_no_secrets() -> None:
     state = _narrate(inn_state(), *TURNS)
     state.world.npcs["npc-mira"].secrets.append(NpcSecret(id="s1", text="she hid the ledger"))

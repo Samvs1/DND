@@ -8,7 +8,8 @@ through THE public projection in `session.public_feed`, never as raw events (Npc
 CampaignInstalled embed motives and secrets).
 
 Public API: `public_creature`, `public_scene`, `public_map`, `public_quests`, `public_combat`,
-`public_offer`, `public_facts`, `public_summaries`, `public_state`, `dice_view`, `stock_lines`.
+`public_offer`, `public_facts`, `public_summaries`, `public_state`, `stock_lines`
+(dice views live in `session.public_feed`).
 """
 
 from collections.abc import Sequence
@@ -17,15 +18,9 @@ from aidm.data.item_catalogue import CatalogueItem
 from aidm.data.registry import Registry
 from aidm.data.zone_templates import zone_templates
 from aidm.dm.precheck import is_shop
-from aidm.dm.wording import check_subject
-from aidm.models.checks import CheckKind
-from aidm.models.combat_events import AttackRolled
-from aidm.models.dice import AdvState, D20Roll
 from aidm.models.encounter import EncounterStatus
-from aidm.models.events import AnyEvent, CheckResolved, DeathSaveRolled, DiceRolled
 from aidm.models.protocol_views import (
     CombatToken,
-    DiceView,
     MapNode,
     PlayerInfo,
     PublicCombat,
@@ -291,45 +286,6 @@ def public_state(
         monster_hp=state.difficulty.monster_hp,
         monster_damage=state.difficulty.monster_damage,
     )
-
-
-def _d20(roller: str | None, label: str, roll: D20Roll, target: int | None) -> DiceView:
-    return DiceView(
-        roller_id=roller,
-        label=label,
-        expression="1d20" if roll.adv is AdvState.NORMAL else "2d20",
-        rolls=roll.rolls,
-        adv=roll.adv,
-        modifier=roll.modifier,
-        total=roll.total,
-        target=target,
-        crit=roll.is_crit,
-    )
-
-
-def dice_view(event: AnyEvent) -> DiceView | None:
-    if isinstance(event, AttackRolled):
-        view = _d20(event.attacker_id, event.attack, event.roll, event.target_ac)
-        return view.model_copy(update={"success": event.hit, "crit": event.crit})
-    if isinstance(event, CheckResolved):
-        r = event.result
-        label = check_subject(r) + (" save" if r.kind is CheckKind.SAVE else "")
-        view = _d20(event.creature_id, label, r.roll, r.dc)
-        return view.model_copy(update={"success": r.success})
-    if isinstance(event, DeathSaveRolled):
-        view = _d20(event.creature_id, "death save", event.roll, 10)
-        return view.model_copy(update={"success": event.roll.total >= 10})
-    if isinstance(event, DiceRolled):
-        r = event.roll
-        return DiceView(
-            roller_id=event.roller_id,
-            label=event.label,
-            expression=r.expression,
-            rolls=tuple(d.value for d in r.dice if d.kept),
-            modifier=r.modifier,
-            total=r.total,
-        )
-    return None
 
 
 def stock_lines(

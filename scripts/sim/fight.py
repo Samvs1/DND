@@ -28,7 +28,7 @@ async def _noise(d: "Director", stop: asyncio.Event) -> None:
         mark = bot.conn.mark()
         await bot.conn.send({"type": "combat_command", "command": bogus_combat(bot.hero_id, n)})
         try:
-            await bot.conn.wait_for(lambda m: m["type"] == "error", 15.0, mark)
+            await bot.conn.wait_for(lambda m: m["type"] == "error", 15.0 * bot.patience, mark)
         except TimeoutError:
             d.report.fail("invalid combat command got no typed error")
 

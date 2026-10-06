@@ -73,3 +73,16 @@ def test_clean_empty_scene_narration_passes(text: str) -> None:
 
 def test_at_least_ten_clean_paragraphs() -> None:
     assert len(INN_PARAGRAPHS) + len(FIGHT_PARAGRAPHS) + len(EMPTY_PARAGRAPHS) >= 10
+
+
+def test_live_finding_introductory_word_before_a_comma_is_not_a_name() -> None:
+    """Live M9.4: DeepSeek wrote "Nearby, Hobb gave Brannoc a nod." and the guard took the
+    sentence-initial adverb for an invented name, rejecting a clean scene summary."""
+    state = inn_state()
+    for text in (
+        "Nearby, Hobb gave Brannoc a nod.",
+        "Meanwhile, Mira polished a mug behind the long oak bar.",
+        "Outside, Hobb leans on his spear.",
+    ):
+        assert check_prose(text, state).ok, text
+    assert not check_prose("Zorbag Hobb nods at you.", state).ok

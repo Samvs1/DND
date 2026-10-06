@@ -66,7 +66,7 @@ Machine-readable schema: `aidm/web/protocol.json`.
 | server | `sheet` | `creature_id`: string, `level_up`: LevelUpOptions or null (optional), `sheet`: CharacterSheet, `type`: sheet |
 | server | `shop_stock` | `npc_id`: string, `npc_name`: string (optional), `stock`: array of StockLine (optional), `type`: shop_stock |
 | server | `snapshot` | `seq`: integer, `state`: PublicState, `type`: snapshot |
-| server | `story_history` | `entries`: array of StoryEntry (optional), `type`: story_history |
+| server | `story_history` | `dice`: array of RollEntry (optional), `entries`: array of StoryEntry (optional), `type`: story_history |
 | server | `suggestion` | `name`: string, `player_id`: string, `text`: string, `type`: suggestion |
 | server | `turn_prompt` | `creature_id`: string, `player_id`: string or null (optional), `seconds`: number or null (optional), `type`: turn_prompt |
 | server | `vote_closed` | `passed`: boolean, `reason`: string (optional), `type`: vote_closed, `vote_id`: string |

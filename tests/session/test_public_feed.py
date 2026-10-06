@@ -7,7 +7,8 @@ from aidm.dm.fake_llm import FakeStep, default_fake_step, fake_tool_call
 from aidm.dm.llm_backend import CompletionRequest
 from aidm.dm.llm_types import LlmMode
 from aidm.models.creation import CreationErrorCode
-from aidm.models.events import CreatureAdded
+from aidm.models.dice import DieRoll, Roll
+from aidm.models.events import CreatureAdded, DiceRolled, LoggedEvent
 from aidm.models.protocol import AnyServerMsg
 from aidm.models.protocol_client import (
     CreateCharacter,
@@ -32,7 +33,8 @@ from aidm.models.protocol_server import (
 from aidm.models.state import GameState
 from aidm.models.world_events import NpcIntroduced
 from aidm.session.persistence import CampaignStore
-from aidm.session.public_feed import PublicFeed, public_line
+from aidm.session.public_feed import MAX_ROLLS, PublicFeed, public_line
+from aidm.session.reducer import apply as reduce
 from aidm.session.table import Table
 from tests.ai.fake_scripts import fake_client
 from tests.session.table_fixtures import Seat, drain_queue, join, of_type, running
@@ -230,3 +232,31 @@ async def test_fake_mode_narrates_free_text_without_the_fallback_banner(tmp_path
         # only a live model that fails to write a campaign shows the banner.
         assert len(fallback) == banners
         assert len(of_type(msgs, NarrationDone)) >= 2
+
+
+def test_story_history_keeps_recent_dice_and_rebuild_restores_them() -> None:
+    """M9.3 gap closed in M9.4: the dice panel was empty after a reconnect. The history now
+    carries the recent rolls (oldest first, at most MAX_ROLLS) and a restart rebuilds them."""
+    state = GameState(campaign_id="t", seed=1)
+    initial = state.model_copy(deep=True)
+    feed = PublicFeed()
+    log: list[LoggedEvent] = []
+    for n in range(MAX_ROLLS + 3):
+        roll = Roll(
+            expression="1d8+2",
+            dice=(DieRoll(sides=8, value=1 + n % 8),),
+            modifier=2,
+            total=3 + n % 8,
+        )
+        event = DiceRolled(roll=roll, roller_id="pc-a", label=f"hit {n}")
+        seq = state.event_count
+        reduce(state, event)
+        log.append(LoggedEvent(seq=seq, event=event))
+        assert feed.add_roll(seq, event) is not None
+    feed.add_roll(state.event_count, NpcIntroduced.model_construct())
+    dice = feed.history().dice
+    assert len(dice) == MAX_ROLLS
+    assert [d.dice.label for d in dice][-1] == f"hit {MAX_ROLLS + 2}"
+    assert [d.seq for d in dice] == sorted(d.seq for d in dice)
+    assert dice[-1].dice.total == 3 + (MAX_ROLLS + 2) % 8 and dice[-1].dice.modifier == 2
+    assert PublicFeed.rebuild(initial, log).history().dice == dice

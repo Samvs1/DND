@@ -1,30 +1,32 @@
-"""Live Fish Audio check (M8.1): one short sentence becomes an mp3. Skipped unless RUN_LIVE=1.
+"""Live Fish Audio check (M8.1, SPEC 13 Live): one short sentence becomes an mp3 over 5 KB.
 
-The key comes from the environment or the gitignored .env (read by name, never printed).
+Runs only with RUN_LIVE=1 (tests/conftest.py); then a missing key or voice id is a failure, not
+a skip. The key comes from the environment or the gitignored .env (read by name, never printed).
+The mp3 size is recorded with `live_say`, so it shows in the "live results" summary under -q.
 """
 
 import dataclasses
-import os
+from collections.abc import Callable
 from pathlib import Path
-
-import pytest
-from dotenv import dotenv_values
 
 from aidm.models.narration import NarrationTone
 from aidm.server.tts import FishTts, fish_settings_from_env
 
-ROOT = Path(__file__).resolve().parents[2]
+MIN_BYTES = 5 * 1024
 
 
-async def test_fish_synthesizes_one_sentence(tmp_path: Path) -> None:
-    values = {k: v for k, v in dotenv_values(ROOT / ".env").items() if v is not None}
-    settings = fish_settings_from_env({**values, **os.environ})
-    if not settings.ready:
-        pytest.skip("FISH_API_KEY / FISH_VOICE_ID not set")
+async def test_fish_synthesizes_one_sentence(
+    tmp_path: Path, live_env: dict[str, str], live_say: Callable[[str], None]
+) -> None:
+    settings = fish_settings_from_env(live_env)
+    assert settings.ready, "RUN_LIVE=1 needs FISH_API_KEY and FISH_VOICE_ID (env or .env)"
     tts = FishTts(dataclasses.replace(settings, cache_dir=tmp_path))
-    sentence = "The lantern light trembles on the old stone wall."
+    sentence = (
+        "The lantern light trembles on the old stone wall, and somewhere below the inn "
+        "a heavy door groans open in the dark."
+    )
     path = await tts.synthesize(sentence, NarrationTone.EXPLORATION)
     assert path is not None, "synthesis failed (the log line names the error class)"
     size = path.stat().st_size
-    print(f"fish live mp3 bytes: {size}")
-    assert size > 5 * 1024
+    live_say(f"LIVE fish: model={settings.model} mp3 bytes={size} (> {MIN_BYTES} required)")
+    assert size > MIN_BYTES

@@ -33,6 +33,8 @@ class Director:
         self.fights = 0
         self.short_rests = 0
         self.long_rests = 0
+        # Exploration rounds left (None = no cap); --live-ai caps them to bound the run.
+        self.explore_budget: int | None = None
 
     @property
     def host(self) -> Bot:
@@ -87,13 +89,18 @@ class Director:
 
     async def probes(self) -> None:
         self.step("chaos probes")
-        for message in await run_probes(self.party.chaos.conn, self.party.chaos.rng):
+        chaos = self.party.chaos
+        for message in await run_probes(chaos.conn, chaos.rng, 15.0 * chaos.patience):
             self.report.fail(message)
         await self.settle()
 
     # --- exploration -----------------------------------------------------------------------
 
     async def explore_round(self, label: str) -> None:
+        if self.explore_budget is not None:
+            if self.explore_budget <= 0:
+                return
+            self.explore_budget -= 1
         self.step(f"explore {label}")
         texts = [(b, explore_text(b.role, self.state(), b.rng)) for b in self.party.bots]
         gold_before = _gold(self.party.chaos)

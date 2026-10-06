@@ -1,6 +1,6 @@
 """Party simulation (SPEC 13 Simulation, M9.1): three real-websocket bots against the real server.
 
-    python scripts/simulate_party.py --seeds 5 [--live-ai] [--timeout 60] [--verbose]
+    python scripts/simulate_party.py --seeds 5 [--live-ai] [--timeout S] [--verbose]
 
 Per seed: a fresh in-process server (fake LLM unless --live-ai) over a temp saves folder, an
 aggressive fighter, a chatty explorer and a chaotic player (invalid commands, injections, abuse)
@@ -32,7 +32,9 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Simulate a party of three bot players.")
     parser.add_argument("--seeds", type=int, default=1, help="number of seeds (1..N)")
     parser.add_argument("--live-ai", action="store_true", help="use the real DeepSeek model")
-    parser.add_argument("--timeout", type=float, default=60.0, help="seconds per awaited step")
+    parser.add_argument(
+        "--timeout", type=float, default=None, help="seconds per awaited step (60, live 300)"
+    )
     parser.add_argument("--verbose", action="store_true", help="log every step")
     args = parser.parse_args(argv)
     opts = SimOptions(live_ai=args.live_ai, timeout=args.timeout, verbose=args.verbose)

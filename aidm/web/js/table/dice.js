@@ -84,6 +84,6 @@ export function mountDice(root, { store, story, latest }) {
   render(null);
   return story.subscribe((change) => {
     if (change.type === 'dice') render(change.roll.seq);
-    if (change.type === 'reset') render(null);
+    if (change.type === 'reset' || change.type === 'load') render(null);
   });
 }

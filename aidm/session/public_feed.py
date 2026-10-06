@@ -12,12 +12,13 @@ an event is public and returns its player-visible line (else None):
 Non-public events are never sent: their seq is simply skipped (the snapshot seq still covers
 them). `private_texts` + `leaks` also filter the fact lines of the snapshot (`views`).
 
-`PublicFeed` keeps the public `EventMsg`s (live broadcast and seq catch-up) and the recent
-narration, and builds the `StoryHistory` a (re)connecting client gets after its snapshot. A
-restored table rebuilds it by replaying the log (`PublicFeed.rebuild`; narration then comes
-from the logged `NarrationRecorded` events).
+`PublicFeed` keeps the public `EventMsg`s (live broadcast and seq catch-up), the recent
+narration and the recent dice rolls (`dice_view`: every roll is public; M9.4 restores the dice
+panel on reconnect), and builds the `StoryHistory` a (re)connecting client gets after its
+snapshot. A restored table rebuilds it by replaying the log (`PublicFeed.rebuild`; narration
+then comes from the logged `NarrationRecorded` events).
 
-Public API: `private_texts`, `leaks`, `public_line`, `PublicFeed`.
+Public API: `private_texts`, `leaks`, `public_line`, `dice_view`, `PublicFeed`.
 """
 
 from collections import deque
@@ -25,10 +26,14 @@ from collections.abc import Sequence
 from dataclasses import dataclass, field
 
 from aidm.dm.event_text import event_line
-from aidm.models.events import AnyEvent, LoggedEvent
+from aidm.dm.wording import check_subject
+from aidm.models.checks import CheckKind
+from aidm.models.combat_events import AttackRolled
+from aidm.models.dice import AdvState, D20Roll
+from aidm.models.events import AnyEvent, CheckResolved, DeathSaveRolled, DiceRolled, LoggedEvent
 from aidm.models.narration import NarrationTone
 from aidm.models.protocol_server import EventMsg, StoryHistory
-from aidm.models.protocol_views import StoryEntry
+from aidm.models.protocol_views import DiceView, RollEntry, StoryEntry
 from aidm.models.state import GameState
 from aidm.models.world import WorldNpc
 from aidm.models.world_events import NarrationRecorded
@@ -38,6 +43,7 @@ MIN_PRIVATE_CHARS = 4
 MAX_NARRATIONS = 24
 HISTORY_EVENTS = 60
 HISTORY_MAX = 80
+MAX_ROLLS = 12
 
 
 def private_texts(state: GameState) -> list[str]:
@@ -84,12 +90,52 @@ def public_line(state: GameState, event: AnyEvent) -> str | None:
     return line
 
 
+def _d20(roller: str | None, label: str, roll: D20Roll, target: int | None) -> DiceView:
+    return DiceView(
+        roller_id=roller,
+        label=label,
+        expression="1d20" if roll.adv is AdvState.NORMAL else "2d20",
+        rolls=roll.rolls,
+        adv=roll.adv,
+        modifier=roll.modifier,
+        total=roll.total,
+        target=target,
+        crit=roll.is_crit,
+    )
+
+
+def dice_view(event: AnyEvent) -> DiceView | None:
+    if isinstance(event, AttackRolled):
+        view = _d20(event.attacker_id, event.attack, event.roll, event.target_ac)
+        return view.model_copy(update={"success": event.hit, "crit": event.crit})
+    if isinstance(event, CheckResolved):
+        r = event.result
+        label = check_subject(r) + (" save" if r.kind is CheckKind.SAVE else "")
+        view = _d20(event.creature_id, label, r.roll, r.dc)
+        return view.model_copy(update={"success": r.success})
+    if isinstance(event, DeathSaveRolled):
+        view = _d20(event.creature_id, "death save", event.roll, 10)
+        return view.model_copy(update={"success": event.roll.total >= 10})
+    if isinstance(event, DiceRolled):
+        r = event.roll
+        return DiceView(
+            roller_id=event.roller_id,
+            label=event.label,
+            expression=r.expression,
+            rolls=tuple(d.value for d in r.dice if d.kept),
+            modifier=r.modifier,
+            total=r.total,
+        )
+    return None
+
+
 @dataclass
 class PublicFeed:
     events: list[EventMsg] = field(default_factory=list[EventMsg])
     narrations: deque[StoryEntry] = field(
         default_factory=lambda: deque[StoryEntry](maxlen=MAX_NARRATIONS)
     )
+    rolls: deque[RollEntry] = field(default_factory=lambda: deque[RollEntry](maxlen=MAX_ROLLS))
 
     def add_event(self, state: GameState, seq: int, event: AnyEvent) -> EventMsg | None:
         """Project one applied event; returns the message to broadcast, or None (private)."""
@@ -99,6 +145,13 @@ class PublicFeed:
         msg = EventMsg(seq=seq, kind=event.type, line=line)
         self.events.append(msg)
         return msg
+
+    def add_roll(self, seq: int, event: AnyEvent) -> DiceView | None:
+        """Keep the dice of one applied event (every roll is public); returns its view."""
+        dice = dice_view(event)
+        if dice is not None:
+            self.rolls.append(RollEntry(seq=seq, dice=dice))
+        return dice
 
     def add_narration(self, nid: str, text: str, tone: NarrationTone | None, seq: int) -> None:
         clean = text.strip()
@@ -115,7 +168,7 @@ class PublicFeed:
             for m in self.events[-HISTORY_EVENTS:]
         ]
         merged = sorted([*self.narrations, *events], key=lambda e: (e.seq, e.kind == "event"))
-        return StoryHistory(entries=tuple(merged[-HISTORY_MAX:]))
+        return StoryHistory(entries=tuple(merged[-HISTORY_MAX:]), dice=tuple(self.rolls))
 
     @classmethod
     def rebuild(cls, initial: GameState, log: Sequence[LoggedEvent]) -> "PublicFeed":
@@ -124,6 +177,7 @@ class PublicFeed:
         state = initial.model_copy(deep=True)
         for entry in log:
             reduce(state, entry.event)
+            feed.add_roll(entry.seq, entry.event)
             if isinstance(entry.event, NarrationRecorded):
                 feed.add_narration(f"h{entry.seq}", entry.event.text, None, entry.seq)
             else:

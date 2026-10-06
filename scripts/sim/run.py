@@ -28,16 +28,33 @@ from scripts.sim.report import Report
 from scripts.sim.server import SimServer
 from scripts.sim.setup import Party, seat_party
 
+FAKE_TIMEOUT_S = 60.0
+# The real model needs seconds per call and a turn makes several (adjudication rounds, the
+# narration stream, an NPC voice); three queued turns plus campaign generation need minutes.
+LIVE_TIMEOUT_S = 300.0
+LIVE_EXPLORE_ROUNDS = 2
+
 
 @dataclass(frozen=True)
 class SimOptions:
     live_ai: bool = False
-    timeout: float = 60.0
+    timeout: float | None = None
     verbose: bool = False
+
+    @property
+    def wait(self) -> float:
+        """Seconds per awaited step: the given timeout, else the default for the mode."""
+        if self.timeout is not None:
+            return self.timeout
+        return LIVE_TIMEOUT_S if self.live_ai else FAKE_TIMEOUT_S
 
 
 async def _play(srv: SimServer, report: Report, party: Party, opts: SimOptions) -> None:
-    d = Director(srv, party, report, opts.timeout, report.seed)
+    d = Director(srv, party, report, opts.wait, report.seed)
+    if opts.live_ai:
+        d.explore_budget = LIVE_EXPLORE_ROUNDS
+    for bot in party.bots:
+        bot.patience = max(1.0, opts.wait / FAKE_TIMEOUT_S)
     await d.start_campaign()
     await d.probes()
     await d.explore_round("opening")

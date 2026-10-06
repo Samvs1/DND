@@ -47,7 +47,7 @@ from aidm.session.persistence import CampaignStore, SeatRecord, TableMeta, new_g
 from aidm.session.public_feed import PublicFeed
 from aidm.session.reducer import apply as reduce
 from aidm.session.table_clock import Clock, LoopClock, TimerHandle
-from aidm.session.views import dice_view, public_state
+from aidm.session.views import public_state
 
 type TtsHook = Callable[[str, NarrationTone], Awaitable[str | None]]
 type Job = Callable[[], Awaitable[None]]
@@ -243,7 +243,7 @@ class TableCore:
         public = self.public.add_event(self.state, seq, event)
         if public is not None:
             self.broadcast(public)
-        dice = dice_view(event)
+        dice = self.public.add_roll(seq, event)
         if dice is not None:
             self.broadcast(DiceRoll(seq=seq, dice=dice))
         if isinstance(event, LevelUpReady):

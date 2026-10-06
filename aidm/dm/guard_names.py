@@ -4,8 +4,8 @@ Each check reads ONE sentence (`tokens` from `aidm.dm.guard_text.tokenize`) agai
 `GuardScene` and returns `Violation`s:
 - `unknown_names`: capitalised person-like words that are no registered name, lore name, title,
   calendar word, language/people word or class word. Sentence-initial words count only when
-  they look like a name (a possessive, or followed by a speech or gesture verb or by another
-  capitalised word);
+  they look like a name (a possessive, or followed by a speech or gesture verb or directly,
+  with no comma, by another capitalised word: "Nearby, Hobb nods" is an adverb, live M9.4);
   possessives and plurals reduce to their base ("Mira's", "Goblins"). A near miss of a party
   name ("Aira" for "Aria") is a WRONG_IDENTITY.
 - `wrong_identity`: a party member given another class ("Aria the wizard", "the cleric Aria"),
@@ -56,8 +56,9 @@ def _name_like(tokens: list[Token], i: int, scene: GuardScene) -> bool:
     following = tokens[i + 1] if i + 1 < len(tokens) else None
     if following is None:
         return False
+    adjacent = following.start - token.end == 1
     return following.lower in scene.lexicon.person_verbs or (
-        following.capitalised and not following.initial
+        adjacent and following.capitalised and not following.initial
     )
 
 
