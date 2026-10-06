@@ -1,6 +1,6 @@
 """Spoke milestones and campaign pacing (M9.2, RULES_DECISIONS M9.2).
 
-A spoke pays `spoke_visit_xp_tier` (minor) on its first visit and `spoke_clear_xp_tier`
+A spoke pays `spoke_visit_xp_tier` (moderate) on its first visit and `spoke_clear_xp_tier`
 (moderate) when a fight there is won or a parley succeeds, each once (`CampaignState.milestones`).
 Pacing: act 1's spokes alone take a level-1 party to level 2; the full sample campaign ends
 with the party at level 4-5 before the final boss.
@@ -75,10 +75,10 @@ def test_spoke_visit_and_clear_pay_once() -> None:
     start, state, log = campaign_state()
     spoke = R1.spokes[0].id
     visit = _go(state, spoke, log)
-    # minor tier at level 1: 25 XP each (dm_tiers xp_by_level).
-    assert xp_award(REGS.tiers, XpTier.MINOR, 1) == 25
+    # moderate tier at level 1: 75 XP each (dm_tiers xp_by_level).
+    assert xp_award(REGS.tiers, XpTier.MODERATE, 1) == 75
     paid = [e for e in visit if isinstance(e, RewardGranted)]
-    assert [(e.source, e.kind, e.xp_each) for e in paid] == [(visit_key(spoke), "milestone", 25)]
+    assert [(e.source, e.kind, e.xp_each) for e in paid] == [(visit_key(spoke), "milestone", 75)]
     before = _xp(state)
     cleared = _won(state, log)
     paid = [e for e in cleared if isinstance(e, RewardGranted)]
@@ -122,7 +122,8 @@ def test_act_one_spokes_reach_level_two_naturally() -> None:
             _go(state, R1.arrival.id, log)
         _go(state, spoke.id, log)
         _won(state, log)
-    # 3 spokes x (25 + 75) milestone XP + kill XP >= 300 (SRD level 2).
+    # 3 spokes x (75 + 75) milestone XP + kill XP >= 300 (SRD level 2); the three visits and
+    # one won fight alone make 300, so a lost fight or two does not stall the level.
     assert min(_xp(state)) >= 300
     ready = {e.creature_id for e in log if isinstance(e, LevelUpReady) and e.level == 2}
     assert len(ready) == 4

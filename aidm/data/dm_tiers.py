@@ -96,7 +96,7 @@ class DmTiers(_Strict):
     quest_gold_gp: dict[str, dict[str, int]]
     region_milestone_xp_tier: dict[str, str]
     final_milestone_xp_tier: str
-    spoke_visit_xp_tier: str = "minor"
+    spoke_visit_xp_tier: str = "moderate"
     spoke_clear_xp_tier: str = "moderate"
 
     @model_validator(mode="after")

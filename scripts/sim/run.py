@@ -13,6 +13,7 @@ import traceback
 from dataclasses import dataclass
 from pathlib import Path
 
+from aidm.rules.rests import MAX_SHORT_RESTS
 from scripts.sim.checks import (
     engine_invariants,
     message_texts,
@@ -48,8 +49,9 @@ async def _play(srv: SimServer, report: Report, party: Party, opts: SimOptions) 
             break
         if d.state().get("offer") is not None and not await fight(d):
             break
+        await recover(d)
         await d.explore_round(f"at {name}")
-        if len(visited) == 1:
+        if d.short_rests == 0 and d.srv.table.state.short_rests_used < MAX_SHORT_RESTS:
             await d.short_rest()
         await d.return_to_hub()
     await recover(d)

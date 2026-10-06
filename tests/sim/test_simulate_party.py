@@ -11,3 +11,6 @@ async def test_simulate_party_one_seed_fake_ai() -> None:
     assert report.ok, "\n".join(report.failures)
     assert report.combats >= 1
     assert report.turns >= 20
+    # M9.2: a level-up and both rests are reached by play (no difficulty or XP crutch).
+    assert report.level >= 2
+    assert report.rests[0] >= 1 and report.rests[1] >= 1

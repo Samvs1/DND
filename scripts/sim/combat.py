@@ -2,8 +2,9 @@
 
 Pure helpers over the `combat_state` / snapshot dicts plus the `hit_chances` the server sent.
 Roles: the fighter closes in and attacks (charges); the caster uses its first cantrip, falling
-back to a weapon; the rogue attacks and dodges when hurt. Anything refused falls back toward
-`end_turn`, so a turn always ends.
+back to a weapon; the rogue attacks and dodges when hurt while another hero still stands (the
+last hero standing fights on instead of dodging until the foes win). Anything refused falls
+back toward `end_turn`, so a turn always ends.
 
 Public API: `Plan`, `choose_command`, `foes_of`, `token_of`, `MAX_STEPS`.
 """
@@ -61,6 +62,15 @@ def _wounded(combat: Msg, plan: Plan) -> bool:
     return me is not None and me["hp"] * 2 < me["max_hp"]
 
 
+def _ally_standing(combat: Msg, plan: Plan) -> bool:
+    me = token_of(combat, plan.hero_id)
+    side = me["side"] if me else "party"
+    return any(
+        t["side"] == side and t["creature_id"] != plan.hero_id and t["hp"] > 0 and not t["dead"]
+        for t in combat["tokens"]
+    )
+
+
 def _cmd(kind: str, plan: Plan, **fields: Any) -> Msg:
     return {"type": kind, "actor_id": plan.hero_id, **fields}
 
@@ -70,7 +80,8 @@ def choose_command(plan: Plan, combat: Msg, chances: list[Msg], target: Msg) -> 
     eco = combat["economy"] or {}
     if not (eco.get("action") or eco.get("attacks_left", 0) > 0):
         return _cmd("end_turn", plan)
-    if plan.role == "rogue" and _wounded(combat, plan) and "dodge" not in plan.refused:
+    hurt = _wounded(combat, plan) and _ally_standing(combat, plan)
+    if plan.role == "rogue" and hurt and "dodge" not in plan.refused:
         plan.refused.add("dodge")  # dodge at most once per turn
         return _cmd("dodge", plan)
     if plan.role == "caster" and plan.cantrip and "cast" not in plan.refused:

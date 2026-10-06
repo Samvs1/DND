@@ -20,6 +20,8 @@ from scripts.sim.report import Report
 from scripts.sim.server import SimServer
 from scripts.sim.setup import Party
 
+VOTE_ATTEMPTS = 3
+
 
 class Director:
     def __init__(
@@ -105,6 +107,14 @@ class Director:
     # --- votes and travel ------------------------------------------------------------------
 
     async def propose(self, proposer: Bot, text: str) -> bool:
+        """Propose until the vote passes (a table talks it over and votes again), at most
+        `VOTE_ATTEMPTS` times: with two voters left one decline is a tie, which fails."""
+        for _ in range(VOTE_ATTEMPTS):
+            if await self._propose_once(proposer, text):
+                return True
+        return False
+
+    async def _propose_once(self, proposer: Bot, text: str) -> bool:
         """Submit a party action that needs a ready vote; the others vote; True if it passed."""
         marks = {b.name: b.conn.mark() for b in self.party.bots}
         outcome = await proposer.submit(text, self.timeout)
