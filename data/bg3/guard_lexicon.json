@@ -139,10 +139,45 @@
   ],
   "death_claims": [
     "dead", "dies", "died", "slain", "perished", "perishes", "lifeless", "corpse", "carcass",
-    "breathes its last", "breathed its last", "is no more", "drops dead", "falls dead", "lies dead"
+    "breathes its last", "breathed its last", "is no more", "drops dead", "falls dead", "lies dead",
+    "breathes his last", "breathes her last", "breathed his last", "breathed her last",
+    "passes away", "passed away"
   ],
   "death_hedges": [
     "nearly", "almost", "half", "seemingly", "playing", "feigning", "if", "unless", "wants", "want"
+  ],
+  "pronoun_death_claims": [
+    "dies", "died", "is dead", "was dead", "falls dead", "drops dead", "lies dead", "is slain",
+    "was slain", "perishes", "perished", "is no more", "is lifeless", "lies lifeless",
+    "breathes his last", "breathes her last", "breathed his last", "breathed her last",
+    "passes away", "passed away", "draws his last breath", "draws her last breath",
+    "drew his last breath", "drew her last breath"
+  ],
+  "death_soft_claims": ["is gone", "was gone"],
+  "arrival_phrases": [
+    "arrive at", "arrive in", "arrives at", "arrives in", "arrived at", "arrived in",
+    "step into", "steps into", "stepped into", "you enter", "you are now in",
+    "find yourselves in", "find yourself in", "you reach", "you have reached", "you emerge into",
+    "make your way into", "you stand in", "you stand at", "now stand in"
+  ],
+  "stranger_nouns": [
+    "stranger", "man", "woman", "traveller", "traveler", "merchant", "captain", "sailor",
+    "knight", "priest", "priestess", "soldier", "child", "boy", "girl", "hermit", "wanderer",
+    "mercenary", "noble", "beggar", "peddler", "pedlar", "pilgrim", "bard", "minstrel",
+    "fisherman", "fisherwoman", "hunter", "messenger", "courier"
+  ],
+  "entrance_verbs": [
+    "steps out", "steps forward", "steps in", "steps up", "approaches", "appears", "emerges",
+    "walks in", "walks up", "walks over", "strides", "hurries over", "comes forward",
+    "joins you", "offers to join", "arrives", "enters", "sidles up", "calls out to you"
+  ],
+  "give_verbs": [
+    "hands", "handed", "gives", "gave", "tosses", "tossed", "passes", "passed", "slides", "slid",
+    "presses", "pressed", "pays", "paid"
+  ],
+  "death_soft_cues": [
+    "still", "stillness", "cold", "breath", "breathing", "heartbeat", "pulse", "unblinking",
+    "lifeless"
   ],
   "gain_phrases": [
     "you receive", "you received", "receive", "receives", "you gain", "you gained", "gains",

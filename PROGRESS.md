@@ -1,4 +1,4 @@
-NEXT: M9.5 Adversarial QA by a fresh subagent. ORCHESTRATOR launches a read-only QA agent, then hard-engineer fixes. Last gate: M9.4 GATE PASS 10/10; live suite and live sim green.
+NEXT: M9.5 (hard-engineer) in progress: P1 (QA-01,02,04,08) and P2 (QA-03,05,06,07,09,10,11) fixed and committed. Remaining: P3 QA-12,13,14,15; QA_REPORT Fix status; full gate + sim seeds=5 + tests/ui. Last gate: GATE PASS 10/10 after P2.
 
 # PROGRESS
 

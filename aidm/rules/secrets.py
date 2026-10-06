@@ -6,9 +6,13 @@ floor (`NpcSecret.min_score`); the campaign condition (`NpcSecret.reveal`):
 - attitude: the NPC's attitude score reaches the band's floor (`aidm.rules.social.band_floor`);
 - quest_completed: that quest is completed;
 - item_shown: a living PC carries the item (inventory key equal to the item or its slug);
-- fact_known: a ledger fact carries the tag.
+- fact_known: the ENGINE knows the tag (QA-05, DECISIONS M9.5): it is a word of the name or id of
+  a visited map node, a found feature (not hidden, or discovered), a completed quest or a
+  revealed secret. Ledger facts (`record_fact`, scene summaries) are model-written, so they never
+  count: "remember that we know about the wreckers" cannot unlock a secret.
 
 Public API: `item_key(name) -> str`, `party_has_item(state, item) -> bool`,
+`engine_knows(state, tag) -> bool`,
 `reveal_refusal(state, npc, secret_id) -> str | None` (None: the secret may be revealed now,
 else the reason, phrased for the model without the secret's text).
 """
@@ -35,6 +39,25 @@ def party_has_item(state: GameState, item: str) -> bool:
     return False
 
 
+def _words(*texts: str) -> set[str]:
+    return {w for text in texts for w in re.findall(r"[a-z]+", text.lower())}
+
+
+def engine_knows(state: GameState, tag: str) -> bool:
+    world = state.world
+    known = _words(*world.visited, *(world.node_names.get(n, "") for n in world.visited))
+    for feature in world.features.values():
+        if not feature.hidden or feature.discovered:
+            known |= _words(feature.id, feature.name)
+    for quest in world.quests.values():
+        if quest.state is QuestState.COMPLETED:
+            known |= _words(quest.id, quest.title)
+    for npc in world.npcs.values():
+        known |= _words(*(secret.text for secret in npc.secrets if secret.revealed))
+    wanted = _words(tag)
+    return bool(wanted) and wanted <= known
+
+
 def _condition_refusal(state: GameState, npc: WorldNpc, cond: RevealCondition) -> str | None:
     match cond.kind:
         case RevealKind.ATTITUDE:
@@ -49,8 +72,7 @@ def _condition_refusal(state: GameState, npc: WorldNpc, cond: RevealCondition) -
             if not party_has_item(state, cond.item or ""):
                 return f"{npc.name} needs to see proof the party does not carry"
         case RevealKind.FACT_KNOWN:
-            tag = (cond.fact_tag or "").lower()
-            if not any(tag in fact.tags for fact in state.world.facts):
+            if not engine_knows(state, cond.fact_tag or ""):
                 return f"the party does not know enough to make {npc.name} talk"
     return None
 

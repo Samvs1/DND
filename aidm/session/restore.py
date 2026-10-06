@@ -1,11 +1,12 @@
 """Rebuild a `TableCore` from a loaded save (M6.3) or switch it to another campaign (M6.5).
 
 `restore(core, loaded)` replaces everything the table owns about ONE campaign: state, the replay
-base (`initial`), the log and its public feed (so seq catch-up and the story history work after
-a restart), the seats (tokens kept, nobody
-connected), the id counter and the TTS flag. Open connections (`outboxes`, `conn_player`) are not
-touched; `rebind_connections` seats them in the new table. A save that was in a fight resumes it
-when the first seated hero connects (`resume_combat`).
+base (`initial`), the log and its public feed (so seq catch-up and the story history work after a
+restart), the seats (tokens kept, nobody connected), the id counter, the TTS flag and the save
+folder (`save_id` = the folder the save was loaded from, so progress is written back there even when
+the folder was renamed: QA-09). Open connections (`outboxes`, `conn_player`) are not touched;
+`rebind_connections` seats them in the new table. A save that was in a fight resumes it when the
+first seated hero connects (`resume_combat`).
 
 Public API: `restore`, `connected_seats`, `rebind_connections`.
 """
@@ -25,6 +26,7 @@ def restore(core: TableCore, loaded: LoadedCampaign) -> None:
     if core.vote is not None and core.vote.timer is not None:
         core.vote.timer.cancel()
     core.state = loaded.state
+    core.save_id = loaded.campaign_id
     core.initial = loaded.initial.model_copy(deep=True)
     core.log = list(loaded.log)
     core.public = PublicFeed.rebuild(core.initial, core.log)
@@ -47,6 +49,7 @@ def restore(core: TableCore, loaded: LoadedCampaign) -> None:
     core.pending = None
     core.segment = []
     core.issued_rolls = {}
+    core.rolled_for = {}
     enc = loaded.state.encounter
     core.in_combat = enc is not None and enc.status is EncounterStatus.ACTIVE
     core.resume_combat = core.in_combat

@@ -49,6 +49,7 @@ class GuardScene:
     secrets: tuple[SecretKey, ...] = ()
     living_terms: dict[str, str] = field(default_factory=dict[str, str])
     rewarded: bool = False
+    other_places: dict[str, str] = field(default_factory=dict[str, str])
 
 
 def _lost_items(events: Sequence[ev.AnyEvent]) -> set[str]:
@@ -149,4 +150,15 @@ def guard_scene(state: GameState, events: Sequence[ev.AnyEvent] = ()) -> GuardSc
         ),
         living_terms=living_terms(state, frozenset(reg.dead - living), lex),
         rewarded=rewarded(events),
+        other_places=_other_places(state),
     )
+
+
+def _other_places(state: GameState) -> dict[str, str]:
+    """Lowercase display name -> name of every map node the party is NOT at (QA-10)."""
+    here = state.world.node_names.get(state.world.current_node or "", "").casefold()
+    return {
+        name.casefold(): name
+        for node, name in state.world.node_names.items()
+        if node != state.world.current_node and name.casefold() != here and len(name) >= 4
+    }

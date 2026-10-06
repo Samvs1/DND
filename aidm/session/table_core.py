@@ -177,14 +177,18 @@ class TableCore:
         self.turn_key: str | None = None
         self.turn_timer: TimerHandle | None = None
         self.issued_rolls: dict[str, list[Roll]] = {}
+        self.rolled_for: dict[str, str | None] = {}  # player -> their hero when they rolled
         self.inbox: asyncio.Queue[Inbound] = asyncio.Queue()
         self.jobs: asyncio.Queue[Job] = asyncio.Queue()
         self.next_counter = 1
         self.tts_enabled = self.config.tts_enabled
         self.resume_combat = False
-        self.kicked: set[str] = set()
+        self.kicked: set[str] = set()  # tokens of removed seats (reset by a campaign switch)
+        self.kicked_conns: set[str] = set()  # QA-07: kept for the whole server session
+        self.kicked_names: set[str] = set()
         self.unsaved: list[LoggedEvent] = []
         self.save_warned = False
+        self.save_id: str | None = None  # the save folder it was loaded from (QA-09)
 
     # --- ids, seats, lookups -------------------------------------------------------------
 
@@ -266,11 +270,12 @@ class TableCore:
     def autosave(self, *, force: bool = False) -> bool:
         """Append the unsaved events (fsync) and rewrite snapshot + table metadata.
 
-        Called after every job and seat change. A failing disk never stops the game: the events
-        stay buffered for the next try and the host gets one notice. Returns True when written
-        (`force` also saves a table that has no events yet)."""
+        Writes to the folder the save was loaded from (`save_id`, QA-09), else to
+        `saves/<campaign_id>/`. Called after every job and seat change. A failing disk never stops
+        the game: the events stay buffered for the next try and the host gets one notice. Returns
+        True when written (`force` also saves a table that has no events yet)."""
         store = self.config.store
-        cid = self.state.campaign_id
+        cid = self.save_id or self.state.campaign_id
         if store is None or (not force and not self.log and not store.exists(cid)):
             return False
         try:

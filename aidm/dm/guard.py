@@ -10,8 +10,11 @@ and the current scene (`aidm.dm.guard_scene`):
   chests and traps (`aidm.dm.guard_world`);
 - any NPC's UNREVEALED secret stated in prose (`aidm.dm.guard_secrets`, M4.7): a reveal is a
   `reveal_secret` tool call validated by the engine, never prose;
-- a living creature, NPC or party member declared dead (`aidm.dm.guard_alive`, M4.8);
-- gold or items handed over in prose when no event granted any (`aidm.dm.guard_rewards`, M4.8).
+- a living creature, NPC or party member declared dead, by name (`aidm.dm.guard_alive`, M4.8)
+  or by a pronoun resolved to the creatures named before it (`aidm.dm.guard_pronoun`, QA-03);
+- gold or items handed over in prose when no event granted any (`aidm.dm.guard_rewards`, M4.8);
+- arrival at another map node without travel, and an invented stranger walking in
+  (`aidm.dm.guard_claims`, QA-10).
 Vocabulary is data (data/bg3/guard_lexicon.json); matching uses word boundaries and negation
 windows, so "unbroken" and "no hidden door" are not flagged.
 
@@ -29,8 +32,10 @@ import re
 from collections.abc import Sequence
 
 from aidm.dm.guard_alive import living_declared_dead
+from aidm.dm.guard_claims import false_travel, invented_strangers
 from aidm.dm.guard_flow import MAX_SENTENCES, GuardedSentences
 from aidm.dm.guard_names import absent_people, crowds, erased_people, unknown_names, wrong_identity
+from aidm.dm.guard_pronoun import PronounContext, pronoun_declared_dead
 from aidm.dm.guard_rewards import unearned_rewards
 from aidm.dm.guard_scene import GuardScene, guard_scene
 from aidm.dm.guard_secrets import leaked_secrets
@@ -48,7 +53,9 @@ SCRUB_TOKEN = "[unlisted]"
 CONTINUE_NOTE = "Continue the narration right after the text above; do not repeat it."
 
 
-def _sentence_violations(sentence: str, scene: GuardScene) -> list[Violation]:
+def _sentence_violations(
+    sentence: str, scene: GuardScene, context: PronounContext
+) -> list[Violation]:
     tokens = tokenize(sentence)
     return [
         *unknown_names(tokens, scene),
@@ -61,7 +68,10 @@ def _sentence_violations(sentence: str, scene: GuardScene) -> list[Violation]:
         *unlisted_features(sentence, tokens, scene),
         *leaked_secrets(sentence, scene.secrets),
         *living_declared_dead(sentence, tokens, scene.living_terms, scene.lexicon),
-        *unearned_rewards(sentence, scene.rewarded, scene.lexicon),
+        *pronoun_declared_dead(sentence, tokens, scene, context),
+        *unearned_rewards(sentence, scene.rewarded, scene.lexicon, scene.party),
+        *false_travel(sentence, scene),
+        *invented_strangers(sentence, scene),
     ]
 
 
@@ -71,17 +81,21 @@ def check_prose(
     *,
     events: Sequence[AnyEvent] = (),
     scene: GuardScene | None = None,
+    context: PronounContext | None = None,
 ) -> GuardReport:
     frozen = scene if scene is not None else guard_scene(state, events)
+    told = context if context is not None else PronounContext()
     found: list[Violation] = []
     for sentence in split_sentences(text):
-        found.extend(v for v in _sentence_violations(sentence, frozen) if v not in found)
+        found.extend(v for v in _sentence_violations(sentence, frozen, told) if v not in found)
     return GuardReport(tuple(found))
 
 
 def prose_checker(state: GameState, events: Sequence[AnyEvent] = ()) -> ProseCheck:
+    """One checker per narration: it remembers who earlier sentences named (pronouns, QA-03)."""
     scene = guard_scene(state, events)
-    return lambda text: check_prose(text, state, scene=scene)
+    context = PronounContext()
+    return lambda text: check_prose(text, state, scene=scene, context=context)
 
 
 def scrub_messages(messages: Sequence[Message], terms: Sequence[str]) -> list[Message]:

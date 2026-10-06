@@ -1,12 +1,15 @@
 """Seats, characters and the campaign start (SPEC 8, 9, 10 lobby phase).
 
-`hello` seats a new player (the first one is the host) or, with a known token, reconnects the
-seat: the connection gets `welcome`, a full `snapshot`, the `story_history` (recent narration
-and public event lines, so a reload restores the feed), the public event lines it missed
-(`last_seq`), and whatever waits for that player (their turn prompt, a pending hostile
+`hello` seats a new player (the first one is the host) or, with a known token, reconnects the seat;
+a second `hello` on a seated connection re-uses its seat (or moves it to the token's seat), never
+minting another (QA-06); a kicked token, connection or name is refused (QA-07): the connection gets
+`welcome`, a full `snapshot`, the `story_history` (recent narration and public event lines, so a
+reload restores the feed), the public event lines it missed (`last_seq`), and whatever waits for
+that player (their turn prompt, a pending hostile
 confirmation). `closed` drops a connection; a player with no connection left is away: they
 leave the open vote, and their hero's current turn is auto-played. `create` builds a hero
-through `rules.creation` (rolled scores must be the ones this table rolled for that player);
+through `rules.creation` (rolled scores must be the ones this table rolled for that player, and
+`roll` issues one set per player: QA-11);
 `import_hero` (lobby only) takes a character JSON document validated by `rules.character_io`
 (problems come back as `creation_result` errors) and `export_hero` sends the player's hero as
 that document. `start_campaign` (host) generates the campaign with its own timeout
@@ -52,13 +55,20 @@ FELL_BACK = "The tale-weaver faltered, so a ready-made tale begins instead."
 
 
 def hello(core: TableCore, conn_id: str, msg: Hello) -> None:
-    if msg.token is not None and msg.token in core.kicked:
+    known = next((p for p in core.players.values() if msg.token and p.token == msg.token), None)
+    if _kicked(core, conn_id, msg, known):
         text = "The host removed you from this table."
         core.send_conn(conn_id, ErrorMsg(code=ErrorCode.REFUSED, text=text))
         return
-    player = next((p for p in core.players.values() if msg.token and p.token == msg.token), None)
+    seated = core.player_for(conn_id)
+    if seated is not None and known not in (None, seated):
+        _leave_seat(core, conn_id, seated)  # this connection switches to the token's seat
+        seated = None
+    player = known or seated
     if player is None:
         player = core.new_player(msg.name)
+        if core.kicked_names:
+            core.notice(_host_id(core), NoticeKind.HOST, f"{player.name} joined the table.")
     player.conns.add(conn_id)
     core.conn_player[conn_id] = player.id
     welcome = Welcome(player_id=player.id, token=player.token, is_host=player.is_host)
@@ -73,6 +83,18 @@ def hello(core: TableCore, conn_id: str, msg: Hello) -> None:
     if core.resume_combat and player.creature_id is not None:
         core.resume_combat = False
         core.schedule(lambda: combat_flow.advance(core))
+
+
+def _kicked(core: TableCore, conn_id: str, msg: Hello, known: Player | None) -> bool:
+    """QA-07: a kick holds for the session: the token, the connection and (for a new seat)
+    the name are refused; the host is told about every new seat after a kick."""
+    if conn_id in core.kicked_conns or (msg.token is not None and msg.token in core.kicked):
+        return True
+    return known is None and msg.name.strip().casefold() in core.kicked_names
+
+
+def _host_id(core: TableCore) -> str | None:
+    return next((p.id for p in core.players.values() if p.is_host), None)
 
 
 def _catch_up(core: TableCore, conn_id: str, last_seq: int) -> None:
@@ -98,10 +120,15 @@ def _resend_waiting(core: TableCore, conn_id: str, player: Player) -> None:
 def closed(core: TableCore, conn_id: str) -> None:
     core.outboxes.pop(conn_id, None)
     player = core.player_for(conn_id)
+    if player is not None:
+        _leave_seat(core, conn_id, player)
+
+
+def _leave_seat(core: TableCore, conn_id: str, player: Player) -> None:
+    """The connection leaves its seat; a seat with no connection left is away (QA-06)."""
     core.conn_player.pop(conn_id, None)
-    if player is None:
-        return
-    player.conns.discard(conn_id)
+    for seat in core.players.values():
+        seat.conns.discard(conn_id)
     if player.connected:
         return
     core.broadcast_roster()
@@ -118,8 +145,15 @@ def release_turn(core: TableCore, creature_id: str | None) -> None:
 
 
 def roll(core: TableCore, player: Player) -> None:
-    rolls = roll_ability_scores(core.creation_rng)
-    core.issued_rolls[player.id] = rolls
+    """ONE 4d6 set per player (QA-11): asking again re-sends the same set; a new set is rolled
+    only for a player whose hero has died since their last roll."""
+    rolls = core.issued_rolls.get(player.id)
+    hero = core.state.creatures.get(player.creature_id or "")
+    fresh_death = hero is not None and hero.dead and core.rolled_for.get(player.id) != hero.id
+    if rolls is None or fresh_death:
+        rolls = roll_ability_scores(core.creation_rng)
+        core.issued_rolls[player.id] = rolls
+        core.rolled_for[player.id] = player.creature_id
     core.send(player.id, AbilityRolls(rolls=tuple(rolls)))
 
 

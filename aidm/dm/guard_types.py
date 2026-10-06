@@ -30,6 +30,8 @@ class ViolationKind(StrEnum):
     SECRET_LEAK = "secret_leak"
     LIVING_DECLARED_DEAD = "living_declared_dead"
     UNEARNED_REWARD = "unearned_reward"
+    FALSE_TRAVEL = "false_travel"
+    INVENTED_STRANGER = "invented_stranger"
 
 
 SCRUBBED_KINDS = frozenset({ViolationKind.UNKNOWN_NAME, ViolationKind.ABSENT_NPC})

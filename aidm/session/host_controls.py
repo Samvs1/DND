@@ -1,6 +1,7 @@
 """Host-only table controls: kick, difficulty, TTS toggle, save, end (SPEC 10, M6.5).
 
-Decisions (DECISIONS M6.5): a kicked player's seat is removed (their token is refused on hello),
+Decisions (DECISIONS M6.5): a kicked player's seat is removed (their token, their connections and,
+for a new seat, their name are refused on hello for the server session: QA-07),
 their waiting action and vote are dropped and their hero stays in the tale played by the safe
 default turn ("NPC-controlled"); difficulty is the `DifficultySet` event (replayable); the TTS flag
 is table-level state saved in `table.json`; save forces a snapshot; end runs the epilogue when the
@@ -34,8 +35,10 @@ def kick(core: TableCore, host: Player, target_id: str) -> None:
     for conn_id in sorted(target.conns):
         core.send_conn(conn_id, Notice(kind=NoticeKind.HOST, text=KICKED))
         core.conn_player.pop(conn_id, None)
+        core.kicked_conns.add(conn_id)
     target.conns.clear()
     core.kicked.add(target.token)
+    core.kicked_names.add(target.name.strip().casefold())
     del core.players[target.id]
     core.queue = deque(e for e in core.queue if e.player_id != target.id)
     if core.pending is not None and core.pending.player_id == target.id:

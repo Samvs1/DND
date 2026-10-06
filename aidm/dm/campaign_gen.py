@@ -54,7 +54,8 @@ Rules the engine checks:
 - NPC archetype_id only from the archetype list. home_place is the exact name of a place.
 - A quest giver is the exact name of an NPC. A secret reveals by attitude (band friendly or
   ally), by a completed quest (quest_title = exact quest title), by an item shown (item =
-  the exact reward_item of a quest) or by a known fact (fact_tag = one lowercase word).
+  the exact reward_item of a quest) or by a known fact (fact_tag = one lowercase word taken from
+  the name of a place or a quest title: the party learns it by going there or finishing it).
 - A quest may work against an NPC (against = exact NPC name).
 - A boss may have an ally_path (how the party could turn them); fighting stays possible.
 - Write short, evocative flavour. NPC motives and secrets are for the game master only."""

@@ -8,7 +8,11 @@ that no dead creature shares, e.g. "dragon" for "Young Red Dragon") followed wit
 `CLAIM_REACH` characters by a death claim (data/bg3/guard_lexicon.json `death_claims`) that is
 neither negated ("not dead") nor hedged ("nearly dead", `death_hedges`) is flagged.
 
+"Bob is gone" (`death_soft_claims`) counts only right after the name and only when a
+stillness cue follows it (`death_soft_cues`, QA-03: "he is gone, still and cold").
+
 Public API: `CLAIM_REACH`, `living_terms(state, dead, lex) -> dict[str, str]` (term -> name),
+`soft_claim_after(sentence, end, lex) -> bool`,
 `living_declared_dead(sentence, tokens, terms, lex) -> list[Violation]`.
 """
 
@@ -59,15 +63,26 @@ def _claimed(sentence: str, tokens: list[Token], end: int, lex: GuardLexicon) ->
     return False
 
 
+def soft_claim_after(sentence: str, end: int, lex: GuardLexicon) -> bool:
+    """A `death_soft_claims` phrase right after `end`, followed by a stillness cue."""
+    rest = sentence[end:].lstrip().casefold()
+    claim = next(
+        (m for p in lex.death_soft_claims if (m := re.match(rf"{re.escape(p)}(?![a-z])", rest))),
+        None,
+    )
+    return claim is not None and bool(find_phrases(rest[claim.end() :], lex.death_soft_cues))
+
+
 def living_declared_dead(
     sentence: str, tokens: list[Token], terms: dict[str, str], lex: GuardLexicon
 ) -> list[Violation]:
-    if not terms or not find_phrases(sentence, lex.death_claims):
+    claims = lex.death_claims | lex.death_soft_claims
+    if not terms or not find_phrases(sentence, claims):
         return []
     for term in sorted(terms, key=lambda t: (-len(t), t)):
         pattern = rf"(?<![A-Za-z]){re.escape(term)}(?:'s|s)?(?![A-Za-z])"
         for m in re.finditer(pattern, sentence, re.IGNORECASE):
-            if _claimed(sentence, tokens, m.end(), lex):
+            if _claimed(sentence, tokens, m.end(), lex) or soft_claim_after(sentence, m.end(), lex):
                 name = terms[term]
                 detail = f"{name} is alive; no engine event killed them"
                 return [Violation(ViolationKind.LIVING_DECLARED_DEAD, m.group(0), detail)]

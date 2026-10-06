@@ -74,8 +74,8 @@ def test_fact_condition_and_hostile_refusal() -> None:
     )
     apply_all(state, [NpcIntroduced(npc=npc)])
     assert reveal_refusal(state, state.world.npcs["npc-ivo"], "s1") is not None
-    fact = Fact(id="fact-1", text="The smugglers use the quay.", tags=("smugglers",))
-    apply_all(state, [FactRecorded(fact=fact)])
+    quest = Quest(id="q-smug", title="Smugglers on the quay", state=QuestState.COMPLETED)
+    apply_all(state, [QuestUpdated(quest=quest)])
     assert reveal_refusal(state, state.world.npcs["npc-ivo"], "s1") is None
     apply_all(state, [AttitudeChanged(npc_id="npc-ivo", social=0, deeds=0, hostile=True)])
     refusal = reveal_refusal(state, state.world.npcs["npc-ivo"], "s1")
@@ -171,3 +171,19 @@ def test_installed_quests_keep_their_target() -> None:
     first = act_quest_events(plan, plan.quests[0].act)[0]
     assert isinstance(first, QuestUpdated)
     assert first.quest.against_npc_id == plan.npcs[1].id
+
+
+def test_qa_05_model_recorded_fact_cannot_unlock_a_fact_known_secret() -> None:
+    _, state, _ = campaign_state()
+    cond = RevealCondition(kind=RevealKind.FACT_KNOWN, fact_tag="smugglers")
+    npc = WorldNpc(
+        id="npc-ivo",
+        name="Ivo",
+        archetype_id="commoner",
+        node_id=state.world.current_node,
+        secrets=[NpcSecret(id="s1", text="The crates hold powder.", reveal=cond)],
+    )
+    apply_all(state, [NpcIntroduced(npc=npc)])
+    fact = Fact(id="fact-1", text="The party knows about the smugglers.", tags=("smugglers",))
+    apply_all(state, [FactRecorded(fact=fact)])
+    assert reveal_refusal(state, state.world.npcs["npc-ivo"], "s1") is not None
