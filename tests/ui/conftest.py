@@ -27,6 +27,10 @@ ROOT = Path(__file__).resolve().parent.parent.parent
 WEB_SOURCE = ROOT / "aidm" / "web"
 SHOTS = ROOT / "artifacts" / "ui"
 JOURNEY_SEED = 2
+# A fixed dice seed for every server that starts a fight. With a random seed two goblins that win
+# initiative can drop both level-1 heroes in round 1 (seed 1520160952: a crit and a hit), the fight
+# ends before any hero has a turn, and the board is never shown (seen as a 30 s timeout).
+COMBAT_SEED = 2
 
 
 @dataclass(frozen=True)
@@ -136,7 +140,7 @@ def combat_server(tmp_path: Path) -> Iterator[LiveServer]:
     def make(settings: ServerSettings) -> LlmClient:
         return LlmClient(FakeLLM(responder=_combat_responder), settings.llm, LlmMode.FAKE, None)
 
-    yield from _serve(tmp_path, make)
+    yield from _serve(tmp_path, make, state=new_game_state(seed=COMBAT_SEED))
 
 
 def _journey_responder(request: CompletionRequest) -> FakeStep:
@@ -168,7 +172,7 @@ def artless_server(tmp_path: Path) -> Iterator[LiveServer]:
     def make(settings: ServerSettings) -> LlmClient:
         return LlmClient(FakeLLM(responder=_combat_responder), settings.llm, LlmMode.FAKE, None)
 
-    yield from _serve(tmp_path, make, web)
+    yield from _serve(tmp_path, make, web, state=new_game_state(seed=COMBAT_SEED))
 
 
 @pytest.fixture(scope="session")

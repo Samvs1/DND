@@ -1,6 +1,9 @@
 # Rules decisions
 
-Format: one line per decision: `topic | choice | reason` (BG3 rule unsure -> SRD 5.1 used).
+Rules calls where Baldur's Gate 3 and the SRD 5.1 differ, or where the BG3 rule is unknown (then the SRD 5.1 is used).
+Format: one line per decision, prefixed with the checkpoint that made it: `<checkpoint> <topic> | <choice> | <reason>`.
+Lists of unsupported spells, features and monster traits are kept here too. Non-rules decisions go in `docs/DECISIONS.md`.
+Overview of the whole code base: `docs/ARCHITECTURE.md`.
 
 M1.3 check crits | ability and skill checks: natural 20 always succeeds, natural 1 always fails (BG3); saving throws compare the total only (SRD 5.1, BG3 save behaviour unsure) | BG3 dice-roll checks auto-pass/fail on 20/1; saves left at SRD
 M1.3 DC tiers | trivial 5, easy 10, medium 15, hard 20, very_hard 25, nearly_impossible 30 | SRD 5.1 Typical Difficulty Classes, SPEC 6.3
