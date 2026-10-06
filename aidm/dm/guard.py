@@ -50,7 +50,10 @@ from aidm.models.events import AnyEvent
 from aidm.models.state import GameState
 
 SCRUB_TOKEN = "[unlisted]"
-CONTINUE_NOTE = "Continue the narration right after the text above; do not repeat it."
+CONTINUE_NOTE = (
+    "Continue the narration right after that text with what happens NEXT; do not repeat, "
+    "retell or rephrase any of it."
+)
 
 
 def _sentence_violations(
@@ -120,7 +123,7 @@ def retry_messages(messages: Sequence[Message], report: GuardReport, shown: str)
     note = report.correction()
     if shown:
         out.append({"role": "assistant", "content": shown})
-        note = f"{note} {CONTINUE_NOTE}"
+        note = f'{note} The players already heard: "{shown}" {CONTINUE_NOTE}'
     out.append({"role": "user", "content": note})
     return out
 

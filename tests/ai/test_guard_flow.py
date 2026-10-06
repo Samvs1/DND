@@ -15,6 +15,7 @@ from aidm.dm.guard_flow import NarrationSource
 from aidm.dm.guard_types import GuardReport, Violation, ViolationKind
 from aidm.dm.narration_templates import QUIET_LINE
 from aidm.dm.narrator import narrate
+from aidm.dm.sentence_chunker import strip_markdown
 from tests.ai.fake_scripts import (
     crowd_plural_narration,
     fake_client,
@@ -108,3 +109,37 @@ def test_retry_messages_never_repeat_a_scrubbed_name() -> None:
     assert report.scrub_terms == ("Kelene",)
     text = _user_text(out)
     assert "Kelene" not in text and "Gorrak is dead" in text and CONTINUE_NOTE not in text
+
+
+async def test_qa_12_retry_continues_instead_of_retelling(tmp_path: Path) -> None:
+    first = FakeStream(
+        (
+            "Mira leans across the long oak bar and lowers her voice to a whisper. ",
+            "Sister Kelene waves from the stair.",
+        )
+    )
+    retold = fake_text(
+        "Mira leans over the long oak bar, lowering her voice to a whisper. "
+        "She slides a mug of cider toward Aria."
+    )
+    client, fake = fake_client(tmp_path, [first, retold])
+    stream = narrate(inn_state(), [], client)
+    texts = [c.text async for c in stream]
+    assert texts == [
+        "Mira leans across the long oak bar and lowers her voice to a whisper.",
+        "She slides a mug of cider toward Aria.",
+    ]
+    note = str(list(fake.requests[1].messages)[-1]["content"])
+    assert "Mira leans across the long oak bar" in note and "do not repeat" in note
+
+
+async def test_qa_13_markdown_is_stripped_before_players_and_tts(tmp_path: Path) -> None:
+    raw = "`Aria is no wizard, and no fire leaps from her hands.` The **inn** settles *quietly*."
+    client, _ = fake_client(tmp_path, [fake_text(raw)])
+    stream = narrate(inn_state(), [], client)
+    texts = [c.text async for c in stream]
+    assert texts == [
+        "Aria is no wizard, and no fire leaps from her hands.",
+        "The inn settles quietly.",
+    ]
+    assert strip_markdown("## The **Lantern** Inn") == "The Lantern Inn"

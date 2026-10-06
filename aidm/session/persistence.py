@@ -14,7 +14,8 @@ line in the middle is never truncated (QA-08): the log and initial move aside as
 a usable `initial.json` the snapshot alone is used with an empty log (`recovered=True`).
 
 Public API: `CampaignStore`, `LoadedCampaign`, `TableMeta`, `SeatRecord`, `SaveInfo`,
-`CampaignLoadError`, `new_game_state`, `valid_campaign_id`.
+`CampaignLoadError`, `new_game_state`, `valid_campaign_id`, `replay_log(base, log)` (a log event
+that cannot apply raises `CampaignLoadError` naming it: QA-14).
 """
 
 import contextlib
@@ -30,7 +31,8 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from aidm.models.events import LoggedEvent
 from aidm.models.state import GameState
-from aidm.session.reducer import replay
+from aidm.session.reducer import apply
+from aidm.session.reducer_errors import ReducerError
 
 SNAPSHOT_VERSION = 1
 NL = chr(10)
@@ -219,12 +221,24 @@ class CampaignStore:
         read = _read_log(folder / EVENTS, initial.event_count, notes)
         if read.damaged_middle:
             return _repair(folder, campaign_id, (initial, snapshot, meta), read, notes)
-        state = replay(initial, [entry.event for entry in read.log])
+        state = replay_log(initial, read.log)
         recovered = bool(notes)
         if snapshot is not None and _state_json(snapshot.state) != _state_json(state):
             notes.append("snapshot differs from the replayed log: the log wins")
             recovered = True
         return LoadedCampaign(campaign_id, initial, state, read.log, meta, recovered, notes)
+
+
+def replay_log(base: GameState, log: list[LoggedEvent]) -> GameState:
+    """Replay a saved log; an event that cannot apply makes the save damaged (QA-14)."""
+    state = base.model_copy(deep=True)
+    for entry in log:
+        try:
+            apply(state, entry.event)
+        except (ReducerError, ValueError, KeyError) as exc:
+            detail = f"event {entry.seq} ({entry.event.type}) cannot be applied"
+            raise CampaignLoadError(f"That saved campaign is damaged: {detail}.") from exc
+    return state
 
 
 @dataclass
@@ -246,8 +260,6 @@ def _repair(
     (fresh initial.json, empty log), else the valid prefix of the log is kept and replayed."""
     initial, snapshot, meta = files
     stamp = datetime.now(UTC).strftime("%Y%m%d-%H%M%S")
-    for name in (EVENTS, INITIAL):
-        os.replace(folder / name, folder / f"{name}.corrupt-{stamp}")
     line = read.damaged_line
     if snapshot is not None:
         base, log = snapshot.state, []
@@ -262,9 +274,11 @@ def _repair(
             f"progress after event {len(log)} is lost. The damaged log was kept as "
             f"events.jsonl.corrupt-{stamp}."
         )
+    state = replay_log(base, log)
+    for name in (EVENTS, INITIAL):
+        os.replace(folder / name, folder / f"{name}.corrupt-{stamp}")
     atomic_write(folder / INITIAL, base.model_dump_json())
     atomic_write(folder / EVENTS, "".join(e.model_dump_json() + NL for e in log))
-    state = replay(base, [entry.event for entry in log])
     notes.append(warning)
     return LoadedCampaign(campaign_id, base, state, log, meta, True, notes, warning)
 

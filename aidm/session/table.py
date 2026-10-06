@@ -92,7 +92,9 @@ JOBS: dict[type, JobMaker] = {
     c.UseItem: lambda core, p, m: partial(party_actions.use_item, core, p, m),
 }
 
-PAUSABLE = (c.CombatCommandMsg, c.ConfirmHostile, c.AnswerOffer, c.Give)
+# Pause freezes every state-changing player job (QA-15); host messages are IMMEDIATE and still
+# work, free text waits in the queue.
+PAUSABLE = tuple(JOBS)
 
 
 @dataclass(frozen=True)

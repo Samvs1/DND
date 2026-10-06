@@ -11,7 +11,8 @@ known abbreviation ("Mr.", "Dr.", "St.", "e.g.") or a single capital initial ("J
 decimal number ("3.5" has no whitespace after the dot). A blank line is always a boundary.
 
 Public API: `SentenceChunker` (`feed(text) -> list[str]`, `flush() -> list[str]`),
-`split_sentences(text) -> list[str]`, `ABBREVIATIONS`.
+`split_sentences(text) -> list[str]`, `strip_marks(text) -> str`,
+`strip_markdown(sentence) -> str`, `ABBREVIATIONS`.
 """
 
 import re
@@ -99,3 +100,19 @@ class SentenceChunker:
 def split_sentences(text: str) -> list[str]:
     chunker = SentenceChunker()
     return [*chunker.feed(text), *chunker.flush()]
+
+
+_HEADING = re.compile(r"^\s*(?:#{1,6}\s+|>\s+|[-*+]\s+(?=\S))")
+_MARKS = re.compile(r"`+|\*+|_{2,}|~{2,}")
+
+
+def strip_marks(text: str) -> str:
+    """Drop inline markdown marks from a streamed piece: backticks, asterisks, `__`, `~~`."""
+    return _MARKS.sub("", text)
+
+
+def strip_markdown(sentence: str) -> str:
+    """Plain prose for players and TTS (QA-13): inline marks plus a leading heading, quote or
+    list marker removed, whitespace collapsed."""
+    plain = strip_marks(_HEADING.sub("", sentence))
+    return " ".join(plain.split())
