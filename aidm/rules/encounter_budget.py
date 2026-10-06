@@ -7,6 +7,8 @@ monster XP values come from the SRD stat blocks (`SrdMonster.xp`), also passed i
 Public API:
 - `party_thresholds(levels, tables) -> dict[Difficulty, int]`: each tier summed over the party.
 - `party_budget(levels, difficulty, tables) -> int`: one tier (4 level-1 PCs, medium: 200).
+- `rating_cap_xp(levels, difficulty, tables) -> int`: the most adjusted XP a list may have and
+  still be rated at most `difficulty` (the next tier's threshold - 1; deadly: its threshold).
 - `group_multiplier(monster_count, party_size, tables) -> float`: the step for the monster count,
   one step up for a small party, one step down for a large one.
 - `adjusted_xp(monster_xps, party_size, tables) -> int`: summed XP x multiplier, rounded down.
@@ -43,6 +45,15 @@ def party_thresholds(levels: Sequence[int], tables: EncounterTables) -> dict[Dif
 
 def party_budget(levels: Sequence[int], difficulty: Difficulty, tables: EncounterTables) -> int:
     return party_thresholds(levels, tables)[difficulty]
+
+
+def rating_cap_xp(levels: Sequence[int], difficulty: Difficulty, tables: EncounterTables) -> int:
+    totals = party_thresholds(levels, tables)
+    order = list(Difficulty)
+    index = order.index(difficulty)
+    if index + 1 >= len(order):
+        return totals[difficulty]
+    return totals[order[index + 1]] - 1
 
 
 def group_multiplier(monster_count: int, party_size: int, tables: EncounterTables) -> float:

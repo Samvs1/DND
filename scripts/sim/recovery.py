@@ -1,10 +1,12 @@
 """Keeping the party alive between fights like a careful table would.
 
-Short rests while any are left, then a long rest paid with camp supplies; supplies are bought
-at the hub shop (a ready vote, then `shop_buy` by each hero with its own gold). Everything goes
-through the protocol; a refused step is only logged (the party may press on hurt).
+Short rests while any are left, then a long rest paid with camp supplies. The party starts with
+the campaign's camp supplies (one long rest, M9.2); more are bought at the hub shop only when
+short (a ready vote, then `shop_buy` by each hero with its own gold). Before the region boss a
+careful table makes camp once (`camp`). Everything goes through the protocol; a refused step is
+only logged (the party may press on hurt).
 
-Public API: `recover`, `hp_ratio`.
+Public API: `recover`, `camp`, `hp_ratio`.
 """
 
 from typing import TYPE_CHECKING
@@ -53,18 +55,38 @@ async def _buy(bot: Bot, stock: Msg, item_id: str, qty: int) -> None:
     await conn.wait_for(lambda m: m["type"] in ("error", "notice", "snapshot"), 15.0, mark)
 
 
+def _cost(d: "Director") -> int:
+    state = d.srv.table.state
+    living = [c for c in state.creatures.values() if c.pc is not None and not c.dead]
+    return len(living) * CAMP_SUPPLY_PER_MEMBER
+
+
+async def camp(d: "Director") -> bool:
+    """Make camp for the night (buying supplies at the hub first if short); True if rested."""
+    state = d.srv.table.state
+    cost = _cost(d)
+    if state.camp_supplies < cost and d.at_hub():
+        await _buy_supplies(d, cost - state.camp_supplies)
+    if state.camp_supplies < cost:
+        d.report.notes.append(f"no supplies for a long rest ({state.camp_supplies} < {cost})")
+        return False
+    d.step("long rest")
+    before = state.camp_supplies
+    if not await d.propose(d.proposer(d.party.fighter), "We make camp for the night"):
+        d.report.fail("the long rest vote did not pass")
+        return False
+    if d.srv.table.state.camp_supplies != before - cost:
+        d.report.fail(f"the long rest did not pay {cost} supplies (had {before})")
+        return False
+    d.long_rests += 1
+    return True
+
+
 async def recover(d: "Director") -> None:
     state = d.srv.table.state
     if hp_ratio(d) < HURT and state.short_rests_used < MAX_SHORT_RESTS:
         await d.short_rest()
     if hp_ratio(d) >= BADLY_HURT:
         return
-    cost = len([c for c in state.creatures.values() if c.pc is not None]) * CAMP_SUPPLY_PER_MEMBER
-    if state.camp_supplies < cost and d.at_hub():
-        await _buy_supplies(d, cost - state.camp_supplies)
-    if state.camp_supplies >= cost:
-        d.step("long rest")
-        if not await d.propose(d.proposer(d.party.fighter), "We make camp for the night"):
-            d.report.fail("the long rest vote did not pass")
-    else:
-        d.report.notes.append(f"party pressed on hurt ({hp_ratio(d):.2f}), no supplies for a rest")
+    if not await camp(d):
+        d.report.notes.append(f"party pressed on hurt ({hp_ratio(d):.2f})")

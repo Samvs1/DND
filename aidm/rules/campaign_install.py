@@ -2,7 +2,9 @@
 
 The plan becomes world registry entries (closed world: the cast, the bosses and the act-1 quests
 exist only once these events are applied), the campaign graph (travel neighbours and derived
-locks, `aidm.session.campaign_apply`) and the first move to act 1's arrival.
+locks, `aidm.session.campaign_apply`), the party's starting camp supplies
+(`rules.rests.STARTING_CAMP_SUPPLIES`: one long rest, BG3-like; RULES_DECISIONS M9.2) and the
+first move to act 1's arrival.
 
 Bosses are registered as world NPCs at their gateway (`boss_npc_id(region)`), so the social
 rules apply to them: a boss with an ally path starts unfriendly (`BOSS_ALLY_PATH_BASE`) and can
@@ -15,10 +17,11 @@ is already installed or an id clashes), `boss_npc_id(region) -> str`, `plan_npc(
 
 from aidm.models.campaign import CampaignPlan, NpcPlan, RegionPlan, RevealKind, SecretPlan
 from aidm.models.campaign_events import CampaignInstalled
-from aidm.models.events import AnyEvent
+from aidm.models.events import AnyEvent, CampSuppliesChanged
 from aidm.models.state import GameState
 from aidm.models.world import NpcSecret, Quest, QuestState, WorldNpc
 from aidm.models.world_events import NpcIntroduced, PartyMoved, QuestUpdated
+from aidm.rules.rests import STARTING_CAMP_SUPPLIES
 from aidm.rules.social import band_floor
 from aidm.rules.world_graph import build_campaign_graph
 
@@ -95,6 +98,8 @@ def install_campaign(state: GameState, plan: CampaignPlan, seed: int) -> list[An
     ]
     events += [NpcIntroduced(npc=npc) for npc in npcs]
     events += act_quest_events(plan, 1)
+    supplies = state.camp_supplies + STARTING_CAMP_SUPPLIES
+    events.append(CampSuppliesChanged(delta=STARTING_CAMP_SUPPLIES, camp_supplies=supplies))
     arrival = plan.acts[0].region.arrival.id
     world = state.world
     events.append(

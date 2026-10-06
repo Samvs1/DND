@@ -4,6 +4,8 @@
 1. follow-ups of the applied mechanics: after a `PartyMoved`, `dm.arrival.on_arrival` (describe
    once, then the world's encounter offer); after `EncounterEnded` / `AttitudeChanged`,
    `rules.quest_rewards.resolution_reward_events` (region resolution + milestone rewards);
+   then the spoke milestones of the batch (`rules.milestones.milestone_events`: first visit,
+   a won fight or a successful parley);
 2. narrate (streamed sentence by sentence as `narration_chunk`, each carrying its audio url when
    the host's TTS toggle is on and the synthesis made it in time (`narration_pipe`); then
    `narration_done`);
@@ -38,6 +40,7 @@ from aidm.models.protocol_server import (
 )
 from aidm.models.protocol_views import TablePhase
 from aidm.models.world_events import AttitudeChanged, PartyMoved
+from aidm.rules.milestones import milestone_events
 from aidm.rules.quest_rewards import resolution_reward_events
 from aidm.session.narration_pipe import NarrationPipe
 from aidm.session.table_core import TableCore
@@ -101,6 +104,8 @@ async def follow_ups(core: TableCore, events: Sequence[AnyEvent]) -> list[AnyEve
     if any(isinstance(e, EncounterEnded | AttitudeChanged) for e in events):
         rewards = resolution_reward_events(core.state, core.regs.tiers, core.regs.catalogue)
         out += core.apply_all(rewards)
+    milestones = milestone_events(core.state, events, core.regs.tiers, core.regs.catalogue)
+    out += core.apply_all(milestones)
     return out
 
 

@@ -127,6 +127,13 @@ def _moved(state: GameState, event: PartyMoved) -> None:
     refresh_travel(state)
 
 
+def _rewarded(state: GameState, kind: str, source: str) -> None:
+    """A paid milestone is remembered (`CampaignState.milestones`) so it is never paid twice."""
+    campaign = state.campaign
+    if kind == "milestone" and campaign is not None and source not in campaign.milestones:
+        campaign.milestones.append(source)
+
+
 def _narrated(state: GameState, text: str, turn: int) -> None:
     memory = state.memory
     if memory.turns_since_summary == 0:
@@ -203,7 +210,9 @@ def apply_world_event(state: GameState, event: WorldEvent) -> None:
             world.shop_npc_id = npc_id
         case EquipmentChanged(creature_id=creature_id, equipped=equipped, ac=ac):
             _equip(state, creature_id, equipped, ac)
-        case HostileActPending() | ItemsTraded() | RewardGranted() | LevelUpReady():
+        case RewardGranted(kind=kind, source=source):
+            _rewarded(state, kind, source)
+        case HostileActPending() | ItemsTraded() | LevelUpReady():
             pass
         case _:
             assert_never(event)

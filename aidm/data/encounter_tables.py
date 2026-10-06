@@ -6,6 +6,10 @@
   ladder (past the last step: `small_party_top_multiplier`); a party of `large_party_min` or
   more the next step down (one monster: `large_party_multiplier`).
 - `max_monsters`: the most monsters `pick_monsters` ever places.
+- World-pulled encounters (M9.2, RULES_DECISIONS): `spoke_rating_cap[region tier]` is the
+  highest difficulty rating a spoke's monster list may reach (tier 1: easy), `boss_rating_cap`
+  the boss fight's (hard); `spoke_max_monsters_per_pc[region tier]` caps a spoke's monster count
+  at that multiple of the party size (action economy).
 
 Public API: `EncounterTables`, `MultiplierStep`, `load_encounter_tables(path=None)`,
 `encounter_tables()` (default file, cached). The arithmetic is `aidm.rules.encounter_budget`.
@@ -45,6 +49,11 @@ class EncounterTables(BaseModel):
     small_party_max: int = Field(ge=0)
     large_party_min: int = Field(ge=1)
     max_monsters: int = Field(ge=1)
+    spoke_rating_cap: dict[int, DifficultyKey] = Field(
+        default_factory=lambda: dict[int, DifficultyKey]({1: "easy", 2: "medium", 3: "medium"})
+    )
+    spoke_max_monsters_per_pc: dict[int, int] = Field(default_factory=dict[int, int])
+    boss_rating_cap: DifficultyKey = "hard"
 
     @model_validator(mode="after")
     def _check(self) -> EncounterTables:

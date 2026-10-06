@@ -2,6 +2,7 @@
  {
   "index": "acolyte",
   "name": "Acolyte",
+  "gold": 15,
   "skills": [
    "insight",
    "religion"
@@ -30,6 +31,7 @@
  {
   "index": "soldier",
   "name": "Soldier",
+  "gold": 10,
   "skills": [
    "athletics",
    "intimidation"
@@ -60,6 +62,7 @@
  {
   "index": "criminal",
   "name": "Criminal",
+  "gold": 15,
   "skills": [
    "deception",
    "stealth"
@@ -90,6 +93,7 @@
  {
   "index": "sage",
   "name": "Sage",
+  "gold": 10,
   "skills": [
    "arcana",
    "history"
@@ -126,6 +130,7 @@
  {
   "index": "folk-hero",
   "name": "Folk Hero",
+  "gold": 10,
   "skills": [
    "animal-handling",
    "survival"
@@ -160,6 +165,7 @@
  {
   "index": "noble",
   "name": "Noble",
+  "gold": 25,
   "skills": [
    "history",
    "persuasion"
@@ -190,6 +196,7 @@
  {
   "index": "outlander",
   "name": "Outlander",
+  "gold": 10,
   "skills": [
    "athletics",
    "survival"
@@ -224,6 +231,7 @@
  {
   "index": "entertainer",
   "name": "Entertainer",
+  "gold": 15,
   "skills": [
    "acrobatics",
    "performance"

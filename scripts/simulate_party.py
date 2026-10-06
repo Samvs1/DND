@@ -4,11 +4,13 @@
 
 Per seed: a fresh in-process server (fake LLM unless --live-ai) over a temp saves folder, an
 aggressive fighter, a chatty explorer and a chaotic player (invalid commands, injections, abuse)
-create heroes, explore, travel by vote, fight a full combat, rest, level up and walk to the
-region gateway. Asserts: no server-side exception, no silent turn, hp and slot invariants, no
-private text in any client message, and the saved event log replays to the final state.
-Prints one line per seed and `SIMULATION OK seeds=<n> turns=<t> combats=<c>` (exit 0) or
-`SIMULATION FAILED ...` with the reasons (exit 1).
+create heroes, explore, travel by vote, fight the spoke offers at the default difficulty, take a
+short and a long rest (from the starting camp supplies), level up on earned XP (kills plus spoke
+milestones; no XP is injected) and walk to the region gateway. Asserts: no server-side
+exception, no silent turn, hp and slot invariants, no private text in any client message, a
+level-up and both rests reached by play, and the saved event log replays to the final state.
+Prints one line per seed and `SIMULATION OK seeds=<n> turns=<t> combats=<c> min_level=<l>`
+(exit 0) or `SIMULATION FAILED ...` with the reasons (exit 1).
 """
 
 import argparse
@@ -39,7 +41,8 @@ def main(argv: list[str] | None = None) -> int:
     combats = sum(r.combats for r in reports)
     failed = [r for r in reports if not r.ok]
     if not failed:
-        print(f"SIMULATION OK seeds={args.seeds} turns={turns} combats={combats}")
+        level = min(r.level for r in reports)
+        print(f"SIMULATION OK seeds={args.seeds} turns={turns} combats={combats} min_level={level}")
         return 0
     print(
         f"SIMULATION FAILED seeds={args.seeds} failed={len(failed)} turns={turns} combats={combats}"

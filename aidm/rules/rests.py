@@ -5,8 +5,9 @@ The party is every living PC in the state. Rests are refused with a typed `RestR
 
 Public API:
 - `MAX_SHORT_RESTS` (2 between long rests), `CAMP_SUPPLY_PER_MEMBER` (10: a party of four pays
-  40, the BG3 cost of a full long rest), `SHORT_REST_HEAL_DIVISOR` (2: a short rest heals half
-  of max HP, BG3; no hit dice).
+  40, the BG3 cost of a full long rest), `STARTING_CAMP_SUPPLIES` (40: the pool a campaign
+  install gives the party, one long rest for four, M9.2), `SHORT_REST_HEAL_DIVISOR` (2: a
+  short rest heals half of max HP, BG3; no hit dice).
 - `RestRefusal`: NO_PARTY / NO_SHORT_RESTS_LEFT / NOT_ENOUGH_SUPPLIES.
 - `RestRefused(reason, detail)`: ValueError subclass carrying the `reason`.
 - `living_party(state) -> list[Creature]`; `short_rests_left(state) -> int`;
@@ -43,6 +44,7 @@ from aidm.rules.resources import restore_resources
 
 MAX_SHORT_RESTS = 2
 CAMP_SUPPLY_PER_MEMBER = 10
+STARTING_CAMP_SUPPLIES = 4 * CAMP_SUPPLY_PER_MEMBER
 SHORT_REST_HEAL_DIVISOR = 2
 
 

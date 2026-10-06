@@ -6,9 +6,12 @@ seed and the node state):
 - the gateway offers the boss on every arrival while the region is unresolved and the boss is
   neither defeated nor allied;
 - the arrival node is always safe.
-Monsters come from the node's themes within the CR budget of the party (medium for a spoke,
-hard for the boss's company; `aidm.rules.encounter_budget`); a theme list too costly for the
-party still yields its cheapest monster (the warning beat lets the party escape or parley).
+Monsters come from the node's themes within the CR budget of the actual party (size and
+levels): a spoke's list is rated at most `tables.spoke_rating_cap[region tier]` (tier 1: easy)
+and fields at most `spoke_max_monsters_per_pc` monsters per PC; the boss and its company are
+rated at most `tables.boss_rating_cap` (hard) (`aidm.rules.encounter_budget.rating_cap_xp`,
+RULES_DECISIONS M9.2); a theme list too costly for the party still yields its cheapest monster
+(the warning beat lets the party escape or parley).
 Nothing starts without the warning beat: the offer lists fight / surprise / escape / parley
 (answered by `aidm.rules.offer_answer`).
 
@@ -47,7 +50,7 @@ from aidm.rules.checks import dc_for_tier
 from aidm.rules.dice import Rng
 from aidm.rules.dm_tiers import party_levels
 from aidm.rules.encounter import start_encounter
-from aidm.rules.encounter_budget import adjusted_xp, party_budget, pick_monsters, rate_encounter
+from aidm.rules.encounter_budget import adjusted_xp, pick_monsters, rate_encounter, rating_cap_xp
 from aidm.rules.progression import boss_defeated, boss_npc, node_plan, region_of
 from aidm.rules.social import attitude_band, attitude_score, hostile_attitude_events
 from aidm.rules.zone_gen import generate_zone_map
@@ -93,17 +96,32 @@ def _company(
     return picked
 
 
+def _spoke_tables(data: OfferData, tier: int, size: int) -> EncounterTables:
+    per_pc = data.tables.spoke_max_monsters_per_pc.get(tier)
+    if per_pc is None:
+        return data.tables
+    return data.tables.model_copy(
+        update={"max_monsters": min(data.tables.max_monsters, per_pc * size)}
+    )
+
+
 def _monsters(
-    state: GameState, data: OfferData, node: NodePlan, boss: WorldNpc | None, rng: Rng
+    state: GameState,
+    data: OfferData,
+    where: tuple[RegionPlan, NodePlan],
+    boss: WorldNpc | None,
+    rng: Rng,
 ) -> list[str]:
+    region, node = where
     levels = party_levels(state)
     size = len(levels)
     if boss is not None:
-        hard = party_budget(levels, Difficulty.HARD, data.tables)
-        return _company(rng, data, node.encounter_themes, hard, [boss.archetype_id], size)[1:]
-    medium = party_budget(levels, Difficulty.MEDIUM, data.tables)
+        cap = rating_cap_xp(levels, Difficulty(data.tables.boss_rating_cap), data.tables)
+        return _company(rng, data, node.encounter_themes, cap, [boss.archetype_id], size)[1:]
+    rating = data.tables.spoke_rating_cap.get(region.tier, Difficulty.MEDIUM.value)
+    cap = rating_cap_xp(levels, Difficulty(rating), data.tables)
     xps = {m: _xp(data, m) for m in node.encounter_themes}
-    picked = pick_monsters(rng, medium, xps, size, data.tables)
+    picked = pick_monsters(rng, cap, xps, size, _spoke_tables(data, region.tier, size))
     return picked or [min(sorted(xps), key=lambda m: xps[m])]
 
 
@@ -122,7 +140,7 @@ def _offer(
     campaign = state.campaign
     seed = campaign.seed if campaign is not None else state.seed
     rng = random.Random(f"{seed}:{node.id}:{state.world.scene_index}")
-    monsters = _monsters(state, data, node, boss, rng)
+    monsters = _monsters(state, data, where, boss, rng)
     xps = [_xp(data, m) for m in monsters]
     if boss is not None:
         xps.append(_xp(data, boss.archetype_id))

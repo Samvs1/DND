@@ -16,6 +16,8 @@ class Report:
     submits: int = 0
     notes: list[str] = field(default_factory=list[str])
     step: str = "start"
+    level: int = 1  # the highest hero level reached by play
+    rests: tuple[int, int] = (0, 0)  # short and long rests taken by play
 
     def fail(self, message: str) -> None:
         text = f"seed={self.seed} step={self.step}: {message}"
@@ -32,4 +34,8 @@ class Report:
 
     def summary(self) -> str:
         status = "ok" if self.ok else f"FAILED({len(self.failures)})"
-        return f"seed {self.seed}: {status} turns={self.turns} combats={self.combats}"
+        short, long = self.rests
+        return (
+            f"seed {self.seed}: {status} turns={self.turns} combats={self.combats} "
+            f"level={self.level} rests={short}s/{long}l"
+        )

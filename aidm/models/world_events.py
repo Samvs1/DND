@@ -20,8 +20,9 @@ Public API:
   else changed.
 - `ItemsTraded(npc_id, creature_id, item, qty, gold, sold)` (M5.6): pure log event of a shop
   sale or purchase (gold and inventory move through `GoldChanged` / `InventoryChanged`).
-- `RewardGranted(source, kind, xp_each, gold_each, items)` (M5.6): pure log event of loot, a quest
-  or a milestone paying out (the numbers move through their own events).
+- `RewardGranted(source, kind, xp_each, gold_each, items)` (M5.6): log event of loot, a quest
+  or a milestone paying out (the numbers move through their own events); a milestone's
+  `source` joins `CampaignState.milestones` (M9.2), so it is paid once.
 - `LevelUpReady(creature_id, level)` (M5.6): pure log event: the PC has enough XP for `level`.
 - `FeatureDiscovered(feature_id, creature_id)` (M4.3): a hidden feature was found; it joins
   the manifest.

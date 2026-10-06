@@ -9,8 +9,8 @@ player's standing hero: the segment since the last narration is told in ONE
 starts (default 90 s; on timeout or disconnect the safe default plays that turn).
 Only that hero's player may send `combat_command`; anyone else gets `not_your_turn` and nothing
 is consumed. A fight's end runs loot (`end_encounter_with_loot`), bystander deeds
-(`combat_help_deed_events`) and region rewards (`resolution_reward_events`), tells the last
-segment, records it and returns to exploration.
+(`combat_help_deed_events`), region rewards (`resolution_reward_events`) and spoke milestones
+(`milestone_events`, M9.2), tells the last segment, records it and returns to exploration.
 
 Public API: `MAX_COMBAT_STEPS`, `runner`, `after_resolution`, `begin_combat`, `advance`,
 `tell_segment`, `after_player_step`, `player_command`, `turn_timeout`, `autoplay_safe`,
@@ -28,6 +28,7 @@ from aidm.rules.command_checks import CommandRefused
 from aidm.rules.commands import execute_command
 from aidm.rules.encounter import encounter_outcome
 from aidm.rules.loot import end_encounter_with_loot, loot_rng
+from aidm.rules.milestones import milestone_events
 from aidm.rules.party_ai import safe_default_turn
 from aidm.rules.quest_rewards import resolution_reward_events
 from aidm.rules.social_deeds import combat_help_deed_events
@@ -217,6 +218,7 @@ async def finish_fight(core: TableCore, status: EncounterStatus) -> None:
     events = core.apply_all(end_encounter_with_loot(state, status, regs.loot, regs.catalogue, rng))
     events += core.apply_all(combat_help_deed_events(state, status, regs.tiers))
     events += core.apply_all(resolution_reward_events(state, regs.tiers, regs.catalogue))
+    events += core.apply_all(milestone_events(state, events, regs.tiers, regs.catalogue))
     text = await tell_segment(core)
     core.in_combat = False
     core.segment = []

@@ -17,6 +17,7 @@ from aidm.rules.encounter_budget import (
     party_thresholds,
     pick_monsters,
     rate_encounter,
+    rating_cap_xp,
 )
 
 T = encounter_tables()
@@ -100,3 +101,22 @@ def test_pick_monsters_stays_within_budget_and_is_seeded() -> None:
 def test_pick_monsters_respects_max_monsters() -> None:
     picked = pick_monsters(random.Random(5), 100_000, {"rat": 10}, 4, T)
     assert len(picked) == T.max_monsters
+
+
+def test_golden_rating_caps() -> None:
+    # Three level-1 PCs: thresholds 75/150/225/300. "At most easy" = below medium (149),
+    # "at most hard" = below deadly (299), "at most deadly" = the deadly threshold itself.
+    levels = [1, 1, 1]
+    assert rating_cap_xp(levels, Difficulty.EASY, T) == 149
+    assert rating_cap_xp(levels, Difficulty.HARD, T) == 299
+    assert rating_cap_xp(levels, Difficulty.DEADLY, T) == 300
+    # Three giant rats (25 XP, x2 for three monsters) = 150: rated medium, over the easy cap.
+    assert rate_encounter([25, 25, 25], levels, T) is Difficulty.MEDIUM
+    assert rate_encounter([25, 25], levels, T) is Difficulty.EASY
+
+
+def test_world_encounter_caps_are_data() -> None:
+    # RULES_DECISIONS M9.2: tier-1 spokes easy, later spokes medium, bosses hard.
+    assert T.spoke_rating_cap == {1: "easy", 2: "medium", 3: "medium"}
+    assert T.spoke_max_monsters_per_pc == {1: 1, 2: 2, 3: 2}
+    assert T.boss_rating_cap == "hard"

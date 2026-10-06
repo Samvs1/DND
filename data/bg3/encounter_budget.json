@@ -26,5 +26,8 @@
   "large_party_multiplier": 0.5,
   "small_party_max": 2,
   "large_party_min": 6,
-  "max_monsters": 8
+  "max_monsters": 8,
+  "spoke_rating_cap": {"1": "easy", "2": "medium", "3": "medium"},
+  "spoke_max_monsters_per_pc": {"1": 1, "2": 2, "3": 2},
+  "boss_rating_cap": "hard"
 }

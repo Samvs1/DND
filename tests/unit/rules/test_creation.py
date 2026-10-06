@@ -79,6 +79,16 @@ def test_golden_hill_dwarf_fighter() -> None:
     assert {Skill.INSIGHT, Skill.RELIGION} <= set(pc.skill_proficiencies)  # acolyte
 
 
+def test_golden_background_starting_gold() -> None:
+    # M9.2: equipment packages plus the background purse (PHB backgrounds: acolyte 15 gp,
+    # soldier 10 gp, noble 25 gp); no class starting wealth (that is the alternative to packages).
+    purse = {b.index: b.gold for b in REGS.backgrounds.all()}
+    assert (purse["acolyte"], purse["soldier"], purse["noble"]) == (15, 10, 25)
+    assert all(10 <= gold <= 25 for gold in purse.values())
+    pc = build_character(default_choices("fighter", "dwarf", "hill-dwarf"), REGS, "f1")
+    assert pc.pc is not None and pc.pc.background == "acolyte" and pc.pc.gold == 15
+
+
 def test_golden_high_elf_wizard() -> None:
     # DEX 14 + 2 = 16, INT 12 + 1 = 13, CON 13. HP d6 6 + 1 = 7. AC 10 + 3 = 13 (no armor).
     pc = build_character(default_choices("wizard", "elf", "high-elf"), REGS, "w1")

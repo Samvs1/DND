@@ -66,7 +66,9 @@ def test_offered_quest_cannot_be_completed_directly() -> None:
 def test_completing_a_campaign_quest_pays_its_tier() -> None:
     start, state, log = campaign_state()
     _quest(state, "missing-ledger", "active", log)
-    assert _gold(state) == 0
+    # M9.2: heroes start with their background purse (4 human acolytes: 15 gp each).
+    before = _gold(state)
+    assert before == 60
     events = _quest(state, "missing-ledger", "completed", log)
     paid = [e for e in events if isinstance(e, RewardGranted)]
     assert len(paid) == 1 and paid[0].kind == "quest" and paid[0].items == ("harbour-ledger",)
@@ -74,7 +76,7 @@ def test_completing_a_campaign_quest_pays_its_tier() -> None:
     assert xp_award(REGS.tiers, XpTier.MINOR, 1) == 25
     assert [e.amount for e in events if isinstance(e, XpGained)] == [25] * 4
     assert sum(e.delta for e in events if isinstance(e, GoldChanged)) == 100
-    assert _gold(state) == 100
+    assert _gold(state) == before + 100
     holders = [
         c.id
         for c in state.creatures.values()
@@ -90,8 +92,9 @@ def test_completing_a_campaign_quest_pays_its_tier() -> None:
 def test_failing_a_quest_pays_nothing() -> None:
     _, state, log = campaign_state()
     _quest(state, "missing-ledger", "active", log)
+    before = _gold(state)
     events = _quest(state, "missing-ledger", "failed", log)
-    assert not any(isinstance(e, RewardGranted) for e in events) and _gold(state) == 0
+    assert not any(isinstance(e, RewardGranted) for e in events) and _gold(state) == before
 
 
 def test_an_invented_quest_pays_nothing() -> None:

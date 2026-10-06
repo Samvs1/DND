@@ -10,11 +10,13 @@ Public API:
 - `EncounterOffer(id, node_id, region_id, monster_ids, boss_npc_id, difficulty, retreat_node,
   escape_dc, parley_dc, surprise_dc, options)`: the warning beat before a fight: what waits
   at the node and the DCs the engine set; nothing has started yet.
-- `CampaignState(plan, graph, seed, resolved, complete, offered_nodes, offer, epilogue)`: `resolved`
+- `CampaignState(plan, graph, seed, resolved, complete, offered_nodes, offer, epilogue,
+  milestones)`: `resolved`
   maps region id -> resolution, `complete` is set when the final region is resolved,
   `offered_nodes` are nodes whose one-time encounter was already offered, `offer` is the
   pending offer (the party must answer it before anything else happens there); `epilogue` is
-  the written epilogue of a completed campaign (M5.7).
+  the written epilogue of a completed campaign (M5.7); `milestones` are the sources of the
+  milestone rewards already paid (M9.2: `visit:<node>`, `clear:<node>`, region ids).
 """
 
 from enum import StrEnum
@@ -64,3 +66,4 @@ class CampaignState(BaseModel):
     offered_nodes: list[str] = Field(default_factory=list[str])
     offer: EncounterOffer | None = None
     epilogue: str | None = None
+    milestones: list[str] = Field(default_factory=list[str])

@@ -1,7 +1,8 @@
 """Background schema and the data/bg3/backgrounds.json loader (original wording, no BG3 text).
 
 A background grants two skill proficiencies, tool proficiencies (SRD proficiency indexes),
-starting gear (SRD equipment indexes with quantities) and carries one flavour line for the DM.
+starting gear (SRD equipment indexes with quantities), starting `gold` (the 5e background
+purse, RULES_DECISIONS M9.2) and carries one flavour line for the DM.
 
 Public API: `BackgroundDef`, `load_background_defs(path=None) -> Registry[BackgroundDef]`,
 `background_defs()` (default, cached).
@@ -29,6 +30,7 @@ class BackgroundDef(BaseModel):
     skills: tuple[str, str]
     tools: tuple[str, ...] = ()
     gear: tuple[ItemQty, ...] = Field(min_length=1)
+    gold: int = Field(default=0, ge=0)
     flavour: str = Field(min_length=1, max_length=200)
 
     @model_validator(mode="after")

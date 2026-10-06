@@ -19,6 +19,8 @@
 - `quest_gold_gp` (M5.6): gold per living PC for a completed quest, by region tier then reward
   tier; `region_milestone_xp_tier`: the `grant_xp` tier a resolved region pays, by region tier;
   `final_milestone_xp_tier`: the extra tier paid when the last region resolves.
+- `spoke_visit_xp_tier` / `spoke_clear_xp_tier` (M9.2): the `grant_xp` tier paid once per spoke
+  for its first visit and for clearing it (a won fight or a successful parley there).
 
 Public API: `TierRow`, `DmTiers`, `load_dm_tiers(path=None)`, `dm_tiers()` (default, cached).
 The lookups are `aidm.rules.dm_tiers`.
@@ -65,7 +67,12 @@ def _check_reward_tables(tiers: DmTiers) -> None:
         raise ValueError("quest_gold_gp needs region tiers 1, 2 and 3")
     if any(set(row) != TIER_KEYS for row in tiers.quest_gold_gp.values()):
         raise ValueError("quest_gold_gp rows need exactly the keys minor, moderate, major")
-    named = [*tiers.region_milestone_xp_tier.values(), tiers.final_milestone_xp_tier]
+    named = [
+        *tiers.region_milestone_xp_tier.values(),
+        tiers.final_milestone_xp_tier,
+        tiers.spoke_visit_xp_tier,
+        tiers.spoke_clear_xp_tier,
+    ]
     if set(tiers.region_milestone_xp_tier) != region_tiers or not set(named) <= TIER_KEYS:
         raise ValueError("milestone XP tiers need region tiers 1-3 and minor/moderate/major values")
 
@@ -89,6 +96,8 @@ class DmTiers(_Strict):
     quest_gold_gp: dict[str, dict[str, int]]
     region_milestone_xp_tier: dict[str, str]
     final_milestone_xp_tier: str
+    spoke_visit_xp_tier: str = "minor"
+    spoke_clear_xp_tier: str = "moderate"
 
     @model_validator(mode="after")
     def _check(self) -> DmTiers:

@@ -15,12 +15,10 @@ from scripts.sim.chaos import run_probes
 from scripts.sim.checks import engine_invariants
 from scripts.sim.client import Msg
 from scripts.sim.explore import explore_text, scene_of
-from scripts.sim.levelup import grant_xp_to_level_two, level_up_bot
+from scripts.sim.levelup import level_up_bot
 from scripts.sim.report import Report
 from scripts.sim.server import SimServer
 from scripts.sim.setup import Party
-
-EASY_HP, EASY_DAMAGE = 0.5, 0.5
 
 
 class Director:
@@ -31,6 +29,8 @@ class Director:
         self.rng = random.Random(seed)
         self.hub = ""
         self.fights = 0
+        self.short_rests = 0
+        self.long_rests = 0
 
     @property
     def host(self) -> Bot:
@@ -78,23 +78,10 @@ class Director:
         wait = self.timeout * 3
         await self.host.conn.wait_for(lambda m: m["type"] == "narration_done", wait, mark)
         await self.settle()
-        await self.set_difficulty()
         phase = self.state().get("phase")
         if phase != "play":
             self.report.fail(f"campaign did not reach phase play (phase={phase})")
         self.hub = scene_of(self.state()).get("node_id", "")
-
-    async def set_difficulty(self) -> None:
-        """The host eases the monsters (a host control) so one party can finish a campaign."""
-        mark = self.host.conn.mark()
-        await self.host.conn.send(
-            {"type": "host_difficulty", "monster_hp": EASY_HP, "monster_damage": EASY_DAMAGE}
-        )
-        await self.settle()
-        state = self.state()
-        if (state.get("monster_hp"), state.get("monster_damage")) != (EASY_HP, EASY_DAMAGE):
-            self.report.fail(f"host_difficulty not applied: {state.get('monster_hp')}")
-        self.report.say(f"difficulty set ({len(self.host.conn.log) - mark} messages)")
 
     async def probes(self) -> None:
         self.step("chaos probes")
@@ -165,18 +152,15 @@ class Director:
 
     async def short_rest(self) -> None:
         self.step("short rest")
+        used = self.srv.table.state.short_rests_used
         if not await self.propose(self.proposer(self.party.fighter), "I take a short rest"):
             self.report.fail("the short rest vote did not pass")
+        elif self.srv.table.state.short_rests_used == used + 1:
+            self.short_rests += 1
 
     async def level_ups(self) -> None:
         self.step("level up")
         pending = [b for b in self.party.bots if _wants_level(b)]
-        if not pending:
-            self.step("level up (grant xp)")
-            ids = [b.hero_id for b in self.party.bots]
-            await grant_xp_to_level_two(self.srv, ids)
-            await asyncio.sleep(0.4)
-            pending = [b for b in self.party.bots if _wants_level(b)]
         for bot in pending:
             result = await level_up_bot(bot)
             self.report.say(f"{bot.name} level up -> {result}")
@@ -187,8 +171,11 @@ class Director:
                 )
         await self.settle()
         levels = [c["level"] for c in self.state().get("party", [])]
+        self.report.level = max((lv for lv in levels if lv), default=1)
         if not any(lv and lv >= 2 for lv in levels):
-            self.report.fail(f"no hero reached level 2 (levels {levels})")
+            self.report.fail(
+                f"no hero reached level 2 by play (levels {levels}; {self.party_line()})"
+            )
 
     def unvisited(self) -> list[str]:
         exits = scene_of(self.state()).get("exits", [])

@@ -37,5 +37,7 @@
     "3": {"minor": 150, "moderate": 400, "major": 800}
   },
   "region_milestone_xp_tier": {"1": "moderate", "2": "major", "3": "major"},
-  "final_milestone_xp_tier": "major"
+  "final_milestone_xp_tier": "major",
+  "spoke_visit_xp_tier": "minor",
+  "spoke_clear_xp_tier": "moderate"
 }

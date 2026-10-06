@@ -20,12 +20,12 @@ Public API:
 - `build_character(choices, regs, creature_id) -> Creature`: the level-1 PC (kind PC, `pc` set):
   abilities with racial bonuses, HP (hit die max + CON), proficiency bonus, saves, skills,
   speed, size, darkvision, languages, proficiencies, inventory (class fixed + picked packages +
-  background gear), equipment and AC (via `aidm.rules.defense`), level-1 features, the subclass
-  when its level is 1, race traits, the spell picks and full spell-slot pools
-  (`aidm.rules.spellcasting.slot_resources`). Feature hooks (`aidm.rules.feature_build`) add
-  picked options (`feature_choices`, validated with the rest), expertise, resistances, HP per
-  level, speed, darkvision, proficiencies, feature resources and the Defense AC bonus; a
-  patron's expanded spells are learnable.
+  background gear), the background's starting gold, equipment and AC (via
+  `aidm.rules.defense`), level-1 features, the subclass when its level is 1, race traits, the
+  spell picks and full spell-slot pools (`aidm.rules.spellcasting.slot_resources`). Feature
+  hooks (`aidm.rules.feature_build`) add picked options (`feature_choices`, validated with the
+  rest), expertise, resistances, HP per level, speed, darkvision, proficiencies, feature
+  resources and the Defense AC bonus; a patron's expanded spells are learnable.
 """
 
 from collections.abc import Mapping, Sequence
@@ -281,6 +281,7 @@ def _pc_data(
         level=CREATION_LEVEL,
         subclass=subclass,
         background=refs.background.index,
+        gold=refs.background.gold,
         base_abilities=dict(choices.base_scores),
         armor_proficiencies=list(dict.fromkeys([*refs.cls.armor, *effects.armor])),
         weapon_proficiencies=list(
