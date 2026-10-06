@@ -10,7 +10,9 @@ Public API:
 - `import_character(text, regs) -> Creature`: the validated character with proficiency bonus,
   saving throws, max HP, AC, speed, darkvision, resistances, immunities and resource maxima
   recomputed from class, race and features (current HP and resource counts are kept, clamped to
-  the new maxima). Anything else is refused.
+  the new maxima), plus the creation-rule checks and re-derivations of
+  `aidm.rules.character_import_checks` (base scores, skills, expertise, gold, size; QA-04).
+  Anything else is refused.
 - `CharacterImportInvalid(errors)`: the typed refusal; `errors` are `CreationError`s (unknown
   race/subrace/class/background/subclass/feature/spell/item, score out of range, level and XP
   that disagree, or IMPORT_INVALID for malformed JSON).
@@ -29,6 +31,7 @@ from aidm.models.abilities import Ability
 from aidm.models.creation import CreationError, CreationErrorCode
 from aidm.models.state import Creature, CreatureKind, Resource
 from aidm.rules.abilities import ability_modifier, proficiency_bonus
+from aidm.rules.character_import_checks import build_errors, rederive_picks
 from aidm.rules.defense import armor_class
 from aidm.rules.feature_build import feature_effects, feature_resources
 from aidm.rules.features import feature_ac_bonus
@@ -193,6 +196,7 @@ def import_character(text: str, regs: CharacterRegistries) -> Creature:
     creature = _parse(text)
     cls, race, sub = _refs(creature, regs)
     errors = _content_errors(creature, cls, regs) + _progress_errors(creature, cls, race, sub)
+    errors = errors or build_errors(creature, cls, race, sub, regs)
     if errors:
         raise CharacterImportInvalid(errors)
-    return _derive(creature, cls, race, regs)
+    return _derive(rederive_picks(creature, cls, race, sub, regs), cls, race, regs)

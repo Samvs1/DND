@@ -6,6 +6,7 @@ from aidm.dm.tool_context import ToolContext
 from aidm.models.checks import DcTier
 from aidm.models.dm_tiers import Severity, XpTier
 from aidm.models.events import CheckResolved, ConditionApplied, DamageTaken, DiceRolled
+from aidm.models.state import Creature, CreatureKind, GameState
 from aidm.models.world_events import AttitudeChanged, HostileActPending
 from aidm.rules.checks import dc_for_tier
 from aidm.rules.dm_tiers import (
@@ -17,6 +18,12 @@ from aidm.rules.dm_tiers import (
     xp_award,
 )
 from tests.ai.tool_fixtures import REGS, add_npc, apply_result, party_state, run_tool
+
+
+def _with_goblin(state: GameState) -> GameState:
+    goblin = Creature(id="goblin-1", name="Goblin", kind=CreatureKind.MONSTER, max_hp=7, hp=7)
+    state.creatures[goblin.id] = goblin
+    return state
 
 
 def test_golden_dc_tiers() -> None:
@@ -86,12 +93,12 @@ def test_request_save_many_actors_deduped() -> None:
 
 
 def test_creative_damage_uses_tier_dice() -> None:
-    state = party_state()
+    state = _with_goblin(party_state())
     result = run_tool(
         state,
         "creative_effect",
         actor="fighter",
-        target="wizard",
+        target="goblin-1",
         effect_kind="minor_damage",
         severity="minor",
         damage_type="fire",
@@ -104,7 +111,7 @@ def test_creative_damage_uses_tier_dice() -> None:
 
 
 def test_creative_condition_save_and_duration_cap() -> None:
-    state = party_state()
+    state = _with_goblin(party_state())
     applied = None
     for seed in range(1, 30):
         result = run_tool(
@@ -112,7 +119,7 @@ def test_creative_condition_save_and_duration_cap() -> None:
             "creative_effect",
             seed=seed,
             actor="fighter",
-            target="wizard",
+            target="goblin-1",
             effect_kind="condition",
             severity="minor",
             condition="prone",
@@ -128,10 +135,10 @@ def test_creative_condition_save_and_duration_cap() -> None:
 
 def test_creative_condition_not_allowed() -> None:
     result = run_tool(
-        party_state(),
+        _with_goblin(party_state()),
         "creative_effect",
         actor="fighter",
-        target="wizard",
+        target="goblin-1",
         effect_kind="condition",
         condition="petrified",
     )
@@ -175,3 +182,32 @@ def test_hostile_creative_effect_on_peaceful_npc_needs_confirm(kind: str) -> Non
     assert isinstance(confirmed.events[0], AttitudeChanged) and confirmed.events[0].hostile
     apply_result(state, confirmed)
     assert state.world.npcs["npc-mira"].hostile
+
+
+@pytest.mark.parametrize("kind", ["minor_damage", "condition", "push"])
+def test_qa_02_creative_effect_cannot_harm_a_fellow_hero(kind: str) -> None:
+    state = party_state()
+    hp = state.creatures["wizard"].hp
+    result = run_tool(
+        state,
+        "creative_effect",
+        actor="fighter",
+        target="wizard",
+        effect_kind=kind,
+        severity="major",
+        condition="prone",
+    )
+    assert result.error is not None and "fellow hero" in result.error
+    assert result.events == ()
+    assert state.creatures["wizard"].hp == hp and not state.creatures["wizard"].dead
+
+
+def test_qa_02_creative_effect_may_still_target_self() -> None:
+    result = run_tool(
+        party_state(),
+        "creative_effect",
+        actor="fighter",
+        target="fighter",
+        effect_kind="minor_damage",
+    )
+    assert result.ok

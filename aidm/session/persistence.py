@@ -8,8 +8,10 @@ Files per campaign:
 
 `load` replays `events.jsonl` from `initial.json` and asserts the result equals the snapshot.
 The log is the source of truth: a missing, corrupt or stale snapshot is replaced by the replay
-(`recovered=True`, `notes` say why); a partial last line (crash mid-append) is dropped. Without a
-usable `initial.json` the snapshot alone is used with an empty log (`recovered=True`).
+(`recovered=True`, `notes` say why); a partial last line (crash mid-append) is dropped. A damaged
+line in the middle is never truncated (QA-08): the log and initial move aside as
+`*.corrupt-<stamp>`, a valid snapshot becomes the new base, and `warning` tells the host. Without
+a usable `initial.json` the snapshot alone is used with an empty log (`recovered=True`).
 
 Public API: `CampaignStore`, `LoadedCampaign`, `TableMeta`, `SeatRecord`, `SaveInfo`,
 `CampaignLoadError`, `new_game_state`, `valid_campaign_id`.
@@ -96,6 +98,7 @@ class LoadedCampaign:
     meta: TableMeta
     recovered: bool = False
     notes: list[str] = field(default_factory=list[str])
+    warning: str | None = None
 
 
 def _fsync_dir(path: Path) -> None:
@@ -213,13 +216,57 @@ class CampaignStore:
             return LoadedCampaign(
                 campaign_id, snapshot.state, snapshot.state, [], meta, True, notes
             )
-        log = _read_log(folder / EVENTS, initial.event_count, notes)
-        state = replay(initial, [entry.event for entry in log])
+        read = _read_log(folder / EVENTS, initial.event_count, notes)
+        if read.damaged_middle:
+            return _repair(folder, campaign_id, (initial, snapshot, meta), read, notes)
+        state = replay(initial, [entry.event for entry in read.log])
         recovered = bool(notes)
         if snapshot is not None and _state_json(snapshot.state) != _state_json(state):
             notes.append("snapshot differs from the replayed log: the log wins")
             recovered = True
-        return LoadedCampaign(campaign_id, initial, state, log, meta, recovered, notes)
+        return LoadedCampaign(campaign_id, initial, state, read.log, meta, recovered, notes)
+
+
+@dataclass
+class _LogRead:
+    log: list[LoggedEvent]
+    damaged_middle: bool = False
+    damaged_line: int = 0
+
+
+def _repair(
+    folder: Path,
+    campaign_id: str,
+    files: tuple[GameState, SnapshotFile | None, TableMeta],
+    read: _LogRead,
+    notes: list[str],
+) -> LoadedCampaign:
+    """A damaged line in the MIDDLE of the log (QA-08): never truncate it. The damaged files
+    move aside as `<name>.corrupt-<stamp>`; a valid snapshot wins and becomes the new base
+    (fresh initial.json, empty log), else the valid prefix of the log is kept and replayed."""
+    initial, snapshot, meta = files
+    stamp = datetime.now(UTC).strftime("%Y%m%d-%H%M%S")
+    for name in (EVENTS, INITIAL):
+        os.replace(folder / name, folder / f"{name}.corrupt-{stamp}")
+    line = read.damaged_line
+    if snapshot is not None:
+        base, log = snapshot.state, []
+        warning = (
+            f"The save's event log is damaged at line {line}; it was set aside as "
+            f"events.jsonl.corrupt-{stamp} and the game continues from the last snapshot."
+        )
+    else:
+        base, log = initial, read.log
+        warning = (
+            f"The save's event log is damaged at line {line} and there is no usable snapshot: "
+            f"progress after event {len(log)} is lost. The damaged log was kept as "
+            f"events.jsonl.corrupt-{stamp}."
+        )
+    atomic_write(folder / INITIAL, base.model_dump_json())
+    atomic_write(folder / EVENTS, "".join(e.model_dump_json() + NL for e in log))
+    state = replay(base, [entry.event for entry in log])
+    notes.append(warning)
+    return LoadedCampaign(campaign_id, base, state, log, meta, True, notes, warning)
 
 
 def _read_model[M: BaseModel](path: Path, model: type[M], notes: list[str]) -> M | None:
@@ -230,27 +277,30 @@ def _read_model[M: BaseModel](path: Path, model: type[M], notes: list[str]) -> M
         return None
 
 
-def _read_log(path: Path, first_seq: int, notes: list[str]) -> list[LoggedEvent]:
-    """Parse events.jsonl; stop at the first bad line (a partial last line is normal)."""
+def _read_log(path: Path, first_seq: int, notes: list[str]) -> _LogRead:
+    """Parse events.jsonl. A bad LAST line is a crash mid-append: it is dropped (the file is
+    rewritten without it). A bad line before the end is reported, and nothing is rewritten."""
     log: list[LoggedEvent] = []
     try:
         text = path.read_text(encoding="utf-8")
     except FileNotFoundError:
-        return log
+        return _LogRead(log)
     except OSError:
         notes.append("events.jsonl is unreadable")
-        return log
-    for number, line in enumerate(text.splitlines(), start=1):
-        if not line.strip():
-            continue
+        return _LogRead(log)
+    lines = [(n, line) for n, line in enumerate(text.splitlines(), start=1) if line.strip()]
+    for index, (number, line) in enumerate(lines):
         try:
             entry = LoggedEvent.model_validate_json(line)
             ok = entry.seq == first_seq + len(log)
         except (ValidationError, ValueError):
             ok = False
-        if not ok:
-            notes.append(f"events.jsonl line {number} is damaged; the rest is dropped")
-            atomic_write(path, "".join(e.model_dump_json() + NL for e in log))
-            break
-        log.append(entry)
-    return log
+        if ok:
+            log.append(entry)
+            continue
+        if index < len(lines) - 1:
+            notes.append(f"events.jsonl line {number} is damaged")
+            return _LogRead(log, damaged_middle=True, damaged_line=number)
+        notes.append(f"events.jsonl line {number} is a torn last line; it is dropped")
+        atomic_write(path, "".join(e.model_dump_json() + NL for e in log))
+    return _LogRead(log)

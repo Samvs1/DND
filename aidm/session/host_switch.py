@@ -62,6 +62,8 @@ async def load(core: TableCore, host: Player, campaign_id: str) -> None:
     _switch(core, host, loaded)
     note = " (repaired from its log)" if loaded.recovered else ""
     core.notice(None, NoticeKind.HOST, f"The host loaded a saved campaign{note}.")
+    if loaded.warning is not None:
+        core.notice(host.id, NoticeKind.HOST, loaded.warning)
 
 
 async def new_campaign(core: TableCore, host: Player) -> None:

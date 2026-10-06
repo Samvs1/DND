@@ -19,7 +19,7 @@ Public API: `submit_action`, `kick_resolver`, `resolve_next`, `resolve_action`,
 `adjudicated`, `confirm_hostile`, `cancel_hostile`, `inventory_text`.
 """
 
-from aidm.dm.adjudicator import AdjudicationOptions, adjudicate
+from aidm.dm.adjudicator import AdjudicationOptions, AdjudicationResult, adjudicate
 from aidm.dm.precheck import (
     InventoryIntent,
     ItemIntent,
@@ -42,11 +42,15 @@ from aidm.models.protocol_server import (
 from aidm.models.protocol_views import QueueEntry, TablePhase, VoteKind
 from aidm.models.state import Creature
 from aidm.rules.scene import node_display_name
+from aidm.rules.turns import EconomyRefused, spend_action
 from aidm.session import combat_flow, party_actions, votes
 from aidm.session.table_core import Job, PendingHostile, Player, TableCore
 from aidm.session.telling import conclude, remember, tell_text
 
 STAY_HAND = "You stay your hand, and the moment passes without bloodshed."
+ACTION_SPENT = (
+    "You have already used your action this turn. Move, use a bonus action or end your turn."
+)
 
 
 def submit_action(core: TableCore, player: Player, msg: SubmitAction) -> None:
@@ -75,6 +79,9 @@ def _combat_text(core: TableCore, player: Player, pc: Creature, text: str) -> No
     if enc is None or enc.active_id() != pc.id or core.turn_key is None:
         core.error(player.id, ErrorCode.NOT_YOUR_TURN, "It is not your turn.")
         return
+    if not _action_left(core, pc.id):
+        core.error(player.id, ErrorCode.REFUSED, ACTION_SPENT)
+        return
     entry = QueueEntry(player_id=player.id, creature_id=pc.id, text=text)
 
     async def job() -> None:
@@ -82,12 +89,31 @@ def _combat_text(core: TableCore, player: Player, pc: Creature, text: str) -> No
         if now is None or now.active_id() != pc.id or core.turn_key is None:
             core.error(player.id, ErrorCode.NOT_YOUR_TURN, "It is not your turn.")
             return
+        if not _action_left(core, pc.id):
+            core.error(player.id, ErrorCode.REFUSED, ACTION_SPENT)
+            return
         await combat_flow.tell_segment(core)
-        await adjudicated(core, entry, creative=True)
+        result = await adjudicated(core, entry, creative=True)
+        if result.executed:
+            _spend_action(core, pc.id)
         core.segment = []
         await combat_flow.after_player_step(core, pc.id)
 
     core.schedule(job)
+
+
+def _action_left(core: TableCore, creature_id: str) -> bool:
+    """A creative action costs the hero's action (SPEC 6.1; DECISIONS M9.5 QA-01)."""
+    enc = core.state.encounter
+    combatant = enc.combatants.get(creature_id) if enc is not None else None
+    return combatant is not None and combatant.economy.action
+
+
+def _spend_action(core: TableCore, creature_id: str) -> None:
+    try:
+        core.apply_all(spend_action(core.state, creature_id, reason="creative action"))
+    except EconomyRefused:
+        return  # the effect ended the fight or the hero's turn: nothing left to spend
 
 
 def kick_resolver(core: TableCore) -> None:
@@ -152,7 +178,9 @@ def _propose(core: TableCore, player: Player, kind: VoteKind, detail: str, job: 
         core.notice(None, NoticeKind.INFO, f"{player.name} proposes to {detail}.")
 
 
-async def adjudicated(core: TableCore, entry: QueueEntry, *, creative: bool = False) -> None:
+async def adjudicated(
+    core: TableCore, entry: QueueEntry, *, creative: bool = False
+) -> AdjudicationResult:
     result = await adjudicate(
         core.state,
         entry.creature_id,
@@ -178,6 +206,7 @@ async def adjudicated(core: TableCore, entry: QueueEntry, *, creative: bool = Fa
     )
     if not creative:
         await combat_flow.after_resolution(core, events)
+    return result
 
 
 async def confirm_hostile(core: TableCore, player: Player) -> None:

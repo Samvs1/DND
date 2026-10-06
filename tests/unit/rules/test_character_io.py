@@ -8,6 +8,7 @@ from typing import Any
 
 import pytest
 
+from aidm.models.abilities import Skill
 from aidm.models.creation import CreationErrorCode
 from aidm.models.state import Creature, CreatureKind
 from aidm.rules.character_io import CharacterImportInvalid, export_character, import_character
@@ -143,3 +144,38 @@ def test_import_keeps_spent_resources_and_damage() -> None:
     doc["character"]["hp"] = 10
     restored = _import(doc)
     assert restored.resources["spell-slot-1"].current == 1 and restored.hp == 10
+
+
+def test_qa_04_import_refuses_inflated_base_scores_and_skills() -> None:
+    doc = _doc("fighter", 1)
+    sheet = doc["character"]
+    for ability in sheet["abilities"]:
+        sheet["abilities"][ability] = 20
+        sheet["pc"]["base_abilities"][ability] = 20
+    assert E.SCORE_OUT_OF_RANGE in _codes(doc)
+    doc = _doc("fighter", 1)
+    doc["character"]["skill_proficiencies"] = [s.value for s in Skill]
+    codes = _codes(doc)
+    assert E.PICK_NOT_ALLOWED in codes and E.PICK_COUNT in codes
+
+
+def test_qa_04_import_rederives_gold_expertise_immunities_and_size() -> None:
+    original = golden_levels("fighter")[1]
+    doc = _doc("fighter", 1)
+    sheet = doc["character"]
+    sheet["pc"]["gold"] = 999999
+    sheet["skill_expertise"] = list(sheet["skill_proficiencies"])
+    sheet["condition_immunities"] = ["frightened", "paralyzed", "stunned"]
+    sheet["size"] = "Huge"
+    sheet["temp_hp"] = 500
+    restored = _import(doc)
+    assert restored.pc is not None and original.pc is not None
+    assert restored.pc.gold == original.pc.gold
+    assert restored.skill_expertise == [] and restored.condition_immunities == []
+    assert restored.size == original.size and restored.temp_hp == 0
+
+
+def test_qa_04_import_keeps_legal_rogue_expertise() -> None:
+    original = golden_levels("rogue")[5]
+    assert original.skill_expertise
+    assert _import(_doc("rogue", 5)).skill_expertise == original.skill_expertise

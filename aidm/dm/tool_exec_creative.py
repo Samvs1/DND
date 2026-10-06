@@ -3,7 +3,8 @@
 The model picks an `effect_kind` and a `severity`; the engine picks the dice (by party level),
 the save DC, the duration cap, the condition's saving throw and the surface, all from
 data/bg3/dm_tiers.json. Damage goes through the one damage path (`rules.attacks.deal_damage`).
-A damaging, condition or push effect aimed at a non-hostile NPC stops at the point of no return.
+A damaging, condition or push effect aimed at a non-hostile NPC stops at the point of no return;
+one aimed at another player's hero is refused (a push is allowed in a fight).
 
 Public API: `run_creative_effect(state, args, ctx, rng, regs) -> ToolResult`.
 """
@@ -53,6 +54,17 @@ def _against_npc(npc: WorldNpc, args: CreativeEffectArgs, ctx: ToolContext) -> T
         summary = f"{npc.name} turns hostile; use start_encounter with against_npcs to fight"
         return ToolResult(events=tuple(events), summary=summary)
     raise ToolRefused(f"{npc.name} is hostile: start_encounter with against_npcs to fight them")
+
+
+def _refuse_against_hero(state: GameState, args: CreativeEffectArgs, target: Creature) -> None:
+    """Free text never harms a fellow hero (QA-02): no damage or condition, and no push
+    outside a fight. Only the structured combat commands can hit an ally."""
+    if target.pc is None or target.id == args.actor or args.effect_kind not in _HOSTILE:
+        return
+    in_fight = state.encounter is not None and state.encounter.status is EncounterStatus.ACTIVE
+    if args.effect_kind is EffectKind.PUSH and in_fight:
+        return
+    raise ToolRefused(f"{target.name} is a fellow hero: a creative effect cannot harm them")
 
 
 def _damage(run: _Run, target: Creature) -> ToolResult:
@@ -147,6 +159,7 @@ def run_creative_effect(
     if npc is not None and kind in _HOSTILE and target_id not in state.creatures:
         return _against_npc(npc, args, ctx)
     target = require_creature(state, target_id)
+    _refuse_against_hero(state, args, target)
     if kind is EffectKind.MINOR_DAMAGE:
         return _damage(run, target)
     if kind is EffectKind.CONDITION:
