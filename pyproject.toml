@@ -56,7 +56,10 @@ venv = ".venv"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
-markers = ["live: opt-in live network tests (RUN_LIVE=1)"]
+markers = [
+    "live: opt-in live network tests (RUN_LIVE=1)",
+    "sim: the real-websocket party simulation (one seed, fake AI, about 15 s)",
+]
 
 [tool.importlinter]
 root_package = "aidm"
