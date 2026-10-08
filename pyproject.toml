@@ -30,6 +30,18 @@ dev = [
     "pyright",
     "import-linter",
     "playwright",
+    "numpy",
+    "scipy",
+    "pyloudnorm",
+    "soundfile",
+    "lameenc",
+]
+voice = [
+    "numpy",
+    "scipy",
+    "pyloudnorm",
+    "soundfile",
+    "lameenc",
 ]
 
 [tool.setuptools.packages.find]

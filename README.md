@@ -151,6 +151,27 @@ installed with `scripts/install_assets.py`. `scripts/final_review.py` and `scrip
 final review sheets and `ASSETS_REPORT.md`. To undo one asset: `python scripts/revert_asset.py <key>`.
 License caveat: AI generated via OpenAI API, check provider terms before commercial use.
 
+### Regenerating the Scribe's voice
+
+The Scribe's lines are built, never hand-edited, by `scripts/gen_scribe_voice.py` from the one config
+`data/voice/scribe.json` (voice model, TTS settings, the sound chain, per-length profiles and every line).
+
+```powershell
+python scripts/gen_scribe_voice.py                   # dry run: lines, characters, cached vs API calls
+python scripts/gen_scribe_voice.py --yes             # Fish TTS for new or changed text, then build all
+python scripts/gen_scribe_voice.py --reprocess       # rebuild from the cached raw audio, no API calls
+python scripts/gen_scribe_voice.py --only revive.1   # repeatable, limits any run
+python scripts/gen_scribe_voice.py --check           # offline: exit 1 if any file is missing or stale
+```
+
+`--yes` needs `FISH_API_KEY` in `.env` (never printed). The raw Fish WAVs are cached in
+`artifacts/voice/raw/` (gitignored), keyed by text and voice settings, so sound tweaks to the chain are free:
+edit the config and run `--reprocess`. Output: `aidm/web/static/audio/voice/scribe/<line_id>.mp3` plus
+`lines.json` (hashes, loudness, true peak). Every run writes `artifacts/voice/report/report.md` (loudness,
+true peak, F0 before and after, energy above 10 kHz, wet/dry, tail) and a spectrogram PNG per line.
+Exit codes: 0 ok, 1 check problems or bad arguments, 2 raw audio missing for `--reprocess`, 3 provider
+unavailable, 4 a line failed its measurement checks.
+
 ## Troubleshooting
 
 - **A banner says the Dungeon Master is using fallback narration.** There is no usable DeepSeek key (or the
