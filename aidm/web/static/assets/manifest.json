@@ -2246,10 +2246,12 @@
    256
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Xorn, a medium elemental of challenge rating 5. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Xorn, a medium elemental of challenge rating 5. Leave cells 2 to 16 empty. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Transparent background. Fix from review: Draw the xorn as a squat round body of speckled stone on three thick legs with three long clawed arms, three eyes spaced around the top and a wide toothy mouth on the crown; keep it inside its cell with clear space around it, no floating rocks.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0826
  },
  "monster_token.young-black-dragon": {
   "kind": "monster_token",
@@ -4251,10 +4253,12 @@
    128
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The spell Hideous Laughter (enchantment, level 1) shown as enchantment magic. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: The spell Hideous Laughter (enchantment, level 1) shown as enchantment magic; 2: The spell Hold Person (enchantment, level 2) shown as enchantment magic; 3: The spell Hunter's Mark (divination, level 1) shown as divination magic. Leave cells 4 to 16 empty. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Transparent background. Fix from review: Draw one separate emblem per listed cell, each free-standing on the transparent background with no tile, frame or square backdrop behind it; never one big picture across the sheet.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.027567
  },
  "spell_icon.hold-person": {
   "kind": "spell_icon",
@@ -4264,10 +4268,12 @@
    128
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The spell Hold Person (enchantment, level 2) shown as enchantment magic. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: The spell Hideous Laughter (enchantment, level 1) shown as enchantment magic; 2: The spell Hold Person (enchantment, level 2) shown as enchantment magic; 3: The spell Hunter's Mark (divination, level 1) shown as divination magic. Leave cells 4 to 16 empty. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Transparent background. Fix from review: Draw one separate emblem per listed cell, each free-standing on the transparent background with no tile, frame or square backdrop behind it; never one big picture across the sheet.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.027567
  },
  "spell_icon.hunters-mark": {
   "kind": "spell_icon",
@@ -4277,10 +4283,12 @@
    128
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The spell Hunter's Mark (divination, level 1) shown as divination magic. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: The spell Hideous Laughter (enchantment, level 1) shown as enchantment magic; 2: The spell Hold Person (enchantment, level 2) shown as enchantment magic; 3: The spell Hunter's Mark (divination, level 1) shown as divination magic. Leave cells 4 to 16 empty. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Transparent background. Fix from review: Draw one separate emblem per listed cell, each free-standing on the transparent background with no tile, frame or square backdrop behind it; never one big picture across the sheet.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.027567
  },
  "spell_icon.hypnotic-pattern": {
   "kind": "spell_icon",
@@ -4290,10 +4298,12 @@
    128
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The spell Hypnotic Pattern (illusion, level 3) shown as illusion magic. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: The spell Hypnotic Pattern (illusion, level 3) shown as illusion magic; 2: The spell Inflict Wounds (necromancy, level 1) shown as sickly green withering shadow; 3: The spell Invisibility (illusion, level 2) shown as illusion magic; 4: The spell Lesser Restoration (abjuration, level 2) shown as abjuration magic; 5: The spell Lightning Bolt (evocation, level 3) shown as a jagged yellow lightning bolt; 6: The spell Longstrider (transmutation, level 1) shown as transmutation magic; 7: The spell Mage Armor (abjuration, level 1) shown as abjuration magic; 8: The spell Magic Missile (evocation, level 1) shown as a violet force bolt; 9: The spell Mass Healing Word (evocation, level 3) shown as evocation magic; 10: The spell Misty Step (conjuration, level 2) shown as conjuration magic; 11: The spell Poison Spray (conjuration, cantrip) shown as a green poison droplet; 12: The spell Prayer of Healing (evocation, level 2) shown as evocation magic. Leave cells 13 to 16 empty. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Transparent background. Fix from review: Draw one separate emblem per listed cell, each free-standing on the transparent background with no tile, frame or square backdrop behind it; never one big picture across the sheet.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.006975
  },
  "spell_icon.inflict-wounds": {
   "kind": "spell_icon",
@@ -4303,10 +4313,12 @@
    128
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The spell Inflict Wounds (necromancy, level 1) shown as sickly green withering shadow. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: The spell Hypnotic Pattern (illusion, level 3) shown as illusion magic; 2: The spell Inflict Wounds (necromancy, level 1) shown as sickly green withering shadow; 3: The spell Invisibility (illusion, level 2) shown as illusion magic; 4: The spell Lesser Restoration (abjuration, level 2) shown as abjuration magic; 5: The spell Lightning Bolt (evocation, level 3) shown as a jagged yellow lightning bolt; 6: The spell Longstrider (transmutation, level 1) shown as transmutation magic; 7: The spell Mage Armor (abjuration, level 1) shown as abjuration magic; 8: The spell Magic Missile (evocation, level 1) shown as a violet force bolt; 9: The spell Mass Healing Word (evocation, level 3) shown as evocation magic; 10: The spell Misty Step (conjuration, level 2) shown as conjuration magic; 11: The spell Poison Spray (conjuration, cantrip) shown as a green poison droplet; 12: The spell Prayer of Healing (evocation, level 2) shown as evocation magic. Leave cells 13 to 16 empty. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Transparent background. Fix from review: Draw one separate emblem per listed cell, each free-standing on the transparent background with no tile, frame or square backdrop behind it; never one big picture across the sheet.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.006975
  },
  "spell_icon.invisibility": {
   "kind": "spell_icon",
@@ -4329,10 +4341,12 @@
    128
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The spell Lesser Restoration (abjuration, level 2) shown as abjuration magic. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: The spell Hypnotic Pattern (illusion, level 3) shown as illusion magic; 2: The spell Inflict Wounds (necromancy, level 1) shown as sickly green withering shadow; 3: The spell Invisibility (illusion, level 2) shown as illusion magic; 4: The spell Lesser Restoration (abjuration, level 2) shown as abjuration magic; 5: The spell Lightning Bolt (evocation, level 3) shown as a jagged yellow lightning bolt; 6: The spell Longstrider (transmutation, level 1) shown as transmutation magic; 7: The spell Mage Armor (abjuration, level 1) shown as abjuration magic; 8: The spell Magic Missile (evocation, level 1) shown as a violet force bolt; 9: The spell Mass Healing Word (evocation, level 3) shown as evocation magic; 10: The spell Misty Step (conjuration, level 2) shown as conjuration magic; 11: The spell Poison Spray (conjuration, cantrip) shown as a green poison droplet; 12: The spell Prayer of Healing (evocation, level 2) shown as evocation magic. Leave cells 13 to 16 empty. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Transparent background. Fix from review: Draw one separate emblem per listed cell, each free-standing on the transparent background with no tile, frame or square backdrop behind it; never one big picture across the sheet.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.006975
  },
  "spell_icon.lightning-bolt": {
   "kind": "spell_icon",
@@ -4342,10 +4356,12 @@
    128
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The spell Lightning Bolt (evocation, level 3) shown as a jagged yellow lightning bolt. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: The spell Hypnotic Pattern (illusion, level 3) shown as illusion magic; 2: The spell Inflict Wounds (necromancy, level 1) shown as sickly green withering shadow; 3: The spell Invisibility (illusion, level 2) shown as illusion magic; 4: The spell Lesser Restoration (abjuration, level 2) shown as abjuration magic; 5: The spell Lightning Bolt (evocation, level 3) shown as a jagged yellow lightning bolt; 6: The spell Longstrider (transmutation, level 1) shown as transmutation magic; 7: The spell Mage Armor (abjuration, level 1) shown as abjuration magic; 8: The spell Magic Missile (evocation, level 1) shown as a violet force bolt; 9: The spell Mass Healing Word (evocation, level 3) shown as evocation magic; 10: The spell Misty Step (conjuration, level 2) shown as conjuration magic; 11: The spell Poison Spray (conjuration, cantrip) shown as a green poison droplet; 12: The spell Prayer of Healing (evocation, level 2) shown as evocation magic. Leave cells 13 to 16 empty. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Transparent background. Fix from review: Draw one separate emblem per listed cell, each free-standing on the transparent background with no tile, frame or square backdrop behind it; never one big picture across the sheet.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.006975
  },
  "spell_icon.longstrider": {
   "kind": "spell_icon",
@@ -4355,10 +4371,12 @@
    128
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The spell Longstrider (transmutation, level 1) shown as transmutation magic. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: The spell Hypnotic Pattern (illusion, level 3) shown as illusion magic; 2: The spell Inflict Wounds (necromancy, level 1) shown as sickly green withering shadow; 3: The spell Invisibility (illusion, level 2) shown as illusion magic; 4: The spell Lesser Restoration (abjuration, level 2) shown as abjuration magic; 5: The spell Lightning Bolt (evocation, level 3) shown as a jagged yellow lightning bolt; 6: The spell Longstrider (transmutation, level 1) shown as transmutation magic; 7: The spell Mage Armor (abjuration, level 1) shown as abjuration magic; 8: The spell Magic Missile (evocation, level 1) shown as a violet force bolt; 9: The spell Mass Healing Word (evocation, level 3) shown as evocation magic; 10: The spell Misty Step (conjuration, level 2) shown as conjuration magic; 11: The spell Poison Spray (conjuration, cantrip) shown as a green poison droplet; 12: The spell Prayer of Healing (evocation, level 2) shown as evocation magic. Leave cells 13 to 16 empty. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Transparent background. Fix from review: Draw one separate emblem per listed cell, each free-standing on the transparent background with no tile, frame or square backdrop behind it; never one big picture across the sheet.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.006975
  },
  "spell_icon.mage-armor": {
   "kind": "spell_icon",
@@ -4368,10 +4386,12 @@
    128
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The spell Mage Armor (abjuration, level 1) shown as abjuration magic. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: The spell Hypnotic Pattern (illusion, level 3) shown as illusion magic; 2: The spell Inflict Wounds (necromancy, level 1) shown as sickly green withering shadow; 3: The spell Invisibility (illusion, level 2) shown as illusion magic; 4: The spell Lesser Restoration (abjuration, level 2) shown as abjuration magic; 5: The spell Lightning Bolt (evocation, level 3) shown as a jagged yellow lightning bolt; 6: The spell Longstrider (transmutation, level 1) shown as transmutation magic; 7: The spell Mage Armor (abjuration, level 1) shown as abjuration magic; 8: The spell Magic Missile (evocation, level 1) shown as a violet force bolt; 9: The spell Mass Healing Word (evocation, level 3) shown as evocation magic; 10: The spell Misty Step (conjuration, level 2) shown as conjuration magic; 11: The spell Poison Spray (conjuration, cantrip) shown as a green poison droplet; 12: The spell Prayer of Healing (evocation, level 2) shown as evocation magic. Leave cells 13 to 16 empty. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Transparent background. Fix from review: Draw one separate emblem per listed cell, each free-standing on the transparent background with no tile, frame or square backdrop behind it; never one big picture across the sheet.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.006975
  },
  "spell_icon.magic-missile": {
   "kind": "spell_icon",
@@ -4394,10 +4414,12 @@
    128
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The spell Mass Healing Word (evocation, level 3) shown as evocation magic. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: The spell Hypnotic Pattern (illusion, level 3) shown as illusion magic; 2: The spell Inflict Wounds (necromancy, level 1) shown as sickly green withering shadow; 3: The spell Invisibility (illusion, level 2) shown as illusion magic; 4: The spell Lesser Restoration (abjuration, level 2) shown as abjuration magic; 5: The spell Lightning Bolt (evocation, level 3) shown as a jagged yellow lightning bolt; 6: The spell Longstrider (transmutation, level 1) shown as transmutation magic; 7: The spell Mage Armor (abjuration, level 1) shown as abjuration magic; 8: The spell Magic Missile (evocation, level 1) shown as a violet force bolt; 9: The spell Mass Healing Word (evocation, level 3) shown as evocation magic; 10: The spell Misty Step (conjuration, level 2) shown as conjuration magic; 11: The spell Poison Spray (conjuration, cantrip) shown as a green poison droplet; 12: The spell Prayer of Healing (evocation, level 2) shown as evocation magic. Leave cells 13 to 16 empty. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Transparent background. Fix from review: Draw one separate emblem per listed cell, each free-standing on the transparent background with no tile, frame or square backdrop behind it; never one big picture across the sheet.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.006975
  },
  "spell_icon.misty-step": {
   "kind": "spell_icon",
@@ -4407,10 +4429,12 @@
    128
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The spell Misty Step (conjuration, level 2) shown as conjuration magic. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: The spell Hypnotic Pattern (illusion, level 3) shown as illusion magic; 2: The spell Inflict Wounds (necromancy, level 1) shown as sickly green withering shadow; 3: The spell Invisibility (illusion, level 2) shown as illusion magic; 4: The spell Lesser Restoration (abjuration, level 2) shown as abjuration magic; 5: The spell Lightning Bolt (evocation, level 3) shown as a jagged yellow lightning bolt; 6: The spell Longstrider (transmutation, level 1) shown as transmutation magic; 7: The spell Mage Armor (abjuration, level 1) shown as abjuration magic; 8: The spell Magic Missile (evocation, level 1) shown as a violet force bolt; 9: The spell Mass Healing Word (evocation, level 3) shown as evocation magic; 10: The spell Misty Step (conjuration, level 2) shown as conjuration magic; 11: The spell Poison Spray (conjuration, cantrip) shown as a green poison droplet; 12: The spell Prayer of Healing (evocation, level 2) shown as evocation magic. Leave cells 13 to 16 empty. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Transparent background. Fix from review: Draw one separate emblem per listed cell, each free-standing on the transparent background with no tile, frame or square backdrop behind it; never one big picture across the sheet.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.006975
  },
  "spell_icon.poison-spray": {
   "kind": "spell_icon",
@@ -4420,10 +4444,12 @@
    128
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The spell Poison Spray (conjuration, cantrip) shown as a green poison droplet. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: The spell Hypnotic Pattern (illusion, level 3) shown as illusion magic; 2: The spell Inflict Wounds (necromancy, level 1) shown as sickly green withering shadow; 3: The spell Invisibility (illusion, level 2) shown as illusion magic; 4: The spell Lesser Restoration (abjuration, level 2) shown as abjuration magic; 5: The spell Lightning Bolt (evocation, level 3) shown as a jagged yellow lightning bolt; 6: The spell Longstrider (transmutation, level 1) shown as transmutation magic; 7: The spell Mage Armor (abjuration, level 1) shown as abjuration magic; 8: The spell Magic Missile (evocation, level 1) shown as a violet force bolt; 9: The spell Mass Healing Word (evocation, level 3) shown as evocation magic; 10: The spell Misty Step (conjuration, level 2) shown as conjuration magic; 11: The spell Poison Spray (conjuration, cantrip) shown as a green poison droplet; 12: The spell Prayer of Healing (evocation, level 2) shown as evocation magic. Leave cells 13 to 16 empty. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Transparent background. Fix from review: Draw one separate emblem per listed cell, each free-standing on the transparent background with no tile, frame or square backdrop behind it; never one big picture across the sheet.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.006975
  },
  "spell_icon.prayer-of-healing": {
   "kind": "spell_icon",
@@ -4433,10 +4459,12 @@
    128
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The spell Prayer of Healing (evocation, level 2) shown as evocation magic. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: The spell Hypnotic Pattern (illusion, level 3) shown as illusion magic; 2: The spell Inflict Wounds (necromancy, level 1) shown as sickly green withering shadow; 3: The spell Invisibility (illusion, level 2) shown as illusion magic; 4: The spell Lesser Restoration (abjuration, level 2) shown as abjuration magic; 5: The spell Lightning Bolt (evocation, level 3) shown as a jagged yellow lightning bolt; 6: The spell Longstrider (transmutation, level 1) shown as transmutation magic; 7: The spell Mage Armor (abjuration, level 1) shown as abjuration magic; 8: The spell Magic Missile (evocation, level 1) shown as a violet force bolt; 9: The spell Mass Healing Word (evocation, level 3) shown as evocation magic; 10: The spell Misty Step (conjuration, level 2) shown as conjuration magic; 11: The spell Poison Spray (conjuration, cantrip) shown as a green poison droplet; 12: The spell Prayer of Healing (evocation, level 2) shown as evocation magic. Leave cells 13 to 16 empty. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Transparent background. Fix from review: Draw one separate emblem per listed cell, each free-standing on the transparent background with no tile, frame or square backdrop behind it; never one big picture across the sheet.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.006975
  },
  "spell_icon.protection-from-poison": {
   "kind": "spell_icon",
@@ -4446,10 +4474,12 @@
    128
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The spell Protection from Poison (abjuration, level 2) shown as abjuration magic. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: The spell Protection from Poison (abjuration, level 2) shown as abjuration magic; 2: The spell Revivify (conjuration, level 3) shown as conjuration magic. Leave cells 3 to 16 empty. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Transparent background. Fix from review: Draw one separate emblem per listed cell, each free-standing on the transparent background with no tile, frame or square backdrop behind it; never one big picture across the sheet. Draw one separate emblem per listed cell, each free-standing on the transparent background with no tile, frame or square backdrop behind it; never one big picture across the sheet. For revivify: a fallen adventurer lifted by warm golden-white light as life returns, not a hand rising from a grave.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.04145
  },
  "spell_icon.ray-of-frost": {
   "kind": "spell_icon",
@@ -4489,10 +4519,12 @@
    128
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The spell Revivify (conjuration, level 3) shown as conjuration magic. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: The spell Protection from Poison (abjuration, level 2) shown as abjuration magic; 2: The spell Revivify (conjuration, level 3) shown as conjuration magic. Leave cells 3 to 16 empty. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Transparent background. Fix from review: Draw one separate emblem per listed cell, each free-standing on the transparent background with no tile, frame or square backdrop behind it; never one big picture across the sheet. Draw one separate emblem per listed cell, each free-standing on the transparent background with no tile, frame or square backdrop behind it; never one big picture across the sheet. For revivify: a fallen adventurer lifted by warm golden-white light as life returns, not a hand rising from a grave.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.04145
  },
  "spell_icon.sacred-flame": {
   "kind": "spell_icon",
