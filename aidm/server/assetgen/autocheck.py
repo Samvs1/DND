@@ -3,8 +3,9 @@
 `check_image` looks at PNG bytes with Pillow and returns a `CheckResult` listing every reason it
 fails: wrong size (exact size, or only the aspect ratio when `expected_ratio` is given), no alpha
 or opaque corners when transparency is required, a blank image (almost no pixel variance), a large
-uniform opaque border, or an absurd file size. A failed check costs an attempt but no reviewer
-attention.
+uniform opaque border, an opaque image with a solid bright (or exactly constant) strip of 15
+percent or more on an edge (`uniform_band:<edge>`), or an absurd file size. A failed check costs an
+attempt but no reviewer attention.
 
 Public API: `CheckSpec`, `CheckResult`, `check_image`, `reasons_for_request`.
 """
@@ -21,6 +22,9 @@ BORDER_FRACTION = 0.1
 BORDER_MAX_STDDEV = 2.0
 RATIO_TOLERANCE = 0.02
 CORNER_ALPHA_MAX = 16
+BAND_FRACTION = 0.15
+BAND_TOLERANCE = 8
+BAND_BRIGHT = 200
 
 
 @dataclass(frozen=True)
@@ -102,6 +106,29 @@ def _border_reasons(image: Image.Image) -> list[str]:
     return ["image has a large uniform border"] if uniform else []
 
 
+def _band_reasons(image: Image.Image) -> list[str]:
+    """Opaque image whose edge strip (>= BAND_FRACTION) is one bright or exactly constant colour."""
+    if _alpha_min(image) < 255:
+        return []
+    width, height = image.size
+    bh, bw = max(1, round(height * BAND_FRACTION)), max(1, round(width * BAND_FRACTION))
+    strips = {
+        "top": (0, 0, width, bh),
+        "bottom": (0, height - bh, width, height),
+        "left": (0, 0, bw, height),
+        "right": (width - bw, 0, width, height),
+    }
+    found: list[str] = []
+    for name, box in strips.items():
+        strip = image.crop(box).convert("RGB")
+        extrema = [(int(lo), int(hi)) for lo, hi in ImageStat.Stat(strip).extrema]
+        spans = [hi - lo for lo, hi in extrema]
+        mean = sum(ImageStat.Stat(strip).mean) / 3
+        if max(spans) == 0 or (max(spans) <= BAND_TOLERANCE and mean >= BAND_BRIGHT):
+            found.append(f"uniform_band:{name}")
+    return found
+
+
 def check_image(data: bytes, spec: CheckSpec) -> CheckResult:
     """Run every check on PNG bytes; the result lists all failure reasons."""
     reasons: list[str] = []
@@ -115,6 +142,7 @@ def check_image(data: bytes, spec: CheckSpec) -> CheckResult:
         reasons += _alpha_reasons(image)
     reasons += _blank_reasons(image)
     reasons += _border_reasons(image)
+    reasons += _band_reasons(image)
     return CheckResult(not reasons, tuple(reasons))
 
 

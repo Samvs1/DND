@@ -105,7 +105,8 @@ def test_p1_follows_the_b1_rules_on_the_real_manifest() -> None:
     assert {"item_icon.tool", "spell_icon.school.cold"} <= set(tiers.p1)
     for key in [*tiers.p1, *tiers.p2]:
         entry = manifest[key]
-        assert entry["source"] != "v1" and entry["status"] == "placeholder", key
+        generated = str(entry["source"]).startswith("generated:")
+        assert entry["source"] != "v1" and (entry["status"] == "placeholder" or generated), key
         assert entry["kind"] not in ("music", "sfx"), key
 
 

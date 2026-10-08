@@ -2293,10 +2293,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Acolyte, a medium humanoid (any race) of challenge rating 0.25, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Acolyte, a medium humanoid (any race) of challenge rating 0.25, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.assassin": {
   "kind": "portrait",
@@ -2306,10 +2308,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Assassin, a medium humanoid (any race) of challenge rating 8, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Assassin, a medium humanoid (any race) of challenge rating 8, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.bandit": {
   "kind": "portrait",
@@ -2319,10 +2323,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Bandit, a medium humanoid (any race) of challenge rating 0.125, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Bandit, a medium humanoid (any race) of challenge rating 0.125, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.bandit-captain": {
   "kind": "portrait",
@@ -2332,10 +2338,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Bandit Captain, a medium humanoid (any race) of challenge rating 2, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Bandit Captain, a medium humanoid (any race) of challenge rating 2, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.berserker": {
   "kind": "portrait",
@@ -2345,10 +2353,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Berserker, a medium humanoid (any race) of challenge rating 2, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Berserker, a medium humanoid (any race) of challenge rating 2, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.bugbear": {
   "kind": "portrait",
@@ -2358,10 +2368,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Bugbear, a medium humanoid (goblinoid) of challenge rating 1, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Bugbear, a medium humanoid (goblinoid) of challenge rating 1, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.commoner": {
   "kind": "portrait",
@@ -2371,10 +2383,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Commoner, a medium humanoid (any race) of challenge rating 0, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Commoner, a medium humanoid (any race) of challenge rating 0, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.cult-fanatic": {
   "kind": "portrait",
@@ -2384,10 +2398,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Cult Fanatic, a medium humanoid (any race) of challenge rating 2, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Cult Fanatic, a medium humanoid (any race) of challenge rating 2, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.cultist": {
   "kind": "portrait",
@@ -2397,10 +2413,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Cultist, a medium humanoid (any race) of challenge rating 0.125, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Cultist, a medium humanoid (any race) of challenge rating 0.125, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.deep-gnome-svirfneblin": {
   "kind": "portrait",
@@ -2410,10 +2428,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Deep Gnome (Svirfneblin), a small humanoid (gnome) of challenge rating 0.5, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Deep Gnome (Svirfneblin), a small humanoid (gnome) of challenge rating 0.5, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.drow": {
   "kind": "portrait",
@@ -2423,10 +2443,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Drow, a medium humanoid (elf) of challenge rating 0.25, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Drow, a medium humanoid (elf) of challenge rating 0.25, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.druid": {
   "kind": "portrait",
@@ -2436,10 +2458,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Druid, a medium humanoid (any race) of challenge rating 2, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Druid, a medium humanoid (any race) of challenge rating 2, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.duergar": {
   "kind": "portrait",
@@ -2449,10 +2473,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Duergar, a medium humanoid (dwarf) of challenge rating 1, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Duergar, a medium humanoid (dwarf) of challenge rating 1, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.gladiator": {
   "kind": "portrait",
@@ -2462,10 +2488,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Gladiator, a medium humanoid (any race) of challenge rating 5, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Gladiator, a medium humanoid (any race) of challenge rating 5, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.gnoll": {
   "kind": "portrait",
@@ -2475,10 +2503,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Gnoll, a medium humanoid (gnoll) of challenge rating 0.5, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Gnoll, a medium humanoid (gnoll) of challenge rating 0.5, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.goblin": {
   "kind": "portrait",
@@ -2488,10 +2518,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Goblin, a small humanoid (goblinoid) of challenge rating 0.25, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Goblin, a small humanoid (goblinoid) of challenge rating 0.25, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.grimlock": {
   "kind": "portrait",
@@ -2501,10 +2533,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Grimlock, a medium humanoid (grimlock) of challenge rating 0.25, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Grimlock, a medium humanoid (grimlock) of challenge rating 0.25, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.guard": {
   "kind": "portrait",
@@ -2514,10 +2548,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Guard, a medium humanoid (any race) of challenge rating 0.125, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Guard, a medium humanoid (any race) of challenge rating 0.125, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.half-red-dragon-veteran": {
   "kind": "portrait",
@@ -2527,10 +2563,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Half-Red Dragon Veteran, a medium humanoid (human) of challenge rating 5, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Half-Red Dragon Veteran, a medium humanoid (human) of challenge rating 5, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.hobgoblin": {
   "kind": "portrait",
@@ -2540,10 +2578,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Hobgoblin, a medium humanoid (goblinoid) of challenge rating 0.5, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Hobgoblin, a medium humanoid (goblinoid) of challenge rating 0.5, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.knight": {
   "kind": "portrait",
@@ -2553,10 +2593,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Knight, a medium humanoid (any race) of challenge rating 3, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Knight, a medium humanoid (any race) of challenge rating 3, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.kobold": {
   "kind": "portrait",
@@ -2566,10 +2608,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Kobold, a small humanoid (kobold) of challenge rating 0.125, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Kobold, a small humanoid (kobold) of challenge rating 0.125, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.lizardfolk": {
   "kind": "portrait",
@@ -2579,10 +2623,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Lizardfolk, a medium humanoid (lizardfolk) of challenge rating 0.5, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Lizardfolk, a medium humanoid (lizardfolk) of challenge rating 0.5, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.mage": {
   "kind": "portrait",
@@ -2592,10 +2638,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Mage, a medium humanoid (any race) of challenge rating 6, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Mage, a medium humanoid (any race) of challenge rating 6, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.merfolk": {
   "kind": "portrait",
@@ -2605,10 +2653,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Merfolk, a medium humanoid (merfolk) of challenge rating 0.125, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Merfolk, a medium humanoid (merfolk) of challenge rating 0.125, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.noble": {
   "kind": "portrait",
@@ -2618,10 +2668,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Noble, a medium humanoid (any race) of challenge rating 0.125, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Noble, a medium humanoid (any race) of challenge rating 0.125, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.orc": {
   "kind": "portrait",
@@ -2631,10 +2683,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Orc, a medium humanoid (orc) of challenge rating 0.5, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Orc, a medium humanoid (orc) of challenge rating 0.5, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.priest": {
   "kind": "portrait",
@@ -2644,10 +2698,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Priest, a medium humanoid (any race) of challenge rating 2, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Priest, a medium humanoid (any race) of challenge rating 2, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.sahuagin": {
   "kind": "portrait",
@@ -2657,10 +2713,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Sahuagin, a medium humanoid (sahuagin) of challenge rating 0.5, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Sahuagin, a medium humanoid (sahuagin) of challenge rating 0.5, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.scout": {
   "kind": "portrait",
@@ -2670,10 +2728,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Scout, a medium humanoid (any race) of challenge rating 0.5, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Scout, a medium humanoid (any race) of challenge rating 0.5, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.scribe": {
   "kind": "portrait",
@@ -2709,10 +2769,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Spy, a medium humanoid (any race) of challenge rating 1, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Spy, a medium humanoid (any race) of challenge rating 1, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.thug": {
   "kind": "portrait",
@@ -2722,10 +2784,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Thug, a medium humanoid (any race) of challenge rating 0.5, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Thug, a medium humanoid (any race) of challenge rating 0.5, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.tribal-warrior": {
   "kind": "portrait",
@@ -2735,10 +2799,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Tribal Warrior, a medium humanoid (any race) of challenge rating 0.125, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Tribal Warrior, a medium humanoid (any race) of challenge rating 0.125, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.veteran": {
   "kind": "portrait",
@@ -2748,10 +2814,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Veteran, a medium humanoid (any race) of challenge rating 3, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Veteran, a medium humanoid (any race) of challenge rating 3, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.werebear-bear": {
   "kind": "portrait",
@@ -2774,10 +2842,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Werebear, Human Form, a medium humanoid (human) of challenge rating 5, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Werebear, Human Form, a medium humanoid (human) of challenge rating 5, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.werebear-hybrid": {
   "kind": "portrait",
@@ -2813,10 +2883,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Wereboar, Human Form, a medium humanoid (human) of challenge rating 4, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Wereboar, Human Form, a medium humanoid (human) of challenge rating 4, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.wereboar-hybrid": {
   "kind": "portrait",
@@ -2839,10 +2911,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Wererat, Human Form, a medium humanoid (human) of challenge rating 2, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Wererat, Human Form, a medium humanoid (human) of challenge rating 2, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.wererat-hybrid": {
   "kind": "portrait",
@@ -2878,10 +2952,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Weretiger, Human Form, a medium humanoid (human) of challenge rating 4, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Weretiger, Human Form, a medium humanoid (human) of challenge rating 4, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.weretiger-hybrid": {
   "kind": "portrait",
@@ -2917,10 +2993,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Werewolf, Human Form, a medium humanoid (human) of challenge rating 3, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: Werewolf, Human Form, a medium humanoid (human) of challenge rating 3, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.npc.werewolf-hybrid": {
   "kind": "portrait",
@@ -2956,10 +3034,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: A female Dragonborn adventurer, medium size, a scaled draconic head, a short snout and a heavy tail, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: A female Dragonborn adventurer, medium size, a scaled draconic head, a short snout and a heavy tail, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.race.dragonborn.m": {
   "kind": "portrait",
@@ -2969,10 +3049,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: A male Dragonborn adventurer, medium size, a scaled draconic head, a short snout and a heavy tail, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: A male Dragonborn adventurer, medium size, a scaled draconic head, a short snout and a heavy tail, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.race.dwarf.f": {
   "kind": "portrait",
@@ -2982,10 +3064,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: A female Dwarf adventurer, medium size, stocky, braided beard, broad shoulders, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: A female Dwarf adventurer, medium size, stocky, braided beard, broad shoulders, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.race.dwarf.m": {
   "kind": "portrait",
@@ -2995,10 +3079,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: A male Dwarf adventurer, medium size, stocky, braided beard, broad shoulders, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: A male Dwarf adventurer, medium size, stocky, braided beard, broad shoulders, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.race.elf.f": {
   "kind": "portrait",
@@ -3008,10 +3094,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: A female Elf adventurer, medium size, slender, pointed ears, graceful bearing, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: A female Elf adventurer, medium size, slender, pointed ears, graceful bearing, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0354
  },
  "portrait.race.elf.m": {
   "kind": "portrait",
@@ -3021,10 +3109,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: A male Elf adventurer, medium size, slender, pointed ears, graceful bearing, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: A male Elf adventurer, medium size, slender, pointed ears, graceful bearing, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0354
  },
  "portrait.race.gnome.f": {
   "kind": "portrait",
@@ -3034,10 +3124,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: A female Gnome adventurer, small size, small and wiry, oversized curious eyes, tinkerer's tools, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: A female Gnome adventurer, small size, small and wiry, oversized curious eyes, tinkerer's tools, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.race.gnome.m": {
   "kind": "portrait",
@@ -3047,10 +3139,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: A male Gnome adventurer, small size, small and wiry, oversized curious eyes, tinkerer's tools, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: A male Gnome adventurer, small size, small and wiry, oversized curious eyes, tinkerer's tools, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.race.half-elf.f": {
   "kind": "portrait",
@@ -3060,10 +3154,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: A female Half-Elf adventurer, medium size, human build with subtly pointed ears, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: A female Half-Elf adventurer, medium size, human build with subtly pointed ears, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.race.half-elf.m": {
   "kind": "portrait",
@@ -3073,10 +3169,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: A male Half-Elf adventurer, medium size, human build with subtly pointed ears, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: A male Half-Elf adventurer, medium size, human build with subtly pointed ears, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.race.half-orc.f": {
   "kind": "portrait",
@@ -3086,10 +3184,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: A female Half-Orc adventurer, medium size, tall and heavy, grey-green skin, small lower tusks, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: A female Half-Orc adventurer, medium size, tall and heavy, grey-green skin, small lower tusks, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.race.half-orc.m": {
   "kind": "portrait",
@@ -3099,10 +3199,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: A male Half-Orc adventurer, medium size, tall and heavy, grey-green skin, small lower tusks, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: A male Half-Orc adventurer, medium size, tall and heavy, grey-green skin, small lower tusks, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.race.halfling.f": {
   "kind": "portrait",
@@ -3112,10 +3214,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: A female Halfling adventurer, small size, small and nimble, bare feet, a friendly face, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: A female Halfling adventurer, small size, small and nimble, bare feet, a friendly face, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.race.halfling.m": {
   "kind": "portrait",
@@ -3125,10 +3229,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: A male Halfling adventurer, small size, small and nimble, bare feet, a friendly face, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: A male Halfling adventurer, small size, small and nimble, bare feet, a friendly face, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.race.human.f": {
   "kind": "portrait",
@@ -3138,10 +3244,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: A female Human adventurer, medium size, an ordinary human build and features, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: A female Human adventurer, medium size, an ordinary human build and features, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0354
  },
  "portrait.race.human.m": {
   "kind": "portrait",
@@ -3151,10 +3259,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: A male Human adventurer, medium size, an ordinary human build and features, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: A male Human adventurer, medium size, an ordinary human build and features, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0354
  },
  "portrait.race.tiefling.f": {
   "kind": "portrait",
@@ -3164,10 +3274,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: A female Tiefling adventurer, medium size, curling horns, a slim tail, faintly red or violet skin, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: A female Tiefling adventurer, medium size, curling horns, a slim tail, faintly red or violet skin, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "portrait.race.tiefling.m": {
   "kind": "portrait",
@@ -3177,10 +3289,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: A male Tiefling adventurer, medium size, curling horns, a slim tail, faintly red or violet skin, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: A male Tiefling adventurer, medium size, curling horns, a slim tail, faintly red or violet skin, in plain travelling clothes with a pack. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0355
  },
  "region_banner.bridge": {
   "kind": "region_banner",
@@ -3203,10 +3317,12 @@
    256
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The terrain cave with echoing cavern, narrow tunnel, rock ledge. Very wide panoramic strip 4:1, a landscape or interior vista with a calm horizon band in the middle, no characters, no creatures, a dark soft edge on the left and right. Target size 1024x256.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: The terrain cave with echoing cavern, narrow tunnel, rock ledge. Very wide panoramic strip 4:1, a landscape or interior vista with a calm horizon band in the middle, no characters, no creatures, a dark soft edge on the left and right. Compose for a final crop to 1024x256.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.026
  },
  "region_banner.crypt": {
   "kind": "region_banner",
@@ -3255,10 +3371,12 @@
    256
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The terrain ruins with cracked courtyard, rubble pile, broken archway. Very wide panoramic strip 4:1, a landscape or interior vista with a calm horizon band in the middle, no characters, no creatures, a dark soft edge on the left and right. Target size 1024x256.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: The terrain ruins with cracked courtyard, rubble pile, broken archway. Very wide panoramic strip 4:1, a landscape or interior vista with a calm horizon band in the middle, no characters, no creatures, a dark soft edge on the left and right. Compose for a final crop to 1024x256.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.026
  },
  "region_banner.swamp": {
   "kind": "region_banner",
@@ -3294,10 +3412,12 @@
    256
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: A regional vista: dusk light over deeper wilds and old ruins. Very wide panoramic strip 4:1, a landscape or interior vista with a calm horizon band in the middle, no characters, no creatures, a dark soft edge on the left and right. Target size 1024x256.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: A regional vista: dusk light over deeper wilds and old ruins. Very wide panoramic strip 4:1, a landscape or interior vista with a calm horizon band in the middle, no characters, no creatures, a dark soft edge on the left and right. Compose for a final crop to 1024x256.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.026
  },
  "region_banner.tier3": {
   "kind": "region_banner",
@@ -3307,10 +3427,12 @@
    256
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: A regional vista: a dark stronghold under storm light, embers in the air. Very wide panoramic strip 4:1, a landscape or interior vista with a calm horizon band in the middle, no characters, no creatures, a dark soft edge on the left and right. Target size 1024x256.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: A regional vista: a dark stronghold under storm light, embers in the air. Very wide panoramic strip 4:1, a landscape or interior vista with a calm horizon band in the middle, no characters, no creatures, a dark soft edge on the left and right. Compose for a final crop to 1024x256.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.026
  },
  "region_banner.village": {
   "kind": "region_banner",

@@ -70,6 +70,7 @@ def _index_item(c: Candidate, base: Path) -> dict[str, object]:
         "model": c.model,
         "prompt": c.prompt,
         "cost_eur": c.cost_eur,
+        "note": c.note,
     }
 
 

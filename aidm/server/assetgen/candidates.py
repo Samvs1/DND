@@ -18,7 +18,7 @@ from typing import Any
 
 from PIL import Image
 
-from aidm.server.assetgen.slicer import fit_cell, png_bytes, slice_sheet
+from aidm.server.assetgen.slicer import fit_cell, png_bytes, slice_sheet_noted
 
 
 @dataclass(frozen=True)
@@ -29,6 +29,7 @@ class Candidate:
     model: str
     prompt: str
     cost_eur: float
+    note: str = ""
 
 
 def write_atomic(path: Path, data: bytes) -> None:
@@ -47,15 +48,15 @@ def target_size(entry: Mapping[str, Any]) -> tuple[int, int] | None:
 
 def _images_of(
     meta: Mapping[str, Any], data: bytes, manifest: Mapping[str, Mapping[str, Any]]
-) -> dict[str, bytes]:
+) -> tuple[dict[str, bytes], str]:
     sizes = {k: s for k in meta["keys"] if k in manifest and (s := target_size(manifest[k]))}
     if meta.get("sheet"):
-        cuts = slice_sheet(
+        cuts, note = slice_sheet_noted(
             data, list(meta["keys"]), {k: sizes.get(k, (64, 64)) for k in meta["keys"]}
         )
-        return {k: v for k, v in cuts.items() if k in sizes}
+        return {k: v for k, v in cuts.items() if k in sizes}, note
     image = Image.open(io.BytesIO(data)).convert("RGBA")
-    return {k: png_bytes(fit_cell(image, s)) for k, s in sizes.items()}
+    return {k: png_bytes(fit_cell(image, s)) for k, s in sizes.items()}, ""
 
 
 def collect(
@@ -70,9 +71,12 @@ def collect(
             continue
         meta = json.loads(sidecar.read_text(encoding="utf-8"))
         share = float(meta.get("cost_eur", 0.0)) / max(1, len(meta["keys"]))
-        for key, data in _images_of(meta, png.read_bytes(), manifest).items():
+        images, note = _images_of(meta, png.read_bytes(), manifest)
+        for key, data in images.items():
             attempts[key] = attempts.get(key, 0) + 1
             out = slices_dir / f"{key}__a{attempts[key]}.png"
             write_atomic(out, data)
-            found.append(Candidate(key, attempts[key], out, meta["model"], meta["prompt"], share))
+            found.append(
+                Candidate(key, attempts[key], out, meta["model"], meta["prompt"], share, note)
+            )
     return found

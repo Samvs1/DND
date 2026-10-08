@@ -33,6 +33,7 @@ from aidm.server.assetgen.plan import PlannedCall, Selection, build_calls, selec
 from aidm.server.assetgen.priority import derive_tiers, render_priority
 from aidm.server.assetgen.prompts import RefSources
 from aidm.server.assetgen.provider import ImageProvider, ImageRequest, ProviderError
+from aidm.server.assetgen.retry import plan_retry
 from aidm.server.assetgen.runner import RunReport, RunSettings, run_calls
 
 type Out = Callable[[str], None]
@@ -79,6 +80,7 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
     p.add_argument("--tier", type=int, choices=(1, 2), default=1, help="2 adds the P2 entries")
     p.add_argument("--only", action="append", default=[], metavar="KEY", help="just this key")
     p.add_argument("--max-attempts", type=int, default=2, help="attempts per call")
+    p.add_argument("--retry", type=Path, default=None, metavar="REVIEW_JSON", help="redo `retry`")
     p.add_argument("--v1-root", type=Path, default=None, help="read-only v1 project root")
     p.add_argument("--write-priority", action="store_true", help="write docs/ASSET_PRIORITY.md")
     p.add_argument("--check-priority", action="store_true", help="exit 1 if it is stale")
@@ -196,7 +198,8 @@ def _generate(
     try:
         chosen = provider if provider is not None else provider_from_env(paths.root)
         guard = BudgetGuard(paths.ledger, args.cap, lambda: datetime.now(UTC).isoformat())
-        settings = RunSettings(paths.staging, max(1, args.max_attempts), out, _autocheck)
+        tries = 1 if args.retry else max(1, args.max_attempts)  # a retry adds one staged attempt
+        settings = RunSettings(paths.staging, tries, out, _autocheck)
         report = run_calls(calls, chosen, guard, load_price_table(), settings)
     except ProviderError as exc:
         out(f"provider unavailable: {exc}")
@@ -205,10 +208,22 @@ def _generate(
 
 
 def _plan(args: argparse.Namespace, paths: RepoPaths, manifest: dict[str, dict[str, Any]]):
+    refs = RefSources(paths.static_dir, args.v1_root or _default_v1_root())
+    if args.retry:
+        plan = plan_retry(
+            args.retry,
+            manifest,
+            paths.static_dir,
+            paths.staging,
+            derive_tiers(manifest),
+            bible=load_style_bible(),
+            table=load_price_table(),
+            refs=refs,
+        )
+        return plan.selection, plan.calls
     selection: Selection = select_keys(
         manifest, paths.static_dir, derive_tiers(manifest), tier=args.tier, only=args.only
     )
-    refs = RefSources(paths.static_dir, args.v1_root or _default_v1_root())
     calls = build_calls(
         manifest, selection.keys, bible=load_style_bible(), table=load_price_table(), refs=refs
     )
@@ -230,7 +245,8 @@ def main(
     selection, calls = _plan(args, paths, manifest)
     real = args.yes and not args.dry_run
     out("gen_assets: GENERATE" if real else "gen_assets: DRY RUN - no API call, nothing spent.")
-    out(f"tier {args.tier}: {len(selection.keys)} entries ({_kind_counts(selection.keys)})")
+    mode = f"retry {args.retry.name}" if args.retry else f"tier {args.tier}"
+    out(f"{mode}: {len(selection.keys)} entries ({_kind_counts(selection.keys)})")
     for key, reason in selection.skipped:
         out(f"skipped {key}: {reason}")
     if args.only and not selection.keys:

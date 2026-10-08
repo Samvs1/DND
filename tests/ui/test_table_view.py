@@ -30,7 +30,7 @@ PLACEHOLDER = "/assets/placeholder/"
 CHAIN_URL = """async () => {
     const assets = await import('/web/js/assets.js');
     const party = await import('/web/js/table/party.js');
-    const hero = {portrait_id: 'race.human.f', class_index: 'fighter'};
+    const hero = {portrait_id: 'race.unpainted.f', class_index: 'fighter'};
     return assets.assetUrl(party.portraitKeys(hero));
 }"""
 
