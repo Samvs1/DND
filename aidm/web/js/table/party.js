@@ -16,7 +16,7 @@ export function portraitKeys(creature) {
   return keys;
 }
 
-function hpBar(c) {
+export function hpBar(c) {
   const ratio = c.max_hp > 0 ? Math.max(0, Math.min(1, c.hp / c.max_hp)) : 0;
   const level = ratio > 0.5 ? 'good' : ratio > 0.25 ? 'warn' : 'low';
   const fill = h('span', { class: `hp-fill ${level}` });
@@ -34,7 +34,7 @@ function hpBar(c) {
   );
 }
 
-function conditionIcons(c) {
+export function conditionIcons(c) {
   return h(
     'span',
     { class: 'conditions' },

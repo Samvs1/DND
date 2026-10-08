@@ -1,39 +1,38 @@
-// Action input: free-text submit_action. Disabled while you already have an action waiting, while the
-// table is paused, in a fight outside your turn (on your turn it sends a creative action) or before your hero exists. A refused
-// action shows the table's gentle notice under the box; nothing raw is ever printed.
+// The action box: THE way to act out of combat (first come first served through the server queue). Enter sends,
+// Shift+Enter adds a line. Disabled with a stated reason when the party fell, the hero is down, it is not your
+// turn in a fight, the game is paused or an action of yours is already waiting. Tells the table while you type.
 import { isMyTurn } from '../combat/model.js';
 import { mySeat } from '../state.js';
+import { hasPendingAction, publicState } from '../table/lookup.js';
 import { t } from '../strings.js';
 import { h } from '../ui/dom.js';
-import { hasPendingAction, publicState } from './lookup.js';
+import { isDown, queuePosition } from './status.js';
+import { createTyping } from './typing.js';
 
 const MAX_TEXT = 1000;
 const NOTICE_MS = 8000;
 
-function blockedReason(state) {
+export function blockedReason(state) {
   const view = publicState(state);
   if (!view) return 'wait';
+  if (view.phase === 'defeated') return 'defeated';
   if (!mySeat(state)?.creature_id) return 'noHero';
   if (view.paused) return 'paused';
+  if (isDown(state)) return 'down';
   if (view.combat) return isMyTurn(state) ? null : 'fight';
-  if (!view.combat && hasPendingAction(state)) return 'pending';
-  return null;
+  return hasPendingAction(state) ? 'pending' : null;
 }
 
 export function mountAction(root, { store, client }) {
-  const input = h('textarea', {
-    id: 'action-text',
-    rows: 2,
-    maxlength: MAX_TEXT,
-    placeholder: t('table.actionPlaceholder'),
-    'aria-label': t('table.actionLabel'),
-    'data-testid': 'action-input',
-  });
+  const input = h('textarea', { id: 'action-text', rows: 2, maxlength: MAX_TEXT, placeholder: t('table.actionPlaceholder'), 'aria-label': t('table.actionLabel'), 'data-testid': 'action-input' });
   const send = h('button', { type: 'submit', class: 'btn btn-primary', 'data-testid': 'action-send' }, t('table.send'));
+  const mic = h('span', { class: 'ct-mic', hidden: true, 'data-testid': 'mic-slot', 'aria-label': t('ct.mic') });
   const note = h('p', { class: 'action-note', role: 'status', 'data-testid': 'action-note' });
+  const place = h('p', { class: 'action-note', role: 'status', 'data-testid': 'queue-place' });
   const gentle = h('p', { class: 'action-gentle', role: 'status', 'data-testid': 'action-gentle' });
-  const form = h('form', { class: 'action', novalidate: true }, input, send);
-  root.append(form, note, gentle);
+  const form = h('form', { class: 'action', novalidate: true }, input, h('div', { class: 'ct-send' }, send, mic));
+  root.append(form, note, place, gentle, h('p', { class: 'hint', 'data-testid': 'dictation-hint' }, t('ct.dictationHint')));
+  const typing = createTyping(client);
   let gentleTimer = null;
   let lastNotice = store.get().notices.at(-1) ?? null;
 
@@ -47,7 +46,10 @@ export function mountAction(root, { store, client }) {
     const why = blockedReason(state);
     input.disabled = why !== null;
     send.disabled = why !== null;
-    note.textContent = why ? t(`table.blocked_${why}`) : '';
+    if (why) typing.off();
+    note.textContent = why ? t(`ct.blocked_${why}`) : '';
+    const spot = queuePosition(state);
+    place.textContent = spot ? t('ct.queuePlace', { n: spot }) : '';
     const latest = state.notices.at(-1) ?? null;
     if (latest && latest !== lastNotice && latest.kind === 'refused') showGentle(latest.text);
     lastNotice = latest;
@@ -60,8 +62,11 @@ export function mountAction(root, { store, client }) {
     if (client.send('submit_action', { text })) {
       input.value = '';
       gentle.textContent = '';
+      typing.off();
     }
   });
+  input.addEventListener('input', () => typing.change(input.value));
+  input.addEventListener('blur', () => typing.off());
   input.addEventListener('keydown', (event) => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
@@ -72,6 +77,7 @@ export function mountAction(root, { store, client }) {
   const stop = store.subscribe(render);
   return () => {
     stop();
+    typing.off();
     clearTimeout(gentleTimer);
   };
 }

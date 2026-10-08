@@ -12,9 +12,9 @@ from pathlib import Path
 import pytest
 import uvicorn
 from fastapi import FastAPI
-from playwright.sync_api import Browser, sync_playwright
+from playwright.sync_api import Browser, Page, ViewportSize, sync_playwright
 
-from aidm.dm.fake_llm import FakeLLM, FakeStep, default_fake_step, fake_tool_call
+from aidm.dm.fake_llm import FakeLLM, FakeStep, FakeStream, default_fake_step, fake_tool_call
 from aidm.dm.llm_backend import CompletionRequest
 from aidm.dm.llm_client import LlmClient
 from aidm.dm.llm_types import LlmMode
@@ -143,6 +143,24 @@ def combat_server(tmp_path: Path) -> Iterator[LiveServer]:
     yield from _serve(tmp_path, make, state=new_game_state(seed=COMBAT_SEED))
 
 
+def _slow_responder(request: CompletionRequest) -> FakeStep:
+    """FakeLLM whose narration of a "slowly" action takes about 6 s, so a 2nd action queues."""
+    said = " ".join(str(m.get("content", "")) for m in request.messages).lower()
+    if not request.tools and "slowly" in said:
+        return FakeStream(tuple(f"Slow word {i}. " for i in range(4)), delay_s=1.5)
+    return default_fake_step(request)
+
+
+@pytest.fixture
+def slow_server(tmp_path: Path) -> Iterator[LiveServer]:
+    """Like `live_server`, but an action with the word "slowly" resolves slowly (queue tests)."""
+
+    def make(settings: ServerSettings) -> LlmClient:
+        return LlmClient(FakeLLM(responder=_slow_responder), settings.llm, LlmMode.FAKE, None)
+
+    yield from _serve(tmp_path, make)
+
+
 def _journey_responder(request: CompletionRequest) -> FakeStep:
     """FakeLLM for the full journey: "search" asks for a check, "ambush" starts a fight."""
     last = next((m for m in reversed(request.messages) if m.get("role") == "user"), {})
@@ -173,6 +191,26 @@ def artless_server(tmp_path: Path) -> Iterator[LiveServer]:
         return LlmClient(FakeLLM(responder=_combat_responder), settings.llm, LlmMode.FAKE, None)
 
     yield from _serve(tmp_path, make, web, state=new_game_state(seed=COMBAT_SEED))
+
+
+SCREEN_SIZE = ViewportSize(width=1280, height=800)
+
+
+def open_screen(
+    browser: Browser,
+    base: str,
+    errors: list[str],
+    size: ViewportSize = SCREEN_SIZE,
+    init_script: str | None = None,
+) -> Page:
+    """A /screen client in its own browser context (the shared display), still waiting."""
+    page = browser.new_context(viewport=size).new_page()
+    page.on("pageerror", lambda exc: errors.append(str(exc)))
+    if init_script:
+        page.add_init_script(init_script)
+    page.goto(f"{base}/screen")
+    page.wait_for_selector("[data-testid=screen-waiting]:not([hidden])")
+    return page
 
 
 @pytest.fixture(scope="session")

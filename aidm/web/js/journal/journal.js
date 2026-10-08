@@ -35,8 +35,8 @@ function listSection(titleKey, emptyKey, testid, items) {
   ];
 }
 
-export function mountJournal(root, store) {
-  const panel = createPanel(root, store, { key: 'journal', title: t('journal.title'), testid: 'journal' });
+export function mountJournal(root, store, embed = null) {
+  const panel = createPanel(root, store, { key: 'journal', title: t('journal.title'), testid: 'journal', embed });
   let last = '';
   function render(state) {
     if (!panel.sync(state)) return;

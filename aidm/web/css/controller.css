@@ -1,0 +1,359 @@
+/* Phone controller (/play, M11.4): hero strip on top, four tab panes, a bottom tab bar. Mobile first (390 px). */
+body.is-controller {
+  display: block;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+body.is-controller #app {
+  height: 100%;
+}
+
+.ct {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  height: 100%;
+  max-width: 48rem;
+  margin: 0 auto;
+}
+
+.ct [hidden],
+.ct-sheet [hidden],
+.ct-defeat[hidden] {
+  display: none;
+}
+
+.ct-strip {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0.6rem;
+  background: var(--stone-1);
+  border-bottom: 2px solid var(--stone-3);
+}
+
+.ct-strip-body {
+  display: flex;
+  flex: 1;
+  gap: 0.5rem;
+  align-items: center;
+  min-width: 0;
+}
+
+.ct-portrait {
+  flex: none;
+  border: var(--frame);
+  border-radius: var(--radius);
+}
+
+.ct-hero {
+  flex: 1;
+  min-width: 0;
+}
+
+.ct-hero-top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.ct-ac {
+  color: var(--parchment-dim);
+  font-size: 0.9rem;
+}
+
+.ct-res {
+  margin: 0;
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
+}
+
+.ct-chip-status {
+  flex: none;
+  max-width: 7.5rem;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.85rem;
+  text-align: center;
+  border: 2px solid var(--stone-3);
+  border-radius: 999px;
+}
+
+.ct-chip-status[data-status='mine'] {
+  color: var(--ink-0);
+  background: var(--gold);
+  border-color: var(--gold);
+}
+
+.ct-chip-status[data-status='down'],
+.ct-chip-status[data-status='defeated'] {
+  color: var(--blood-text);
+  border-color: var(--blood-text);
+}
+
+.ct-main {
+  min-height: 0;
+  padding: 0.5rem 0.6rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.ct-pane {
+  display: grid;
+  gap: 0.6rem;
+  align-content: start;
+}
+
+.ct-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  background: var(--stone-1);
+  border-top: 2px solid var(--stone-3);
+}
+
+.ct-tab {
+  position: relative;
+  min-height: 3rem;
+  padding: 0.4rem 0.2rem;
+  color: var(--parchment-dim);
+  font: inherit;
+  background: none;
+  border: 0;
+  border-top: 3px solid transparent;
+  cursor: pointer;
+}
+
+.ct-tab[aria-selected='true'] {
+  color: var(--gold);
+  border-top-color: var(--gold);
+}
+
+.ct-tab .badge {
+  margin-left: 0.3rem;
+}
+
+.ct-last {
+  width: 100%;
+  padding: 0.5rem 0.7rem;
+  color: var(--parchment);
+  font: inherit;
+  text-align: left;
+  background: var(--stone-1);
+  border: 1px solid var(--stone-3);
+  border-radius: var(--radius);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ct-recent p {
+  margin: 0.4rem 0;
+}
+
+.ct-action .action {
+  align-items: stretch;
+}
+
+.ct-send {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.ct-targets {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.ct-target-list,
+.ct-places {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.ct-target {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 7rem;
+  max-width: 100%;
+  padding: 0.4rem 0.6rem;
+  color: var(--parchment);
+  font: inherit;
+  text-align: left;
+  background: var(--stone-1);
+  border: 2px solid var(--stone-3);
+  border-left-width: 6px;
+  border-radius: var(--radius);
+}
+
+.ct-target.foe {
+  border-left-color: var(--blood-text);
+}
+
+.ct-target.ally {
+  border-left-color: var(--moss-text);
+}
+
+.ct-target.targeted {
+  border-color: var(--gold);
+  box-shadow: 0 0 8px rgba(210, 169, 78, 0.6);
+}
+
+.ct-target.is-bloodied .ct-t-hp {
+  color: var(--blood-text);
+}
+
+.ct-t-hit {
+  color: var(--gold);
+}
+
+.ct-t-cond,
+.ct-t-where {
+  font-size: 0.8rem;
+}
+
+.ct-places-box summary {
+  cursor: pointer;
+  color: var(--gold);
+}
+
+.ct-more-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.ct-subtabs {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.ct-subtab {
+  flex: 1;
+  min-height: 2.5rem;
+  color: var(--parchment-dim);
+  font: inherit;
+  background: var(--stone-1);
+  border: 2px solid var(--stone-3);
+  border-radius: var(--radius);
+}
+
+.ct-subtab[aria-selected='true'] {
+  color: var(--gold);
+  border-color: var(--gold);
+}
+
+.panel-embed,
+.sheet-embed {
+  min-width: 0;
+}
+
+.panel-embed .map-wrap {
+  overflow-x: auto;
+}
+
+.ct-h {
+  margin: 0;
+}
+
+.ct-sheet {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 20;
+}
+
+.ct-sheet .vote {
+  margin: 0;
+  border-radius: var(--radius) var(--radius) 0 0;
+  box-shadow: 0 -8px 20px rgba(0, 0, 0, 0.6);
+}
+
+.ct-toasts {
+  position: fixed;
+  top: 0.5rem;
+  right: 0.5rem;
+  left: 0.5rem;
+  z-index: 30;
+  pointer-events: none;
+}
+
+.ct-toast {
+  max-width: 24rem;
+  margin: 0 auto;
+  padding: 0.5rem 0.8rem;
+  text-align: center;
+  background: var(--stone-2);
+  border: 2px solid var(--gold);
+  border-radius: var(--radius);
+  box-shadow: var(--glow);
+}
+
+.ct-die {
+  display: inline-block;
+  min-width: 1.6rem;
+  padding: 0 0.3rem;
+  border: 1px solid currentcolor;
+  border-radius: 0.3rem;
+}
+
+.ct-die.dropped {
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+
+.ct-defeat {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 1rem;
+  overflow-y: auto;
+  text-align: center;
+  background: #0b0808;
+}
+
+.ct-defeat h2 {
+  margin: 0;
+  font-size: 2.2rem;
+}
+
+.ct-defeat-choices,
+.ct-defeat-saves {
+  display: grid;
+  gap: 0.6rem;
+  width: min(100%, 24rem);
+}
+
+.ct-save-list {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ct-save-list .btn,
+.ct-defeat-choices .btn {
+  width: 100%;
+}
+
+.ct .hotbar {
+  min-width: 0;
+}
+
+.ct .hb-body {
+  flex-wrap: wrap;
+}
+
+.ct-notices:empty {
+  display: none;
+}

@@ -5,7 +5,7 @@ from pathlib import Path
 from playwright.sync_api import Browser, Page, ViewportSize
 
 from tests.ui.conftest import LiveServer
-from tests.ui.table_helpers import WIDE, snap, start_table
+from tests.ui.table_helpers import PHONE, WIDE, snap, start_table
 
 FULL_HD = ViewportSize(width=1920, height=1080)
 
@@ -32,6 +32,14 @@ ROLL = {
     },
 }
 NO_HSCROLL = "document.documentElement.scrollWidth <= window.innerWidth"
+# True when the first element's box overlaps the second one's (they share some pixels).
+OVERLAP = """([a, b]) => {
+  const x = document.querySelector(a)?.getBoundingClientRect();
+  const y = document.querySelector(b)?.getBoundingClientRect();
+  if (!x || !y) return false;
+  return x.left < y.right && x.right > y.left && x.top < y.bottom && x.bottom > y.top;
+}"""
+NOTICE = {"type": "notice", "kind": "progress", "text": "The campaign is being written..."}
 
 
 def _screen(browser: Browser, base: str, size: ViewportSize, errors: list[str]) -> Page:
@@ -47,7 +55,7 @@ def test_screen_widgets_at_two_sizes(
 ) -> None:
     errors: list[str] = []
     screen = _screen(browser, live_server.base, FULL_HD, errors)
-    start_table(browser, live_server.base, WIDE, errors)
+    start_table(browser, live_server.base, PHONE, errors)
     screen.wait_for_selector("[data-testid=screen-table]:not([hidden])", timeout=20000)
     screen.wait_for_function(
         "[...document.querySelectorAll('[data-testid=narration]')]"
@@ -67,6 +75,12 @@ def test_screen_widgets_at_two_sizes(
     screen.evaluate("(m) => window.aidm.dispatch(m)", ROLL)
     screen.wait_for_selector("[data-testid=screen-roll]")
     assert "20" in screen.locator("[data-testid=screen-dice]").inner_text()
+    # The big dice and the notices sit in the side column: they never cover the story or the board.
+    screen.evaluate("(m) => window.aidm.dispatch(m)", NOTICE)
+    screen.wait_for_selector("[data-testid=notice]")
+    for card in ("[data-testid=screen-dice]", "[data-testid=notices]"):
+        for covered in ("[data-testid=feed]", "[data-testid=board]", "[data-testid=initiative]"):
+            assert not screen.evaluate(OVERLAP, [card, covered]), (card, covered)
     event = {"type": "event", "seq": 9002, "kind": "level_gained", "line": "Ann reached level 3"}
     screen.evaluate("(m) => window.aidm.dispatch(m)", event)
     assert "level 3" in screen.locator("[data-testid=screen-levelup]").inner_text()
@@ -85,7 +99,7 @@ def test_screen_widgets_at_two_sizes(
 def test_screen_defeat_overlay(browser: Browser, live_server: LiveServer, shots_dir: Path) -> None:
     errors: list[str] = []
     screen = _screen(browser, live_server.base, FULL_HD, errors)
-    start_table(browser, live_server.base, WIDE, errors)
+    start_table(browser, live_server.base, PHONE, errors)
     screen.wait_for_selector("[data-testid=screen-table]:not([hidden])", timeout=20000)
     assert screen.locator("[data-testid=screen-defeat]:not([hidden])").count() == 0
     screen.evaluate(

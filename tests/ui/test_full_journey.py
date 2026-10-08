@@ -1,26 +1,24 @@
-"""M9.3: ONE end-to-end journey, two browser contexts, a real server in fake-AI mode.
+"""M9.3, M11.4: ONE end-to-end journey, three browser contexts (a /screen, two phones).
 
-Join, wizard, start, streamed opening, an action with dice, a fight through the hotbar, a
-suggestion from the other player, then a reconnect that must restore everything.
+Join, wizard, start, streamed opening on the screen, an action with dice, a fight through the phone
+hotbar with the board on the screen, a suggestion from the other player, then reconnects of the
+screen and of a phone that must restore everything.
 """
 
 import json
 from pathlib import Path
 
-from playwright.sync_api import Browser, BrowserContext, Locator, Page
+from playwright.sync_api import Browser, BrowserContext, Locator, Page, ViewportSize
 
 from tests.ui.conftest import LiveServer
-from tests.ui.table_helpers import HAS_TEXT, ROGUE, WIDE
+from tests.ui.table_helpers import HAS_TEXT, PHONE, PHONE_TEXT, ROGUE, WIDE
 from tests.ui.wizard_helpers import HeroSpec, complete_wizard, join
 
 MAIN = "[data-testid=slot-attack-main_hand]"
 WAIT = "[data-testid=hotbar-wait]"
 NARRATION = "[data-testid=narration]"
-# The dice tray rows (newest first) as normalised text; `.fresh` animation state is ignored.
-DICE_TEXTS = (
-    "[...document.querySelectorAll('[data-testid=dice-roll]')]"
-    ".map((li) => li.textContent.split(/[ \\n\\t]+/).join(' ').trim())"
-)
+# The recent rolls (newest first) as "label total" text, read from the story model of the page.
+DICE_TEXTS = "window.aidm.story.dice.map((r) => `${r.label} ${r.total}`)"
 ACTION_ENABLED = "!document.querySelector('[data-testid=action-input]').disabled"
 ALL_TOLD = (
     f"[...document.querySelectorAll('{NARRATION}')].every((n) => n.classList.contains('done'))"
@@ -29,6 +27,7 @@ COMBAT_POS = (
     "(() => { const c = window.aidm.store.get().snapshot.state.combat;"
     " return c ? [c.round, c.active_id] : null; })()"
 )
+LAST = "document.querySelector('[data-testid=last-line]').textContent"
 # Records the total narration length each time the DOM changes, so growth over time is provable.
 WATCH_NARRATION = """
 (() => {
@@ -45,7 +44,7 @@ WATCH_NARRATION = """
 
 
 class Journey:
-    """Both players' pages plus the wire facts the test asserts on."""
+    """The pages plus the wire facts the test asserts on."""
 
     def __init__(self, shots: Path) -> None:
         self.shots = shots
@@ -79,8 +78,8 @@ class Journey:
         page.screenshot(path=str(self.shots / f"journey_{name}.png"))
 
 
-def _context(browser: Browser) -> BrowserContext:
-    context = browser.new_context(viewport=WIDE)
+def _context(browser: Browser, size: ViewportSize = PHONE) -> BrowserContext:
+    context = browser.new_context(viewport=size)
     context.add_init_script(WATCH_NARRATION)
     return context
 
@@ -113,10 +112,12 @@ def _who_acts(host: Page, guest: Page) -> tuple[Page, Page]:
     raise AssertionError("nobody got the hotbar")
 
 
-def _stage_start(journey: Journey, browser: Browser, base: str) -> tuple[Page, Page]:
-    host_ctx, guest_ctx = _context(browser), _context(browser)
-    host = _enter(journey, host_ctx, base, "Ann", HeroSpec(name="Brienne"))
-    guest = _enter(journey, guest_ctx, base, "Bo", ROGUE)
+def _stage_start(journey: Journey, browser: Browser, base: str) -> tuple[Page, Page, Page]:
+    screen = journey.new_page(_context(browser, WIDE), "Screen")
+    screen.goto(f"{base}/screen")
+    screen.wait_for_selector("[data-testid=screen-waiting]:not([hidden])")
+    host = _enter(journey, _context(browser), base, "Ann", HeroSpec(name="Brienne"))
+    guest = _enter(journey, _context(browser), base, "Bo", ROGUE)
     host.wait_for_function(
         "document.querySelectorAll('[data-testid=hero-state].ready').length === 2"
     )
@@ -124,20 +125,22 @@ def _stage_start(journey: Journey, browser: Browser, base: str) -> tuple[Page, P
     journey.shot(host, "01_lobby_ready")
     host.click("[data-testid=start]")
     for page in (host, guest):
-        page.wait_for_selector("[data-testid=feed]", timeout=20000)
-        page.wait_for_function(HAS_TEXT, timeout=20000)
-    return host, guest
+        page.wait_for_selector("[data-testid=controller]", timeout=20000)
+        page.wait_for_function(PHONE_TEXT, timeout=20000)
+    screen.wait_for_selector("[data-testid=screen-table]:not([hidden])", timeout=20000)
+    screen.wait_for_function(HAS_TEXT, timeout=20000)
+    return screen, host, guest
 
 
-def _assert_streamed(journey: Journey, host: Page, guest: Page) -> None:
-    """The opening narration reaches both sockets as several sentence chunks of one narration."""
-    for page in (host, guest):
-        page.wait_for_function(ALL_TOLD, timeout=30000)
-    for label in ("Ann", "Bo"):
+def _assert_streamed(journey: Journey, screen: Page, host: Page, guest: Page) -> None:
+    """The opening narration reaches every socket as several sentence chunks of one narration."""
+    screen.wait_for_function(ALL_TOLD, timeout=30000)
+    for label in ("Ann", "Bo", "Screen"):
         opening = journey.chunks[label]
         assert opening and max(len(indexes) for indexes in opening.values()) >= 2, opening
-    journey.shot(host, "02_opening_narration")
-    journey.shot(guest, "03_opening_narration_guest")
+    journey.shot(screen, "02_opening_narration_screen")
+    journey.shot(host, "03_opening_narration_phone")
+    journey.shot(guest, "03_opening_narration_phone_guest")
 
 
 def _assert_grew(page: Page) -> None:
@@ -146,43 +149,44 @@ def _assert_grew(page: Page) -> None:
     assert len(set(lens)) >= 3 and lens[0] < lens[-1], lens[:12]
 
 
-def _stage_action(journey: Journey, host: Page, guest: Page) -> None:
-    before = guest.locator(NARRATION).count()
-    for page in (host, guest):
-        page.evaluate("window.__narrLens.length = 0")
+def _stage_action(journey: Journey, screen: Page, host: Page, guest: Page) -> None:
+    before = screen.locator(NARRATION).count()
+    guest_line = guest.evaluate(LAST)
+    screen.evaluate("window.__narrLens.length = 0")
     host.fill("[data-testid=action-input]", "I search the room carefully")
     host.click("[data-testid=action-send]")
-    for page in (host, guest):
-        page.wait_for_selector("[data-testid=dice-roll]", timeout=20000)
-        assert page.locator("[data-testid=dice-roll] [data-testid=die]").count() >= 1
-        assert page.locator("[data-testid=dice-roll] .roll-out").first.inner_text().strip()
-    guest.wait_for_function(
+    screen.wait_for_selector("[data-testid=screen-roll]", timeout=20000)
+    assert screen.locator("[data-testid=screen-roll] .sc-die").count() >= 1
+    assert screen.locator("[data-testid=screen-roll] .sc-roll-out").first.inner_text().strip()
+    host.wait_for_selector("[data-testid=dice-toast]:not([hidden])", timeout=20000)
+    screen.wait_for_function(
         f"document.querySelectorAll('{NARRATION}').length > {before}", timeout=20000
     )
+    guest.wait_for_function(f"{LAST} !== {guest_line!r}", timeout=20000)
     host.wait_for_function(ACTION_ENABLED, timeout=20000)
-    host.wait_for_function(ALL_TOLD, timeout=20000)
-    guest.wait_for_function(ALL_TOLD, timeout=20000)
-    _assert_grew(host)
-    _assert_grew(guest)
-    journey.shot(guest, "04_dice_and_narration")
+    screen.wait_for_function(ALL_TOLD, timeout=20000)
+    _assert_grew(screen)
+    journey.shot(screen, "04_dice_and_narration_screen")
+    journey.shot(host, "04_dice_toast_phone")
 
 
-def _stage_combat(journey: Journey, host: Page, guest: Page) -> tuple[Page, Page]:
+def _stage_combat(journey: Journey, screen: Page, host: Page, guest: Page) -> None:
     host.fill("[data-testid=action-input]", "I ambush the goblins from the shadows")
     host.click("[data-testid=action-send]")
+    screen.wait_for_selector("[data-testid=board]:not([hidden])", timeout=30000)
+    assert screen.locator("[data-testid=token][data-side=hostile]").count() == 2
     for page in (host, guest):
-        page.wait_for_selector("[data-testid=board]:not([hidden])", timeout=30000)
         page.wait_for_selector(f"{MAIN}, {WAIT}", timeout=30000)
-        assert page.locator("[data-testid=token][data-side=hostile]").count() == 2
     active, other = _who_acts(host, guest)
-    journey.shot(host, "05_combat_start")
-    # The active player: hit-chance tooltip, then an attack spends the action pip.
+    journey.shot(screen, "05_combat_start_screen")
+    # The active player: hit-chance tooltip and target chips, then an attack spends the action pip.
     swing = _hit_chance(active)
     assert active.locator("[data-testid=pip-action].on").count() == 1
+    assert active.locator("[data-testid=target-chip][data-side=hostile]").count() == 2
     swing.hover()
-    tip = swing.locator(".hb-tip").inner_text()
+    tip = swing.locator(".hb-tip").text_content() or ""
     assert "AC" in tip and "Hits" in tip
-    journey.shot(active, "06_hotbar_tooltip")
+    journey.shot(active, "06_hotbar_and_targets_phone")
     # The other player cannot act but can suggest.
     assert other.locator(WAIT).is_visible()
     assert other.locator("[data-testid=end-turn]").count() == 0
@@ -192,10 +196,9 @@ def _stage_combat(journey: Journey, host: Page, guest: Page) -> tuple[Page, Page
     assert "left goblin" in active.locator("[data-testid=suggestion]").first.inner_text()
     swing.click()
     active.wait_for_selector("[data-testid=pip-action].spent", timeout=20000)
-    active.wait_for_selector("[data-testid=event-line]", timeout=20000)
+    screen.wait_for_selector("[data-testid=event-line]", timeout=20000)
     journey.shot(active, "07_after_attack_pips")
     journey.shot(other, "08_other_player_view")
-    return active, other
 
 
 def _same_combat(page: Page, host: Page) -> None:
@@ -205,24 +208,21 @@ def _same_combat(page: Page, host: Page) -> None:
         if mine == host.evaluate(f"JSON.stringify({COMBAT_POS})") and mine != "null":
             return
         page.wait_for_timeout(200)
-    raise AssertionError("the reconnected board never matched the table's combat state")
+    raise AssertionError("the reconnected page never matched the table's combat state")
 
 
-def _stage_reconnect(journey: Journey, base: str, guest: Page, host: Page) -> Page:
-    """Close B's page (socket drops), reopen with the same token; everything must come back."""
-    me = guest.evaluate("window.aidm.store.get().me.playerId")
-    guest.wait_for_function(ALL_TOLD, timeout=20000)  # never capture a line still being typed
-    texts = [" ".join(t.split()) for t in guest.locator(NARRATION).all_inner_texts()]
-    guest.wait_for_timeout(800)  # a fresh roll's numbers cycle for 600 ms before settling
-    rolls = guest.evaluate(DICE_TEXTS)
+def _stage_reconnect_screen(journey: Journey, base: str, screen: Page, host: Page) -> Page:
+    """Close the screen (socket drops), reopen it: story, board and dice must all come back."""
+    screen.wait_for_function(ALL_TOLD, timeout=20000)  # never capture a line still being typed
+    texts = [" ".join(t.split()) for t in screen.locator(NARRATION).all_inner_texts()]
+    screen.wait_for_timeout(800)
+    rolls = screen.evaluate(DICE_TEXTS)
     assert rolls, "the fight so far must have shown dice"
-    context = guest.context
-    guest.close()
-    page = journey.new_page(context, "Bo-again")
-    page.goto(f"{base}/play")
-    page.wait_for_selector("[data-testid=feed]", timeout=20000)
+    context = screen.context
+    screen.close()
+    page = journey.new_page(context, "Screen-again")
+    page.goto(f"{base}/screen")
     page.wait_for_selector("[data-testid=board]:not([hidden])", timeout=20000)
-    assert page.evaluate("window.aidm.store.get().me.playerId") == me
     page.wait_for_function(
         f"document.querySelectorAll('{NARRATION}').length >= {len(texts)}", timeout=20000
     )
@@ -231,14 +231,39 @@ def _stage_reconnect(journey: Journey, base: str, guest: Page, host: Page) -> Pa
         : len(texts)
     ] == texts
     _same_combat(page, host)
-    # M9.4: the dice panel comes back from story_history (it was empty after a reconnect).
+    # M9.4: the recent rolls come back from story_history after a reconnect.
     page.wait_for_function(f"{DICE_TEXTS}.length >= {len(rolls)}", timeout=20000)
     assert rolls[0] in page.evaluate(DICE_TEXTS), "the newest roll before the drop is shown"
     assert page.locator("[data-testid=init-entry]").count() == 4
     assert page.locator("[data-testid=token][data-side=hostile]").count() == 2
     page.wait_for_selector("[data-testid=event-line]", timeout=20000)
+    journey.shot(page, "09_screen_after_reconnect")
+    return page
+
+
+def _stage_reconnect_phone(journey: Journey, base: str, guest: Page, host: Page) -> Page:
+    """Close B's phone (socket drops), reopen with the same token; the controller must come back."""
+    me = guest.evaluate("window.aidm.store.get().me.playerId")
+    line = guest.evaluate(LAST)
+    context = guest.context
+    guest.close()
+    page = journey.new_page(context, "Bo-again")
+    page.goto(f"{base}/play")
+    page.wait_for_selector("[data-testid=controller]", timeout=20000)
+    assert page.evaluate("window.aidm.store.get().me.playerId") == me
+    # The story came back from story_history (the table may have moved on meanwhile): the line
+    # the phone showed before the drop is in it, and the last-line control shows something.
+    page.wait_for_function(
+        "(line) => window.aidm.story.items.some((i) =>"
+        " (i.text ?? i.sentences.map((s) => s.text).join(' ')).includes(line))",
+        arg=line,
+        timeout=20000,
+    )
+    assert page.inner_text("[data-testid=last-line]").strip()
+    assert page.locator("[data-testid=strip-name]").inner_text() == "Mira"
+    _same_combat(page, host)
     page.wait_for_selector(f"{MAIN}, {WAIT}", timeout=20000)
-    journey.shot(page, "09_after_reconnect")
+    journey.shot(page, "10_phone_after_reconnect")
     return page
 
 
@@ -261,26 +286,27 @@ def _pass_until_my_attack(me: Page, other: Page) -> None:
     raise AssertionError("the reconnected player never got a fresh turn")
 
 
-def _stage_resume_play(journey: Journey, back: Page, other: Page) -> None:
+def _stage_resume_play(journey: Journey, screen: Page, back: Page, other: Page) -> None:
     _pass_until_my_attack(back, other)
     swing = _hit_chance(back)
-    events = back.locator("[data-testid=event-line]").count()
+    events = screen.locator("[data-testid=event-line]").count()
     swing.click()
     back.wait_for_selector("[data-testid=pip-action].spent", timeout=20000)
-    back.wait_for_function(
+    screen.wait_for_function(
         f"document.querySelectorAll('[data-testid=event-line]').length > {events}", timeout=20000
     )
-    journey.shot(back, "10_reconnected_player_acts")
+    journey.shot(back, "11_reconnected_player_acts")
 
 
-def test_full_journey_two_players_join_play_fight_and_reconnect(
+def test_full_journey_screen_and_two_phones_join_play_fight_and_reconnect(
     browser: Browser, journey_server: LiveServer, shots_dir: Path
 ) -> None:
     journey = Journey(shots_dir)
-    host, guest = _stage_start(journey, browser, journey_server.base)
-    _assert_streamed(journey, host, guest)
-    _stage_action(journey, host, guest)
-    _stage_combat(journey, host, guest)
-    back = _stage_reconnect(journey, journey_server.base, guest, host)
-    _stage_resume_play(journey, back, host)
+    screen, host, guest = _stage_start(journey, browser, journey_server.base)
+    _assert_streamed(journey, screen, host, guest)
+    _stage_action(journey, screen, host, guest)
+    _stage_combat(journey, screen, host, guest)
+    screen = _stage_reconnect_screen(journey, journey_server.base, screen, host)
+    back = _stage_reconnect_phone(journey, journey_server.base, guest, host)
+    _stage_resume_play(journey, screen, back, host)
     assert journey.errors == []

@@ -1,21 +1,12 @@
 // Big dice display for the shared screen: the newest roll(s) shown large for a few seconds. Read-only;
 // it reuses the roll model of js/table/dice.js (kept die, advantage label) but has no controls.
-import { keptIndex } from '../table/dice.js';
+import { keptIndex, outcome } from '../table/dice.js';
 import { creatureName } from '../table/lookup.js';
 import { t } from '../strings.js';
 import { clear, h } from '../ui/dom.js';
 
 const SHOW_MS = 6000;
 const MAX_SHOWN = 3;
-
-function outcome(roll) {
-  const parts = [];
-  if (roll.crit) parts.push(t('table.crit'));
-  if (roll.target !== null && roll.target !== undefined) parts.push(t('table.vs', { n: roll.target }));
-  if (roll.success === true) parts.push(t('table.success'));
-  if (roll.success === false) parts.push(t('table.failure'));
-  return parts.join(' / ');
-}
 
 function bigRoll(roll, state) {
   const kept = keptIndex(roll);

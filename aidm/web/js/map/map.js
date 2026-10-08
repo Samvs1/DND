@@ -15,7 +15,7 @@ function travelList(view, client, store) {
   const rows = exits.map((exit) => {
     const go = () => {
       client.send('submit_action', { text: `go to ${exit.name}` });
-      store.update({ panel: null });
+      store.update({ panel: null, ctab: 'play' });
     };
     const label = exit.locked ? t('map.travelLocked', { name: exit.name }) : t('map.travel', { name: exit.name });
     const button = h('button', { type: 'button', class: 'btn btn-small', disabled: exit.locked || fighting, 'data-testid': 'map-travel', 'data-node': exit.node_id, onclick: go }, label);
@@ -24,8 +24,8 @@ function travelList(view, client, store) {
   return [h('ul', { class: 'map-travel-list' }, ...rows), h('p', { class: 'hint' }, fighting ? t('map.inFight') : t('map.travelHint'))];
 }
 
-export function mountMap(root, { store, client }) {
-  const panel = createPanel(root, store, { key: 'map', title: t('map.title'), testid: 'map' });
+export function mountMap(root, { store, client }, embed = null) {
+  const panel = createPanel(root, store, { key: 'map', title: t('map.title'), testid: 'map', embed });
   let last = '';
   function render(state) {
     if (!panel.sync(state)) return;

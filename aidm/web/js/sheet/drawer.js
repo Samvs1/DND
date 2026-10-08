@@ -1,6 +1,7 @@
 // The character sheet drawer: a modal side panel (native <dialog>: focus trap, Escape, focus returns to the
-// opener) with Overview, Inventory and Spellbook tabs. It opens when `store.sheetOpen` is set (the "Sheet"
-// button on your party card) and reads the latest `sheet` message (kept fresh by sheet/sync.js).
+// opener) with Overview, Inventory and Spellbook tabs. It opens when `store.sheetOpen` is set and reads the
+// latest `sheet` message (kept fresh by sheet/sync.js). With `embed: (state) => boolean` it is an inline section
+// instead (the phone's Hero tab), shown while `embed(state)` holds.
 import { assetUrl } from '../assets.js';
 import { portraitKeys } from '../table/party.js';
 import { myHero, publicState } from '../table/lookup.js';
@@ -46,20 +47,23 @@ function header(sheet, hero, store) {
   ];
 }
 
-export function mountSheet(root, { store, client }) {
+export function mountSheet(root, { store, client }, embed = null) {
   const head = h('header', { class: 'sh-head' });
   const tabs = h('div', { class: 'sh-tabs', role: 'tablist', 'aria-label': t('sheet.tabs') });
   const panel = h('div', { class: 'sh-panel', id: 'sheet-panel', role: 'tabpanel', tabindex: '0', 'data-testid': 'sheet-panel' });
   const status = h('p', { class: 'form-error', role: 'status', 'data-testid': 'sheet-status' });
   const close = h('button', { type: 'button', class: 'btn btn-small sh-close', 'data-testid': 'sheet-close', 'aria-label': t('sheet.close') }, t('sheet.close'));
-  const dialog = h('dialog', { class: 'sheet-drawer', 'aria-labelledby': 'sheet-h', 'data-testid': 'sheet' }, close, head, tabs, status, panel);
+  const dialog = embed
+    ? h('section', { class: 'sheet-embed', 'aria-labelledby': 'sheet-h', 'data-testid': 'sheet' }, head, tabs, status, panel)
+    : h('dialog', { class: 'sheet-drawer', 'aria-labelledby': 'sheet-h', 'data-testid': 'sheet' }, close, head, tabs, status, panel);
   root.append(dialog);
+  let wasOpen = false;
   let tab = 'overview';
   let last = '';
   let lastRefusal = store.get().refusal?.n ?? 0;
 
   close.addEventListener('click', () => dialog.close());
-  dialog.addEventListener('close', () => store.update({ sheetOpen: false }));
+  if (!embed) dialog.addEventListener('close', () => store.update({ sheetOpen: false }));
   const buttons = TABS.map((id) => {
     const b = h('button', { type: 'button', role: 'tab', id: `tab-${id}`, class: 'sh-tab', 'data-testid': `tab-${id}` }, t(`sheet.tab_${id}`));
     b.addEventListener('click', () => select(id));
@@ -91,12 +95,16 @@ export function mountSheet(root, { store, client }) {
   }
 
   function render(state) {
-    if (!state.sheetOpen) {
-      if (dialog.open) dialog.close();
+    const wanted = embed ? embed(state) : state.sheetOpen;
+    if (embed) dialog.hidden = !wanted;
+    if (!wanted) {
+      if (!embed && dialog.open) dialog.close();
+      wasOpen = false;
       return;
     }
-    if (!dialog.open) client.send('request_sheet');
-    openDialog(dialog);
+    if (!wasOpen) client.send('request_sheet');
+    wasOpen = true;
+    if (!embed) openDialog(dialog);
     const refusal = state.refusal;
     if (refusal && refusal.n !== lastRefusal) {
       lastRefusal = refusal.n;

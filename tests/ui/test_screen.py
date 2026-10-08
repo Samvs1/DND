@@ -9,7 +9,7 @@ from pathlib import Path
 from playwright.sync_api import Browser, Page, ViewportSize
 
 from tests.ui.conftest import LiveServer
-from tests.ui.table_helpers import WIDE, snap, start_table
+from tests.ui.table_helpers import PHONE, WIDE, snap, start_table
 
 FULL_HD = ViewportSize(width=1920, height=1080)
 FAKE_AUDIO = """() => {
@@ -60,7 +60,7 @@ def test_screen_shows_the_story_and_party_read_only_and_mutes_players(
     errors: list[str] = []
     screen = _screen(browser, live_server.base, WIDE, errors)
     assert screen.locator("[data-testid=lan-url]").count() >= 1  # invite panel while waiting
-    host, _guest = start_table(browser, live_server.base, WIDE, errors)
+    host, _guest = start_table(browser, live_server.base, PHONE, errors)
     screen.wait_for_selector("[data-testid=screen-table]:not([hidden])", timeout=20000)
     screen.wait_for_function(
         "[...document.querySelectorAll('[data-testid=narration]')]"
@@ -87,7 +87,7 @@ def test_screen_plays_narration_and_music_follows_the_fight(
 ) -> None:
     errors: list[str] = []
     screen = _screen(browser, combat_server.base, WIDE, errors)
-    host, _guest = start_table(browser, combat_server.base, WIDE, errors)
+    host, _guest = start_table(browser, combat_server.base, PHONE, errors)
     screen.wait_for_selector("[data-testid=screen-table]:not([hidden])", timeout=20000)
     screen.wait_for_function("window.aidm.music.state().playing === 'exploration'", timeout=20000)
     assert _names(screen) == [screen.evaluate("window.aidm.music.state().url")]
@@ -136,7 +136,7 @@ def test_music_is_silent_when_muted_or_a_screen_plays_it(
 ) -> None:
     errors: list[str] = []
     screen = _screen(browser, live_server.base, WIDE, errors)
-    host, _guest = start_table(browser, live_server.base, WIDE, errors)
+    host, _guest = start_table(browser, live_server.base, PHONE, errors)
     host.evaluate(FAKE_AUDIO)
     host.evaluate("window.aidm.store.update({})")  # re-evaluate the music with the fake installed
     assert host.evaluate(MUSIC)["muted"] is True and host.evaluate(MUSIC)["playing"] is None

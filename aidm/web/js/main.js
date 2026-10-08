@@ -58,4 +58,4 @@ show(store.get());
 const name = saved.name();
 if (mode === 'screen') client.connect(t('screen.name'));
 else if (name && saved.token()) client.connect(name);
-window.aidm = { store, client, dispatch, audio, music }; // handles for tests and the console
+window.aidm = { store, client, dispatch, audio, music, story }; // handles for tests and the console

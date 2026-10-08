@@ -663,11 +663,6 @@ body.in-combat .scene-place {
     max-height: none;
   }
 
-  .tb-dock {
-    max-height: 55dvh;
-    overflow-y: auto;
-  }
-
   .hb-slot {
     min-width: 4rem;
   }

@@ -1,4 +1,4 @@
-/* Table view (M7.3): story feed, party, queue, dice tray, action box, vote prompt, dialogs. */
+/* Shared table styles (M7.3): scene, story feed, party, action box, vote prompt, dialogs. Used by /screen and the phone. */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -376,119 +376,6 @@ textarea {
   border-color: var(--blood-text);
 }
 
-.queue {
-  display: grid;
-  gap: 0.3rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.qentry {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  align-items: baseline;
-  padding: 0.25rem 0.4rem;
-  font-size: 0.9rem;
-  background: var(--stone-1);
-  border-left: 3px solid var(--stone-3);
-}
-
-.qentry.resolving {
-  border-left-color: var(--gold);
-}
-
-.qtext {
-  color: var(--parchment-dim);
-}
-
-.combat-note {
-  margin: 0 0 0.4rem;
-  color: var(--blood-text);
-}
-
-.tb-dice summary {
-  color: var(--gold);
-  font-family: var(--font-display);
-  font-size: 1.15rem;
-  cursor: pointer;
-}
-
-.dice-list {
-  display: grid;
-  gap: 0.4rem;
-  margin: 0.4rem 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.roll {
-  padding: 0.35rem 0.5rem;
-  background: var(--stone-1);
-  border: 2px solid var(--stone-3);
-  border-radius: var(--radius);
-}
-
-.roll.fresh {
-  border-color: var(--gold);
-}
-
-.roll-head {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  align-items: baseline;
-}
-
-.roll-dice {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.3rem;
-  align-items: center;
-  margin: 0.25rem 0;
-}
-
-.roll .die {
-  width: 2.2rem;
-  height: 2.2rem;
-  animation: none;
-}
-
-.roll.fresh .die {
-  animation: wz-tumble 0.5s ease-out;
-}
-
-.roll .die.kept {
-  border-color: var(--gold);
-  box-shadow: 0 0 8px rgba(210, 169, 78, 0.7);
-}
-
-.roll-total {
-  color: var(--gold);
-  font-family: var(--font-display);
-  font-size: 1.5rem;
-}
-
-.roll-out {
-  color: var(--parchment-dim);
-  font-size: 0.85rem;
-}
-
-.adv-advantage {
-  color: var(--moss-text);
-}
-
-.adv-disadvantage {
-  color: var(--blood-text);
-}
-
-.tb-dock {
-  display: grid;
-  grid-area: dock;
-  gap: 0.4rem;
-}
-
 .action {
   display: flex;
   gap: 0.5rem;
@@ -531,10 +418,6 @@ textarea {
 .action-gentle:empty,
 .vote-result:empty {
   display: none;
-}
-
-.levelup-btn {
-  justify-self: start;
 }
 
 .vote h3 {
@@ -649,21 +532,8 @@ textarea {
     max-height: 60dvh;
   }
 
-  .tb-dock {
-    position: sticky;
-    bottom: 0;
-    z-index: 5;
-    padding: 0.4rem 0 0.3rem;
-    background: var(--ink-0);
-    box-shadow: 0 -8px 12px var(--ink-0);
-  }
-
   .vote .hint,
   .vote-detail {
-    display: none;
-  }
-
-  .tb-queue:not(:has(.qentry)):not(:has(.combat-note:not([hidden]))) {
     display: none;
   }
 

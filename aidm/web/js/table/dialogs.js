@@ -84,7 +84,7 @@ export function mountOffer(root, { store, client }) {
   function render(state) {
     const offer = publicState(state)?.offer ?? null;
     const mine = Boolean(mySeat(state)?.creature_id);
-    if (!offer || !mine) {
+    if (!offer || !mine || state.snapshot?.state.phase === 'defeated') {
       shownId = null;
       closeDialog(dialog);
       return;

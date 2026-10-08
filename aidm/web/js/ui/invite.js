@@ -11,7 +11,10 @@ export async function fetchLan(store) {
   }
 }
 
+let panels = 0; // each panel on a page needs its own heading id (the screen shows two)
+
 export function invitePanel(lan) {
+  const id = `invite-h-${(panels += 1)}`;
   const body =
     lan.lan && lan.url
       ? [
@@ -22,8 +25,8 @@ export function invitePanel(lan) {
       : [h('p', { class: 'hint' }, t('lobby.localOnly'))];
   return h(
     'section',
-    { class: 'panel invite', 'aria-labelledby': 'invite-h' },
-    h('h2', { id: 'invite-h' }, t('lobby.invite')),
+    { class: 'panel invite', 'aria-labelledby': id },
+    h('h2', { id }, t('lobby.invite')),
     ...body,
   );
 }

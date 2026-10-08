@@ -1,4 +1,7 @@
-"""Browser tests of narration audio (M8.2): ordered playback, text sync, mute, blocked hint.
+"""Browser tests of narration audio (M8.2, M11.4): ordered playback, text sync, mute, blocked hint.
+
+The shared /screen is the audio device (it types the story in step with the clips); the phone only
+keeps its own muted default.
 
 The page's audio elements are replaced by a fake (`window.__aidmMakeAudio`): `play()` resolves (or
 rejects as an autoplay block) and the test ends each clip by hand, so order is asserted exactly.
@@ -7,7 +10,7 @@ rejects as an autoplay block) and the test ends each clip by hand, so order is a
 from playwright.sync_api import Browser, Page
 
 from tests.ui.conftest import LiveServer
-from tests.ui.table_helpers import WIDE, start_table
+from tests.ui.table_helpers import go_tab, start_with_screen
 
 FAKE_AUDIO = """() => {
   window.__clips = [];
@@ -43,9 +46,10 @@ def _sentence_text(page: Page, nid: str) -> str:
 
 
 def _setup(browser: Browser, live_server: LiveServer, errors: list[str]) -> Page:
-    host, _guest = start_table(browser, live_server.base, WIDE, errors)
-    host.evaluate(FAKE_AUDIO)
-    return host
+    """The /screen of a started table with the fake audio installed."""
+    screen, _host, _guest = start_with_screen(browser, live_server.base, errors)
+    screen.evaluate(FAKE_AUDIO)
+    return screen
 
 
 def test_chunks_play_in_order_and_text_follows_audio(
@@ -88,7 +92,7 @@ def test_sentence_without_audio_is_typed_not_played(
 def test_mute_skips_audio_and_reveals_text(browser: Browser, live_server: LiveServer) -> None:
     errors: list[str] = []
     host = _setup(browser, live_server, errors)
-    host.click("[data-testid=open-settings]")
+    host.click("[data-testid=screen-gear]")
     host.wait_for_selector("[data-testid=settings][open]")
     host.check("[data-testid=set-mute]")
     host.click("[data-testid=settings-close]")
@@ -109,7 +113,7 @@ def test_muting_mid_queue_stops_playback_and_shows_the_rest(
     host = _setup(browser, live_server, errors)
     for i, (text, url) in enumerate(zip(TEXTS, URLS, strict=True)):
         host.evaluate(SEND, ["n903", i, text, url])
-    host.click("[data-testid=open-settings]")
+    host.click("[data-testid=screen-gear]")
     host.wait_for_selector("[data-testid=settings][open]")
     host.check("[data-testid=set-mute]")
     host.click("[data-testid=settings-close]")
@@ -145,7 +149,14 @@ def test_players_default_to_silent_when_a_screen_is_connected(
     browser: Browser, live_server: LiveServer
 ) -> None:
     errors: list[str] = []
-    host = _setup(browser, live_server, errors)
+    _screen, host, _guest = start_with_screen(browser, live_server.base, errors)
+    host.evaluate(FAKE_AUDIO)
+    host.evaluate(
+        """() => {
+        const snap = window.aidm.store.get().snapshot;
+        window.aidm.store.update({ snapshot: { ...snap, state: { ...snap.state, screens: 0 } } });
+    }"""
+    )
     assert host.evaluate(STATE)["muted"] is False
     host.evaluate(
         """() => {
@@ -155,6 +166,7 @@ def test_players_default_to_silent_when_a_screen_is_connected(
     )
     assert host.evaluate(STATE)["muted"] is True
     host.evaluate("window.aidm.store.update({ audioBlocked: false })")
+    go_tab(host, "more")
     host.click("[data-testid=open-settings]")
     host.wait_for_selector("[data-testid=settings][open]")
     host.uncheck("[data-testid=set-mute]")  # an explicit choice wins over the screen default

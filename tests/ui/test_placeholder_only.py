@@ -9,10 +9,10 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-from playwright.sync_api import Browser, BrowserContext, Page, Response
+from playwright.sync_api import Browser, BrowserContext, Page, Response, ViewportSize
 
 from tests.ui.conftest import LiveServer
-from tests.ui.table_helpers import HAS_TEXT, ROGUE, WIDE, snap
+from tests.ui.table_helpers import HAS_TEXT, PHONE, PHONE_TEXT, ROGUE, WIDE, snap
 from tests.ui.wizard_helpers import HeroSpec, complete_wizard, fill_wizard, join
 
 MAIN = "[data-testid=slot-attack-main_hand]"
@@ -45,8 +45,8 @@ class Probe:
             self.bad.append(f"{response.status} {url}")
 
 
-def _page(browser: Browser, errors: list[str]) -> tuple[Page, Probe]:
-    context = browser.new_context(viewport=WIDE)
+def _page(browser: Browser, errors: list[str], size: ViewportSize = PHONE) -> tuple[Page, Probe]:
+    context = browser.new_context(viewport=size)
     probe = Probe(context, errors)
     page = context.new_page()
     page.on("pageerror", lambda exc: errors.append(str(exc)))
@@ -79,12 +79,14 @@ def test_join_create_act_and_fight_on_placeholders_only(
     errors: list[str] = []
     host, host_probe = _page(browser, errors)
     guest, guest_probe = _page(browser, errors)
+    screen, screen_probe = _page(browser, errors, WIDE)
+    screen.goto(f"{artless_server.base}/screen")
     join(host, artless_server.base, "Ann")
     _assert_no_broken_images(host, "wizard")
-    snap(host, shots_dir, "placeholder_wizard", 1280)
+    snap(host, shots_dir, "placeholder_wizard", 390)
     fill_wizard(host, HeroSpec(name="Brienne"))
     _assert_no_broken_images(host, "wizard review")
-    snap(host, shots_dir, "placeholder_wizard_review", 1280)
+    snap(host, shots_dir, "placeholder_wizard_review", 390)
     host.click("[data-testid=create-hero]")
     host.wait_for_selector("[data-testid=sheet-summary]")
     host.click("[data-testid=hero-ready]")
@@ -95,28 +97,39 @@ def test_join_create_act_and_fight_on_placeholders_only(
         "document.querySelectorAll('[data-testid=hero-state].ready').length === 2"
     )
     _assert_no_broken_images(host, "lobby")
-    snap(host, shots_dir, "placeholder_lobby", 1280)
+    snap(host, shots_dir, "placeholder_lobby", 390)
     host.click("[data-testid=start]")
     for page in (host, guest):
-        page.wait_for_selector("[data-testid=feed]", timeout=20000)
-        page.wait_for_function(HAS_TEXT, timeout=20000)
-    _assert_no_broken_images(host, "table")
-    snap(host, shots_dir, "placeholder_table", 1280)
+        page.wait_for_selector("[data-testid=controller]", timeout=20000)
+        page.wait_for_function(PHONE_TEXT, timeout=20000)
+    screen.wait_for_function(HAS_TEXT, timeout=20000)
+    for label, page in (("controller", host), ("screen", screen)):
+        _assert_no_broken_images(page, label)
+    snap(host, shots_dir, "placeholder_controller", 390)
+    snap(screen, shots_dir, "placeholder_screen", 1280)
     host.fill("[data-testid=action-input]", "I ambush the goblins from the shadows")
     host.click("[data-testid=action-send]")
+    screen.wait_for_selector("[data-testid=board]:not([hidden])", timeout=30000)
     for page in (host, guest):
-        page.wait_for_selector("[data-testid=board]:not([hidden])", timeout=30000)
         page.wait_for_selector(f"{MAIN}, {WAIT}", timeout=30000)
     for _ in range(150):  # the hotbar belongs to whoever has the turn (the rogue may pass first)
         if host.locator(MAIN).count() or guest.locator(MAIN).count():
             break
         host.wait_for_timeout(200)
     assert host.locator(MAIN).count() + guest.locator(MAIN).count() == 1
-    for label, page in (("host combat", host), ("guest combat", guest)):
+    for label, page in (("host combat", host), ("guest combat", guest), ("screen combat", screen)):
         _assert_no_broken_images(page, label)
-    assert host.locator("[data-testid=token]").count() >= 4
-    snap(host, shots_dir, "placeholder_combat", 1280)
-    snap(guest, shots_dir, "placeholder_combat_guest", 1280)
-    assert host_probe.bad + guest_probe.bad == []
+    assert screen.locator("[data-testid=token]").count() >= 4
+    chips = (
+        host.locator("[data-testid=target-chip]").count()
+        + guest.locator("[data-testid=target-chip]").count()
+    )
+    assert chips >= 3  # the target chips (and their art-free layout) of the active phone
+    snap(screen, shots_dir, "placeholder_combat", 1280)
+    snap(host, shots_dir, "placeholder_combat_host", 390)
+    snap(guest, shots_dir, "placeholder_combat_guest", 390)
+    probes = host_probe.bad + guest_probe.bad + screen_probe.bad
+    assert probes == []
     assert host_probe.placeholders > 0 and guest_probe.placeholders > 0
+    assert screen_probe.placeholders > 0
     assert errors == []

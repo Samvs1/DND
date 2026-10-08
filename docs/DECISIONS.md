@@ -481,3 +481,6 @@ M11.2 clock | `Clock.time()` added (LoopClock = loop time, ManualClock = `now`) 
 | M11.3 | Dice display shows the newest 3 rolls for 6 s (from story.dice) | big readable roll without controls |
 | M11.3 | Invite corner shows while fewer than 4 seats are taken or a seated player is disconnected | SEATS const in screen.js |
 | M11.3 | Audio gear opens the existing settings panel; per-channel sliders come in M11.5 | scope |
+
+## M11.4
+- Phone status chip: if the player is in the floor queue it shows "Waiting (n)" even while another hero holds the floor; "X is acting" is for non-queued bystanders. Defeat panel clears its `shown` flag before resetting the tab (store.update re-enters the subscriber).

@@ -1,4 +1,4 @@
-// Host panel (host only; the toolbar never shows it to anyone else and the table view does not mount it):
+// Host panel (host only; the More tab never shows it to anyone else and the controller does not mount it):
 // pause/resume, kick, difficulty sliders, spoken narration, save/load/new/end, force the open vote and the
 // storyteller's token totals. Every action is one `host_*` message; the server refuses non-hosts anyway.
 import { t } from '../strings.js';
