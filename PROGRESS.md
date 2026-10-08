@@ -1,4 +1,4 @@
-NEXT: DONE. M10 closed (95 P1 assets generated, 2.3124 EUR of 8.00, 183 placeholders left). Only the final VERIFICATION REPORT remains. Last gate: M10 FULL GATE PASS 10/10.
+NEXT: M11.1 (H, hard-engineer): defeat engine, see the M11 section and docs/next/GOAL_CONTROLLERS.md. Last gate: M10 FULL GATE PASS 10/10. Owner decisions are answered and binding.
 
 # PROGRESS
 
@@ -113,6 +113,21 @@ If the API rejects the key or needs organisation verification: stop M10 generati
 - [x] M10.5 **ORCH** P1 generation: `python scripts/gen_assets.py --yes --cap 8` in batches, with portraits and banners passing 2-3 real v1 references through the edit endpoint and icons generated as 4x4 sheets. Gate: ledger total <= cap, check_secrets PASS. (68 calls, 2.3124 EUR; commits 8bd162d, 1c1c5d9)
 - [x] M10.6 **ORCH** Review loop: the main session OPENS every contact sheet and writes `artifacts/assets/review_<n>.json` (5 scores; accept only if all >= 4), with up to 3 attempts per key; install the accepted ones. Gate: every accepted asset scores >= 4 on style match; the FULL gate passes. (review_1..12.json in artifacts/assets; every accepted asset style >= 4; tier1 banner needed attempt 2)
 - [x] M10.7 **ORCH** Final review: `artifacts/assets/FINAL_REVIEW.png` (opened), `ASSETS_REPORT.md` (spend vs cap, accepted, rejected, kept as placeholder), a Playwright UI run with wizard, combat and sheet screenshots viewed and crops fixed, a revert_asset demo (manifest status before and after), README art section updated. FULL gate. Commit `M10: AI assets`. (FINAL_REVIEW.png opened, ASSETS_REPORT.md, Playwright 65 passed and wizard/combat/sheet screenshots opened, revert_asset demo, README art section)
+
+## M11 Shared screen + phone controllers, defeat flow, split volumes (docs/next/GOAL_CONTROLLERS.md, owner feedback 2026-10-08; binding)
+Owner decisions are in the goal doc: defeat screen + retry, always two surfaces (/screen + /play), keyboard dictation + optional HTTPS, 15 EUR total art cap.
+- [ ] M11.1 **H** Defeat engine: party-wipe detection (all PCs dead or down with nobody able to act, in or out of combat), `TablePhase.DEFEATED`, defeat epilogue (guarded, template fallback), input lock, auto checkpoints (scene arrival + fight start) as log markers, `defeat_retry` / `defeat_load` / `defeat_new` client messages (host or sole player), snapshot/protocol fields, music state `defeat`; regression test reproducing the logged wolf death; replay == snapshot after retry. Gate: FULL gate.
+- [ ] M11.2 **H** Server split: `audio_settings` message (narrator volume, music volume, mute narrator, mute music) stored in table state and sent to screens; screen/controller roles in `hello`; what the screen receives vs the controller (no private data to the screen); who-is-typing queue state exposed publicly; combat target list data for the phone. Gate: FULL gate.
+- [ ] M11.3 **M** Screen view: shared display (scene, feed, party, initiative + board, big dice, queue, vote read-only, notices, level-up banner, defeat overlay, join QR/invite, audio gear). Gate: UI tests for the screen + FULL gate.
+- [ ] M11.4 **M** Controller view: slim `/play` (tabs: Action, Hero, Journal/Map, More), own turn banner, action box, hotbar with target chips, own dice toast, last-narration line, defeat controls; remove the combined layout. Gate: UI tests at 390 px + FULL gate.
+- [ ] M11.5 **M** Audio UI: separate narrator and music volume + mute on the controller (remote) and the screen gear; settings migration from the old single `volume`; narration.js and music.js read their own level. Gate: unit + UI tests + FULL gate.
+- [ ] M11.6 **M** Voice + HTTPS: `--https` self-signed certificate (saved under certs/, gitignored), https LAN URL + QR, healthz over https, mic button (Web Speech API) only in a secure context, hint text for keyboard dictation. Gate: tests + boot check + FULL gate.
+- [ ] M11.7 **ORCH** Rewrite/extend the Playwright suite for three contexts (screen + two phones), screenshots at 1920 and 390 opened and judged, README + ARCHITECTURE updated. FULL gate. Commit `M11: Screen and controllers`.
+
+## M12 Remaining art (same owner feedback; budget cap 15 EUR total)
+- [ ] M12.1 **H** Pipeline: allow `--tier all` (P1+P2, still never real or v1), add the few new art keys the UI needs (defeat scene, controller tab icons, surface/damage icons if the UI shows them), prompts + priority doc regenerated; dry run under cap 15. Gate: FULL gate.
+- [ ] M12.2 **ORCH** Generate the remaining placeholders (`--yes --cap 15`), open every contact sheet, write review JSONs, install accepted ones (style >= 4), retry up to 3 attempts. Gate: ledger <= cap, check_secrets.
+- [ ] M12.3 **ORCH** Final review sheet opened, ASSETS_REPORT.md updated, UI screenshots with the new art, revert demo, FULL gate. Commit `M12: remaining art`.
 
 ---
 
