@@ -1,0 +1,35 @@
+{
+  "_note": "Editable price table for scripts/gen_assets.py (Addendum B.4). Prices are USD per 1M tokens from the OpenAI price list, set CONSERVATIVELY (high). They MUST be verified against the real usage cost recorded by the live smoke test (M10.4) and edited here. Unknown models are priced at the most expensive row. usd_to_eur is deliberately high so EUR estimates overshoot.",
+  "usd_to_eur": 0.95,
+  "safety_margin": 1.25,
+  "chars_per_text_token": 3,
+  "tokens_per_reference_image": 1000,
+  "default_quality": "medium",
+  "sheet_cells": 16,
+  "sheet_size": "1024x1024",
+  "request_sizes": {
+    "portrait": "1024x1024",
+    "monster_token": "1024x1024",
+    "item_icon": "1024x1024",
+    "spell_icon": "1024x1024",
+    "condition_icon": "1024x1024",
+    "zone_card": "1536x1024",
+    "region_banner": "1536x1024"
+  },
+  "retired_models": [
+    "gpt-image-1",
+    "gpt-image-0721-mini-alpha",
+    "dall-e-2",
+    "dall-e-3"
+  ],
+  "models": {
+    "gpt-image-1": {"text_input": 5.0, "image_input": 10.0, "image_output": 40.0},
+    "gpt-image-1.5": {"text_input": 5.0, "image_input": 10.0, "image_output": 40.0},
+    "gpt-image-1-mini": {"text_input": 2.0, "image_input": 2.5, "image_output": 8.0}
+  },
+  "output_tokens": {
+    "low": {"1024x1024": 272, "1024x1536": 408, "1536x1024": 400},
+    "medium": {"1024x1024": 1056, "1024x1536": 1584, "1536x1024": 1568},
+    "high": {"1024x1024": 4160, "1024x1536": 6240, "1536x1024": 6208}
+  }
+}

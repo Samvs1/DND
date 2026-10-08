@@ -6,7 +6,7 @@ spell school and damage, condition, terrain), then the per-kind note ("Kind prom
 Audio entries get a short sound brief instead (not an image). Prompts never name any game, studio
 or real person.
 
-Public API: `StyleBible`, `load_style_bible`, `build_prompt`, `STYLE_BIBLE_PATH`.
+Public API: `StyleBible`, `load_style_bible`, `build_prompt`, `build_subject`, `STYLE_BIBLE_PATH`.
 """
 
 import functools
@@ -183,6 +183,11 @@ def _subject(spec: AssetSpec) -> str:
         "condition_icon": _condition,
     }
     return builders.get(kind, _place)(slug)
+
+
+def build_subject(spec: AssetSpec) -> str:
+    """The subject sentence of an image entry, from the data (used by the asset generator)."""
+    return _subject(spec)
 
 
 def build_prompt(spec: AssetSpec, bible: StyleBible | None = None) -> str:
