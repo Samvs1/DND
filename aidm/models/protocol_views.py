@@ -45,6 +45,7 @@ class TablePhase(StrEnum):
     GENERATING = "generating"
     PLAY = "play"
     ENDED = "ended"
+    DEFEATED = "defeated"  # M11.1: the party was wiped; only the defeat choices remain
 
 
 class PlayerInfo(_View):
@@ -229,6 +230,8 @@ class PublicState(_View):
     screens: int = 0  # connected /screen clients (the default audio device); M8.3 fills it
     monster_hp: float = 1.0
     monster_damage: float = 1.0
+    defeat: str | None = Field(default=None, description="the defeat epilogue (phase defeated)")
+    checkpoint: str | None = Field(default=None, description="label of the retry checkpoint")
 
 
 class DiceView(_View):

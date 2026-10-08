@@ -53,6 +53,9 @@ type AnyClientMsg = (
     | c.ExportCharacter
     | c.ImportCharacter
     | c.Ping
+    | c.DefeatRetry
+    | c.DefeatLoad
+    | c.DefeatNew
 )
 
 type AnyServerMsg = (

@@ -34,6 +34,12 @@ STAND_DOWN = """() => {
   window.aidm.dispatch({ ...snap, state: { ...snap.state, combat: null } });
 }"""
 
+DEFEATED = """() => {
+  const snap = window.aidm.store.get().snapshot;
+  const state = { ...snap.state, combat: null, phase: 'defeated', defeat: 'All is lost.' };
+  window.aidm.dispatch({ ...snap, state });
+}"""
+
 
 def _screen(browser: Browser, base: str, size: ViewportSize, errors: list[str]) -> Page:
     page = browser.new_context(viewport=size).new_page()
@@ -118,6 +124,10 @@ def test_screen_plays_narration_and_music_follows_the_fight(
         "[...window.__clips].reverse().find((c) => c.url.includes('victory')).onended()"
     )
     screen.wait_for_function(f"({MUSIC}).playing === 'exploration'", timeout=10000)
+    # A party wipe (M11.1): the DEFEATED phase keeps the screen up and plays the defeat track.
+    screen.evaluate(DEFEATED)
+    screen.wait_for_function(f"({MUSIC}).playing === 'defeat'", timeout=10000)
+    assert screen.locator("[data-testid=screen-table]:not([hidden])").count() == 1
     assert errors == []
 
 

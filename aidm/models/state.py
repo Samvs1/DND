@@ -62,6 +62,7 @@ from aidm.models.campaign_state import CampaignState
 from aidm.models.character import PcData, Size
 from aidm.models.conditions import Concentration, ConditionDuration, SaveEnds, TurnBoundary
 from aidm.models.damage import DamageType
+from aidm.models.defeat import DefeatState
 from aidm.models.difficulty import Difficulty
 from aidm.models.encounter import Encounter
 from aidm.models.memory import Memory
@@ -187,3 +188,4 @@ class GameState(BaseModel):
     memory: Memory = Field(default_factory=Memory)
     campaign: CampaignState | None = None
     difficulty: Difficulty = Field(default_factory=Difficulty)
+    defeat: DefeatState | None = None  # M11.1: set by PartyDefeated (the table is DEFEATED)

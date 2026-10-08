@@ -3,10 +3,11 @@
 Both replace what the table owns about its campaign (`session.restore.restore`) and re-seat
 every open connection: by token when the save knows the person (their hero comes back), else as
 a new seat that keeps their token. Each connection gets a fresh `welcome` (the player id may
-change), the roster and a snapshot. The current game is saved first. A save that was in a
-fight resumes it at once when a seated hero is connected.
+change), the roster, a snapshot and the rebuilt `story_history`. The current game is saved first.
+A save that was in a fight resumes it at once when a seated hero is connected. The defeat retry
+(M11.1, `session/defeat_flow.py`) re-seats the table through the same `switch`.
 
-Public API: `load`, `new_campaign`.
+Public API: `load`, `new_campaign`, `switch(core, loaded, host_token, keep_kicked=False)`.
 """
 
 from aidm.models.protocol_server import ErrorCode, NoticeKind, Welcome
@@ -29,11 +30,14 @@ def _busy(core: TableCore, host: Player) -> bool:
     return False
 
 
-def _switch(core: TableCore, host: Player, loaded: LoadedCampaign) -> None:
+def switch(
+    core: TableCore, loaded: LoadedCampaign, host_token: str | None, *, keep_kicked: bool = False
+) -> None:
     seats = connected_seats(core)
+    kicked = core.kicked
     restore(core, loaded)
-    core.kicked = set()
-    rebind_connections(core, seats, host.token)
+    core.kicked = kicked if keep_kicked else set()
+    rebind_connections(core, seats, host_token)
     for conn_id in sorted(core.conn_player):
         player = core.player_for(conn_id)
         if player is not None:
@@ -42,6 +46,7 @@ def _switch(core: TableCore, host: Player, loaded: LoadedCampaign) -> None:
             )
     core.broadcast_roster()
     core.broadcast_snapshot()
+    core.broadcast(core.public.history())
     if core.resume_combat and any(p.connected and p.creature_id for p in core.players.values()):
         core.resume_combat = False
         core.schedule(lambda: combat_flow.advance(core))
@@ -59,7 +64,7 @@ async def load(core: TableCore, host: Player, campaign_id: str) -> None:
         core.error(host.id, ErrorCode.REFUSED, str(exc))
         return
     core.autosave()
-    _switch(core, host, loaded)
+    switch(core, loaded, host.token)
     note = " (repaired from its log)" if loaded.recovered else ""
     core.notice(None, NoticeKind.HOST, f"The host loaded a saved campaign{note}.")
     if loaded.warning is not None:
@@ -76,5 +81,5 @@ async def new_campaign(core: TableCore, host: Player) -> None:
         for p in core.players.values()
     ]
     meta = TableMeta(seats=seats, next_id=core.next_counter, tts_enabled=core.tts_enabled)
-    _switch(core, host, LoadedCampaign(state.campaign_id, state, state, [], meta))
+    switch(core, LoadedCampaign(state.campaign_id, state, state, [], meta), host.token)
     core.notice(None, NoticeKind.HOST, "The host started a new campaign.")

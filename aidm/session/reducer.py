@@ -35,6 +35,7 @@ from aidm.models.combat_events import (
     ZoneSurfaceRemoved,
     ZoneSurfaceTicked,
 )
+from aidm.models.defeat import DefeatState, PartyDefeated
 from aidm.models.encounter_events import (
     CombatantWithdrew,
     EconomyChanged,
@@ -282,6 +283,8 @@ def apply(state: GameState, event: AnyEvent) -> GameState:
             pass
         case AttackRolled() | SpellCast() | MonsterActionUsed() | FeatureUsed():
             pass
+        case PartyDefeated(text=text, source=source, place=place):
+            state.defeat = DefeatState(text=text, source=source, place=place)
         case _:
             assert_never(event)
     state.event_count += 1

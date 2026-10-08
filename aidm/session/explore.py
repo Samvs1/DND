@@ -63,6 +63,9 @@ def submit_action(core: TableCore, player: Player, msg: SubmitAction) -> None:
     if pc is None:
         core.error(player.id, ErrorCode.NO_CHARACTER, "You need a living hero to act.")
         return
+    if pc.hp <= 0:  # M11.1: a downed hero cannot act (v1: the unconscious hero kept typing)
+        core.error(player.id, ErrorCode.NO_CHARACTER, "You are unconscious and cannot act.")
+        return
     if core.combat_active():
         _combat_text(core, player, pc, msg.text)
         return

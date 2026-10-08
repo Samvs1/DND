@@ -211,6 +211,7 @@ def _same_combat(page: Page, host: Page) -> None:
 def _stage_reconnect(journey: Journey, base: str, guest: Page, host: Page) -> Page:
     """Close B's page (socket drops), reopen with the same token; everything must come back."""
     me = guest.evaluate("window.aidm.store.get().me.playerId")
+    guest.wait_for_function(ALL_TOLD, timeout=20000)  # never capture a line still being typed
     texts = [" ".join(t.split()) for t in guest.locator(NARRATION).all_inner_texts()]
     guest.wait_for_timeout(800)  # a fresh roll's numbers cycle for 600 ms before settling
     rolls = guest.evaluate(DICE_TEXTS)

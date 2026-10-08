@@ -13,6 +13,9 @@ Machine-readable schema: `aidm/web/protocol.json`.
 | client | `combat_command` | `command`: AttackCommand or CastCommand or MoveCommand or DashCommand or DisengageCommand or HideCommand or ShoveCommand or JumpCommand or ThrowCommand or UseItemCommand or HelpCommand or DodgeCommand or EndTurnCommand or FleeCommand or MonsterActionCommand or FeatureActionCommand, `type`: combat_command |
 | client | `confirm_hostile` | `type`: confirm_hostile |
 | client | `create_character` | `choices`: CreationChoices, `type`: create_character |
+| client | `defeat_load` | `campaign_id`: string, `type`: defeat_load |
+| client | `defeat_new` | `type`: defeat_new |
+| client | `defeat_retry` | `type`: defeat_retry |
 | client | `drop` | `item_id`: string, `type`: drop |
 | client | `equip` | `item_id`: string, `type`: equip |
 | client | `export_character` | `type`: export_character |

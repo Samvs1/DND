@@ -12,8 +12,9 @@ const TICK_MS = 50;
 const GAIN = 0.4; // music sits under the narration voice
 const STINGERS = ['victory', 'defeat'];
 
-/** Which track the public state calls for: combat, a pending stinger, exploration, or null (silence). */
+/** Which track the public state calls for: defeat, combat, a pending stinger, exploration, or null (silence). */
 export function wantedState(snap, stinger) {
+  if (snap?.phase === 'defeated') return 'defeat'; // the defeat screen (M11.1): the defeat track
   if (!snap || snap.phase !== 'play') return null;
   if (snap.combat) return 'combat';
   return stinger ?? 'exploration';

@@ -9,7 +9,9 @@ Two asyncio tasks per table:
   (through `TableCore.apply` -> THE reducer, with a monotonic `seq`), so the long LLM awaits
   inside a job (adjudication, narration, campaign generation) never race another mutation,
   while the inbox stays responsive (players can queue, vote and chat during narration).
-After every job: a `snapshot`, `host_stats` for the host, and the next queued action.
+After every job: the defeat check (`defeat_flow.after_job`: a party wipe enters the DEFEATED
+phase, M11.1), a `snapshot`, `host_stats` for the host, and the next queued action. While
+DEFEATED, gameplay messages are refused (`defeat_flow.locked`).
 A job that raises is logged and answered with an in-fiction fallback notice: never silent,
 never a raw error.
 
@@ -35,6 +37,7 @@ from aidm.models.protocol_server import ErrorCode, ErrorMsg, Notice, NoticeKind,
 from aidm.models.state import GameState
 from aidm.session import (
     combat_flow,
+    defeat_flow,
     explore,
     host,
     lobby,
@@ -73,6 +76,7 @@ IMMEDIATE: dict[type, Immediate] = {
     c.RequestSheet: lambda core, p, m: sheet_view.send_sheet(core, p),
     c.ExportCharacter: lambda core, p, m: lobby.export_hero(core, p),
     **{cls: host.host_message for cls in c.HOST_MESSAGES},
+    **{cls: defeat_flow.defeat_message for cls in c.DEFEAT_MESSAGES},
 }
 
 JOBS: dict[type, JobMaker] = {
@@ -171,13 +175,18 @@ class Table(TableCore):
         while True:
             job = await self.jobs.get()
             try:
-                await job()
-            except Exception:
-                _LOG.exception("table job failed")
-                self.broadcast(Notice(kind=NoticeKind.FALLBACK, text=FALLBACK_NOTICE))
+                await self._run(job)
+                await self._run(partial(defeat_flow.after_job, self))
             finally:
                 self._after_job()
                 self.jobs.task_done()
+
+    async def _run(self, job: Job) -> None:
+        try:
+            await job()
+        except Exception:
+            _LOG.exception("table job failed")
+            self.broadcast(Notice(kind=NoticeKind.FALLBACK, text=FALLBACK_NOTICE))
 
     def _after_job(self) -> None:
         self.autosave()
@@ -218,6 +227,8 @@ class Table(TableCore):
         player = self.player_for(conn_id)
         if player is None:
             self.send_conn(conn_id, ErrorMsg(code=ErrorCode.NOT_JOINED, text="Join first."))
+            return
+        if defeat_flow.locked(self, player, msg):
             return
         immediate = IMMEDIATE.get(type(msg))
         if immediate is not None:

@@ -12,7 +12,8 @@ check is not.
 
 Public API:
 - `EPILOGUE_STYLE`, `epilogue_ready(state) -> bool`, `epilogue_messages(facts) -> list[Message]`.
-- `epilogue_checker(state) -> ProseCheck`.
+- `epilogue_checker(state) -> ProseCheck`; `facts_checker(state, lines) -> ProseCheck` (the same
+  relaxed guard for any prose about listed facts; the defeat epilogue uses it too).
 - `begin_epilogue(state, llm) -> NarrationStream | None`: None until the campaign is complete (or
   when the epilogue is already written); the stream's sentences are the epilogue.
 - `epilogue_event(stream) -> EpilogueWritten`: the event to apply once the stream is collected.
@@ -20,6 +21,7 @@ Public API:
 """
 
 import dataclasses
+from collections.abc import Sequence
 from dataclasses import dataclass
 
 from aidm.dm.epilogue_facts import EpilogueFacts, epilogue_facts, template_epilogue
@@ -70,7 +72,13 @@ def epilogue_messages(facts: EpilogueFacts) -> list[Message]:
 
 def epilogue_checker(state: GameState, facts: EpilogueFacts | None = None) -> ProseCheck:
     """THE guard with the scene-local checks relaxed: every word of the facts is known."""
-    listed = words_of(" ".join((facts or epilogue_facts(state)).lines()))
+    return facts_checker(state, (facts or epilogue_facts(state)).lines())
+
+
+def facts_checker(state: GameState, lines: Sequence[str]) -> ProseCheck:
+    """THE guard for prose ABOUT listed facts (epilogue, defeat): no absent-NPC check, the
+    facts' words are known; the closed-world name check stays on."""
+    listed = words_of(" ".join(lines))
     base = guard_scene(state)
     scene = dataclasses.replace(
         base,

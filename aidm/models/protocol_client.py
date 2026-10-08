@@ -9,7 +9,8 @@ Public API: `Hello`, `CreateCharacter`, `RollAbilities`, `SubmitAction`, `Combat
 hero or a party member; `target_id` None = the hero), `RequestHitChances`, `Chat`, `HostStart`,
 `HostPause`, `HostResume`, `HostKick`, `HostDifficulty`, `HostTtsToggle`, `HostSave`, `HostLoad`,
 `HostNew`, `HostEnd`, `HostForceVote`, `ExportCharacter`, `ImportCharacter`, `Ping`;
-`HOST_MESSAGES` (the host-only message classes).
+`HOST_MESSAGES` (the host-only message classes); M11.1 defeat choices `DefeatRetry`,
+`DefeatLoad`, `DefeatNew` (`DEFEAT_MESSAGES`: host or the sole player, phase defeated only).
 """
 
 from typing import Literal
@@ -206,6 +207,21 @@ class Ping(_Client):
     type: Literal["ping"] = "ping"
 
 
+class DefeatRetry(_Client):
+    """M11.1: after a party wipe, go back to the last checkpoint (host or the sole player)."""
+
+    type: Literal["defeat_retry"] = "defeat_retry"
+
+
+class DefeatLoad(_Client):
+    type: Literal["defeat_load"] = "defeat_load"
+    campaign_id: str = Field(min_length=1, max_length=64)
+
+
+class DefeatNew(_Client):
+    type: Literal["defeat_new"] = "defeat_new"
+
+
 HOST_MESSAGES: tuple[type[BaseModel], ...] = (
     HostStart,
     HostPause,
@@ -219,3 +235,5 @@ HOST_MESSAGES: tuple[type[BaseModel], ...] = (
     HostEnd,
     HostForceVote,
 )
+
+DEFEAT_MESSAGES: tuple[type[BaseModel], ...] = (DefeatRetry, DefeatLoad, DefeatNew)

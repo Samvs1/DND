@@ -9,7 +9,8 @@ awaiting narration and the turn timer. Handlers in `lobby`, `explore`, `votes`,
 `combat_flow`, `party_actions` and `host` take a `TableCore` and never import `table.py`.
 
 Public API: `Player`, `TableConfig`, `TtsHook`, `no_tts`, `Job`, `ClientIn`, `Closed`,
-`TimerFired`, `Inbound`, `PendingHostile`, `OpenVote`, `TableCore`.
+`TimerFired`, `Inbound`, `PendingHostile`, `OpenVote`, `TableCore`, `phase_of(state)` (the phase a
+loaded state starts in: DEFEATED when `state.defeat` is set, M11.1).
 """
 
 import asyncio
@@ -24,6 +25,7 @@ from aidm.dm.campaign_gen import CAMPAIGN_TIMEOUT_S
 from aidm.dm.llm_client import LlmClient
 from aidm.dm.llm_types import ToolCall
 from aidm.dm.tool_context import ToolRegistries, tool_registries
+from aidm.models.defeat import Checkpoint, CheckpointFile
 from aidm.models.dice import Roll
 from aidm.models.encounter import EncounterStatus
 from aidm.models.events import AnyEvent, LoggedEvent
@@ -42,7 +44,7 @@ from aidm.models.protocol_server import (
 )
 from aidm.models.protocol_views import PlayerInfo, QueueEntry, TablePhase, VoteKind, VoteView
 from aidm.models.state import Creature, GameState
-from aidm.models.world_events import LevelUpReady
+from aidm.models.world_events import LevelUpReady, PartyMoved
 from aidm.session.persistence import CampaignStore, SeatRecord, TableMeta, new_game_state
 from aidm.session.public_feed import PublicFeed
 from aidm.session.reducer import apply as reduce
@@ -52,6 +54,12 @@ from aidm.session.views import public_state
 type TtsHook = Callable[[str, NarrationTone], Awaitable[str | None]]
 type Job = Callable[[], Awaitable[None]]
 _LOG = logging.getLogger(__name__)
+
+
+def phase_of(state: GameState) -> TablePhase:
+    if state.defeat is not None:
+        return TablePhase.DEFEATED
+    return TablePhase.PLAY if state.world.current_node else TablePhase.LOBBY
 
 
 async def no_tts(text: str, tone: NarrationTone) -> str | None:
@@ -165,7 +173,7 @@ class TableCore:
         self.outboxes: dict[str, asyncio.Queue[AnyServerMsg]] = {}
         self.conn_player: dict[str, str] = {}
         self.spectators: set[str] = set()  # /screen connections (session/spectators.py)
-        self.phase = TablePhase.PLAY if state.world.current_node else TablePhase.LOBBY
+        self.phase = phase_of(state)
         self.paused = False
         self.queue: deque[QueueEntry] = deque()
         self.resolving: QueueEntry | None = None
@@ -189,6 +197,8 @@ class TableCore:
         self.unsaved: list[LoggedEvent] = []
         self.save_warned = False
         self.save_id: str | None = None  # the save folder it was loaded from (QA-09)
+        self.checkpoints = CheckpointFile()  # M11.1 retry markers (session/checkpoints.py)
+        self.mark_due = False  # a scene arrival happened: mark a checkpoint after the job
 
     # --- ids, seats, lookups -------------------------------------------------------------
 
@@ -244,6 +254,8 @@ class TableCore:
         self.unsaved.append(logged)
         if self.in_combat:
             self.segment.append(event)
+        if isinstance(event, PartyMoved):
+            self.mark_due = True
         public = self.public.add_event(self.state, seq, event)
         if public is not None:
             self.broadcast(public)
@@ -334,8 +346,15 @@ class TableCore:
             vote=self.vote.view() if self.vote is not None else None,
             tts_enabled=self.tts_enabled,
             screens=len(self.spectators),
+            checkpoint=mark.label if (mark := self.retry_checkpoint()) is not None else None,
         )
         return Snapshot(seq=self.state.event_count, state=view)
+
+    def retry_checkpoint(self) -> Checkpoint | None:
+        """The newest marker inside the live log (a retry returns there)."""
+        low, high = self.initial.event_count, self.state.event_count
+        usable = [c for c in self.checkpoints.checkpoints if low <= c.seq <= high]
+        return usable[-1] if usable else None
 
     def broadcast_snapshot(self) -> None:
         if self.conn_player or self.spectators:

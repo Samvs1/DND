@@ -6,7 +6,8 @@ restart), the seats (tokens kept, nobody connected), the id counter, the TTS fla
 folder (`save_id` = the folder the save was loaded from, so progress is written back there even when
 the folder was renamed: QA-09). Open connections (`outboxes`, `conn_player`) are not touched;
 `rebind_connections` seats them in the new table. A save that was in a fight resumes it when the
-first seated hero connects (`resume_combat`).
+first seated hero connects (`resume_combat`). The retry markers come with the save
+(`loaded.checkpoints`, M11.1) and a defeated save comes back DEFEATED (`phase_of`).
 
 Public API: `restore`, `connected_seats`, `rebind_connections`.
 """
@@ -14,11 +15,10 @@ Public API: `restore`, `connected_seats`, `rebind_connections`.
 import random
 
 from aidm.models.encounter import EncounterStatus
-from aidm.models.protocol_views import TablePhase
 from aidm.session import combat_flow
 from aidm.session.persistence import LoadedCampaign
 from aidm.session.public_feed import PublicFeed
-from aidm.session.table_core import Player, TableCore
+from aidm.session.table_core import Player, TableCore, phase_of
 
 
 def restore(core: TableCore, loaded: LoadedCampaign) -> None:
@@ -41,7 +41,9 @@ def restore(core: TableCore, loaded: LoadedCampaign) -> None:
     }
     core.next_counter = max(loaded.meta.next_id, core.next_counter)
     core.tts_enabled = loaded.meta.tts_enabled
-    core.phase = TablePhase.PLAY if loaded.state.world.current_node else TablePhase.LOBBY
+    core.phase = phase_of(loaded.state)
+    core.checkpoints = loaded.checkpoints.model_copy(deep=True)
+    core.mark_due = False
     core.paused = False
     core.queue.clear()
     core.resolving = None

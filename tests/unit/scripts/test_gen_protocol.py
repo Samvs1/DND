@@ -88,6 +88,9 @@ CLIENT_TYPES = {
     "ping",
     "export_character",
     "import_character",
+    "defeat_retry",
+    "defeat_load",
+    "defeat_new",
 }
 
 

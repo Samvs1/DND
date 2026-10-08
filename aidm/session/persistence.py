@@ -4,7 +4,9 @@ Files per campaign:
 - `initial.json`: the `GameState` the log replays from (written once, never rewritten);
 - `events.jsonl`: append-only, one `LoggedEvent` per line, flushed and fsynced per append;
 - `snapshot.json`: `{version, seq, saved_at, state}` the latest state (atomic temp + `os.replace`);
-- `table.json`: `TableMeta` (seats with their tokens, id counter, TTS flag), atomic too.
+- `table.json`: `TableMeta` (seats with their tokens, id counter, TTS flag), atomic too;
+- `checkpoints.json`: `CheckpointFile` (M11.1 retry markers + retry counter), atomic;
+- `events.<n>.defeat`: the log tail a retry discarded (M11.1, kept for inspection only).
 
 `load` replays `events.jsonl` from `initial.json` and asserts the result equals the snapshot.
 The log is the source of truth: a missing, corrupt or stale snapshot is replaced by the replay
@@ -29,6 +31,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
+from aidm.models.defeat import CheckpointFile
 from aidm.models.events import LoggedEvent
 from aidm.models.state import GameState
 from aidm.session.reducer import apply
@@ -38,6 +41,7 @@ SNAPSHOT_VERSION = 1
 NL = chr(10)
 _ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
 INITIAL, EVENTS, SNAPSHOT, TABLE = "initial.json", "events.jsonl", "snapshot.json", "table.json"
+CHECKPOINTS = "checkpoints.json"
 
 
 class CampaignLoadError(Exception):
@@ -101,6 +105,7 @@ class LoadedCampaign:
     recovered: bool = False
     notes: list[str] = field(default_factory=list[str])
     warning: str | None = None
+    checkpoints: CheckpointFile = field(default_factory=CheckpointFile)
 
 
 def _fsync_dir(path: Path) -> None:
@@ -180,7 +185,28 @@ class CampaignStore:
             handle.flush()
             os.fsync(handle.fileno())
 
+    def write_checkpoints(self, campaign_id: str, data: CheckpointFile) -> None:
+        folder = self.folder(campaign_id)
+        folder.mkdir(parents=True, exist_ok=True)
+        atomic_write(folder / CHECKPOINTS, data.model_dump_json())
+
+    def truncate_log(
+        self, campaign_id: str, keep: list[LoggedEvent], tail: list[LoggedEvent], attempt: int
+    ) -> None:
+        """A retry (M11.1): the discarded tail moves to `events.<attempt>.defeat`, then the log
+        is atomically rewritten with only `keep` (the snapshot follows on the next save)."""
+        folder = self.folder(campaign_id)
+        folder.mkdir(parents=True, exist_ok=True)
+        atomic_write(folder / f"events.{attempt}.defeat", _jsonl(tail))
+        atomic_write(folder / EVENTS, _jsonl(keep))
+
     # --- reading -------------------------------------------------------------------------
+
+    def read_checkpoints(self, campaign_id: str) -> CheckpointFile:
+        path = self.folder(campaign_id) / CHECKPOINTS
+        if not path.is_file():
+            return CheckpointFile()
+        return _read_model(path, CheckpointFile, []) or CheckpointFile()
 
     def list_campaigns(self) -> list[SaveInfo]:
         found: list[SaveInfo] = []
@@ -226,7 +252,14 @@ class CampaignStore:
         if snapshot is not None and _state_json(snapshot.state) != _state_json(state):
             notes.append("snapshot differs from the replayed log: the log wins")
             recovered = True
-        return LoadedCampaign(campaign_id, initial, state, read.log, meta, recovered, notes)
+        marks = self.read_checkpoints(campaign_id)
+        return LoadedCampaign(
+            campaign_id, initial, state, read.log, meta, recovered, notes, checkpoints=marks
+        )
+
+
+def _jsonl(events: list[LoggedEvent]) -> str:
+    return "".join(e.model_dump_json() + NL for e in events)
 
 
 def replay_log(base: GameState, log: list[LoggedEvent]) -> GameState:

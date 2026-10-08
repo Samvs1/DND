@@ -11,6 +11,8 @@ Only that hero's player may send `combat_command`; anyone else gets `not_your_tu
 is consumed. A fight's end runs loot (`end_encounter_with_loot`), bystander deeds
 (`combat_help_deed_events`), region rewards (`resolution_reward_events`) and spoke milestones
 (`milestone_events`, M9.2), tells the last segment, records it and returns to exploration.
+A lost fight that wiped the party is turned into the DEFEATED phase right after the job by
+`defeat_flow.after_job` (M11.1); the fight start was marked as a retry checkpoint.
 
 Public API: `MAX_COMBAT_STEPS`, `runner`, `after_resolution`, `begin_combat`, `advance`,
 `tell_segment`, `after_player_step`, `player_command`, `turn_timeout`, `autoplay_safe`,
@@ -33,7 +35,7 @@ from aidm.rules.party_ai import safe_default_turn
 from aidm.rules.quest_rewards import resolution_reward_events
 from aidm.rules.social_deeds import combat_help_deed_events
 from aidm.rules.turns import begin_turn, next_turn
-from aidm.session import votes
+from aidm.session import checkpoints, votes
 from aidm.session.combat_runner import CombatRunner
 from aidm.session.table_core import Player, TableCore
 from aidm.session.telling import maybe_epilogue, remember, tell
@@ -58,7 +60,9 @@ async def after_resolution(core: TableCore, events: Sequence[AnyEvent]) -> None:
 
 
 async def begin_combat(core: TableCore) -> None:
-    """Enter combat after the start was narrated (the segment starts empty)."""
+    """Enter combat after the start was narrated (the segment starts empty); the fight start is
+    a retry checkpoint (M11.1)."""
+    checkpoints.mark_fight(core)
     core.in_combat = True
     core.segment = []
     core.pending = None

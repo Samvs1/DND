@@ -16,7 +16,7 @@ import { fetchLan, mountInvite } from '../ui/invite.js';
 const WATCHER = { readOnly: true, ui: { arming: null, target: null }, subscribe: () => () => {}, pickToken() {}, pickZone() {} };
 
 function applyPhase(state, waiting, table, combat) {
-  const playing = state.snapshot?.state.phase === 'play' || state.snapshot?.state.phase === 'ended';
+  const playing = ['play', 'ended', 'defeated'].includes(state.snapshot?.state.phase);
   waiting.hidden = playing;
   table.hidden = !playing;
   const fighting = Boolean(state.snapshot?.state.combat);

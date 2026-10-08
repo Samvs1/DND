@@ -257,6 +257,7 @@ def public_state(
     vote: VoteView | None = None,
     tts_enabled: bool = False,
     screens: int = 0,
+    checkpoint: str | None = None,
 ) -> PublicState:
     campaign = state.campaign
     party = sorted((c for c in state.creatures.values() if c.pc is not None), key=lambda c: c.id)
@@ -285,6 +286,8 @@ def public_state(
         screens=screens,
         monster_hp=state.difficulty.monster_hp,
         monster_damage=state.difficulty.monster_damage,
+        defeat=state.defeat.text if state.defeat is not None else None,
+        checkpoint=checkpoint,
     )
 
 

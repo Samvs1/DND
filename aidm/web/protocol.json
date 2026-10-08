@@ -497,6 +497,55 @@
           "title": "DashCommand",
           "type": "object"
         },
+        "DefeatLoad": {
+          "additionalProperties": false,
+          "properties": {
+            "campaign_id": {
+              "maxLength": 64,
+              "minLength": 1,
+              "title": "Campaign Id",
+              "type": "string"
+            },
+            "type": {
+              "const": "defeat_load",
+              "default": "defeat_load",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "campaign_id"
+          ],
+          "title": "DefeatLoad",
+          "type": "object"
+        },
+        "DefeatNew": {
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "defeat_new",
+              "default": "defeat_new",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "title": "DefeatNew",
+          "type": "object"
+        },
+        "DefeatRetry": {
+          "additionalProperties": false,
+          "description": "M11.1: after a party wipe, go back to the last checkpoint (host or the sole player).",
+          "properties": {
+            "type": {
+              "const": "defeat_retry",
+              "default": "defeat_retry",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "title": "DefeatRetry",
+          "type": "object"
+        },
         "DieRoll": {
           "properties": {
             "kept": {
@@ -1747,6 +1796,9 @@
           "combat_command": "#/$defs/CombatCommandMsg",
           "confirm_hostile": "#/$defs/ConfirmHostile",
           "create_character": "#/$defs/CreateCharacter",
+          "defeat_load": "#/$defs/DefeatLoad",
+          "defeat_new": "#/$defs/DefeatNew",
+          "defeat_retry": "#/$defs/DefeatRetry",
           "drop": "#/$defs/Drop",
           "equip": "#/$defs/Equip",
           "export_character": "#/$defs/ExportCharacter",
@@ -1884,6 +1936,15 @@
         },
         {
           "$ref": "#/$defs/Ping"
+        },
+        {
+          "$ref": "#/$defs/DefeatRetry"
+        },
+        {
+          "$ref": "#/$defs/DefeatLoad"
+        },
+        {
+          "$ref": "#/$defs/DefeatNew"
         }
       ]
     },
@@ -1894,6 +1955,9 @@
       "combat_command",
       "confirm_hostile",
       "create_character",
+      "defeat_load",
+      "defeat_new",
+      "defeat_retry",
       "drop",
       "equip",
       "export_character",
@@ -4257,6 +4321,19 @@
               "title": "Campaign Title",
               "type": "string"
             },
+            "checkpoint": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "label of the retry checkpoint",
+              "title": "Checkpoint"
+            },
             "combat": {
               "anyOf": [
                 {
@@ -4272,6 +4349,19 @@
               "default": false,
               "title": "Complete",
               "type": "boolean"
+            },
+            "defeat": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "the defeat epilogue (phase defeated)",
+              "title": "Defeat"
             },
             "epilogue": {
               "anyOf": [
@@ -5184,7 +5274,8 @@
             "lobby",
             "generating",
             "play",
-            "ended"
+            "ended",
+            "defeated"
           ],
           "title": "TablePhase",
           "type": "string"
