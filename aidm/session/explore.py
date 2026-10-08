@@ -44,7 +44,8 @@ from aidm.models.state import Creature
 from aidm.rules.scene import node_display_name
 from aidm.rules.turns import EconomyRefused, spend_action
 from aidm.session import combat_flow, party_actions, votes
-from aidm.session.table_core import Job, PendingHostile, Player, TableCore
+from aidm.session.table_core import Job, Player, TableCore
+from aidm.session.table_records import PendingHostile
 from aidm.session.telling import conclude, remember, tell_text
 
 STAY_HAND = "You stay your hand, and the moment passes without bloodshed."

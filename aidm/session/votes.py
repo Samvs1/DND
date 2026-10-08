@@ -19,7 +19,8 @@ from aidm.models.protocol_server import (
     VoteUpdate,
 )
 from aidm.models.protocol_views import VoteKind
-from aidm.session.table_core import Job, OpenVote, Player, TableCore
+from aidm.session.table_core import Job, Player, TableCore
+from aidm.session.table_records import OpenVote
 
 
 def eligible_voters(core: TableCore) -> list[str]:

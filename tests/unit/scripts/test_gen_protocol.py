@@ -19,6 +19,8 @@ gen = load_script("gen_protocol")
 # Every ServerMsg type. The M7.1 frontend handler-coverage test reads the same list from
 # aidm/web/protocol.json; a new server message must be added here AND get a JS handler.
 SERVER_TYPES = {
+    "floor_state",  # M11.2
+    "audio_settings",  # M11.2
     "welcome",
     "snapshot",
     "event",
@@ -53,6 +55,8 @@ SERVER_TYPES = {
 }
 
 CLIENT_TYPES = {
+    "typing",  # M11.2
+    "audio_settings",  # M11.2
     "hello",
     "create_character",
     "roll_abilities",

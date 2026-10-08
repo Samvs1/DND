@@ -9,6 +9,8 @@ Two asyncio tasks per table:
   (through `TableCore.apply` -> THE reducer, with a monotonic `seq`), so the long LLM awaits
   inside a job (adjudication, narration, campaign generation) never race another mutation,
   while the inbox stays responsive (players can queue, vote and chat during narration).
+Typing marks and the screen's audio settings (M11.2: `floor`, `audio_remote`) are inbox-only
+table bookkeeping, never jobs or events.
 After every job: the defeat check (`defeat_flow.after_job`: a party wipe enters the DEFEATED
 phase, M11.1), a `snapshot`, `host_stats` for the host, and the next queued action. While
 DEFEATED, gameplay messages are refused (`defeat_flow.locked`).
@@ -36,9 +38,11 @@ from aidm.models.protocol import AnyClientMsg, AnyServerMsg
 from aidm.models.protocol_server import ErrorCode, ErrorMsg, Notice, NoticeKind, Pong
 from aidm.models.state import GameState
 from aidm.session import (
+    audio_remote,
     combat_flow,
     defeat_flow,
     explore,
+    floor,
     host,
     lobby,
     party_actions,
@@ -75,6 +79,8 @@ IMMEDIATE: dict[type, Immediate] = {
     c.RequestHitChances: relay.hit_chances_for,
     c.RequestSheet: lambda core, p, m: sheet_view.send_sheet(core, p),
     c.ExportCharacter: lambda core, p, m: lobby.export_hero(core, p),
+    c.Typing: floor.typing,
+    c.AudioSettingsMsg: audio_remote.set_audio,
     **{cls: host.host_message for cls in c.HOST_MESSAGES},
     **{cls: defeat_flow.defeat_message for cls in c.DEFEAT_MESSAGES},
 }
@@ -196,8 +202,11 @@ class Table(TableCore):
 
     def _dispatch(self, item: Inbound) -> None:
         if isinstance(item, Closed):
+            player = self.player_for(item.conn_id)
             if not spectators.leave(self, item.conn_id):
                 lobby.closed(self, item.conn_id)
+            if player is not None and not player.connected:
+                floor.stop_typing(self, player.id)
         elif isinstance(item, TimerFired):
             self._timer(item)
         else:
@@ -206,6 +215,8 @@ class Table(TableCore):
     def _timer(self, fired: TimerFired) -> None:
         if fired.kind == "vote":
             votes.vote_timeout(self, fired.key)
+        elif fired.kind == "typing":
+            floor.typing_expired(self, fired.key)
         elif fired.kind == "turn":
             key = fired.key
             self.schedule(lambda: combat_flow.turn_timeout(self, key))
@@ -214,7 +225,7 @@ class Table(TableCore):
         if isinstance(msg, c.Ping):
             self.send_conn(conn_id, Pong())
             return
-        if isinstance(msg, c.Hello) and msg.spectator and conn_id not in self.conn_player:
+        if spectators.wants_screen(msg) and conn_id not in self.conn_player:
             spectators.join(self, conn_id, msg)
             return
         if conn_id in self.spectators:
@@ -230,6 +241,8 @@ class Table(TableCore):
             return
         if defeat_flow.locked(self, player, msg):
             return
+        if isinstance(msg, c.SubmitAction):
+            floor.stop_typing(self, player.id)
         immediate = IMMEDIATE.get(type(msg))
         if immediate is not None:
             immediate(self, player, msg)

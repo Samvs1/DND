@@ -4,7 +4,8 @@ Files per campaign:
 - `initial.json`: the `GameState` the log replays from (written once, never rewritten);
 - `events.jsonl`: append-only, one `LoggedEvent` per line, flushed and fsynced per append;
 - `snapshot.json`: `{version, seq, saved_at, state}` the latest state (atomic temp + `os.replace`);
-- `table.json`: `TableMeta` (seats with their tokens, id counter, TTS flag), atomic too;
+- `table.json`: `TableMeta` (seats with their tokens, id counter, TTS flag, the screen's audio
+  settings, M11.2), atomic too (`write_meta` rewrites it alone);
 - `checkpoints.json`: `CheckpointFile` (M11.1 retry markers + retry counter), atomic;
 - `events.<n>.defeat`: the log tail a retry discarded (M11.1, kept for inspection only).
 
@@ -33,6 +34,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from aidm.models.defeat import CheckpointFile
 from aidm.models.events import LoggedEvent
+from aidm.models.protocol_views import AudioSettings
 from aidm.models.state import GameState
 from aidm.session.reducer import apply
 from aidm.session.reducer_errors import ReducerError
@@ -77,6 +79,7 @@ class TableMeta(BaseModel):
     seats: list[SeatRecord] = Field(default_factory=list[SeatRecord])
     next_id: int = Field(default=1, ge=1)
     tts_enabled: bool = False
+    audio: AudioSettings | None = None  # M11.2; None in older saves (the table keeps its own)
 
 
 class SnapshotFile(BaseModel):
@@ -184,6 +187,12 @@ class CampaignStore:
             handle.write(lines)
             handle.flush()
             os.fsync(handle.fileno())
+
+    def write_meta(self, campaign_id: str, meta: TableMeta) -> None:
+        """Rewrite only table.json (the audio remote, M11.2); a save that does not exist yet is
+        left alone (the next autosave writes everything)."""
+        if self.exists(campaign_id):
+            atomic_write(self.folder(campaign_id) / TABLE, meta.model_dump_json())
 
     def write_checkpoints(self, campaign_id: str, data: CheckpointFile) -> None:
         folder = self.folder(campaign_id)

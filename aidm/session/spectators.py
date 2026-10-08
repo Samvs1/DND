@@ -1,20 +1,33 @@
 """Spectator connections: the /screen view (SPEC 11, DECISIONS M8.3).
 
-A `hello` with `spectator: true` registers the connection in `core.spectators`. It is NOT seated
-(no player, no token, no `welcome`), receives every public broadcast plus the snapshot, the story
-history and the missed event lines, and may only `ping`; anything else is refused.
+A `hello` with `role: "screen"` (or the older `spectator: true`; `wants_screen`) registers the
+connection in `core.spectators`. It is NOT seated (no player, no token, no `welcome`), receives
+every public broadcast plus the snapshot, the story history and the missed event lines, and may
+only `ping`; anything else is refused.
 `PublicState.screens` is the number of connected spectators, so players' narration audio defaults
 to off while a screen plays it. A change of that count is broadcast as a fresh snapshot.
 
-Public API: `join`, `leave`, `refuse`.
+It never receives a message addressed to one player (`TableCore.send`: sheets, level-up offers,
+private notices, hit chances, exports), only `TableCore.broadcast`s and its own snapshot/history;
+tests/session/test_screen_privacy.py proves it (M11.2).
+
+Public API: `wants_screen`, `join`, `leave`, `refuse`.
 """
 
-from aidm.models.protocol_client import Hello
+from typing import TypeGuard
+
+from aidm.models.protocol import AnyClientMsg
+from aidm.models.protocol_client import DeviceRole, Hello
 from aidm.models.protocol_server import ErrorCode, ErrorMsg
 from aidm.session.table_core import TableCore
 
 MAX_CATCH_UP = 500
 WATCH_ONLY = "The screen only watches."
+
+
+def wants_screen(msg: AnyClientMsg) -> TypeGuard[Hello]:
+    """A hello from the shared display (M11.2 role "screen", or the M8.3 `spectator` flag)."""
+    return isinstance(msg, Hello) and (msg.spectator or msg.role is DeviceRole.SCREEN)
 
 
 def join(core: TableCore, conn_id: str, msg: Hello) -> None:

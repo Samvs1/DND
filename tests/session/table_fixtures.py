@@ -13,7 +13,7 @@ from aidm.dm.llm_settings import LlmSettings
 from aidm.dm.tool_context import ToolContext
 from aidm.dm.tool_exec import execute_tool
 from aidm.models.protocol import AnyClientMsg, AnyServerMsg
-from aidm.models.protocol_client import Hello
+from aidm.models.protocol_client import DeviceRole, Hello
 from aidm.models.protocol_server import Welcome
 from aidm.models.state import GameState
 from aidm.session import combat_flow
@@ -75,6 +75,14 @@ async def join(table: Table, name: str, creature_id: str | None = None) -> Seat:
     if creature_id is not None:
         table.players[welcome.player_id].creature_id = creature_id
     return Seat(table, conn, welcome.player_id, welcome.token)
+
+
+async def screen_seat(table: Table) -> Seat:
+    """A /screen connection (M11.2 role "screen"): not seated, so no player id or token."""
+    conn = table.connect()
+    table.submit(conn.id, Hello(name="screen", role=DeviceRole.SCREEN))
+    await table.settle()
+    return Seat(table, conn, "", "")
 
 
 async def join_with_token(table: Table, name: str, token: str) -> Seat:

@@ -135,6 +135,17 @@ function onQueue(msg, ctx) {
   relay(msg, ctx);
 }
 
+// M11.2: the public floor (holder, queue, typing) and the shared screen's audio settings.
+function onFloor(msg, ctx) {
+  patchSnapshot(ctx, { floor: msg.floor ?? null });
+  relay(msg, ctx);
+}
+
+function onAudioSettings(msg, ctx) {
+  patchSnapshot(ctx, { audio: msg.settings ?? null });
+  relay(msg, ctx);
+}
+
 function onResolving(msg, ctx) {
   patchSnapshot(ctx, { resolving: msg.entry ?? null });
   relay(msg, ctx);
@@ -142,6 +153,7 @@ function onResolving(msg, ctx) {
 
 export const HANDLERS = {
   ability_rolls: relay,
+  audio_settings: onAudioSettings,
   character_export: relay,
   chat: relay,
   combat_state: onCombat,
@@ -151,6 +163,7 @@ export const HANDLERS = {
   epilogue: relay,
   error: onError,
   event: relay,
+  floor_state: onFloor,
   hit_chances: relay,
   host_stats: onHostStats,
   level_up_available: onLevelUp,

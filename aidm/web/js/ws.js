@@ -14,7 +14,8 @@ export function socketUrl(loc = window.location) {
 /**
  * createClient({ store, saved, dispatch }) -> { connect, retry, send, close }.
  * `dispatch(msg)` is handlers.dispatch. `connect(name)` starts the session for that player name.
- * `spectator` (the /screen view) says hello as a watcher: no token, no seat, public feed only.
+ * `spectator` (the /screen view) says hello with role 'screen': no token, no seat, public feed only;
+ * a player says hello with role 'controller' (M11.2).
  */
 export function createClient({ store, saved, dispatch, url = socketUrl(), Socket = WebSocket, spectator = false }) {
   let socket = null;
@@ -31,7 +32,10 @@ export function createClient({ store, saved, dispatch, url = socketUrl(), Socket
       attempt = 0;
       store.update({ conn: 'open' });
       const lastSeq = store.get().lastSeq || null;
-      send('hello', spectator ? { name, spectator: true, last_seq: lastSeq } : { name, token: saved.token(), last_seq: lastSeq });
+      const hello = spectator
+        ? { name, role: 'screen', last_seq: lastSeq }
+        : { name, role: 'controller', token: saved.token(), last_seq: lastSeq };
+      send('hello', hello);
     };
     socket.onmessage = (event) => {
       let msg = null;

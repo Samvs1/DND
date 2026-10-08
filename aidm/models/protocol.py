@@ -56,6 +56,8 @@ type AnyClientMsg = (
     | c.DefeatRetry
     | c.DefeatLoad
     | c.DefeatNew
+    | c.Typing
+    | c.AudioSettingsMsg
 )
 
 type AnyServerMsg = (
@@ -90,6 +92,8 @@ type AnyServerMsg = (
     | s.StoryHistory
     | s.CharacterExport
     | s.SheetMsg
+    | s.FloorState
+    | s.AudioSettingsState
 )
 
 ClientMsg = Annotated[AnyClientMsg, Field(discriminator="type")]

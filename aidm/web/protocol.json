@@ -86,6 +86,46 @@
           "title": "AttackCommand",
           "type": "object"
         },
+        "AudioSettingsMsg": {
+          "additionalProperties": false,
+          "description": "M11.2: set the shared screen's audio (any seated player, last write wins).",
+          "properties": {
+            "music_muted": {
+              "default": false,
+              "title": "Music Muted",
+              "type": "boolean"
+            },
+            "music_volume": {
+              "maximum": 100,
+              "minimum": 0,
+              "title": "Music Volume",
+              "type": "integer"
+            },
+            "narration_muted": {
+              "default": false,
+              "title": "Narration Muted",
+              "type": "boolean"
+            },
+            "narration_volume": {
+              "maximum": 100,
+              "minimum": 0,
+              "title": "Narration Volume",
+              "type": "integer"
+            },
+            "type": {
+              "const": "audio_settings",
+              "default": "audio_settings",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "narration_volume",
+            "music_volume"
+          ],
+          "title": "AudioSettingsMsg",
+          "type": "object"
+        },
         "CancelHostile": {
           "additionalProperties": false,
           "properties": {
@@ -546,6 +586,14 @@
           "title": "DefeatRetry",
           "type": "object"
         },
+        "DeviceRole": {
+          "enum": [
+            "controller",
+            "screen"
+          ],
+          "title": "DeviceRole",
+          "type": "string"
+        },
         "DieRoll": {
           "properties": {
             "kept": {
@@ -806,6 +854,10 @@
               "minLength": 1,
               "title": "Name",
               "type": "string"
+            },
+            "role": {
+              "$ref": "#/$defs/DeviceRole",
+              "default": "controller"
             },
             "spectator": {
               "default": false,
@@ -1671,6 +1723,27 @@
           "title": "ThrowCommand",
           "type": "object"
         },
+        "Typing": {
+          "additionalProperties": false,
+          "description": "M11.2: the player is composing (`on`) or stopped; expires on the server after ~8 s.",
+          "properties": {
+            "on": {
+              "title": "On",
+              "type": "boolean"
+            },
+            "type": {
+              "const": "typing",
+              "default": "typing",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "on"
+          ],
+          "title": "Typing",
+          "type": "object"
+        },
         "Unequip": {
           "additionalProperties": false,
           "properties": {
@@ -1791,6 +1864,7 @@
       "discriminator": {
         "mapping": {
           "answer_offer": "#/$defs/AnswerOffer",
+          "audio_settings": "#/$defs/AudioSettingsMsg",
           "cancel_hostile": "#/$defs/CancelHostile",
           "chat": "#/$defs/Chat",
           "combat_command": "#/$defs/CombatCommandMsg",
@@ -1825,6 +1899,7 @@
           "shop_sell": "#/$defs/ShopSell",
           "submit_action": "#/$defs/SubmitAction",
           "suggestion": "#/$defs/Suggestion",
+          "typing": "#/$defs/Typing",
           "unequip": "#/$defs/Unequip",
           "use_item": "#/$defs/UseItem",
           "vote": "#/$defs/Vote"
@@ -1945,11 +2020,18 @@
         },
         {
           "$ref": "#/$defs/DefeatNew"
+        },
+        {
+          "$ref": "#/$defs/Typing"
+        },
+        {
+          "$ref": "#/$defs/AudioSettingsMsg"
         }
       ]
     },
     "types": [
       "answer_offer",
+      "audio_settings",
       "cancel_hostile",
       "chat",
       "combat_command",
@@ -1984,6 +2066,7 @@
       "shop_sell",
       "submit_action",
       "suggestion",
+      "typing",
       "unequip",
       "use_item",
       "vote"
@@ -2177,6 +2260,57 @@
           ],
           "title": "AttitudeBand",
           "type": "string"
+        },
+        "AudioSettings": {
+          "additionalProperties": false,
+          "description": "The shared screen's audio (M11.2): set by any seated player, last write wins.",
+          "properties": {
+            "music_muted": {
+              "default": false,
+              "title": "Music Muted",
+              "type": "boolean"
+            },
+            "music_volume": {
+              "default": 50,
+              "maximum": 100,
+              "minimum": 0,
+              "title": "Music Volume",
+              "type": "integer"
+            },
+            "narration_muted": {
+              "default": false,
+              "title": "Narration Muted",
+              "type": "boolean"
+            },
+            "narration_volume": {
+              "default": 80,
+              "maximum": 100,
+              "minimum": 0,
+              "title": "Narration Volume",
+              "type": "integer"
+            }
+          },
+          "title": "AudioSettings",
+          "type": "object"
+        },
+        "AudioSettingsState": {
+          "additionalProperties": false,
+          "properties": {
+            "settings": {
+              "$ref": "#/$defs/AudioSettings"
+            },
+            "type": {
+              "const": "audio_settings",
+              "default": "audio_settings",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "settings"
+          ],
+          "title": "AudioSettingsState",
+          "type": "object"
         },
         "CharacterExport": {
           "additionalProperties": false,
@@ -3164,6 +3298,91 @@
             "source"
           ],
           "title": "FeatureLine",
+          "type": "object"
+        },
+        "FloorSeat": {
+          "additionalProperties": false,
+          "description": "One player on the floor line: `position` is 1-based in the waiting queue (0 otherwise).",
+          "properties": {
+            "hero_name": {
+              "default": "",
+              "title": "Hero Name",
+              "type": "string"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "player_id": {
+              "title": "Player Id",
+              "type": "string"
+            },
+            "position": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Position",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "player_id",
+            "name"
+          ],
+          "title": "FloorSeat",
+          "type": "object"
+        },
+        "FloorState": {
+          "additionalProperties": false,
+          "properties": {
+            "floor": {
+              "$ref": "#/$defs/FloorView"
+            },
+            "type": {
+              "const": "floor_state",
+              "default": "floor_state",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "floor"
+          ],
+          "title": "FloorState",
+          "type": "object"
+        },
+        "FloorView": {
+          "additionalProperties": false,
+          "description": "Out of combat: `holder` is the player whose action is resolving (in combat: the owner of\nthe active hero); `queue` waits in order (`queue[0]` is next); `typing` are composing now.",
+          "properties": {
+            "holder": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/FloorSeat"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "queue": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/FloorSeat"
+              },
+              "title": "Queue",
+              "type": "array"
+            },
+            "typing": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/FloorSeat"
+              },
+              "title": "Typing",
+              "type": "array"
+            }
+          },
+          "title": "FloorView",
           "type": "object"
         },
         "HitChance": {
@@ -4307,6 +4526,15 @@
         "PublicState": {
           "additionalProperties": false,
           "properties": {
+            "audio": {
+              "$ref": "#/$defs/AudioSettings",
+              "default": {
+                "music_muted": false,
+                "music_volume": 50,
+                "narration_muted": false,
+                "narration_volume": 80
+              }
+            },
             "camp_supplies": {
               "default": 0,
               "title": "Camp Supplies",
@@ -4382,6 +4610,14 @@
               },
               "title": "Facts",
               "type": "array"
+            },
+            "floor": {
+              "$ref": "#/$defs/FloorView",
+              "default": {
+                "holder": null,
+                "queue": [],
+                "typing": []
+              }
             },
             "map": {
               "anyOf": [
@@ -5682,6 +5918,7 @@
       "discriminator": {
         "mapping": {
           "ability_rolls": "#/$defs/AbilityRolls",
+          "audio_settings": "#/$defs/AudioSettingsState",
           "character_export": "#/$defs/CharacterExport",
           "chat": "#/$defs/ChatRelay",
           "combat_state": "#/$defs/CombatState",
@@ -5691,6 +5928,7 @@
           "epilogue": "#/$defs/EpilogueMsg",
           "error": "#/$defs/ErrorMsg",
           "event": "#/$defs/EventMsg",
+          "floor_state": "#/$defs/FloorState",
           "hit_chances": "#/$defs/HitChances",
           "host_stats": "#/$defs/HostStats",
           "level_up_available": "#/$defs/LevelUpAvailable",
@@ -5808,11 +6046,18 @@
         },
         {
           "$ref": "#/$defs/SheetMsg"
+        },
+        {
+          "$ref": "#/$defs/FloorState"
+        },
+        {
+          "$ref": "#/$defs/AudioSettingsState"
         }
       ]
     },
     "types": [
       "ability_rolls",
+      "audio_settings",
       "character_export",
       "chat",
       "combat_state",
@@ -5822,6 +6067,7 @@
       "epilogue",
       "error",
       "event",
+      "floor_state",
       "hit_chances",
       "host_stats",
       "level_up_available",

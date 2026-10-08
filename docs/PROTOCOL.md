@@ -8,6 +8,7 @@ Machine-readable schema: `aidm/web/protocol.json`.
 | Direction | Type | Fields |
 |---|---|---|
 | client | `answer_offer` | `choice`: OfferChoice, `skill`: Skill or null (optional), `type`: answer_offer |
+| client | `audio_settings` | `music_muted`: boolean (optional), `music_volume`: integer, `narration_muted`: boolean (optional), `narration_volume`: integer, `type`: audio_settings |
 | client | `cancel_hostile` | `type`: cancel_hostile |
 | client | `chat` | `text`: string, `type`: chat |
 | client | `combat_command` | `command`: AttackCommand or CastCommand or MoveCommand or DashCommand or DisengageCommand or HideCommand or ShoveCommand or JumpCommand or ThrowCommand or UseItemCommand or HelpCommand or DodgeCommand or EndTurnCommand or FleeCommand or MonsterActionCommand or FeatureActionCommand, `type`: combat_command |
@@ -20,7 +21,7 @@ Machine-readable schema: `aidm/web/protocol.json`.
 | client | `equip` | `item_id`: string, `type`: equip |
 | client | `export_character` | `type`: export_character |
 | client | `give` | `item_id`: string, `npc_id`: string, `type`: give |
-| client | `hello` | `last_seq`: integer or null (optional), `name`: string, `spectator`: boolean (optional), `token`: string or null (optional), `type`: hello |
+| client | `hello` | `last_seq`: integer or null (optional), `name`: string, `role`: DeviceRole (optional), `spectator`: boolean (optional), `token`: string or null (optional), `type`: hello |
 | client | `host_difficulty` | `monster_damage`: number (optional), `monster_hp`: number (optional), `type`: host_difficulty |
 | client | `host_end` | `type`: host_end |
 | client | `host_force_vote` | `type`: host_force_vote |
@@ -42,10 +43,12 @@ Machine-readable schema: `aidm/web/protocol.json`.
 | client | `shop_sell` | `item_id`: string, `npc_id`: string, `qty`: integer (optional), `type`: shop_sell |
 | client | `submit_action` | `text`: string, `type`: submit_action |
 | client | `suggestion` | `text`: string, `type`: suggestion |
+| client | `typing` | `on`: boolean, `type`: typing |
 | client | `unequip` | `item_id`: string, `type`: unequip |
 | client | `use_item` | `item_id`: string, `target_id`: string or null (optional), `type`: use_item |
 | client | `vote` | `ready`: boolean, `type`: vote, `vote_id`: string |
 | server | `ability_rolls` | `rolls`: array of Roll (optional), `type`: ability_rolls |
+| server | `audio_settings` | `settings`: AudioSettings, `type`: audio_settings |
 | server | `character_export` | `creature_id`: string, `name`: string, `text`: string, `type`: character_export |
 | server | `chat` | `name`: string, `player_id`: string, `text`: string, `type`: chat |
 | server | `combat_state` | `combat`: PublicCombat or null (optional), `type`: combat_state |
@@ -55,6 +58,7 @@ Machine-readable schema: `aidm/web/protocol.json`.
 | server | `epilogue` | `text`: string, `type`: epilogue |
 | server | `error` | `code`: ErrorCode, `refusal`: string or null (optional), `text`: string, `type`: error |
 | server | `event` | `kind`: string, `line`: string (optional), `seq`: integer, `type`: event |
+| server | `floor_state` | `floor`: FloorView, `type`: floor_state |
 | server | `hit_chances` | `attacker_id`: string, `chances`: array of HitChance (optional), `target_id`: string, `type`: hit_chances |
 | server | `host_stats` | `calls`: integer (optional), `completion_tokens`: integer (optional), `prompt_tokens`: integer (optional), `type`: host_stats |
 | server | `level_up_available` | `creature_id`: string, `level`: integer, `type`: level_up_available |

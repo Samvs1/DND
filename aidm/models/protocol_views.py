@@ -21,6 +21,9 @@ Public API:
 - `DiceView`: one visible roll for the dice tray (d20 tests, attacks, death saves, damage dice).
 - `StoryEntry`: one narration or public event line of the story history (reconnect, reload).
 - `StockLine`: one shop line (item id, name, price, category, camp supplies it adds).
+- `AudioSettings` (M11.2): the shared screen's narration/music volume and mutes (audio remote).
+- `FloorSeat`, `FloorView` (M11.2): who holds the floor, the waiting queue in order and who is
+  typing, by player and hero name (the screen's "Sam is typing..." line).
 """
 
 from enum import StrEnum
@@ -205,6 +208,33 @@ class VoteView(_View):
     seconds: float = 0.0
 
 
+class AudioSettings(_View):
+    """The shared screen's audio (M11.2): set by any seated player, last write wins."""
+
+    narration_volume: int = Field(default=80, ge=0, le=100)
+    music_volume: int = Field(default=50, ge=0, le=100)
+    narration_muted: bool = False
+    music_muted: bool = False
+
+
+class FloorSeat(_View):
+    """One player on the floor line: `position` is 1-based in the waiting queue (0 otherwise)."""
+
+    player_id: str
+    name: str
+    hero_name: str = ""
+    position: int = Field(default=0, ge=0)
+
+
+class FloorView(_View):
+    """Out of combat: `holder` is the player whose action is resolving (in combat: the owner of
+    the active hero); `queue` waits in order (`queue[0]` is next); `typing` are composing now."""
+
+    holder: FloorSeat | None = None
+    queue: tuple[FloorSeat, ...] = ()
+    typing: tuple[FloorSeat, ...] = ()
+
+
 class PublicState(_View):
     campaign_id: str
     phase: TablePhase = TablePhase.LOBBY
@@ -232,6 +262,8 @@ class PublicState(_View):
     monster_damage: float = 1.0
     defeat: str | None = Field(default=None, description="the defeat epilogue (phase defeated)")
     checkpoint: str | None = Field(default=None, description="label of the retry checkpoint")
+    audio: AudioSettings = AudioSettings()
+    floor: FloorView = FloorView()
 
 
 class DiceView(_View):

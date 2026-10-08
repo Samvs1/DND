@@ -8,7 +8,8 @@ through THE public projection in `session.public_feed`, never as raw events (Npc
 CampaignInstalled embed motives and secrets).
 
 Public API: `public_creature`, `public_scene`, `public_map`, `public_quests`, `public_combat`,
-`public_offer`, `public_facts`, `public_summaries`, `public_state`, `stock_lines`
+`public_offer`, `public_facts`, `public_summaries`, `public_floor` (M11.2: floor holder, queue
+and typing by player and hero name), `public_state`, `stock_lines`
 (dice views live in `session.public_feed`).
 """
 
@@ -20,7 +21,10 @@ from aidm.data.zone_templates import zone_templates
 from aidm.dm.precheck import is_shop
 from aidm.models.encounter import EncounterStatus
 from aidm.models.protocol_views import (
+    AudioSettings,
     CombatToken,
+    FloorSeat,
+    FloorView,
     MapNode,
     PlayerInfo,
     PublicCombat,
@@ -246,6 +250,39 @@ def public_offer(state: GameState) -> PublicOffer | None:
     )
 
 
+def _floor_seat(state: GameState, info: PlayerInfo, position: int = 0) -> FloorSeat:
+    hero = state.creatures.get(info.creature_id or "")
+    return FloorSeat(
+        player_id=info.id,
+        name=info.name,
+        hero_name=hero.name if hero is not None else "",
+        position=position,
+    )
+
+
+def public_floor(
+    state: GameState,
+    players: Sequence[PlayerInfo],
+    queue: Sequence[QueueEntry],
+    resolving: QueueEntry | None,
+    typing: Sequence[str],
+) -> FloorView:
+    """Who holds the floor (the resolving action's player; in a fight the active hero's owner),
+    who waits in order and who is typing. Unknown (kicked) players are left out."""
+    seats = {p.id: p for p in players}
+    holder = resolving.player_id if resolving is not None else None
+    enc = state.encounter
+    if enc is not None and enc.status is EncounterStatus.ACTIVE:
+        active = enc.active_id()
+        holder = next((p.id for p in players if active and p.creature_id == active), None)
+    waiting = [e.player_id for e in queue if e.player_id in seats]
+    return FloorView(
+        holder=_floor_seat(state, seats[holder]) if holder in seats else None,
+        queue=tuple(_floor_seat(state, seats[pid], n) for n, pid in enumerate(waiting, 1)),
+        typing=tuple(_floor_seat(state, seats[pid]) for pid in typing if pid in seats),
+    )
+
+
 def public_state(
     state: GameState,
     *,
@@ -258,6 +295,8 @@ def public_state(
     tts_enabled: bool = False,
     screens: int = 0,
     checkpoint: str | None = None,
+    audio: AudioSettings | None = None,
+    floor: FloorView | None = None,
 ) -> PublicState:
     campaign = state.campaign
     party = sorted((c for c in state.creatures.values() if c.pc is not None), key=lambda c: c.id)
@@ -288,6 +327,8 @@ def public_state(
         monster_damage=state.difficulty.monster_damage,
         defeat=state.defeat.text if state.defeat is not None else None,
         checkpoint=checkpoint,
+        audio=audio if audio is not None else AudioSettings(),
+        floor=floor if floor is not None else FloorView(),
     )
 
 

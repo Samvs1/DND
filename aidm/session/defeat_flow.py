@@ -9,7 +9,8 @@
   asked for is written (`checkpoints.flush_arrival`).
 - `locked(core, player, msg)`: while DEFEATED every gameplay message is refused with
   `wrong_phase` (refusal "defeated"); allowed are the read-only requests (sheet, export, chat),
-  the defeat choices and the safe host controls (save, load, new, end, kick, TTS toggle). Ping and
+  the defeat choices, the safe host controls (save, load, new, end, kick, TTS toggle) and the
+  audio remote (M11.2); `typing` is refused. Ping and
   hello are handled before any seat check.
 - `defeat_message(core, player, msg)`: `defeat_retry` / `defeat_load` / `defeat_new`, only in
   phase DEFEATED and only from the host or the sole connected player (`not_host` otherwise).
@@ -39,7 +40,7 @@ from aidm.models.protocol import AnyClientMsg
 from aidm.models.protocol_server import ErrorCode, NoticeKind
 from aidm.models.protocol_views import TablePhase
 from aidm.rules.party_wipe import party_wiped
-from aidm.session import checkpoints, combat_flow, host_switch, votes
+from aidm.session import checkpoints, combat_flow, floor, host_switch, votes
 from aidm.session.persistence import LoadedCampaign, replay_log
 from aidm.session.table_core import Job, Player, TableCore
 from aidm.session.telling import tell
@@ -56,6 +57,7 @@ ALLOWED: tuple[type, ...] = (
     c.HostEnd,
     c.HostKick,
     c.HostTtsToggle,
+    c.AudioSettingsMsg,
 )
 LOCKED = "The party has fallen. The host can try again, load a save or begin a new adventure."
 NO_CHECKPOINT = "There is no checkpoint to return to. Load a save or begin a new adventure."
@@ -80,6 +82,7 @@ def _clear(core: TableCore) -> None:
     for entry in core.queue:
         core.notice(entry.player_id, NoticeKind.INFO, "Your plan is lost with the fallen party.")
     core.queue.clear()
+    floor.clear_typing(core)
     core.broadcast_queue()
     if core.vote is not None:
         votes.close_vote(core, passed=False, reason="the party has fallen")

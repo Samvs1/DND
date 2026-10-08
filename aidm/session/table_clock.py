@@ -5,7 +5,8 @@ message into the actor's inbox. `LoopClock` uses the running asyncio loop; `Manu
 deterministic clock for tests (`advance(seconds)` fires every due callback in time order).
 
 Public API: `TimerHandle` (protocol with `cancel()`), `Clock` (protocol with
-`call_later(delay, callback) -> TimerHandle`), `LoopClock`, `ManualClock`.
+`call_later(delay, callback) -> TimerHandle` and `time() -> float`, monotonic seconds for rate
+limits), `LoopClock`, `ManualClock`.
 """
 
 import asyncio
@@ -21,10 +22,15 @@ class TimerHandle(Protocol):
 class Clock(Protocol):
     def call_later(self, delay: float, callback: Callable[[], None]) -> TimerHandle: ...
 
+    def time(self) -> float: ...
+
 
 class LoopClock:
     def call_later(self, delay: float, callback: Callable[[], None]) -> TimerHandle:
         return asyncio.get_running_loop().call_later(delay, callback)
+
+    def time(self) -> float:
+        return asyncio.get_running_loop().time()
 
 
 @dataclass
@@ -47,6 +53,9 @@ class ManualClock:
         timer = _ManualTimer(self.now + max(0.0, delay), len(self.timers), callback)
         self.timers.append(timer)
         return timer
+
+    def time(self) -> float:
+        return self.now
 
     def pending(self) -> int:
         return sum(1 for t in self.timers if not t.cancelled)

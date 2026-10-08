@@ -12,7 +12,9 @@ Public API: `NoticeKind`, `ErrorCode`, `Welcome`, `Snapshot`, `EventMsg`, `Lobby
 `NarrationDone`, `VoteOpen`, `VoteUpdate`, `VoteClosed`, `PendingConfirmationMsg`,
 `EncounterOfferMsg`, `CombatState`, `HitChances`, `TurnPrompt`, `ShopStock`,
 `LevelUpAvailable`, `Notice`, `ErrorMsg`, `HostStats`, `ChatRelay`, `SuggestionRelay`, `Pong`,
-`EpilogueMsg`, `StoryHistory`, `CharacterExport`, `SheetMsg`.
+`EpilogueMsg`, `StoryHistory`, `CharacterExport`, `SheetMsg`; M11.2 `FloorState` (holder,
+queue, typing; broadcast on every queue or typing change) and `AudioSettingsState` (the
+screen's audio, broadcast on every change; also in `PublicState.audio`).
 `ErrorMsg.refusal` carries the typed reason of a refused combat command or gear change (a
 `RefusalCode` or `EquipRefusal` value) so a client shows its own friendly wording.
 """
@@ -28,7 +30,9 @@ from aidm.models.dice import Roll
 from aidm.models.leveling import LevelUpOptions
 from aidm.models.narration import NarrationTone
 from aidm.models.protocol_views import (
+    AudioSettings,
     DiceView,
+    FloorView,
     PlayerInfo,
     PublicCombat,
     PublicOffer,
@@ -272,3 +276,13 @@ class SheetMsg(_Server):
     creature_id: str
     sheet: CharacterSheet
     level_up: LevelUpOptions | None = None
+
+
+class FloorState(_Server):
+    type: Literal["floor_state"] = "floor_state"
+    floor: FloorView
+
+
+class AudioSettingsState(_Server):
+    type: Literal["audio_settings"] = "audio_settings"
+    settings: AudioSettings

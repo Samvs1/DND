@@ -9,8 +9,10 @@ awaiting narration and the turn timer. Handlers in `lobby`, `explore`, `votes`,
 `combat_flow`, `party_actions` and `host` take a `TableCore` and never import `table.py`.
 
 Public API: `Player`, `TableConfig`, `TtsHook`, `no_tts`, `Job`, `ClientIn`, `Closed`,
-`TimerFired`, `Inbound`, `PendingHostile`, `OpenVote`, `TableCore`, `phase_of(state)` (the phase a
-loaded state starts in: DEFEATED when `state.defeat` is set, M11.1).
+`TimerFired`, `Inbound`, `TableCore` (vote and hostile records live in `table_records`),
+`phase_of(state)` (the phase a loaded state starts in: DEFEATED when `state.defeat` is set,
+M11.1). M11.2: `typing` (who is composing), `audio` (the screen's audio settings, saved in
+table.json), `floor_view()`.
 """
 
 import asyncio
@@ -23,7 +25,6 @@ from dataclasses import dataclass, field
 
 from aidm.dm.campaign_gen import CAMPAIGN_TIMEOUT_S
 from aidm.dm.llm_client import LlmClient
-from aidm.dm.llm_types import ToolCall
 from aidm.dm.tool_context import ToolRegistries, tool_registries
 from aidm.models.defeat import Checkpoint, CheckpointFile
 from aidm.models.dice import Roll
@@ -35,6 +36,7 @@ from aidm.models.protocol_server import (
     DiceRoll,
     ErrorCode,
     ErrorMsg,
+    FloorState,
     LevelUpAvailable,
     LobbyRoster,
     Notice,
@@ -42,14 +44,22 @@ from aidm.models.protocol_server import (
     QueueState,
     Snapshot,
 )
-from aidm.models.protocol_views import PlayerInfo, QueueEntry, TablePhase, VoteKind, VoteView
+from aidm.models.protocol_views import (
+    AudioSettings,
+    FloorView,
+    PlayerInfo,
+    QueueEntry,
+    TablePhase,
+)
 from aidm.models.state import Creature, GameState
 from aidm.models.world_events import LevelUpReady, PartyMoved
 from aidm.session.persistence import CampaignStore, SeatRecord, TableMeta, new_game_state
+from aidm.session.presence import RateLimit, TypingBoard
 from aidm.session.public_feed import PublicFeed
 from aidm.session.reducer import apply as reduce
 from aidm.session.table_clock import Clock, LoopClock, TimerHandle
-from aidm.session.views import public_state
+from aidm.session.table_records import OpenVote, PendingHostile
+from aidm.session.views import public_floor, public_state
 
 type TtsHook = Callable[[str, NarrationTone], Awaitable[str | None]]
 type Job = Callable[[], Awaitable[None]]
@@ -124,40 +134,6 @@ class TimerFired:
 type Inbound = ClientIn | Closed | TimerFired
 
 
-@dataclass(frozen=True)
-class PendingHostile:
-    player_id: str
-    actor_id: str
-    call: ToolCall
-    prompt: str
-
-
-@dataclass
-class OpenVote:
-    id: str
-    kind: VoteKind
-    detail: str
-    proposer_id: str
-    voters: list[str]
-    on_pass: Job
-    ready: set[str] = field(default_factory=set[str])
-    declined: set[str] = field(default_factory=set[str])
-    seconds: float = 0.0
-    timer: TimerHandle | None = None
-
-    def view(self) -> VoteView:
-        return VoteView(
-            vote_id=self.id,
-            kind=self.kind,
-            detail=self.detail,
-            proposer_id=self.proposer_id,
-            voters=tuple(self.voters),
-            ready=tuple(sorted(self.ready)),
-            declined=tuple(sorted(self.declined)),
-            seconds=self.seconds,
-        )
-
-
 class TableCore:
     def __init__(self, state: GameState, llm: LlmClient, config: TableConfig | None = None) -> None:
         self.state = state
@@ -199,6 +175,10 @@ class TableCore:
         self.save_id: str | None = None  # the save folder it was loaded from (QA-09)
         self.checkpoints = CheckpointFile()  # M11.1 retry markers (session/checkpoints.py)
         self.mark_due = False  # a scene arrival happened: mark a checkpoint after the job
+        self.typing = TypingBoard()  # M11.2 (session/floor.py); not persisted
+        self.typing_limit = RateLimit(limit=12, window=4.0)
+        self.audio = AudioSettings()  # M11.2 audio remote (session/audio_remote.py)
+        self.audio_limit = RateLimit(limit=20, window=2.0)
 
     # --- ids, seats, lookups -------------------------------------------------------------
 
@@ -277,7 +257,9 @@ class TableCore:
             )
             for p in self.players.values()
         ]
-        return TableMeta(seats=seats, next_id=self.next_counter, tts_enabled=self.tts_enabled)
+        return TableMeta(
+            seats=seats, next_id=self.next_counter, tts_enabled=self.tts_enabled, audio=self.audio
+        )
 
     def autosave(self, *, force: bool = False) -> bool:
         """Append the unsaved events (fsync) and rewrite snapshot + table metadata.
@@ -347,6 +329,8 @@ class TableCore:
             tts_enabled=self.tts_enabled,
             screens=len(self.spectators),
             checkpoint=mark.label if (mark := self.retry_checkpoint()) is not None else None,
+            audio=self.audio,
+            floor=self.floor_view(),
         )
         return Snapshot(seq=self.state.event_count, state=view)
 
@@ -365,6 +349,14 @@ class TableCore:
 
     def broadcast_queue(self) -> None:
         self.broadcast(QueueState(entries=tuple(self.queue), resolving=self.resolving))
+        self.broadcast_floor()
+
+    def floor_view(self) -> FloorView:
+        players = [p.info() for p in self.players.values()]
+        return public_floor(self.state, players, self.queue, self.resolving, self.typing.ids())
+
+    def broadcast_floor(self) -> None:
+        self.broadcast(FloorState(floor=self.floor_view()))
 
     # --- jobs and timers -----------------------------------------------------------------
 

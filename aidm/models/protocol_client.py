@@ -10,9 +10,13 @@ hero or a party member; `target_id` None = the hero), `RequestHitChances`, `Chat
 `HostPause`, `HostResume`, `HostKick`, `HostDifficulty`, `HostTtsToggle`, `HostSave`, `HostLoad`,
 `HostNew`, `HostEnd`, `HostForceVote`, `ExportCharacter`, `ImportCharacter`, `Ping`;
 `HOST_MESSAGES` (the host-only message classes); M11.1 defeat choices `DefeatRetry`,
-`DefeatLoad`, `DefeatNew` (`DEFEAT_MESSAGES`: host or the sole player, phase defeated only).
+`DefeatLoad`, `DefeatNew` (`DEFEAT_MESSAGES`: host or the sole player, phase defeated only);
+M11.2 `DeviceRole` (`Hello.role`: "screen" = the shared display, "controller" = a phone seat;
+`spectator: true` is the older spelling of role "screen"), `Typing` (composing on/off) and
+`AudioSettingsMsg` (the screen's volumes and mutes, from any seated player).
 """
 
+from enum import StrEnum
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -32,12 +36,18 @@ class _Client(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
 
+class DeviceRole(StrEnum):
+    CONTROLLER = "controller"  # /play: a seat with private data and actions
+    SCREEN = "screen"  # /screen: the shared display, public feed only, cannot act
+
+
 class Hello(_Client):
     type: Literal["hello"] = "hello"
     name: str = Field(min_length=1, max_length=MAX_NAME)
     token: str | None = Field(default=None, max_length=200)
     last_seq: int | None = Field(default=None, ge=0)
-    spectator: bool = False  # the /screen view: watches the public feed, is not seated, cannot act
+    role: DeviceRole = DeviceRole.CONTROLLER
+    spectator: bool = False  # older spelling of role "screen"
 
 
 class CreateCharacter(_Client):
@@ -220,6 +230,23 @@ class DefeatLoad(_Client):
 
 class DefeatNew(_Client):
     type: Literal["defeat_new"] = "defeat_new"
+
+
+class Typing(_Client):
+    """M11.2: the player is composing (`on`) or stopped; expires on the server after ~8 s."""
+
+    type: Literal["typing"] = "typing"
+    on: bool
+
+
+class AudioSettingsMsg(_Client):
+    """M11.2: set the shared screen's audio (any seated player, last write wins)."""
+
+    type: Literal["audio_settings"] = "audio_settings"
+    narration_volume: int = Field(ge=0, le=100)
+    music_volume: int = Field(ge=0, le=100)
+    narration_muted: bool = False
+    music_muted: bool = False
 
 
 HOST_MESSAGES: tuple[type[BaseModel], ...] = (
