@@ -63,10 +63,12 @@ def test_todo_check_fails_when_stale_and_write_fixes_it(tmp_path: Path) -> None:
     todo.todo_file(root).write_text("# old\n", encoding="utf-8")
     assert todo.run(root, check=True) == 1
     data = json.loads(target.read_text(encoding="utf-8"))
-    data["monster_token.goblin"]["status"] = "real"
+    data["monster_token.barbed-devil"]["status"] = "real"
     target.write_text(json.dumps(data), encoding="utf-8")
     todo.run(root, check=False)
-    assert "### monster_token.goblin\n" not in todo.todo_file(root).read_text(encoding="utf-8")
+    assert "### monster_token.barbed-devil\n" not in todo.todo_file(root).read_text(
+        encoding="utf-8"
+    )
 
 
 def test_todo_lists_every_placeholder_with_path_size_transparency_and_prompt() -> None:
@@ -75,7 +77,7 @@ def test_todo_lists_every_placeholder_with_path_size_transparency_and_prompt() -
     assert text.count("\n### ") == len(placeholders) > 0
     for key, entry in placeholders.items():
         assert f"\n### {key}\n- file: aidm/web/static/{entry['file']}\n" in text, key
-    block = text.split("### monster_token.goblin\n", 1)[1].split("\n###", 1)[0]
+    block = text.split("### monster_token.barbed-devil\n", 1)[1].split("\n###", 1)[0]
     assert "- size: 256x256" in block and "- transparent: yes" in block and "- prompt: " in block
 
 
@@ -142,15 +144,16 @@ def test_build_manifest_keeps_hand_prompts_and_refresh_rewrites_them(tmp_path: P
     bm.run(web, check=False)
     path = bm.manifest_path(web)
     data = json.loads(path.read_text(encoding="utf-8"))
-    generated = data["monster_token.goblin"]["prompt"]
+    generated = data["monster_token.barbed-devil"]["prompt"]
     assert generated.startswith(load_style_bible().prefix)
-    data["monster_token.goblin"]["prompt"] = "my own prompt"
+    data["monster_token.barbed-devil"]["prompt"] = "my own prompt"
     path.write_text(json.dumps(data), encoding="utf-8")
     bm.run(web, check=False)
-    assert json.loads(path.read_text(encoding="utf-8"))["monster_token.goblin"]["prompt"] == (
+    assert json.loads(path.read_text(encoding="utf-8"))["monster_token.barbed-devil"]["prompt"] == (
         "my own prompt"
     )
     bm.run(web, check=False, refresh_prompts=True)
     assert (
-        json.loads(path.read_text(encoding="utf-8"))["monster_token.goblin"]["prompt"] == generated
+        json.loads(path.read_text(encoding="utf-8"))["monster_token.barbed-devil"]["prompt"]
+        == generated
     )

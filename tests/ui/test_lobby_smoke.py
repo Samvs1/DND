@@ -80,7 +80,7 @@ def test_assets_helper_resolves_real_placeholder_and_silence(
     result = page.evaluate(
         """async () => {
             const a = await import('/web/js/assets.js');
-            const placeholder = a.assetUrl('monster_token.goblin');
+            const placeholder = a.assetUrl('monster_token.barbed-devil');
             const probe = new Image();
             probe.src = placeholder;
             await probe.decode();

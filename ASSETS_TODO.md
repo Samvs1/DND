@@ -7,7 +7,7 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 `python scripts/gen_assets_todo.py`. Prompts start with the style bible
 (`docs/STYLE_BIBLE.md`). Never overwrite a real or v1 asset.
 
-217 placeholder entries: portrait 10, monster_token 95, item_icon 1, spell_icon 62, condition_icon 21, zone_card 9, region_banner 8, music 1, sfx 10
+183 placeholder entries: portrait 10, monster_token 65, spell_icon 61, condition_icon 21, zone_card 9, region_banner 6, music 1, sfx 10
 
 ## portrait (10)
 
@@ -71,19 +71,7 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 - transparent: no
 - prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Werewolf, Wolf Form, a medium humanoid (human) of challenge rating 3, shown as a person the party might meet, with props that tell what they do. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.
 
-## monster_token (95)
-
-### monster_token.acolyte
-- file: aidm/web/static/img/monsters/acolyte.png
-- size: 256x256
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Acolyte, a medium humanoid (any race) of challenge rating 0.25. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
-
-### monster_token.animated-armor
-- file: aidm/web/static/img/monsters/animated-armor.png
-- size: 256x256
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Animated Armor, a medium construct of challenge rating 1. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
+## monster_token (65)
 
 ### monster_token.ankheg
 - file: aidm/web/static/img/monsters/ankheg.png
@@ -96,18 +84,6 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 - size: 256x256
 - transparent: yes
 - prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Assassin, a medium humanoid (any race) of challenge rating 8. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
-
-### monster_token.bandit
-- file: aidm/web/static/img/monsters/bandit.png
-- size: 256x256
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Bandit, a medium humanoid (any race) of challenge rating 0.125. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
-
-### monster_token.bandit-captain
-- file: aidm/web/static/img/monsters/bandit-captain.png
-- size: 256x256
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Bandit Captain, a medium humanoid (any race) of challenge rating 2. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
 
 ### monster_token.barbed-devil
 - file: aidm/web/static/img/monsters/barbed-devil.png
@@ -127,35 +103,11 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 - transparent: yes
 - prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Bearded Devil, a medium fiend (devil) of challenge rating 3. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
 
-### monster_token.berserker
-- file: aidm/web/static/img/monsters/berserker.png
-- size: 256x256
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Berserker, a medium humanoid (any race) of challenge rating 2. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
-
-### monster_token.black-dragon-wyrmling
-- file: aidm/web/static/img/monsters/black-dragon-wyrmling.png
-- size: 256x256
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Black Dragon Wyrmling, a medium dragon of challenge rating 2. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
-
 ### monster_token.blue-dragon-wyrmling
 - file: aidm/web/static/img/monsters/blue-dragon-wyrmling.png
 - size: 256x256
 - transparent: yes
 - prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Blue Dragon Wyrmling, a medium dragon of challenge rating 3. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
-
-### monster_token.brown-bear
-- file: aidm/web/static/img/monsters/brown-bear.png
-- size: 256x256
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Brown Bear, a large beast of challenge rating 1. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
-
-### monster_token.bugbear
-- file: aidm/web/static/img/monsters/bugbear.png
-- size: 256x256
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Bugbear, a medium humanoid (goblinoid) of challenge rating 1. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
 
 ### monster_token.centaur
 - file: aidm/web/static/img/monsters/centaur.png
@@ -169,29 +121,11 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 - transparent: yes
 - prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Chimera, a large monstrosity of challenge rating 6. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
 
-### monster_token.cockatrice
-- file: aidm/web/static/img/monsters/cockatrice.png
-- size: 256x256
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Cockatrice, a small monstrosity of challenge rating 0.5. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
-
 ### monster_token.crocodile
 - file: aidm/web/static/img/monsters/crocodile.png
 - size: 256x256
 - transparent: yes
 - prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Crocodile, a large beast of challenge rating 0.5. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
-
-### monster_token.cult-fanatic
-- file: aidm/web/static/img/monsters/cult-fanatic.png
-- size: 256x256
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Cult Fanatic, a medium humanoid (any race) of challenge rating 2. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
-
-### monster_token.cultist
-- file: aidm/web/static/img/monsters/cultist.png
-- size: 256x256
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Cultist, a medium humanoid (any race) of challenge rating 0.125. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
 
 ### monster_token.death-dog
 - file: aidm/web/static/img/monsters/death-dog.png
@@ -204,12 +138,6 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 - size: 256x256
 - transparent: yes
 - prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Dire Wolf, a large beast of challenge rating 1. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
-
-### monster_token.drow
-- file: aidm/web/static/img/monsters/drow.png
-- size: 256x256
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Drow, a medium humanoid (elf) of challenge rating 0.25. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
 
 ### monster_token.duergar
 - file: aidm/web/static/img/monsters/duergar.png
@@ -247,12 +175,6 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 - transparent: yes
 - prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Frost Giant, a huge giant of challenge rating 8. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
 
-### monster_token.gargoyle
-- file: aidm/web/static/img/monsters/gargoyle.png
-- size: 256x256
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Gargoyle, a medium elemental of challenge rating 2. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
-
 ### monster_token.gelatinous-cube
 - file: aidm/web/static/img/monsters/gelatinous-cube.png
 - size: 256x256
@@ -265,23 +187,11 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 - transparent: yes
 - prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Ghast, a medium undead of challenge rating 2. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
 
-### monster_token.ghoul
-- file: aidm/web/static/img/monsters/ghoul.png
-- size: 256x256
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Ghoul, a medium undead of challenge rating 1. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
-
 ### monster_token.giant-crocodile
 - file: aidm/web/static/img/monsters/giant-crocodile.png
 - size: 256x256
 - transparent: yes
 - prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Giant Crocodile, a huge beast of challenge rating 5. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
-
-### monster_token.giant-rat
-- file: aidm/web/static/img/monsters/giant-rat.png
-- size: 256x256
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Giant Rat, a small beast of challenge rating 0.125. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
 
 ### monster_token.giant-scorpion
 - file: aidm/web/static/img/monsters/giant-scorpion.png
@@ -289,29 +199,11 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 - transparent: yes
 - prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Giant Scorpion, a large beast of challenge rating 3. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
 
-### monster_token.giant-wolf-spider
-- file: aidm/web/static/img/monsters/giant-wolf-spider.png
-- size: 256x256
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Giant Wolf Spider, a medium beast of challenge rating 0.25. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
-
 ### monster_token.gladiator
 - file: aidm/web/static/img/monsters/gladiator.png
 - size: 256x256
 - transparent: yes
 - prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Gladiator, a medium humanoid (any race) of challenge rating 5. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
-
-### monster_token.gnoll
-- file: aidm/web/static/img/monsters/gnoll.png
-- size: 256x256
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Gnoll, a medium humanoid (gnoll) of challenge rating 0.5. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
-
-### monster_token.goblin
-- file: aidm/web/static/img/monsters/goblin.png
-- size: 256x256
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Goblin, a small humanoid (goblinoid) of challenge rating 0.25. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
 
 ### monster_token.green-dragon-wyrmling
 - file: aidm/web/static/img/monsters/green-dragon-wyrmling.png
@@ -361,12 +253,6 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 - transparent: yes
 - prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Hill Giant, a huge giant of challenge rating 5. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
 
-### monster_token.hobgoblin
-- file: aidm/web/static/img/monsters/hobgoblin.png
-- size: 256x256
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Hobgoblin, a medium humanoid (goblinoid) of challenge rating 0.5. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
-
 ### monster_token.hydra
 - file: aidm/web/static/img/monsters/hydra.png
 - size: 256x256
@@ -385,23 +271,11 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 - transparent: yes
 - prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Knight, a medium humanoid (any race) of challenge rating 3. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
 
-### monster_token.kobold
-- file: aidm/web/static/img/monsters/kobold.png
-- size: 256x256
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Kobold, a small humanoid (kobold) of challenge rating 0.125. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
-
 ### monster_token.lizardfolk
 - file: aidm/web/static/img/monsters/lizardfolk.png
 - size: 256x256
 - transparent: yes
 - prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Lizardfolk, a medium humanoid (lizardfolk) of challenge rating 0.5. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
-
-### monster_token.mage
-- file: aidm/web/static/img/monsters/mage.png
-- size: 256x256
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Mage, a medium humanoid (any race) of challenge rating 6. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
 
 ### monster_token.manticore
 - file: aidm/web/static/img/monsters/manticore.png
@@ -414,12 +288,6 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 - size: 256x256
 - transparent: yes
 - prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Medusa, a medium monstrosity of challenge rating 6. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
-
-### monster_token.mimic
-- file: aidm/web/static/img/monsters/mimic.png
-- size: 256x256
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Mimic, a medium monstrosity (shapechanger) of challenge rating 2. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
 
 ### monster_token.minotaur
 - file: aidm/web/static/img/monsters/minotaur.png
@@ -439,23 +307,11 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 - transparent: yes
 - prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Ochre Jelly, a large ooze of challenge rating 2. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
 
-### monster_token.ogre
-- file: aidm/web/static/img/monsters/ogre.png
-- size: 256x256
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Ogre, a large giant of challenge rating 2. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
-
 ### monster_token.ogre-zombie
 - file: aidm/web/static/img/monsters/ogre-zombie.png
 - size: 256x256
 - transparent: yes
 - prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Ogre Zombie, a large undead of challenge rating 2. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
-
-### monster_token.orc
-- file: aidm/web/static/img/monsters/orc.png
-- size: 256x256
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Orc, a medium humanoid (orc) of challenge rating 0.5. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
 
 ### monster_token.owlbear
 - file: aidm/web/static/img/monsters/owlbear.png
@@ -499,12 +355,6 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 - transparent: yes
 - prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Shield Guardian, a large construct of challenge rating 7. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
 
-### monster_token.skeleton
-- file: aidm/web/static/img/monsters/skeleton.png
-- size: 256x256
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Skeleton, a medium undead of challenge rating 0.25. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
-
 ### monster_token.steam-mephit
 - file: aidm/web/static/img/monsters/steam-mephit.png
 - size: 256x256
@@ -529,24 +379,6 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 - transparent: yes
 - prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Swarm of Bats, a medium swarm of Tiny beasts of challenge rating 0.25. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
 
-### monster_token.swarm-of-rats
-- file: aidm/web/static/img/monsters/swarm-of-rats.png
-- size: 256x256
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Swarm of Rats, a medium swarm of Tiny beasts of challenge rating 0.25. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
-
-### monster_token.thug
-- file: aidm/web/static/img/monsters/thug.png
-- size: 256x256
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Thug, a medium humanoid (any race) of challenge rating 0.5. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
-
-### monster_token.troll
-- file: aidm/web/static/img/monsters/troll.png
-- size: 256x256
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Troll, a large giant of challenge rating 5. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
-
 ### monster_token.tyrannosaurus-rex
 - file: aidm/web/static/img/monsters/tyrannosaurus-rex.png
 - size: 256x256
@@ -564,12 +396,6 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 - size: 256x256
 - transparent: yes
 - prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Veteran, a medium humanoid (any race) of challenge rating 3. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
-
-### monster_token.violet-fungus
-- file: aidm/web/static/img/monsters/violet-fungus.png
-- size: 256x256
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Violet Fungus, a medium plant of challenge rating 0.25. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
 
 ### monster_token.water-elemental
 - file: aidm/web/static/img/monsters/water-elemental.png
@@ -637,21 +463,7 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 - transparent: yes
 - prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Young White Dragon, a large dragon of challenge rating 6. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
 
-### monster_token.zombie
-- file: aidm/web/static/img/monsters/zombie.png
-- size: 256x256
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Zombie, a medium undead of challenge rating 0.25. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.
-
-## item_icon (1)
-
-### item_icon.tool
-- file: aidm/web/static/img/icons/items/tool.png
-- size: 128x128
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: A tool (a category icon: the typical object of that kind). One object, centred, three-quarter view, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.
-
-## spell_icon (62)
+## spell_icon (61)
 
 ### spell_icon.acid-arrow
 - file: aidm/web/static/img/spells/acid-arrow.png
@@ -929,12 +741,6 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 - transparent: yes
 - prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The spell Sacred Flame (evocation, cantrip) shown as golden radiant light. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.
 
-### spell_icon.school.cold
-- file: aidm/web/static/img/icons/spells/cold.png
-- size: 128x128
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The cold magic school emblem showing icy cyan crystals. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.
-
 ### spell_icon.scorching-ray
 - file: aidm/web/static/img/spells/scorching-ray.png
 - size: 128x128
@@ -1209,7 +1015,7 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 - transparent: no
 - prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The terrain open wilds with open ground, boulder cluster, grassy hillock. Wide 16:9 battlefield scene seen at a slight angle, open ground in the middle for tokens to stand on, no characters, no creatures, details at the edges only. Target size 640x360.
 
-## region_banner (8)
+## region_banner (6)
 
 ### region_banner.bridge
 - file: aidm/web/static/img/banners/bridge.png
@@ -1241,23 +1047,11 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 - transparent: no
 - prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The terrain swamp with sucking mire, dry hummock, tall reeds. Very wide panoramic strip 4:1, a landscape or interior vista with a calm horizon band in the middle, no characters, no creatures, a dark soft edge on the left and right. Target size 1024x256.
 
-### region_banner.tier1
-- file: aidm/web/static/img/banners/tier1.png
-- size: 1024x256
-- transparent: no
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: A regional vista: a hopeful dawn over quiet outskirts and a country road. Very wide panoramic strip 4:1, a landscape or interior vista with a calm horizon band in the middle, no characters, no creatures, a dark soft edge on the left and right. Target size 1024x256.
-
 ### region_banner.village
 - file: aidm/web/static/img/banners/village.png
 - size: 1024x256
 - transparent: no
 - prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The terrain village with village square, old well, thatched rooftop. Very wide panoramic strip 4:1, a landscape or interior vista with a calm horizon band in the middle, no characters, no creatures, a dark soft edge on the left and right. Target size 1024x256.
-
-### region_banner.wilds
-- file: aidm/web/static/img/banners/wilds.png
-- size: 1024x256
-- transparent: no
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The terrain open wilds with open ground, boulder cluster, grassy hillock. Very wide panoramic strip 4:1, a landscape or interior vista with a calm horizon band in the middle, no characters, no creatures, a dark soft edge on the left and right. Target size 1024x256.
 
 ## music (1)
 

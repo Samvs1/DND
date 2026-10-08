@@ -94,7 +94,7 @@ def test_manifest_endpoint_lists_every_key_with_a_url(client: TestClient) -> Non
     urls = response.json()
     assert set(urls) == set(MANIFEST)
     assert urls["portrait.class.fighter"].startswith("/static/")
-    assert urls["monster_token.goblin"].startswith("/assets/placeholder/monster_token/")
+    assert urls["monster_token.barbed-devil"].startswith("/assets/placeholder/monster_token/")
     assert urls["music.social"] == ""
 
 

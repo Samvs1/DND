@@ -64,7 +64,8 @@ def test_real_manifest_sheets_hold_16_cells_and_singles_one_entry() -> None:
     keys = select_keys(manifest, static, derive_tiers(manifest), tier=1).keys
     calls = build_calls(manifest, keys, bible=BIBLE, table=TABLE, refs=RefSources(static, None))
     sheets = [c for c in calls if c.label.startswith("sheet ")]
-    assert [len(c.keys) for c in sheets if "token" in c.label] == [16, 14]
+    # P1 tokens were installed in M10.5 (installed keys are skipped), so only bounds remain.
+    assert all(len(c.keys) <= 16 for c in sheets)
     assert all(len(c.keys) == 1 for c in calls if c not in sheets)
     assert sum(c.estimate(TABLE, None) for c in calls) < 8.0
 

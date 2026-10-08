@@ -826,10 +826,12 @@
    128
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: A tool (a category icon: the typical object of that kind). One object, centred, three-quarter view, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: A tool (a category icon: the typical object of that kind); 2: The cold magic school emblem showing icy cyan crystals. Leave cells 3 to 16 empty. One object, centred, three-quarter view, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0162
  },
  "item_icon.weapon": {
   "kind": "item_icon",
@@ -852,10 +854,12 @@
    256
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Acolyte, a medium humanoid (any race) of challenge rating 0.25. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Bandit, a medium humanoid (any race) of challenge rating 0.125; 2: Cultist, a medium humanoid (any race) of challenge rating 0.125; 3: Goblin, a small humanoid (goblinoid) of challenge rating 0.25; 4: Giant Rat, a small beast of challenge rating 0.125; 5: Acolyte, a medium humanoid (any race) of challenge rating 0.25; 6: Hobgoblin, a medium humanoid (goblinoid) of challenge rating 0.5; 7: Bugbear, a medium humanoid (goblinoid) of challenge rating 1; 8: Bandit Captain, a medium humanoid (any race) of challenge rating 2; 9: Cult Fanatic, a medium humanoid (any race) of challenge rating 2; 10: Mimic, a medium monstrosity (shapechanger) of challenge rating 2; 11: Ogre, a large giant of challenge rating 2; 12: Troll, a large giant of challenge rating 5; 13: Mage, a medium humanoid (any race) of challenge rating 6; 14: Kobold, a small humanoid (kobold) of challenge rating 0.125; 15: Drow, a medium humanoid (elf) of challenge rating 0.25; 16: Giant Wolf Spider, a medium beast of challenge rating 0.25. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002106
  },
  "monster_token.animated-armor": {
   "kind": "monster_token",
@@ -865,10 +869,12 @@
    256
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Animated Armor, a medium construct of challenge rating 1. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Skeleton, a medium undead of challenge rating 0.25; 2: Swarm of Rats, a medium swarm of Tiny beasts of challenge rating 0.25; 3: Violet Fungus, a medium plant of challenge rating 0.25; 4: Zombie, a medium undead of challenge rating 0.25; 5: Cockatrice, a small monstrosity of challenge rating 0.5; 6: Gnoll, a medium humanoid (gnoll) of challenge rating 0.5; 7: Orc, a medium humanoid (orc) of challenge rating 0.5; 8: Thug, a medium humanoid (any race) of challenge rating 0.5; 9: Animated Armor, a medium construct of challenge rating 1; 10: Brown Bear, a large beast of challenge rating 1; 11: Ghoul, a medium undead of challenge rating 1; 12: Berserker, a medium humanoid (any race) of challenge rating 2; 13: Black Dragon Wyrmling, a medium dragon of challenge rating 2; 14: Gargoyle, a medium elemental of challenge rating 2. Leave cells 15 to 16 empty. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002386
  },
  "monster_token.ankheg": {
   "kind": "monster_token",
@@ -904,10 +910,12 @@
    256
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Bandit, a medium humanoid (any race) of challenge rating 0.125. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Bandit, a medium humanoid (any race) of challenge rating 0.125; 2: Cultist, a medium humanoid (any race) of challenge rating 0.125; 3: Goblin, a small humanoid (goblinoid) of challenge rating 0.25; 4: Giant Rat, a small beast of challenge rating 0.125; 5: Acolyte, a medium humanoid (any race) of challenge rating 0.25; 6: Hobgoblin, a medium humanoid (goblinoid) of challenge rating 0.5; 7: Bugbear, a medium humanoid (goblinoid) of challenge rating 1; 8: Bandit Captain, a medium humanoid (any race) of challenge rating 2; 9: Cult Fanatic, a medium humanoid (any race) of challenge rating 2; 10: Mimic, a medium monstrosity (shapechanger) of challenge rating 2; 11: Ogre, a large giant of challenge rating 2; 12: Troll, a large giant of challenge rating 5; 13: Mage, a medium humanoid (any race) of challenge rating 6; 14: Kobold, a small humanoid (kobold) of challenge rating 0.125; 15: Drow, a medium humanoid (elf) of challenge rating 0.25; 16: Giant Wolf Spider, a medium beast of challenge rating 0.25. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002106
  },
  "monster_token.bandit-captain": {
   "kind": "monster_token",
@@ -917,10 +925,12 @@
    256
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Bandit Captain, a medium humanoid (any race) of challenge rating 2. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Bandit, a medium humanoid (any race) of challenge rating 0.125; 2: Cultist, a medium humanoid (any race) of challenge rating 0.125; 3: Goblin, a small humanoid (goblinoid) of challenge rating 0.25; 4: Giant Rat, a small beast of challenge rating 0.125; 5: Acolyte, a medium humanoid (any race) of challenge rating 0.25; 6: Hobgoblin, a medium humanoid (goblinoid) of challenge rating 0.5; 7: Bugbear, a medium humanoid (goblinoid) of challenge rating 1; 8: Bandit Captain, a medium humanoid (any race) of challenge rating 2; 9: Cult Fanatic, a medium humanoid (any race) of challenge rating 2; 10: Mimic, a medium monstrosity (shapechanger) of challenge rating 2; 11: Ogre, a large giant of challenge rating 2; 12: Troll, a large giant of challenge rating 5; 13: Mage, a medium humanoid (any race) of challenge rating 6; 14: Kobold, a small humanoid (kobold) of challenge rating 0.125; 15: Drow, a medium humanoid (elf) of challenge rating 0.25; 16: Giant Wolf Spider, a medium beast of challenge rating 0.25. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002106
  },
  "monster_token.barbed-devil": {
   "kind": "monster_token",
@@ -969,10 +979,12 @@
    256
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Berserker, a medium humanoid (any race) of challenge rating 2. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Skeleton, a medium undead of challenge rating 0.25; 2: Swarm of Rats, a medium swarm of Tiny beasts of challenge rating 0.25; 3: Violet Fungus, a medium plant of challenge rating 0.25; 4: Zombie, a medium undead of challenge rating 0.25; 5: Cockatrice, a small monstrosity of challenge rating 0.5; 6: Gnoll, a medium humanoid (gnoll) of challenge rating 0.5; 7: Orc, a medium humanoid (orc) of challenge rating 0.5; 8: Thug, a medium humanoid (any race) of challenge rating 0.5; 9: Animated Armor, a medium construct of challenge rating 1; 10: Brown Bear, a large beast of challenge rating 1; 11: Ghoul, a medium undead of challenge rating 1; 12: Berserker, a medium humanoid (any race) of challenge rating 2; 13: Black Dragon Wyrmling, a medium dragon of challenge rating 2; 14: Gargoyle, a medium elemental of challenge rating 2. Leave cells 15 to 16 empty. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002386
  },
  "monster_token.black-dragon-wyrmling": {
   "kind": "monster_token",
@@ -982,10 +994,12 @@
    256
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Black Dragon Wyrmling, a medium dragon of challenge rating 2. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Skeleton, a medium undead of challenge rating 0.25; 2: Swarm of Rats, a medium swarm of Tiny beasts of challenge rating 0.25; 3: Violet Fungus, a medium plant of challenge rating 0.25; 4: Zombie, a medium undead of challenge rating 0.25; 5: Cockatrice, a small monstrosity of challenge rating 0.5; 6: Gnoll, a medium humanoid (gnoll) of challenge rating 0.5; 7: Orc, a medium humanoid (orc) of challenge rating 0.5; 8: Thug, a medium humanoid (any race) of challenge rating 0.5; 9: Animated Armor, a medium construct of challenge rating 1; 10: Brown Bear, a large beast of challenge rating 1; 11: Ghoul, a medium undead of challenge rating 1; 12: Berserker, a medium humanoid (any race) of challenge rating 2; 13: Black Dragon Wyrmling, a medium dragon of challenge rating 2; 14: Gargoyle, a medium elemental of challenge rating 2. Leave cells 15 to 16 empty. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002386
  },
  "monster_token.blue-dragon-wyrmling": {
   "kind": "monster_token",
@@ -1008,10 +1022,12 @@
    256
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Brown Bear, a large beast of challenge rating 1. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Skeleton, a medium undead of challenge rating 0.25; 2: Swarm of Rats, a medium swarm of Tiny beasts of challenge rating 0.25; 3: Violet Fungus, a medium plant of challenge rating 0.25; 4: Zombie, a medium undead of challenge rating 0.25; 5: Cockatrice, a small monstrosity of challenge rating 0.5; 6: Gnoll, a medium humanoid (gnoll) of challenge rating 0.5; 7: Orc, a medium humanoid (orc) of challenge rating 0.5; 8: Thug, a medium humanoid (any race) of challenge rating 0.5; 9: Animated Armor, a medium construct of challenge rating 1; 10: Brown Bear, a large beast of challenge rating 1; 11: Ghoul, a medium undead of challenge rating 1; 12: Berserker, a medium humanoid (any race) of challenge rating 2; 13: Black Dragon Wyrmling, a medium dragon of challenge rating 2; 14: Gargoyle, a medium elemental of challenge rating 2. Leave cells 15 to 16 empty. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002386
  },
  "monster_token.bugbear": {
   "kind": "monster_token",
@@ -1021,10 +1037,12 @@
    256
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Bugbear, a medium humanoid (goblinoid) of challenge rating 1. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Bandit, a medium humanoid (any race) of challenge rating 0.125; 2: Cultist, a medium humanoid (any race) of challenge rating 0.125; 3: Goblin, a small humanoid (goblinoid) of challenge rating 0.25; 4: Giant Rat, a small beast of challenge rating 0.125; 5: Acolyte, a medium humanoid (any race) of challenge rating 0.25; 6: Hobgoblin, a medium humanoid (goblinoid) of challenge rating 0.5; 7: Bugbear, a medium humanoid (goblinoid) of challenge rating 1; 8: Bandit Captain, a medium humanoid (any race) of challenge rating 2; 9: Cult Fanatic, a medium humanoid (any race) of challenge rating 2; 10: Mimic, a medium monstrosity (shapechanger) of challenge rating 2; 11: Ogre, a large giant of challenge rating 2; 12: Troll, a large giant of challenge rating 5; 13: Mage, a medium humanoid (any race) of challenge rating 6; 14: Kobold, a small humanoid (kobold) of challenge rating 0.125; 15: Drow, a medium humanoid (elf) of challenge rating 0.25; 16: Giant Wolf Spider, a medium beast of challenge rating 0.25. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002106
  },
  "monster_token.centaur": {
   "kind": "monster_token",
@@ -1060,10 +1078,12 @@
    256
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Cockatrice, a small monstrosity of challenge rating 0.5. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Skeleton, a medium undead of challenge rating 0.25; 2: Swarm of Rats, a medium swarm of Tiny beasts of challenge rating 0.25; 3: Violet Fungus, a medium plant of challenge rating 0.25; 4: Zombie, a medium undead of challenge rating 0.25; 5: Cockatrice, a small monstrosity of challenge rating 0.5; 6: Gnoll, a medium humanoid (gnoll) of challenge rating 0.5; 7: Orc, a medium humanoid (orc) of challenge rating 0.5; 8: Thug, a medium humanoid (any race) of challenge rating 0.5; 9: Animated Armor, a medium construct of challenge rating 1; 10: Brown Bear, a large beast of challenge rating 1; 11: Ghoul, a medium undead of challenge rating 1; 12: Berserker, a medium humanoid (any race) of challenge rating 2; 13: Black Dragon Wyrmling, a medium dragon of challenge rating 2; 14: Gargoyle, a medium elemental of challenge rating 2. Leave cells 15 to 16 empty. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002386
  },
  "monster_token.crocodile": {
   "kind": "monster_token",
@@ -1086,10 +1106,12 @@
    256
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Cult Fanatic, a medium humanoid (any race) of challenge rating 2. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Bandit, a medium humanoid (any race) of challenge rating 0.125; 2: Cultist, a medium humanoid (any race) of challenge rating 0.125; 3: Goblin, a small humanoid (goblinoid) of challenge rating 0.25; 4: Giant Rat, a small beast of challenge rating 0.125; 5: Acolyte, a medium humanoid (any race) of challenge rating 0.25; 6: Hobgoblin, a medium humanoid (goblinoid) of challenge rating 0.5; 7: Bugbear, a medium humanoid (goblinoid) of challenge rating 1; 8: Bandit Captain, a medium humanoid (any race) of challenge rating 2; 9: Cult Fanatic, a medium humanoid (any race) of challenge rating 2; 10: Mimic, a medium monstrosity (shapechanger) of challenge rating 2; 11: Ogre, a large giant of challenge rating 2; 12: Troll, a large giant of challenge rating 5; 13: Mage, a medium humanoid (any race) of challenge rating 6; 14: Kobold, a small humanoid (kobold) of challenge rating 0.125; 15: Drow, a medium humanoid (elf) of challenge rating 0.25; 16: Giant Wolf Spider, a medium beast of challenge rating 0.25. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002106
  },
  "monster_token.cultist": {
   "kind": "monster_token",
@@ -1099,10 +1121,12 @@
    256
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Cultist, a medium humanoid (any race) of challenge rating 0.125. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Bandit, a medium humanoid (any race) of challenge rating 0.125; 2: Cultist, a medium humanoid (any race) of challenge rating 0.125; 3: Goblin, a small humanoid (goblinoid) of challenge rating 0.25; 4: Giant Rat, a small beast of challenge rating 0.125; 5: Acolyte, a medium humanoid (any race) of challenge rating 0.25; 6: Hobgoblin, a medium humanoid (goblinoid) of challenge rating 0.5; 7: Bugbear, a medium humanoid (goblinoid) of challenge rating 1; 8: Bandit Captain, a medium humanoid (any race) of challenge rating 2; 9: Cult Fanatic, a medium humanoid (any race) of challenge rating 2; 10: Mimic, a medium monstrosity (shapechanger) of challenge rating 2; 11: Ogre, a large giant of challenge rating 2; 12: Troll, a large giant of challenge rating 5; 13: Mage, a medium humanoid (any race) of challenge rating 6; 14: Kobold, a small humanoid (kobold) of challenge rating 0.125; 15: Drow, a medium humanoid (elf) of challenge rating 0.25; 16: Giant Wolf Spider, a medium beast of challenge rating 0.25. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002106
  },
  "monster_token.death-dog": {
   "kind": "monster_token",
@@ -1138,10 +1162,12 @@
    256
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Drow, a medium humanoid (elf) of challenge rating 0.25. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Bandit, a medium humanoid (any race) of challenge rating 0.125; 2: Cultist, a medium humanoid (any race) of challenge rating 0.125; 3: Goblin, a small humanoid (goblinoid) of challenge rating 0.25; 4: Giant Rat, a small beast of challenge rating 0.125; 5: Acolyte, a medium humanoid (any race) of challenge rating 0.25; 6: Hobgoblin, a medium humanoid (goblinoid) of challenge rating 0.5; 7: Bugbear, a medium humanoid (goblinoid) of challenge rating 1; 8: Bandit Captain, a medium humanoid (any race) of challenge rating 2; 9: Cult Fanatic, a medium humanoid (any race) of challenge rating 2; 10: Mimic, a medium monstrosity (shapechanger) of challenge rating 2; 11: Ogre, a large giant of challenge rating 2; 12: Troll, a large giant of challenge rating 5; 13: Mage, a medium humanoid (any race) of challenge rating 6; 14: Kobold, a small humanoid (kobold) of challenge rating 0.125; 15: Drow, a medium humanoid (elf) of challenge rating 0.25; 16: Giant Wolf Spider, a medium beast of challenge rating 0.25. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002106
  },
  "monster_token.duergar": {
   "kind": "monster_token",
@@ -1229,10 +1255,12 @@
    256
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Gargoyle, a medium elemental of challenge rating 2. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Skeleton, a medium undead of challenge rating 0.25; 2: Swarm of Rats, a medium swarm of Tiny beasts of challenge rating 0.25; 3: Violet Fungus, a medium plant of challenge rating 0.25; 4: Zombie, a medium undead of challenge rating 0.25; 5: Cockatrice, a small monstrosity of challenge rating 0.5; 6: Gnoll, a medium humanoid (gnoll) of challenge rating 0.5; 7: Orc, a medium humanoid (orc) of challenge rating 0.5; 8: Thug, a medium humanoid (any race) of challenge rating 0.5; 9: Animated Armor, a medium construct of challenge rating 1; 10: Brown Bear, a large beast of challenge rating 1; 11: Ghoul, a medium undead of challenge rating 1; 12: Berserker, a medium humanoid (any race) of challenge rating 2; 13: Black Dragon Wyrmling, a medium dragon of challenge rating 2; 14: Gargoyle, a medium elemental of challenge rating 2. Leave cells 15 to 16 empty. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002386
  },
  "monster_token.gelatinous-cube": {
   "kind": "monster_token",
@@ -1268,10 +1296,12 @@
    256
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Ghoul, a medium undead of challenge rating 1. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Skeleton, a medium undead of challenge rating 0.25; 2: Swarm of Rats, a medium swarm of Tiny beasts of challenge rating 0.25; 3: Violet Fungus, a medium plant of challenge rating 0.25; 4: Zombie, a medium undead of challenge rating 0.25; 5: Cockatrice, a small monstrosity of challenge rating 0.5; 6: Gnoll, a medium humanoid (gnoll) of challenge rating 0.5; 7: Orc, a medium humanoid (orc) of challenge rating 0.5; 8: Thug, a medium humanoid (any race) of challenge rating 0.5; 9: Animated Armor, a medium construct of challenge rating 1; 10: Brown Bear, a large beast of challenge rating 1; 11: Ghoul, a medium undead of challenge rating 1; 12: Berserker, a medium humanoid (any race) of challenge rating 2; 13: Black Dragon Wyrmling, a medium dragon of challenge rating 2; 14: Gargoyle, a medium elemental of challenge rating 2. Leave cells 15 to 16 empty. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002386
  },
  "monster_token.giant-crocodile": {
   "kind": "monster_token",
@@ -1294,10 +1324,12 @@
    256
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Giant Rat, a small beast of challenge rating 0.125. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Bandit, a medium humanoid (any race) of challenge rating 0.125; 2: Cultist, a medium humanoid (any race) of challenge rating 0.125; 3: Goblin, a small humanoid (goblinoid) of challenge rating 0.25; 4: Giant Rat, a small beast of challenge rating 0.125; 5: Acolyte, a medium humanoid (any race) of challenge rating 0.25; 6: Hobgoblin, a medium humanoid (goblinoid) of challenge rating 0.5; 7: Bugbear, a medium humanoid (goblinoid) of challenge rating 1; 8: Bandit Captain, a medium humanoid (any race) of challenge rating 2; 9: Cult Fanatic, a medium humanoid (any race) of challenge rating 2; 10: Mimic, a medium monstrosity (shapechanger) of challenge rating 2; 11: Ogre, a large giant of challenge rating 2; 12: Troll, a large giant of challenge rating 5; 13: Mage, a medium humanoid (any race) of challenge rating 6; 14: Kobold, a small humanoid (kobold) of challenge rating 0.125; 15: Drow, a medium humanoid (elf) of challenge rating 0.25; 16: Giant Wolf Spider, a medium beast of challenge rating 0.25. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002106
  },
  "monster_token.giant-scorpion": {
   "kind": "monster_token",
@@ -1320,10 +1352,12 @@
    256
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Giant Wolf Spider, a medium beast of challenge rating 0.25. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Bandit, a medium humanoid (any race) of challenge rating 0.125; 2: Cultist, a medium humanoid (any race) of challenge rating 0.125; 3: Goblin, a small humanoid (goblinoid) of challenge rating 0.25; 4: Giant Rat, a small beast of challenge rating 0.125; 5: Acolyte, a medium humanoid (any race) of challenge rating 0.25; 6: Hobgoblin, a medium humanoid (goblinoid) of challenge rating 0.5; 7: Bugbear, a medium humanoid (goblinoid) of challenge rating 1; 8: Bandit Captain, a medium humanoid (any race) of challenge rating 2; 9: Cult Fanatic, a medium humanoid (any race) of challenge rating 2; 10: Mimic, a medium monstrosity (shapechanger) of challenge rating 2; 11: Ogre, a large giant of challenge rating 2; 12: Troll, a large giant of challenge rating 5; 13: Mage, a medium humanoid (any race) of challenge rating 6; 14: Kobold, a small humanoid (kobold) of challenge rating 0.125; 15: Drow, a medium humanoid (elf) of challenge rating 0.25; 16: Giant Wolf Spider, a medium beast of challenge rating 0.25. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002106
  },
  "monster_token.gladiator": {
   "kind": "monster_token",
@@ -1346,10 +1380,12 @@
    256
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Gnoll, a medium humanoid (gnoll) of challenge rating 0.5. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Skeleton, a medium undead of challenge rating 0.25; 2: Swarm of Rats, a medium swarm of Tiny beasts of challenge rating 0.25; 3: Violet Fungus, a medium plant of challenge rating 0.25; 4: Zombie, a medium undead of challenge rating 0.25; 5: Cockatrice, a small monstrosity of challenge rating 0.5; 6: Gnoll, a medium humanoid (gnoll) of challenge rating 0.5; 7: Orc, a medium humanoid (orc) of challenge rating 0.5; 8: Thug, a medium humanoid (any race) of challenge rating 0.5; 9: Animated Armor, a medium construct of challenge rating 1; 10: Brown Bear, a large beast of challenge rating 1; 11: Ghoul, a medium undead of challenge rating 1; 12: Berserker, a medium humanoid (any race) of challenge rating 2; 13: Black Dragon Wyrmling, a medium dragon of challenge rating 2; 14: Gargoyle, a medium elemental of challenge rating 2. Leave cells 15 to 16 empty. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002386
  },
  "monster_token.goblin": {
   "kind": "monster_token",
@@ -1359,10 +1395,12 @@
    256
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Goblin, a small humanoid (goblinoid) of challenge rating 0.25. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Bandit, a medium humanoid (any race) of challenge rating 0.125; 2: Cultist, a medium humanoid (any race) of challenge rating 0.125; 3: Goblin, a small humanoid (goblinoid) of challenge rating 0.25; 4: Giant Rat, a small beast of challenge rating 0.125; 5: Acolyte, a medium humanoid (any race) of challenge rating 0.25; 6: Hobgoblin, a medium humanoid (goblinoid) of challenge rating 0.5; 7: Bugbear, a medium humanoid (goblinoid) of challenge rating 1; 8: Bandit Captain, a medium humanoid (any race) of challenge rating 2; 9: Cult Fanatic, a medium humanoid (any race) of challenge rating 2; 10: Mimic, a medium monstrosity (shapechanger) of challenge rating 2; 11: Ogre, a large giant of challenge rating 2; 12: Troll, a large giant of challenge rating 5; 13: Mage, a medium humanoid (any race) of challenge rating 6; 14: Kobold, a small humanoid (kobold) of challenge rating 0.125; 15: Drow, a medium humanoid (elf) of challenge rating 0.25; 16: Giant Wolf Spider, a medium beast of challenge rating 0.25. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002106
  },
  "monster_token.green-dragon-wyrmling": {
   "kind": "monster_token",
@@ -1476,10 +1514,12 @@
    256
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Hobgoblin, a medium humanoid (goblinoid) of challenge rating 0.5. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Bandit, a medium humanoid (any race) of challenge rating 0.125; 2: Cultist, a medium humanoid (any race) of challenge rating 0.125; 3: Goblin, a small humanoid (goblinoid) of challenge rating 0.25; 4: Giant Rat, a small beast of challenge rating 0.125; 5: Acolyte, a medium humanoid (any race) of challenge rating 0.25; 6: Hobgoblin, a medium humanoid (goblinoid) of challenge rating 0.5; 7: Bugbear, a medium humanoid (goblinoid) of challenge rating 1; 8: Bandit Captain, a medium humanoid (any race) of challenge rating 2; 9: Cult Fanatic, a medium humanoid (any race) of challenge rating 2; 10: Mimic, a medium monstrosity (shapechanger) of challenge rating 2; 11: Ogre, a large giant of challenge rating 2; 12: Troll, a large giant of challenge rating 5; 13: Mage, a medium humanoid (any race) of challenge rating 6; 14: Kobold, a small humanoid (kobold) of challenge rating 0.125; 15: Drow, a medium humanoid (elf) of challenge rating 0.25; 16: Giant Wolf Spider, a medium beast of challenge rating 0.25. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002106
  },
  "monster_token.hydra": {
   "kind": "monster_token",
@@ -1528,10 +1568,12 @@
    256
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Kobold, a small humanoid (kobold) of challenge rating 0.125. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Bandit, a medium humanoid (any race) of challenge rating 0.125; 2: Cultist, a medium humanoid (any race) of challenge rating 0.125; 3: Goblin, a small humanoid (goblinoid) of challenge rating 0.25; 4: Giant Rat, a small beast of challenge rating 0.125; 5: Acolyte, a medium humanoid (any race) of challenge rating 0.25; 6: Hobgoblin, a medium humanoid (goblinoid) of challenge rating 0.5; 7: Bugbear, a medium humanoid (goblinoid) of challenge rating 1; 8: Bandit Captain, a medium humanoid (any race) of challenge rating 2; 9: Cult Fanatic, a medium humanoid (any race) of challenge rating 2; 10: Mimic, a medium monstrosity (shapechanger) of challenge rating 2; 11: Ogre, a large giant of challenge rating 2; 12: Troll, a large giant of challenge rating 5; 13: Mage, a medium humanoid (any race) of challenge rating 6; 14: Kobold, a small humanoid (kobold) of challenge rating 0.125; 15: Drow, a medium humanoid (elf) of challenge rating 0.25; 16: Giant Wolf Spider, a medium beast of challenge rating 0.25. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002106
  },
  "monster_token.lizardfolk": {
   "kind": "monster_token",
@@ -1554,10 +1596,12 @@
    256
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Mage, a medium humanoid (any race) of challenge rating 6. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Bandit, a medium humanoid (any race) of challenge rating 0.125; 2: Cultist, a medium humanoid (any race) of challenge rating 0.125; 3: Goblin, a small humanoid (goblinoid) of challenge rating 0.25; 4: Giant Rat, a small beast of challenge rating 0.125; 5: Acolyte, a medium humanoid (any race) of challenge rating 0.25; 6: Hobgoblin, a medium humanoid (goblinoid) of challenge rating 0.5; 7: Bugbear, a medium humanoid (goblinoid) of challenge rating 1; 8: Bandit Captain, a medium humanoid (any race) of challenge rating 2; 9: Cult Fanatic, a medium humanoid (any race) of challenge rating 2; 10: Mimic, a medium monstrosity (shapechanger) of challenge rating 2; 11: Ogre, a large giant of challenge rating 2; 12: Troll, a large giant of challenge rating 5; 13: Mage, a medium humanoid (any race) of challenge rating 6; 14: Kobold, a small humanoid (kobold) of challenge rating 0.125; 15: Drow, a medium humanoid (elf) of challenge rating 0.25; 16: Giant Wolf Spider, a medium beast of challenge rating 0.25. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002106
  },
  "monster_token.manticore": {
   "kind": "monster_token",
@@ -1593,10 +1637,12 @@
    256
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Mimic, a medium monstrosity (shapechanger) of challenge rating 2. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Bandit, a medium humanoid (any race) of challenge rating 0.125; 2: Cultist, a medium humanoid (any race) of challenge rating 0.125; 3: Goblin, a small humanoid (goblinoid) of challenge rating 0.25; 4: Giant Rat, a small beast of challenge rating 0.125; 5: Acolyte, a medium humanoid (any race) of challenge rating 0.25; 6: Hobgoblin, a medium humanoid (goblinoid) of challenge rating 0.5; 7: Bugbear, a medium humanoid (goblinoid) of challenge rating 1; 8: Bandit Captain, a medium humanoid (any race) of challenge rating 2; 9: Cult Fanatic, a medium humanoid (any race) of challenge rating 2; 10: Mimic, a medium monstrosity (shapechanger) of challenge rating 2; 11: Ogre, a large giant of challenge rating 2; 12: Troll, a large giant of challenge rating 5; 13: Mage, a medium humanoid (any race) of challenge rating 6; 14: Kobold, a small humanoid (kobold) of challenge rating 0.125; 15: Drow, a medium humanoid (elf) of challenge rating 0.25; 16: Giant Wolf Spider, a medium beast of challenge rating 0.25. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002106
  },
  "monster_token.minotaur": {
   "kind": "monster_token",
@@ -1645,10 +1691,12 @@
    256
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Ogre, a large giant of challenge rating 2. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Bandit, a medium humanoid (any race) of challenge rating 0.125; 2: Cultist, a medium humanoid (any race) of challenge rating 0.125; 3: Goblin, a small humanoid (goblinoid) of challenge rating 0.25; 4: Giant Rat, a small beast of challenge rating 0.125; 5: Acolyte, a medium humanoid (any race) of challenge rating 0.25; 6: Hobgoblin, a medium humanoid (goblinoid) of challenge rating 0.5; 7: Bugbear, a medium humanoid (goblinoid) of challenge rating 1; 8: Bandit Captain, a medium humanoid (any race) of challenge rating 2; 9: Cult Fanatic, a medium humanoid (any race) of challenge rating 2; 10: Mimic, a medium monstrosity (shapechanger) of challenge rating 2; 11: Ogre, a large giant of challenge rating 2; 12: Troll, a large giant of challenge rating 5; 13: Mage, a medium humanoid (any race) of challenge rating 6; 14: Kobold, a small humanoid (kobold) of challenge rating 0.125; 15: Drow, a medium humanoid (elf) of challenge rating 0.25; 16: Giant Wolf Spider, a medium beast of challenge rating 0.25. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002106
  },
  "monster_token.ogre-zombie": {
   "kind": "monster_token",
@@ -1671,10 +1719,12 @@
    256
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Orc, a medium humanoid (orc) of challenge rating 0.5. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Skeleton, a medium undead of challenge rating 0.25; 2: Swarm of Rats, a medium swarm of Tiny beasts of challenge rating 0.25; 3: Violet Fungus, a medium plant of challenge rating 0.25; 4: Zombie, a medium undead of challenge rating 0.25; 5: Cockatrice, a small monstrosity of challenge rating 0.5; 6: Gnoll, a medium humanoid (gnoll) of challenge rating 0.5; 7: Orc, a medium humanoid (orc) of challenge rating 0.5; 8: Thug, a medium humanoid (any race) of challenge rating 0.5; 9: Animated Armor, a medium construct of challenge rating 1; 10: Brown Bear, a large beast of challenge rating 1; 11: Ghoul, a medium undead of challenge rating 1; 12: Berserker, a medium humanoid (any race) of challenge rating 2; 13: Black Dragon Wyrmling, a medium dragon of challenge rating 2; 14: Gargoyle, a medium elemental of challenge rating 2. Leave cells 15 to 16 empty. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002386
  },
  "monster_token.owlbear": {
   "kind": "monster_token",
@@ -1775,10 +1825,12 @@
    256
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Skeleton, a medium undead of challenge rating 0.25. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Skeleton, a medium undead of challenge rating 0.25; 2: Swarm of Rats, a medium swarm of Tiny beasts of challenge rating 0.25; 3: Violet Fungus, a medium plant of challenge rating 0.25; 4: Zombie, a medium undead of challenge rating 0.25; 5: Cockatrice, a small monstrosity of challenge rating 0.5; 6: Gnoll, a medium humanoid (gnoll) of challenge rating 0.5; 7: Orc, a medium humanoid (orc) of challenge rating 0.5; 8: Thug, a medium humanoid (any race) of challenge rating 0.5; 9: Animated Armor, a medium construct of challenge rating 1; 10: Brown Bear, a large beast of challenge rating 1; 11: Ghoul, a medium undead of challenge rating 1; 12: Berserker, a medium humanoid (any race) of challenge rating 2; 13: Black Dragon Wyrmling, a medium dragon of challenge rating 2; 14: Gargoyle, a medium elemental of challenge rating 2. Leave cells 15 to 16 empty. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002386
  },
  "monster_token.steam-mephit": {
   "kind": "monster_token",
@@ -1840,10 +1892,12 @@
    256
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Swarm of Rats, a medium swarm of Tiny beasts of challenge rating 0.25. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Skeleton, a medium undead of challenge rating 0.25; 2: Swarm of Rats, a medium swarm of Tiny beasts of challenge rating 0.25; 3: Violet Fungus, a medium plant of challenge rating 0.25; 4: Zombie, a medium undead of challenge rating 0.25; 5: Cockatrice, a small monstrosity of challenge rating 0.5; 6: Gnoll, a medium humanoid (gnoll) of challenge rating 0.5; 7: Orc, a medium humanoid (orc) of challenge rating 0.5; 8: Thug, a medium humanoid (any race) of challenge rating 0.5; 9: Animated Armor, a medium construct of challenge rating 1; 10: Brown Bear, a large beast of challenge rating 1; 11: Ghoul, a medium undead of challenge rating 1; 12: Berserker, a medium humanoid (any race) of challenge rating 2; 13: Black Dragon Wyrmling, a medium dragon of challenge rating 2; 14: Gargoyle, a medium elemental of challenge rating 2. Leave cells 15 to 16 empty. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002386
  },
  "monster_token.thug": {
   "kind": "monster_token",
@@ -1853,10 +1907,12 @@
    256
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Thug, a medium humanoid (any race) of challenge rating 0.5. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Skeleton, a medium undead of challenge rating 0.25; 2: Swarm of Rats, a medium swarm of Tiny beasts of challenge rating 0.25; 3: Violet Fungus, a medium plant of challenge rating 0.25; 4: Zombie, a medium undead of challenge rating 0.25; 5: Cockatrice, a small monstrosity of challenge rating 0.5; 6: Gnoll, a medium humanoid (gnoll) of challenge rating 0.5; 7: Orc, a medium humanoid (orc) of challenge rating 0.5; 8: Thug, a medium humanoid (any race) of challenge rating 0.5; 9: Animated Armor, a medium construct of challenge rating 1; 10: Brown Bear, a large beast of challenge rating 1; 11: Ghoul, a medium undead of challenge rating 1; 12: Berserker, a medium humanoid (any race) of challenge rating 2; 13: Black Dragon Wyrmling, a medium dragon of challenge rating 2; 14: Gargoyle, a medium elemental of challenge rating 2. Leave cells 15 to 16 empty. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002386
  },
  "monster_token.troll": {
   "kind": "monster_token",
@@ -1866,10 +1922,12 @@
    256
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Troll, a large giant of challenge rating 5. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Bandit, a medium humanoid (any race) of challenge rating 0.125; 2: Cultist, a medium humanoid (any race) of challenge rating 0.125; 3: Goblin, a small humanoid (goblinoid) of challenge rating 0.25; 4: Giant Rat, a small beast of challenge rating 0.125; 5: Acolyte, a medium humanoid (any race) of challenge rating 0.25; 6: Hobgoblin, a medium humanoid (goblinoid) of challenge rating 0.5; 7: Bugbear, a medium humanoid (goblinoid) of challenge rating 1; 8: Bandit Captain, a medium humanoid (any race) of challenge rating 2; 9: Cult Fanatic, a medium humanoid (any race) of challenge rating 2; 10: Mimic, a medium monstrosity (shapechanger) of challenge rating 2; 11: Ogre, a large giant of challenge rating 2; 12: Troll, a large giant of challenge rating 5; 13: Mage, a medium humanoid (any race) of challenge rating 6; 14: Kobold, a small humanoid (kobold) of challenge rating 0.125; 15: Drow, a medium humanoid (elf) of challenge rating 0.25; 16: Giant Wolf Spider, a medium beast of challenge rating 0.25. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002106
  },
  "monster_token.tyrannosaurus-rex": {
   "kind": "monster_token",
@@ -1918,10 +1976,12 @@
    256
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Violet Fungus, a medium plant of challenge rating 0.25. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Skeleton, a medium undead of challenge rating 0.25; 2: Swarm of Rats, a medium swarm of Tiny beasts of challenge rating 0.25; 3: Violet Fungus, a medium plant of challenge rating 0.25; 4: Zombie, a medium undead of challenge rating 0.25; 5: Cockatrice, a small monstrosity of challenge rating 0.5; 6: Gnoll, a medium humanoid (gnoll) of challenge rating 0.5; 7: Orc, a medium humanoid (orc) of challenge rating 0.5; 8: Thug, a medium humanoid (any race) of challenge rating 0.5; 9: Animated Armor, a medium construct of challenge rating 1; 10: Brown Bear, a large beast of challenge rating 1; 11: Ghoul, a medium undead of challenge rating 1; 12: Berserker, a medium humanoid (any race) of challenge rating 2; 13: Black Dragon Wyrmling, a medium dragon of challenge rating 2; 14: Gargoyle, a medium elemental of challenge rating 2. Leave cells 15 to 16 empty. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002386
  },
  "monster_token.water-elemental": {
   "kind": "monster_token",
@@ -2074,10 +2134,12 @@
    256
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Zombie, a medium undead of challenge rating 0.25. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Target size 256x256. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Skeleton, a medium undead of challenge rating 0.25; 2: Swarm of Rats, a medium swarm of Tiny beasts of challenge rating 0.25; 3: Violet Fungus, a medium plant of challenge rating 0.25; 4: Zombie, a medium undead of challenge rating 0.25; 5: Cockatrice, a small monstrosity of challenge rating 0.5; 6: Gnoll, a medium humanoid (gnoll) of challenge rating 0.5; 7: Orc, a medium humanoid (orc) of challenge rating 0.5; 8: Thug, a medium humanoid (any race) of challenge rating 0.5; 9: Animated Armor, a medium construct of challenge rating 1; 10: Brown Bear, a large beast of challenge rating 1; 11: Ghoul, a medium undead of challenge rating 1; 12: Berserker, a medium humanoid (any race) of challenge rating 2; 13: Black Dragon Wyrmling, a medium dragon of challenge rating 2; 14: Gargoyle, a medium elemental of challenge rating 2. Leave cells 15 to 16 empty. One creature, full body, three-quarter view, centred, plain transparent background, strong silhouette, readable at 64 px, one cell of a 4x4 sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002386
  },
  "music.combat": {
   "kind": "music",
@@ -3399,10 +3461,12 @@
    256
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: A regional vista: a hopeful dawn over quiet outskirts and a country road. Very wide panoramic strip 4:1, a landscape or interior vista with a calm horizon band in the middle, no characters, no creatures, a dark soft edge on the left and right. Target size 1024x256.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: A regional vista: a hopeful dawn over quiet outskirts and a country road. Very wide panoramic strip 4:1, a landscape or interior vista with a calm horizon band in the middle, no characters, no creatures, a dark soft edge on the left and right. Compose for a final crop to 1024x256. Fix from review: Fill the entire canvas edge to edge with the landscape; no white or blank margin at the bottom.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0261
  },
  "region_banner.tier2": {
   "kind": "region_banner",
@@ -3455,10 +3519,12 @@
    256
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The terrain open wilds with open ground, boulder cluster, grassy hillock. Very wide panoramic strip 4:1, a landscape or interior vista with a calm horizon band in the middle, no characters, no creatures, a dark soft edge on the left and right. Target size 1024x256.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: The terrain open wilds with open ground, boulder cluster, grassy hillock. Very wide panoramic strip 4:1, a landscape or interior vista with a calm horizon band in the middle, no characters, no creatures, a dark soft edge on the left and right. Compose for a final crop to 1024x256.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.026
  },
  "sfx.coin": {
   "kind": "sfx",
@@ -4202,10 +4268,12 @@
    128
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The cold magic school emblem showing icy cyan crystals. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: A tool (a category icon: the typical object of that kind); 2: The cold magic school emblem showing icy cyan crystals. Leave cells 3 to 16 empty. One object, centred, three-quarter view, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0162
  },
  "spell_icon.school.fire": {
   "kind": "spell_icon",

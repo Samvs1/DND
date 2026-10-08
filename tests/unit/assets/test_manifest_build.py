@@ -13,7 +13,7 @@ from tests.unit.scripts.helpers import load_script
 
 bm = load_script("build_manifest")
 REAL_WEB = bm.default_web_root()
-KEY = "monster_token.goblin"
+KEY = "monster_token.barbed-devil"
 PNG_HEAD = b"\x89PNG\r\n\x1a\n" + b"\x00\x00\x00\rIHDR"
 PNG = PNG_HEAD + (64).to_bytes(4, "big") * 2 + b"\x08\x06\x00\x00\x00"
 FIELDS = {"kind", "file", "size", "transparent", "status", "prompt", "source", "license"}
