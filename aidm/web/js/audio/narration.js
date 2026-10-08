@@ -12,7 +12,7 @@ export function createNarrationAudio({ store, mode, makeAudio = (url) => new Aud
   let blocked = false;
 
   const muted = () => audioMuted(currentSettings(), store.get(), mode);
-  const volume = () => currentSettings().volume / 100;
+  const volume = () => currentSettings().narrationVolume / 100;
 
   function reveal(item) {
     if (item.revealed) return;

@@ -484,3 +484,7 @@ M11.2 clock | `Clock.time()` added (LoopClock = loop time, ManualClock = `now`) 
 
 ## M11.4
 - Phone status chip: if the player is in the floor queue it shows "Waiting (n)" even while another hero holds the floor; "X is acting" is for non-queued bystanders. Defeat panel clears its `shown` flag before resetting the tab (store.update re-enters the subscriber).
+
+## M11.5
+- The screen's local settings are the one source of audio levels. A new `state.audio` value is copied into them (audio/remote.js), and the screen gear edits them directly, so the last write wins. The screen cannot send `audio_settings` (not seated), so its gear changes do not flow back to phones.
+- Music gain is now 0.8 of the music slider (default 50 gives 0.4, near the old 0.32). Old `volume` seeds both levels once, then is dropped from storage.

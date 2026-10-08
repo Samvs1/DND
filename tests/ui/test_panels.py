@@ -335,7 +335,10 @@ def test_settings_persist_across_reload(
     assert stored == {
         "mute": True,
         "muteSet": True,
-        "volume": 35,
+        "musicMute": False,
+        "musicMuteSet": False,
+        "narrationVolume": 35,
+        "musicVolume": 50,
         "speed": "slow",
         "size": "large",
         "reduceMotion": True,

@@ -1,6 +1,7 @@
 // Entry point: picks the mode from the URL path (/screen = spectator, else player), wires the
 // store, websocket client, handler registry, banner and the active view.
 import { loadAssets } from './assets.js';
+import { bindRemoteAudio } from './audio/remote.js';
 import { createMusic } from './audio/music.js';
 import { createNarrationAudio } from './audio/narration.js';
 import { createDispatch } from './handlers.js';
@@ -51,6 +52,7 @@ function show(state) {
 }
 
 await loadAssets();
+bindRemoteAudio({ store, saved, mode });
 const music = createMusic({ store, mode, makeAudio });
 store.subscribe(show);
 show(store.get());

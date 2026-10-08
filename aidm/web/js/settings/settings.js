@@ -25,12 +25,17 @@ export function mountSettings(root, { store, saved, mode }) {
     panel.body.replaceChildren();
     const s = currentSettings();
     const set = (patch) => updateSettings(patch, saved);
-    const volume = h('input', { type: 'range', id: 'set-volume', min: 0, max: 100, step: 5, value: s.volume, 'data-testid': 'set-volume' });
-    volume.addEventListener('change', () => set({ volume: Number(volume.value) }));
+    const slider = (id, key) => {
+      const input = h('input', { type: 'range', id, min: 0, max: 100, step: 5, value: s[key], 'data-testid': id });
+      input.addEventListener('change', () => set({ [key]: Number(input.value) }));
+      return input;
+    };
     panel.body.append(
       h('h3', {}, t('settings.audio')),
       check('set-mute', 'settings.mute', audioMuted(s, store.get(), mode), (mute) => set({ mute, muteSet: true })),
-      h('div', { class: 'set-row' }, h('label', { for: 'set-volume' }, t('settings.volume')), volume),
+      h('div', { class: 'set-row' }, h('label', { for: 'set-volume' }, t('settings.volume')), slider('set-volume', 'narrationVolume')),
+      check('set-music-mute', 'settings.musicMute', audioMuted(s, store.get(), mode, 'music'), (musicMute) => set({ musicMute, musicMuteSet: true })),
+      h('div', { class: 'set-row' }, h('label', { for: 'set-music-volume' }, t('settings.musicVolume')), slider('set-music-volume', 'musicVolume')),
       h('p', { class: 'hint' }, t('settings.audioHint')),
       h('h3', {}, t('settings.text')),
       choice('set-speed', 'settings.speed', SPEEDS, 'speed', s.speed, (speed) => set({ speed })),

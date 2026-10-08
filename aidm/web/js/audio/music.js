@@ -9,7 +9,7 @@ import { audioMuted, currentSettings, onSettingsChange, reducedMotion } from '..
 
 export const FADE_MS = 1500;
 const TICK_MS = 50;
-const GAIN = 0.4; // music sits under the narration voice
+const GAIN = 0.8; // music sits under the narration voice
 const STINGERS = ['victory', 'defeat'];
 
 /** Which track the public state calls for: defeat, combat, a pending stinger, exploration, or null (silence). */
@@ -34,8 +34,8 @@ export function createMusic({ store, mode, makeAudio = (url) => new Audio(url) }
   let timer = null;
   let blocked = false;
 
-  const muted = () => audioMuted(currentSettings(), store.get(), mode);
-  const target = () => (currentSettings().volume / 100) * GAIN;
+  const muted = () => audioMuted(currentSettings(), store.get(), mode, 'music');
+  const target = () => (currentSettings().musicVolume / 100) * GAIN;
 
   function setVolume(ch, level) {
     ch.level = level;
