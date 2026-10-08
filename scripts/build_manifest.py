@@ -75,7 +75,7 @@ def build_entry(
     prompt = "" if refresh_prompt and not real else str(old.get("prompt") or "")
     if not prompt and not real:
         prompt = build_prompt(spec)
-    return {
+    entry: dict[str, Any] = {
         "kind": spec.kind,
         "file": spec.file,
         "size": size,
@@ -85,6 +85,9 @@ def build_entry(
         "source": source,
         "license": licence,
     }
+    if real and source.startswith("generated:"):
+        entry.update({k: old[k] for k in ("reviewed", "cost_eur") if k in old})
+    return entry
 
 
 def build_manifest(web_root: Path, *, refresh_prompts: bool = False) -> dict[str, dict[str, Any]]:

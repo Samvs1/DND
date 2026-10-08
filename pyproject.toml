@@ -16,6 +16,7 @@ dependencies = [
     "python-dotenv",
     "fish-audio-sdk",
     "qrcode",
+    "Pillow",
 ]
 
 [project.optional-dependencies]

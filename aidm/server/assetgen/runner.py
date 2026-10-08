@@ -3,8 +3,10 @@
 The model is chosen from the provider's model list (`select_model`) unless given. Each attempt of
 each call is booked in the ledger before the request at the worst case for that model and settled
 after with the actual cost; a provider error marks the attempt failed (it still counts) and the
-call is retried up to `max_attempts`. A `BudgetRefused` stops the run cleanly: the refused call and
-every later one are reported as remaining (they stay placeholders). Results are candidates only:
+call is retried up to `max_attempts`. An optional `check` hook (auto-checks, autocheck.py) that
+returns reasons rejects an image: the attempt stays booked and counted, the call is retried.
+A `BudgetRefused` stops the run cleanly: the refused call
+and every later one are reported as remaining (they stay placeholders). Results are candidates only:
 each image and a JSON sidecar (keys, cell order, model, prompt, cost) go to the staging directory,
 atomically and never over an existing file. Installing is a separate, reviewed step.
 
@@ -38,6 +40,7 @@ class RunSettings:
     staging_dir: Path
     max_attempts: int = 2
     log: Callable[[str], None] = _quiet
+    check: Callable[[ImageRequest, bytes], Sequence[str]] | None = None
 
 
 @dataclass
@@ -123,6 +126,10 @@ def _run_one(
             continue
         cost = table.actual_eur(model, result.usage)
         guard.settle(call_id, cost)
+        reasons = settings.check(call.request, result.image) if settings.check else ()
+        if reasons:
+            settings.log(f"{call.label}: attempt {attempt} failed auto-check: {'; '.join(reasons)}")
+            continue
         path = write_candidate(
             settings.staging_dir, call, result, call_id, cost if cost is not None else estimate
         )

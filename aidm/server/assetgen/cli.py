@@ -24,6 +24,7 @@ from typing import Any
 
 from aidm.server.asset_keys import split_key
 from aidm.server.asset_prompts import load_style_bible
+from aidm.server.assetgen.autocheck import reasons_for_request
 from aidm.server.assetgen.costs import PriceTable, load_price_table
 from aidm.server.assetgen.fake_provider import FakeImageProvider
 from aidm.server.assetgen.ledger import BudgetGuard, load_ledger
@@ -31,10 +32,16 @@ from aidm.server.assetgen.openai_provider import OpenAIImageProvider
 from aidm.server.assetgen.plan import PlannedCall, Selection, build_calls, select_keys
 from aidm.server.assetgen.priority import derive_tiers, render_priority
 from aidm.server.assetgen.prompts import RefSources
-from aidm.server.assetgen.provider import ImageProvider, ProviderError
+from aidm.server.assetgen.provider import ImageProvider, ImageRequest, ProviderError
 from aidm.server.assetgen.runner import RunReport, RunSettings, run_calls
 
 type Out = Callable[[str], None]
+
+
+def _autocheck(request: ImageRequest, image: bytes) -> list[str]:
+    return reasons_for_request(request.size, request.transparent, image)
+
+
 DEFAULT_CAP_EUR = 8.0
 SHOWN_SHEET_KEYS = 4
 
@@ -189,7 +196,7 @@ def _generate(
     try:
         chosen = provider if provider is not None else provider_from_env(paths.root)
         guard = BudgetGuard(paths.ledger, args.cap, lambda: datetime.now(UTC).isoformat())
-        settings = RunSettings(paths.staging, max(1, args.max_attempts), out)
+        settings = RunSettings(paths.staging, max(1, args.max_attempts), out, _autocheck)
         report = run_calls(calls, chosen, guard, load_price_table(), settings)
     except ProviderError as exc:
         out(f"provider unavailable: {exc}")
