@@ -44,6 +44,7 @@ paste its contents anywhere. The names (see [.env.example](.env.example)) are:
 ```powershell
 python -m aidm                  # http://127.0.0.1:8000/  (this computer only)
 python -m aidm --lan            # reachable from your network; prints a LAN URL, the lobby shows a QR code
+python -m aidm --lan --https    # the same over https (self-signed), needed for the phone mic button
 python -m aidm --load <id>      # open a saved campaign instead of a new lobby
 python -m aidm --saves D:\games # keep saves somewhere else (default .\saves)
 $env:AIDM_FAKE_LLM = "1"; python -m aidm   # no API calls at all (offline demo, deterministic)
@@ -58,31 +59,51 @@ lobby). The first time, Windows asks whether Python may accept connections: allo
 If the prompt never appeared or you dismissed it, add an inbound rule for TCP port 8000 (or the port you chose)
 in Windows Defender Firewall, scoped to the private profile, or allow `python.exe` there.
 
-This is meant for a trusted home network only: there is no TLS and there are no accounts. A player is identified
-by a random token kept in their browser. Do not expose the port to the internet.
+This is meant for a trusted home network only: there are no accounts, and without `--https` there is no TLS.
+A player is identified by a random token kept in their browser. Do not expose the port to the internet.
+
+### HTTPS and voice input
+
+`--https` creates a self-signed certificate in `certs\` (gitignored; reused while it is valid and still covers
+`localhost`, `127.0.0.1` and the LAN address) and serves everything, including `/healthz`, over https. The LAN
+URL and the QR then start with `https://`. Each browser warns about the certificate once: choose "Advanced",
+then continue to the site. Browsers only allow speech input on a secure page, so the mic button next to Send
+appears only over https (or on `127.0.0.1`) in a browser with speech recognition. Without it, the action box
+shows a hint to use the dictation key of the phone keyboard instead.
 
 ## How to play
 
-1. **Host**: run `python -m aidm --lan`, open the URL on your own device, enter your name. The first player in
-   is the host.
-2. **Join**: everyone else opens the LAN URL (or scans the QR) and enters a name. Reconnecting with the same
-   browser brings you back to your hero.
+The game always uses two kinds of surface. **`/screen`** is the shared display on a TV or laptop: scene art,
+the story, the party, the battle board, big dice, who is acting and who is waiting, votes, and the narrator
+voice and music. Each player's **phone** is their controller (`/` or `/play`). There is no combined
+single-device view: to play solo, open `/screen` in one window and `/play` in another (or on a second device).
+
+1. **Screen**: run `python -m aidm --lan`, then open `http://<host>:8000/screen` on the TV. It shows a QR code
+   while seats are free.
+2. **Host**: open the LAN URL on your phone (or scan the QR) and enter your name. The first player in is the
+   host. Everyone else does the same. Reconnecting with the same browser brings you back to your hero.
 3. **Wizard**: each player builds a hero: race, class (fighter, rogue, wizard, cleric, ranger, warlock),
    ability scores (point buy, standard array or rolled), skills, equipment, spells and a short backstory. You
    can export a hero to a JSON file and import it later.
 4. **Start**: when every player has a hero the host starts the campaign. The AI writes a three-act campaign
-   (or uses the built-in sample), and the table view opens.
-5. **Exploration**: type what your hero does. Actions queue in order (one waiting action per player), the
-   DM asks for checks when something is uncertain, and the dice tray shows every roll. Travel, rests and
-   shopping ask the table for a quick vote.
-6. **Combat**: a fight appears as zone cards with token chips and an initiative strip. On your turn the hotbar
-   shows attacks with hit chances in the tooltips, spells with slot counts, class features, items, move, dash,
-   disengage, hide and end turn. The number keys trigger the slots. Other players can send suggestions.
-7. **Sheet**: the drawer on your party card shows stats, inventory (equip, unequip, drop, use), the spellbook,
-   and the level-up dialog when you have earned a level (levels 1 to 5).
-8. **`/screen`**: open `http://<host>:8000/screen` on a TV or a spare laptop. It shows the story, party and
-   battlefield read-only and is the default audio device: while a screen is connected the players' own
-   devices stay quiet unless a player turns sound on.
+   (or uses the built-in sample). The screen shows the table and each phone opens its controller, with four
+   tabs: **Play**, **Hero**, **Journal** (with the map) and **More**.
+5. **Exploration** (Play tab): type (or dictate) what your hero does. The phone shows the last narration line
+   and a toast with your own dice; the full story and every roll are on the screen. Actions queue in order,
+   one waiting action per player: the screen shows who is typing, who is acting and who is next, and your
+   phone shows "Waiting (n)". Travel, rests and shopping ask the table for a quick vote.
+6. **Combat** (Play tab): the zone board and initiative strip are on the screen. On your turn your phone shows
+   "Your turn", target chips (name and health state), and the hotbar with hit chances, spells with slot counts,
+   class features, items, move, dash, disengage, hide and end turn. Other players can send suggestions.
+7. **Hero** tab: stats, inventory (equip, unequip, drop, use), the spellbook, and the level-up dialog when you
+   have earned a level (levels 1 to 5). The **Journal** tab holds the journal and the map (travel).
+8. **More** tab: settings, text size, hero file export, the host panel (host only) and the screen's audio
+   remote: separate narrator and music volume and mute. Any seated player can change them; the last change
+   wins. The screen's gear button has the same sliders for the screen itself. The screen is the default
+   audio device: while one is connected the phones stay quiet unless a player turns sound on.
+9. **Defeat**: if the whole party falls, the screen shows the defeat overlay and the phones lock. The host (or
+   the only player) can retry from the last checkpoint (arriving in a scene or a fight starting), load a save,
+   or start a new adventure. A retry rerolls the dice, so the same fight can end differently.
 
 ### Host controls
 

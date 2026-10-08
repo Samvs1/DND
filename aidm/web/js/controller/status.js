@@ -35,5 +35,6 @@ export function statusOf(state) {
   }
   const place = queuePosition(state);
   if (place) return { key: 'waiting', text: t('ct.status_queued', { n: place }) };
-  return { key: 'mine', text: t('ct.status_yourTurn') };
+  // Outside a fight nobody has a turn: the floor is free and everyone may act.
+  return { key: 'mine', text: t('ct.status_ready') };
 }

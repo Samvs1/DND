@@ -55,6 +55,8 @@ body.is-screen .sc-wait {
 .tb.sc .feed .speaking, .tb.sc .feed .typing { background: color-mix(in srgb, var(--accent, #c9a227) 18%, transparent); }
 body.in-combat .tb.sc { grid-template-areas: 'scene scene' 'combat side' 'feed side'; }
 body.in-combat .tb.sc .feed { font-size: 1rem; }
+/* Nobody scrolls a TV: in a fight the dice need the side column, the invite QR returns afterwards. */
+body.in-combat .tb.sc .sc-invite { display: none; }
 .sc-widgets { display: flex; flex-direction: column; gap: 0.75rem; }
 .sc-widgets .panel { padding: 0.75rem; }
 .sc-acting { font-size: 1.4rem; font-weight: 700; margin: 0; }

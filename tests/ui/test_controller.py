@@ -9,6 +9,7 @@ from aidm.rules.damage import resolve_damage
 from tests.ui.conftest import LiveServer
 from tests.ui.table_helpers import (
     COMBAT_POS,
+    HD,
     PHONE,
     go_tab,
     has_hit_chance,
@@ -94,10 +95,13 @@ def test_play_tab_has_the_action_box_voice_slot_and_last_line_modal(
 
 
 def test_action_from_a_phone_appears_in_the_screen_feed(
-    browser: Browser, live_server: LiveServer
+    browser: Browser, live_server: LiveServer, shots_dir: Path
 ) -> None:
     errors: list[str] = []
-    screen, host, guest = start_with_screen(browser, live_server.base, errors)
+    screen, host, guest = start_with_screen(browser, live_server.base, errors, screen_size=HD)
+    # The "writing your campaign" notice goes as soon as play starts, it never hangs over the story.
+    for page in (screen, host, guest):
+        assert "writing your campaign" not in page.inner_text("[data-testid=notices]")
     before = screen.locator("[data-testid=narration]").count()
     told = guest.evaluate("window.aidm.story.items.length")
     host.fill("[data-testid=action-input]", "I knock on the harbour door")
@@ -110,6 +114,9 @@ def test_action_from_a_phone_appears_in_the_screen_feed(
     assert guest.inner_text("[data-testid=last-line]").strip()
     host.wait_for_function(ACTION_ENABLED, timeout=20000)
     assert host.locator("[data-testid=action-input]").input_value() == ""
+    assert host.evaluate(CHIP) == "Ready"
+    snap(screen, shots_dir, "m11_screen_feed", 1920)
+    snap(host, shots_dir, "m11_phone_after_action", 390)
     assert errors == []
 
 
@@ -117,7 +124,7 @@ def test_a_second_phone_queues_behind_the_first(
     browser: Browser, slow_server: LiveServer, shots_dir: Path
 ) -> None:
     errors: list[str] = []
-    screen, host, guest = start_with_screen(browser, slow_server.base, errors)
+    screen, host, guest = start_with_screen(browser, slow_server.base, errors, screen_size=HD)
     host.fill("[data-testid=action-input]", "I slowly examine the old door")
     host.click("[data-testid=action-send]")
     screen.wait_for_selector("[data-testid=floor-acting]", timeout=20000)
@@ -134,7 +141,7 @@ def test_a_second_phone_queues_behind_the_first(
     assert guest.locator("[data-testid=action-input]").is_disabled()
     assert guest.locator("[data-testid=status-chip]").inner_text() == "Waiting (1)"
     assert "Brienne is acting" in screen.inner_text("[data-testid=screen-floor]")
-    snap(screen, shots_dir, "screen_queue", 1280)
+    snap(screen, shots_dir, "m11_screen_queue", 1920)
     snap(guest, shots_dir, "controller_queue", 390)
     # Both actions play out in order and the queue empties.
     guest.wait_for_function(ACTION_ENABLED, timeout=60000)
@@ -163,7 +170,7 @@ def test_a_combat_turn_is_played_entirely_from_the_phone(
     browser: Browser, combat_server: LiveServer, shots_dir: Path
 ) -> None:
     errors: list[str] = []
-    _screen, host, guest = start_fight(browser, combat_server.base, errors)
+    screen, host, guest = start_fight(browser, combat_server.base, errors, screen_size=HD)
     active, other = split_turn(host, guest)
     # Not my turn: the box is disabled with a reason, no target list, who is acting is named.
     assert other.locator("[data-testid=action-input]").is_disabled()
@@ -188,6 +195,9 @@ def test_a_combat_turn_is_played_entirely_from_the_phone(
     has_hit_chance(active).click()
     active.wait_for_selector("[data-testid=pip-action].spent", timeout=20000)
     snap(active, shots_dir, "controller_combat_turn", 390)
+    snap(other, shots_dir, "m11_phone_combat_waiting", 390)
+    assert screen.locator("[data-testid=screen-invite]").is_hidden()
+    snap(screen, shots_dir, "m11_screen_combat", 1920)
     assert active.evaluate(CHIP) == "Your turn"
     before = active.evaluate(f"JSON.stringify({COMBAT_POS})")
     active.click("[data-testid=end-turn]")
@@ -229,7 +239,7 @@ def test_defeat_on_the_phones_host_chooses_and_retry_works(
     browser: Browser, live_server: LiveServer, shots_dir: Path
 ) -> None:
     errors: list[str] = []
-    screen, host, guest = start_with_screen(browser, live_server.base, errors)
+    screen, host, guest = start_with_screen(browser, live_server.base, errors, screen_size=HD)
     _travel(host, guest)
     assert host.locator("[data-testid=controller-defeat]").is_hidden()
     _wipe(live_server)
@@ -249,7 +259,7 @@ def test_defeat_on_the_phones_host_chooses_and_retry_works(
         assert page.locator("[data-testid=status-chip]").inner_text() == "Defeated"
     snap(host, shots_dir, "controller_defeat", 390)
     snap(guest, shots_dir, "controller_defeat_waiting", 390)
-    snap(screen, shots_dir, "screen_defeat_overlay", 1280)
+    snap(screen, shots_dir, "m11_screen_defeat", 1920)
     # A typed refusal is friendly text, never the code or the server's words.
     host.evaluate(
         "() => window.aidm.dispatch({type: 'error', code: 'refused', text: 'raw words',"

@@ -493,3 +493,10 @@ M11.2 clock | `Clock.time()` added (LoopClock = loop time, ManualClock = `now`) 
 - `--https` uses a self-signed RSA-2048 certificate made with `cryptography` (new dependency), SAN = localhost, 127.0.0.1 and the detected LAN IP. Saved under `certs/` (gitignored) as `aidm-cert.pem` and `aidm-key.pem`, written atomically. It is reused while valid for 30 more days and its SANs equal the wanted set; otherwise regenerated. The key is never printed or logged.
 - Secure context is the only way phones get the Web Speech API, hence https on the LAN. Players see a browser warning once; the console prints one line explaining Advanced, then Continue. `ServerSettings.https` drives the banner; `--lan --https` makes the LAN URL and the lobby QR `https://`.
 - The mic button (controller/mic.js) appears only when `isSecureContext` and (webkit)SpeechRecognition exist; the transcript is appended to the action box and the player still presses send. Failures show the in-fiction `ct.micError` string. When the mic is unavailable the keyboard dictation hint is shown; when it is shown the hint is hidden.
+
+## M11.7 screenshot review (screen 1920, phones 390)
+- A `progress` notice (only the "writing your campaign" one exists) has no 8 s timeout: it stays while the phase is lobby or generating and is cleared when play starts. Live generation takes up to two minutes, so the old timeout hid it too early and, with a fast model, left it over the opening scene.
+- The screen hides the invite QR during a fight (`body.in-combat`): nobody scrolls a TV and the dice card needs the side column. It returns after the fight.
+- Mic button label is "Dictate": "Speak" next to "Act" read as an in-character speech action.
+- Outside a fight the phone chip says "Ready" (same gold style): "Your turn" on every phone at once was misleading.
+- tests/ui/test_screen_layout.py injects an `info` notice instead of `progress` to test placement, since a progress notice now clears itself during play.

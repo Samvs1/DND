@@ -98,6 +98,8 @@ playable (fail soft, never silent, never a raw error to the player).
 So players can queue, vote and chat during a 10 to 45 second model call without racing the state.
 
 - **Queue**: FIFO with one waiting action per player. A fight drops waiting entries with a notice.
+  `session/floor.py` publishes the floor (`floor_state`): who holds it (the resolving player, or in a fight the
+  owner of the active hero), the queue in order, and who is typing (`typing` messages, expiring after 8 s).
 - **Votes**: travel, rest and shop open a vote (30 s). The proposer counts as ready; strict majority passes;
   silence abstains; the host can force. A disconnected voter is dropped, solo play passes at once.
 - **Combat ownership**: the rules engine decides whose turn it is. Only the owner of the active hero gets a
@@ -106,6 +108,14 @@ So players can queue, vote and chat during a 10 to 45 second model call without 
   and `party_ai.py` through the same command path as players (`CombatRunner`).
 - **Timers** go through a `Clock` (`LoopClock`, `ManualClock` in tests), so the actor never sleeps.
 - A job that raises is logged and every seat gets an in-fiction notice; the table keeps running.
+- **Defeat**: after every job `session/defeat_flow.py` asks `rules/party_wipe.py` whether the party is wiped
+  (everyone dead, or down with nobody able to act). If so it records `PartyDefeated` with a guarded epilogue
+  (`dm/defeat.py`, template fallback), the phase becomes `DEFEATED` and every input is refused. Checkpoints
+  (`session/checkpoints.py`) are event-log sequence markers in `checkpoints.json`, written on scene arrival and
+  fight start. A retry truncates the live log to the marker (the discarded tail is kept as `events.<n>.defeat`)
+  and reseeds the dice; replay still equals the snapshot.
+- **Audio settings**: `session/audio_remote.py` stores the screen's narrator and music volume and mute in table
+  state (`audio_settings`, seated players only, rate limited); the last write wins.
 
 ## Public projection and privacy
 
@@ -114,6 +124,8 @@ The server never sends raw state. `session/views.py` builds the public state per
 `story_history` sent after every hello all go through it; private events are not sent). Monsters show a coarse
 health state, NPCs only as `PublicNpcView`, secrets and campaign plan motives never leave the server, and the
 simulation asserts that no secret text appears in any received message. `/healthz` returns booleans only.
+A `/screen` connection (role `screen` in `hello`) has no seat and receives only public data: no inventories,
+spell lists, turn prompts or hit chances (`tests/session/test_screen_privacy.py`).
 
 ## Persistence
 
@@ -133,8 +145,20 @@ frames; malformed, binary or oversized (>64 KB) frames get a typed `error` and t
 
 `aidm/web` is vanilla ES modules with CSS variables and no build step. All UI text is in `js/strings.js`; the
 client store plus a handler registry (`handlers.js`) turn server messages into state, and views (lobby, wizard,
-table, `/screen`) mount components that read the store. Players never see raw error text: typed refusals map
+controller, screen) mount components that read the store. Players never see raw error text: typed refusals map
 to friendly strings.
+
+There are always two surfaces and no combined view:
+
+- **`/screen`** (`views/screen.js`, `js/screen/*.js`, `css/screen.css`): the shared display. Scene art, story
+  feed, party strip, initiative and zone board, big dice, the floor (acting, typing, next), read-only votes,
+  notices, level-up banner and defeat overlay, the join QR while seats are free, and a gear button for the
+  screen's own audio. No other inputs.
+- **`/play`** (`views/controller.js`, `js/controller/*.js`, `css/controller.css`): the phone controller at
+  390 px. Four tabs (Play, Hero, Journal with the map, More). Play holds the status chip ("Your turn",
+  "Waiting (n)", "X is acting", "Defeated"), the action box with the mic slot, the last narration line, a toast
+  for your own dice, and in a fight the target chips and the hotbar. More holds settings, the host panel and
+  the audio remote (`controller/audio_remote.js`, one debounced `audio_settings` message).
 
 ## Assets: manifest and placeholders
 
@@ -151,7 +175,18 @@ mp3 cache in `logs/tts_cache`, `None` on any failure (and zero cost when off). `
 starts synthesis for each streamed sentence at once and sends `narration_chunk`s strictly in order, each held at
 most 8 s for its audio, with `audio_url` in the same message. The client plays clips in order and types the text
 at reading speed when there is no audio. Music beds crossfade by game state in `js/audio/music.js`; `/screen`
-is registered as a spectator (no seat) and becomes the default audio device.
+is registered as a spectator (no seat) and becomes the default audio device. `narration.js` and `music.js`
+each read their own level and mute from the local settings (`settings/model.js`; the old single `volume` key
+migrates into both once). On the screen, `audio/remote.js` copies every `state.audio` from the server into
+those settings, so a phone acts as a remote for the screen's sound.
+
+## Serving: LAN and HTTPS
+
+`aidm/server/cli.py` binds `127.0.0.1:8000` by default. `--lan` binds all interfaces, prints the LAN URL and
+serves its QR (`server/lan.py`). `--https` makes `server/tls.py` create or reuse a self-signed RSA certificate
+in `certs/` (gitignored, written atomically, SANs `localhost`, `127.0.0.1` and the LAN address) and passes it
+to uvicorn, so the LAN URL, the QR and `/healthz` use https. The controller's mic button (Web Speech API,
+`controller/mic.js`) only appears in a secure context; otherwise the action box shows a dictation hint.
 
 ## Testing strategy and gates
 
@@ -161,7 +196,8 @@ is registered as a spectator (no seat) and becomes the default audio device.
   guard, injection suite, no-key end to end. Never the network.
 - `tests/session`: queue, votes, combat ownership, reconnect, kick, pause, persistence, protocol, QA regressions.
 - `tests/sim` and `scripts/simulate_party.py`: 3 bot players over real websockets plus chaos probes.
-- `tests/ui`: Playwright with `AIDM_FAKE_LLM=1`, two browser contexts, screenshots in `artifacts/ui/`.
+- `tests/ui`: Playwright with `AIDM_FAKE_LLM=1`, three browser contexts (one `/screen` at 1280 or 1920, two
+  phones at 390), screenshots in `artifacts/ui/`.
 - `tests/live`: opt-in (`RUN_LIVE=1`) real DeepSeek and Fish.
 - Gate (`scripts/gate.ps1`): pytest, ruff check, ruff format, pyright (strict on `rules` and `models`),
   lint-imports, check_structure, check_secrets, gen_protocol `--check`, build_manifest `--check`,

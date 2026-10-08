@@ -9,6 +9,7 @@ from tests.ui.wizard_helpers import HeroSpec, complete_wizard, join
 
 WIDE = ViewportSize(width=1280, height=800)
 PHONE = ViewportSize(width=390, height=844)
+HD = ViewportSize(width=1920, height=1080)
 ROGUE = HeroSpec(name="Mira", race="elf", cls="rogue", background="criminal")
 PHONE_TEXT = "document.querySelector('[data-testid=last-line]').textContent.trim().length > 20"
 HAS_TEXT = (

@@ -39,7 +39,7 @@ OVERLAP = """([a, b]) => {
   if (!x || !y) return false;
   return x.left < y.right && x.right > y.left && x.top < y.bottom && x.bottom > y.top;
 }"""
-NOTICE = {"type": "notice", "kind": "progress", "text": "The campaign is being written..."}
+NOTICE = {"type": "notice", "kind": "info", "text": "The host saved the game."}
 
 
 def _screen(browser: Browser, base: str, size: ViewportSize, errors: list[str]) -> Page:
