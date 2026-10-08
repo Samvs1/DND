@@ -40,6 +40,7 @@ Machine-readable schema: `aidm/web/protocol.json`.
 | client | `request_sheet` | `type`: request_sheet |
 | client | `roll_abilities` | `type`: roll_abilities |
 | client | `scribe_revive` | `target_id`: string, `type`: scribe_revive |
+| client | `scribe_skip` | `line_id`: string or null (optional), `type`: scribe_skip |
 | client | `shop_buy` | `item_id`: string, `npc_id`: string, `qty`: integer (optional), `type`: shop_buy |
 | client | `shop_sell` | `item_id`: string, `npc_id`: string, `qty`: integer (optional), `type`: shop_sell |
 | client | `submit_action` | `text`: string, `type`: submit_action |
@@ -71,6 +72,8 @@ Machine-readable schema: `aidm/web/protocol.json`.
 | server | `pong` | `type`: pong |
 | server | `queue_state` | `entries`: array of QueueEntry (optional), `resolving`: QueueEntry or null (optional), `type`: queue_state |
 | server | `resolving` | `entry`: QueueEntry, `type`: resolving |
+| server | `scribe_line` | `audio_url`: string (optional), `group`: string, `line_id`: string, `text`: string, `to_player_id`: string or null (optional), `type`: scribe_line |
+| server | `scribe_skip` | `line_id`: string or null (optional), `type`: scribe_skip |
 | server | `sheet` | `creature_id`: string, `level_up`: LevelUpOptions or null (optional), `sheet`: CharacterSheet, `type`: sheet |
 | server | `shop_stock` | `npc_id`: string, `npc_name`: string (optional), `stock`: array of StockLine (optional), `type`: shop_stock |
 | server | `snapshot` | `seq`: integer, `state`: PublicState, `type`: snapshot |

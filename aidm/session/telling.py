@@ -42,6 +42,7 @@ from aidm.models.protocol_views import TablePhase
 from aidm.models.world_events import AttitudeChanged, PartyMoved
 from aidm.rules.milestones import milestone_events
 from aidm.rules.quest_rewards import resolution_reward_events
+from aidm.session import scribe_voice
 from aidm.session.narration_pipe import NarrationPipe
 from aidm.session.table_core import TableCore
 from aidm.session.views import public_offer
@@ -145,6 +146,7 @@ async def conclude(
 async def maybe_epilogue(core: TableCore) -> None:
     if not epilogue_ready(core.state):
         return
+    scribe_voice.campaign_won(core)
     stream = begin_epilogue(core.state, core.llm)
     if stream is None:
         return

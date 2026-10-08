@@ -30,6 +30,7 @@ from aidm.server.assets import AssetCatalog
 from aidm.server.creation_data import add_creation_routes
 from aidm.server.lan import qr_svg
 from aidm.server.registry import TableRegistry
+from aidm.server.scribe_routes import add_scribe_routes
 from aidm.server.settings import ServerSettings
 from aidm.server.tts_routes import add_tts_routes
 from aidm.server.ws import serve_socket
@@ -68,6 +69,7 @@ def create_app(
     add_asset_routes(app, AssetCatalog(web_dir))
     add_creation_routes(app)
     add_tts_routes(app, settings.fish.cache_dir)
+    add_scribe_routes(app, web_dir / "static")
     return app
 
 

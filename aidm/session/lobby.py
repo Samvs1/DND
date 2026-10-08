@@ -44,7 +44,7 @@ from aidm.rules.campaign_install import install_campaign
 from aidm.rules.character_io import CharacterImportInvalid, export_character, import_character
 from aidm.rules.creation import build_character, validate_creation
 from aidm.rules.sheet import build_sheet
-from aidm.session import combat_flow, votes
+from aidm.session import combat_flow, scribe_voice, votes
 from aidm.session.stats import send_host_stats
 from aidm.session.table_core import Player, TableCore
 from aidm.session.telling import conclude
@@ -252,4 +252,5 @@ async def start_campaign(core: TableCore, host: Player, theme: str | None) -> No
         core.notice(None, NoticeKind.FALLBACK, FELL_BACK)
     events = core.apply_all(install_campaign(core.state, result.plan, core.state.seed))
     core.phase = TablePhase.PLAY
+    scribe_voice.welcome_first(core)
     await conclude(core, None, events)

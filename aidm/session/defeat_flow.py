@@ -50,6 +50,7 @@ ALLOWED: tuple[type, ...] = (
     c.RequestSheet,
     c.ExportCharacter,
     c.Chat,
+    c.ScribeSkip,
     *c.DEFEAT_MESSAGES,
     c.HostSave,
     c.HostLoad,

@@ -5,7 +5,8 @@ their existing codes); inside the job `rules.scribe.revive_events` checks again 
 state. A refusal is an `ErrorMsg` with `ErrorCode.REFUSED` (unknown target: `UNKNOWN_TARGET`)
 and `refusal` = the `ScribeRefusal` code, so the UI can pick the Scribe's matching line; nothing
 is spent. Success applies the events; the public feed shows "The Scribe rewrites <name> into the
-story." and the next snapshot carries the new `scribe` state.
+story." and the next snapshot carries the new `scribe` state. M13.2: the Scribe answers in voice
+(`scribe_voice.revived` / `refused`: a `scribe_line`, a refusal one addressed to the requester).
 
 Public API: `revive(core, player, msg)`, `REFUSAL_TEXT`.
 """
@@ -14,6 +15,7 @@ from aidm.data.scribe_defs import scribe_table
 from aidm.models.protocol_client import ScribeRevive
 from aidm.models.protocol_server import ErrorCode
 from aidm.rules.scribe import ScribeRefusal, ScribeRefused, revive_events
+from aidm.session import scribe_voice
 from aidm.session.table_core import Player, TableCore
 
 REFUSAL_TEXT: dict[ScribeRefusal, str] = {
@@ -41,5 +43,7 @@ async def revive(core: TableCore, player: Player, msg: ScribeRevive) -> None:
         unknown = refused.reason is ScribeRefusal.UNKNOWN_TARGET
         code = ErrorCode.UNKNOWN_TARGET if unknown else ErrorCode.REFUSED
         core.error(player.id, code, REFUSAL_TEXT[refused.reason], refusal=refused.reason.value)
+        scribe_voice.refused(core, player.id, refused.reason)
         return
     core.apply_all(events)
+    scribe_voice.revived(core)

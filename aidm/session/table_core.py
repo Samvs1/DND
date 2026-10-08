@@ -12,7 +12,7 @@ Public API: `Player`, `TableConfig`, `TtsHook`, `no_tts`, `Job`, `ClientIn`, `Cl
 `TimerFired`, `Inbound`, `TableCore` (vote and hostile records live in `table_records`),
 `phase_of(state)` (the phase a loaded state starts in: DEFEATED when `state.defeat` is set,
 M11.1). M11.2: `typing` (who is composing), `audio` (the screen's audio settings, saved in
-table.json), `floor_view()`.
+table.json), `floor_view()`. M13.2: `scribe` (the Scribe's line memory, `scribe_picker`).
 """
 
 import asyncio
@@ -57,6 +57,7 @@ from aidm.session.persistence import CampaignStore, SeatRecord, TableMeta, new_g
 from aidm.session.presence import RateLimit, TypingBoard
 from aidm.session.public_feed import PublicFeed
 from aidm.session.reducer import apply as reduce
+from aidm.session.scribe_picker import ScribeMemory
 from aidm.session.table_clock import Clock, LoopClock, TimerHandle
 from aidm.session.table_records import OpenVote, PendingHostile
 from aidm.session.views import public_floor, public_state
@@ -179,6 +180,7 @@ class TableCore:
         self.typing_limit = RateLimit(limit=12, window=4.0)
         self.audio = AudioSettings()  # M11.2 audio remote (session/audio_remote.py)
         self.audio_limit = RateLimit(limit=20, window=2.0)
+        self.scribe = ScribeMemory()  # M13.2 line picks (session/scribe_voice.py); not persisted
 
     # --- ids, seats, lookups -------------------------------------------------------------
 

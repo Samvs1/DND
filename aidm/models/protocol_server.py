@@ -14,7 +14,8 @@ Public API: `NoticeKind`, `ErrorCode`, `Welcome`, `Snapshot`, `EventMsg`, `Lobby
 `LevelUpAvailable`, `Notice`, `ErrorMsg`, `HostStats`, `ChatRelay`, `SuggestionRelay`, `Pong`,
 `EpilogueMsg`, `StoryHistory`, `CharacterExport`, `SheetMsg`; M11.2 `FloorState` (holder,
 queue, typing; broadcast on every queue or typing change) and `AudioSettingsState` (the
-screen's audio, broadcast on every change; also in `PublicState.audio`).
+screen's audio, broadcast on every change; also in `PublicState.audio`); M13.2 `ScribeLineMsg`
+(one of the Scribe's lines, broadcast) and `ScribeSkipMsg` (the host skipped him).
 `ErrorMsg.refusal` carries the typed reason of a refused combat command or gear change (a
 `RefusalCode` or `EquipRefusal` value) so a client shows its own friendly wording.
 """
@@ -286,3 +287,25 @@ class FloorState(_Server):
 class AudioSettingsState(_Server):
     type: Literal["audio_settings"] = "audio_settings"
     settings: AudioSettings
+
+
+class ScribeLineMsg(_Server):
+    """M13.2: the Scribe speaks one line of data/voice/scribe.json (picked by the server).
+
+    Broadcast to every connection. `to_player_id` names the addressee of a refusal (the screen
+    still voices it; other phones show nothing); null = everyone. `audio_url` is "" until the
+    voice build has made that line's file."""
+
+    type: Literal["scribe_line"] = "scribe_line"
+    line_id: str
+    group: str
+    text: str
+    audio_url: str = ""
+    to_player_id: str | None = None
+
+
+class ScribeSkipMsg(_Server):
+    """M13.2: the host skipped the Scribe: stop his audio and overlay (`line_id` = the line)."""
+
+    type: Literal["scribe_skip"] = "scribe_skip"
+    line_id: str | None = None

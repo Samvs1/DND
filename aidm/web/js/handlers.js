@@ -175,6 +175,8 @@ export const HANDLERS = {
   pong: relay,
   queue_state: onQueue,
   resolving: onResolving,
+  scribe_line: relay,
+  scribe_skip: relay,
   sheet: onSheet,
   shop_stock: onShopStock,
   snapshot: onSnapshot,

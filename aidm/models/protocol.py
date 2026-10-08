@@ -59,6 +59,7 @@ type AnyClientMsg = (
     | c.Typing
     | c.AudioSettingsMsg
     | c.ScribeRevive
+    | c.ScribeSkip
 )
 
 type AnyServerMsg = (
@@ -95,6 +96,8 @@ type AnyServerMsg = (
     | s.SheetMsg
     | s.FloorState
     | s.AudioSettingsState
+    | s.ScribeLineMsg
+    | s.ScribeSkipMsg
 )
 
 ClientMsg = Annotated[AnyClientMsg, Field(discriminator="type")]

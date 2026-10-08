@@ -48,6 +48,7 @@ from aidm.session import (
     party_actions,
     relay,
     scribe_desk,
+    scribe_voice,
     sheet_view,
     spectators,
     votes,
@@ -82,6 +83,7 @@ IMMEDIATE: dict[type, Immediate] = {
     c.ExportCharacter: lambda core, p, m: lobby.export_hero(core, p),
     c.Typing: floor.typing,
     c.AudioSettingsMsg: audio_remote.set_audio,
+    c.ScribeSkip: scribe_voice.skip,
     **{cls: host.host_message for cls in c.HOST_MESSAGES},
     **{cls: defeat_flow.defeat_message for cls in c.DEFEAT_MESSAGES},
 }
@@ -229,12 +231,14 @@ class Table(TableCore):
             return
         if spectators.wants_screen(msg) and conn_id not in self.conn_player:
             spectators.join(self, conn_id, msg)
+            scribe_voice.on_join(self)
             return
         if conn_id in self.spectators:
             spectators.refuse(self, conn_id)
             return
         if isinstance(msg, c.Hello):
             lobby.hello(self, conn_id, msg)
+            scribe_voice.on_join(self)
             self.autosave()
             return
         player = self.player_for(conn_id)

@@ -14,7 +14,8 @@ hero or a party member; `target_id` None = the hero), `RequestHitChances`, `Chat
 M11.2 `DeviceRole` (`Hello.role`: "screen" = the shared display, "controller" = a phone seat;
 `spectator: true` is the older spelling of role "screen"), `Typing` (composing on/off) and
 `AudioSettingsMsg` (the screen's volumes and mutes, from any seated player); M13.1
-`ScribeRevive` (pay the Scribe to rewrite a fallen hero, `aidm.rules.scribe`).
+`ScribeRevive` (pay the Scribe to rewrite a fallen hero, `aidm.rules.scribe`); M13.2 `ScribeSkip`
+(host only: stop the Scribe's current line on every screen).
 """
 
 from enum import StrEnum
@@ -112,6 +113,13 @@ class ScribeRevive(_Client):
 
     type: Literal["scribe_revive"] = "scribe_revive"
     target_id: str = Field(min_length=1, max_length=64)
+
+
+class ScribeSkip(_Client):
+    """M13.2: the host skips the Scribe's current line (`line_id` optional, else the last one)."""
+
+    type: Literal["scribe_skip"] = "scribe_skip"
+    line_id: str | None = Field(default=None, max_length=64)
 
 
 class ShopSell(_Client):

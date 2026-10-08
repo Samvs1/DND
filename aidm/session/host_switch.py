@@ -12,7 +12,7 @@ Public API: `load`, `new_campaign`, `switch(core, loaded, host_token, keep_kicke
 
 from aidm.models.protocol_server import ErrorCode, NoticeKind, Welcome
 from aidm.models.protocol_views import TablePhase
-from aidm.session import combat_flow
+from aidm.session import combat_flow, scribe_voice
 from aidm.session.persistence import (
     CampaignLoadError,
     LoadedCampaign,
@@ -65,6 +65,7 @@ async def load(core: TableCore, host: Player, campaign_id: str) -> None:
         return
     core.autosave()
     switch(core, loaded, host.token)
+    scribe_voice.welcome_back(core)
     note = " (repaired from its log)" if loaded.recovered else ""
     core.notice(None, NoticeKind.HOST, f"The host loaded a saved campaign{note}.")
     if loaded.warning is not None:

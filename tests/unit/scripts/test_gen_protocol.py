@@ -21,6 +21,8 @@ gen = load_script("gen_protocol")
 SERVER_TYPES = {
     "floor_state",  # M11.2
     "audio_settings",  # M11.2
+    "scribe_line",  # M13.2
+    "scribe_skip",  # M13.2
     "welcome",
     "snapshot",
     "event",
@@ -58,6 +60,7 @@ CLIENT_TYPES = {
     "typing",  # M11.2
     "audio_settings",  # M11.2
     "scribe_revive",  # M13.1
+    "scribe_skip",  # M13.2
     "hello",
     "create_character",
     "roll_abilities",

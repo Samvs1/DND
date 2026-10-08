@@ -3,7 +3,8 @@
 The server runs one active table. `start()` opens a new lobby table, or the save named by
 `campaign_id`; the host's `host_new` / `host_load` switch the table's contents in place
 (`session.host`), so open sockets stay attached. `stop()` saves, stops the table and closes the
-LLM client.
+LLM client. A save opened at start marks the Scribe's welcome back due; it is spoken when the
+first screen or player connects (M13.2, `session.scribe_voice`).
 
 Public API: `TableRegistry` (`table`, `start`, `stop`, `list_saves`).
 """
@@ -14,6 +15,7 @@ from aidm.server.settings import ServerSettings
 from aidm.server.tts import FishTts, tts_hook
 from aidm.session.persistence import CampaignStore, SaveInfo, new_game_state
 from aidm.session.restore import restore
+from aidm.session.scribe_voice import welcome_back_later
 from aidm.session.table import Table
 from aidm.session.table_core import TableConfig
 
@@ -42,6 +44,7 @@ class TableRegistry:
     async def start(self) -> None:
         if self._campaign_id is not None and self._state is None:
             restore(self.table, self.store.load(self._campaign_id))
+            welcome_back_later(self.table)
         await self.table.start()
 
     async def stop(self) -> None:

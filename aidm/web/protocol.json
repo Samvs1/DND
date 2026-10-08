@@ -1528,6 +1528,33 @@
           "title": "ScribeRevive",
           "type": "object"
         },
+        "ScribeSkip": {
+          "additionalProperties": false,
+          "description": "M13.2: the host skips the Scribe's current line (`line_id` optional, else the last one).",
+          "properties": {
+            "line_id": {
+              "anyOf": [
+                {
+                  "maxLength": 64,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Line Id"
+            },
+            "type": {
+              "const": "scribe_skip",
+              "default": "scribe_skip",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "title": "ScribeSkip",
+          "type": "object"
+        },
         "ShopBuy": {
           "additionalProperties": false,
           "properties": {
@@ -1919,6 +1946,7 @@
           "request_sheet": "#/$defs/RequestSheet",
           "roll_abilities": "#/$defs/RollAbilities",
           "scribe_revive": "#/$defs/ScribeRevive",
+          "scribe_skip": "#/$defs/ScribeSkip",
           "shop_buy": "#/$defs/ShopBuy",
           "shop_sell": "#/$defs/ShopSell",
           "submit_action": "#/$defs/SubmitAction",
@@ -2053,6 +2081,9 @@
         },
         {
           "$ref": "#/$defs/ScribeRevive"
+        },
+        {
+          "$ref": "#/$defs/ScribeSkip"
         }
       ]
     },
@@ -2090,6 +2121,7 @@
       "request_sheet",
       "roll_abilities",
       "scribe_revive",
+      "scribe_skip",
       "shop_buy",
       "shop_sell",
       "submit_action",
@@ -5057,6 +5089,80 @@
           "title": "RollEntry",
           "type": "object"
         },
+        "ScribeLineMsg": {
+          "additionalProperties": false,
+          "description": "M13.2: the Scribe speaks one line of data/voice/scribe.json (picked by the server).\n\nBroadcast to every connection. `to_player_id` names the addressee of a refusal (the screen\nstill voices it; other phones show nothing); null = everyone. `audio_url` is \"\" until the\nvoice build has made that line's file.",
+          "properties": {
+            "audio_url": {
+              "default": "",
+              "title": "Audio Url",
+              "type": "string"
+            },
+            "group": {
+              "title": "Group",
+              "type": "string"
+            },
+            "line_id": {
+              "title": "Line Id",
+              "type": "string"
+            },
+            "text": {
+              "title": "Text",
+              "type": "string"
+            },
+            "to_player_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "To Player Id"
+            },
+            "type": {
+              "const": "scribe_line",
+              "default": "scribe_line",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "line_id",
+            "group",
+            "text"
+          ],
+          "title": "ScribeLineMsg",
+          "type": "object"
+        },
+        "ScribeSkipMsg": {
+          "additionalProperties": false,
+          "description": "M13.2: the host skipped the Scribe: stop his audio and overlay (`line_id` = the line).",
+          "properties": {
+            "line_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Line Id"
+            },
+            "type": {
+              "const": "scribe_skip",
+              "default": "scribe_skip",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "title": "ScribeSkipMsg",
+          "type": "object"
+        },
         "ScribeView": {
           "additionalProperties": false,
           "properties": {
@@ -6039,6 +6145,8 @@
           "pong": "#/$defs/Pong",
           "queue_state": "#/$defs/QueueState",
           "resolving": "#/$defs/Resolving",
+          "scribe_line": "#/$defs/ScribeLineMsg",
+          "scribe_skip": "#/$defs/ScribeSkipMsg",
           "sheet": "#/$defs/SheetMsg",
           "shop_stock": "#/$defs/ShopStock",
           "snapshot": "#/$defs/Snapshot",
@@ -6151,6 +6259,12 @@
         },
         {
           "$ref": "#/$defs/AudioSettingsState"
+        },
+        {
+          "$ref": "#/$defs/ScribeLineMsg"
+        },
+        {
+          "$ref": "#/$defs/ScribeSkipMsg"
         }
       ]
     },
@@ -6178,6 +6292,8 @@
       "pong",
       "queue_state",
       "resolving",
+      "scribe_line",
+      "scribe_skip",
       "sheet",
       "shop_stock",
       "snapshot",
