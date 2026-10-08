@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 from playwright.sync_api import Browser, Page, sync_playwright
 
+from tests.asset_helpers import image_placeholder, live_manifest
 from tests.ui.conftest import LiveServer
 
 
@@ -74,13 +75,15 @@ def test_start_is_disabled_without_a_hero_and_server_refusal_is_friendly(
 def test_assets_helper_resolves_real_placeholder_and_silence(
     browser: Browser, live_server: LiveServer
 ) -> None:
+    manifest = live_manifest()
+    key = image_placeholder(manifest)
     page = browser.new_page()
     page.goto(f"{live_server.base}/play")
     page.wait_for_selector("[data-testid=join-form]")
     result = page.evaluate(
-        """async () => {
+        """async (key) => {
             const a = await import('/web/js/assets.js');
-            const placeholder = a.assetUrl('monster_token.barbed-devil');
+            const placeholder = a.assetUrl(key);
             const probe = new Image();
             probe.src = placeholder;
             await probe.decode();
@@ -89,12 +92,13 @@ def test_assets_helper_resolves_real_placeholder_and_silence(
                 placeholder,
                 width: probe.naturalWidth,
                 silence: a.assetUrl('music.social'),
-                fallback: a.assetUrl(['spell_icon.fire-bolt', 'spell_icon.school.fire']),
+                fallback: a.assetUrl([key, 'spell_icon.school.fire']),
             };
-        }"""
+        }""",
+        key,
     )
     assert result["real"].startswith("/static/")
-    assert result["placeholder"].startswith("/assets/placeholder/monster_token/")
+    assert result["placeholder"].startswith(f"/assets/placeholder/{manifest[key]['kind']}/")
     assert result["width"] > 0
     assert result["silence"] == ""
-    assert result["fallback"].startswith("/static/")
+    assert result["fallback"] == "/static/" + manifest["spell_icon.school.fire"]["file"]

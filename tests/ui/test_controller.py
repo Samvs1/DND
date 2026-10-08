@@ -37,12 +37,15 @@ def test_tab_navigation_shows_one_pane_and_never_scrolls_sideways(
     assert host.locator("[data-testid=strip-ac]").inner_text().startswith("AC ")
     assert host.locator("[data-testid=status-chip]").inner_text().strip()
     assert host.locator("[data-testid=hp-text]").inner_text() == "10/10"
-    # Tab icons come from the manifest: owner art for play, the placeholder for more until M12.2.
+    # Tab icons come from the manifest: owner art for play, M12.2 art for more (each falls back to
+    # its placeholder while the file is missing, see test_placeholder_only).
     icon = "[data-testid=ct-tab-{}] img.ct-tab-icon"
     assert (
         host.locator(icon.format("play")).get_attribute("src") == "/static/img/icons/tabs/feed.png"
     )
-    assert "/placeholder/ui_icon/" in (host.locator(icon.format("more")).get_attribute("src") or "")
+    assert host.locator(icon.format("more")).get_attribute("src") == (
+        "/static/img/icons/tabs/more.png"
+    )
     for name in TABS:
         go_tab(host, name)
         for other in TABS:

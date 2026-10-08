@@ -6,7 +6,7 @@ from pathlib import Path
 from PIL import Image
 
 from aidm.server.assetgen.final_review import build_final_review
-from aidm.server.assetgen.report import render_report
+from aidm.server.assetgen.report import CAP_EUR, render_report
 from tests.unit.assetgen.imgs import noise_png
 
 
@@ -81,7 +81,7 @@ def test_assets_report_renders_tables(tmp_path: Path) -> None:
     ledger.write_text(json.dumps({"currency": "EUR", "entries": [entry]}))
     text = render_report(manifest, art, ledger)
     assert "- Committed: 0.0400 EUR over 1 calls" in text
-    assert "- Remaining: 7.9600 EUR" in text
+    assert f"- Remaining: {CAP_EUR - 0.04:.4f} EUR" in text
     assert "gpt-image-test" in text
     assert "| portrait.npc.x | 2 | 5 | 4 | 4 | 5 | 4 | accept | yes |" in text
     assert "- portrait.npc.y: last verdict reject, 0 attempts" in text

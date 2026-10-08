@@ -12,7 +12,7 @@ from typing import Any
 
 from aidm.server.assetgen.ledger import load_ledger
 
-CAP_EUR = 8.00
+CAP_EUR = 15.00  # total art budget: 8 EUR for M10, raised to 15 EUR for M12 (GOAL_CONTROLLERS)
 LICENSE = "AI generated via OpenAI API, check provider terms before commercial use"
 SCORES = ("subject", "style", "composition", "cleanliness", "readability_64")
 _REVIEW = re.compile(r"^review_(\d+)\.json$")

@@ -515,3 +515,7 @@ M11.2 clock | `Clock.time()` added (LoopClock = loop time, ManualClock = `now`) 
 - Retry fixes are appended to the whole sheet prompt (aidm/server/assetgen/retry.py `_amend`), so a fix for icons in a sheet must be phrased per cell ("one separate emblem per listed cell"); a subject-specific fix names its cell ("For revivify: ...").
 - Attempt 3 rejects keep the placeholder: spell_icon.invisibility, spell_icon.magic-missile (the UI falls back to the v1 school icon).
 
+## M12.3 close
+- Asset tests no longer pin a fixed "placeholder" key (monster_token.barbed-devil, ui_icon.tab-more, spell_icon.fire-bolt were filled by M12.2 and five tests broke; one would have passed trivially). `tests/asset_helpers.image_placeholder` picks the first image key still on a placeholder from the live manifest and fails with a clear message when none is left, so the tests then move to a temp manifest instead of silently testing real art.
+- `aidm/server/assetgen/report.py` CAP_EUR is the total art budget, 15 EUR since M12 (was the M10 cap of 8). The gen_assets `--cap` default stays 8; every M12 run passed `--cap 15` explicitly.
+

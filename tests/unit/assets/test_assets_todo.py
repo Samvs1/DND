@@ -7,6 +7,7 @@ from pathlib import Path
 
 from aidm.server.asset_keys import AUDIO_KINDS, derive_specs
 from aidm.server.asset_prompts import STYLE_BIBLE_PATH, build_prompt, load_style_bible
+from tests.asset_helpers import image_placeholder
 from tests.unit.scripts.helpers import load_script
 
 todo = load_script("gen_assets_todo")
@@ -63,12 +64,12 @@ def test_todo_check_fails_when_stale_and_write_fixes_it(tmp_path: Path) -> None:
     todo.todo_file(root).write_text("# old\n", encoding="utf-8")
     assert todo.run(root, check=True) == 1
     data = json.loads(target.read_text(encoding="utf-8"))
-    data["monster_token.barbed-devil"]["status"] = "real"
+    key = image_placeholder(data)  # listed before: every placeholder is (see the test below)
+    data[key]["status"] = "real"
     target.write_text(json.dumps(data), encoding="utf-8")
     todo.run(root, check=False)
-    assert "### monster_token.barbed-devil\n" not in todo.todo_file(root).read_text(
-        encoding="utf-8"
-    )
+    text = todo.todo_file(root).read_text(encoding="utf-8")
+    assert f"### {key}\n" not in text and "\n### " in text
 
 
 def test_todo_lists_every_placeholder_with_path_size_transparency_and_prompt() -> None:
@@ -77,8 +78,13 @@ def test_todo_lists_every_placeholder_with_path_size_transparency_and_prompt() -
     assert text.count("\n### ") == len(placeholders) > 0
     for key, entry in placeholders.items():
         assert f"\n### {key}\n- file: aidm/web/static/{entry['file']}\n" in text, key
-    block = text.split("### monster_token.barbed-devil\n", 1)[1].split("\n###", 1)[0]
-    assert "- size: 256x256" in block and "- transparent: yes" in block and "- prompt: " in block
+    key = image_placeholder()
+    entry = placeholders[key]
+    block = text.split(f"### {key}\n", 1)[1].split("\n###", 1)[0]
+    size = entry["size"]
+    assert isinstance(size, list) and len(size) == 2
+    assert f"- size: {size[0]}x{size[1]}" in block and "- prompt: " in block
+    assert f"- transparent: {'yes' if entry['transparent'] else 'no'}" in block
 
 
 def test_every_placeholder_has_a_prompt_with_the_style_prefix() -> None:

@@ -18,6 +18,7 @@ from aidm.server.app import WEB_DIR, create_app
 from aidm.server.asset_keys import AUDIO_KINDS, split_key
 from aidm.server.assets import AssetCatalog, asset_url
 from aidm.server.settings import server_settings_from_env
+from tests.asset_helpers import image_placeholder
 
 MANIFEST = json.loads((WEB_DIR / "static" / "assets" / "manifest.json").read_text(encoding="utf-8"))
 SVG_NS = "{http://www.w3.org/2000/svg}svg"
@@ -94,7 +95,9 @@ def test_manifest_endpoint_lists_every_key_with_a_url(client: TestClient) -> Non
     urls = response.json()
     assert set(urls) == set(MANIFEST)
     assert urls["portrait.class.fighter"].startswith("/static/")
-    assert urls["monster_token.barbed-devil"].startswith("/assets/placeholder/monster_token/")
+    placeholder = image_placeholder(MANIFEST)
+    kind = MANIFEST[placeholder]["kind"]
+    assert urls[placeholder].startswith(f"/assets/placeholder/{kind}/")
     assert urls["music.social"] == ""
 
 

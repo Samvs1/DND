@@ -121,9 +121,11 @@ def test_ui_art_keys_are_in_the_manifest_with_v1_tab_icons_real() -> None:
     for art in UI_ART:
         entry = manifest[art.key]
         assert entry["file"] == art.file and (art.v1 or entry["prompt"])
-        assert (entry["status"], entry["source"]) == (
-            ("real", "v1") if art.v1 else ("placeholder", "")
-        )
+        if art.v1:
+            assert (entry["status"], entry["source"]) == ("real", "v1")
+        else:  # a placeholder until M12.2 generated it, never v1 art
+            generated = str(entry["source"]).startswith("generated:")
+            assert (entry["status"], generated) in {("placeholder", False), ("real", True)}
     tiers = derive_tiers(manifest)
     assert tiers.p1.get("scene.defeat") == "UI chrome"
     assert tiers.p1.get("ui_icon.tab-more") == "UI chrome"
