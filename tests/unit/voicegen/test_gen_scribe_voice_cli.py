@@ -67,7 +67,7 @@ def test_yes_builds_files_index_and_report(built: tuple[VoicePaths, FakeTts, str
         assert mp3.read_bytes()[:3] in (b"ID3", b"\xff\xfb", b"\xff\xf3") or mp3.stat().st_size > 0
         assert abs(entry["lufs"] + 16.0) < 0.5 and entry["true_peak_db"] <= -1.0
         report = json.loads((paths.report_dir / f"{entry['id']}.json").read_text("utf-8"))
-        assert abs(report["f0_delta_pct"]) < 1.0
+        assert abs(report["f0_pair_pct"]) < 0.5 and report["f0_pair_agree"] >= 0.9
         with Image.open(paths.report_dir / f"{entry['id']}.png") as png:
             assert png.width == 1200 and png.height > 400
     assert "| test.short |" in (paths.report_dir / "report.md").read_text(encoding="utf-8")

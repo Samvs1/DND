@@ -30,6 +30,7 @@ from aidm.session.table import Table
 from tests.ai.epilogue_fixtures import kill_foes
 from tests.ai.fake_scripts import fake_client
 from tests.ai.guard_fixtures import inn_state
+from tests.asset_helpers import expected_audio_url
 from tests.session.progression_fixtures import answer, campaign_state, move, plan
 from tests.session.table_fixtures import (
     Seat,
@@ -113,7 +114,8 @@ async def test_new_campaign_welcome_comes_before_the_opening_narration(tmp_path:
             assert [(m.group, m.line_id, m.to_player_id) for m in lines] == [
                 ("welcome_first", "welcome.first", None)
             ]
-            assert lines[0].text.startswith("Ah. There you are.") and lines[0].audio_url == ""
+            assert lines[0].text.startswith("Ah. There you are.")
+            assert lines[0].audio_url == expected_audio_url("welcome.first")
             assert _index(msgs, ScribeLineMsg) < _index(msgs, NarrationChunkMsg)
         assert_replays(table)
 

@@ -19,7 +19,7 @@ def test_deep_merge_nested_and_replace() -> None:
 def test_merge_order_default_profile_line() -> None:
     raw = small_config(chain={"reverb": {"rt60_s": 3.0}}, profile="short")
     line = parse_config(raw).lines[0]
-    assert line.chain["reverb"]["wet"] == 0.20  # from the short profile
+    assert line.chain["reverb"]["wet"] == 0.22  # from the short profile
     assert line.chain["reverb"]["rt60_s"] == 3.0  # line override beats the profile's 1.8
     assert line.chain["reverb"]["damping_hz"] == raw["chain"]["reverb"]["damping_hz"]
 
@@ -28,7 +28,7 @@ def test_real_config_profiles() -> None:
     config = load_config()
     by_id = {line.id: line for line in config.lines}
     assert by_id["welcome.first"].chain["reverb"]["wet"] == 0.30
-    assert by_id["revive.1"].chain["reverb"]["wet"] == 0.20
+    assert by_id["revive.1"].chain["reverb"]["wet"] == 0.22
     assert by_id["revive.1"].chain["reverb"]["rt60_s"] == 1.8
 
 

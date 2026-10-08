@@ -29,3 +29,12 @@ def image_placeholder(manifest: dict[str, dict[str, Any]] | None = None) -> str:
     )
     assert keys, "no image placeholder left in the manifest: point this test at a temp manifest"
     return keys[0]
+
+
+VOICE_FILES = MANIFEST_FILE.parent.parent / "audio" / "voice" / "scribe"
+
+
+def expected_audio_url(line_id: str) -> str:
+    """The Scribe line URL rule: the mp3 path when the built file exists, else "" (text only)."""
+    exists = (VOICE_FILES / f"{line_id}.mp3").is_file()
+    return f"/static/audio/voice/scribe/{line_id}.mp3" if exists else ""

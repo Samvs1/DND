@@ -19,7 +19,8 @@ $gates = @(
     @{ Name = 'check_secrets';    Exe = $py;      Args = 'scripts/check_secrets.py' },
     @{ Name = 'gen_protocol';     Exe = $py;      Args = 'scripts/gen_protocol.py --check' },
     @{ Name = 'build_manifest';   Exe = $py;      Args = 'scripts/build_manifest.py --check' },
-    @{ Name = 'gen_assets_todo';  Exe = $py;      Args = 'scripts/gen_assets_todo.py --check' }
+    @{ Name = 'gen_assets_todo';  Exe = $py;      Args = 'scripts/gen_assets_todo.py --check' },
+    @{ Name = 'scribe_voice';     Exe = $py;      Args = 'scripts/gen_scribe_voice.py --check' }
 )
 
 $failed = @()

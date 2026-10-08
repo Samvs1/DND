@@ -50,9 +50,13 @@ def test_tail_kept_and_trimmed(voiced: tuple[np.ndarray, ProcessResult]) -> None
 
 def test_wet_share_follows_config(voiced: tuple[np.ndarray, ProcessResult]) -> None:
     _, result = voiced
-    wet = real_chain()["reverb"]["wet"]
-    expected = 10 * np.log10(wet / (1 - wet))
-    assert abs(result.wet_dry_db - expected) < 3.0
+    reverb = real_chain()["reverb"]
+    wet = reverb["wet"]
+    # Energy ratio: the gains enter squared for the linear law, once for equal power.
+    power = 20 if reverb.get("mix_law", "equal_power") == "linear" else 10
+    expected = power * np.log10(wet / (1 - wet))
+    # The return high-pass removes some reverb energy on top, so the wet share sits at or below it.
+    assert expected - 4.0 < result.wet_dry_db < expected + 3.0
 
 
 def test_air_kept_by_the_dry_chain() -> None:

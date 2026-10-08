@@ -11,6 +11,7 @@ from aidm.models.protocol_server import ErrorCode, ErrorMsg, ScribeLineMsg, Scri
 from aidm.models.state import GameState
 from aidm.session.reducer import apply
 from tests.ai.guard_fixtures import inn_state
+from tests.asset_helpers import expected_audio_url
 from tests.session.server_fixtures import make_app
 from tests.session.table_fixtures import (
     Seat,
@@ -130,5 +131,5 @@ def test_lines_endpoint_lists_every_line(tmp_path: Path) -> None:
     body = response.json()
     assert [row["id"] for row in body] == [line.id for line in scribe_lines().lines]
     assert all(set(row) == {"id", "group", "text", "audio_url"} for row in body)
-    assert all(row["audio_url"] == "" for row in body)
+    assert all(row["audio_url"] == expected_audio_url(row["id"]) for row in body)
     assert "reference_id" not in response.text

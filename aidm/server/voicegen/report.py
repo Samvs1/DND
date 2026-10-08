@@ -2,8 +2,9 @@
 
 Per line `artifacts/voice/report/<line_id>.json` (all `LineMetrics` fields) and one `report.md`
 table over every line of the config that has a JSON (so a `--only` run keeps the others). The
-checks a line must pass: processed dry F0 within 1% of the raw F0 (no pitch shift), integrated
-loudness within 0.5 LU of the target, true peak at or under the ceiling.
+checks a line must pass: the paired-frame F0 ratio of the processed dry chain against the raw
+TTS (resampled to the build rate) within 0.5% with at least 90% of frames agreeing (no pitch
+shift), integrated loudness within 0.5 LU of the target, true peak at or under the ceiling.
 
 Public API: `LineMetrics`, `measure`, `problems`, `write_line_report`, `write_summary`.
 """
@@ -19,12 +20,13 @@ from typing import Any
 import numpy as np
 import numpy.typing as npt
 
-from aidm.server.voicegen.analysis import high_band_db, median_f0, tail_s
-from aidm.server.voicegen.chain import ProcessResult
+from aidm.server.voicegen.analysis import high_band_db, median_f0, paired_f0, tail_s
+from aidm.server.voicegen.chain import ProcessResult, resample_to
 
 type Audio = npt.NDArray[np.float64]
 
-F0_TOLERANCE = 0.01
+F0_TOLERANCE = 0.005
+F0_MIN_AGREEMENT = 0.9
 LUFS_TOLERANCE = 0.5
 
 
@@ -40,6 +42,8 @@ class LineMetrics:
     f0_raw_hz: float
     f0_dry_hz: float
     f0_delta_pct: float
+    f0_pair_pct: float
+    f0_pair_agree: float
     air_raw_db: float
     air_dry_db: float
     air_out_db: float
@@ -54,6 +58,7 @@ def measure(
     f0_raw = median_f0(raw, raw_rate)
     f0_dry = median_f0(result.dry, result.rate)
     delta = 100.0 * (f0_dry - f0_raw) / f0_raw if f0_raw > 0 else 0.0
+    ratio, agree = paired_f0(resample_to(raw, raw_rate, result.rate), result.dry, result.rate)
     return {
         "id": line_id,
         "profile": profile,
@@ -65,6 +70,8 @@ def measure(
         "f0_raw_hz": round(f0_raw, 2),
         "f0_dry_hz": round(f0_dry, 2),
         "f0_delta_pct": round(delta, 3),
+        "f0_pair_pct": round(100.0 * (ratio - 1.0), 3),
+        "f0_pair_agree": round(agree, 3),
         "air_raw_db": round(high_band_db(raw, raw_rate), 2),
         "air_dry_db": round(high_band_db(result.dry, result.rate), 2),
         "air_out_db": round(high_band_db(result.out.mean(axis=1), result.rate), 2),
@@ -75,8 +82,12 @@ def measure(
 
 def problems(m: LineMetrics) -> list[str]:
     found: list[str] = []
-    if m.f0_raw_hz <= 0 or abs(m.f0_delta_pct) > 100.0 * F0_TOLERANCE:
-        found.append(f"{m.id}: F0 {m.f0_raw_hz} Hz raw vs {m.f0_dry_hz} Hz processed")
+    shifted = abs(m.f0_pair_pct) > 100.0 * F0_TOLERANCE
+    if m.f0_raw_hz <= 0 or shifted or m.f0_pair_agree < F0_MIN_AGREEMENT:
+        found.append(
+            f"{m.id}: F0 paired ratio {m.f0_pair_pct}% (agreement {m.f0_pair_agree}), "
+            f"medians {m.f0_raw_hz} vs {m.f0_dry_hz} Hz"
+        )
     if abs(m.lufs - m.target_lufs) > LUFS_TOLERANCE:
         found.append(f"{m.id}: loudness {m.lufs} LUFS, target {m.target_lufs}")
     if m.true_peak_db > m.ceiling_db + 1e-6:
@@ -98,7 +109,7 @@ def write_line_report(report_dir: Path, metrics: LineMetrics) -> Path:
 
 
 _HEAD = (
-    "| line | profile | dur s | LUFS | TP dBTP | F0 raw | F0 dry | dF0 % "
+    "| line | profile | dur s | LUFS | TP dBTP | F0 raw | F0 dry | dF0 % | dF0 paired % | agree "
     "| air raw dB | air dry dB | air out dB | wet/dry dB | tail s |"
 )
 
@@ -113,6 +124,8 @@ def _row(m: dict[str, Any]) -> str:
         "f0_raw_hz",
         "f0_dry_hz",
         "f0_delta_pct",
+        "f0_pair_pct",
+        "f0_pair_agree",
         "air_raw_db",
         "air_dry_db",
         "air_out_db",
@@ -132,11 +145,12 @@ def write_summary(report_dir: Path, line_ids: tuple[str, ...]) -> Path:
         "# Scribe voice report",
         "",
         "Built by scripts/gen_scribe_voice.py. air = energy above 10 kHz relative to the total;",
-        "F0 is the YIN median of voiced frames (raw TTS vs the processed dry chain); tail is the",
+        "F0 raw/dry are YIN medians (informational); dF0 paired is the median frame-by-frame ratio",
+        "over frames voiced in both (the pitch-shift check, limit 0.5%); tail is the",
         "time from the end of the dry voice to -60 dB. Spectrograms: <line_id>.png.",
         "",
         _HEAD,
-        "|" + "---|" * 13,
+        "|" + "---|" * 15,
         *rows,
     ]
     path = report_dir / "report.md"

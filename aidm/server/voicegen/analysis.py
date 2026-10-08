@@ -3,12 +3,15 @@
 - `median_f0`: YIN (de Cheveigne and Kawahara 2002): difference function via FFT, cumulative
   mean normalised difference, absolute threshold 0.15 then the local minimum, parabolic
   interpolation, on 40 ms frames every 20 ms whose level is within 35 dB of the loudest frame;
-  the median over voiced frames. Raw and processed must agree within 1% (no pitch shift).
+  the median over voiced frames (informational: the EQ changes which frames count as voiced).
 - `high_band_db`: energy above 10 kHz relative to the total energy, in dB.
 - `tail_s`: time from the end of the dry voice to where the output's 10 ms RMS envelope falls
   below -60 dB relative to its loudest block.
 
-Public API: `median_f0`, `high_band_db`, `tail_s`, `envelope_db`.
+- `paired_f0`: the pitch-shift check: YIN per frame on the reference and the processed signal at
+  the same rate, median of the frame-by-frame ratio over frames voiced in both (M13.4).
+
+Public API: `frame_f0`, `median_f0`, `paired_f0`, `high_band_db`, `tail_s`, `envelope_db`.
 """
 
 from __future__ import annotations
@@ -25,6 +28,7 @@ F0_MAX_HZ = 400.0
 FRAME_S = 0.040
 HOP_S = 0.020
 GATE_DB = 35.0
+SILENCE_DB = -70.0  # frames below this absolute level are never pitch-tracked
 YIN_THRESHOLD = 0.15
 YIN_MAX_ACCEPT = 0.35
 CHUNK = 128
@@ -70,24 +74,53 @@ def _pick(curve: Audio, min_lag: int) -> float | None:
     return tau + float(np.clip(shift, -1.0, 1.0))
 
 
-def median_f0(mono: Audio, rate: int) -> float:
-    """Median F0 (Hz) over voiced frames, or 0.0 when nothing is voiced."""
+def frame_f0(mono: Audio, rate: int) -> Audio:
+    """F0 (Hz) per 20 ms hop; NaN where the frame is gated out or unvoiced."""
     window = round(FRAME_S * rate)
     max_lag = math.ceil(rate / F0_MIN_HZ)
     min_lag = max(2, math.floor(rate / F0_MAX_HZ))
     frames = _frames(mono, window + max_lag + 1, round(HOP_S * rate))
+    out = np.full(frames.shape[0], np.nan)
     if frames.shape[0] == 0:
-        return 0.0
+        return out
     level = 10.0 * np.log10(np.mean(frames[:, :window] ** 2, axis=1) + 1e-20)
-    frames = frames[level >= level.max() - GATE_DB]
-    found: list[float] = []
-    for start in range(0, frames.shape[0], CHUNK):
-        curves = _cmndf(frames[start : start + CHUNK], window, max_lag)
-        for curve in curves:
+    keep = np.nonzero(level >= max(level.max() - GATE_DB, SILENCE_DB))[0]
+    for start in range(0, keep.size, CHUNK):
+        rows = keep[start : start + CHUNK]
+        for row, curve in zip(rows, _cmndf(frames[rows], window, max_lag), strict=True):
             tau = _pick(curve, min_lag)
             if tau is not None and tau > 0:
-                found.append(rate / tau)
-    return float(np.median(found)) if found else 0.0
+                out[row] = rate / tau
+    return out
+
+
+def median_f0(mono: Audio, rate: int) -> float:
+    """Median F0 (Hz) over voiced frames, or 0.0 when nothing is voiced."""
+    found = frame_f0(mono, rate)
+    found = found[~np.isnan(found)]
+    return float(np.median(found)) if found.size else 0.0
+
+
+def paired_f0(reference: Audio, processed: Audio, rate: int) -> tuple[float, float]:
+    """(median F0 ratio processed/reference, share of frames with the same pitch choice).
+
+    Both signals at the same rate and time-aligned. Only frames voiced in both count; frames where
+    YIN chose a different octave or sub-harmonic (more than ~7% apart) are excluded from the median
+    and reported through the share. Unlike two independent medians, this cannot be moved by the EQ
+    changing which frames are voiced, so it isolates a real pitch change.
+    (1.0, 0.0) when nothing pairs.
+    """
+    a, b = frame_f0(reference, rate), frame_f0(processed, rate)
+    size = min(a.size, b.size)
+    a, b = a[:size], b[:size]
+    both = ~np.isnan(a) & ~np.isnan(b)
+    if not both.any():
+        return 1.0, 0.0
+    ratio = b[both] / a[both]
+    same = np.abs(np.log2(ratio)) < 0.1
+    if not same.any():
+        return 1.0, 0.0
+    return float(np.median(ratio[same])), float(same.mean())
 
 
 def high_band_db(mono: Audio, rate: int, split_hz: float = 10000.0) -> float:

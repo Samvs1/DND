@@ -13,10 +13,12 @@ The IR is deterministic from `reverb.seed` and stereo:
 - an 8 ms raised-cosine fade-in on the diffuse part and speech-band energy normalisation: the
   mean |H(f)|^2 over 200 Hz - 4 kHz is 1 (a plain unit-energy IR would be louder than unity in the
   voice band, because the dark tail puts its energy low).
-Mix rule: equal power. The IR has unit gain in the voice band, so the wet signal carries about the
-energy of the dry one, and out = sqrt(1 - wet) * dry + sqrt(wet) * reverb keeps the total level
-steady while `wet` sets the wet share of the energy. The dry voice is mono and centred in both
-channels.
+Mix rule (`mix_law`): "linear" (M13.4 default in the config, what a plugin's mix knob does):
+out = (1 - wet) * dry + wet * reverb, so 30% wet puts the reverb about 7.4 dB under the voice;
+"equal_power" (M13.3): out = sqrt(1 - wet) * dry + sqrt(wet) * reverb, about 3.7 dB under at 30%,
+which filled every pause with a low-mid wash. The IR has unit gain in the voice band either way.
+`wet_highpass_hz` > 0 high-passes only the reverb return (Butterworth, 2nd order) so the tail
+stays clean and the low end of the voice stays dry. The dry voice is mono and centred.
 
 Public API: `hall_ir`, `convolve_mix`, `MixParts`, `speech_band_gain`, `BAND_EDGES_HZ`,
 `BAND_DECAY`, `SPEECH_BAND_HZ`.
@@ -126,14 +128,31 @@ class MixParts:
     wet: Audio
 
 
-def convolve_mix(dry: Audio, ir: Audio, wet: float) -> MixParts:
-    """Stereo (frames, 2) equal-power mix of the mono `dry` with its convolution by `ir`.
+def convolve_mix(
+    dry: Audio,
+    ir: Audio,
+    wet: float,
+    *,
+    law: str = "equal_power",
+    wet_highpass_hz: float = 0.0,
+    rate: int = 48000,
+) -> MixParts:
+    """Stereo (frames, 2) mix of the mono `dry` with its convolution by `ir` (see `mix_law`).
 
     The output is len(dry) + len(ir) - 1 frames, so the full tail fits (the dry is zero-padded)."""
+    if law not in ("linear", "equal_power"):
+        raise ValueError(f"unknown mix_law {law!r}")
     length = dry.size + ir.shape[0] - 1
     reverb = np.stack([signal.fftconvolve(dry, ir[:, ch]) for ch in range(2)], axis=1)
+    if wet_highpass_hz > 0.0:
+        sos = signal.butter(2, wet_highpass_hz, btype="highpass", fs=rate, output="sos")
+        reverb = signal.sosfilt(sos, reverb, axis=0)
     dry_pad = np.zeros((length, 2))
     dry_pad[: dry.size] = dry[:, None]
-    dry_part = math.sqrt(max(0.0, 1.0 - wet)) * dry_pad
-    wet_part = math.sqrt(max(0.0, wet)) * np.asarray(reverb, dtype=np.float64)
+    wet = min(1.0, max(0.0, wet))
+    dry_gain, wet_gain = (
+        (1.0 - wet, wet) if law == "linear" else (math.sqrt(1.0 - wet), math.sqrt(wet))
+    )
+    dry_part = dry_gain * dry_pad
+    wet_part = wet_gain * np.asarray(reverb, dtype=np.float64)
     return MixParts(mix=dry_part + wet_part, dry=dry_part, wet=wet_part)

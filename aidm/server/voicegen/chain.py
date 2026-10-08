@@ -3,9 +3,10 @@
 Order: resample to `chain.sample_rate` (polyphase, exact rational ratio: 44.1k -> 48k is 160/147;
 a sample-rate conversion, never a pitch change) -> high-pass -> warmth -> presence -> air taper
 -> compressor -> convolution with the synthetic dark hall IR (the output is long enough for the
-full tail) -> equal-power wet/dry mix -> loudness to `loudness.target_lufs` -> true-peak limit to
-`loudness.true_peak_db` -> trim trailing silence below -70 dBFS with a 20 ms fade, keeping at
-least `output.tail_ms` after the dry voice ends. No pitch shift, time stretch, distortion,
+full tail) -> wet/dry mix (`reverb.mix_law`, optional `wet_highpass_hz` on the reverb return)
+-> loudness to `loudness.target_lufs` -> true-peak limit to `loudness.true_peak_db` -> trim
+trailing silence below -70 dBFS with a 20 ms fade, keeping at least `output.tail_ms` after the
+dry voice ends. No pitch shift, time stretch, distortion,
 bitcrush, chorus or echo stage exists here by design.
 
 Public API: `ProcessResult`, `process`, `resample_to`, `dry_chain`.
@@ -76,7 +77,14 @@ def process(raw: Audio, raw_rate: int, chain: Mapping[str, Any]) -> ProcessResul
     mono = resample_to(raw, raw_rate, rate)
     dry = dry_chain(mono, rate, chain)
     reverb = chain["reverb"]
-    parts = convolve_mix(dry, hall_ir(reverb, rate), float(reverb["wet"]))
+    parts = convolve_mix(
+        dry,
+        hall_ir(reverb, rate),
+        float(reverb["wet"]),
+        law=str(reverb.get("mix_law", "equal_power")),
+        wet_highpass_hz=float(reverb.get("wet_highpass_hz", 0.0)),
+        rate=rate,
+    )
     loud = chain["loudness"]
     out = normalize_loudness(parts.mix, rate, float(loud["target_lufs"]))
     out = limit_true_peak(out, rate, float(loud["true_peak_db"]))

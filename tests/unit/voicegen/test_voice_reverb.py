@@ -3,10 +3,11 @@
 import math
 
 import numpy as np
+import pytest
 from scipy import signal
 
 from aidm.server.voicegen.reverb import convolve_mix, hall_ir, speech_band_gain
-from tests.unit.voicegen.helpers import SR, real_chain
+from tests.unit.voicegen.helpers import SR, harmonic_voice, real_chain, rms_db, tone
 
 
 def _cfg(**over: float) -> dict[str, float]:
@@ -81,3 +82,27 @@ def test_equal_power_mix() -> None:
     assert np.allclose(parts.dry[:, 0], parts.dry[:, 1])  # dry voice mono-centred
     assert np.allclose(parts.mix, parts.dry + parts.wet)
     assert np.array_equal(convolve_mix(dry, ir, 0.0).mix, convolve_mix(dry, ir, 0.0).dry)
+
+
+def test_linear_mix_puts_30_percent_wet_about_7_db_under_the_dry() -> None:
+    dry = harmonic_voice(140.0, 1.0)
+    ir = np.zeros((SR // 10, 2))
+    ir[0] = 1.0  # a unit impulse: the reverb equals the dry, so only the gains differ
+    parts = convolve_mix(dry, ir, 0.3, law="linear", rate=SR)
+    ratio_db = 20.0 * np.log10(np.max(np.abs(parts.wet)) / np.max(np.abs(parts.dry)))
+    assert abs(ratio_db - 20.0 * np.log10(0.3 / 0.7)) < 0.01
+
+
+def test_wet_highpass_cleans_only_the_reverb_low_end() -> None:
+    low = tone(60.0, 1.0)
+    ir = np.zeros((SR // 10, 2))
+    ir[0] = 1.0
+    plain = convolve_mix(low, ir, 0.3, law="linear", rate=SR)
+    cleaned = convolve_mix(low, ir, 0.3, law="linear", wet_highpass_hz=180.0, rate=SR)
+    assert rms_db(cleaned.wet[:, 0]) < rms_db(plain.wet[:, 0]) - 15.0
+    assert np.allclose(cleaned.dry, plain.dry)
+
+
+def test_unknown_mix_law_is_refused() -> None:
+    with pytest.raises(ValueError, match="mix_law"):
+        convolve_mix(np.zeros(10), np.zeros((4, 2)), 0.3, law="chorus")
