@@ -59,7 +59,7 @@ def test_screen_shows_the_story_and_party_read_only_and_mutes_players(
 ) -> None:
     errors: list[str] = []
     screen = _screen(browser, live_server.base, WIDE, errors)
-    assert screen.locator("[data-testid=lan-url]").count() == 1  # invite panel while waiting
+    assert screen.locator("[data-testid=lan-url]").count() >= 1  # invite panel while waiting
     host, _guest = start_table(browser, live_server.base, WIDE, errors)
     screen.wait_for_selector("[data-testid=screen-table]:not([hidden])", timeout=20000)
     screen.wait_for_function(

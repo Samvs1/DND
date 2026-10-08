@@ -724,6 +724,15 @@ export const STRINGS = {
     heading: 'Spectator screen',
     waiting: 'Waiting for the adventure to begin.',
     name: 'Screen',
+    acting: '{name} is acting',
+    typing: '{name} is typing...',
+    next: 'Next:',
+    voteCount: '{ready} of {total} ready',
+    defeatTitle: 'Defeat',
+    defeatCheckpoint: 'Checkpoint: {label}',
+    defeatWait: 'Waiting for the host to choose on their phone',
+    gear: 'Audio settings',
+    gearIcon: 'Audio',
   },
 };
 

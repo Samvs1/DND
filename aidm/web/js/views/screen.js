@@ -6,11 +6,20 @@
 import { mountBoard } from '../combat/board.js';
 import { mountInitiative } from '../combat/initiative.js';
 import { t } from '../strings.js';
+import { mountGear } from '../screen/gear.js';
+import { mountScreenDice } from '../screen/dice.js';
+import { mountFloor } from '../screen/floor.js';
+import { mountDefeat, mountLevelBanner } from '../screen/overlays.js';
+import { mountScreenVote } from '../screen/vote.js';
+import { mountSettings } from '../settings/settings.js';
 import { mountFeed } from '../table/feed.js';
+import { mountNotices } from '../table/notices.js';
 import { mountParty } from '../table/party.js';
 import { mountScene } from '../table/scene.js';
 import { h } from '../ui/dom.js';
 import { fetchLan, mountInvite } from '../ui/invite.js';
+
+const SEATS = 4; // the invite corner shows while fewer seats than this are taken
 
 // The board only reads; this stands in for the interactive controller.
 const WATCHER = { readOnly: true, ui: { arming: null, target: null }, subscribe: () => () => {}, pickToken() {}, pickZone() {} };
@@ -37,18 +46,34 @@ export function mountScreen(root, ctx) {
   const scene = h('header', { class: 'tb-scene' });
   const feed = h('section', { class: 'tb-feed', 'aria-label': t('table.feed') });
   const party = h('section', { class: 'tb-party panel', 'aria-label': t('table.party') });
-  const side = h('aside', { class: 'tb-side' }, party);
+  const widgets = h('div', { class: 'sc-widgets' });
+  const corner = h('div', { class: 'sc-invite', 'data-testid': 'screen-invite' });
+  const side = h('aside', { class: 'tb-side' }, party, widgets, corner);
   const initiative = h('div', { class: 'init-strip', 'data-testid': 'initiative' });
   const board = h('div', { class: 'board', 'data-testid': 'board' });
   const combat = h('section', { class: 'tb-combat panel', 'aria-label': t('combat.heading') }, initiative, board);
   const table = h('div', { class: 'tb sc', 'data-testid': 'screen-table' }, scene, combat, feed, side);
-  root.append(waiting, table);
+  const overlays = h('div', { class: 'sc-overlays' });
+  root.append(waiting, table, overlays);
 
-  const render = (state) => applyPhase(state, waiting, table, combat);
+  const render = (state) => {
+    applyPhase(state, waiting, table, combat);
+    const open = state.players.length < SEATS || state.players.some((p) => !p.connected);
+    corner.hidden = !open || state.snapshot?.state.phase === 'defeated';
+  };
   render(store.get());
   const stops = [
     store.subscribe(render),
     mountInvite(slot, store),
+    mountInvite(corner, store),
+    mountFloor(widgets, store),
+    mountScreenVote(widgets, store),
+    mountScreenDice(overlays, ctx),
+    mountNotices(overlays, store),
+    mountLevelBanner(overlays, store),
+    mountDefeat(overlays, store),
+    mountGear(overlays, store),
+    mountSettings(overlays, ctx),
     mountScene(scene, store),
     mountFeed(feed, story, ctx.audio),
     mountParty(party, store),
