@@ -1,0 +1,8 @@
+{
+  "source": "House rule (owner request 2026-10-09, docs/next/GOAL_SCRIBE.md): the Scribe rewrites a fallen hero into the story for gold, outside combat only. Price = base_gp + per_level_gp x level of the fallen hero. A potion of healing is 50 gp and a tier-1 fight drops 1d6-2d6 gp, so a level-1 revive costs half a potion.",
+  "base_gp": 0,
+  "per_level_gp": 25,
+  "restore": "half",
+  "payment": "payer",
+  "keep_conditions": ["exhaustion"]
+}

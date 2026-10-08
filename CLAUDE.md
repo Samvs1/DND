@@ -101,6 +101,14 @@ Assets are COPIED from v1 into `aidm/web/static/` in M0.4. Never edit the origin
 - Image generation goes ONLY through the M10 pipeline (`scripts/gen_assets.py`, docs/ADDENDUM_ASSET_GEN.md): budget-capped,
   reviewed, with P1 placeholders only. Never make ad hoc image API calls. Never overwrite real or v1 assets.
 - M10.5-M10.7 (marked ORCH) are done by the main session itself, because it must open and judge every contact sheet.
+- Voice lines (the Scribe) are made ONLY by `scripts/gen_scribe_voice.py` from the one config `data/voice/scribe.json`
+  (docs/next/GOAL_SCRIBE.md): Fish key from .env at build time, never in client code. No pitch shifting, no
+  distortion/bitcrush/chorus, high resolution processing, one final lossy encode. Never hand-edit the audio files.
+
+## Player manual (owner rule: create AND maintain)
+- `docs/PLAYER_MANUAL.md` is the player-facing truth. Any change to a player-facing mechanic, price, rule, screen or
+  control updates the manual in the same commit. Generated reference sections come from data via
+  `scripts/gen_manual.py`; its `--check` is a gate step (from M14). The in-game manual renders the same file.
 
 ## Token discipline (Claude Pro: 5-hour window plus weekly cap)
 - Keep gate output to its tail. Never paste whole files. Do not re-read files you already know.

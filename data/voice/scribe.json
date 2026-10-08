@@ -1,0 +1,76 @@
+{
+  "source": "The Scribe's voice: the ONE config for his lines and their sound (docs/next/GOAL_SCRIBE.md). Edit, then run `python scripts/gen_scribe_voice.py --yes` (new text) or `--reprocess` (sound only, no API calls). The game reads the line texts from this file.",
+  "voice": {
+    "provider": "fish",
+    "reference_id": "dab97346a1464e6ba09a592b4bd4b7d2",
+    "backend_model": "s1",
+    "format": "wav",
+    "sample_rate": 44100,
+    "normalize": true,
+    "latency": "normal",
+    "prosody_speed": 1.0,
+    "temperature": 0.7,
+    "top_p": 0.7
+  },
+  "chain": {
+    "sample_rate": 48000,
+    "highpass": {"freq_hz": 70, "order": 2},
+    "warmth": {"freq_hz": 260, "gain_db": 1.5, "q": 0.8},
+    "presence": {"freq_hz": 3500, "gain_db": 1.5, "q": 1.0},
+    "air_taper": {"freq_hz": 12000, "gain_db": -3.0},
+    "compressor": {"threshold_db": -22.0, "ratio": 2.0, "attack_ms": 15, "release_ms": 180, "knee_db": 6.0},
+    "reverb": {"wet": 0.30, "rt60_s": 2.4, "predelay_ms": 28, "damping_hz": 4200, "width": 0.6, "seed": 7},
+    "loudness": {"target_lufs": -16.0, "true_peak_db": -1.0},
+    "output": {"format": "mp3", "bitrate_kbps": 320, "tail_ms": 900}
+  },
+  "profiles": {
+    "long": {},
+    "short": {"reverb": {"wet": 0.20, "rt60_s": 1.8}}
+  },
+  "lines": [
+    {
+      "id": "welcome.first",
+      "group": "welcome_first",
+      "profile": "long",
+      "text": "Ah. There you are. Come in, and mind the ink. It has been drying since before your kingdoms had names. I am the Scribe. I keep the ledger where every story is written, the grand chapters and the quiet footnotes alike. Why I keep it need not concern you. I find the work agreeable, and the company, now and then, more agreeable still. You will walk roads that would rather not be walked, and meet things that would rather you did not. A tale without peril is merely an inventory. But take a word from one who has read a great many endings. The heroes who last are seldom the strongest. They are the ones who carry one another. Guard your companions. Share your fire, your bread, your last good idea. A fellowship is a page no single hand can write. Now then. The ink is fresh, and the first line is yours. Do give me something worth recording."
+    },
+    {
+      "id": "welcome.return",
+      "group": "welcome_return",
+      "profile": "long",
+      "text": "Ah, the ledger stirs. Welcome back. I kept your page exactly where you left it, and I even resisted the urge to correct your spelling. The story has been waiting, patiently, as stories do. Take up your places, gather your companions close, and let us see what the next chapter makes of you."
+    },
+    {"id": "victory.fight.1", "group": "victory_fight", "profile": "short", "text": "Splendid. The ink barely had time to dry. Do try not to look so surprised. I never doubted you. Much."},
+    {"id": "victory.fight.2", "group": "victory_fight", "profile": "short", "text": "Well fought. I shall note it in the margin, in my better handwriting."},
+    {"id": "victory.fight.3", "group": "victory_fight", "profile": "short", "text": "Victory, and every one of you still on the page. How refreshingly tidy."},
+    {"id": "victory.fight.4", "group": "victory_fight", "profile": "short", "text": "Ah, the satisfying scratch of a quill recording a win. Carry on. Carry on."},
+    {"id": "victory.fight.5", "group": "victory_fight", "profile": "short", "text": "A fine passage. Your enemies will find it far less pleasant to read."},
+    {
+      "id": "victory.campaign.1",
+      "group": "victory_campaign",
+      "profile": "long",
+      "text": "And so the last line is written. I have kept this ledger for a very long time, and I confess I do not often linger over a page. I lingered over yours. You came as strangers, and you leave as something rarer: a company that would not let one another fall. Rest now. Your names are set in ink that does not fade, and I shall be glad to read them again."
+    },
+    {
+      "id": "victory.campaign.2",
+      "group": "victory_campaign",
+      "profile": "long",
+      "text": "Ah. The end of the chapter, and what a chapter it was. Monsters undone, debts settled, and more than one plan that should never have worked. I have recorded heroes who were stronger, and heroes who were luckier, but few so stubbornly loyal to one another. Close the book gently. Stories like yours have a way of being asked for again."
+    },
+    {
+      "id": "victory.campaign.3",
+      "group": "victory_campaign",
+      "profile": "long",
+      "text": "Well. Look at that. A finished tale, and the heroes still standing at the end of it. You would be astonished how rarely that happens. I have set down every choice, every stumble, every brave and foolish moment, and I would not strike out a single word. Go and celebrate, my friends. I shall keep your page warm."
+    },
+    {"id": "revive.1", "group": "revive", "profile": "short", "text": "A small correction, nothing more. There. Back on the page where you belong. Do try to stay there."},
+    {"id": "revive.2", "group": "revive", "profile": "short", "text": "Hm. A rather abrupt ending, I thought. Struck out. Rewritten. Welcome back."},
+    {"id": "revive.3", "group": "revive", "profile": "short", "text": "The fee is settled and the ink is wet. Rise, and mind the smudges."},
+    {"id": "refuse_combat.1", "group": "refuse_combat", "profile": "short", "text": "Not now, I am afraid. One does not edit a page while the quarrel is still being written. Finish your fight. I shall be here."},
+    {"id": "refuse_combat.2", "group": "refuse_combat", "profile": "short", "text": "Patience. The blades are still out, and I never rewrite a sentence in the middle of it. Come and see me when the dust settles."},
+    {"id": "refuse_funds.1", "group": "refuse_funds", "profile": "short", "text": "Alas, the ledger must balance, even for me. You are a little short. Come back with a heavier purse."},
+    {"id": "refuse_funds.2", "group": "refuse_funds", "profile": "short", "text": "Sentiment is lovely, but it does not settle accounts. Not quite enough gold, I am afraid."},
+    {"id": "none_fallen.1", "group": "none_fallen", "profile": "short", "text": "Everyone accounted for, and breathing. How delightful. I shall simply sit here and admire the tidy page."},
+    {"id": "not_yet.1", "group": "not_yet", "profile": "short", "text": "That one is not mine yet. Bandage them, rest them, shout at them a little. The story has not let go of them."}
+  ]
+}

@@ -1,4 +1,4 @@
-NEXT: none queued. M11 and M12 closed; GOAL_CONTROLLERS acceptance met. Open follow-ups (not scheduled): phone target chips below the hotbar, thin scene banner on the 1920 screen, were-creature animal-form prompt template, autocheck for empty/fragment sheet slices, slicer bleed. Files in flight: none. Last gate: M12 FULL GATE PASS 10/10.
+NEXT: M13.1 (H, hard-engineer): Scribe revive rules + session (data/bg3/scribe.json, rules/scribe.py, scribe_revive message, refusals, public scribe state). Files in flight: none. Last gate: M12 FULL GATE PASS 10/10.
 
 # PROGRESS
 
@@ -129,6 +129,19 @@ Owner decisions are in the goal doc: defeat screen + retry, always two surfaces 
 - [x] M12.2 **ORCH** Generate the remaining placeholders (`--yes --cap 15`), open every contact sheet, write review JSONs, install accepted ones (style >= 4), retry up to 3 attempts. Gate: ledger <= cap, check_secrets. (reviews 13-40; commits 1507a9f, 764dd50 and the M12.2 commit)
 - [x] M12.3 **ORCH** Final review sheet opened, ASSETS_REPORT.md updated, UI screenshots with the new art, revert demo, FULL gate. Commit `M12: remaining art`. (commit `M12: remaining art`)
 
+
+## M13 The Scribe (docs/next/GOAL_SCRIBE.md, owner request 2026-10-09; binding)
+- [x] M13.0 **ORCH** Plan: goal doc, checkpoints, CLAUDE.md rules (voice build, manual upkeep), his dialogue written into `data/voice/scribe.json`, price data in `data/bg3/scribe.json`.
+- [ ] M13.1 **H** Revive: `rules/scribe.py` (pure: quote per fallen PC, eligibility, revive events), event `CharacterRewritten` (+ `GoldChanged`), client msg `scribe_revive {target_id}`, refusals (`scribe_in_combat`, `scribe_no_funds`, `scribe_none_fallen`, `scribe_not_fallen`, `scribe_payer_down`, defeated/paused), public `scribe` state (available, reason, fallen list with prices), reducer, replay == snapshot. Gate: FULL gate.
+- [ ] M13.2 **H** Appearances: server-picked lines (`scribe_line {line_id}` from `data/voice/scribe.json`, table RNG, no immediate repeat) on new campaign start, saved campaign load, won fight, campaign victory, revive and its refusals; campaign victory state for a victory screen; host `scribe_skip`. Gate: FULL gate.
+- [ ] M13.3 **H** Voice build: `aidm/server/voicegen/` + `scripts/gen_scribe_voice.py` (dry run by default, `--yes`, `--only`, `--reprocess` from cached raw WAV, `--check` offline staleness as a gate step), Fish WAV request, 48 kHz float DSP chain from the config, synthetic dark hall IR, -16 LUFS / -1 dBTP, one final lossy encode, `lines.json` index, measurement report (LUFS, TP, F0 before/after, >10 kHz energy, wet ratio) and spectrogram PNGs. DSP unit tests on synthetic signals, no network. Gate: FULL gate.
+- [ ] M13.4 **ORCH** Generate every line with Fish, open the spectrograms, read the measurements, tune per line, commit the audio and the final config.
+- [ ] M13.5 **M** UI: Scribe tab on the phone (fallen list, prices, confirm, disabled in combat with his reason, no funds, nobody fallen), his overlay on /screen (portrait, subtitles, voice on the narrator channel, narration waits), host skip, fight victory banner, campaign victory screen. Gate: UI tests at 390 + 1920 + FULL gate.
+- [ ] M13.6 **ORCH** Visuals: owner art copied (watermark cropped), `portrait.scribe.welcome` and `portrait.scribe.rewrite` generated through the M10 pipeline, reviewed, installed, wired; screenshots opened and judged; README + ARCHITECTURE. FULL gate. Commit `M13: The Scribe`.
+
+## M14 Player manual (same request; create AND maintain)
+- [ ] M14.1 **M** `docs/PLAYER_MANUAL.md` (every player-facing mechanic), generated reference sections from data via `scripts/gen_manual.py` (`--check` in the gate), in-game Manual (phone More tab + `/manual`), CLAUDE.md upkeep rule. Gate: tests + FULL gate.
+- [ ] M14.2 **ORCH** Accuracy review by a fresh read-only subagent against code and data, fixes, FULL gate. Commit `M14: Player manual`.
 ---
 
 ## Goal acceptance (from the owner's /goal; the final report must prove each with raw output)
