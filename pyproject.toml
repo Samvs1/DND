@@ -17,6 +17,7 @@ dependencies = [
     "fish-audio-sdk",
     "qrcode",
     "Pillow",
+    "cryptography",
 ]
 
 [project.optional-dependencies]

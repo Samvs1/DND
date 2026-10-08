@@ -17,6 +17,7 @@ from tests.ui.table_helpers import (
     start_fight,
     start_with_screen,
 )
+from tests.ui.wizard_helpers import HeroSpec, complete_wizard, join
 
 NO_HSCROLL = "document.documentElement.scrollWidth <= window.innerWidth"
 TABS = ("play", "hero", "journal", "more")
@@ -67,9 +68,13 @@ def test_play_tab_has_the_action_box_voice_slot_and_last_line_modal(
     box = host.locator("[data-testid=action-input]")
     assert box.is_visible() and host.locator("[data-testid=action-send]").is_visible()
     assert host.locator("[data-testid=mic-slot]").count() == 1
-    assert host.locator("[data-testid=mic-slot]").is_hidden()
-    hint = host.locator("[data-testid=dictation-hint]").inner_text()
-    assert hint == "Tip: use the microphone key on your keyboard to dictate."
+    voice = host.evaluate(
+        "window.isSecureContext && !!(window.SpeechRecognition || window.webkitSpeechRecognition)"
+    )
+    assert host.locator("[data-testid=mic-slot]").is_visible() == voice
+    hint = host.locator("[data-testid=dictation-hint]")
+    assert hint.is_visible() != voice
+    assert hint.inner_text() == "Tip: use the microphone key on your keyboard to dictate."
     # The last narration is one truncated line; tapping it opens the recent story in a modal.
     assert len(host.locator("[data-testid=last-line]").inner_text()) <= 150
     host.click("[data-testid=last-line]")
@@ -269,4 +274,60 @@ def test_defeat_on_the_phones_host_chooses_and_retry_works(
     assert host.locator(PANE.format("play")).is_visible()
     host.wait_for_function(ACTION_ENABLED, timeout=20000)
     assert host.locator("[data-testid=status-chip]").inner_text() != "Defeated"
+    assert errors == []
+
+
+FAKE_MIC = """
+window.__started = 0;
+class FakeRec {
+  start() { window.__started += 1; window.__rec = this; }
+  stop() { if (this.onend) this.onend(); }
+}
+window.SpeechRecognition = FakeRec;
+window.webkitSpeechRecognition = FakeRec;
+"""
+NO_MIC = """
+Object.defineProperty(window, 'isSecureContext', { value: false });
+delete window.SpeechRecognition; delete window.webkitSpeechRecognition;
+"""
+
+
+def _mic_page(browser: Browser, base: str, script: str, errors: list[str]) -> Page:
+    context = browser.new_context(viewport=PHONE)
+    context.add_init_script(script)
+    page = context.new_page()
+    page.on("pageerror", lambda exc: errors.append(str(exc)))
+    join(page, base, "Ann")
+    complete_wizard(page, HeroSpec(name="Brienne"))
+    page.wait_for_function("document.querySelectorAll('[data-testid=hero-state].ready').length")
+    page.click("[data-testid=start]")
+    page.wait_for_selector("[data-testid=action-input]", timeout=20000)
+    return page
+
+
+def test_mic_hidden_with_keyboard_hint_when_not_available(
+    browser: Browser, live_server: LiveServer
+) -> None:
+    errors: list[str] = []
+    page = _mic_page(browser, live_server.base, NO_MIC, errors)
+    assert page.locator("[data-testid=mic-button]").count() == 0
+    assert page.locator("[data-testid=mic-slot]").is_hidden()
+    assert page.locator("[data-testid=dictation-hint]").is_visible()
+    assert errors == []
+
+
+def test_mic_fills_the_action_box_and_reports_failure_gently(
+    browser: Browser, live_server: LiveServer
+) -> None:
+    errors: list[str] = []
+    page = _mic_page(browser, live_server.base, FAKE_MIC, errors)
+    assert page.evaluate("window.isSecureContext")  # 127.0.0.1 is a secure context
+    assert page.locator("[data-testid=mic-button]").is_visible()
+    assert page.locator("[data-testid=dictation-hint]").is_hidden()
+    page.click("[data-testid=mic-button]")
+    page.evaluate("window.__rec.onresult({ results: [[{ transcript: 'open the door' }]] })")
+    assert page.locator("[data-testid=action-input]").input_value() == "open the door"
+    page.evaluate("window.__rec.onerror({ error: 'not-allowed' })")
+    note = page.locator("[data-testid=action-gentle]").inner_text()
+    assert note == "The microphone did not catch that. Try again, or type your action."
     assert errors == []

@@ -23,9 +23,10 @@ def lan_address() -> str | None:
     return None if address.startswith("127.") else address
 
 
-def lan_url(port: int) -> str | None:
+def lan_url(port: int, https: bool = False) -> str | None:
     address = lan_address()
-    return f"http://{address}:{port}/" if address is not None else None
+    scheme = "https" if https else "http"
+    return f"{scheme}://{address}:{port}/" if address is not None else None
 
 
 def qr_svg(url: str) -> bytes:

@@ -38,6 +38,7 @@ class ServerSettings:
     tts_enabled: bool = False
     version: str = __version__
     lan_url: str | None = None
+    https: bool = False
     web_root: Path | None = None  # AIDM_WEB_ROOT: serve a copy of aidm/web (tests, art-less runs)
 
     @property

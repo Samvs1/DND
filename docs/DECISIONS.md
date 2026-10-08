@@ -488,3 +488,8 @@ M11.2 clock | `Clock.time()` added (LoopClock = loop time, ManualClock = `now`) 
 ## M11.5
 - The screen's local settings are the one source of audio levels. A new `state.audio` value is copied into them (audio/remote.js), and the screen gear edits them directly, so the last write wins. The screen cannot send `audio_settings` (not seated), so its gear changes do not flow back to phones.
 - Music gain is now 0.8 of the music slider (default 50 gives 0.4, near the old 0.32). Old `volume` seeds both levels once, then is dropped from storage.
+
+## M11.6 https and voice input
+- `--https` uses a self-signed RSA-2048 certificate made with `cryptography` (new dependency), SAN = localhost, 127.0.0.1 and the detected LAN IP. Saved under `certs/` (gitignored) as `aidm-cert.pem` and `aidm-key.pem`, written atomically. It is reused while valid for 30 more days and its SANs equal the wanted set; otherwise regenerated. The key is never printed or logged.
+- Secure context is the only way phones get the Web Speech API, hence https on the LAN. Players see a browser warning once; the console prints one line explaining Advanced, then Continue. `ServerSettings.https` drives the banner; `--lan --https` makes the LAN URL and the lobby QR `https://`.
+- The mic button (controller/mic.js) appears only when `isSecureContext` and (webkit)SpeechRecognition exist; the transcript is appended to the action box and the player still presses send. Failures show the in-fiction `ct.micError` string. When the mic is unavailable the keyboard dictation hint is shown; when it is shown the hint is hidden.

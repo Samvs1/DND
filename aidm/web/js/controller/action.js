@@ -7,6 +7,7 @@ import { hasPendingAction, publicState } from '../table/lookup.js';
 import { t } from '../strings.js';
 import { h } from '../ui/dom.js';
 import { isDown, queuePosition } from './status.js';
+import { createMic, micSupported } from './mic.js';
 import { createTyping } from './typing.js';
 
 const MAX_TEXT = 1000;
@@ -28,11 +29,17 @@ export function mountAction(root, { store, client }) {
   const send = h('button', { type: 'submit', class: 'btn btn-primary', 'data-testid': 'action-send' }, t('table.send'));
   const mic = h('span', { class: 'ct-mic', hidden: true, 'data-testid': 'mic-slot', 'aria-label': t('ct.mic') });
   const note = h('p', { class: 'action-note', role: 'status', 'data-testid': 'action-note' });
+  const hint = h('p', { class: 'hint', 'data-testid': 'dictation-hint' }, t('ct.dictationHint'));
   const place = h('p', { class: 'action-note', role: 'status', 'data-testid': 'queue-place' });
   const gentle = h('p', { class: 'action-gentle', role: 'status', 'data-testid': 'action-gentle' });
   const form = h('form', { class: 'action', novalidate: true }, input, h('div', { class: 'ct-send' }, send, mic));
-  root.append(form, note, place, gentle, h('p', { class: 'hint', 'data-testid': 'dictation-hint' }, t('ct.dictationHint')));
+  root.append(form, note, place, gentle, hint);
   const typing = createTyping(client);
+  if (micSupported()) {
+    mic.hidden = false;
+    hint.hidden = true;
+    createMic(mic, input, (text) => (gentle.textContent = text), () => typing.change(input.value));
+  }
   let gentleTimer = null;
   let lastNotice = store.get().notices.at(-1) ?? null;
 
