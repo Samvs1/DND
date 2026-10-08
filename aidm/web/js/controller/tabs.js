@@ -1,5 +1,7 @@
 // Bottom tab bar of the phone controller: Play, Hero, Journal, More. The current tab is `store.ctab`; each
-// pane is hidden unless it is the current one. Arrow keys move between tabs.
+// pane is hidden unless it is the current one. Arrow keys move between tabs. Each tab shows its icon
+// `ui_icon.tab-<id>` (owner art or a generated icon; the placeholder until then).
+import { assetUrl } from '../assets.js';
 import { myCreatureId } from '../combat/model.js';
 import { myHero } from '../table/lookup.js';
 import { t } from '../strings.js';
@@ -18,7 +20,7 @@ export function mountTabs(nav, panes, store) {
   const select = (id) => store.update({ ctab: id });
   for (const id of TABS) {
     const badge = id === 'hero' ? h('span', { class: 'badge levelup', hidden: true, 'data-testid': 'levelup-badge' }, '!') : null;
-    const button = h('button', { type: 'button', role: 'tab', id: `ct-tab-${id}`, class: 'ct-tab', 'aria-controls': `ct-pane-${id}`, 'data-testid': `ct-tab-${id}`, onclick: () => select(id) }, h('span', {}, t(`ct.tab_${id}`)), badge);
+    const button = h('button', { type: 'button', role: 'tab', id: `ct-tab-${id}`, class: 'ct-tab', 'aria-controls': `ct-pane-${id}`, 'data-testid': `ct-tab-${id}`, onclick: () => select(id) }, h('img', { class: 'ct-tab-icon', src: assetUrl(`ui_icon.tab-${id}`), alt: '', width: 24, height: 24 }), h('span', {}, t(`ct.tab_${id}`)), badge);
     button.addEventListener('keydown', (event) => {
       const step = { ArrowRight: 1, ArrowLeft: -1 }[event.key];
       if (!step) return;

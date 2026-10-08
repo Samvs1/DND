@@ -2,7 +2,8 @@
 
 A prompt is the style bible prefix (docs/STYLE_BIBLE.md, block under "Prompt prefix"), then the
 subject details taken from the data registries (race, class, creature type and CR, item category,
-spell school and damage, condition, terrain), then the per-kind note ("Kind prompts" section).
+spell school and damage, condition, terrain; UI chrome art from `asset_ui`), then the per-kind
+note ("Kind prompts" section).
 Audio entries get a short sound brief instead (not an image). Prompts never name any game, studio
 or real person.
 
@@ -24,6 +25,7 @@ from aidm.data.spell_defs import spell_defs
 from aidm.data.srd import srd
 from aidm.data.zone_templates import zone_templates
 from aidm.server.asset_keys import AUDIO_KINDS, AssetSpec, split_key
+from aidm.server.asset_ui import ui_subject
 
 STYLE_BIBLE_PATH = Path(__file__).resolve().parent.parent.parent / "docs" / "STYLE_BIBLE.md"
 _PREFIX = re.compile(r"## Prompt prefix\s+```text\n(.*?)\n```", re.S)
@@ -175,6 +177,9 @@ def _place(slug: str) -> str:
 
 def _subject(spec: AssetSpec) -> str:
     kind, slug = split_key(spec.key)
+    chrome = ui_subject(spec.key)
+    if chrome is not None:
+        return chrome
     builders: dict[str, Callable[[str], str]] = {
         "portrait": _portrait,
         "monster_token": _monster,

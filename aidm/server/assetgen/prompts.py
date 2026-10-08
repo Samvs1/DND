@@ -33,7 +33,12 @@ PORTRAIT_REFS = (
     "img/portraits/wizard_cropped.png",
 )
 SCENE_REFS = ("img/portraits/ranger_cropped.png", "img/portraits/cleric_cropped.png")
-STATIC_REFS = {"portrait": PORTRAIT_REFS, "region_banner": SCENE_REFS, "zone_card": SCENE_REFS}
+STATIC_REFS = {
+    "portrait": PORTRAIT_REFS,
+    "region_banner": SCENE_REFS,
+    "zone_card": SCENE_REFS,
+    "scene": SCENE_REFS,
+}
 SINGLE_KINDS = frozenset(STATIC_REFS)
 V1_SHEET = ("assets_src", "sheets", "overhaul_sheet.png")
 

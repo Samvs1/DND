@@ -5,8 +5,10 @@ entry only when it is a placeholder, not v1, and its target file does not exist:
 is never selected and no existing file is ever overwritten. `build_calls` turns the keys into
 calls: portraits, banners and zone cards one call each; tokens and icons batched as 4x4 sheets of
 up to 16 cells (icons of every icon kind share sheets). Each call carries its worst-case estimate.
+Calls come out in priority order (the order of the keys: P1 first, then P2); `fit_to_cap` keeps
+the longest prefix of that order whose worst case fits under the cap and cuts the rest.
 
-Public API: `PlannedCall`, `Selection`, `select_keys`, `build_calls`, `SHEET_GROUPS`.
+Public API: `PlannedCall`, `Selection`, `select_keys`, `build_calls`, `fit_to_cap`, `SHEET_GROUPS`.
 """
 
 from collections.abc import Iterable, Mapping, Sequence
@@ -35,6 +37,7 @@ SHEET_GROUPS = {
     "item_icon": "icon",
     "spell_icon": "icon",
     "condition_icon": "icon",
+    "ui_icon": "icon",
 }
 
 
@@ -137,7 +140,7 @@ def build_calls(
     table: PriceTable,
     refs: RefSources,
 ) -> list[PlannedCall]:
-    """Single calls first (in key order), then the sheets of each group."""
+    """One call per single entry and per sheet, in the priority order of `keys`."""
     calls: list[PlannedCall] = []
     grouped: dict[str, list[str]] = {}
     for key in keys:
@@ -148,4 +151,18 @@ def build_calls(
             calls.append(_single(key, manifest[key], bible, table, refs))
     for group in sorted(grouped):
         calls += _sheets(group, grouped[group], manifest, bible, table, refs)
-    return calls
+    rank = {key: n for n, key in enumerate(keys)}
+    return sorted(calls, key=lambda call: min(rank[k] for k in call.keys))
+
+
+def fit_to_cap(
+    calls: Sequence[PlannedCall], table: PriceTable, *, committed: float, cap: float
+) -> tuple[list[PlannedCall], list[PlannedCall]]:
+    """(kept, cut): the longest prefix whose worst case plus `committed` stays within `cap`."""
+    total = committed
+    for n, call in enumerate(calls):
+        cost = call.estimate(table, None)
+        if total + cost > cap:
+            return list(calls[:n]), list(calls[n:])
+        total += cost
+    return list(calls), []

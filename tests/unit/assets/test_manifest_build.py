@@ -27,6 +27,8 @@ KINDS = {
     "region_banner",
     "music",
     "sfx",
+    "scene",
+    "ui_icon",
 }
 
 

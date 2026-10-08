@@ -48,6 +48,18 @@ export function assetUrl(keyOrKeys) {
   return urls.get(first) ?? derivedUrl(first);
 }
 
+/** The URL of real art for the key(s), or '' while only a placeholder exists (art that is optional). */
+export function realAssetUrl(keyOrKeys) {
+  const url = assetUrl(keyOrKeys);
+  return isReal(url) ? url : '';
+}
+
+/** A darkened CSS background of real scene art behind text (e.g. 'scene.defeat'), or '' without art. */
+export function shadedBackground(key) {
+  const url = realAssetUrl(key);
+  return url ? `linear-gradient(rgba(0,0,0,.65), rgba(0,0,0,.8)), url("${url}")` : '';
+}
+
 /** True when the key resolves to something playable (audio) or showable (image). */
 export function hasAsset(keyOrKeys) {
   return assetUrl(keyOrKeys) !== '';

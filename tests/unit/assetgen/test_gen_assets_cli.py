@@ -69,7 +69,8 @@ def test_dry_run_leaves_an_existing_ledger_byte_identical(repo: Path) -> None:
 
 def test_dry_run_reports_over_cap(repo: Path) -> None:
     code, lines = _run(repo, ["--cap", "0.05"], ExplodingProvider())
-    assert code == 0 and "OVER CAP" in lines[-2]
+    assert code == 0 and any("OVER CAP" in line for line in lines)
+    assert any(line.startswith("cut by cap (") for line in lines)
 
 
 def test_yes_generates_staged_candidates_only(repo: Path) -> None:
@@ -120,11 +121,12 @@ def test_only_limits_the_run_to_the_named_key(repo: Path) -> None:
 
 
 def test_cap_hit_stops_cleanly_and_reports_remaining(repo: Path) -> None:
-    code, lines = _run(repo, ["--yes", "--cap", "0.15"], FakeImageProvider())
+    # The plan fits the cap, but failed attempts (retries) count too: the guard stops the run.
+    code, lines = _run(repo, ["--yes", "--cap", "0.15"], FakeImageProvider(fail_on=(1, 2)))
     assert code == 2
     stop = lines.index(next(line for line in lines if line.startswith("STOPPED:")))
     remaining = lines[stop + 2]
-    assert "region_banner.tier1" in remaining or "monster_token.goblin" in remaining
+    assert "portrait.race.elf.f" in remaining or "region_banner.tier1" in remaining
     ledger = json.loads(_ledger(repo).read_text(encoding="utf-8"))
     committed = sum(e["actual_eur"] or e["estimate_eur"] for e in ledger["entries"])
     assert committed <= 0.15

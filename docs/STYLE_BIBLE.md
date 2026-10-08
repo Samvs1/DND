@@ -30,6 +30,8 @@ Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with 
 - `condition_icon`: One simple symbolic mark of the status, centred, bold shapes readable at 32 px, plain transparent background, one cell of a 4x4 icon sheet.
 - `zone_card`: Wide 16:9 battlefield scene seen at a slight angle, open ground in the middle for tokens to stand on, no characters, no creatures, details at the edges only.
 - `region_banner`: Very wide panoramic strip 4:1, a landscape or interior vista with a calm horizon band in the middle, no characters, no creatures, a dark soft edge on the left and right.
+- `scene`: Wide 16:9 painterly establishing scene behind full-screen interface text, low contrast and dark in the middle third, no characters in the foreground.
+- `ui_icon`: One small interface symbol on a dark slate rounded-square tile with a thin worn edge, bold shapes readable at 24 px, matching the reference tab icons, one cell of a 4x4 icon sheet.
 
 ## Per-kind notes
 - Portrait (`portrait.*`, 512x512): v1 portraits are scenes with a small standing hero. Keep that framing for race, class and

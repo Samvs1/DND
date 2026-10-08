@@ -1,5 +1,5 @@
 // Screen overlays: the level-up banner and the full-screen defeat overlay.
-import { assetUrl } from '../assets.js';
+import { shadedBackground } from '../assets.js';
 import { publicState } from '../table/lookup.js';
 import { t } from '../strings.js';
 import { h } from '../ui/dom.js';
@@ -44,9 +44,7 @@ export function mountDefeat(root, store) {
     text.textContent = view.defeat ?? '';
     checkpoint.textContent = view.checkpoint ? t('screen.defeatCheckpoint', { label: view.checkpoint }) : '';
     checkpoint.hidden = !view.checkpoint;
-    const art = assetUrl(DEFEAT_KEY);
-    const real = art && !art.includes('/placeholder/'); // M12 adds the art; until then a plain themed background
-    overlay.style.backgroundImage = real ? `linear-gradient(rgba(0,0,0,.65), rgba(0,0,0,.8)), url("${art}")` : '';
+    overlay.style.backgroundImage = shadedBackground(DEFEAT_KEY); // plain themed background until the art exists
   }
   render(store.get());
   return store.subscribe(render);

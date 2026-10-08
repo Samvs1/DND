@@ -7,7 +7,7 @@ looked up (`creature_type`, `cr`, `school`, `category`); art that needs none wor
 
 Slugs: portrait `class.<c>` | `race.<r>.<f|m>` | `npc.<archetype>`; monster_token `<id>`;
 item_icon `<category|id>`; spell_icon `<id>` | `school.<name>`; condition_icon `<id>`;
-zone_card `<terrain>`; region_banner `<terrain>` | `tier<n>`.
+zone_card `<terrain>`; region_banner `<terrain>` | `tier<n>`; scene `<name>`; ui_icon `<name>`.
 
 Public API: `render_placeholder`, `PLACEHOLDER_KINDS`, `placeholder_size`.
 """
@@ -37,6 +37,8 @@ SIZES: dict[str, Size] = {
     "condition_icon": (128, 128),
     "zone_card": (640, 360),
     "region_banner": (1024, 256),
+    "scene": (1536, 864),
+    "ui_icon": (64, 64),
 }
 SCHOOL_TINTS = {
     "abjuration": "#4f7fb0",
@@ -153,6 +155,19 @@ def _region_banner(slug: str, meta: Meta) -> str:
     )
 
 
+def _scene(slug: str, meta: Meta) -> str:
+    size = SIZES["scene"]
+    return svg_document(size, _label("scene", slug), scene_body(slug, size, seeded("scene", slug)))
+
+
+def _ui_icon(slug: str, meta: Meta) -> str:
+    body = (
+        f'<rect x="4" y="4" width="56" height="56" rx="10" fill="{PALETTE["stone2"]}"/>'
+        f'<g transform="translate(12 12) scale(0.4)">{generic_glyph(PALETTE["muted"])}</g>'
+    )
+    return svg_document(SIZES["ui_icon"], _label("ui_icon", slug), body)
+
+
 def _generic(slug: str, meta: Meta) -> str:
     body = f'<g transform="translate(36 36) scale(1.84)">{generic_glyph(PALETTE["muted"])}</g>'
     return svg_document((256, 256), _label("asset", slug), body)
@@ -166,6 +181,8 @@ RENDERERS: dict[str, Callable[[str, Meta], str]] = {
     "condition_icon": _condition_icon,
     "zone_card": _zone_card,
     "region_banner": _region_banner,
+    "scene": _scene,
+    "ui_icon": _ui_icon,
 }
 PLACEHOLDER_KINDS = tuple(RENDERERS)
 

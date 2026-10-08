@@ -2,8 +2,8 @@
 
 `derive_specs(static_dir)` returns one `AssetSpec` per key: classes, races, NPC archetypes,
 encounter monsters, item categories (plus catalogue items that already have v1 art), shipped
-spells (plus school icons), conditions, terrains, music states and sfx names. Adding a data entry
-adds a key.
+spells (plus school icons), conditions, terrains, music states and sfx names, plus the UI chrome
+art of `asset_ui.UI_ART` (defeat scene, controller tab icons). Adding a data entry adds a key.
 `v1` marks entries whose default file is existing owner art from the v1 project.
 
 Public API: `AssetSpec`, `derive_specs`, `split_key`, `AUDIO_KINDS`.
@@ -20,6 +20,7 @@ from aidm.data.race_defs import race_defs
 from aidm.data.spell_defs import shipped_spell_ids
 from aidm.data.srd import srd
 from aidm.data.zone_templates import zone_templates
+from aidm.server.asset_ui import UI_ART
 from aidm.server.placeholders import placeholder_size
 
 AUDIO_KINDS = frozenset({"music", "sfx"})
@@ -202,9 +203,14 @@ def _audio() -> list[AssetSpec]:
     return out
 
 
+def _ui() -> list[AssetSpec]:
+    return [_spec(a.key, a.file, transparent=a.transparent, v1=a.v1) for a in UI_ART]
+
+
 def derive_specs(static_dir: Path) -> list[AssetSpec]:
     """Every asset key the UI may ask for (sorted), with its default file under `static_dir`."""
     specs = [
+        *_ui(),
         *_portraits(),
         *_monsters(),
         *_items(static_dir),

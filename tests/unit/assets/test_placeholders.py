@@ -14,6 +14,8 @@ SAMPLES = {
     "condition_icon": ["poisoned", "mage-armor"],
     "zone_card": ["forest", "crypt", "tier1"],
     "region_banner": ["swamp", "tier3"],
+    "scene": ["defeat"],
+    "ui_icon": ["tab-more"],
 }
 META = {"creature_type": "dragon", "cr": "10"}
 

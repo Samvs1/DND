@@ -2,15 +2,19 @@
 
 Default is a DRY RUN: it prints the entries to generate, the API calls (portraits/banners one call
 each, tokens and icons as 4x4 sheets), the worst-case cost of each call, the total and the total
-against the cap. It makes no network call and writes nothing. `--yes` (without `--dry-run`) makes
-the calls through the provider named by IMAGE_PROVIDER (`openai`, or `fake` for offline runs) under
-the budget guard; candidates go to artifacts/assets/candidates/ and are NOT installed.
+against the cap. `--tier all` plans every eligible placeholder (P1 + P2; real and v1 art and
+existing files are never selected). When the worst case of the plan does not fit under the cap,
+the calls are cut from the end of the priority order (P1 first, then P2 by kind visibility) and
+the cut ones are listed; only the kept calls are ever made. A dry run makes no network call and
+writes nothing. `--yes` (without `--dry-run`) makes the calls through the provider named by
+IMAGE_PROVIDER (`openai`, or `fake` for offline runs) under the budget guard;
+candidates go to artifacts/assets/candidates/ and are NOT installed.
 `--write-priority` / `--check-priority` write or check docs/ASSET_PRIORITY.md.
 
-Exit codes: 0 ok, 1 stale priority doc or bad --only, 2 stopped at the budget cap, 3 provider
-unavailable (missing key, no current model, organisation verification needed).
+Exit codes: 0 ok, 1 stale priority doc or bad --only, 2 stopped or refused at the budget cap, 3
+provider unavailable (missing key, no current model, organisation verification needed).
 
-Public API: `main`, `parse_args`, `format_plan`, `RepoPaths`.
+Public API: `main`, `parse_args`, `format_plan`, `format_budget`, `tier_level`, `RepoPaths`.
 """
 
 import argparse
@@ -29,7 +33,13 @@ from aidm.server.assetgen.costs import PriceTable, load_price_table
 from aidm.server.assetgen.fake_provider import FakeImageProvider
 from aidm.server.assetgen.ledger import BudgetGuard, load_ledger
 from aidm.server.assetgen.openai_provider import OpenAIImageProvider
-from aidm.server.assetgen.plan import PlannedCall, Selection, build_calls, select_keys
+from aidm.server.assetgen.plan import (
+    PlannedCall,
+    Selection,
+    build_calls,
+    fit_to_cap,
+    select_keys,
+)
 from aidm.server.assetgen.priority import derive_tiers, render_priority
 from aidm.server.assetgen.prompts import RefSources
 from aidm.server.assetgen.provider import ImageProvider, ImageRequest, ProviderError
@@ -44,6 +54,7 @@ def _autocheck(request: ImageRequest, image: bytes) -> list[str]:
 
 
 DEFAULT_CAP_EUR = 8.0
+TIER_CHOICES = ("1", "2", "all")
 SHOWN_SHEET_KEYS = 4
 
 
@@ -77,7 +88,9 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
     p.add_argument("--dry-run", action="store_true", help="plan and price only (the default)")
     p.add_argument("--yes", action="store_true", help="really call the image API")
     p.add_argument("--cap", type=float, default=DEFAULT_CAP_EUR, help="spend cap in EUR")
-    p.add_argument("--tier", type=int, choices=(1, 2), default=1, help="2 adds the P2 entries")
+    p.add_argument(
+        "--tier", choices=TIER_CHOICES, default="1", help="2 or all add the P2 entries (P1 + P2)"
+    )
     p.add_argument("--only", action="append", default=[], metavar="KEY", help="just this key")
     p.add_argument("--max-attempts", type=int, default=2, help="attempts per call")
     p.add_argument("--retry", type=Path, default=None, metavar="REVIEW_JSON", help="redo `retry`")
@@ -134,13 +147,43 @@ def format_plan(
         total += cost
         lines.append(_call_line(n, call, cost))
     projected = committed + total
-    verdict = "UNDER CAP" if projected <= cap else "OVER CAP (the run would stop at the cap)"
+    verdict = "UNDER CAP" if projected <= cap else "OVER CAP (the plan is cut to fit, see below)"
     lines += [
         f"total worst case: {total:.4f} EUR",
         f"ledger already committed: {committed:.4f} EUR",
         f"projected: {projected:.4f} EUR vs cap {cap:.2f} EUR: {verdict}",
     ]
     return lines
+
+
+def tier_level(tier: str) -> int:
+    """`--tier` as the pool depth of `select_keys`: 1 is P1 only, 2 and all are P1 + P2."""
+    return 1 if tier == "1" else 2
+
+
+def format_budget(
+    kept: Sequence[PlannedCall],
+    cut: Sequence[PlannedCall],
+    table: PriceTable,
+    *,
+    committed: float,
+    cap: float,
+) -> list[str]:
+    """The fit summary: planned images, the cost per call and per image, and the cut calls."""
+    images = sum(len(c.keys) for c in kept)
+    total = sum(c.estimate(table, None) for c in kept)
+    per_call = total / len(kept) if kept else 0.0
+    per_image = total / images if images else 0.0
+    lines = [
+        f"planned: {images} images in {len(kept)} calls, worst case {total:.4f} EUR "
+        f"(per call {per_call:.4f} EUR, per image {per_image:.4f} EUR); with the ledger "
+        f"{committed + total:.4f} EUR vs cap {cap:.2f} EUR",
+    ]
+    if not cut:
+        return [*lines, "cut by cap: none"]
+    keys = [k for c in cut for k in c.keys]
+    lines.append(f"cut by cap ({len(cut)} calls, {len(keys)} entries stay placeholders):")
+    return [*lines, ", ".join(keys)]
 
 
 def _priority(paths: RepoPaths, manifest: dict[str, dict[str, Any]], check: bool, out: Out) -> int:
@@ -222,7 +265,11 @@ def _plan(args: argparse.Namespace, paths: RepoPaths, manifest: dict[str, dict[s
         )
         return plan.selection, plan.calls
     selection: Selection = select_keys(
-        manifest, paths.static_dir, derive_tiers(manifest), tier=args.tier, only=args.only
+        manifest,
+        paths.static_dir,
+        derive_tiers(manifest),
+        tier=tier_level(args.tier),
+        only=args.only,
     )
     calls = build_calls(
         manifest, selection.keys, bible=load_style_bible(), table=load_price_table(), refs=refs
@@ -251,10 +298,17 @@ def main(
         out(f"skipped {key}: {reason}")
     if args.only and not selection.keys:
         return 1
+    table = load_price_table()
     committed = load_ledger(paths.ledger).committed_eur()
-    for line in format_plan(calls, load_price_table(), committed=committed, cap=args.cap):
+    kept, cut = fit_to_cap(calls, table, committed=committed, cap=args.cap)
+    for line in format_plan(calls, table, committed=committed, cap=args.cap):
+        out(line)
+    for line in format_budget(kept, cut, table, committed=committed, cap=args.cap):
         out(line)
     if not real:
         out("Add --yes to generate (candidates are staged, not installed).")
         return 0
-    return _generate(args, paths, calls, provider, out)
+    if calls and not kept:
+        out(f"REFUSED: no planned call fits under the cap of {args.cap:.2f} EUR")
+        return 2
+    return _generate(args, paths, kept, provider, out)

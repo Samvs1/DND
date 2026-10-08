@@ -7,7 +7,7 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 `python scripts/gen_assets_todo.py`. Prompts start with the style bible
 (`docs/STYLE_BIBLE.md`). Never overwrite a real or v1 asset.
 
-183 placeholder entries: portrait 10, monster_token 65, spell_icon 61, condition_icon 21, zone_card 9, region_banner 6, music 1, sfx 10
+185 placeholder entries: portrait 10, monster_token 65, spell_icon 61, condition_icon 21, zone_card 9, region_banner 6, music 1, sfx 10
 
 ## portrait (10)
 
@@ -1122,3 +1122,19 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 - size: n/a (audio)
 - transparent: no
 - prompt: Audio brief (not an image): a soft wooden button click, 0.2 seconds.
+
+## scene (0)
+
+### scene.defeat
+- file: aidm/web/static/img/scenes/defeat.png
+- size: 1536x864
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The quiet aftermath of a lost battle at dusk: a torn banner on a broken spear, a dropped sword and a guttering torch on an empty hillside under a heavy sky, sombre, no bodies, no gore, wide 16:9 view with calm dark space in the middle for text. Wide 16:9 painterly establishing scene behind full-screen interface text, low contrast and dark in the middle third, no characters in the foreground. Target size 1536x864.
+
+## ui_icon (0)
+
+### ui_icon.tab-more
+- file: aidm/web/static/img/icons/tabs/more.png
+- size: 64x64
+- transparent: yes
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: A brass cog wheel with three small dots beneath it on a dark slate rounded-square tile (the more and settings tab of a phone tab bar). One small interface symbol on a dark slate rounded-square tile with a thin worn edge, bold shapes readable at 24 px, matching the reference tab icons, one cell of a 4x4 icon sheet. Target size 64x64. Transparent background.

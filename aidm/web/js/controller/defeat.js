@@ -1,6 +1,7 @@
 // Defeat on the phone (phase "defeated"): a full-page panel with the epilogue and the checkpoint. The host (or the
 // only connected player) can retry from the checkpoint, load a save or start a new adventure; others wait.
 import { confirmButton } from '../host/confirm.js';
+import { shadedBackground } from '../assets.js';
 import { fetchSaves } from '../host/saves.js';
 import { publicState } from '../table/lookup.js';
 import { t } from '../strings.js';
@@ -58,6 +59,7 @@ export function mountDefeatPanel(root, { store, client }) {
       return;
     }
     shown = true;
+    panel.style.backgroundImage = shadedBackground('scene.defeat');
     const refusal = state.refusal;
     if (refusal && refusal.n !== lastRefusal) {
       lastRefusal = refusal.n;

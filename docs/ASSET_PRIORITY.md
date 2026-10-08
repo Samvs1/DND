@@ -5,12 +5,19 @@
 Tiers for AI asset generation (docs/ADDENDUM_ASSET_GEN.md B.1), derived from the manifest
 and the data registries by `aidm/server/assetgen/priority.py`. Only placeholder entries
 are ever generated; real and v1 art is never selected and existing files are never
-overwritten. P2 is generated only with `--tier 2`.
+overwritten. P2 is generated only with `--tier 2` or `--tier all` (P1 + P2), in the
+order listed (P1 first, then P2 by kind visibility); a run whose estimate exceeds
+`--cap` is cut from the end of that order.
 
-P1: 95 entries (item_icon 1, monster_token 30, portrait 57, region_banner 6, spell_icon 1).
+P1: 97 entries (item_icon 1, monster_token 30, portrait 57, region_banner 6, scene 1, spell_icon 1, ui_icon 1).
 P2: 172 entries (condition_icon 21, monster_token 65, portrait 10, region_banner 6, spell_icon 61, zone_card 9).
 
 ## P1
+
+### UI chrome (2)
+
+- scene.defeat
+- ui_icon.tab-more
 
 ### wizard portrait (18)
 
@@ -138,9 +145,9 @@ P2: 172 entries (condition_icon 21, monster_token 65, portrait 10, region_banner
 
 ## P2
 
-- condition_icon (21): asleep, barkskin, blurred, chilled, dodging, expeditious-retreat, guidance, guided, helped, hidden, invisibility, invisible, longstrider, nauseated, poison-ward, resistance, shocked, silenced, slowed, surprised, true-strike
-- monster_token (65): ankheg, assassin, barbed-devil, basilisk, bearded-devil, blue-dragon-wyrmling, centaur, chimera, crocodile, death-dog, dire-wolf, duergar, earth-elemental, ettin, fire-elemental, flying-sword, frost-giant, gelatinous-cube, ghast, giant-crocodile, giant-scorpion, gladiator, green-dragon-wyrmling, grick, griffon, grimlock, half-red-dragon-veteran, hell-hound, hezrou, hill-giant, hydra, ice-mephit, knight, lizardfolk, manticore, medusa, minotaur, noble, ochre-jelly, ogre-zombie, owlbear, priest, red-dragon-wyrmling, sahuagin, satyr, scout, shield-guardian, steam-mephit, stirge, stone-giant, swarm-of-bats, tyrannosaurus-rex, vampire-spawn, veteran, water-elemental, white-dragon-wyrmling, wight, winter-wolf, wolf, worg, wyvern, xorn, young-black-dragon, young-green-dragon, young-white-dragon
-- portrait (10): npc.werebear-bear, npc.werebear-hybrid, npc.wereboar-boar, npc.wereboar-hybrid, npc.wererat-hybrid, npc.wererat-rat, npc.weretiger-hybrid, npc.weretiger-tiger, npc.werewolf-hybrid, npc.werewolf-wolf
 - region_banner (6): bridge, crypt, forest, keep, swamp, village
-- spell_icon (61): acid-arrow, acid-splash, aid, animal-friendship, bane, barkskin, bless, blindness-deafness, blur, burning-hands, charm-person, chill-touch, color-spray, cure-wounds, darkness, eldritch-blast, expeditious-retreat, false-life, fear, fire-bolt, fireball, fog-cloud, grease, guidance, guiding-bolt, healing-word, hideous-laughter, hold-person, hunters-mark, hypnotic-pattern, inflict-wounds, invisibility, lesser-restoration, lightning-bolt, longstrider, mage-armor, magic-missile, mass-healing-word, misty-step, poison-spray, prayer-of-healing, protection-from-poison, ray-of-frost, resistance, revivify, sacred-flame, scorching-ray, shatter, shield-of-faith, shocking-grasp, silence, sleep, sleet-storm, slow, spare-the-dying, spike-growth, spirit-guardians, stinking-cloud, thunderwave, true-strike, web
 - zone_card (9): bridge, cave, crypt, forest, keep, ruins, swamp, village, wilds
+- monster_token (65): ankheg, assassin, barbed-devil, basilisk, bearded-devil, blue-dragon-wyrmling, centaur, chimera, crocodile, death-dog, dire-wolf, duergar, earth-elemental, ettin, fire-elemental, flying-sword, frost-giant, gelatinous-cube, ghast, giant-crocodile, giant-scorpion, gladiator, green-dragon-wyrmling, grick, griffon, grimlock, half-red-dragon-veteran, hell-hound, hezrou, hill-giant, hydra, ice-mephit, knight, lizardfolk, manticore, medusa, minotaur, noble, ochre-jelly, ogre-zombie, owlbear, priest, red-dragon-wyrmling, sahuagin, satyr, scout, shield-guardian, steam-mephit, stirge, stone-giant, swarm-of-bats, tyrannosaurus-rex, vampire-spawn, veteran, water-elemental, white-dragon-wyrmling, wight, winter-wolf, wolf, worg, wyvern, xorn, young-black-dragon, young-green-dragon, young-white-dragon
+- condition_icon (21): asleep, barkskin, blurred, chilled, dodging, expeditious-retreat, guidance, guided, helped, hidden, invisibility, invisible, longstrider, nauseated, poison-ward, resistance, shocked, silenced, slowed, surprised, true-strike
+- portrait (10): npc.werebear-bear, npc.werebear-hybrid, npc.wereboar-boar, npc.wereboar-hybrid, npc.wererat-hybrid, npc.wererat-rat, npc.weretiger-hybrid, npc.weretiger-tiger, npc.werewolf-hybrid, npc.werewolf-wolf
+- spell_icon (61): acid-arrow, acid-splash, aid, animal-friendship, bane, barkskin, bless, blindness-deafness, blur, burning-hands, charm-person, chill-touch, color-spray, cure-wounds, darkness, eldritch-blast, expeditious-retreat, false-life, fear, fire-bolt, fireball, fog-cloud, grease, guidance, guiding-bolt, healing-word, hideous-laughter, hold-person, hunters-mark, hypnotic-pattern, inflict-wounds, invisibility, lesser-restoration, lightning-bolt, longstrider, mage-armor, magic-missile, mass-healing-word, misty-step, poison-spray, prayer-of-healing, protection-from-poison, ray-of-frost, resistance, revivify, sacred-flame, scorching-ray, shatter, shield-of-faith, shocking-grasp, silence, sleep, sleet-storm, slow, spare-the-dying, spike-growth, spirit-guardians, stinking-cloud, thunderwave, true-strike, web
