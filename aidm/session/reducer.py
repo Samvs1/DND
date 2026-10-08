@@ -73,6 +73,7 @@ from aidm.models.events import (
     TempHpSet,
     XpGained,
 )
+from aidm.models.scribe import CharacterRewritten
 from aidm.models.state import ActiveCondition, Creature, GameState
 from aidm.session.campaign_apply import CAMPAIGN_EVENT_TYPES, CampaignEvent, apply_campaign_event
 from aidm.session.encounter_apply import apply_encounter_event
@@ -200,6 +201,20 @@ def _apply_death_event(
             target.stable = False
 
 
+def _apply_party_event(state: GameState, event: PartyDefeated | CharacterRewritten) -> None:
+    match event:
+        case PartyDefeated(text=text, source=source, place=place):
+            state.defeat = DefeatState(text=text, source=source, place=place)
+        case CharacterRewritten(target_id=tid, hp=hp):
+            # M13.1: the Scribe rewrites a fallen hero (alive, `hp`, death saves reset)
+            target = _creature(state, tid)
+            target.dead = False
+            target.stable = False
+            target.death_save_successes = 0
+            target.death_save_failures = 0
+            target.hp = hp
+
+
 def _set_concentration(target: Creature, event: ConcentrationStarted | ConcentrationEnded) -> None:
     started = isinstance(event, ConcentrationStarted)
     target.concentrating_on = event.concentration if started else None
@@ -283,8 +298,8 @@ def apply(state: GameState, event: AnyEvent) -> GameState:
             pass
         case AttackRolled() | SpellCast() | MonsterActionUsed() | FeatureUsed():
             pass
-        case PartyDefeated(text=text, source=source, place=place):
-            state.defeat = DefeatState(text=text, source=source, place=place)
+        case PartyDefeated() | CharacterRewritten():
+            _apply_party_event(state, event)
         case _:
             assert_never(event)
     state.event_count += 1

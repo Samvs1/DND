@@ -47,6 +47,7 @@ from aidm.session import (
     lobby,
     party_actions,
     relay,
+    scribe_desk,
     sheet_view,
     spectators,
     votes,
@@ -100,6 +101,7 @@ JOBS: dict[type, JobMaker] = {
     c.Unequip: lambda core, p, m: partial(party_actions.unequip, core, p, m),
     c.Drop: lambda core, p, m: partial(party_actions.drop, core, p, m),
     c.UseItem: lambda core, p, m: partial(party_actions.use_item, core, p, m),
+    c.ScribeRevive: lambda core, p, m: partial(scribe_desk.revive, core, p, m),
 }
 
 # Pause freezes every state-changing player job (QA-15); host messages are IMMEDIATE and still

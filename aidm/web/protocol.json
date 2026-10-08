@@ -1505,6 +1505,29 @@
           "title": "RollAbilities",
           "type": "object"
         },
+        "ScribeRevive": {
+          "additionalProperties": false,
+          "description": "M13.1: pay the Scribe (from the sender's own hero) to rewrite a fallen hero.",
+          "properties": {
+            "target_id": {
+              "maxLength": 64,
+              "minLength": 1,
+              "title": "Target Id",
+              "type": "string"
+            },
+            "type": {
+              "const": "scribe_revive",
+              "default": "scribe_revive",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "target_id"
+          ],
+          "title": "ScribeRevive",
+          "type": "object"
+        },
         "ShopBuy": {
           "additionalProperties": false,
           "properties": {
@@ -1895,6 +1918,7 @@
           "request_hit_chances": "#/$defs/RequestHitChances",
           "request_sheet": "#/$defs/RequestSheet",
           "roll_abilities": "#/$defs/RollAbilities",
+          "scribe_revive": "#/$defs/ScribeRevive",
           "shop_buy": "#/$defs/ShopBuy",
           "shop_sell": "#/$defs/ShopSell",
           "submit_action": "#/$defs/SubmitAction",
@@ -2026,6 +2050,9 @@
         },
         {
           "$ref": "#/$defs/AudioSettingsMsg"
+        },
+        {
+          "$ref": "#/$defs/ScribeRevive"
         }
       ]
     },
@@ -2062,6 +2089,7 @@
       "request_hit_chances",
       "request_sheet",
       "roll_abilities",
+      "scribe_revive",
       "shop_buy",
       "shop_sell",
       "submit_action",
@@ -3161,6 +3189,37 @@
             "kind"
           ],
           "title": "EventMsg",
+          "type": "object"
+        },
+        "FallenHero": {
+          "additionalProperties": false,
+          "properties": {
+            "creature_id": {
+              "title": "Creature Id",
+              "type": "string"
+            },
+            "level": {
+              "minimum": 1,
+              "title": "Level",
+              "type": "integer"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "price_gp": {
+              "minimum": 0,
+              "title": "Price Gp",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "creature_id",
+            "name",
+            "level",
+            "price_gp"
+          ],
+          "title": "FallenHero",
           "type": "object"
         },
         "FeatureActionLine": {
@@ -4724,6 +4783,14 @@
               "title": "Screens",
               "type": "integer"
             },
+            "scribe": {
+              "$ref": "#/$defs/ScribeView",
+              "default": {
+                "available": false,
+                "fallen": [],
+                "reason": null
+              }
+            },
             "summaries": {
               "default": [],
               "items": {
@@ -4988,6 +5055,38 @@
             "dice"
           ],
           "title": "RollEntry",
+          "type": "object"
+        },
+        "ScribeView": {
+          "additionalProperties": false,
+          "properties": {
+            "available": {
+              "default": false,
+              "title": "Available",
+              "type": "boolean"
+            },
+            "fallen": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/FallenHero"
+              },
+              "title": "Fallen",
+              "type": "array"
+            },
+            "reason": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Reason"
+            }
+          },
+          "title": "ScribeView",
           "type": "object"
         },
         "SheetMsg": {

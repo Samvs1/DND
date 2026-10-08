@@ -57,6 +57,7 @@ SERVER_TYPES = {
 CLIENT_TYPES = {
     "typing",  # M11.2
     "audio_settings",  # M11.2
+    "scribe_revive",  # M13.1
     "hello",
     "create_character",
     "roll_abilities",

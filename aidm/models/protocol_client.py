@@ -13,7 +13,8 @@ hero or a party member; `target_id` None = the hero), `RequestHitChances`, `Chat
 `DefeatLoad`, `DefeatNew` (`DEFEAT_MESSAGES`: host or the sole player, phase defeated only);
 M11.2 `DeviceRole` (`Hello.role`: "screen" = the shared display, "controller" = a phone seat;
 `spectator: true` is the older spelling of role "screen"), `Typing` (composing on/off) and
-`AudioSettingsMsg` (the screen's volumes and mutes, from any seated player).
+`AudioSettingsMsg` (the screen's volumes and mutes, from any seated player); M13.1
+`ScribeRevive` (pay the Scribe to rewrite a fallen hero, `aidm.rules.scribe`).
 """
 
 from enum import StrEnum
@@ -104,6 +105,13 @@ class ShopBuy(_Client):
     npc_id: str
     item_id: str
     qty: int = Field(default=1, ge=1, le=99)
+
+
+class ScribeRevive(_Client):
+    """M13.1: pay the Scribe (from the sender's own hero) to rewrite a fallen hero."""
+
+    type: Literal["scribe_revive"] = "scribe_revive"
+    target_id: str = Field(min_length=1, max_length=64)
 
 
 class ShopSell(_Client):

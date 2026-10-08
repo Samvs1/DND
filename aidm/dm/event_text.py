@@ -20,6 +20,7 @@ from aidm.models import events as ev
 from aidm.models import world_events as we
 from aidm.models.combat_events import AttackRolled, CombatantMoved, FeatureUsed, SpellCast
 from aidm.models.encounter_events import CombatantWithdrew, EncounterEnded, EncounterStarted
+from aidm.models.scribe import CharacterRewritten
 from aidm.models.state import GameState
 from aidm.rules.scene import node_display_name
 
@@ -122,6 +123,7 @@ _LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     we.ShopOpened: lambda s, e: f"{_who(s, e.npc_id)} opened their shop.",
     we.ItemPlaced: lambda s, e: None if e.item.hidden else f"{e.item.name} lies here.",
     we.ItemRemoved: lambda s, e: None,
+    CharacterRewritten: lambda s, e: f"The Scribe rewrites {_who(s, e.target_id)} into the story.",
     **CAMPAIGN_EVENT_LINES,
 }
 

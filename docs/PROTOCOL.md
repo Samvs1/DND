@@ -39,6 +39,7 @@ Machine-readable schema: `aidm/web/protocol.json`.
 | client | `request_hit_chances` | `target_id`: string, `type`: request_hit_chances |
 | client | `request_sheet` | `type`: request_sheet |
 | client | `roll_abilities` | `type`: roll_abilities |
+| client | `scribe_revive` | `target_id`: string, `type`: scribe_revive |
 | client | `shop_buy` | `item_id`: string, `npc_id`: string, `qty`: integer (optional), `type`: shop_buy |
 | client | `shop_sell` | `item_id`: string, `npc_id`: string, `qty`: integer (optional), `type`: shop_sell |
 | client | `submit_action` | `text`: string, `type`: submit_action |

@@ -519,3 +519,10 @@ M11.2 clock | `Clock.time()` added (LoopClock = loop time, ManualClock = `now`) 
 - Asset tests no longer pin a fixed "placeholder" key (monster_token.barbed-devil, ui_icon.tab-more, spell_icon.fire-bolt were filled by M12.2 and five tests broke; one would have passed trivially). `tests/asset_helpers.image_placeholder` picks the first image key still on a placeholder from the live manifest and fails with a clear message when none is left, so the tests then move to a temp manifest instead of silently testing real art.
 - `aidm/server/assetgen/report.py` CAP_EUR is the total art budget, 15 EUR since M12 (was the M10 cap of 8). The gen_assets `--cap` default stays 8; every M12 run passed `--cap 15` explicitly.
 
+
+## M13.1 Scribe revive
+- One revive event `CharacterRewritten(target_id, payer_id, cost_gp, hp)` (`aidm/models/scribe.py`, `ScribeEvents` in `AnyEvent`): the reducer sets alive, `hp`, death saves 0/0, not stable. Gold moves through `GoldChanged` (payer) and cleared conditions through one `ConditionRemoved` per name, both before it, so the existing event text and reducer paths are reused.
+- Refusal codes are the full `scribe_*` strings (`rules.scribe.ScribeRefusal`): `scribe_defeated`, `scribe_paused`, `scribe_in_combat`, `scribe_none_fallen`, `scribe_payer_down`, `scribe_unknown_target`, `scribe_not_fallen`, `scribe_no_funds`. The public `scribe.reason` uses the same strings (one vocabulary for the UI and the voice groups). Check order: defeated, paused, in combat, none fallen, payer down, target, funds.
+- `scribe_revive` is a table JOB, so the existing defeat lock (`WRONG_PHASE`, refusal "defeated") and pause check (`ErrorCode.PAUSED`) refuse it first; the pure rules check defeated/paused again with the live state (defeat = `state.defeat` set, pause = the table flag passed in).
+- "Payer down" = the payer's hero is dead OR at 0 HP (a dying or stable hero cannot reach the Scribe's purse). A player without a hero gets `NO_CHARACTER`.
+- The price table is read through `aidm.data.scribe_defs.scribe_table()` (cached) by the session; rules take the table as a parameter. `restore` "half" never returns below 1 HP.

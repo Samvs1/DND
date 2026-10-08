@@ -17,7 +17,7 @@ Public API:
 - `PublicZone`, `CombatToken`, `PublicCombat`: zones (with terrain), tokens (monster index for
   art), initiative, the active creature and its economy pips.
 - `QueueEntry`, `VoteKind`, `VoteView`: the exploration queue and the open ready vote.
-- `PublicState`: the full snapshot payload.
+- `PublicState`: the full snapshot payload (M13.1: `scribe`, `aidm.models.scribe.ScribeView`).
 - `DiceView`: one visible roll for the dice tray (d20 tests, attacks, death saves, damage dice).
 - `StoryEntry`: one narration or public event line of the story history (reconnect, reload).
 - `StockLine`: one shop line (item id, name, price, category, camp supplies it adds).
@@ -35,6 +35,7 @@ from aidm.models.campaign_state import OfferChoice
 from aidm.models.dice import AdvState
 from aidm.models.encounter import Side, TurnEconomy
 from aidm.models.narration import NarrationTone
+from aidm.models.scribe import ScribeView
 from aidm.models.world import PublicNpcView
 from aidm.models.zones import CoverLevel, ZoneEdge, ZoneSurface
 
@@ -264,6 +265,7 @@ class PublicState(_View):
     checkpoint: str | None = Field(default=None, description="label of the retry checkpoint")
     audio: AudioSettings = AudioSettings()
     floor: FloorView = FloorView()
+    scribe: ScribeView = ScribeView()
 
 
 class DiceView(_View):

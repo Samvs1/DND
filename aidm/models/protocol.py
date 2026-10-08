@@ -58,6 +58,7 @@ type AnyClientMsg = (
     | c.DefeatNew
     | c.Typing
     | c.AudioSettingsMsg
+    | c.ScribeRevive
 )
 
 type AnyServerMsg = (

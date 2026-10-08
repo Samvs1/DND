@@ -17,6 +17,7 @@ from collections.abc import Sequence
 
 from aidm.data.item_catalogue import CatalogueItem
 from aidm.data.registry import Registry
+from aidm.data.scribe_defs import scribe_table
 from aidm.data.zone_templates import zone_templates
 from aidm.dm.precheck import is_shop
 from aidm.models.encounter import EncounterStatus
@@ -47,6 +48,7 @@ from aidm.models.state import Creature, GameState
 from aidm.models.world import QuestState
 from aidm.models.zones import Zone
 from aidm.rules.scene import current_scene, node_display_name
+from aidm.rules.scribe import scribe_view
 from aidm.rules.shop import StockEntry
 from aidm.rules.social import public_npc_view
 from aidm.session.public_feed import leaks, private_texts
@@ -329,6 +331,7 @@ def public_state(
         checkpoint=checkpoint,
         audio=audio if audio is not None else AudioSettings(),
         floor=floor if floor is not None else FloorView(),
+        scribe=scribe_view(state, scribe_table(), paused=paused),
     )
 
 
