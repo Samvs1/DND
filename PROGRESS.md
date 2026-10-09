@@ -1,4 +1,4 @@
-NEXT: none queued. M13 and M14 closed; raw voice takes archived as FLAC (data/voice/takes). Owner declined the M14.2 gameplay follow-ups (a)-(g). Open tooling item: pyproject ruff extend-exclude 'data' also skips aidm/data. Files in flight: none. Last gate: FULL GATE PASS 12/12.
+NEXT: M15.1 (H, hard-engineer): playtest defects (confirm wiped by narration, turn timer, retry autoplay, victory flash on defeat). Then M15.2 (M) screen layout. Files in flight: none. Last gate: FULL GATE PASS 12/12.
 
 # PROGRESS
 
@@ -142,6 +142,10 @@ Owner decisions are in the goal doc: defeat screen + retry, always two surfaces 
 ## M14 Player manual (same request; create AND maintain)
 - [x] M14.1 **M** `docs/PLAYER_MANUAL.md` (every player-facing mechanic), generated reference sections from data via `scripts/gen_manual.py` (`--check` in the gate), in-game Manual (phone More tab + `/manual`), CLAUDE.md upkeep rule. Gate: tests + FULL gate.
 - [x] M14.2 **ORCH** Accuracy review by a fresh read-only subagent against code and data, fixes, FULL gate. Commit `M14: Player manual`. (commit `M14: Player manual`)
+
+## M15 Playtest fixes (owner playtest 2026-10-09, save c-20261009-142322-0378; binding)
+- [ ] M15.1 **H** Defects from the playtest log: (a) the "Are you sure?" confirm is cleared by the next narration (handlers.js onNarration) and the narrator describes the pending hostile act as done (events 40-45: three hostile_act_pending, each narrated as a blast); (b) after a defeat retry every PC turn is auto-played instantly (retry branch: 5 rounds of Dodge in 30 s, no prompt, no per-turn narration); (c) the 90 s turn timer is invisible and expired twice (LLM log gaps 94 s and 95 s): visible countdown, longer default, off for a single seated player, host setting; (d) a "VICTORY!" flash before the defeat screen: the fight banner and the music stinger infer victory from a stale party snapshot (CombatState(None) arrives before the snapshot). Manual updated. Gate: FULL gate.
+- [ ] M15.2 **M** Screen layout: a TV dashboard with no page scrolling at 1280x720 and 1920x1080; the invite QR only in the lobby; zones in a grid with compact creature chips; compact party rows; smaller dice card; the feed fills the rest and scrolls internally to the newest line. Screenshots judged by the main session. Gate: UI tests + FULL gate. Commit `M15: Playtest fixes`.
 ---
 
 ## Goal acceptance (from the owner's /goal; the final report must prove each with raw output)
