@@ -4875,7 +4875,7 @@
         },
         "PublicZone": {
           "additionalProperties": false,
-          "description": "A battlefield zone for the zone card; `terrain` is the terrain template (art key\n`zone_card.<terrain>`) the zone came from, \"\" when unknown.",
+          "description": "A battlefield zone for the zone card; `terrain` is the terrain template (art key\n`zone_card.<terrain>`) the zone came from, \"\" when unknown.\n`difficult` is the base terrain flag; `rough` is the effective one (terrain or a difficult\nsurface) that doubles the cost of entering the zone.",
           "properties": {
             "cover": {
               "$ref": "#/$defs/CoverLevel",
@@ -4903,6 +4903,11 @@
             "name": {
               "title": "Name",
               "type": "string"
+            },
+            "rough": {
+              "default": false,
+              "title": "Rough",
+              "type": "boolean"
             },
             "surfaces": {
               "default": [],

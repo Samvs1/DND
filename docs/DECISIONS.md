@@ -610,3 +610,7 @@ M11.2 clock | `Clock.time()` added (LoopClock = loop time, ManualClock = `now`) 
 - `voicegen/archive.py`: every raw take the config uses is kept as FLAC (lossless, 16/24-bit PCM sample-exact) in the tracked `data/voice/takes/<raw stem>.flac`; builds archive new takes automatically (append only: unused takes stay as history and are reported as notes); a missing cached raw is restored from the archive before any API call; `--check` (gate step 11) fails when a used take is not archived. 9 takes, 8.4 MB. Verified: with the cache removed, `--reprocess` rebuilt all 8 mp3s byte for byte.
 - Owner declined the M14.2 gameplay follow-ups (a)-(g) as niche: not to be built.
 
+
+## Zone feedback on the phone
+- `PublicZone.rough` is the effective rough-ground flag (`zone_is_difficult`: terrain or a difficult surface); `difficult` stays the base terrain flag. The client never carries a surface list: `isRough(zone)` in `combat/model.js` reads `rough` (falls back to `difficult`) and drives the move cost, the board badge and the phone chips.
+- The phone's Move to chips show the board's facts as small badges (cover, high ground, rough ground, surfaces with rounds left), reusing the board's strings.

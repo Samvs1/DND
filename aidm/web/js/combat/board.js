@@ -5,14 +5,14 @@ import { assetUrl } from '../assets.js';
 import { t } from '../strings.js';
 import { clear, h } from '../ui/dom.js';
 import { titleCase } from '../ui/format.js';
-import { combatOf, isMyTurn, moveCost, myCreatureId, neighbours, tokenById, zoneRows } from './model.js';
+import { combatOf, isMyTurn, isRough, moveCost, myCreatureId, neighbours, tokenById, zoneRows } from './model.js';
 import { tokenChip } from './tokens.js';
 
 function badges(zone) {
   const out = [];
   if (zone.cover !== 'none') out.push(h('span', { class: 'zbadge cover' }, t(`combat.cover_${zone.cover}`)));
   if (zone.high_ground) out.push(h('span', { class: 'zbadge high' }, t('combat.highGround')));
-  if (zone.difficult) out.push(h('span', { class: 'zbadge rough' }, t('combat.difficult')));
+  if (isRough(zone)) out.push(h('span', { class: 'zbadge rough' }, t('combat.difficult')));
   return out;
 }
 

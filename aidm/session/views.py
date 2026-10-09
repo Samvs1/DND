@@ -51,6 +51,7 @@ from aidm.rules.scene import current_scene, node_display_name
 from aidm.rules.scribe import scribe_view
 from aidm.rules.shop import StockEntry
 from aidm.rules.social import public_npc_view
+from aidm.rules.zones import zone_is_difficult
 from aidm.session.public_feed import leaks, private_texts
 
 MAX_PUBLIC_FACTS = 12
@@ -196,6 +197,7 @@ def _public_zone(zone: Zone) -> PublicZone:
         cover=zone.cover,
         high_ground=zone.high_ground,
         difficult=zone.difficult,
+        rough=zone_is_difficult(zone),
         surfaces=tuple(zone.surfaces),
     )
 

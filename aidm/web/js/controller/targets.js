@@ -2,7 +2,7 @@
 // with name, side colour, health band, conditions, zone and distance, plus the hit chance when the server sent it.
 // Tapping a chip does exactly what tapping the token on the board did (`ctrl.pickToken`); the "Move to" list
 // does what tapping a zone did (`ctrl.pickZone`). Shown on MY turn only.
-import { combatOf, healthState, isEnemy, isLive, isMyTurn, moveCost, percent, tokenById } from '../combat/model.js';
+import { combatOf, healthState, isEnemy, isLive, isMyTurn, isRough, moveCost, percent, tokenById } from '../combat/model.js';
 import { t } from '../strings.js';
 import { clear, h } from '../ui/dom.js';
 import { titleCase } from '../ui/format.js';
@@ -40,6 +40,22 @@ function chip(token, ctx) {
   );
 }
 
+/** Compact facts about a zone for its Move to chip (the same ones the board shows). */
+function zoneBadges(zone) {
+  const out = [];
+  if (zone.cover !== 'none') out.push(t(`combat.cover_${zone.cover}`));
+  if (zone.high_ground) out.push(t('combat.highGround'));
+  if (isRough(zone)) out.push(t('combat.difficult'));
+  for (const s of zone.surfaces) out.push(s.rounds_left ? t('combat.surfaceRounds', { name: titleCase(s.kind), n: s.rounds_left }) : t('combat.surfaceLasting', { name: titleCase(s.kind) }));
+  return out;
+}
+
+function placeChip(zone, label, { reachable, arming, ctrl }) {
+  const facts = zoneBadges(zone);
+  const badges = facts.length ? h('span', { class: 'ct-t-badges' }, ...facts.map((f) => h('span', { class: 'ct-zb', 'data-testid': 'zone-badge' }, f))) : null;
+  return h('button', { type: 'button', class: 'ct-target place', disabled: !reachable && !arming, 'data-testid': 'zone-chip', 'data-zone': zone.id, onclick: () => ctrl.pickZone(zone) }, h('span', { class: 'ct-t-zone' }, label), badges);
+}
+
 function placeList(combat, mine, ctrl, remember) {
   const arming = ctrl.ui.arming?.steps[ctrl.ui.arming.step];
   const list = h('div', { class: 'ct-places' });
@@ -48,7 +64,7 @@ function placeList(combat, mine, ctrl, remember) {
     const feet = mine ? moveCost(combat, mine.zone_id, zone.id) : null;
     const reachable = zone.id !== mine?.zone_id && feet !== null && feet <= left;
     const label = zone.id === mine?.zone_id ? t('ct.zoneHere', { zone: zone.name }) : feet === null ? zone.name : t('ct.zoneAt', { zone: zone.name, feet });
-    list.append(h('button', { type: 'button', class: 'ct-target place', disabled: !reachable && !arming, 'data-testid': 'zone-chip', 'data-zone': zone.id, onclick: () => ctrl.pickZone(zone) }, label));
+    list.append(placeChip(zone, label, { reachable, arming, ctrl }));
   }
   const box = h('details', { class: 'ct-places-box', open: remember.open || arming?.need === 'zone', 'data-testid': 'places' }, h('summary', {}, t('ct.places')), list);
   box.addEventListener('toggle', () => (remember.open = box.open));

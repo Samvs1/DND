@@ -46,6 +46,11 @@ export function neighbours(combat, zoneId) {
   return out;
 }
 
+/** True when entering the zone costs double (terrain or a difficult surface; `rough` is the server's effective flag). */
+export function isRough(zone) {
+  return Boolean(zone?.rough ?? zone?.difficult);
+}
+
 /** Feet to walk from one zone to another (cheapest route; entering a difficult zone costs double), or null. */
 export function moveCost(combat, fromId, toId) {
   if (fromId === toId) return 0;
@@ -56,7 +61,7 @@ export function moveCost(combat, fromId, toId) {
     open.sort((a, b) => best.get(a) - best.get(b));
     const here = open.shift();
     for (const next of neighbours(combat, here)) {
-      const factor = zones.get(next.id)?.difficult ? 2 : 1;
+      const factor = isRough(zones.get(next.id)) ? 2 : 1;
       const cost = best.get(here) + next.feet * factor;
       if (!best.has(next.id) || cost < best.get(next.id)) {
         best.set(next.id, cost);

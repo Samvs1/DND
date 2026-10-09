@@ -228,6 +228,20 @@ body.is-controller #app {
   font-size: 0.8rem;
 }
 
+.ct-t-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+}
+
+.ct-zb {
+  padding: 0 0.35rem;
+  font-size: 0.7rem;
+  color: var(--parchment);
+  border: 1px solid var(--gold-dim);
+  border-radius: 999px;
+}
+
 .ct-places-box summary {
   cursor: pointer;
   color: var(--gold);

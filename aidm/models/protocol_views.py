@@ -161,7 +161,9 @@ class CombatToken(_View):
 
 class PublicZone(_View):
     """A battlefield zone for the zone card; `terrain` is the terrain template (art key
-    `zone_card.<terrain>`) the zone came from, "" when unknown."""
+    `zone_card.<terrain>`) the zone came from, "" when unknown.
+    `difficult` is the base terrain flag; `rough` is the effective one (terrain or a difficult
+    surface) that doubles the cost of entering the zone."""
 
     id: str
     name: str
@@ -171,6 +173,7 @@ class PublicZone(_View):
     cover: CoverLevel = CoverLevel.NONE
     high_ground: bool = False
     difficult: bool = False
+    rough: bool = False
     surfaces: tuple[ZoneSurface, ...] = ()
 
 

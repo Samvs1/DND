@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from playwright.sync_api import Browser, Page
+from playwright.sync_api import Browser, Locator, Page
 
 from tests.ui.conftest import LiveServer
 from tests.ui.table_helpers import (
@@ -189,4 +189,46 @@ def test_phone_layout_in_a_fight_and_the_screen_board(
         assert page.evaluate(NO_HSCROLL)
     snap(other, shots_dir, "controller_combat_waiting", 390)
     snap(screen, shots_dir, "screen_combat_board", 1280)
+    assert errors == []
+
+
+PATCH_ZONE = """([id, extra]) => {
+  const combat = window.aidm.store.get().snapshot.state.combat;
+  const zones = combat.zones.map((z) => (z.id === id ? { ...z, ...extra } : z));
+  window.aidm.dispatch({ type: 'combat_state', combat: { ...combat, zones } });
+}"""
+
+
+def _feet(chip: Locator) -> int:
+    return int(chip.inner_text().split(",")[1].split("ft")[0])
+
+
+def test_move_to_list_shows_zone_badges_and_the_rough_cost(
+    browser: Browser, combat_server: LiveServer, shots_dir: Path
+) -> None:
+    """Cover, high ground and a grease surface appear on the chip; grease doubles the cost shown."""
+    errors: list[str] = []
+    _screen, host, guest = start_fight(browser, combat_server.base, errors)
+    active, _other = split_turn(host, guest)
+    has_hit_chance(active)
+    active.click("[data-testid=places] summary")
+    zone_id = active.locator("[data-testid=zone-chip]:not([disabled])").first.get_attribute(
+        "data-zone"
+    )
+    chip = active.locator(f"[data-zone='{zone_id}']")
+    before = _feet(chip)
+    extra = {
+        "cover": "half",
+        "high_ground": True,
+        "rough": True,
+        "surfaces": [{"kind": "grease", "rounds_left": 2}],
+    }
+    active.evaluate(PATCH_ZONE, [zone_id, extra])
+    chip.locator("[data-testid=zone-badge]", has_text="Grease (2)").wait_for()
+    texts = chip.locator("[data-testid=zone-badge]").all_inner_texts()
+    assert "High ground" in texts and "Rough ground" in texts
+    assert any("Half" in x for x in texts)
+    assert _feet(chip) == before * 2
+    assert active.evaluate(NO_HSCROLL)
+    snap(active, shots_dir, "controller_move_to", 390)
     assert errors == []
