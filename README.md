@@ -189,7 +189,7 @@ unavailable, 4 a line failed its measurement checks.
 
 ## Troubleshooting
 
-- **A phone keeps dropping, or a turn was played for me.** `logs/session.jsonl` records connections (with the websocket close code) and turns; send it along with a bug report. It never holds tokens or keys.
+- **A phone keeps dropping, or a turn was played for me.** `logs/session.jsonl` records connections (with the websocket close code), turns and where the campaign plan came from (the AI or the prepared adventure, with the reasons); send it along with a bug report. It never holds tokens or keys.
 - **A banner says the Dungeon Master is using fallback narration.** There is no usable DeepSeek key (or the
   service is down). The game stays fully playable with template narration and the built-in sample campaign.
   Put `DEEPSEEK_API_KEY` in `.env`, restart, and check `http://127.0.0.1:8000/healthz`: it reports only

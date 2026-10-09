@@ -5,13 +5,15 @@ from pathlib import Path
 
 from starlette.testclient import TestClient
 
-from aidm.models.protocol_client import DefeatRetry, Hello
+from aidm.models.protocol_client import CreateCharacter, DefeatRetry, Hello, HostStart
+from aidm.models.state import GameState
 from aidm.session.persistence import CampaignStore
 from aidm.session.session_log import FileLog, MemoryLog, SessionLog
 from aidm.session.turn_clock import GRACE_SECONDS
 from tests.session.defeat_fixtures import end_turns_until_over, party_of
 from tests.session.server_fixtures import hello, make_app, read_until
 from tests.session.table_fixtures import fake_llm, join, running, start_fight
+from tests.unit.rules.creation_fixtures import default_choices
 
 
 async def test_session_log_scripted_session_records_every_event(tmp_path: Path) -> None:
@@ -125,3 +127,20 @@ async def test_session_log_failing_sink_does_not_break_the_table(tmp_path: Path)
         await join(table, "Sam", "fighter")
         await start_fight(table, "wolf")
         assert table.turn_key is not None
+
+
+async def test_session_log_campaign_start_records_source_and_problems(tmp_path: Path) -> None:
+    """M16 follow-up: a campaign start logs where the plan came from, so a fallback is explained."""
+    sink = MemoryLog()
+    llm, _ = fake_llm(tmp_path)
+    async with running(llm, GameState(campaign_id="t", seed=3), session_log=sink) as (table, _):
+        ann = await join(table, "Ann")
+        choices = default_choices("fighter", "human", None).model_copy(update={"name": "Ann"})
+        ann.send(CreateCharacter(choices=choices))
+        await table.settle()
+        ann.send(HostStart())
+        await table.settle()
+    [row] = sink.records("campaign")
+    assert row["source"] in {"model", "fallback"}
+    assert isinstance(row["attempts"], int) and isinstance(row["problems"], list)
+    assert ann.token not in "\n".join(sink.lines)

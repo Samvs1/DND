@@ -274,6 +274,12 @@ async def start_campaign(core: TableCore, host: Player, theme: str | None) -> No
     except BaseException:
         core.phase = TablePhase.LOBBY
         raise
+    core.diag(
+        "campaign",
+        source=result.source.value,
+        attempts=result.attempts,
+        problems=[p.message[:200] for p in result.problems[:5]],
+    )
     if result.source is CampaignSource.FALLBACK and core.llm.mode is LlmMode.LIVE:
         core.notice(None, NoticeKind.INFO, PREPARED)
     events = core.apply_all(install_campaign(core.state, result.plan, core.state.seed))
