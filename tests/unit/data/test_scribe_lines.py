@@ -41,7 +41,11 @@ def test_every_group_has_its_lines_in_file_order() -> None:
 
 def test_texts_come_from_the_voice_config() -> None:
     raw = json.loads(DEFAULT_LINES.read_text(encoding="utf-8"))
-    by_id = {line["id"]: line["text"] for line in raw["lines"]}
+    # A spliced line (`parts`) reads as its parts' texts joined.
+    by_id = {
+        line["id"]: line.get("text") or " ".join(part["text"] for part in line["parts"])
+        for line in raw["lines"]
+    }
     assert {line.id: line.text for line in scribe_lines().lines} == by_id
 
 
@@ -90,5 +94,6 @@ def test_he_speaks_aloud_rarely_refusals_are_text_only() -> None:
     for line in lines.lines:
         assert line.voiced is (line.group not in text_only), line.id
     revive = [line.display for line in lines.group(ScribeGroup.REVIVE)]
-    assert all(len(text.split()) <= 10 and text.endswith("Rise.") for text in revive)
+    # Owner-approved close (M13.4f): each revive keeps its opening and ends "Rise, once more."
+    assert all(len(text.split()) <= 14 and text.endswith("Rise, once more.") for text in revive)
 

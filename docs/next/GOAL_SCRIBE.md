@@ -39,8 +39,9 @@ docs/DECISIONS.md when they land.
    - **D:** the paying player's own hero pays (`payment: "payer"`); the payer's hero must be alive.
    - **D:** the revived hero returns with half its max HP (rounded up, `restore: "half"`), death saves reset,
      not dying, conditions cleared except exhaustion.
-   - Voice: revive confirmation only, 3 short variants of a few seconds ending in "Rise." (like the
-     reference: short, solemn, done). **Refusals are text only** (owner: spoken refusals were too long
+   - Voice: revive confirmation only, 3 short variants: each its own opening ("From the final page, I
+     call thee back.") + the one owner-approved close "Rise, once more." recorded separately and
+     spliced after a 0.4 s pause (owner rejected an inline "Rise" that rose like a question). **Refusals are text only** (owner: spoken refusals were too long
      and repetitive): in combat, not enough gold, nobody fallen, not yet fallen, each one short
      in-character sentence shown on the phone (`voiced: false` lines).
 

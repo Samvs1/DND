@@ -7,7 +7,8 @@ TTS drop to zero and come back), so the join keeps each clip's own room tone aro
 - the next piece starts `half` before its speech (its natural lead), is level-matched to the first
   part's speech (+ `gain_db`) and the two overlap in an equal-power crossfade of `XFADE_S` inside
   the pause, so the noise floor never steps; `half` = gap/2 + xfade/2, so the pause is `gap_ms`;
-- natural audio missing at a clip edge reads as silence.
+- natural audio missing at a clip edge (a cut close to the speech) is filled by mirroring the
+  clip's own available room tone, never with digital silence.
 The chain (EQ, compressor, reverb, loudness) then runs over the joined raw, so the reverb flows
 across the join. No pitch or time change: samples are only cut, scaled and crossfaded.
 
@@ -36,12 +37,11 @@ def _rms(x: Audio) -> float:
 
 
 def _span(clip: Audio, start: int, end: int) -> Audio:
-    """clip[start:end]; indices outside the clip read as silence."""
-    out = np.zeros(max(0, end - start))
+    """clip[start:end]; indices outside the clip are filled by mirroring the available audio."""
     lo, hi = max(start, 0), min(end, clip.size)
-    if hi > lo:
-        out[lo - start : hi - start] = clip[lo:hi]
-    return out
+    if hi <= lo:
+        return np.zeros(max(0, end - start))
+    return np.pad(clip[lo:hi], (lo - start, end - hi), mode="symmetric")
 
 
 def _crossfade(before: Audio, after: Audio, xfade: int) -> Audio:

@@ -1,5 +1,5 @@
 {
-  "source": "The Scribe's voice: the ONE config for his lines and their sound (docs/next/GOAL_SCRIBE.md). Text may carry Fish S2 cues in [brackets] ([break], [long-break], [calm, warm], ...); the game shows the text with the cues removed. Edit, then run `python scripts/gen_scribe_voice.py --yes` (new text) or `--reprocess` (sound only, no API calls). A line may override `voice` (model, speed, ...) for itself. Lines with \"voiced\": false are shown as text only (no audio is generated): he speaks aloud rarely, on welcome, welcome back, campaign victory and a brief revive.",
+  "source": "The Scribe's voice: the ONE config for his lines and their sound (docs/next/GOAL_SCRIBE.md). Text may carry Fish S2 cues in [brackets] ([break], [long-break], [calm, warm], ...); the game shows the text with the cues removed. Edit, then run `python scripts/gen_scribe_voice.py --yes` (new text) or `--reprocess` (sound only, no API calls). A line may override `voice` (model, speed, ...) for itself. Lines with \"voiced\": false are shown as text only (no audio is generated): he speaks aloud rarely, on welcome, welcome back, campaign victory and a brief revive. A line may list `parts` recorded separately and spliced (the revive lines: each keeps its own opening and shares the owner-approved \"Rise, once more\").",
   "voice": {
     "provider": "fish",
     "reference_id": "dab97346a1464e6ba09a592b4bd4b7d2",
@@ -103,31 +103,61 @@
       "id": "revive.1",
       "group": "revive",
       "profile": "short",
-      "text": "[calm, warm] From the final page, I call thee back. [long-break] [solemn, commanding, slow and drawn out] Rise.",
-      "voice": {
-        "prosody_speed": 1.05
-      },
-      "takes": 4
+      "parts": [
+        {
+          "text": "[calm, warm] From the final page, I call thee back.",
+          "voice": {
+            "prosody_speed": 1.05
+          }
+        },
+        {
+          "text": "[warm and solemn, unhurried] Rise, [break] once more.",
+          "voice": {
+            "prosody_speed": 1.05
+          },
+          "gap_ms": 400
+        }
+      ]
     },
     {
       "id": "revive.2",
       "group": "revive",
       "profile": "short",
-      "text": "[calm, warm] Thy name is restored to the ledger. [long-break] [solemn, commanding, slow and drawn out] Rise.",
-      "voice": {
-        "prosody_speed": 1.05
-      },
-      "takes": 12
+      "parts": [
+        {
+          "text": "[calm, warm] Thy name is restored to the ledger.",
+          "voice": {
+            "prosody_speed": 1.05
+          }
+        },
+        {
+          "text": "[warm and solemn, unhurried] Rise, [break] once more.",
+          "voice": {
+            "prosody_speed": 1.05
+          },
+          "gap_ms": 400
+        }
+      ]
     },
     {
       "id": "revive.3",
       "group": "revive",
       "profile": "short",
-      "text": "[calm, gently amused] Struck out, and written in anew. [long-break] [solemn, commanding, slow and drawn out] Rise.",
-      "voice": {
-        "prosody_speed": 1.05
-      },
-      "takes": 6
+      "parts": [
+        {
+          "text": "[calm, gently amused] Struck out, and written in anew.",
+          "voice": {
+            "prosody_speed": 1.05
+          }
+        },
+        {
+          "text": "[warm and solemn, unhurried] Rise, [break] once more.",
+          "voice": {
+            "prosody_speed": 1.05
+          },
+          "gap_ms": 400
+        }
+      ]
     },
     {
       "id": "refuse_combat.1",

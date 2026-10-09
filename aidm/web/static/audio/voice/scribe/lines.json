@@ -53,33 +53,33 @@
     },
     {
       "id": "revive.1",
-      "text_sha": "8ccb957943bfe963ad54547c7907680d76b6e141",
-      "chain_sha": "e9fa06cff820228596439c7620cb1c67382f586f",
+      "text_sha": "d291d0e53830ce0710adf2a677cfa682311830b9",
+      "chain_sha": "0eb7be4ada638513d9a2481fc3e6302bf7fa8f1f",
       "file": "revive.1.mp3",
-      "sha256": "86783e299a14dec233a8a54091c91a71893ea3adbaa074bc2b5b52a5e854c3c1",
-      "duration_s": 6.887,
+      "sha256": "aac8b68edca44a9214aed295bb88d908167a369c958496d39334d7733480cafb",
+      "duration_s": 9.03,
       "lufs": -16.0,
-      "true_peak_db": -2.25
+      "true_peak_db": -2.67
     },
     {
       "id": "revive.2",
-      "text_sha": "0ef62f01db72df79b4d567667aab2a77a12e8368",
-      "chain_sha": "e9fa06cff820228596439c7620cb1c67382f586f",
+      "text_sha": "efd3a1095620e130fbf6acaaf667ef416fca2921",
+      "chain_sha": "9fa8acacf83aa4547272f226120f236591f83ba6",
       "file": "revive.2.mp3",
-      "sha256": "8135095a409734ef18430582bf8d979eb9b9de46dd13ec3ba223bad5610b1150",
-      "duration_s": 7.019,
-      "lufs": -16.0,
-      "true_peak_db": -3.78
+      "sha256": "65ed5255612828c72c5b547c2b2b63a6ac1d686372cb1afdece4c9f8229d775b",
+      "duration_s": 9.04,
+      "lufs": -16.07,
+      "true_peak_db": -3.6
     },
     {
       "id": "revive.3",
-      "text_sha": "ce844996a33c3275b1f7cb00d8e8a4ccf3ebb1aa",
-      "chain_sha": "e9fa06cff820228596439c7620cb1c67382f586f",
+      "text_sha": "f661625d918f5d94fe246f0f06f8a33d92be9750",
+      "chain_sha": "b677cf44ab2b6c54f0a0debcf9c1e11fd08c9085",
       "file": "revive.3.mp3",
-      "sha256": "d0763b2a3f60064f3521b2d23ca65875227319df2ce63416f97fcedcd043d56d",
-      "duration_s": 7.417,
+      "sha256": "fa1b0e8f2f5e7aab128547570434a81962617c94f6f2e5f98ef8f024ab9a8de1",
+      "duration_s": 9.81,
       "lufs": -16.0,
-      "true_peak_db": -2.69
+      "true_peak_db": -2.67
     }
   ]
 }

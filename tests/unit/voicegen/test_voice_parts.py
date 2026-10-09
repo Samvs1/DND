@@ -72,6 +72,15 @@ def test_assemble_keeps_the_pause_and_never_drops_to_silence() -> None:
     assert 1e-4 < np.std(pause) < 0.02  # room tone through the pause, never digital silence
 
 
+def test_a_cut_close_to_the_speech_fills_the_pause_with_its_own_room_tone() -> None:
+    line = parse_config(_parts_config(gap_ms=400.0)).lines[0]
+    first = _clip(harmonic_voice(120.0, 1.0), tail_s=0.05)  # only 50 ms of room tone after it
+    second = _clip(_glide(125.0, 115.0, 0.8))
+    joined, rate = assemble([(first, SR), (second, SR)], line.parts)
+    pause = joined[int((LEAD_S + 1.02) * rate) : int((LEAD_S + 1.3) * rate)]
+    assert np.std(pause) > 1e-4 and np.min(np.abs(pause[::480])) < 0.02
+
+
 class _Script:
     """Returns a clip per text and counts calls per text."""
 
