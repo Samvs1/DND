@@ -606,3 +606,7 @@ M11.2 clock | `Clock.time()` added (LoopClock = loop time, ManualClock = `now`) 
 - The manual describes the game as built, not as intended: where the engine has a rule but no player can reach it (scroll copying, giving a potion in a fight, throwing a weapon, Medicine stabilising, a replacement hero after the start), the manual leaves it out and PROGRESS lists it as a follow-up for the owner.
 - Review method: two fresh read-only subagents, one per half of the hand-written text, each claim traced to code/data/strings.js; generated tables are covered by `gen_manual.py --check` (gate step 12).
 
+## Voice take archive (owner: "commit them so we have a paper trail")
+- `voicegen/archive.py`: every raw take the config uses is kept as FLAC (lossless, 16/24-bit PCM sample-exact) in the tracked `data/voice/takes/<raw stem>.flac`; builds archive new takes automatically (append only: unused takes stay as history and are reported as notes); a missing cached raw is restored from the archive before any API call; `--check` (gate step 11) fails when a used take is not archived. 9 takes, 8.4 MB. Verified: with the cache removed, `--reprocess` rebuilt all 8 mp3s byte for byte.
+- Owner declined the M14.2 gameplay follow-ups (a)-(g) as niche: not to be built.
+

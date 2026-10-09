@@ -175,7 +175,9 @@ python scripts/gen_scribe_voice.py --only revive.1   # repeatable, limits any ru
 python scripts/gen_scribe_voice.py --check           # offline: exit 1 if any file is missing or stale
 ```
 
-`--yes` needs `FISH_API_KEY` in `.env` (never printed). The raw Fish WAVs are cached in
+`--yes` needs `FISH_API_KEY` in `.env` (never printed). Every approved raw take is also archived losslessly
+as FLAC in `data/voice/takes/` (committed, the paper trail): a fresh clone rebuilds every line bit for bit with
+`--reprocess`, and `--check` fails when a take in use is not archived. The raw Fish WAVs are cached in
 `artifacts/voice/raw/` (gitignored), keyed by text and voice settings, so sound tweaks to the chain are free:
 edit the config and run `--reprocess`. A line may set its own `voice` (e.g. `prosody_speed`), `voiced: false`
 (text only, no audio) or `takes: N`: N takes are generated and the one whose final word (after the last

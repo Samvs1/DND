@@ -9,7 +9,10 @@ Modes (ASCII output only):
 - `--reprocess`: the same from the raw cache only; it never builds a provider.
 - `--reselect` (implies --reprocess): for lines with `takes` > 1, pick the best of the cached takes
   again (after a scorer change) and print the choice; no API call.
-- `--check`: offline staleness check of lines.json against the config and the files.
+- `--check`: offline staleness check of lines.json against the config and the files, and that
+  every raw take the config uses is archived as FLAC in data/voice/takes (the paper trail).
+- Every `--yes` / `--reprocess` run archives the raw takes it used that are not archived yet; a
+  missing raw is restored from the archive before any API call.
 - `--only ID` (repeatable) limits dry run, --yes and --reprocess to those lines.
 
 Exit codes: 0 ok; 1 `--check` found problems, an unknown `--only` id or conflicting modes;
@@ -27,6 +30,7 @@ import os
 from collections.abc import Callable, Sequence
 from pathlib import Path
 
+from aidm.server.voicegen.archive import archive_used, missing, orphans
 from aidm.server.voicegen.config import VoiceConfig, VoiceLine, load_config
 from aidm.server.voicegen.encode import Encoder, encode_mp3
 from aidm.server.voicegen.index import check
@@ -37,6 +41,7 @@ from aidm.server.voicegen.runner import (
     VoicePaths,
     build_lines,
     has_raw,
+    raw_paths,
     reselect,
 )
 
@@ -84,6 +89,13 @@ def _plan(paths: VoicePaths, lines: Sequence[VoiceLine], out: Out) -> int:
 
 def _check(config: VoiceConfig, paths: VoicePaths, out: Out) -> int:
     found = check(config, paths.out_dir)
+    used = raw_paths(paths, config.lines)
+    found += [
+        f"{name}: raw take not archived in data/voice/takes"
+        for name in missing(used, paths.archive_dir)
+    ]
+    for name in orphans(used, paths.archive_dir):
+        out(f"note: {name} is archived but no longer used (kept as history)")
     for problem in found:
         out(problem)
     if found:
@@ -131,6 +143,8 @@ def _build(
     try:
         provider = None if args.reprocess else factory()
         builds = build_lines(paths, config, lines, provider, encoder)
+        for name in archive_used(raw_paths(paths, lines), paths.archive_dir):
+            out(f"  archived {name}")
     except VoiceProviderError as exc:
         out(f"provider unavailable: {exc}")
         return 3

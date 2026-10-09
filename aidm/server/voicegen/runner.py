@@ -9,7 +9,7 @@ entry raises `rawcache.MissingRaw` naming the line or part, so a reprocess never
 `build_line` processes one raw WAV, encodes `<line_id>.mp3` once, writes the spectrogram and the
 line report and returns the index entry.
 
-Public API: `VoicePaths`, `LineBuild`, `raw_path`, `has_raw`, `fetch_raw`,
+Public API: `VoicePaths`, `LineBuild`, `raw_path`, `raw_paths`, `has_raw`, `fetch_raw`,
 `reselect`, `build_line`, `build_lines`.
 """
 
@@ -34,6 +34,7 @@ from aidm.server.voicegen.provider import TtsProvider, read_wav, wav_bytes
 from aidm.server.voicegen.rawcache import (
     Source,
     fetch,
+    is_available,
     line_source,
     part_sources,
     reselect_source,
@@ -54,6 +55,7 @@ class VoicePaths:
     raw_dir: Path
     report_dir: Path
     out_dir: Path
+    archive_dir: Path
 
     @classmethod
     def for_root(cls, root: Path) -> VoicePaths:
@@ -63,6 +65,7 @@ class VoicePaths:
             raw_dir=artifacts / "raw",
             report_dir=artifacts / "report",
             out_dir=root / "aidm" / "web" / "static" / "audio" / "voice" / "scribe",
+            archive_dir=root / "data" / "voice" / "takes",
         )
 
 
@@ -78,18 +81,26 @@ def raw_path(paths: VoicePaths, line: VoiceLine) -> Path:
 
 
 def _sources(paths: VoicePaths, line: VoiceLine) -> list[Source]:
-    return part_sources(paths.raw_dir, line) if line.parts else [line_source(paths.raw_dir, line)]
+    if line.parts:
+        return part_sources(paths.raw_dir, line, paths.archive_dir)
+    return [line_source(paths.raw_dir, line, paths.archive_dir)]
+
+
+def raw_paths(paths: VoicePaths, lines: Sequence[VoiceLine]) -> list[Path]:
+    """Every cached raw the lines use (one per line, or one per part; shared parts once)."""
+    found = [source.path for line in lines for source in _sources(paths, line)]
+    return list(dict.fromkeys(found))
 
 
 def has_raw(paths: VoicePaths, line: VoiceLine) -> bool:
     """Every recording the line needs is cached (one raw, or every part's raw)."""
-    return all(source.path.is_file() for source in _sources(paths, line))
+    return all(is_available(source) for source in _sources(paths, line))
 
 
 def fetch_raw(paths: VoicePaths, line: VoiceLine, provider: TtsProvider | None) -> bytes:
     """The line's raw WAV: its cached recording, or its parts fetched and spliced (parts.py)."""
     if not line.parts:
-        return fetch(line_source(paths.raw_dir, line), provider)
+        return fetch(_sources(paths, line)[0], provider)
     clips = [read_wav(fetch(source, provider)) for source in _sources(paths, line)]
     audio, rate = assemble(clips, line.parts)
     return wav_bytes(audio, rate, subtype="FLOAT")

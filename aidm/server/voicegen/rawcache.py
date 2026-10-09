@@ -1,16 +1,19 @@
 """The raw WAV cache of the voice build: one source per cached recording (M13.4d-f).
 
 A `Source` is one thing Fish records: a whole line (`<line_id>__<key>.wav`) or one part of a line
-(`part__<key>.wav`, shared by every line with the same part). `fetch` returns the cached raw or
-asks the provider once, or `takes` times keeping the best by the source's chooser (every take is
-kept as `<raw>.take<i>.wav` with a `<raw>.takes.json` summary); without a provider (--reprocess)
-a missing raw raises `MissingRaw`. `reselect` re-picks from the cached takes with no API call.
+(`part__<key>.wav`, shared by every line with the same part). `fetch` returns the cached raw,
+restores it from the lossless archive (archive.py, data/voice/takes), or asks the provider once,
+or `takes` times keeping the best by the source's chooser (every take is kept as
+`<raw>.take<i>.wav` with a `<raw>.takes.json` summary); without a provider (--reprocess) a raw
+that is neither cached nor archived raises `MissingRaw`. `reselect` re-picks from the cached
+takes with no API call.
 
 Choosers: "final_word" (takes.best_take: the last word after a pause stands alone, long, level or
 falling) and "phrase" (takes.best_phrase: drawn out, near the line's pitch, closing like a
 statement).
 
-Public API: `Source`, `MissingRaw`, `line_source`, `part_sources`, `fetch`, `reselect_source`.
+Public API: `Source`, `MissingRaw`, `line_source`, `part_sources`, `is_available`, `fetch`,
+`reselect_source`.
 """
 
 from __future__ import annotations
@@ -25,6 +28,7 @@ from typing import Any
 import numpy as np
 import numpy.typing as npt
 
+from aidm.server.voicegen.archive import archive_path, restore
 from aidm.server.voicegen.config import VoiceLine
 from aidm.server.voicegen.provider import TtsProvider, read_wav
 from aidm.server.voicegen.takes import best_phrase, best_take, phrase_score, take_score
@@ -59,19 +63,29 @@ class Source:
     takes: int
     path: Path
     chooser: Chooser
+    archive_dir: Path | None = None
 
 
-def line_source(raw_dir: Path, line: VoiceLine) -> Source:
-    return Source(line.id, line.text, line.voice, line.takes, raw_dir / line.raw_name, _final_word)
+def line_source(raw_dir: Path, line: VoiceLine, archive_dir: Path | None = None) -> Source:
+    path = raw_dir / line.raw_name
+    return Source(line.id, line.text, line.voice, line.takes, path, _final_word, archive_dir)
 
 
-def part_sources(raw_dir: Path, line: VoiceLine) -> list[Source]:
+def part_sources(raw_dir: Path, line: VoiceLine, archive_dir: Path | None = None) -> list[Source]:
     out: list[Source] = []
     for number, part in enumerate(line.parts):
         chooser = _phrase(part.ref_f0_hz) if part.select == "phrase" else _final_word
         label = f"{line.id}#{number}"
         out.append(
-            Source(label, part.text, part.voice, part.takes, raw_dir / part.raw_name, chooser)
+            Source(
+                label,
+                part.text,
+                part.voice,
+                part.takes,
+                raw_dir / part.raw_name,
+                chooser,
+                archive_dir,
+            )
         )
     return out
 
@@ -94,9 +108,23 @@ def _choose(source: Source, takes: list[bytes]) -> tuple[int, float]:
     return chosen, float(rows[chosen]["score"])
 
 
+def is_available(source: Source) -> bool:
+    """Cached, or restorable from the archive (no API call needed)."""
+    if source.path.is_file():
+        return True
+    return (
+        source.archive_dir is not None and archive_path(source.path, source.archive_dir).is_file()
+    )
+
+
 def fetch(source: Source, provider: TtsProvider | None) -> bytes:
     if source.path.is_file():
         return source.path.read_bytes()
+    if source.archive_dir is not None:
+        restored = restore(source.path, source.archive_dir)
+        if restored is not None:
+            _atomic_bytes(source.path, restored)
+            return restored
     if provider is None:
         raise MissingRaw(f"{source.label}: no cached raw WAV ({source.path.name}); run with --yes")
     if source.takes <= 1:
