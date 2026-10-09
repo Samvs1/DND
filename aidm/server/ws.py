@@ -54,18 +54,36 @@ def _handle_frame(table: Table, conn: Connection, raw: str | bytes | None) -> No
             table.submit(conn.id, msg)
 
 
+def _log_close(table: Table, conn: Connection, close: tuple[int | None, str | None]) -> None:
+    opened = table.opened_at.pop(conn.id, None)
+    lived = None if opened is None else round(table.config.clock.time() - opened, 3)
+    table.diag(
+        "ws_close",
+        conn=conn.id,
+        player_id=table.conn_player.get(conn.id),
+        code=close[0],
+        reason=close[1],
+        lived_s=lived,
+    )
+
+
 async def serve_socket(socket: WebSocket, registry: TableRegistry) -> None:
     await socket.accept()
     table = registry.table
     conn = table.connect()
+    table.diag("ws_open", conn=conn.id)
+    close: tuple[int | None, str | None] = (None, None)
     pump = asyncio.create_task(_pump(socket, conn))
     try:
         while True:
             frame = await socket.receive()
             if frame["type"] == "websocket.disconnect":
+                close = (frame.get("code"), frame.get("reason"))
                 break
             _handle_frame(table, conn, frame.get("text", frame.get("bytes")))
-    except (WebSocketDisconnect, RuntimeError):
+    except WebSocketDisconnect as exc:
+        close = (exc.code, exc.reason)
+    except RuntimeError:
         pass
     except Exception:
         _LOG.exception("websocket handler failed")
@@ -73,4 +91,5 @@ async def serve_socket(socket: WebSocket, registry: TableRegistry) -> None:
         pump.cancel()
         with contextlib.suppress(asyncio.CancelledError):
             await pump
+        _log_close(table, conn, close)
         table.disconnect(conn.id)

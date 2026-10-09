@@ -71,6 +71,15 @@ def hello(core: TableCore, conn_id: str, msg: Hello) -> None:
         if core.kicked_names:
             core.notice(_host_id(core), NoticeKind.HOST, f"{player.name} joined the table.")
     was_away = not player.connected
+    core.diag(
+        "hello",
+        conn=conn_id,
+        player_id=player.id,
+        name=player.name,
+        role=str(msg.role),
+        reconnect=known is not None,
+        last_seq=msg.last_seq,
+    )
     player.conns.add(conn_id)
     core.conn_player[conn_id] = player.id
     if was_away:
@@ -148,11 +157,12 @@ def release_turn(core: TableCore, player: Player, *, grace: bool) -> None:
     key = core.turn_key
     if key is None or enc is None or enc.active_id() != player.creature_id:
         return
+    core.diag("seat_released", player_id=player.id, creature_id=player.creature_id, grace=grace)
     if grace:
         turn_clock.grace(core, key, player)
         core.broadcast_floor()
     else:
-        core.schedule(lambda: combat_flow.turn_timeout(core, key))
+        core.schedule(lambda: combat_flow.turn_timeout(core, key, reason="kicked"))
 
 
 def roll(core: TableCore, player: Player) -> None:

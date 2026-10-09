@@ -19,6 +19,7 @@ from aidm.models.state import GameState
 from aidm.session import combat_flow
 from aidm.session.persistence import CampaignStore
 from aidm.session.reducer import replay
+from aidm.session.session_log import SessionLog
 from aidm.session.table import Connection, Table
 from aidm.session.table_clock import ManualClock
 from aidm.session.table_core import TableConfig
@@ -59,9 +60,15 @@ async def running(
     *,
     turn_seconds: float | None = 90.0,
     store: CampaignStore | None = None,
+    session_log: SessionLog | None = None,
 ) -> AsyncIterator[tuple[Table, ManualClock]]:
     clock = ManualClock()
-    config = TableConfig(clock=clock, turn_seconds=turn_seconds, store=store)
+    config = TableConfig(
+        clock=clock,
+        turn_seconds=turn_seconds,
+        store=store,
+        session_log=session_log or SessionLog(),
+    )
     table = Table(state if state is not None else inn_state(), llm, config)
     async with table:
         yield table, clock

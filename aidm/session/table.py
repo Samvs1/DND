@@ -155,6 +155,7 @@ class Table(TableCore):
     def connect(self) -> Connection:
         conn = Connection(self.next_id("c"), asyncio.Queue())
         self.outboxes[conn.id] = conn.outbox
+        self.opened_at[conn.id] = self.config.clock.time()
         return conn
 
     def submit(self, conn_id: str, msg: AnyClientMsg) -> None:

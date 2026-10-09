@@ -64,6 +64,7 @@ async def load(core: TableCore, host: Player, campaign_id: str) -> None:
         core.error(host.id, ErrorCode.REFUSED, str(exc))
         return
     core.autosave()
+    core.diag("load", player_id=host.id, loaded_campaign=campaign_id)
     switch(core, loaded, host.token)
     scribe_voice.welcome_back(core)
     note = " (repaired from its log)" if loaded.recovered else ""
@@ -76,6 +77,7 @@ async def new_campaign(core: TableCore, host: Player) -> None:
     if _busy(core, host):
         return
     core.autosave()
+    core.diag("new", player_id=host.id)
     state = core.config.new_state()
     seats = [
         SeatRecord(id=p.id, name=p.name, token=p.token, is_host=p.is_host)

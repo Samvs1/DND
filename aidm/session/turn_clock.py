@@ -62,7 +62,9 @@ def grace_left(core: TableCore, owner: Player) -> float:
 
 def grace(core: TableCore, key: str, owner: Player) -> None:
     """The owner of the open turn went away: the auto-turn waits for the rest of the grace."""
-    start(core, key, grace_left(core, owner) or GRACE_SECONDS, shown=False)
+    seconds = grace_left(core, owner) or GRACE_SECONDS
+    core.diag("grace_started", player_id=owner.id, creature_id=owner.creature_id, seconds=seconds)
+    start(core, key, seconds, shown=False)
 
 
 def resume(core: TableCore, player: Player) -> None:
@@ -70,6 +72,9 @@ def resume(core: TableCore, player: Player) -> None:
     key = core.turn_key
     enc = core.state.encounter
     if key is not None and enc is not None and enc.active_id() == player.creature_id:
+        core.diag(
+            "grace_ended", player_id=player.id, creature_id=player.creature_id, reason="returned"
+        )
         start(core, key, limit_for(core, player))
 
 
@@ -83,6 +88,7 @@ def _owner_of_turn(core: TableCore, key: str) -> Player | None:
 def warn(core: TableCore, key: str) -> None:
     owner = _owner_of_turn(core, key)
     if owner is not None and not core.paused:
+        core.diag("turn_warning", player_id=owner.id, creature_id=owner.creature_id)
         core.notice(owner.id, NoticeKind.INFO, WARN_TEXT)
 
 

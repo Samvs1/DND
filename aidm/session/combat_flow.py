@@ -113,6 +113,8 @@ async def advance(core: TableCore) -> None:
             await _prompt(core, active, owner)
             return
         if state.creatures[active].pc is not None:
+            why = "downed" if state.creatures[active].hp <= 0 else "away"
+            core.diag("auto_turn", creature_id=active, reason=why)
             autoplay_safe(core, run, active)
         else:
             run.play_turn(active)
@@ -135,6 +137,7 @@ async def _prompt(core: TableCore, creature_id: str, owner: Player) -> None:
     core.broadcast(CombatState(combat=public_combat(core.state)))
     seconds = core.turn_left()
     core.broadcast(TurnPrompt(creature_id=creature_id, player_id=owner.id, seconds=seconds))
+    core.diag("turn_prompt", creature_id=creature_id, player_id=owner.id, seconds=seconds)
 
 
 async def tell_segment(core: TableCore) -> str:
@@ -198,7 +201,7 @@ async def after_player_step(core: TableCore, active: str) -> None:
     await advance(core)
 
 
-async def turn_timeout(core: TableCore, key: str) -> None:
+async def turn_timeout(core: TableCore, key: str, reason: str | None = None) -> None:
     enc = core.state.encounter
     if core.turn_key != key or enc is None:
         return
@@ -209,6 +212,14 @@ async def turn_timeout(core: TableCore, key: str) -> None:
     end_player_turn(core)
     if active is None:
         return
+    if reason is None:
+        owner = core.owner_of(active)
+        reason = "grace_expired" if owner is not None and not owner.connected else "timeout"
+    if reason != "kicked":
+        core.diag("turn_timeout", creature_id=active)
+    if reason == "grace_expired" and owner is not None:
+        core.diag("grace_ended", player_id=owner.id, creature_id=active, reason="expired")
+    core.diag("auto_turn", creature_id=active, reason=reason)
     name = core.state.creatures[active].name
     core.notice(None, NoticeKind.INFO, f"{name} hesitates and takes a careful, defensive turn.")
     run = runner(core)
@@ -231,4 +242,5 @@ async def finish_fight(core: TableCore, status: EncounterStatus) -> None:
     core.segment = []
     await remember(core, text or FIGHT_OVER, events)
     core.broadcast(CombatState(combat=None, outcome=status))
+    core.diag("encounter_ended", status=str(status))
     await maybe_epilogue(core)

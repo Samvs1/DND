@@ -9,6 +9,8 @@ first screen or player connects (M13.2, `session.scribe_voice`).
 Public API: `TableRegistry` (`table`, `start`, `stop`, `list_saves`).
 """
 
+from pathlib import Path
+
 from aidm.dm.llm_client import LlmClient
 from aidm.models.state import GameState
 from aidm.server.settings import ServerSettings
@@ -16,6 +18,7 @@ from aidm.server.tts import FishTts, tts_hook
 from aidm.session.persistence import CampaignStore, SaveInfo, new_game_state
 from aidm.session.restore import restore
 from aidm.session.scribe_voice import welcome_back_later
+from aidm.session.session_log import FileLog
 from aidm.session.table import Table
 from aidm.session.table_core import TableConfig
 
@@ -36,6 +39,7 @@ class TableRegistry:
             store=self.store,
             tts_enabled=settings.tts_enabled,
             tts=tts_hook(FishTts(settings.fish)),
+            session_log=FileLog(Path(settings.saves_dir).parent / "logs" / "session.jsonl"),
         )
         self._state = state
         self._campaign_id = campaign_id

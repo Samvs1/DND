@@ -110,6 +110,7 @@ async def enter_defeat(core: TableCore) -> None:
     _clear(core)
     core.apply(await _defeat_event(core))
     core.phase = TablePhase.DEFEATED
+    core.diag("defeat")
 
 
 def may_choose(core: TableCore, player: Player) -> bool:
@@ -171,6 +172,7 @@ async def retry(core: TableCore, player: Player) -> None:
     keep = [e for e in core.log if e.seq < point.seq]
     tail = [e for e in core.log if e.seq >= point.seq]
     attempt = core.checkpoints.retries + 1
+    core.diag("retry", player_id=player.id, attempt=attempt)
     if not _cut_saved_log(core, keep, tail, attempt):
         core.error(player.id, ErrorCode.REFUSED, RETRY_FAILED, "retry_failed")
         return

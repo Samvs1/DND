@@ -626,3 +626,8 @@ M11.2 clock | `Clock.time()` added (LoopClock = loop time, ManualClock = `now`) 
 - The invite QR/URL shows only in the lobby (`screen-waiting`); the play layout has no `sc-invite`. Owner feedback: players join in the lobby.
 - /screen is a fixed-viewport grid (scene / main / side). `sc-main` holds the combat panel (content height) and the feed (rest, scrolls internally, pinned to the newest line by feed.js). Zones use a 2 or 3 column grid (`.zone-row` is `display: contents` on the screen only); creatures are wrapping chips; party rows are compact; the dice card is a fixed overlay bottom right that never moves other panels.
 - Feed font stays >= 1.2rem in a fight too (the old 1rem combat override was removed).
+
+## M15.3 Session diagnostics log
+- `logs/session.jsonl` (next to `saves/`, gitignored) gets one JSON line per event: `ts`, `event`, `campaign_id` plus fields. Sink: `session/session_log.py` (`SessionLog` base drops, `MemoryLog` for tests, `FileLog` appends + flushes, rotates to `session.1.jsonl` at 5 MB, keeps one). Injected as `TableConfig.session_log`; `TableCore.diag(event, **fields)` is the single call site. Any sink failure is swallowed.
+- Events: ws_open, hello, ws_close (code, reason, lived_s), seat_released, grace_started, grace_ended (returned | expired), turn_prompt, turn_warning, turn_timeout, auto_turn (timeout | away | grace_expired | kicked | downed), retry, load, new, defeat, encounter_ended. Tokens and keys are never passed to `diag`; a test asserts the seat token is absent.
+- The method is `diag` because `Table.log` is already the event log list.

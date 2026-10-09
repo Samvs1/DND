@@ -22,6 +22,7 @@ import secrets
 from collections import deque
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
+from typing import Any
 
 from aidm.dm.campaign_gen import CAMPAIGN_TIMEOUT_S
 from aidm.dm.llm_client import LlmClient
@@ -58,6 +59,7 @@ from aidm.session.presence import RateLimit, TypingBoard
 from aidm.session.public_feed import PublicFeed
 from aidm.session.reducer import apply as reduce
 from aidm.session.scribe_picker import ScribeMemory
+from aidm.session.session_log import SessionLog
 from aidm.session.table_clock import Clock, LoopClock, TimerHandle
 from aidm.session.table_records import OpenVote, PendingHostile, TurnClock
 from aidm.session.views import public_floor, public_state
@@ -90,6 +92,7 @@ class TableConfig:
     store: CampaignStore | None = None
     new_state: Callable[[], GameState] = new_game_state
     tts_enabled: bool = False
+    session_log: SessionLog = field(default_factory=SessionLog)  # M15.3 diagnostics
 
 
 @dataclass
@@ -142,6 +145,7 @@ class TableCore:
         self.initial = state.model_copy(deep=True)
         self.llm = llm
         self.config = config if config is not None else TableConfig()
+        self.opened_at: dict[str, float] = {}  # conn id -> clock time (M15.3 lifetimes)
         self.regs = self.config.regs if self.config.regs is not None else tool_registries()
         self.rng = random.Random(state.seed)
         self.creation_rng = random.Random(f"{state.seed}:creation")
@@ -314,6 +318,11 @@ class TableCore:
     def broadcast(self, msg: AnyServerMsg) -> None:
         for conn_id in sorted(self.conn_player) + sorted(self.spectators):
             self.send_conn(conn_id, msg)
+
+    def diag(self, event: str, **fields: Any) -> None:
+        """One diagnostics line (M15.3); never raises, never carries a token."""
+        cid = self.save_id or self.state.campaign_id
+        self.config.session_log.emit(event, cid, **fields)
 
     def notice(self, player_id: str | None, kind: NoticeKind, text: str) -> None:
         msg = Notice(kind=kind, text=text)
