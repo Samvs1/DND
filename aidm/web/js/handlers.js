@@ -3,6 +3,8 @@
 // Handlers receive (msg, ctx) where ctx = { store, saved }. Views read the store or listen with
 // store.on(<type>, fn) for stream-like messages.
 
+import { turnEndsAt } from './ui/countdown.js';
+
 const MAX_NOTICES = 5;
 
 function relay(msg, { store }) {
@@ -23,14 +25,15 @@ function onWelcome(msg, { store, saved }) {
     joined: true,
     me: { playerId: msg.player_id, isHost: Boolean(msg.is_host) },
     errorCode: null,
-    ...(sameSeat ? {} : { snapshot: null, players: [], lastSeq: 0, notices: [], fallback: false, wizardOpen: null, confirm: null, levelUps: {}, sheet: null, sheetOpen: false, levelUpOpen: false, refusal: null, panel: null, shop: null, hostStats: null }),
+    ...(sameSeat ? {} : { snapshot: null, players: [], lastSeq: 0, notices: [], fallback: false, wizardOpen: null, confirm: null, turnEndsAt: null, lastOutcome: null, levelUps: {}, sheet: null, sheetOpen: false, levelUpOpen: false, refusal: null, panel: null, shop: null, hostStats: null }),
   });
   if (!sameSeat) store.emit('reset', {});
 }
 
 function onSnapshot(msg, { store }) {
   const state = msg.state;
-  store.update({ snapshot: msg, phase: state.phase, players: state.players || [], lastSeq: msg.seq });
+  const endsAt = turnEndsAt(state.floor?.seconds_left);
+  store.update({ snapshot: msg, phase: state.phase, players: state.players || [], lastSeq: msg.seq, turnEndsAt: endsAt });
   store.emit('snapshot', msg);
 }
 
@@ -124,6 +127,9 @@ function onCombat(msg, ctx) {
   // A fight that starts drops the server's open "Are you sure?" (begin_combat): close it too.
   const before = ctx.store.get().snapshot?.state.combat ?? null;
   if (!before && msg.combat && ctx.store.get().confirm) ctx.store.update({ confirm: null });
+  // M15.1: the real outcome, set BEFORE the combat flips off (the banner and the stinger read it; the
+  // party HP in the snapshot may still be stale then).
+  ctx.store.update({ lastOutcome: msg.combat ? null : msg.outcome ?? null });
   patchSnapshot(ctx, { combat: msg.combat ?? null });
   relay(msg, ctx);
 }
@@ -135,12 +141,18 @@ function onQueue(msg, ctx) {
 
 // M11.2: the public floor (holder, queue, typing) and the shared screen's audio settings.
 function onFloor(msg, ctx) {
+  ctx.store.update({ turnEndsAt: turnEndsAt(msg.floor?.seconds_left) });
   patchSnapshot(ctx, { floor: msg.floor ?? null });
   relay(msg, ctx);
 }
 
 function onAudioSettings(msg, ctx) {
   patchSnapshot(ctx, { audio: msg.settings ?? null });
+  relay(msg, ctx);
+}
+
+function onTurnPrompt(msg, ctx) {
+  ctx.store.update({ turnEndsAt: turnEndsAt(msg.seconds) });
   relay(msg, ctx);
 }
 
@@ -180,7 +192,7 @@ export const HANDLERS = {
   snapshot: onSnapshot,
   story_history: relay,
   suggestion: relay,
-  turn_prompt: relay,
+  turn_prompt: onTurnPrompt,
   vote_closed: onVoteClosed,
   vote_open: onVoteOpen,
   vote_update: onVoteUpdate,

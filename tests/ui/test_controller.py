@@ -1,5 +1,6 @@
 """Browser tests of the phone controller (/play at 390x844) next to the shared /screen (M11.4)."""
 
+import re
 from pathlib import Path
 
 from playwright.sync_api import Browser, Page
@@ -207,7 +208,7 @@ def test_a_combat_turn_is_played_entirely_from_the_phone(
     snap(other, shots_dir, "m11_phone_combat_waiting", 390)
     assert screen.locator("[data-testid=screen-invite]").is_hidden()
     snap(screen, shots_dir, "m11_screen_combat", 1920)
-    assert active.evaluate(CHIP) == "Your turn"
+    assert re.fullmatch(r"Your turn - \d:\d\d", active.evaluate(CHIP))
     before = active.evaluate(f"JSON.stringify({COMBAT_POS})")
     active.click("[data-testid=end-turn]")
     # The turn passes (a downed partner is skipped, so the round may roll over instead).

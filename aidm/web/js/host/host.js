@@ -1,5 +1,5 @@
 // Host panel (host only; the More tab never shows it to anyone else and the controller does not mount it):
-// pause/resume, kick, difficulty sliders, spoken narration, save/load/new/end, force the open vote and the
+// pause/resume, kick, difficulty sliders, the combat turn timer (M15.1), spoken narration, save/load/new/end, force the open vote and the
 // storyteller's token totals. Every action is one `host_*` message; the server refuses non-hosts anyway.
 import { t } from '../strings.js';
 import { createPanel } from '../ui/modal.js';
@@ -9,6 +9,7 @@ import { confirmButton } from './confirm.js';
 import { fetchSaves } from './saves.js';
 
 const SLIDER = { min: 0.25, max: 3, step: 0.25 };
+const TURN_TIMER = [0, 90, 180, 300];
 
 function slider(testid, key, onChange) {
   const label = h('label', { for: `host-${testid}` });
@@ -36,6 +37,7 @@ export function mountHost(root, { store, client }) {
   const dmg = slider('host-damage', 'host.monsterDamage', () => sendDifficulty());
   const tts = h('input', { type: 'checkbox', id: 'host-tts', 'data-testid': 'host-tts' });
   const ttsState = h('span', { class: 'hint' });
+  const turnTimer = h('select', { id: 'host-turn-timer', 'data-testid': 'host-turn-timer' }, ...TURN_TIMER.map((n) => h('option', { value: String(n) }, t(`host.turnTimer_${n}`))));
   const saved = h('p', { class: 'hint', role: 'status', 'data-testid': 'host-saved' });
   const loadSelect = h('select', { id: 'host-load', 'data-testid': 'host-load-select' });
   const loadBox = h('div', { class: 'host-load' });
@@ -48,6 +50,7 @@ export function mountHost(root, { store, client }) {
   }
   pause.addEventListener('click', () => send(publicState(store.get())?.paused ? 'host_resume' : 'host_pause'));
   tts.addEventListener('change', () => send('host_tts_toggle', { enabled: tts.checked }));
+  turnTimer.addEventListener('change', () => send('host_turn_timer', { seconds: Number(turnTimer.value) }));
 
   async function refreshSaves() {
     const rows = await fetchSaves();
@@ -82,6 +85,7 @@ export function mountHost(root, { store, client }) {
       if (document.activeElement !== s.input) s.input.value = String(value);
       s.show();
     }
+    if (document.activeElement !== turnTimer) turnTimer.value = String(view.turn_timer ?? 0);
     tts.checked = Boolean(view.tts_enabled);
     ttsState.textContent = view.tts_enabled ? t('host.ttsOn') : t('host.ttsOff');
   }
@@ -105,6 +109,7 @@ export function mountHost(root, { store, client }) {
     section(t('host.session'), pause, pauseState, force),
     section(t('host.players'), players),
     section(t('host.difficulty'), hp.label, hp.input, dmg.label, dmg.input, h('p', { class: 'hint' }, t('host.difficultyHint'))),
+    section(t('host.turnTimer'), h('label', { for: 'host-turn-timer' }, t('host.turnTimerLabel')), turnTimer, h('p', { class: 'hint' }, t('host.turnTimerHint'))),
     section(t('host.tts'), h('label', { for: 'host-tts', class: 'host-check' }, tts, ' ', ttsState)),
     section(t('host.campaigns'), saveButton, saved, loadBox, h('div', { class: 'host-danger' }, newGame, endGame)),
     section(t('host.tokens'), usage),

@@ -20,10 +20,10 @@ export function wantedState(snap, stinger) {
   return stinger ?? 'exploration';
 }
 
-/** A fight that ends with the whole party down is a defeat; anything else a victory. */
-export function stingerFor(snap) {
-  const party = snap?.party ?? [];
-  return party.length > 0 && party.every((c) => c.dead || c.hp <= 0) ? 'defeat' : 'victory';
+/** The stinger for how a fight ended (combat_state.outcome, M15.1): victory or defeat; a fled or parleyed
+ * fight (or an unknown outcome) has none. Never inferred from party HP: that snapshot may be stale. */
+export function stingerFor(outcome) {
+  return outcome === 'victory' || outcome === 'defeat' ? outcome : null;
 }
 
 export function createMusic({ store, mode, makeAudio = (url) => new Audio(url) }) {
@@ -147,7 +147,7 @@ export function createMusic({ store, mode, makeAudio = (url) => new Audio(url) }
   function onStore(state) {
     const snap = state.snapshot?.state;
     const inCombat = Boolean(snap?.combat);
-    if (wasCombat && !inCombat && snap) stinger = stingerFor(snap);
+    if (wasCombat && !inCombat && snap) stinger = stingerFor(state.lastOutcome);
     if (inCombat) stinger = null;
     wasCombat = inCombat;
     sync();

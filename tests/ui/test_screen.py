@@ -30,6 +30,7 @@ LIVE_MUSIC = (
 )
 SPEECH = "/tts/" + "d" * 40 + ".mp3"
 STAND_DOWN = """() => {
+  window.aidm.dispatch({ type: 'combat_state', combat: null, outcome: 'victory' });
   const snap = window.aidm.store.get().snapshot;
   window.aidm.dispatch({ ...snap, state: { ...snap.state, combat: null } });
 }"""

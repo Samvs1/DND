@@ -1,7 +1,7 @@
 // Victory on /screen. The fight banner is visual only (the Scribe does not speak after an ordinary fight):
-// it shows a few seconds after a won fight unless that fight completed the campaign. The campaign victory
+// it shows a few seconds after a won fight unless that fight completed the campaign. "Won" is the server's
+// outcome (combat_state.outcome -> store.lastOutcome, M15.1), never the party HP of a possibly stale snapshot. The campaign victory
 // screen (like the defeat overlay) shows once the campaign is complete and carries the epilogue.
-import { stingerFor } from '../audio/music.js';
 import { realAssetUrl } from '../assets.js';
 import { portraitSrc } from '../scribe/portrait.js';
 import { victoryShown } from '../controller/victory.js';
@@ -20,7 +20,7 @@ export function mountFightBanner(root, store) {
   let hide = null;
   const reveal = () => {
     const view = publicState(store.get());
-    if (!view || view.complete || view.defeat || view.phase === 'defeated' || stingerFor(view) !== 'victory') return;
+    if (!view || view.complete || view.defeat || view.phase === 'defeated' || store.get().lastOutcome !== 'victory') return;
     box.hidden = false;
     clearTimeout(hide);
     hide = setTimeout(() => (box.hidden = true), BANNER_MS);

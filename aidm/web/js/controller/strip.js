@@ -1,11 +1,12 @@
 // Persistent top strip of the phone: hero portrait and name, HP bar, AC, conditions, a resources summary and
-// the turn/floor status chip.
+// the turn/floor status chip (with the turn timer's countdown, M15.1).
 import { assetUrl } from '../assets.js';
 import { conditionIcons, hpBar, portraitKeys } from '../table/party.js';
 import { myHero } from '../table/lookup.js';
 import { t } from '../strings.js';
 import { clear, h } from '../ui/dom.js';
 import { titleCase } from '../ui/format.js';
+import { everySecond } from '../ui/countdown.js';
 import { statusOf } from './status.js';
 
 function resourceText(state) {
@@ -19,15 +20,19 @@ export function mountStrip(root, store) {
   root.append(body, chip);
   let last = '';
 
-  function render(state) {
-    const hero = myHero(state);
+  function renderChip(state) {
     const status = statusOf(state);
+    if (chip.textContent !== status.text) chip.textContent = status.text;
+    chip.dataset.status = status.key;
+  }
+
+  function render(state) {
+    renderChip(state);
+    const hero = myHero(state);
     const resources = resourceText(state);
-    const key = JSON.stringify([hero, status, resources]);
+    const key = JSON.stringify([hero, resources]);
     if (key === last) return;
     last = key;
-    chip.textContent = status.text;
-    chip.dataset.status = status.key;
     clear(body);
     if (!hero) return void body.append(h('p', { class: 'hint' }, t('ct.noHero')));
     body.append(
@@ -42,5 +47,10 @@ export function mountStrip(root, store) {
     );
   }
   render(store.get());
-  return store.subscribe(render);
+  const stopTick = everySecond(store, renderChip); // the turn countdown (M15.1)
+  const stop = store.subscribe(render);
+  return () => {
+    stopTick();
+    stop();
+  };
 }

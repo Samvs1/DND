@@ -174,7 +174,8 @@ def test_fight_victory_banner_has_no_voice(
     _end_welcome(screen, host)
     screen.evaluate(WATCH)
     screen.evaluate(
-        "() => { const s = window.aidm.store.get().snapshot;"
+        "() => { window.aidm.dispatch({ type: 'combat_state', combat: null, outcome: 'victory' });"
+        " const s = window.aidm.store.get().snapshot;"
         " window.aidm.dispatch({ ...s, state: { ...s.state, combat: null } }); }"
     )
     screen.wait_for_selector("[data-testid=screen-victory-banner]:not([hidden])", timeout=10000)

@@ -56,7 +56,7 @@ def test_two_players_fight_attack_move_suggest_and_end_turn(
     assert other.locator("[data-testid=end-turn]").count() == 0
     assert other.locator("[data-testid=targets]").is_hidden()
     assert "is acting" in other.locator("[data-testid=status-chip]").inner_text()
-    assert active.locator("[data-testid=status-chip]").inner_text() == "Your turn"
+    assert active.locator("[data-testid=status-chip]").inner_text().startswith("Your turn")
     # The other player suggests; the active one sees it.
     other.fill("[data-testid=suggest-input]", "go for the left goblin")
     other.click("[data-testid=suggest-send]")
