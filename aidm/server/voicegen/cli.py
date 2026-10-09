@@ -7,6 +7,8 @@ Modes (ASCII output only):
   FISH_API_KEY from the environment / .env, or `fake` for offline runs), then processes, encodes,
   indexes and reports the selected lines.
 - `--reprocess`: the same from the raw cache only; it never builds a provider.
+- `--reselect` (implies --reprocess): for lines with `takes` > 1, pick the best of the cached takes
+  again (after a scorer change) and print the choice; no API call.
 - `--check`: offline staleness check of lines.json against the config and the files.
 - `--only ID` (repeatable) limits dry run, --yes and --reprocess to those lines.
 
@@ -29,7 +31,14 @@ from aidm.server.voicegen.config import VoiceConfig, VoiceLine, load_config
 from aidm.server.voicegen.encode import Encoder, encode_mp3
 from aidm.server.voicegen.index import check
 from aidm.server.voicegen.provider import FakeTts, FishWavProvider, TtsProvider, VoiceProviderError
-from aidm.server.voicegen.runner import LineBuild, MissingRaw, VoicePaths, build_lines, raw_path
+from aidm.server.voicegen.runner import (
+    LineBuild,
+    MissingRaw,
+    VoicePaths,
+    build_lines,
+    raw_path,
+    reselect,
+)
 
 type Out = Callable[[str], None]
 type ProviderFactory = Callable[[], TtsProvider]
@@ -40,6 +49,7 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
     parser.add_argument("--yes", action="store_true", help="call the TTS API for missing raws")
     parser.add_argument("--reprocess", action="store_true", help="process from the raw cache")
     parser.add_argument("--check", action="store_true", help="offline staleness check")
+    parser.add_argument("--reselect", action="store_true", help="re-pick cached takes, reprocess")
     parser.add_argument("--only", action="append", default=[], metavar="ID")
     return parser.parse_args(list(argv))
 
@@ -98,6 +108,14 @@ def _summary(builds: Sequence[LineBuild], paths: VoicePaths, out: Out) -> int:
     return 4 if failed else 0
 
 
+def _reselect(paths: VoicePaths, lines: Sequence[VoiceLine], out: Out) -> None:
+    for line in lines:
+        if line.takes > 1:
+            picked = reselect(paths, line)
+            note = "no cached takes" if picked is None else f"take {picked[0]} (score {picked[1]})"
+            out(f"  {line.id:<22} reselected: {note}")
+
+
 def _build(
     args: argparse.Namespace,
     config: VoiceConfig,
@@ -146,6 +164,9 @@ def main(
     except KeyError as exc:
         out(f"unknown line id(s): {exc.args[0]}")
         return 1
+    if args.reselect and not args.yes:
+        args.reprocess = True
+        _reselect(where, lines, out)
     if not (args.yes or args.reprocess):
         return _plan(where, lines, out)
     factory = provider_factory or (lambda: provider_from_env(root))

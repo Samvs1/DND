@@ -570,3 +570,8 @@ M11.2 clock | `Clock.time()` added (LoopClock = loop time, ManualClock = `now`) 
 - Revive: 3 short original lines ending in "Rise." at per-line speed 1.05 (raw 5.6-6.2 s, 6.5-7.1 s with the tail; were ~17 s). The owner's in-game example line is not copied (BG3 text rule); same brevity and cadence.
 - He now speaks aloud for 8 lines only: welcome, welcome back, 3 campaign victories, 3 revives.
 
+## M13.4d A dramatic "Rise." (owner feedback)
+- Owner: the final "Rise." sounded awkward, like a question. Measured: the word was clipped (0.18-0.94 s voiced) with an upturned pitch (+8 to +167 Hz/s). Owner chose option A (one natural take) over B (a separately recorded word spliced in).
+- Text: `... [long-break] [solemn, commanding, slow and drawn out] Rise.`; per-line `takes` (best of N): `voicegen/takes.py` finds the final word after the last pause (10 ms envelope smoothed over 50 ms below -35 dB for >= 0.25 s; Fish pauses hold breath at -40..-52 dB with spikes), measures voiced time, level vs the line, pitch slope and pause, disqualifies a take whose word does not stand alone (pause < 0.2 s or span > 1.8 s), and keeps the best take as the cached raw (all takes + `<raw>.takes.json` stay next to it). `--reselect` re-picks from cached takes after a scorer change, without API calls.
+- Result: revive.1 = the take the owner approved (A3: 1.02 s voiced, +4.2 dB), revive.2 best of 12 (0.96 s, +4.3 dB, falling), revive.3 best of 6 (1.14 s, +2.9 dB, falling). Fish ASR confirms each ends on "Rise".
+

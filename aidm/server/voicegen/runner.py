@@ -3,17 +3,19 @@
 `VoicePaths.for_root(root)` names every location: the config (data/voice/scribe.json), the raw
 WAV cache and the report (gitignored artifacts/voice/raw and artifacts/voice/report) and the
 output folder the game serves (aidm/web/static/audio/voice/scribe). `fetch_raw` returns the cached
-raw WAV of a line or asks the provider once and caches it atomically; with `provider=None`
-(--reprocess) a missing cache entry raises `MissingRaw` naming the line, so a reprocess never
-calls the API. `build_line` processes one raw WAV, encodes `<line_id>.mp3` once, writes the
-spectrogram and the line report and returns the index entry.
+raw WAV of a line or asks the provider once (or `takes` times, keeping the best final word, see
+takes.py; every take and a `<raw>.takes.json` summary stay next to it) and caches it atomically;
+with `provider=None` (--reprocess) a missing cache entry raises `MissingRaw` naming the line, so a
+reprocess never calls the API. `build_line` processes one raw WAV, encodes `<line_id>.mp3` once,
+writes the spectrogram and the line report and returns the index entry.
 
-Public API: `VoicePaths`, `MissingRaw`, `LineBuild`, `raw_path`, `fetch_raw`, `build_line`,
-`build_lines`.
+Public API: `VoicePaths`, `MissingRaw`, `LineBuild`, `raw_path`, `fetch_raw`, `reselect`,
+`build_line`, `build_lines`.
 """
 
 from __future__ import annotations
 
+import json
 import os
 from collections.abc import Sequence
 from dataclasses import dataclass
@@ -38,6 +40,7 @@ from aidm.server.voicegen.report import (
     write_summary,
 )
 from aidm.server.voicegen.spectrogram import spectrogram_png
+from aidm.server.voicegen.takes import best_take, take_score
 
 
 @dataclass(frozen=True)
@@ -73,17 +76,59 @@ def raw_path(paths: VoicePaths, line: VoiceLine) -> Path:
     return paths.raw_dir / line.raw_name
 
 
+def _atomic_bytes(path: Path, data: bytes) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(f"{path.name}.{os.getpid()}.tmp")
+    tmp.write_bytes(data)
+    os.replace(tmp, path)
+
+
+def _choose(path: Path, line: VoiceLine, takes: list[bytes]) -> int:
+    """Pick the best take, write `<raw>.takes.json` and the chosen take as the raw; its index."""
+    chosen, words = best_take([read_wav(data) for data in takes])
+    summary = {
+        "line": line.id,
+        "chosen": chosen,
+        "takes": [{**w.as_dict(), "score": take_score(w)} for w in words],
+    }
+    _atomic_bytes(path.with_name(f"{path.stem}.takes.json"), json.dumps(summary, indent=2).encode())
+    _atomic_bytes(path, takes[chosen])
+    return chosen
+
+
+def _best_of_takes(paths: VoicePaths, line: VoiceLine, provider: TtsProvider) -> bytes:
+    """Generate `line.takes` takes, keep each as `<raw>.take<i>.wav`, return the best one."""
+    path = raw_path(paths, line)
+    takes = [provider.synthesize(line.text, line.voice) for _ in range(line.takes)]
+    for number, data in enumerate(takes):
+        _atomic_bytes(path.with_name(f"{path.stem}.take{number}.wav"), data)
+    return takes[_choose(path, line, takes)]
+
+
+def reselect(paths: VoicePaths, line: VoiceLine) -> tuple[int, float] | None:
+    """Re-pick the best of the cached takes (no API call): (chosen index, its score), or None."""
+    path = raw_path(paths, line)
+    files = sorted(
+        path.parent.glob(f"{path.stem}.take*.wav"), key=lambda f: int(f.stem.rsplit("take", 1)[1])
+    )
+    if not files:
+        return None
+    takes = [f.read_bytes() for f in files]
+    chosen = _choose(path, line, takes)
+    summary = json.loads(path.with_name(f"{path.stem}.takes.json").read_text(encoding="utf-8"))
+    return chosen, float(summary["takes"][chosen]["score"])
+
+
 def fetch_raw(paths: VoicePaths, line: VoiceLine, provider: TtsProvider | None) -> bytes:
     path = raw_path(paths, line)
     if path.is_file():
         return path.read_bytes()
     if provider is None:
         raise MissingRaw(f"{line.id}: no cached raw WAV ({path.name}); run with --yes")
+    if line.takes > 1:
+        return _best_of_takes(paths, line, provider)
     data = provider.synthesize(line.text, line.voice)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_name(f"{path.name}.{os.getpid()}.tmp")
-    tmp.write_bytes(data)
-    os.replace(tmp, path)
+    _atomic_bytes(path, data)
     return data
 
 

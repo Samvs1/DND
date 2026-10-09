@@ -103,28 +103,31 @@
       "id": "revive.1",
       "group": "revive",
       "profile": "short",
-      "text": "[calm, warm] From the final page, I call thee back. [break] Rise.",
+      "text": "[calm, warm] From the final page, I call thee back. [long-break] [solemn, commanding, slow and drawn out] Rise.",
       "voice": {
         "prosody_speed": 1.05
-      }
+      },
+      "takes": 4
     },
     {
       "id": "revive.2",
       "group": "revive",
       "profile": "short",
-      "text": "[calm, warm] Thy name is restored to the ledger. Rise.",
+      "text": "[calm, warm] Thy name is restored to the ledger. [long-break] [solemn, commanding, slow and drawn out] Rise.",
       "voice": {
         "prosody_speed": 1.05
-      }
+      },
+      "takes": 12
     },
     {
       "id": "revive.3",
       "group": "revive",
       "profile": "short",
-      "text": "[calm, gently amused] Struck out, and written in anew. Rise.",
+      "text": "[calm, gently amused] Struck out, and written in anew. [long-break] [solemn, commanding, slow and drawn out] Rise.",
       "voice": {
         "prosody_speed": 1.05
-      }
+      },
+      "takes": 6
     },
     {
       "id": "refuse_combat.1",
