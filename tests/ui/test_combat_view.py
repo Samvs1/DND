@@ -229,6 +229,14 @@ def test_move_to_list_shows_zone_badges_and_the_rough_cost(
     assert "High ground" in texts and "Rough ground" in texts
     assert any("Half" in x for x in texts)
     assert _feet(chip) == before * 2
+    # The point of the fix: a zone the doubled cost puts out of reach is greyed out, so the
+    # phone never offers a move the server would refuse.
+    left = active.evaluate(
+        "async () => (await import('/web/js/combat/model.js'))"
+        ".combatOf(window.aidm.store.get()).economy.movement_left"
+    )
+    assert isinstance(left, int)
+    assert chip.is_disabled() == (_feet(chip) > left)
     assert active.evaluate(NO_HSCROLL)
     snap(active, shots_dir, "controller_move_to", 390)
     assert errors == []
