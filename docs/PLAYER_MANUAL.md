@@ -22,7 +22,7 @@ Everything you need to play at the table, in plain words. The tables in the Refe
 4. Everyone builds a hero (see Your hero). When every player has a hero, the host presses **Start the adventure**. The host can type a campaign theme first, or leave it blank for a surprise.
 
 ### Reconnecting
-Your seat is kept for you. If your phone sleeps, loses Wi-Fi or you close the page, open the game address again in the same browser: it remembers your seat and reconnects you by itself. A different browser or device, or cleared site data, gives you a new seat without your hero. If you are away when it is your turn in a fight, the game plays a careful turn for you (see Combat).
+Your seat is kept for you. If your phone sleeps, loses Wi-Fi or you close the page, open the game address again in the same browser: it remembers your seat and reconnects you by itself. A different browser or device, or cleared site data, gives you a new seat without your hero. If your connection drops during a fight, your turn waits 30 seconds for you to come back; after that, and on every later turn while you are still away, the game plays a careful turn for you (see Combat).
 
 ### The microphone button
 You can dictate your actions. The **Dictate** button next to **Act** only appears when the page is served over a secure connection (the host starts the game with the HTTPS option, or you play on the host's own computer) and your browser supports speech input. Your browser will warn once about the certificate: choose Advanced, then continue to the site. Without the button, use the dictation key on your phone keyboard instead.
@@ -124,7 +124,7 @@ On the **Play** tab, type what your hero does in plain words and press **Act**. 
 Actions are handled one at a time, in the order they were sent. You may have one action waiting at a time. The screen shows who is typing, who is acting now and who is next. Your phone shows **Waiting (n)** while your action is in line. If the storyteller stumbles, you see a plain in-story fallback instead of an error.
 
 ### What the Dungeon Master can and cannot do
-The storyteller describes the world and decides what happens, but it only does so by asking the game engine. **The engine owns every number**: difficulty, damage, hit points, spell slots, experience and gold. The storyteller cannot make up a damage total, hand out treasure beyond the rules, or invent things that were never introduced. If you try something clever, the engine rolls for it. Attacking someone who is not already hostile (a friendly or neutral person) asks you first (**Are you sure?**), because they will fight back. Nothing else asks.
+The storyteller describes the world and decides what happens, but it only does so by asking the game engine. **The engine owns every number**: difficulty, damage, hit points, spell slots, experience and gold. The storyteller cannot make up a damage total, hand out treasure beyond the rules, or invent things that were never introduced. If you try something clever, the engine rolls for it. Attacking someone who is not already hostile (a friendly or neutral person) asks you first (**Are you sure?**), because they will fight back. Nothing else asks. **Nothing happens until you answer**: the question stays on your phone until you press **Yes, do it** or **No, hold back** (the storyteller's voice does not close it), and the story only says that you hesitate on the brink. The attack is told once you confirm. Sending a new action instead counts as **No**.
 
 ### Checks and difficulty
 When the outcome is uncertain, you roll a d20, add your modifier and compare it with a difficulty number (DC) the engine picks from a fixed ladder:
@@ -234,14 +234,20 @@ Three things about where you stand:
 At the start of a fight everyone rolls initiative: a d4 plus the Dexterity modifier (as in the video game). The turn order appears on the screen. If a side was surprised, its creatures lose their first turn. Heroes who are down keep their place in the order.
 
 ### Your turn
-When it is your turn, your phone says **Your turn** and the hotbar is active. Each turn you have:
+When it is your turn, your phone says **Your turn** (with the time left when a turn timer runs, for example **Your turn - 2:41**) and the hotbar is active. Each turn you have:
 - one **action**, one **bonus action** and one **reaction** (shown on the hotbar),
 - **movement** up to your speed in feet,
 - the option to type a creative action in the Play box and press **Act**. It uses your action, and it is refused once your action is spent.
 
 The reaction is shown for completeness, but no reaction abilities work in this version.
 
-You have 90 seconds for your turn. If time runs out, or your player is away, the game plays a careful turn for you: it moves toward your allies if you are away from them, or else takes the Dodge action, and then ends your turn.
+**The turn timer.** Nobody's turn is taken away unexpectedly:
+- At a **solo table** (only one player seated with a hero) there is **no turn timer**: take as long as you like.
+- With several players the default is **3 minutes** per turn. The host can set it to **Off**, **90 seconds**, **3 minutes** or **5 minutes** in the Host panel.
+- When a timer runs, your phone counts down (**Your turn - 2:41**) and the screen shows **Sam is acting - 0:45**.
+- **30 seconds** before the end your phone says **30 seconds left: act or end your turn**.
+- If the time runs out, the game plays a careful turn for you: it moves toward your allies if you are away from them, or else takes the Dodge action, and then ends your turn. With the timer **Off**, or at a solo table, this never happens while you are connected.
+- If your phone loses its connection, your turn waits **30 seconds** for you to come back (reconnecting gives you your turn and your clock back). After that, or when your turn comes up while you have been away longer, the game plays the same careful turn for you.
 
 ### The hotbar
 - Buttons are numbered. On a keyboard, **keys 1 to 9** use the numbered slots on your turn, and **Esc** cancels an aim.
@@ -403,7 +409,7 @@ When it is not your turn, you can **suggest a move** to the active hero. It is o
 Monsters have a fixed number of hit points. The host can scale monster health and damage (see For the host). Each defeated foe adds to the loot of the fight, and the experience of every defeated foe is split evenly among the living heroes.
 
 ### Ending a fight
-A fight ends in **victory** when no hostile creature is left standing, in **defeat** when no hero can act, or when the party has fled. When it ends, effects that last a number of rounds end, and the story continues.
+A fight ends in **victory** when no hostile creature is left standing, in **defeat** when no hero can act, or when the party has fled. When it ends, effects that last a number of rounds end, and the story continues. The screen's **VICTORY!** banner and the victory music play only after a real victory, never after a defeat or an escape.
 
 ## 5. Spells and levelling
 
@@ -583,10 +589,11 @@ Nothing is spent on a refusal.
 
 ### Host controls
 Open **More**, then **Host panel** (only the host sees it).
-- **Pause the game / Resume the game**: no turns or actions are handled while paused. Fight turn timers wait; an open vote keeps running.
+- **Pause the game / Resume the game**: no turns or actions are handled while paused. A turn whose timer runs out while paused gets a fresh timer; an open vote keeps running.
 - **Force the open vote**: pass the current vote.
 - **Kick**: remove a player (asks first).
 - **Monster health** and **Monster damage** multipliers: from x0.25 to x3. The health change applies to monsters that appear from then on.
+- **Turn timer**: the time each hero has for a combat turn: **Off**, **90 seconds**, **3 minutes** (the default) or **5 minutes**. It only runs when another player is waiting, so a solo table never has one. A change applies to the current turn at once and is saved with the game.
 - **Spoken narration**: switch the voice on or off.
 - **Save now**, **Load**, **New campaign** and **End the session**. Loading or starting new saves the current game first.
 - **Storyteller usage**: the number of calls and tokens used.
