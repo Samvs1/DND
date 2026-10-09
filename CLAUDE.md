@@ -108,7 +108,8 @@ Assets are COPIED from v1 into `aidm/web/static/` in M0.4. Never edit the origin
 ## Player manual (owner rule: create AND maintain)
 - `docs/PLAYER_MANUAL.md` is the player-facing truth. Any change to a player-facing mechanic, price, rule, screen or
   control updates the manual in the same commit. Generated reference sections come from data via
-  `scripts/gen_manual.py`; its `--check` is a gate step (from M14). The in-game manual renders the same file.
+  `scripts/gen_manual.py`; its `--check` is gate step 12 (the FULL gate has 12 steps, and `python scripts/gen_manual.py` rewrites
+  the tables between the `<!-- generated:name -->` markers). The in-game manual (`/manual`, More tab) renders the same file.
 
 ## Token discipline (Claude Pro: 5-hour window plus weekly cap)
 - Keep gate output to its tail. Never paste whole files. Do not re-read files you already know.

@@ -1,0 +1,182 @@
+/* The player manual: the /manual page (TV, laptop) and the phone's full-screen panel. */
+.manual-page main {
+  max-width: 78rem;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.mn-title {
+  margin: 0 0 0.6rem;
+  color: var(--gold);
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  font-weight: 400;
+}
+
+.mn-view {
+  display: grid;
+  grid-template-columns: minmax(12rem, 18rem) minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.mn-side {
+  position: sticky;
+  top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: calc(100dvh - 1rem);
+  overflow-y: auto;
+}
+
+.mn-label {
+  margin: 0.4rem 0 0.2rem;
+  color: var(--parchment-dim);
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.mn-search {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 2.75rem;
+  padding: 0.4rem 0.7rem;
+  color: var(--parchment);
+  font: inherit;
+  background: var(--stone-1);
+  border: var(--frame);
+  border-radius: var(--radius);
+}
+
+.mn-toc {
+  display: flex;
+  flex-direction: column;
+}
+
+.mn-link {
+  padding: 0.45rem 0.2rem;
+  color: var(--parchment);
+  text-decoration: none;
+  border-bottom: 1px solid var(--stone-3);
+}
+
+.mn-link:hover,
+.mn-link:focus-visible {
+  color: var(--gold);
+}
+
+.mn-main {
+  min-width: 0;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.mn-status {
+  color: var(--parchment-dim);
+}
+
+.mn-body h1,
+.mn-body h2,
+.mn-body h3,
+.mn-body h4 {
+  margin: 1.4rem 0 0.4rem;
+  color: var(--gold);
+  font-family: var(--font-display);
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+
+.mn-body h1 {
+  font-size: 2.3rem;
+}
+
+.mn-body h2 {
+  font-size: 1.9rem;
+}
+
+.mn-body h3 {
+  font-size: 1.5rem;
+}
+
+.mn-body p,
+.mn-body li {
+  overflow-wrap: anywhere;
+}
+
+.mn-body code {
+  padding: 0 0.25rem;
+  color: var(--parchment);
+  background: var(--stone-3);
+  border-radius: var(--radius);
+}
+
+.mn-table {
+  margin: 0.6rem 0;
+  overflow-x: auto;
+  border: 1px solid var(--stone-3);
+}
+
+.mn-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.mn-table th,
+.mn-table td {
+  padding: 0.35rem 0.6rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--stone-3);
+}
+
+.mn-table th {
+  color: var(--gold);
+  background: var(--stone-2);
+  white-space: nowrap;
+}
+
+.panel-dialog.manual-dialog {
+  width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  box-sizing: border-box;
+  margin: 0;
+  border-radius: 0;
+}
+
+@media (max-width: 800px) {
+  .mn-view {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.5rem;
+  }
+
+  .mn-side {
+    position: static;
+    max-height: none;
+  }
+
+  .mn-toc {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.8rem;
+  }
+
+  .mn-toc .mn-label {
+    flex-basis: 100%;
+  }
+
+  .mn-link {
+    border-bottom: 0;
+  }
+
+  .mn-main {
+    font-size: 1rem;
+  }
+
+  .manual-page main {
+    padding: 0 16px 1rem;
+  }
+}

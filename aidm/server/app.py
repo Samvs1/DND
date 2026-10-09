@@ -7,7 +7,8 @@ Tests may pass `llm`, `state` or `config` to start from a prepared table.
 Routes: `/`, `/play`, `/screen` (the web shell), `/static/*` and `/web/*` (files of `aidm/web`),
 `/ws`, `/healthz` (booleans only), `/api/saves`, `/api/lan`, `/api/lan-qr.svg`,
 `/assets/placeholder/<kind>/<slug>.svg` and `/api/assets/manifest` (asset_routes.py, A1),
-`/api/creation-data` (creation_data.py, M7.2), `/tts/<hash>.mp3` (tts_routes.py, M8.1).
+`/api/creation-data` (creation_data.py, M7.2), `/tts/<hash>.mp3` (tts_routes.py, M8.1),
+`/manual` and `/api/manual` (manual_routes.py, M14.1).
 `settings.web_root` (env `AIDM_WEB_ROOT`) serves another copy of `aidm/web` (A3).
 
 Public API: `create_app`, `WEB_DIR`.
@@ -29,6 +30,7 @@ from aidm.server.asset_routes import add_asset_routes
 from aidm.server.assets import AssetCatalog
 from aidm.server.creation_data import add_creation_routes
 from aidm.server.lan import qr_svg
+from aidm.server.manual_routes import add_manual_routes
 from aidm.server.registry import TableRegistry
 from aidm.server.scribe_routes import add_scribe_routes
 from aidm.server.settings import ServerSettings
@@ -70,6 +72,7 @@ def create_app(
     add_creation_routes(app)
     add_tts_routes(app, settings.fish.cache_dir)
     add_scribe_routes(app, web_dir / "static")
+    add_manual_routes(app, web_dir)
     return app
 
 

@@ -1,5 +1,5 @@
 // Phone controller (/play once the adventure runs): a persistent hero strip on top, five tabs (Play, Hero,
-// Journal, Scribe, More) and dialogs for shop, host and settings. The shared story, party and board live on /screen.
+// Journal, Scribe, More) and dialogs for shop, host, settings and the manual. The shared story, party and board live on /screen.
 import { createController } from '../combat/controller.js';
 import { mountDefeatPanel } from '../controller/defeat.js';
 import { mountJournalTab } from '../controller/journal.js';
@@ -12,6 +12,7 @@ import { mountStrip } from '../controller/strip.js';
 import { mountTabs } from '../controller/tabs.js';
 import { mountToast } from '../controller/toast.js';
 import { mountHostGate } from '../host/gate.js';
+import { mountManualPanel } from '../manual/panel.js';
 import { mountSettings } from '../settings/settings.js';
 import { mountSheet } from '../sheet/drawer.js';
 import { mountLevelUp } from '../sheet/levelup.js';
@@ -58,6 +59,7 @@ export function mountController(root, ctx) {
     mountShop(dialogs, ctx),
     mountHostGate(dialogs, ctx),
     mountSettings(dialogs, ctx),
+    mountManualPanel(dialogs, ctx),
     mountDefeatPanel(root, ctx),
     mountVictoryPanel(root, ctx),
     mountScribeBanner(root, ctx),

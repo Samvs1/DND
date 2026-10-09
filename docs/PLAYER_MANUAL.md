@@ -1,0 +1,604 @@
+# Player Manual
+
+Everything you need to play at the table, in plain words. The tables in the Reference part are written by the game from its own data, so they are always right. This manual is also inside the game: open the **More** tab on your phone and press **Player manual**, or open the page `/manual` on any screen.
+
+## 1. Getting started
+
+### What you need
+- One computer runs the game and acts as the server. It is called the host's computer here.
+- A TV or laptop shows the shared screen. Each player uses their own phone (or laptop) as a controller.
+- Everyone must be on the same Wi-Fi network. One to four players can sit at the table.
+- A spoken narrator and music are optional. Without them the game still works, and the story appears as text.
+
+### The two surfaces
+- **The screen** (the page `/screen`) is the table everyone looks at: scene art, the story, the party, the battle board, big dice, who is acting and who is waiting, votes, the narrator's voice and the music.
+- **The phone** (the page `/play`, or just the game address) is your controller. It shows your hero and your buttons. It has five tabs: **Play**, **Hero**, **Journal**, **Scribe** and **More**.
+- There is no single-device mode. To play alone, open the screen in one window and the controller in another.
+
+### Joining
+1. The host starts the game with the LAN option. The screen shows a QR code while seats are free.
+2. Scan the QR code with your phone, or type the address shown on the screen.
+3. Enter your name and press **Join**. The first person in becomes the host. The lobby shows who is at the table.
+4. Everyone builds a hero (see Your hero). When every player has a hero, the host presses **Start the adventure**. The host can type a campaign theme first, or leave it blank for a surprise.
+
+### Reconnecting
+Your seat is kept for you. If your phone sleeps, loses Wi-Fi or you close the page, open the game again in the same browser with the same name and you are back with your hero. If you are away when it is your turn in a fight, the game plays a careful turn for you (see Combat).
+
+### The microphone button
+You can dictate your actions. The microphone button next to **Act** only appears when the page is served over a secure connection (the host starts the game with the HTTPS option) and your browser supports speech input. Your browser will warn once about the certificate: choose Advanced, then continue to the site. Without the button, use the dictation key on your phone keyboard instead.
+
+### Sound
+- The narrator reads the story aloud and music plays. By default **the screen is the audio device**: while a screen is connected, phones stay quiet until you turn sound on.
+- On the **More** tab, the **Screen sound** section changes narrator volume, music volume and mute on the shared screen from your phone. Any seated player can do this, and the last change wins.
+- The **Settings** button on your phone has its own volume and mute for sound played on that phone, plus text speed, text size and a reduce-motion switch.
+- If your browser holds back spoken narration, a banner offers **Enable sound**. Press it once.
+
+## 2. Your hero
+
+Open the hero wizard from the lobby (**Create my hero**). It has ten steps: Race, Class, Background, Abilities, Skills, Equipment, Spells, Portrait, Name and Review (the Spells step only matters for casters). You can go back at any step.
+
+### Races
+Your race sets your size, speed, darkvision, bonuses to ability scores and a few traits. A race with subraces asks you to pick one.
+
+<!-- generated:races -->
+| Race | Size | Speed | Darkvision | Ability bonuses | Subraces | Traits |
+| --- | --- | --- | --- | --- | --- | --- |
+| Dwarf | Medium | 25 ft | 60 ft | CON +2 | Hill Dwarf | darkvision, dwarven resilience, stonecunning, dwarven combat training, tool proficiency |
+| Elf | Medium | 30 ft | 60 ft | DEX +2 | High Elf | darkvision, fey ancestry, trance, keen senses |
+| Halfling | Small | 25 ft | none | DEX +2 | Lightfoot Halfling | brave, halfling nimbleness, lucky |
+| Human | Medium | 30 ft | none | STR +1, DEX +1, CON +1, INT +1, WIS +1, CHA +1 | none | none |
+| Dragonborn | Medium | 30 ft | none | STR +2, CHA +1 | none | draconic ancestry, breath weapon, damage resistance |
+| Gnome | Small | 25 ft | 60 ft | INT +2 | Rock Gnome | darkvision, gnome cunning |
+| Half-Elf | Medium | 30 ft | 60 ft | CHA +2, any 2 others +1 | none | darkvision, fey ancestry, skill versatility |
+| Half-Orc | Medium | 30 ft | 60 ft | STR +2, CON +1 | none | darkvision, savage attacks, relentless endurance, menacing |
+| Tiefling | Medium | 30 ft | 60 ft | INT +1, CHA +2 | none | darkvision, hellish resistance, infernal legacy |
+<!-- end generated:races -->
+
+### Classes
+There are six classes. Your class sets your hit die (how tough you are), the abilities that matter for you, your saving throw proficiencies and the gear you can use.
+
+<!-- generated:classes -->
+| Class | Hit die | Main abilities | Saving throws | Armour | Weapons | Spellcasting |
+| --- | --- | --- | --- | --- | --- | --- |
+| Fighter | d10 | STR/DEX | STR/CON | all armor, shields | simple weapons, martial weapons | none |
+| Rogue | d8 | DEX | DEX/INT | light armor | simple weapons, longswords, rapiers, shortswords, hand crossbows | none |
+| Wizard | d6 | INT | INT/WIS | none | daggers, darts, slings, quarterstaffs, crossbows light | INT (prepared, from level 1) |
+| Cleric | d8 | WIS | WIS/CHA | light armor, medium armor, shields | simple weapons | WIS (prepared, from level 1) |
+| Ranger | d10 | DEX/WIS | STR/DEX | light armor, medium armor, shields | simple weapons, martial weapons | WIS (known, from level 2) |
+| Warlock | d8 | CHA | WIS/CHA | light armor | simple weapons | CHA (pact, from level 1) |
+<!-- end generated:classes -->
+
+### Backgrounds
+Your background gives two skills, sometimes a tool, some gear and a purse of starting gold.
+
+<!-- generated:backgrounds -->
+| Background | Skills | Tools | Starting gold | In a few words |
+| --- | --- | --- | --- | --- |
+| Acolyte | insight, religion | none | 15 gp | You tended a shrine for years and still reach for a prayer when the road gets dark. |
+| Soldier | athletics, intimidation | dice set | 10 gp | Barracks drills taught you to hold a line, and the habit of watching exits never left. |
+| Criminal | deception, stealth | thieves tools | 15 gp | You made a living in back alleys and know which doors stay unlocked for the right coin. |
+| Sage | arcana, history | none | 10 gp | Years among dusty shelves left you with more questions than answers, and a hunger to test them. |
+| Folk Hero | animal handling, survival | smiths tools | 10 gp | One brave stand made your village sing your name, and now the crowds expect more of you. |
+| Noble | history, persuasion | playing card set | 25 gp | You grew up behind high walls and fine manners, and you are still learning what the world costs. |
+| Outlander | athletics, survival | drum | 10 gp | The wilds raised you, and a crowded market feels stranger to you than any forest at night. |
+| Entertainer | acrobatics, performance | disguise kit, lute | 15 gp | You have worked every kind of crowd, and you know exactly how a good story lands. |
+<!-- end generated:backgrounds -->
+
+### Ability scores
+You have six abilities: STR, DEX, CON, INT, WIS and CHA. Pick one of three methods:
+- **Point buy**: 27 points to spend. Every score starts at 8 and can go up to 15 before your race adds its bonuses. A score of 13 costs 5 points in total, 14 costs 7 and 15 costs 9. You do not have to spend every point.
+- **Standard array**: assign 15, 14, 13, 12, 10 and 8 to your six abilities, one each.
+- **Roll 4d6**: the game rolls four dice for each score and drops the lowest die. You then assign the six totals to your abilities.
+
+Your race bonuses are added after that. Each ability has a modifier (the score minus 10, halved, rounded down). Your proficiency bonus is +2 at levels 1 to 4 and +3 at level 5.
+
+### Skills
+There are 18 skills, each tied to an ability. Your background gives you two. Your class lets you pick more from its own list, and some races add a pick. You cannot pick a skill you already have. A skill check adds your ability modifier, plus your proficiency bonus if you are proficient. A rogue's Expertise doubles the proficiency bonus on two skills.
+
+### Equipment
+You get the gear your background lists and your class's starting kit, and your class lets you choose between a few packages. The wizard shows what each choice contains. You can change your equipment later on the Hero tab (outside fights).
+
+### Spells
+Casters pick their cantrips and first spells in the wizard. Only spells the game can run are offered (the full list is in the Reference part).
+- **Wizard**: a spellbook of 6 first-level spells, and you prepare spells from it. Prepared spells are your spellcasting modifier plus your wizard level, at least 1.
+- **Cleric**: you prepare from the whole cleric list, with the same limit. Your Life domain spells are always prepared and do not count against it.
+- **Ranger**: starts casting at level 2 and knows a fixed number of spells.
+- **Warlock**: knows a fixed number of spells and uses a few Pact Magic slots that come back on a short rest.
+- **Fighter and rogue** do not cast spells.
+
+### Portrait and name
+Pick a face for your hero, enter a name and pronouns, and write a short backstory if you like (optional). The Review step shows your hit points, armour class, speed and attacks. When you are ready, press **Create hero**.
+
+### Hero files
+On the More tab, **Export hero file** saves your hero as a file. In the wizard, **Import a saved hero** loads one, so you can bring a hero to another adventure. If a file cannot be used, the wizard tells you what is wrong.
+
+### A new hero later
+If your hero is lost for good, you can make a new one between scenes (not during a fight). You cannot make a second hero while your first is alive.
+
+## 3. Playing the story
+
+### Typing your action
+On the **Play** tab, type what your hero does in plain words and press **Act**. You can also dictate. The Dungeon Master (an AI storyteller) reads it, decides what is needed and narrates the result. Your phone shows the last line of the story (tap it to read more) and a small note with your own dice. The full story and every roll are on the screen.
+
+### The action queue
+Actions are handled one at a time, in the order they were sent. You may have one action waiting at a time. The screen shows who is typing, who is acting now and who is next. Your phone shows **Waiting (n)** while your action is in line. If the storyteller stumbles, you see a plain in-story fallback instead of an error.
+
+### What the Dungeon Master can and cannot do
+The storyteller describes the world and decides what happens, but it only does so by asking the game engine. **The engine owns every number**: difficulty, damage, hit points, spell slots, experience and gold. The storyteller cannot make up a damage total, hand out treasure beyond the rules, or invent things that were never introduced. If you try something clever, the engine rolls for it. Actions that cannot be undone, such as attacking someone friendly, ask you to confirm first (**Are you sure?**).
+
+### Checks and difficulty
+When the outcome is uncertain, you roll a d20, add your modifier and compare it with a difficulty number (DC) the engine picks from a fixed ladder:
+
+| Difficulty | DC |
+| --- | --- |
+| Trivial | 5 |
+| Easy | 10 |
+| Medium | 15 |
+| Hard | 20 |
+| Very hard | 25 |
+| Nearly impossible | 30 |
+
+- A natural 20 on an ability or skill check always succeeds and a natural 1 always fails.
+- Saving throws compare the total only. Spell save DC is 8 + proficiency bonus + your casting modifier.
+- **Advantage** means you roll two d20 and keep the higher. **Disadvantage** keeps the lower. They cancel each other out.
+- Passive Perception is 10 plus your Perception bonus.
+- The big dice on the screen show what was rolled, what it was against, and whether it was a success, failure or critical.
+
+### Trouble ahead
+When the party arrives somewhere dangerous, the game warns you first and nothing starts without a choice. The screen shows who you face and how hard the fight looks (easy, medium, hard or deadly). You choose:
+- **Fight**: the fight begins.
+- **Ambush them**: the whole party rolls Stealth. If at least half succeed, the foes are surprised. The fight starts either way.
+- **Slip away**: each hero rolls the better of Stealth and Athletics. If at least half succeed, the party goes back to where it came from and there is no fight. If not, the fight begins.
+- **Parley**: one hero tries to talk (Persuasion, or Intimidation). On a success there is no fight. On a failure the fight begins.
+
+The place you arrive at is always safe. A fight is never started by a timer.
+
+### Votes
+Some things need the whole table: **travelling**, **resting** (short or long) and **browsing a shop**. When someone asks, a vote opens on every phone and on the screen.
+- Each player presses **Ready** or **Not yet**. The person who asked counts as ready.
+- It passes as soon as more than half are ready and fails as soon as half or more decline.
+- If time runs out (30 seconds), it passes when more are ready than declined. Silence does not block the table.
+- Only connected players with a living hero vote. The host can press **Host: decide now** to force the open vote.
+
+### The map and travel
+The **Journal** tab has a **Map** section. It shows the region as places you can visit, with your current place marked and unexplored places in fog. Some places are locked until something happens in the story. Choose a place and press **Travel to** it: the table votes. You cannot travel during a fight. Arriving may start a story scene or a warning (see Trouble ahead).
+
+### Rests
+Rests also need a vote and happen between fights.
+- **Short rest**: every living hero regains half of their maximum hit points (a hero at 0 HP wakes up), and abilities that come back on a short rest are restored. You can take at most two short rests between long rests.
+- **Long rest**: every living hero returns to full hit points and regains all spell slots and abilities. Temporary hit points and short effects end, and death save counts reset. A long rest costs **10 camp supplies for each living hero**. If the party does not have enough, it is refused.
+- **Camp supplies** are shared by the whole party. The party starts with 40. Buy rations, baskets, stew kits and hampers in shops, or find them as loot. Fallen heroes are not revived by resting and do not pay.
+
+### Shops
+When the table agrees to browse a shop, your phone opens the shop. Every player trades for themselves with their own gold.
+- **For sale** lists what the trader sells. **Your pack** lists what you can sell.
+- A trader sells different things depending on their trade.
+- You cannot sell what you are wearing or wielding: take it off first.
+
+<!-- generated:shop_rules -->
+- You buy at 100% of an item's value, rounded up, never less than 1 gp.
+- A shop buys from you at 50% of the value, rounded down.
+- You can trade up to 10 of an item at a time.
+- A trader whose trade is unclear counts as a general shop.
+
+Kinds of shop:
+
+- **General** sells gear, tool, supply, key, potion (about 14 items).
+- **Smith** sells weapon, armor (about 14 items).
+- **Alchemist** sells potion, supply (about 8 items).
+- **Scribe** sells scroll (about 10 items).
+- **Provisioner** sells supply, gear (about 8 items).
+<!-- end generated:shop_rules -->
+
+Things you can buy that matter most:
+
+<!-- generated:consumables -->
+| Item | Kind | Effect | Price |
+| --- | --- | --- | --- |
+| Potion of Healing | potion | heals 2d4+2 | 50 gp |
+| Potion of Greater Healing | potion | heals 4d4+4 | 150 gp |
+| Potion of Superior Healing | potion | heals 8d4+8 | 500 gp |
+| Potion of Supreme Healing | potion | heals 10d4+20 | 1500 gp |
+| Herbal Poultice | potion | heals 1d4+1 | 10 gp |
+| Traveller's Tonic | potion | heals 2d4 | 25 gp |
+| Restorative Draught | potion | heals 3d4+3 | 100 gp |
+| Healer's Elixir | potion | heals 6d4+6 | 300 gp |
+| Camp Ration | supply | adds 1 camp supply | 0.5 gp |
+| Hearty Meal Basket | supply | adds 3 camp supplies | 1.5 gp |
+| Stew Kit | supply | adds 5 camp supplies | 2.5 gp |
+| Feast Hamper | supply | adds 10 camp supplies | 6 gp |
+<!-- end generated:consumables -->
+
+### Loot and gold
+After a victory the party's loot is gathered into one reward: experience for every living hero, gold shared out evenly (any remainder goes to the first heroes), items handed out in turn, and any camp supplies found go to the shared pool. Gold is kept per hero and shows on your sheet. Quests pay gold and experience when they are completed, and reaching new places and clearing them can pay experience too.
+
+### Quests and the journal
+The **Journal** tab lists quests as Active, Offered, Completed or Failed, with who gave each one and the current objective. It also keeps what is known so far and earlier scenes. Nothing here changes by itself: it only records what happened.
+
+### Your hero's sheet
+The **Hero** tab shows hit points, armour class, speed, initiative, proficiency, passive Perception, abilities, saving throws, skills, attacks, features, conditions and resources. Its **Inventory** section lets you equip, unequip, drop and use items. **Spellbook** shows your slots and spells. Gear changes wait until a fight ends. Potions are drunk from the hotbar in a fight.
+
+## 4. Combat
+
+### How a fight is laid out
+There is no grid. The battlefield is a handful of **zones** (a bridge, a courtyard, a ledge), joined by edges that have a distance in feet. Moving inside a zone is free. Moving to another zone costs the distance of the edge, and **twice as much** if the zone you enter is rough ground. You can only move as far as your speed allows each turn.
+
+Three things about where you stand:
+- **Range** works in zones. A range of 10 feet or less (melee, touch, self) means the same zone. Up to 60 feet reaches one zone away, and anything longer reaches two zones away. Shooting beyond a weapon's normal range is done at disadvantage.
+- **Cover**: a ranged attack from another zone into a zone with half cover gives the target +2 AC, and three-quarters cover gives +5 AC. Melee and same-zone attacks ignore cover.
+- **High ground**: when you attack from high ground and the target is not on it, you have advantage. A ranged attacker below a target on high ground has disadvantage. In the same zone, nothing changes.
+
+### Initiative and turns
+At the start of a fight everyone rolls initiative: a d4 plus the Dexterity modifier (as in the video game). The turn order appears on the screen. If a side was surprised, its creatures lose their first turn. Heroes who are down keep their place in the order.
+
+### Your turn
+When it is your turn, your phone says **Your turn** and the hotbar is active. Each turn you have:
+- one **action**, one **bonus action** and one **reaction** (shown on the hotbar),
+- **movement** up to your speed in feet,
+- the option to describe something creative in the free-text box (see Suggestions).
+
+The reaction is shown for completeness, but no reaction abilities work in this version.
+
+You have 90 seconds for your turn. If time runs out, or your player is away, the game plays a careful turn for you: it moves toward your allies if you are away from them, or else takes the Dodge action, and then ends your turn.
+
+### The hotbar
+- Buttons are numbered. On a keyboard, **keys 1 to 9** use the numbered slots on your turn, and **Esc** cancels an aim.
+- Pick a **target chip** (name and health: Unhurt, Wounded, Bloodied, Fallen, Fled). Attacks then show your **chance to hit** and the chance of a critical hit against that target's armour class, and whether you have advantage or disadvantage.
+- Sections: **Attacks**, **Spells**, **Actions**, **Bonus actions**, **Items** and **Class features**.
+
+### Attacks
+An attack roll is a d20 plus your attack bonus against the target's armour class (AC). A natural 1 always misses. A natural 20 is a critical hit and doubles the damage dice. A fighter with Improved Critical crits on a lower number.
+- Fighters and rangers attack more than once per action once they have **Extra Attack** (level 5). Your first attack spends the action and leaves the others available.
+- An **off-hand attack** with a second weapon is a bonus action. It adds no positive ability bonus to damage unless you have the Two-Weapon Fighting style.
+- A rogue's **Sneak Attack** adds extra damage once per turn with a finesse or ranged weapon when you have advantage, or when an ally who can act is next to the target and you do not have disadvantage. It is 1d6 at level 1, 2d6 at level 3 and 3d6 at level 5.
+
+### Other actions
+These are the actions on the hotbar:
+- **Move to**: walk to a neighbouring zone (shows the cost in feet).
+- **Dash**: adds your speed again to your movement this turn.
+- **Disengage**: marks you as having disengaged. No free attacks are made when you leave, so this rarely matters in this version.
+- **Dodge**: attacks against you have disadvantage until the start of your next turn.
+- **Hide**: roll Stealth against the best Perception of the standing enemies. You stay hidden until you attack.
+- **Help**: an ally in your zone gets advantage on their next attack or check.
+- **Throw**: hurl a weapon or a nearby object.
+- **Shove** (bonus action): in your zone, knock a foe prone or push them to another zone. They can be at most one size larger than you, they roll Athletics or Acrobatics (the better one) and you must beat that.
+- **Jump** (bonus action): leap to a neighbouring zone, ignoring rough ground.
+- **Flee**: leave the fight from a zone where no enemy stands. It is refused when an enemy is in your zone. You are then out of the fight. If everyone else falls, the party counts as having fled rather than as defeated.
+- **Use item**: drinking a potion, or giving one to an ally in your zone, is a bonus action. It is refused (and nothing is used) if the target is at full health or dead.
+
+### Spells and slots
+Pick **Spells**, choose a spell, then choose its target or the zone. Casting a spell uses your action or bonus action depending on the spell. A bonus-action spell does not stop you from casting an action spell on the same turn.
+- **Cantrips** cost nothing. They get stronger at character level 5.
+- Levelled spells use a **slot** of that level (or a higher one for a stronger effect). Slots come back on a long rest. Warlock pact slots come back on a short rest too.
+- **Concentration**: you can concentrate on one spell at a time, and casting another concentration spell ends the first. It also ends if you are knocked out or incapacitated, or if you fail a Constitution save. You make that save each time you take damage, against a DC of 10 or half the damage, whichever is higher.
+- Area spells hit everyone in the chosen zone, **friends included** (never the caster). One damage roll counts for all, and each target saves on their own.
+- Spell attacks use your proficiency bonus plus your casting modifier.
+
+### Class features
+The hotbar lists your class features that can be used:
+- **Second Wind** (fighter): bonus action, heals 1d10 plus your level, once per short rest.
+- **Action Surge** (fighter): gives one extra action, once per short rest.
+- **Cunning Action** (rogue): Dash, Disengage or Hide as a bonus action.
+- **Arcane Recovery** (wizard): after a short rest, regain spent slots that add up to half your wizard level (rounded up), none higher than 5th.
+- **Channel Divinity: Turn Undead** (cleric): turns undead creatures nearby.
+- **Dark One's Blessing** (warlock fiend): temporary hit points when you drop a foe.
+- Races add their own features, for example the dragonborn **Breath Weapon**, the halfling's **Lucky** (a natural 1 is rerolled once) and the half-orc's **Savage Attacks**.
+
+Some features appear on the sheet but cannot be used at the table yet; they are marked with an asterisk in the class table below.
+
+### Features by level
+
+<!-- generated:class_features -->
+| Class | Level 1 | Level 2 | Level 3 | Level 4 | Level 5 |
+| --- | --- | --- | --- | --- | --- |
+| Fighter | Fighting Style, Second Wind | Action Surge | Martial Archetype, Improved Critical | Ability Score Improvement | Extra Attack |
+| Rogue | Expertise, Sneak Attack, Thieves' Cant | Cunning Action | Roguish Archetype, Fast Hands, Second-Story Work* | Ability Score Improvement | Uncanny Dodge* |
+| Wizard | Spellcasting, Arcane Recovery, Scroll Copying | Arcane Tradition, Evocation Savant, Sculpt Spells* | - | Ability Score Improvement | - |
+| Cleric | Spellcasting, Divine Domain, Domain Spells, Bonus Proficiency, Disciple of Life | Channel Divinity, Channel Divinity: Turn Undead, Divine Domain Feature, Channel Divinity: Preserve Life* | Domain Spells | Ability Score Improvement | Domain Spells, Destroy Undead* |
+| Ranger | Favored Enemy*, Natural Explorer* | Fighting Style, Spellcasting | Ranger Archetype, Primeval Awareness*, Hunter's Prey | Ability Score Improvement | Extra Attack |
+| Warlock | Otherworldly Patron, Pact Magic, Pact Slot Recovery, Dark One's Blessing | Eldritch Invocations* | Pact Boon* | Ability Score Improvement | - |
+
+An asterisk marks a feature that is on the sheet but that the table cannot use yet.
+<!-- end generated:class_features -->
+
+### Surfaces
+Spells, fire, oil and the like leave **surfaces** in a zone. Surfaces act when you enter them or at the start of your turn. They are shown on the board. A surface that lasts a number of rounds ticks down; the rest stay until removed.
+
+<!-- generated:surfaces -->
+| Surface | Lasts | Effect |
+| --- | --- | --- |
+| Fire | 3 rounds | on entering, at the start of a turn: 1d4 fire damage |
+| Oil | until removed | rough ground (entering costs double movement) |
+| Rubble | until removed | rough ground (entering costs double movement) |
+| Grease | 10 rounds | rough ground (entering costs double movement); when it appears, on entering, at the start of a turn: DEX save DC 12, prone on a failed save |
+| Water | until removed | no effect of its own |
+| Ice | until removed | rough ground (entering costs double movement); on entering, at the start of a turn: DEX save DC 10, prone on a failed save |
+| Poison Cloud | 3 rounds | on entering, at the start of a turn: CON save DC 12, 1d6 poison damage and poisoned for 1 round on a failed save |
+| Steam | 2 rounds | no effect of its own |
+| Web | until removed | rough ground (entering costs double movement); when it appears, on entering, at the start of a turn: DEX save DC 12, restrained while inside on a failed save |
+| Fog | until removed | when it appears, on entering, at the start of a turn: blinded while inside |
+| Magical Darkness | until removed | when it appears, on entering, at the start of a turn: blinded while inside |
+| Stinking Cloud | until removed | when it appears, on entering, at the start of a turn: blinded while inside; at the start of a turn: CON save DC 12, nauseated for 1 round on a failed save |
+| Sleet Storm | until removed | rough ground (entering costs double movement); when it appears, on entering, at the start of a turn: blinded while inside; on entering, at the start of a turn: DEX save DC 12, prone on a failed save |
+| Silence | until removed | when it appears, on entering, at the start of a turn: silenced while inside |
+| Spike Growth | until removed | rough ground (entering costs double movement); on entering: 4d4 piercing damage |
+| Spirit Guardians | until removed | only hurts the caster's enemies; moves with the caster; on entering, at the start of a turn: WIS save DC 12, 3d8 radiant damage, half damage on a success |
+<!-- end generated:surfaces -->
+
+Surfaces can combine:
+
+<!-- generated:surface_mixes -->
+- Fire meets Oil: Oil is used up; DEX save DC 12, 2d6 fire damage, half damage on a success
+- Oil takes fire damage: becomes Fire; DEX save DC 12, 2d6 fire damage, half damage on a success
+- Fire meets Grease: Grease is used up; DEX save DC 12, 2d6 fire damage, half damage on a success
+- Grease takes fire damage: becomes Fire; DEX save DC 12, 2d6 fire damage, half damage on a success
+- Fire meets Web: Web is used up; 2d4 fire damage
+- Web takes fire damage: Web is used up; 2d4 fire damage
+- Water takes lightning damage: CON save DC 12, 1d4 lightning damage and shocked for 1 round on a failed save
+- Water takes cold damage: becomes Ice
+- Fire meets Water: becomes Steam
+- Fire meets Ice: becomes Steam
+- Water takes fire damage: becomes Steam
+- Ice takes fire damage: becomes Steam
+- Fire meets Sleet Storm: Fire is used up
+<!-- end generated:surface_mixes -->
+
+### Conditions
+Conditions are shown on tokens and on your sheet.
+
+<!-- generated:conditions -->
+| Condition | What it does |
+| --- | --- |
+| Blinded | Its attacks have disadvantage; attacks against it have advantage. |
+| Charmed | Cannot attack whoever charmed it. |
+| Deafened | No numbers of its own: the Dungeon Master plays it out. |
+| Exhaustion | Its ability checks have disadvantage; lasts until a long rest. |
+| Frightened | Its attacks have disadvantage; its ability checks have disadvantage. |
+| Grappled | Cannot move. |
+| Incapacitated | Cannot take actions; cannot take reactions. |
+| Invisible | Its attacks have advantage; attacks against it have disadvantage. |
+| Paralyzed | Attacks against it have advantage; melee hits against it are critical hits; automatically fails STR/DEX saves; cannot move; also counts as incapacitated. |
+| Petrified | Attacks against it have advantage; automatically fails STR/DEX saves; cannot move; resists all damage; immune to poison damage; also counts as incapacitated. |
+| Poisoned | Its attacks have disadvantage; its ability checks have disadvantage. |
+| Prone | Its attacks have disadvantage; melee attacks against it have advantage; ranged attacks against it have disadvantage. |
+| Restrained | Its attacks have disadvantage; attacks against it have advantage; disadvantage on DEX saves; cannot move. |
+| Stunned | Attacks against it have advantage; automatically fails STR/DEX saves; cannot move; also counts as incapacitated. |
+| Unconscious | Attacks against it have advantage; melee hits against it are critical hits; automatically fails STR/DEX saves; cannot move; also counts as incapacitated. |
+| Dodging | Attacks against it have disadvantage; advantage on DEX saves; lasts 1 round. |
+| Hidden | Its attacks have advantage; attacks against it have disadvantage; ends after its next attack. |
+| Surprised | Cannot move; cannot take actions; cannot take reactions; lasts 1 round. |
+| Helped | Its attacks have advantage; its ability checks have advantage; ends after its next attack; lasts 1 round. |
+| Blessed | 1d4 on attack rolls; 1d4 on saving throws. |
+| Shield of Faith | +2 AC. |
+| Chilled | Speed is 67%. |
+| Shocked | Cannot take reactions. |
+| True Strike | Its attacks have advantage; ends after its next attack. |
+| Guided | Attacks against it have advantage. |
+| Mage Armor | +3 AC. |
+| Blurred | Attacks against it have disadvantage. |
+| Invisibility | Its attacks have advantage; attacks against it have disadvantage; ends after its next attack. |
+| Slowed | Speed is 50%; cannot take reactions; -2 AC. |
+| Nauseated | Cannot take actions; cannot take reactions; lasts 1 round. |
+| Guidance | 1d4 on ability checks. |
+| Resistance | 1d4 on saving throws. |
+| Bane | -1d4 on attack rolls; -1d4 on saving throws. |
+| Longstrider | +10 ft speed. |
+| Barkskin | AC is at least 16. |
+| Poison Ward | Resists poison damage. |
+| Hunter's Mark | The caster's weapon hits on it add 1d6. |
+| Expeditious Retreat | Can dash as a bonus action. |
+| Asleep | Ends when it takes damage; also counts as unconscious. |
+| Silenced | Immune to thunder damage; cannot cast spells with spoken parts; also counts as deafened. |
+| Turned | Cannot take actions; cannot take reactions; ends when it takes damage; also counts as frightened. |
+<!-- end generated:conditions -->
+
+### Suggestions
+When it is not your turn, you can **suggest a move** to the active hero. It is only a hint: they decide. The suggestion appears on their phone. You can also type something creative for your own turn in the free-text box (**Or describe something creative**), and the game works out what it means.
+
+### Monster behaviour and loot
+Monsters have a fixed number of hit points. The host can scale monster health and damage (see For the host). Each defeated foe adds to the loot of the fight, and the experience of every defeated foe is split evenly among the living heroes.
+
+### Ending a fight
+A fight ends in **victory** when no hostile creature is left standing, in **defeat** when no hero can act, or when the party has fled. When it ends, effects that last a number of rounds end, and the story continues.
+
+## 5. Spells and levelling
+
+### Spell slots by level
+Casters get more cantrips, spells and slots as they level up.
+
+<!-- generated:spell_slots -->
+| Class | Level | Cantrips | Spells known | Spell slots |
+| --- | --- | --- | --- | --- |
+| Wizard | 1 | 3 | prepared | L1: 2 |
+| Wizard | 2 | 3 | prepared | L1: 3 |
+| Wizard | 3 | 3 | prepared | L1: 4, L2: 2 |
+| Wizard | 4 | 4 | prepared | L1: 4, L2: 3 |
+| Wizard | 5 | 4 | prepared | L1: 4, L2: 3, L3: 2 |
+| Cleric | 1 | 3 | prepared | L1: 2 |
+| Cleric | 2 | 3 | prepared | L1: 3 |
+| Cleric | 3 | 3 | prepared | L1: 4, L2: 2 |
+| Cleric | 4 | 4 | prepared | L1: 4, L2: 3 |
+| Cleric | 5 | 4 | prepared | L1: 4, L2: 3, L3: 2 |
+| Ranger | 1 | 0 | 0 | none |
+| Ranger | 2 | 0 | 2 | L1: 2 |
+| Ranger | 3 | 0 | 3 | L1: 3 |
+| Ranger | 4 | 0 | 3 | L1: 3 |
+| Ranger | 5 | 0 | 4 | L1: 4, L2: 2 |
+| Warlock | 1 | 2 | 2 | 1 pact slots of level 1 |
+| Warlock | 2 | 2 | 3 | 2 pact slots of level 1 |
+| Warlock | 3 | 2 | 4 | 2 pact slots of level 2 |
+| Warlock | 4 | 3 | 5 | 2 pact slots of level 2 |
+| Warlock | 5 | 3 | 6 | 2 pact slots of level 3 |
+<!-- end generated:spell_slots -->
+
+### Levelling up
+- The game goes up to **level 5**. The experience you need: 300 for level 2, 900 for level 3, 2,700 for level 4 and 6,500 for level 5. Experience keeps counting after that.
+- When you have enough, the phone shows **Level up!** and the Hero tab shows **Choose level-up options**. A level-up is always your choice: it never happens by itself.
+- In the dialog you pick what your class asks for at that level: a new path (subclass) at the right level, new spells (and for a known-spell caster, one spell may be swapped), and at level 4 an **ability score improvement**: +2 to one ability or +1 to two, never above 20.
+- Your maximum hit points rise by a fixed average for your hit die (half the die plus one) plus your Constitution modifier. You are not healed by levelling. A hero who is down or dead cannot level up.
+- Spell slots you already spent stay spent when your slots grow.
+- A wizard can add two spells to their spellbook per level, and can copy a spell from a scroll for 50 gold per spell level.
+
+### Spell list
+
+<!-- generated:spells -->
+| Spell | Level | School | Casting time | Range | Concentration | Classes |
+| --- | --- | --- | --- | --- | --- | --- |
+| Acid Splash | Cantrip | conjuration | action | 60 ft | no | wizard |
+| Chill Touch | Cantrip | necromancy | action | 120 ft | no | warlock, wizard |
+| Eldritch Blast | Cantrip | evocation | action | 120 ft | no | warlock |
+| Fire Bolt | Cantrip | evocation | action | 120 ft | no | wizard |
+| Guidance | Cantrip | divination | action | touch | yes | cleric |
+| Poison Spray | Cantrip | conjuration | action | 10 ft | no | warlock, wizard |
+| Ray of Frost | Cantrip | evocation | action | 60 ft | no | wizard |
+| Resistance | Cantrip | abjuration | action | touch | yes | cleric |
+| Sacred Flame | Cantrip | evocation | action | 60 ft | no | cleric |
+| Shocking Grasp | Cantrip | evocation | action | touch | no | wizard |
+| Spare the Dying | Cantrip | necromancy | action | touch | no | cleric |
+| True Strike | Cantrip | divination | action | self | yes | warlock, wizard |
+| Animal Friendship | 1 | enchantment | action | 30 ft | no | ranger |
+| Bane | 1 | enchantment | action | 30 ft | yes | cleric |
+| Bless | 1 | enchantment | action | 30 ft | yes | cleric |
+| Burning Hands | 1 | evocation | action | self | no | wizard |
+| Charm Person | 1 | enchantment | action | 30 ft | no | warlock, wizard |
+| Color Spray | 1 | illusion | action | self | no | wizard |
+| Cure Wounds | 1 | evocation | action | touch | no | cleric, ranger |
+| Expeditious Retreat | 1 | transmutation | bonus action | self | yes | warlock, wizard |
+| False Life | 1 | necromancy | action | self | no | wizard |
+| Fog Cloud | 1 | conjuration | action | 120 ft | yes | ranger, wizard |
+| Grease | 1 | conjuration | action | 60 ft | no | wizard |
+| Guiding Bolt | 1 | evocation | action | 120 ft | no | cleric |
+| Healing Word | 1 | evocation | bonus action | 60 ft | no | cleric |
+| Hideous Laughter | 1 | enchantment | action | 30 ft | yes | wizard |
+| Hunter's Mark | 1 | divination | bonus action | 90 ft | yes | ranger |
+| Inflict Wounds | 1 | necromancy | action | touch | no | cleric |
+| Longstrider | 1 | transmutation | action | touch | no | ranger, wizard |
+| Mage Armor | 1 | abjuration | action | touch | no | wizard |
+| Magic Missile | 1 | evocation | action | 120 ft | no | wizard |
+| Shield of Faith | 1 | abjuration | bonus action | 60 ft | yes | cleric |
+| Sleep | 1 | enchantment | action | 90 ft | no | wizard |
+| Thunderwave | 1 | evocation | action | self | no | wizard |
+| Acid Arrow | 2 | evocation | action | 90 ft | no | wizard |
+| Aid | 2 | abjuration | action | 30 ft | no | cleric |
+| Barkskin | 2 | transmutation | action | touch | yes | ranger |
+| Blindness/Deafness | 2 | necromancy | action | 30 ft | no | cleric, wizard |
+| Blur | 2 | illusion | action | self | yes | wizard |
+| Darkness | 2 | evocation | action | 60 ft | yes | warlock, wizard |
+| Hold Person | 2 | enchantment | action | 60 ft | yes | cleric, warlock, wizard |
+| Invisibility | 2 | illusion | action | touch | yes | warlock, wizard |
+| Lesser Restoration | 2 | abjuration | action | touch | no | cleric, ranger |
+| Misty Step | 2 | conjuration | bonus action | 30 ft | no | warlock, wizard |
+| Prayer of Healing | 2 | evocation | minutes | 30 ft | no | cleric |
+| Protection from Poison | 2 | abjuration | action | touch | no | cleric, ranger |
+| Scorching Ray | 2 | evocation | action | 120 ft | no | wizard |
+| Shatter | 2 | evocation | action | 60 ft | no | warlock, wizard |
+| Silence | 2 | illusion | action | 120 ft | yes | cleric, ranger |
+| Spike Growth | 2 | transmutation | action | 150 ft | yes | ranger |
+| Web | 2 | conjuration | action | 60 ft | yes | wizard |
+| Fear | 3 | illusion | action | self | yes | warlock, wizard |
+| Fireball | 3 | evocation | action | 150 ft | no | wizard |
+| Hypnotic Pattern | 3 | illusion | action | 120 ft | yes | warlock, wizard |
+| Lightning Bolt | 3 | evocation | action | self | no | wizard |
+| Mass Healing Word | 3 | evocation | bonus action | 60 ft | no | cleric |
+| Revivify | 3 | conjuration | action | touch | no | cleric |
+| Sleet Storm | 3 | conjuration | action | 150 ft | yes | wizard |
+| Slow | 3 | transmutation | action | 120 ft | yes | wizard |
+| Spirit Guardians | 3 | conjuration | action | self | yes | cleric |
+| Stinking Cloud | 3 | conjuration | action | 90 ft | yes | wizard |
+<!-- end generated:spells -->
+
+## 6. When a hero falls
+
+### Zero hit points
+When a hero drops to 0 hit points they fall unconscious and start **dying**. Monsters and companions who reach 0 hit points die immediately.
+
+If a single hit leaves damage over after reaching 0 that is at least your maximum hit points, you die at once.
+
+### Death saves
+At the start of each of your turns while dying, you roll a d20 against a **DC of 10**:
+- 10 or more: one success. Under 10: one failure.
+- A natural 20: you get up with 1 hit point. A natural 1 counts as two failures.
+- **Three successes** and you are **stable**: still at 0 hit points and out cold, but no longer rolling. **Three failures** and the hero **dies**.
+- Taking damage while at 0 is one failure (two for a critical hit). Damage that is at least your maximum hit points kills outright.
+- Healing a dying hero brings them back up and clears their counts. Healing words, potions and **Spare the Dying** (which stabilises) all work. **Revivify** brings back a hero who has died.
+
+While you are down, your phone says **You are down**. Your companions carry on.
+
+### A hero who has died
+A dead hero is out of the story unless the party revives them. Outside a fight, **the Scribe** can do it for gold (see The Scribe). A player whose hero is lost for good can make a new hero between scenes.
+
+### Defeat
+The party is defeated when every hero is dead, or when no hero can act (all at 0 hit points or dead) and no ally can help. The screen shows **Defeat** and the checkpoint it will return to, and phones are locked. **The host** (or the only player) chooses:
+- **Retry from the last checkpoint**: the game goes back to the last checkpoint (the moment you arrived somewhere, or the start of a fight). The dice are rolled again, so the same fight can end differently.
+- **Load a save**: pick a saved campaign.
+- **New adventure**: start over.
+
+Checkpoints are made automatically when you arrive somewhere new and when a fight starts. The newest few are kept.
+
+## 7. The Scribe
+
+### Who he is
+The Scribe is a quiet keeper of a ledger in which every tale is written. He speaks rarely, in a warm, calm and gently amused voice, and he believes some tales may yet be amended. He has no fixed place; he is there when the table needs him.
+
+### When he speaks
+A short welcome when the adventure begins, a welcome back when you return, a brief line when a hero is rewritten, and a line when the campaign is won. The host can skip his speeches. If he refuses, his reason is shown as text on your phone.
+
+### Rewriting a fallen hero
+On the **Scribe** tab you can see fallen heroes (dead heroes, not ones at 0 hit points who are still alive). A standing hero pays the Scribe to rewrite a fallen hero into the story. Rules:
+- Only **outside combat**.
+- The price is **25 gp per level** of the fallen hero.
+- **You pay from your own hero's gold.** You must be standing yourself.
+- The rewritten hero comes back with **half of their maximum hit points** (rounded up), their death saves reset and their conditions cleared (exhaustion stays).
+
+<!-- generated:scribe_prices -->
+| Level of the fallen hero | Price |
+| --- | --- |
+| 1 | 25 gp |
+| 2 | 50 gp |
+| 3 | 75 gp |
+| 4 | 100 gp |
+| 5 | 125 gp |
+<!-- end generated:scribe_prices -->
+
+### When he says no
+- A fight is under way, the party has been defeated, or the game is paused.
+- Nobody has fallen.
+- The hero you chose has not fallen (a hero at 0 hit points who is alive is not fallen).
+- Your own hero is down: a standing hero must pay.
+- You do not have enough gold.
+
+Nothing is spent on a refusal.
+
+## 8. For the host
+
+### Starting and hosting
+- Start the server with the LAN option so phones can join. Add the HTTPS option to enable the microphone button. The first browser to join becomes the host.
+- Windows may ask whether Python may accept connections: allow it on private networks.
+- The game needs a DeepSeek key for the live Dungeon Master and a Fish Audio key for the voice, both optional. Without keys the game still plays with a built-in fallback storyteller.
+
+### Host controls
+Open **More**, then **Host panel** (only the host sees it).
+- **Pause the game / Resume the game**: no turns or actions are handled while paused. Timers wait.
+- **Force the open vote**: pass the current vote.
+- **Kick**: remove a player (asks first).
+- **Monster health** and **Monster damage** multipliers: from x0.25 to x3. The health change applies to monsters that appear from then on.
+- **Spoken narration**: switch the voice on or off.
+- **Save now**, **Load**, **New campaign** and **End the session**. Loading or starting new saves the current game first.
+- **Storyteller usage**: the number of calls and tokens used.
+- After a defeat, only the host (or a lone player) chooses what happens.
+
+### Saves
+The game saves as it goes (every event is logged), into a folder per campaign. A saved campaign is restored exactly as it was, including your heroes and the story. Saves live on the host's computer, never in the cloud.
+
+## 9. Reference and troubleshooting
+
+The tables in this manual are written by the game from its data. Races, classes, backgrounds, class features, spell slots, conditions, surfaces, spells, items and prices are all there above.
+
+### Troubleshooting
+- **The page will not open on my phone**: check that you are on the same Wi-Fi, use the address from the screen, and ask the host to allow the game through the firewall on private networks.
+- **A certificate warning**: with the HTTPS option this is normal once per browser. Choose Advanced, then continue.
+- **No microphone button**: it only appears over HTTPS in a browser with speech input. Use your keyboard's dictation key.
+- **No sound**: press **Enable sound** in the banner, check the volume sliders on the More tab, and remember the screen is the default audio device.
+- **"The storyteller lost the thread"**: the live AI is not answering. The game uses plain fallback telling and keeps going. Press **Try again**.
+- **I closed the page**: open it again with the same name in the same browser to return to your hero.
+- **My hero is down and I cannot act**: wait for your companions, or for the Scribe outside a fight.

@@ -73,6 +73,10 @@ shows a hint to use the dictation key of the phone keyboard instead.
 
 ## How to play
 
+Every player-facing rule is in the [Player manual](docs/PLAYER_MANUAL.md). It is also in the game: the **Player manual**
+button on the phone's More tab, or the page `/manual`. Its reference tables are generated from the data
+(`python scripts/gen_manual.py`, checked by the gate).
+
 The game always uses two kinds of surface. **`/screen`** is the shared display on a TV or laptop: scene art,
 the story, the party, the battle board, big dice, who is acting and who is waiting, votes, and the narrator
 voice and music. Each player's **phone** is their controller (`/` or `/play`). There is no combined
@@ -117,7 +121,7 @@ the voice on/off switch, save, load, new campaign, end campaign and token totals
 ## Tests and gates
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts\gate.ps1     # the full gate: 11 checks, prints PASS/FAIL each
+powershell -ExecutionPolicy Bypass -File scripts\gate.ps1     # the full gate: 12 checks, prints PASS/FAIL each
 pytest -q                                                   # the unit, property, ai, session, sim and ui tests
 $env:RUN_LIVE = "1"; pytest -q tests\live                   # real DeepSeek and Fish (costs a little money)
 python scripts\simulate_party.py --seeds 5                  # 3 bot players over real websockets, fake AI
@@ -126,8 +130,9 @@ pytest -q tests\ui                                          # Playwright, two br
 ```
 
 The gate runs `pytest`, `ruff check`, `ruff format --check`, `pyright`, `lint-imports`, `check_structure.py`,
-`check_secrets.py`, `gen_protocol.py --check`, `build_manifest.py --check`, `gen_assets_todo.py --check` and
-`gen_scribe_voice.py --check` (the Scribe's audio matches `data/voice/scribe.json`).
+`check_secrets.py`, `gen_protocol.py --check`, `build_manifest.py --check`, `gen_assets_todo.py --check`,
+`gen_scribe_voice.py --check` (the Scribe's audio matches `data/voice/scribe.json`) and
+`gen_manual.py --check` (the generated tables of `docs/PLAYER_MANUAL.md` match the game data).
 How the code is organised is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Adding or replacing art

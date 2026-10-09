@@ -5,6 +5,7 @@ import { saveExport } from '../wizard/transfer.js';
 import { t } from '../strings.js';
 import { h } from '../ui/dom.js';
 
+// The Player manual button opens the same view as the /manual page in a full-screen panel.
 export function mountMore(root, { store, client, saved }) {
   const open = (panel, testid, label) => h('button', { type: 'button', class: 'btn', 'aria-haspopup': 'dialog', 'data-testid': testid, onclick: () => store.update({ panel }) }, label);
   const host = open('host', 'open-host', t('ct.hostPanel'));
@@ -12,7 +13,7 @@ export function mountMore(root, { store, client, saved }) {
   size.addEventListener('change', () => updateSettings({ size: size.value }, saved));
   root.append(
     h('h2', { class: 'ct-h' }, t('ct.tab_more')),
-    h('div', { class: 'ct-more-list' }, open('settings', 'open-settings', t('tools.settings')), host),
+    h('div', { class: 'ct-more-list' }, open('settings', 'open-settings', t('tools.settings')), host, open('manual', 'open-manual', t('manual.open'))),
     h('div', { class: 'set-row' }, h('label', { for: 'more-size' }, t('settings.size')), size),
     h('section', { class: 'host-section' }, h('h3', {}, t('ct.heroFile')), h('button', { type: 'button', class: 'btn', 'data-testid': 'export-hero', onclick: () => client.send('export_character', {}) }, t('wz.exportHero')), h('p', { class: 'hint' }, t('ct.heroFileHint'))),
     h('section', { class: 'host-section', 'data-testid': 'leave-info' }, h('h3', {}, t('ct.leaveTitle')), h('p', { class: 'hint' }, t('ct.leaveText'))),
