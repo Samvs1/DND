@@ -118,7 +118,7 @@ A player who joins after the adventure has started builds a hero between scenes 
 ## 3. Playing the story
 
 ### Typing your action
-On the **Play** tab, type what your hero does in plain words and press **Act**. You can also dictate. The Dungeon Master (an AI storyteller) reads it, decides what is needed and narrates the result. Your phone shows the last line of the story (tap it to read more) and a small note with your own dice. The full story and every roll are on the screen.
+On the **Play** tab, type what your hero does in plain words and press **Act**. You can also dictate. The Dungeon Master (an AI storyteller) reads it, decides what is needed and narrates the result. Your phone shows the recent story in full in a box that fills the tab and scrolls (the newest line is at the bottom), with the action box below it near your thumb, and a small note with your own dice. The full story and every roll are on the screen.
 
 ### The action queue
 Actions are handled one at a time, in the order they were sent. You may have one action waiting at a time. The screen shows who is typing, who is acting now and who is next. Your phone shows **Waiting (n)** while your action is in line. If the storyteller stumbles, you see a plain in-story fallback instead of an error.

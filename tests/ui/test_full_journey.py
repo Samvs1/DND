@@ -244,7 +244,10 @@ def _stage_reconnect_screen(journey: Journey, base: str, screen: Page, host: Pag
 def _stage_reconnect_phone(journey: Journey, base: str, guest: Page, host: Page) -> Page:
     """Close B's phone (socket drops), reopen with the same token; the controller must come back."""
     me = guest.evaluate("window.aidm.store.get().me.playerId")
-    line = guest.evaluate(LAST)
+    line = guest.evaluate(
+        "(() => { const i = window.aidm.story.items.at(-1);"
+        " return (i.text ?? i.sentences.map((s) => s.text).join(' ')).trim(); })()"
+    )
     context = guest.context
     guest.close()
     page = journey.new_page(context, "Bo-again")

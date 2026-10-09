@@ -1,12 +1,22 @@
 /* Phone controller (/play, M11.4): hero strip on top, four tab panes, a bottom tab bar. Mobile first (390 px). */
 body.is-controller {
-  display: block;
-  height: 100dvh;
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  height: var(--app-h, 100%);
   overflow: hidden;
 }
 
+body.is-controller #banner {
+  flex: none;
+}
+
 body.is-controller #app {
-  height: 100%;
+  flex: 1;
+  min-height: 0;
 }
 
 .ct {
@@ -108,6 +118,7 @@ body.is-controller #app {
 .ct-tabs {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
+  padding-bottom: env(safe-area-inset-bottom);
   background: var(--stone-1);
   border-top: 2px solid var(--stone-3);
 }
@@ -146,24 +157,32 @@ body.is-controller #app {
   margin-left: 0.3rem;
 }
 
+.ct-pane-play:not([hidden]) {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  height: 100%;
+}
+
+.ct-last-wrap {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 6rem;
+}
+
 .ct-last {
-  width: 100%;
+  flex: 1;
+  min-height: 0;
   padding: 0.5rem 0.7rem;
-  color: var(--parchment);
-  font: inherit;
-  text-align: left;
+  overflow-y: auto;
   background: var(--stone-1);
   border: 1px solid var(--stone-3);
   border-radius: var(--radius);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
 }
 
-.ct-recent p {
-  margin: 0.4rem 0;
+.ct-last p {
+  margin: 0 0 0.5rem;
 }
 
 .ct-action .action {

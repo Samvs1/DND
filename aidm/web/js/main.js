@@ -13,11 +13,13 @@ import { createStory } from './story.js';
 import { t } from './strings.js';
 import { mountBanner } from './ui/banner.js';
 import { clear } from './ui/dom.js';
+import { fitViewport } from './ui/fit.js';
 import { VIEWS, pickView } from './views/index.js';
 import { createClient } from './ws.js';
 
 const mode = window.location.pathname.startsWith('/screen') ? 'screen' : 'play';
 document.body.dataset.mode = mode;
+if (mode === 'play') fitViewport();
 
 loadSettings(saved);
 const skip = document.createElement('a');

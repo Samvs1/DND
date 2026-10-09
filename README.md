@@ -92,7 +92,7 @@ single-device view: to play solo, open `/screen` in one window and `/play` in an
 4. **Start**: when every player has a hero the host starts the campaign. The AI writes a three-act campaign
    (or uses the built-in sample). The screen shows the table and each phone opens its controller, with five
    tabs: **Play**, **Hero**, **Journal** (with the map), **Scribe** and **More**.
-5. **Exploration** (Play tab): type (or dictate) what your hero does. The phone shows the last narration line
+5. **Exploration** (Play tab): type (or dictate) what your hero does. The phone shows the recent story in full
    and a toast with your own dice; the full story and every roll are on the screen. Actions queue in order,
    one waiting action per player: the screen shows who is typing, who is acting and who is next, and your
    phone shows "Waiting (n)". Travel, rests and shopping ask the table for a quick vote.

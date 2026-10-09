@@ -71,7 +71,7 @@ def test_tab_navigation_shows_one_pane_and_never_scrolls_sideways(
     assert errors == []
 
 
-def test_play_tab_has_the_action_box_voice_slot_and_last_line_modal(
+def test_play_tab_has_the_action_box_voice_slot_and_story_box(
     browser: Browser, live_server: LiveServer
 ) -> None:
     errors: list[str] = []
@@ -86,13 +86,9 @@ def test_play_tab_has_the_action_box_voice_slot_and_last_line_modal(
     hint = host.locator("[data-testid=dictation-hint]")
     assert hint.is_visible() != voice
     assert hint.inner_text() == "Tip: use the microphone key on your keyboard to dictate."
-    # The last narration is one truncated line; tapping it opens the recent story in a modal.
-    assert len(host.locator("[data-testid=last-line]").inner_text()) <= 150
-    host.click("[data-testid=last-line]")
-    host.wait_for_selector("[data-testid=recent-dialog][open]")
-    assert 1 <= host.locator("[data-testid=recent-lines] p").count() <= 6
-    host.click("[data-testid=recent-close]")
-    host.wait_for_selector("[data-testid=recent-dialog]:not([open])", state="attached")
+    # The story box shows the recent story in full; there is no tap-to-open dialog any more.
+    assert host.locator("[data-testid=last-line] p").count() >= 1
+    assert host.locator("[data-testid=recent-dialog]").count() == 0
     # Shift+Enter adds a line, Enter sends and clears the box.
     box.click()
     host.keyboard.type("first line")

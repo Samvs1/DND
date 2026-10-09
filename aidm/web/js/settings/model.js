@@ -67,7 +67,7 @@ export function audioMuted(settings, state, mode, channel = 'narration') {
   if (channel === 'music') {
     if (settings.musicMuteSet) return settings.musicMute;
   } else if (settings.muteSet) return settings.mute;
-  return mode === 'play' && (state?.snapshot?.state?.screens ?? 0) > 0;
+  return false;
 }
 
 export function loadSettings(saved) {

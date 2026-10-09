@@ -639,3 +639,6 @@ M11.2 clock | `Clock.time()` added (LoopClock = loop time, ManualClock = `now`) 
 - Owner rule: only audio from the screen, and the Scribe pops up only on the screen for the whole group. This supersedes SPEC 11 "per-client mute and volume" for phones: `audioMuted` is always true for mode 'play', phones lose their sound settings and the Scribe popup, and only the screen creates the Scribe voice.
 - The /screen sound gate shows at every load, not only when `navigator.userActivation.hasBeenActive` is false, because a browser-initiated navigation can report an active document while a fresh tab still blocks autoplay. It returns whenever narration, music or the Scribe is blocked.
 - The Host panel gets "Skip the Scribe" (`scribe_skip`, `line_id: null`); the screen overlay has its own local Skip.
+
+## M16.3 Phone fits the visible viewport
+- The controller root (`body.is-controller`) is `position: fixed` with `height: var(--app-h)`, set by `ui/fit.js` from `visualViewport.height`, because `100dvh` can exceed the visible area in browsers with a bottom toolbar (Brave Android) and pushed the tab bar off screen. The body is a flex column so a banner shrinks `#app` instead of pushing the tab bar away. The Play tab's story box shows the last 8 items in full and replaces the tap-to-open recent-lines dialog.
