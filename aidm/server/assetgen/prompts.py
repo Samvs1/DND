@@ -6,9 +6,12 @@ come from the data (`build_subject`). Portraits and scenes go through the edit e
 real v1 images of the same kind (copies under aidm/web/static) and the fixed reference sentence;
 sheets use one v1 sheet (the read-only v1 project, `assets_src/sheets`). A missing reference file
 is simply left out; with none left the call falls back to the generate endpoint.
+A few keys draw their references from a character's own art instead of the kind's (`KEY_REFS`,
+M13.6: the Scribe's poses use his owner-made seated portrait and wide scene, so his core look
+stays: skeletal face, deep purple hood and robe, glowing violet eyes, quill and ledger).
 
 Public API: `RefSources`, `references_for`, `spec_of`, `single_prompt`, `sheet_prompt`,
-`REFERENCE_TEXT`, `SINGLE_KINDS`.
+`REFERENCE_TEXT`, `SINGLE_KINDS`, `KEY_REFS`.
 """
 
 from collections.abc import Mapping, Sequence
@@ -40,6 +43,11 @@ STATIC_REFS = {
     "scene": SCENE_REFS,
 }
 SINGLE_KINDS = frozenset(STATIC_REFS)
+SCRIBE_REFS = ("img/portraits/scribe_seated.png", "img/scenes/scribe.png")
+KEY_REFS = {
+    "portrait.scribe.welcome": SCRIBE_REFS,
+    "portrait.scribe.rewrite": SCRIBE_REFS,
+}
 V1_SHEET = ("assets_src", "sheets", "overhaul_sheet.png")
 
 
@@ -49,9 +57,11 @@ class RefSources:
     v1_root: Path | None = None
 
 
-def references_for(kind: str, sources: RefSources) -> tuple[Path, ...]:
-    """Existing reference files for a single kind, or the v1 sheet for a sheet."""
-    if kind in STATIC_REFS:
+def references_for(kind: str, sources: RefSources, key: str = "") -> tuple[Path, ...]:
+    """Existing reference files for a key (`KEY_REFS`), its kind, or the v1 sheet for a sheet."""
+    if key in KEY_REFS:
+        paths = [sources.static_dir / rel for rel in KEY_REFS[key]]
+    elif kind in STATIC_REFS:
         paths = [sources.static_dir / rel for rel in STATIC_REFS[kind]]
     elif sources.v1_root is not None:
         paths = [sources.v1_root.joinpath(*V1_SHEET)]

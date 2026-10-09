@@ -102,7 +102,7 @@ def _single(
     key: str, entry: Mapping[str, Any], bible: StyleBible, table: PriceTable, refs: RefSources
 ) -> PlannedCall:
     spec = spec_of(key, entry)
-    references = references_for(spec.kind, refs)
+    references = references_for(spec.kind, refs, key=key)
     prompt = single_prompt(bible, spec, with_refs=bool(references))
     request = ImageRequest(
         prompt, table.size_for(spec.kind), table.default_quality, spec.transparent, references

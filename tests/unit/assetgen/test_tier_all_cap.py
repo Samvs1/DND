@@ -123,6 +123,9 @@ def test_ui_art_keys_are_in_the_manifest_with_v1_tab_icons_real() -> None:
         assert entry["file"] == art.file and (art.v1 or entry["prompt"])
         if art.v1:
             assert (entry["status"], entry["source"]) == ("real", "v1")
+        elif art.hand:  # owner art copied in by hand (M13.6): never generated
+            assert entry["source"] == "manual"
+            assert art.key not in derive_tiers(manifest).p1
         else:  # a placeholder until M12.2 generated it, never v1 art
             generated = str(entry["source"]).startswith("generated:")
             assert (entry["status"], generated) in {("placeholder", False), ("real", True)}

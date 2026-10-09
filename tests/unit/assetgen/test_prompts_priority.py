@@ -11,7 +11,7 @@ from aidm.server.assetgen import cli
 from aidm.server.assetgen.costs import load_price_table
 from aidm.server.assetgen.plan import build_calls, select_keys
 from aidm.server.assetgen.priority import derive_tiers, render_priority
-from aidm.server.assetgen.prompts import REFERENCE_TEXT, RefSources
+from aidm.server.assetgen.prompts import REFERENCE_TEXT, SCRIBE_REFS, RefSources, references_for
 from aidm.server.assetgen.provider import SHEET_MARK
 from aidm.server.assetgen.synthetic_png import png_size, synthetic_png
 from tests.unit.assetgen.helpers import REPO_ROOT, make_repo, small_manifest
@@ -128,3 +128,15 @@ def test_fake_sheet_png_has_transparent_corners_and_a_4x4_grid() -> None:
         rows[4 + 8 * r][(4 + 8 * c) * 4 : (4 + 8 * c) * 4 + 4] for r in range(4) for c in range(4)
     }
     assert len(centres) == 16 and all(px[3] == 255 for px in centres)
+
+
+def test_scribe_poses_use_his_own_art_as_references(tmp_path: Path) -> None:
+    for rel in SCRIBE_REFS + ("img/portraits/fighter_cropped.png",):
+        (tmp_path / rel).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / rel).write_bytes(b"x")
+    sources = RefSources(static_dir=tmp_path)
+    for key in ("portrait.scribe.welcome", "portrait.scribe.rewrite"):
+        refs = references_for("portrait", sources, key=key)
+        assert [p.relative_to(tmp_path).as_posix() for p in refs] == list(SCRIBE_REFS)
+    other = references_for("portrait", sources, key="portrait.npc.acolyte")
+    assert [p.name for p in other] == ["fighter_cropped.png"]

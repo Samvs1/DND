@@ -1,6 +1,7 @@
 // The Scribe on /screen: a card with his portrait, name and subtitle for every line he speaks. The clip plays
 // on the narrator channel (voice.js); narration holds meanwhile. It hides when the clip ends, after a reading
-// time without audio, or on `scribe_skip`.
+// time without audio, or on `scribe_skip`. Over the game table the page dims behind him, so his rare
+// appearances stand out; on the campaign victory screen it does not (the victory art stays visible).
 import { portraitSrc } from '../scribe/portrait.js';
 import { t } from '../strings.js';
 import { h } from '../ui/dom.js';
@@ -9,11 +10,13 @@ export function mountScribeOverlay(root, { store }) {
   const portrait = h('img', { class: 'sc-scribe-portrait', src: portraitSrc('seated'), alt: t('scribe.portraitAlt'), 'data-testid': 'screen-scribe-portrait' });
   const text = h('p', { class: 'sc-scribe-text', 'data-testid': 'screen-scribe-text' });
   const card = h('div', { class: 'sc-scribe', hidden: true, role: 'status', 'data-testid': 'screen-scribe' }, portrait, h('div', { class: 'sc-scribe-body' }, h('h2', {}, t('scribe.name')), text));
-  root.append(card);
+  const dim = h('div', { class: 'sc-scribe-dim', hidden: true, 'data-testid': 'screen-scribe-dim' });
+  root.append(dim, card);
   let shownId = null;
   const render = (state) => {
     const line = state.scribeLine;
     card.hidden = !line;
+    dim.hidden = !line || line.group === 'victory_campaign';
     if (!line) return void (shownId = null);
     if (shownId === line.line_id) return;
     shownId = line.line_id;

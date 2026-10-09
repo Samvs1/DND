@@ -2,7 +2,7 @@
 // it shows a few seconds after a won fight unless that fight completed the campaign. The campaign victory
 // screen (like the defeat overlay) shows once the campaign is complete and carries the epilogue.
 import { stingerFor } from '../audio/music.js';
-import { shadedBackground } from '../assets.js';
+import { realAssetUrl } from '../assets.js';
 import { portraitSrc } from '../scribe/portrait.js';
 import { victoryShown } from '../controller/victory.js';
 import { publicState } from '../table/lookup.js';
@@ -54,7 +54,11 @@ export function mountVictory(root, store) {
     if (!shown) return;
     text.textContent = view.epilogue;
     portrait.src = portraitSrc('victory_campaign');
-    overlay.style.backgroundImage = shadedBackground('scene.scribe');
+    // His scene art shows him at the bottom of the screen; the portrait is only the fallback. The
+    // shade sits on the top (the text) and fades out toward him.
+    const scene = realAssetUrl('scene.scribe');
+    portrait.hidden = Boolean(scene);
+    overlay.style.backgroundImage = scene ? `linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,.25) 45%, rgba(0,0,0,0) 70%), url("${scene}")` : '';
   }
   render(store.get());
   return store.subscribe(render);

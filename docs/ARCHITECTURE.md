@@ -188,6 +188,31 @@ in `certs/` (gitignored, written atomically, SANs `localhost`, `127.0.0.1` and t
 to uvicorn, so the LAN URL, the QR and `/healthz` use https. The controller's mic button (Web Speech API,
 `controller/mic.js`) only appears in a secure context; otherwise the action box shows a dictation hint.
 
+## The Scribe (M13)
+
+A being outside the story (docs/next/GOAL_SCRIBE.md). He speaks aloud rarely: the welcome on a new
+campaign, the welcome back on a loaded save, the campaign victory and a brief revive line.
+
+- **Revive** (`rules/scribe.py`, pure): price = `base_gp + per_level_gp x level` from
+  `data/bg3/scribe.json` (25 gp per level); only outside combat, only for a dead PC, paid from the
+  requesting player's own living hero. `session/scribe_desk.py` runs `scribe_revive` as a table job:
+  `GoldChanged` + `ConditionRemoved` (exhaustion kept) + `CharacterRewritten` (half HP back). Refusals
+  are typed and reach only the requester. Public `state.scribe` lists the fallen with their prices.
+- **Lines** (`data/voice/scribe.json`, the ONE source of his words and his sound; `data/scribe_lines.py`):
+  `session/scribe_voice.py` picks a line per moment with its own seeded RNG (never the dice), never the
+  same line twice in a row, and broadcasts `scribe_line {line_id, group, text, audio_url, to_player_id}`.
+  Refusal lines are `voiced: false` text the phone shows. The host may `scribe_skip` a long speech.
+- **Voice build** (`server/voicegen/`, never imported by the game server): Fish `s2.1-pro` WAV, cached raw
+  per line or per spliced part (`rawcache.py`, best of N takes in `takes.py`, parts joined in their own room
+  tone by `parts.py`), a 48 kHz float chain (`chain.py`: high-pass, warmth, presence, 12 kHz shelf,
+  compressor, synthetic dark hall IR, -16 LUFS, true-peak limit), one mp3 320k encode, `lines.json` index
+  and `--check` as gate step 11. Pitch is verified by a paired-frame F0 ratio (`analysis.py`).
+- **UI**: the phone's Scribe tab (`js/controller/scribe.js`), his card on /screen with the page dimmed
+  behind it (`js/screen/scribe.js`), one voice player per page (`js/scribe/voice.js`) on the narrator
+  channel that holds the narration queue while he speaks, a visual fight victory banner and the campaign
+  victory screen (`js/screen/victory.js`, his scene art). His art: owner-made `portrait.scribe.seated` and
+  `scene.scribe` (manual, never generated) and two generated poses that used them as references.
+
 ## Testing strategy and gates
 
 - `tests/unit` and `tests/property`: golden values (AC, DCs, slots, HP, spells, monsters) with SRD citations,

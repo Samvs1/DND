@@ -41,23 +41,30 @@ UI_ART = (
     UiArt(
         "portrait.scribe.welcome",
         "img/portraits/scribe_welcome.png",
-        "An old gracious scribe in dark robes rising from his desk, one hand raised in welcome, "
-        "candlelit ledger behind him, square head-and-shoulders portrait",
+        "The Scribe, the same character as in the reference images: a skeleton with a pale "
+        "skull face and softly glowing violet eyes in a deep purple hooded robe. He has risen "
+        "from his candlelit writing desk and raises one open bony hand in a calm, courteous "
+        "greeting, the feather quill in his other hand, the open ledger and ink pot on the "
+        "desk before him, warm candlelight on a dark background, square, waist up",
         transparent=False,
     ),
     UiArt(
         "portrait.scribe.rewrite",
         "img/portraits/scribe_rewrite.png",
-        "An old scribe in dark robes writing in a great ledger with a glowing quill, warm light "
-        "rising from the page, square head-and-shoulders portrait",
+        "The Scribe, the same character as in the reference images: a skeleton with a pale "
+        "skull face and softly glowing violet eyes in a deep purple hooded robe, seated at his "
+        "candlelit desk, writing in a great open ledger with his feather quill; faint violet "
+        "light rises from the freshly written words and a few glowing letters drift up from "
+        "the page, warm candlelight on a dark background, square, waist up",
         transparent=False,
     ),
     UiArt(
         "scene.scribe",
         "img/scenes/scribe.png",
-        "A candlelit scriptorium at night: a long oak desk, an open ledger, shelves of scrolls, "
-        "soft gold light, wide 16:9 view with calm dark space in the middle for text",
+        "The Scribe small at his candlelit desk at the bottom of a wide dark room (owner art, "
+        "copied in by hand; the dark space above holds the victory text)",
         transparent=False,
+        hand=True,
     ),
     UiArt(
         "ui_icon.tab-play",

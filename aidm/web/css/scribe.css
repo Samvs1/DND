@@ -11,7 +11,8 @@
 .sc-status { margin: 0.4rem 0; color: var(--blood-text); font-style: italic; }
 .sc-status:empty { display: none; }
 .sc-banner { position: fixed; top: 0; left: 0; right: 0; z-index: 60; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; padding: 0.6rem 1rem; background: var(--stone-1); border-bottom: 2px solid var(--gold-dim); color: var(--parchment); }
-.sc-banner[hidden], .ct-victory[hidden], .sc-scribe[hidden], .sc-victory[hidden], .sc-victory-banner[hidden] { display: none; }
+.sc-banner[hidden], .ct-victory[hidden], .sc-scribe[hidden], .sc-scribe-dim[hidden], .sc-victory[hidden], .sc-victory-banner[hidden], .sc-scribe-portrait[hidden] { display: none; }
+.sc-scribe-dim { position: absolute; inset: 0; background: rgba(6, 4, 3, 0.72); }
 .sc-banner { pointer-events: none; }
 .sc-banner button { pointer-events: auto; }
 .sc-banner-text { flex: 1 1 100%; margin: 0; font-style: italic; }
@@ -19,10 +20,10 @@
 .ct-victory h2 { margin: 0; font-size: 2.2rem; color: var(--gold); }
 .ct-victory-text { max-width: 28rem; line-height: 1.5; }
 .sc-scribe { position: absolute; left: 50%; bottom: 3rem; transform: translateX(-50%); width: min(60rem, 90vw); display: flex; gap: 1.5rem; align-items: center; padding: 1.2rem 1.6rem; background: rgba(16, 12, 10, 0.95); border: 2px solid var(--gold); border-radius: 0.75rem; color: var(--parchment); }
-.sc-scribe-portrait { width: 9rem; height: 9rem; flex: none; object-fit: cover; border: var(--frame); border-radius: var(--radius); background: var(--stone-2); }
+.sc-scribe-portrait { width: 13rem; height: 13rem; flex: none; object-fit: cover; border: var(--frame); border-radius: var(--radius); background: var(--stone-2); }
 .sc-scribe-body h2 { margin: 0 0 0.4rem; color: var(--gold); font-size: 1.6rem; }
 .sc-scribe-text { margin: 0; font-size: 1.3rem; line-height: 1.4; font-style: italic; }
-.sc-victory { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; padding: 2rem; text-align: center; background: #0b0808 center / cover; color: #f2e6d0; }
+.sc-victory { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 1rem; padding: 10vh 2rem 2rem; text-align: center; background: #0b0808 center bottom / cover; color: #f2e6d0; }
 .sc-victory h2 { margin: 0; font-size: 4rem; color: var(--gold); }
 .sc-victory h3 { margin: 0; font-size: 1.4rem; opacity: 0.85; }
 .sc-victory-text { max-width: 60rem; font-size: 1.6rem; line-height: 1.5; }

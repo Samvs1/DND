@@ -3558,20 +3558,22 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: An old scribe in dark robes writing in a great ledger with a glowing quill, warm light rising from the page, square head-and-shoulders portrait. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: The Scribe, the same character as in the reference images: a skeleton with a pale skull face and softly glowing violet eyes in a deep purple hooded robe, seated at his candlelit desk, writing in a great open ledger with his feather quill; faint violet light rises from the freshly written words and a few glowing letters drift up from the page, warm candlelight on a dark background, square, waist up. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0333
  },
  "portrait.scribe.seated": {
   "kind": "portrait",
   "file": "img/portraits/scribe_seated.png",
   "size": [
-   512,
-   512
+   768,
+   768
   ],
   "transparent": false,
-  "status": "placeholder",
+  "status": "real",
   "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The Scribe seated at his desk (owner art, copied in by hand). Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
   "source": "manual",
   "license": ""
@@ -3584,10 +3586,12 @@
    512
   ],
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: An old gracious scribe in dark robes rising from his desk with one hand raised in welcome, candlelit ledger behind him, square head-and-shoulders portrait. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: The Scribe, the same character as in the reference images: a skeleton with a pale skull face and softly glowing violet eyes in a deep purple hooded robe. He has risen from his candlelit writing desk and raises one open bony hand in a calm, courteous greeting, the feather quill in his other hand, the open ledger and ink pot on the desk before him, warm candlelight on a dark background, square, waist up. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Compose for a final crop to 512x512.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0333
  },
  "region_banner.bridge": {
   "kind": "region_banner",
@@ -3788,13 +3792,13 @@
   "kind": "scene",
   "file": "img/scenes/scribe.png",
   "size": [
-   1536,
-   864
+   948,
+   571
   ],
   "transparent": false,
-  "status": "placeholder",
+  "status": "real",
   "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: A candlelit scriptorium at night: a long oak desk, an open ledger, shelves of scrolls, soft gold light, wide 16:9 view with calm dark space in the middle for text. Wide 16:9 painterly establishing scene behind full-screen interface text, low contrast and dark in the middle third, no characters in the foreground. Target size 1536x864.",
-  "source": "",
+  "source": "manual",
   "license": ""
  },
  "sfx.coin": {
