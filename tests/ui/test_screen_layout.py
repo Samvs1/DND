@@ -84,7 +84,7 @@ def test_screen_widgets_at_two_sizes(
     event = {"type": "event", "seq": 9002, "kind": "level_gained", "line": "Ann reached level 3"}
     screen.evaluate("(m) => window.aidm.dispatch(m)", event)
     assert "level 3" in screen.locator("[data-testid=screen-levelup]").inner_text()
-    assert screen.locator("[data-testid=screen-invite]:not([hidden])").count() == 1  # seats free
+    assert screen.locator("[data-testid=screen-invite]").count() == 0  # the QR is lobby only
     screen.locator("[data-testid=screen-gear]").click()
     screen.wait_for_selector("[data-testid=settings][open]")
     screen.keyboard.press("Escape")

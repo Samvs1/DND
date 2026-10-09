@@ -1,13 +1,11 @@
 /* Spectator screen (/screen, M8.3): the table grid without the dock, tuned for a TV or a projector. */
 .tb.sc {
-  grid-template-columns: minmax(0, 1fr) minmax(18rem, 26rem);
-  grid-template-rows: auto auto minmax(0, 1fr);
-  grid-template-areas: 'scene scene' 'combat side' 'feed side';
+  grid-template-columns: minmax(0, 1fr) 21rem;
+  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-areas: 'scene scene' 'main side';
 }
 
-.tb.sc .tb-combat {
-  max-height: 55vh;
-}
+.tb.sc .tb-combat { max-height: 68%; overflow: hidden; flex: 0 0 auto; }
 
 .tb.sc .tb-side {
   max-height: 100%;
@@ -30,7 +28,7 @@ body.is-screen .sc-wait {
 
 @media (min-width: 1700px) {
   .tb.sc {
-    grid-template-columns: minmax(0, 1fr) 32rem;
+    grid-template-columns: minmax(0, 1fr) 30rem;
     gap: 1rem;
     padding: 1rem;
   }
@@ -43,40 +41,33 @@ body.is-screen .sc-wait {
 @media (max-width: 899px) {
   .tb.sc {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto auto minmax(15rem, 1fr) auto;
-    grid-template-areas: 'scene' 'combat' 'feed' 'side';
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas: 'scene' 'main' 'side';
   }
 }
 
 /* M11.3: the shared display widgets. */
-.tb.sc .tb-side { display: flex; flex-direction: column; gap: 0.75rem; overflow-y: auto; }
+.tb.sc .tb-side { display: flex; flex-direction: column; gap: 0.5rem; overflow: hidden; }
 .tb.sc .scene-art { max-height: 9rem; object-fit: cover; }
 .tb.sc .feed > :last-child { border-left: 4px solid var(--accent, #c9a227); padding-left: 0.75rem; }
 .tb.sc .feed .speaking, .tb.sc .feed .typing { background: color-mix(in srgb, var(--accent, #c9a227) 18%, transparent); }
-body.in-combat .tb.sc { grid-template-areas: 'scene scene' 'combat side' 'feed side'; }
-body.in-combat .tb.sc .feed { font-size: 1rem; }
-/* Nobody scrolls a TV: in a fight the dice need the side column, the invite QR returns afterwards. */
-body.in-combat .tb.sc .sc-invite { display: none; }
-.sc-widgets { display: flex; flex-direction: column; gap: 0.75rem; }
-.sc-widgets .panel { padding: 0.75rem; }
-.sc-acting { font-size: 1.4rem; font-weight: 700; margin: 0; }
+.sc-widgets { display: flex; flex-direction: column; gap: 0.5rem; min-height: 0; }
+.sc-widgets .panel { padding: 0.5rem 0.75rem; }
+.sc-acting { font-size: 1.25rem; font-weight: 700; margin: 0; }
 .sc-typing { font-size: 1.15rem; margin: 0.25rem 0; font-style: italic; }
 .sc-queue { margin: 0.25rem 0 0; padding-left: 1.5rem; font-size: 1.1rem; }
 .sc-count { font-size: 1.3rem; font-weight: 700; margin: 0.25rem 0; }
-.sc-invite { max-width: 14rem; }
-.sc-invite .qr { width: 7rem; height: 7rem; }
-.sc-invite[hidden] { display: none; }
 .sc-overlays { position: fixed; inset: 0; pointer-events: none; z-index: 50; }
 .sc-overlays > * { pointer-events: auto; }
-.sc-dice { list-style: none; margin: 0; padding: 0.75rem 1rem; background: var(--panel-bg, rgba(20, 16, 12, 0.92)); border: 2px solid var(--accent, #c9a227); border-radius: 0.75rem; text-align: center; }
+.sc-dice { position: fixed; right: 0.75rem; bottom: 0.75rem; width: 20rem; max-height: 40vh; overflow: hidden; z-index: 40; list-style: none; margin: 0; padding: 0.4rem 0.75rem; background: var(--panel-bg, rgba(20, 16, 12, 0.92)); border: 2px solid var(--accent, #c9a227); border-radius: 0.75rem; text-align: center; }
 .sc-dice[hidden], .sc-levelup[hidden], .sc-defeat[hidden] { display: none; }
-.sc-roll + .sc-roll { margin-top: 0.75rem; }
-.sc-roll-head { display: flex; gap: 0.75rem; justify-content: center; font-size: 1.2rem; }
-.sc-roll-dice { display: flex; gap: 0.75rem; justify-content: center; align-items: center; font-size: 2.4rem; }
-.sc-die { min-width: 3.4rem; padding: 0.25rem 0.5rem; border: 2px solid currentcolor; border-radius: 0.5rem; }
+.sc-roll + .sc-roll { margin-top: 0.4rem; }
+.sc-roll-head { display: flex; gap: 0.5rem; justify-content: center; font-size: 1rem; }
+.sc-roll-dice { display: flex; gap: 0.75rem; justify-content: center; align-items: center; font-size: 1.6rem; }
+.sc-die { min-width: 2.4rem; padding: 0.1rem 0.4rem; border: 2px solid currentcolor; border-radius: 0.5rem; }
 .sc-die.dropped { opacity: 0.45; text-decoration: line-through; }
-.sc-roll-total { font-size: 2.8rem; }
-.sc-roll-out { font-size: 1.3rem; }
+.sc-roll-total { font-size: 1.8rem; }
+.sc-roll-out { font-size: 1rem; }
 .sc-levelup { position: absolute; left: 50%; bottom: 2rem; transform: translateX(-50%); padding: 0.75rem 2rem; font-size: 1.8rem; background: var(--accent, #c9a227); color: #1a140c; border-radius: 0.75rem; font-weight: 700; }
 .sc-widgets .notices { max-width: 100%; }
 .sc-gear { position: absolute; right: 0.75rem; bottom: 0.75rem; opacity: 0.7; }
@@ -87,3 +78,49 @@ body.in-combat .tb.sc .sc-invite { display: none; }
 @media (prefers-reduced-motion: no-preference) { .sc-dice { animation: sc-pop 0.3s ease-out; } .sc-levelup { animation: sc-pop-banner 0.3s ease-out; } }
 @keyframes sc-pop { from { opacity: 0; transform: scale(0.92); } }
 @keyframes sc-pop-banner { from { opacity: 0; transform: translateX(-50%) scale(0.9); } }
+
+/* M15.2: a dashboard that never scrolls the page; only the feed scrolls (pinned to the newest line). */
+.tb.sc .sc-main { grid-area: main; display: flex; flex-direction: column; gap: 0.5rem; min-height: 0; min-width: 0; }
+.tb.sc .tb-side { grid-area: side; }
+.tb.sc .tb-scene { max-height: 5.5rem; min-height: 3rem; }
+.tb.sc .tb-feed { flex: 1 1 0; min-height: 6rem; }
+.tb.sc .tb-combat { padding: 0.4rem; gap: 0.35rem; }
+.tb.sc .init-strip { position: static; margin: 0; padding: 0.15rem 0.25rem; overflow-x: auto; }
+.tb.sc .zones { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.35rem; }
+.tb.sc .zone-row { display: contents; }
+.tb.sc .zone { padding: 0.3rem 0.4rem; gap: 0.2rem; border-width: 1px; }
+.tb.sc .zone-head h4 { font-size: 1rem; }
+.tb.sc .zone-head { flex-wrap: nowrap; }
+.tb.sc .zone-size, .tb.sc .zadj { font-size: 0.72rem; }
+.tb.sc .zbadge, .tb.sc .zsurface { padding: 0 0.3rem; font-size: 0.68rem; }
+.tb.sc .zone-tokens { display: flex; flex-wrap: wrap; gap: 0.2rem; }
+.tb.sc .tk { width: auto; max-width: 100%; padding: 0.1rem 0.35rem 0.1rem 0.1rem; border-width: 1px; }
+.tb.sc .tk-art { width: 30px; height: 30px; }
+.tb.sc .tk-name { font-size: 0.85rem; max-width: 7rem; }
+.tb.sc .tk-hp { font-size: 0.7rem; gap: 0.25rem; }
+.tb.sc .tk-hp .hp { min-width: 2.2rem; height: 0.4rem; }
+.tb.sc .tk-state { font-size: 0.72rem; }
+.tb.sc .cond { width: 14px; height: 14px; }
+.tb.sc .side-h { margin: 0 0 0.2rem; font-size: 1rem; }
+.tb.sc .party { flex-direction: column; gap: 0.25rem; overflow: visible; }
+.tb.sc .pcard { flex: none; padding: 0.2rem 0.4rem; gap: 0.4rem; align-items: center; border-width: 1px; }
+.tb.sc .pc-portrait { width: 32px; height: 32px; }
+.tb.sc .pc-body { grid-template-columns: minmax(0, 1fr) auto; column-gap: 0.4rem; row-gap: 0; align-items: center; }
+.tb.sc .pc-name strong { font-size: 1rem; }
+.tb.sc .pc-sub { font-size: 0.72rem; text-align: right; }
+.tb.sc .pc-body .hp-wrap { grid-column: 1; }
+.tb.sc .pc-meta { grid-column: 2; gap: 0.2rem; font-size: 0.75rem; justify-content: flex-end; }
+.tb.sc .hp { height: 0.45rem; }
+.tb.sc .hp-text { min-width: 2.6rem; font-size: 0.78rem; }
+.tb.sc .cond { width: 16px; height: 16px; }
+@media (min-width: 1100px) { .tb.sc .zones { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 1700px) {
+  .tb.sc .tb-scene { max-height: 7rem; }
+  .tb.sc .tk-art { width: 36px; height: 36px; }
+  .tb.sc .tk-name { font-size: 1rem; max-width: 9rem; }
+  .tb.sc .zone-head h4 { font-size: 1.2rem; }
+  .tb.sc .pc-portrait { width: 40px; height: 40px; }
+  .tb.sc .pc-name strong { font-size: 1.2rem; }
+  .tb.sc .hp-text { font-size: 0.95rem; }
+  .sc-dice { width: 26rem; }
+}

@@ -16,7 +16,7 @@ Everything you need to play at the table, in plain words. The tables in the Refe
 - There is no single-device mode. To play alone, open the screen in one window and the controller in another.
 
 ### Joining
-1. The host starts the game with the LAN option. The screen shows a QR code while seats are free.
+1. The host starts the game with the LAN option. The screen shows a QR code in the lobby, before the adventure starts. Once play begins the QR code goes away and the space is used for the story and the board.
 2. Scan the QR code with your phone, or type the address shown on the screen.
 3. Enter your name and press **Join**. The first person in becomes the host. The lobby shows who is at the table.
 4. Everyone builds a hero (see Your hero). When every player has a hero, the host presses **Start the adventure**. The host can type a campaign theme first, or leave it blank for a surprise.

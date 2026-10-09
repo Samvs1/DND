@@ -2,7 +2,7 @@
 // the party and, during a fight, the initiative strip and combat board. No hotbar, no action box, no seat.
 // It says hello as a spectator (ws.js), so the server counts it and players' narration defaults to off;
 // this view plays the narration (js/audio/narration.js) and the music (js/audio/music.js).
-// Until the adventure starts it shows the invite panel (LAN address and QR code).
+// Until the adventure starts it shows the invite panel (LAN address and QR code); never during play.
 import { mountBoard } from '../combat/board.js';
 import { mountInitiative } from '../combat/initiative.js';
 import { t } from '../strings.js';
@@ -20,8 +20,6 @@ import { mountParty } from '../table/party.js';
 import { mountScene } from '../table/scene.js';
 import { h } from '../ui/dom.js';
 import { fetchLan, mountInvite } from '../ui/invite.js';
-
-const SEATS = 4; // the invite corner shows while fewer seats than this are taken
 
 // The board only reads; this stands in for the interactive controller.
 const WATCHER = { readOnly: true, ui: { arming: null, target: null }, subscribe: () => () => {}, pickToken() {}, pickZone() {} };
@@ -49,25 +47,19 @@ export function mountScreen(root, ctx) {
   const feed = h('section', { class: 'tb-feed', 'aria-label': t('table.feed') });
   const party = h('section', { class: 'tb-party panel', 'aria-label': t('table.party') });
   const widgets = h('div', { class: 'sc-widgets' });
-  const corner = h('div', { class: 'sc-invite', 'data-testid': 'screen-invite' });
-  const side = h('aside', { class: 'tb-side' }, party, widgets, corner);
+  const side = h('aside', { class: 'tb-side' }, party, widgets);
   const initiative = h('div', { class: 'init-strip', 'data-testid': 'initiative' });
   const board = h('div', { class: 'board', 'data-testid': 'board' });
   const combat = h('section', { class: 'tb-combat panel', 'aria-label': t('combat.heading') }, initiative, board);
-  const table = h('div', { class: 'tb sc', 'data-testid': 'screen-table' }, scene, combat, feed, side);
+  const table = h('div', { class: 'tb sc', 'data-testid': 'screen-table' }, scene, h('div', { class: 'sc-main' }, combat, feed), side);
   const overlays = h('div', { class: 'sc-overlays' });
   root.append(waiting, table, overlays);
 
-  const render = (state) => {
-    applyPhase(state, waiting, table, combat);
-    const open = state.players.length < SEATS || state.players.some((p) => !p.connected);
-    corner.hidden = !open || state.snapshot?.state.phase === 'defeated';
-  };
+  const render = (state) => applyPhase(state, waiting, table, combat);
   render(store.get());
   const stops = [
     store.subscribe(render),
     mountInvite(slot, store),
-    mountInvite(corner, store),
     mountFloor(widgets, store),
     mountScreenVote(widgets, store),
     mountNotices(widgets, store),
