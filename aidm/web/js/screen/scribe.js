@@ -9,7 +9,7 @@ import { h } from '../ui/dom.js';
 export function mountScribeOverlay(root, { store }) {
   const portrait = h('img', { class: 'sc-scribe-portrait', src: portraitSrc('seated'), alt: t('scribe.portraitAlt'), 'data-testid': 'screen-scribe-portrait' });
   const text = h('p', { class: 'sc-scribe-text', 'data-testid': 'screen-scribe-text' });
-  const card = h('div', { class: 'sc-scribe', hidden: true, role: 'status', 'data-testid': 'screen-scribe' }, portrait, h('div', { class: 'sc-scribe-body' }, h('h2', {}, t('scribe.name')), text));
+  const card = h('div', { class: 'sc-scribe', hidden: true, role: 'status', 'data-testid': 'screen-scribe' }, portrait, h('div', { class: 'sc-scribe-body' }, h('h2', {}, t('scribe.name')), text, h('button', { type: 'button', class: 'btn btn-small', 'data-testid': 'screen-scribe-skip', onclick: () => store.emit('scribe_skip', {}) }, t('scribe.skip'))));
   const dim = h('div', { class: 'sc-scribe-dim', hidden: true, 'data-testid': 'screen-scribe-dim' });
   root.append(dim, card);
   let shownId = null;

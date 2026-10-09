@@ -8,7 +8,7 @@ from pathlib import Path
 
 from playwright.sync_api import Browser, Page, ViewportSize
 
-from tests.ui.conftest import LiveServer
+from tests.ui.conftest import LiveServer, dismiss_gate
 from tests.ui.table_helpers import PHONE, WIDE, quiet_scribe, snap, start_table
 
 FULL_HD = ViewportSize(width=1920, height=1080)
@@ -48,6 +48,7 @@ def _screen(browser: Browser, base: str, size: ViewportSize, errors: list[str]) 
     page.add_init_script(f"({FAKE_AUDIO})()")
     page.goto(f"{base}/screen")
     page.wait_for_selector("[data-testid=screen-waiting]:not([hidden])")
+    dismiss_gate(page)
     return page
 
 
@@ -79,7 +80,7 @@ def test_screen_shows_the_story_and_party_read_only_and_mutes_players(
     assert screen.evaluate("window.aidm.audio.state().muted") is False
     assert host.evaluate("window.aidm.store.get().snapshot.state.screens") == 1
     screen.close()
-    host.wait_for_function("window.aidm.audio.state().muted === false")  # the screen left
+    assert host.evaluate("window.aidm.audio.state().muted") is True  # phones are always silent
     assert errors == []
 
 

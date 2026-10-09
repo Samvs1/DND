@@ -10,12 +10,8 @@
 .sc-warn { margin: 0; color: var(--blood-text); font-weight: 700; }
 .sc-status { margin: 0.4rem 0; color: var(--blood-text); font-style: italic; }
 .sc-status:empty { display: none; }
-.sc-banner { position: fixed; top: 0; left: 0; right: 0; z-index: 60; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; padding: 0.6rem 1rem; background: var(--stone-1); border-bottom: 2px solid var(--gold-dim); color: var(--parchment); }
-.sc-banner[hidden], .ct-victory[hidden], .sc-scribe[hidden], .sc-scribe-dim[hidden], .sc-victory[hidden], .sc-victory-banner[hidden], .sc-scribe-portrait[hidden] { display: none; }
+.ct-victory[hidden], .sc-scribe[hidden], .sc-scribe-dim[hidden], .sc-victory[hidden], .sc-victory-banner[hidden], .sc-scribe-portrait[hidden] { display: none; }
 .sc-scribe-dim { position: absolute; inset: 0; background: rgba(6, 4, 3, 0.72); }
-.sc-banner { pointer-events: none; }
-.sc-banner button { pointer-events: auto; }
-.sc-banner-text { flex: 1 1 100%; margin: 0; font-style: italic; }
 .ct-victory { position: fixed; inset: 0; z-index: 45; display: flex; flex-direction: column; gap: 0.8rem; align-items: center; justify-content: center; padding: 1.5rem 1rem; text-align: center; overflow-y: auto; background: var(--ink-0) center / cover; color: var(--parchment); }
 .ct-victory h2 { margin: 0; font-size: 2.2rem; color: var(--gold); }
 .ct-victory-text { max-width: 28rem; line-height: 1.5; }
@@ -29,3 +25,9 @@
 .sc-victory-text { max-width: 60rem; font-size: 1.6rem; line-height: 1.5; }
 .sc-victory-banner { position: absolute; left: 50%; top: 18%; transform: translateX(-50%); padding: 1rem 3rem; font-size: 3.5rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: #1a140c; background: var(--gold); border-radius: 0.75rem; box-shadow: 0 0 3rem rgba(0, 0, 0, 0.6); }
 @media (prefers-reduced-motion: no-preference) { .sc-victory-banner { animation: sc-pop-banner 0.4s ease-out; } .sc-scribe { animation: sc-pop-banner 0.3s ease-out; } }
+.sg { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; background: rgba(6, 4, 3, 0.92); color: var(--parchment); text-align: center; }
+.sg[hidden] { display: none; }
+.sg-card { max-width: 44rem; padding: 2.5rem; border: 2px solid var(--gold); border-radius: 0.75rem; background: var(--stone-1); }
+.sg-card h2 { margin: 0 0 1rem; color: var(--gold); font-size: 2.2rem; }
+.sg-card p { margin: 0 0 1.5rem; font-size: 1.4rem; }
+.sg-button { font-size: 1.4rem; padding: 0.7rem 1.6rem; }

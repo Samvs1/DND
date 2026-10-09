@@ -63,6 +63,7 @@ export function onSettingsChange(fn) {
  * Decision logged in docs/DECISIONS.md (M8.2).
  */
 export function audioMuted(settings, state, mode, channel = 'narration') {
+  if (mode === 'play') return true; // M16.2 owner rule: only the screen plays sound; phones stay silent
   if (channel === 'music') {
     if (settings.musicMuteSet) return settings.musicMute;
   } else if (settings.muteSet) return settings.mute;

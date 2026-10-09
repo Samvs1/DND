@@ -4,7 +4,7 @@ from pathlib import Path
 
 from playwright.sync_api import Browser, Page, ViewportSize
 
-from tests.ui.conftest import LiveServer
+from tests.ui.conftest import LiveServer, dismiss_gate
 from tests.ui.table_helpers import PHONE, WIDE, snap, start_table
 
 FULL_HD = ViewportSize(width=1920, height=1080)
@@ -47,6 +47,7 @@ def _screen(browser: Browser, base: str, size: ViewportSize, errors: list[str]) 
     page.on("pageerror", lambda exc: errors.append(str(exc)))
     page.goto(f"{base}/screen")
     page.wait_for_selector("[data-testid=screen-waiting]:not([hidden])")
+    dismiss_gate(page)
     return page
 
 

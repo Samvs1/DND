@@ -327,17 +327,15 @@ def test_settings_persist_across_reload(
     host.select_option("[data-testid=set-speed]", "slow")
     host.select_option("[data-testid=set-size]", "large")
     host.check("[data-testid=set-motion]")
-    host.fill("[data-testid=set-volume]", "35")
-    host.dispatch_event("[data-testid=set-volume]", "change")
-    host.check("[data-testid=set-mute]")
+    assert host.locator("[data-testid=set-mute]").count() == 0  # sound is screen-only (M16.2)
     snap(host, shots_dir, "controller_settings", 390)
     stored = host.evaluate("JSON.parse(window.localStorage.getItem('aidm.settings'))")
     assert stored == {
-        "mute": True,
-        "muteSet": True,
+        "mute": False,
+        "muteSet": False,
         "musicMute": False,
         "musicMuteSet": False,
-        "narrationVolume": 35,
+        "narrationVolume": 80,
         "musicVolume": 50,
         "speed": "slow",
         "size": "large",
@@ -353,8 +351,7 @@ def test_settings_persist_across_reload(
     _open(host, "settings")
     assert host.input_value("[data-testid=set-speed]") == "slow"
     assert host.input_value("[data-testid=set-size]") == "large"
-    assert host.is_checked("[data-testid=set-motion]") and host.is_checked("[data-testid=set-mute]")
-    assert host.input_value("[data-testid=set-volume]") == "35"
+    assert host.is_checked("[data-testid=set-motion]")
     assert errors == []
 
 

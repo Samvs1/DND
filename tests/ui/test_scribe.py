@@ -74,11 +74,10 @@ def _my_gold(page: Page) -> int:
 
 
 def _end_welcome(screen: Page, host: Page) -> None:
-    """The host skips the long welcome so later assertions see a quiet screen."""
+    """Skip the long welcome on the screen so later assertions see a quiet screen."""
     if screen.locator("[data-testid=screen-scribe]").is_hidden():
         return
-    host.wait_for_selector("[data-testid=scribe-skip]:visible", timeout=10000)
-    host.click("[data-testid=scribe-skip]")
+    screen.click("[data-testid=screen-scribe-skip]")
     screen.wait_for_selector("[data-testid=screen-scribe]", state="hidden", timeout=10000)
 
 
@@ -144,11 +143,12 @@ def test_welcome_overlay_and_host_skip(
     assert card.get_attribute("data-group") == "welcome_first"
     assert screen.locator("[data-testid=screen-scribe-text]").inner_text().strip()
     snap(screen, shots_dir, "screen_scribe_welcome", 1920)
-    host.wait_for_selector("[data-testid=scribe-skip]:visible", timeout=10000)
-    assert guest.locator("[data-testid=scribe-skip]:visible").count() == 0
-    host.click("[data-testid=scribe-skip]")
+    assert host.locator("[data-testid=controller-scribe-line]").count() == 0  # never a phone popup
+    assert guest.locator("[data-testid=screen-scribe]").count() == 0
+    go_tab(host, "more")
+    host.click("[data-testid=open-host]")
+    host.click("[data-testid=host-scribe-skip]")
     screen.wait_for_selector("[data-testid=screen-scribe]", state="hidden", timeout=10000)
-    host.wait_for_selector("[data-testid=controller-scribe-line]", state="hidden")
     assert errors == []
 
 
@@ -209,8 +209,7 @@ def test_campaign_victory_screens(
     assert guest.locator("[data-testid=victory-new]").is_hidden()
     assert host.evaluate(NO_HSCROLL)
     snap(host, shots_dir, "controller_victory", 390)
-    host.wait_for_selector("[data-testid=scribe-skip]:visible", timeout=10000)
-    host.click("[data-testid=scribe-skip]")
+    screen.click("[data-testid=screen-scribe-skip]")
     screen.wait_for_selector("[data-testid=screen-scribe]", state="hidden", timeout=10000)
     snap(screen, shots_dir, "screen_victory", 1920)
     assert errors == []

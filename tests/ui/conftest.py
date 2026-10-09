@@ -196,6 +196,13 @@ def artless_server(tmp_path: Path) -> Iterator[LiveServer]:
 SCREEN_SIZE = ViewportSize(width=1280, height=800)
 
 
+def dismiss_gate(page: Page) -> None:
+    """Click the /screen sound gate away (M16.2); a no-op when it is not showing."""
+    if page.locator("[data-testid=sound-gate]:visible").count():
+        page.click("[data-testid=sound-gate-button]")
+        page.wait_for_selector("[data-testid=sound-gate]", state="hidden")
+
+
 def open_screen(
     browser: Browser,
     base: str,
@@ -210,6 +217,7 @@ def open_screen(
         page.add_init_script(init_script)
     page.goto(f"{base}/screen")
     page.wait_for_selector("[data-testid=screen-waiting]:not([hidden])")
+    dismiss_gate(page)
     return page
 
 

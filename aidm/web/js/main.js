@@ -5,6 +5,7 @@ import { bindRemoteAudio } from './audio/remote.js';
 import { createMusic } from './audio/music.js';
 import { createNarrationAudio } from './audio/narration.js';
 import { createDispatch } from './handlers.js';
+import { mountSoundGate } from './screen/sound_gate.js';
 import { createScribeVoice } from './scribe/voice.js';
 import { loadSettings } from './settings/model.js';
 import { createStore, saved } from './state.js';
@@ -36,7 +37,6 @@ mountBanner(document.getElementById('banner'), store, {
   retry: () => client.retry(),
   dismissFallback: () => store.update({ fallback: false }),
   dismissError: () => store.update({ errorCode: null }),
-  enableAudio: () => audio.unlock(),
 });
 
 const app = document.getElementById('app');
@@ -55,10 +55,12 @@ function show(state) {
 await loadAssets();
 bindRemoteAudio({ store, saved, mode });
 const music = createMusic({ store, mode, makeAudio });
-// The Scribe's voice lives for the whole page (a line can arrive while a view is still mounting). The screen
-// shows every line; a phone its own and the shared ones.
-const ownLine = (msg) => msg.to_player_id == null || msg.to_player_id === store.get().me.playerId;
-createScribeVoice({ store, mode, makeAudio, accept: mode === 'screen' ? () => true : ownLine });
+// The Scribe's voice lives for the whole page (a line can arrive while a view is still mounting). Owner rule
+// (M16.2): sound and the Scribe's popup belong to the screen alone; a phone gets neither.
+if (mode === 'screen') {
+  createScribeVoice({ store, mode, makeAudio, accept: () => true }); // only the screen speaks or shows the Scribe
+  mountSoundGate(document.body, { store, audio });
+}
 store.subscribe(show);
 show(store.get());
 

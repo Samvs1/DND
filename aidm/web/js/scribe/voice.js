@@ -18,8 +18,10 @@ export function createScribeVoice({ store, mode, makeAudio, accept }) {
   let current = null;
   let el = null;
   let timer = null;
+  let waiting = null;
 
   function release() {
+    waiting = null;
     clearTimeout(timer);
     timer = null;
     if (el) {
@@ -46,13 +48,30 @@ export function createScribeVoice({ store, mode, makeAudio, accept }) {
     timer = setTimeout(finish, readingMs(msg.text));
   }
 
+  // The browser refused to autoplay: keep his subtitle, raise the sound gate and replay the clip once unlocked.
+  function blockedRead(msg) {
+    readOnly(msg);
+    waiting = msg;
+    store.update({ audioBlocked: true });
+  }
+
+  function onStoreChange(state) {
+    if (!waiting || state.audioBlocked) return;
+    const msg = waiting;
+    waiting = null;
+    if (current === msg) {
+      release();
+      play(msg);
+    }
+  }
+
   function play(msg) {
     try {
       el = makeAudio(msg.audio_url);
       el.volume = currentSettings().narrationVolume / 100;
       el.onended = finish;
       el.onerror = () => current === msg && readOnly(msg);
-      Promise.resolve(el.play()).catch(() => current === msg && readOnly(msg));
+      Promise.resolve(el.play()).catch((err) => current === msg && (err?.name === 'NotAllowedError' ? blockedRead(msg) : readOnly(msg)));
     } catch {
       return readOnly(msg);
     }
@@ -73,7 +92,7 @@ export function createScribeVoice({ store, mode, makeAudio, accept }) {
     if (current && (!msg.line_id || msg.line_id === current.line_id)) finish();
   }
 
-  const stops = [store.on('scribe_line', onLine), store.on('scribe_skip', onSkip)];
+  const stops = [store.subscribe(onStoreChange), store.on('scribe_line', onLine), store.on('scribe_skip', onSkip)];
   return () => {
     stops.forEach((stop) => stop());
     release();

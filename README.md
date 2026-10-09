@@ -102,13 +102,14 @@ single-device view: to play solo, open `/screen` in one window and `/play` in an
    **The Scribe** (Scribe tab): when a hero has fallen, a standing hero can pay 25 gp per level of the fallen hero
    to have the Scribe rewrite them into the story. Outside combat only. He speaks rarely: a welcome, a welcome
    back, the campaign victory and a brief line at a revive. If he refuses, his reason shows as text on your
-   phone. The host can skip his long speeches.
+   phone. He speaks and appears only on the shared screen; the host can skip him from the Host panel and anyone
+   can skip on the screen.
 7. **Hero** tab: stats, inventory (equip, unequip, drop, use), the spellbook, and the level-up dialog when you
    have earned a level (levels 1 to 5). The **Journal** tab holds the journal and the map (travel).
 8. **More** tab: settings, text size, hero file export, the host panel (host only) and the screen's audio
    remote: separate narrator and music volume and mute. Any seated player can change them; the last change
-   wins. The screen's gear button has the same sliders for the screen itself. The screen is the default
-   audio device: while one is connected the phones stay quiet unless a player turns sound on.
+   wins. The screen's gear button has the same sliders for the screen itself. The screen is the
+   audio device and the only one: phones never play sound, and it asks for one click when it opens.
 9. **Defeat**: if the whole party falls, the screen shows the defeat overlay and the phones lock. The host (or
    the only player) can retry from the last checkpoint (arriving in a scene or a fight starting), load a save,
    or start a new adventure. A retry rerolls the dice, so the same fight can end differently.

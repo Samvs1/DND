@@ -22,8 +22,6 @@ export const STRINGS = {
     fallback: 'The storyteller lost the thread and is using a plain telling for now.',
     retry: 'Try again',
     dismiss: 'Dismiss',
-    audioBlocked: 'Your browser is holding back the spoken narration. Click to enable sound.',
-    audioEnable: 'Enable sound',
   },
   errors: {
     generic: 'Something went wrong at the table. Please try again.',
@@ -710,6 +708,7 @@ export const STRINGS = {
     musicVolume: 'Music volume',
     remoteTitle: 'Screen sound',
     remoteHint: 'These change the sound on the shared screen.',
+    screenOnly: 'Sound plays only on the shared screen. Use Screen sound on the More tab to change it.',
     audioHint: 'Narration and music play here. They start off when a shared screen is connected, until you choose.',
     text: 'Reading',
     speed: 'Text speed',
@@ -802,10 +801,16 @@ export const STRINGS = {
     gear: 'Audio settings',
     gearIcon: 'Audio',
   },
+  gate: {
+    title: "Click anywhere to start the table's sound",
+    body: 'This screen plays the narrator, the Scribe and the music for everyone at the table.',
+    button: 'Start the sound',
+  },
   scribe: {
     name: 'The Scribe',
     speaks: 'The Scribe speaks',
     skip: 'Skip',
+    hostSkip: 'Skip the Scribe',
     portraitAlt: 'The Scribe',
     flavour: 'Every tale is written in my ledger. Some may yet be amended.',
     pending: 'He is writing...',

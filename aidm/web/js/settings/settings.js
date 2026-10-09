@@ -1,4 +1,4 @@
-// Settings panel: audio mute and volume (narration audio, M8.2), text speed, text size and a reduced-motion override.
+// Settings panel: audio mute and volume (screen only since M16.2), text speed, text size and a reduced-motion override.
 // Values live in localStorage via `saved.setSettings` (the only thing persisted besides token and name).
 import { t } from '../strings.js';
 import { createPanel } from '../ui/modal.js';
@@ -30,13 +30,16 @@ export function mountSettings(root, { store, saved, mode }) {
       input.addEventListener('change', () => set({ [key]: Number(input.value) }));
       return input;
     };
-    panel.body.append(
+    const sound = mode === 'play' ? [h('p', { class: 'hint', 'data-testid': 'set-screen-only' }, t('settings.screenOnly'))] : [
       h('h3', {}, t('settings.audio')),
       check('set-mute', 'settings.mute', audioMuted(s, store.get(), mode), (mute) => set({ mute, muteSet: true })),
       h('div', { class: 'set-row' }, h('label', { for: 'set-volume' }, t('settings.volume')), slider('set-volume', 'narrationVolume')),
       check('set-music-mute', 'settings.musicMute', audioMuted(s, store.get(), mode, 'music'), (musicMute) => set({ musicMute, musicMuteSet: true })),
       h('div', { class: 'set-row' }, h('label', { for: 'set-music-volume' }, t('settings.musicVolume')), slider('set-music-volume', 'musicVolume')),
       h('p', { class: 'hint' }, t('settings.audioHint')),
+    ];
+    panel.body.append(
+      ...sound,
       h('h3', {}, t('settings.text')),
       choice('set-speed', 'settings.speed', SPEEDS, 'speed', s.speed, (speed) => set({ speed })),
       choice('set-size', 'settings.size', Object.keys(SIZES), 'size', s.size, (size) => set({ size })),

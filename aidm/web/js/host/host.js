@@ -31,6 +31,7 @@ export function mountHost(root, { store, client }) {
   const send = (type, fields) => client.send(type, fields);
   const pause = h('button', { type: 'button', class: 'btn', 'data-testid': 'host-pause' });
   const pauseState = h('p', { class: 'hint', role: 'status', 'data-testid': 'host-pause-state' });
+  const skipScribe = h('button', { type: 'button', class: 'btn btn-small', 'data-testid': 'host-scribe-skip', onclick: () => send('scribe_skip', { line_id: null }) }, t('scribe.hostSkip'));
   const force = h('button', { type: 'button', class: 'btn btn-small', 'data-testid': 'host-force', onclick: () => send('host_force_vote') }, t('host.forceVote'));
   const players = h('ul', { class: 'host-players', 'data-testid': 'host-players' });
   const hp = slider('host-hp', 'host.monsterHp', () => sendDifficulty());
@@ -106,7 +107,7 @@ export function mountHost(root, { store, client }) {
   const newGame = confirmButton({ label: t('host.newGame'), ask: t('host.newAsk'), yes: t('host.newYes'), testid: 'host-new', onYes: () => send('host_new') });
   const endGame = confirmButton({ label: t('host.end'), ask: t('host.endAsk'), yes: t('host.endYes'), testid: 'host-end', onYes: () => send('host_end') });
   panel.body.append(
-    section(t('host.session'), pause, pauseState, force),
+    section(t('host.session'), pause, pauseState, force, skipScribe),
     section(t('host.players'), players),
     section(t('host.difficulty'), hp.label, hp.input, dmg.label, dmg.input, h('p', { class: 'hint' }, t('host.difficultyHint'))),
     section(t('host.turnTimer'), h('label', { for: 'host-turn-timer' }, t('host.turnTimerLabel')), turnTimer, h('p', { class: 'hint' }, t('host.turnTimerHint'))),

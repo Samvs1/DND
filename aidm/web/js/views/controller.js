@@ -6,7 +6,6 @@ import { mountJournalTab } from '../controller/journal.js';
 import { mountMore } from '../controller/more.js';
 import { mountPlay } from '../controller/play.js';
 import { mountScribeTab } from '../controller/scribe.js';
-import { mountScribeBanner } from '../controller/scribe_banner.js';
 import { mountVictoryPanel } from '../controller/victory.js';
 import { mountStrip } from '../controller/strip.js';
 import { mountTabs } from '../controller/tabs.js';
@@ -62,7 +61,6 @@ export function mountController(root, ctx) {
     mountManualPanel(dialogs, ctx),
     mountDefeatPanel(root, ctx),
     mountVictoryPanel(root, ctx),
-    mountScribeBanner(root, ctx),
   ];
   return () => {
     stops.forEach((stop) => stop());

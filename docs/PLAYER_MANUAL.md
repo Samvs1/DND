@@ -28,10 +28,10 @@ Your seat is kept for you. If your phone sleeps, loses Wi-Fi or you close the pa
 You can dictate your actions. The **Dictate** button next to **Act** only appears when the page is served over a secure connection (the host starts the game with the HTTPS option, or you play on the host's own computer) and your browser supports speech input. Your browser will warn once about the certificate: choose Advanced, then continue to the site. Without the button, use the dictation key on your phone keyboard instead.
 
 ### Sound
-- Music plays, and the narrator can read the story aloud. Spoken narration plays only when the host has switched **Spoken narration** on in the Host panel and the host's computer has a Fish Audio key and voice. By default **the screen is the audio device**: while a screen is connected, phones stay quiet until you turn sound on.
+- Only the shared screen plays sound: the narrator, the Scribe and the music. Phones are silent. Spoken narration plays only when the host has switched **Spoken narration** on in the Host panel and the host's computer has a Fish Audio key and voice.
 - On the **More** tab, the **Screen sound** section changes narrator volume, music volume and mute on the shared screen from your phone. Any seated player can do this, and the last change wins.
-- The **Settings** button on your phone has its own volume and mute for sound played on that phone, plus text speed, text size and a reduce-motion switch.
-- If your browser holds back spoken narration, a banner offers **Enable sound**. Press it once.
+- The **Settings** button on your phone has text speed, text size and a reduce-motion switch. The screen's gear button has the sound settings for the screen.
+- When the screen opens, it asks for one click (**Click anywhere to start the table's sound**) because browsers block sound until a page is clicked. It asks again if the browser blocks a clip. Click once and everything plays.
 
 ## 2. Your hero
 
@@ -552,7 +552,7 @@ Checkpoints are made automatically whenever the party arrives somewhere (unless 
 The Scribe is a quiet keeper of a ledger in which every tale is written. He speaks rarely, in a warm, calm and gently amused voice, and he believes some tales may yet be amended. He has no fixed place; he is there when the table needs him.
 
 ### When he speaks
-A welcome of about a minute when the adventure begins, a welcome back when a saved adventure is loaded, a brief line when a hero is rewritten, and a farewell when the campaign is won. While he speaks on the screen, the story waits. He stays silent after an ordinary fight; the screen just shows **Victory!**. The host can skip the welcome, the welcome back and the victory speech from their phone. If he refuses a request, his reason is shown as text on your phone.
+A welcome of about a minute when the adventure begins, a welcome back when a saved adventure is loaded, a brief line when a hero is rewritten, and a farewell when the campaign is won. He appears and speaks only on the shared screen, for the whole group; phones never show or play him. While he speaks, the story waits. He stays silent after an ordinary fight; the screen just shows **Victory!**. The host can press **Skip the Scribe** in the Host panel, and anyone can press **Skip** on the screen. If he refuses a request, his reason is shown as text on the Scribe tab of your phone.
 
 ### Rewriting a fallen hero
 On the **Scribe** tab you can see fallen heroes (dead heroes, not ones at 0 hit points who are still alive). A standing hero pays the Scribe to rewrite a fallen hero into the story. Rules:
@@ -610,7 +610,7 @@ The tables in this manual are written by the game from its data. Races, classes,
 - **The page will not open on my phone**: check that you are on the same Wi-Fi, use the address from the screen, and ask the host to allow the game through the firewall on private networks.
 - **A certificate warning**: with the HTTPS option this is normal once per browser. Choose Advanced, then continue.
 - **No Dictate button**: it only appears over HTTPS (or on the host's own computer) in a browser with speech input. Use your keyboard's dictation key.
-- **No sound**: press **Enable sound** in the banner, check the volume sliders on the More tab, and remember the screen is the default audio device. No spoken narration: the host must turn on **Spoken narration** in the Host panel (and the host's computer needs a Fish Audio key and voice).
+- **No sound**: sound plays only on the shared screen. Click the screen's page once (**Click anywhere to start the table's sound**), then check the Screen sound volume and mute on the More tab or the screen's gear. No spoken narration: the host must turn on **Spoken narration** in the Host panel (and the host's computer needs a Fish Audio key and voice).
 - **"The storyteller lost the thread"**: the live AI is not answering. The game uses plain fallback telling and keeps going. Press **Dismiss**.
 - **"Tonight the table plays a prepared adventure"**: the live AI could not write a campaign in time, so the built-in one is played. Narration is still live; nothing is wrong.
 - **I closed the page**: open the game address again in the same browser; it reconnects you to your hero.

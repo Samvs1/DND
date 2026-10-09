@@ -132,22 +132,23 @@ def test_blocked_autoplay_shows_a_hint_and_a_click_enables_sound(
     host = _setup(browser, live_server, errors)
     host.evaluate("window.__block = true")
     host.evaluate(SEND, ["n904", 0, "This clip is held back.", URLS[0]])
-    host.wait_for_selector("[data-testid=banner]", timeout=20000)
-    assert "Enable sound" in host.locator("[data-testid=banner] button").inner_text()
+    host.wait_for_selector("[data-testid=sound-gate]:visible", timeout=20000)
+    assert host.locator("[data-testid=banner] button").count() == 0
     host.wait_for_function(
         "() => document.body.textContent.includes('This clip is held back.')", timeout=20000
     )
     host.evaluate("window.__block = false")
-    host.click("[data-testid=banner] button")
-    host.wait_for_selector("[data-testid=banner]", state="detached")
+    host.click("[data-testid=sound-gate-button]")
+    host.wait_for_selector("[data-testid=sound-gate]", state="hidden")
     host.evaluate(SEND, ["n904", 1, "Now the sound works.", URLS[1]])
     assert host.evaluate(STATE)["playing"] == URLS[1]
     assert errors == []
 
 
-def test_players_default_to_silent_when_a_screen_is_connected(
+def test_phones_are_always_silent_even_without_a_screen(
     browser: Browser, live_server: LiveServer
 ) -> None:
+    """M16.2 owner rule: only the screen plays sound, so a phone is always muted."""
     errors: list[str] = []
     _screen, host, _guest = start_with_screen(browser, live_server.base, errors)
     host.evaluate(FAKE_AUDIO)
@@ -157,18 +158,10 @@ def test_players_default_to_silent_when_a_screen_is_connected(
         window.aidm.store.update({ snapshot: { ...snap, state: { ...snap.state, screens: 0 } } });
     }"""
     )
-    assert host.evaluate(STATE)["muted"] is False
-    host.evaluate(
-        """() => {
-        const snap = window.aidm.store.get().snapshot;
-        window.aidm.store.update({ snapshot: { ...snap, state: { ...snap.state, screens: 1 } } });
-    }"""
-    )
     assert host.evaluate(STATE)["muted"] is True
-    host.evaluate("window.aidm.store.update({ audioBlocked: false })")
     go_tab(host, "more")
     host.click("[data-testid=open-settings]")
     host.wait_for_selector("[data-testid=settings][open]")
-    host.uncheck("[data-testid=set-mute]")  # an explicit choice wins over the screen default
-    assert host.evaluate(STATE)["muted"] is False
+    assert host.locator("[data-testid=set-mute]").count() == 0
+    assert host.locator("[data-testid=set-volume]").count() == 0
     assert errors == []
