@@ -18,8 +18,12 @@ free and reproducible; the candidates are kept next to it for inspection).
   time up to `IDEAL_VOICED_S` counts most, a falling or level pitch earns a bonus, an upturn is
   penalised, extra level helps a little. `GOOD_SCORE` marks a take worth keeping.
 
+- A separately generated closing phrase (a line's `parts`, M13.4f: "Rise, once more.") is judged
+  by `phrase_features` / `phrase_score`: drawn out, its median pitch near the line's (`ref_f0_hz`;
+  neither dull and low nor a high questioning lift) and falling over its last half second.
+
 Public API: `FinalWord`, `final_word`, `final_word_features`, `take_score`, `best_take`,
-`GOOD_SCORE`.
+`GOOD_SCORE`, `Phrase`, `loud_span`, `phrase_features`, `phrase_score`, `best_phrase`.
 """
 
 from __future__ import annotations
@@ -39,6 +43,7 @@ BLOCK_S = 0.010
 SMOOTH_S = 0.050
 IDEAL_VOICED_S = 1.4
 UPTURN_HZ_S = 10.0
+END_S = 0.5
 MIN_PAUSE_S = 0.20
 MAX_SPAN_S = 1.8
 GOOD_SCORE = 2.0
@@ -60,7 +65,9 @@ def _loud(audio: Audio, rate: int) -> npt.NDArray[np.bool_]:
     """Per 10 ms block: is the smoothed envelope above the pause floor?"""
     env = envelope_db(audio, rate, BLOCK_S)
     width = max(1, round(SMOOTH_S / BLOCK_S))
-    smooth = np.convolve(env, np.ones(width) / width, mode="same")
+    # Pad with the edge values: zero padding would read as 0 dB (the loudest) at both ends.
+    padded = np.pad(env, (width // 2, width - 1 - width // 2), mode="edge")
+    smooth = np.convolve(padded, np.ones(width) / width, mode="valid")
     return smooth > FLOOR_DB
 
 
@@ -126,3 +133,55 @@ def best_take(takes: list[tuple[Audio, int]]) -> tuple[int, list[FinalWord]]:
     words = [final_word_features(audio, rate) for audio, rate in takes]
     scores = [take_score(word) for word in words]
     return int(np.argmax(scores)), words
+
+
+@dataclass(frozen=True)
+class Phrase:
+    phrase_s: float
+    f0_vs_ref_hz: float
+    end_slope_hz_s: float
+
+    def as_dict(self) -> dict[str, float]:
+        return asdict(self)
+
+
+def loud_span(audio: Audio, rate: int) -> tuple[int, int]:
+    """Samples from the first to the end of the last loud block (the whole clip if none)."""
+    loud = np.nonzero(_loud(audio, rate))[0]
+    if loud.size == 0:
+        return 0, audio.size
+    block = round(BLOCK_S * rate)
+    return int(loud[0]) * block, min(audio.size, (int(loud[-1]) + 1) * block)
+
+
+def phrase_features(audio: Audio, rate: int, ref_f0_hz: float) -> Phrase:
+    start, end = loud_span(audio, rate)
+    f0 = frame_f0(audio[start:end], rate)
+    voiced = np.nonzero(~np.isnan(f0))[0]
+    median = float(np.median(f0[voiced])) if voiced.size else 0.0
+    slope = 0.0
+    if voiced.size >= 5:
+        tail = voiced[voiced >= voiced[-1] - round(END_S / HOP_S)]
+        slope = float(np.polyfit(tail * HOP_S, f0[tail], 1)[0])
+    return Phrase(
+        phrase_s=round((end - start) / rate, 2),
+        f0_vs_ref_hz=round(median - ref_f0_hz, 1) if median else -999.0,
+        end_slope_hz_s=round(slope, 1),
+    )
+
+
+def phrase_score(phrase: Phrase) -> float:
+    """Drawn out, near the line's pitch (neither dull and low nor a high lift), closing like a
+    statement (falling over its last `END_S`)."""
+    if phrase.f0_vs_ref_hz <= -999.0:
+        return -10.0
+    score = 0.5 * min(phrase.phrase_s, 3.0)
+    score += 0.8 if phrase.end_slope_hz_s <= 0 else -min(phrase.end_slope_hz_s, 120.0) / 40.0
+    score -= abs(min(phrase.f0_vs_ref_hz, 0.0)) / 15.0
+    score -= max(phrase.f0_vs_ref_hz - 8.0, 0.0) / 6.0
+    return round(score, 3)
+
+
+def best_phrase(takes: list[tuple[Audio, int]], ref_f0_hz: float) -> tuple[int, list[Phrase]]:
+    phrases = [phrase_features(audio, rate, ref_f0_hz) for audio, rate in takes]
+    return int(np.argmax([phrase_score(phrase) for phrase in phrases])), phrases

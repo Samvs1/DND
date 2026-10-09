@@ -105,5 +105,5 @@ def test_reselect_picks_again_from_cached_takes_without_the_api(tmp_path: Path) 
     path.with_name(f"{path.stem}.take1.wav").write_bytes(strong)
     path.write_bytes(weak)
     picked = reselect(paths, line)
-    assert picked is not None and picked[0] == 1 and picked[1] > 2.0
+    assert len(picked) == 1 and picked[0][:2] == ("test.long", 1) and picked[0][2] > 2.0
     assert path.read_bytes() == strong

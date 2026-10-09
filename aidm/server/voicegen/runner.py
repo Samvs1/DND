@@ -3,20 +3,18 @@
 `VoicePaths.for_root(root)` names every location: the config (data/voice/scribe.json), the raw
 WAV cache and the report (gitignored artifacts/voice/raw and artifacts/voice/report) and the
 output folder the game serves (aidm/web/static/audio/voice/scribe). `fetch_raw` returns the cached
-raw WAV of a line or asks the provider once (or `takes` times, keeping the best final word, see
-takes.py; every take and a `<raw>.takes.json` summary stay next to it) and caches it atomically;
-with `provider=None` (--reprocess) a missing cache entry raises `MissingRaw` naming the line, so a
-reprocess never calls the API. `build_line` processes one raw WAV, encodes `<line_id>.mp3` once,
-writes the spectrogram and the line report and returns the index entry.
+raw WAV of a line (rawcache.py: one recording, or the best of `takes`; a line with `parts` has
+each part fetched and spliced by parts.py); with `provider=None` (--reprocess) a missing cache
+entry raises `rawcache.MissingRaw` naming the line or part, so a reprocess never calls the API.
+`build_line` processes one raw WAV, encodes `<line_id>.mp3` once, writes the spectrogram and the
+line report and returns the index entry.
 
-Public API: `VoicePaths`, `MissingRaw`, `LineBuild`, `raw_path`, `fetch_raw`, `reselect`,
-`build_line`, `build_lines`.
+Public API: `VoicePaths`, `LineBuild`, `raw_path`, `has_raw`, `fetch_raw`,
+`reselect`, `build_line`, `build_lines`.
 """
 
 from __future__ import annotations
 
-import json
-import os
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -31,7 +29,15 @@ from aidm.server.voicegen.index import (
     merge_entries,
     write_index,
 )
-from aidm.server.voicegen.provider import TtsProvider, read_wav
+from aidm.server.voicegen.parts import assemble
+from aidm.server.voicegen.provider import TtsProvider, read_wav, wav_bytes
+from aidm.server.voicegen.rawcache import (
+    Source,
+    fetch,
+    line_source,
+    part_sources,
+    reselect_source,
+)
 from aidm.server.voicegen.report import (
     LineMetrics,
     measure,
@@ -40,7 +46,6 @@ from aidm.server.voicegen.report import (
     write_summary,
 )
 from aidm.server.voicegen.spectrogram import spectrogram_png
-from aidm.server.voicegen.takes import best_take, take_score
 
 
 @dataclass(frozen=True)
@@ -61,10 +66,6 @@ class VoicePaths:
         )
 
 
-class MissingRaw(LookupError):
-    """--reprocess found no cached raw WAV for a line."""
-
-
 @dataclass(frozen=True)
 class LineBuild:
     entry: IndexEntry
@@ -76,60 +77,33 @@ def raw_path(paths: VoicePaths, line: VoiceLine) -> Path:
     return paths.raw_dir / line.raw_name
 
 
-def _atomic_bytes(path: Path, data: bytes) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_name(f"{path.name}.{os.getpid()}.tmp")
-    tmp.write_bytes(data)
-    os.replace(tmp, path)
+def _sources(paths: VoicePaths, line: VoiceLine) -> list[Source]:
+    return part_sources(paths.raw_dir, line) if line.parts else [line_source(paths.raw_dir, line)]
 
 
-def _choose(path: Path, line: VoiceLine, takes: list[bytes]) -> int:
-    """Pick the best take, write `<raw>.takes.json` and the chosen take as the raw; its index."""
-    chosen, words = best_take([read_wav(data) for data in takes])
-    summary = {
-        "line": line.id,
-        "chosen": chosen,
-        "takes": [{**w.as_dict(), "score": take_score(w)} for w in words],
-    }
-    _atomic_bytes(path.with_name(f"{path.stem}.takes.json"), json.dumps(summary, indent=2).encode())
-    _atomic_bytes(path, takes[chosen])
-    return chosen
-
-
-def _best_of_takes(paths: VoicePaths, line: VoiceLine, provider: TtsProvider) -> bytes:
-    """Generate `line.takes` takes, keep each as `<raw>.take<i>.wav`, return the best one."""
-    path = raw_path(paths, line)
-    takes = [provider.synthesize(line.text, line.voice) for _ in range(line.takes)]
-    for number, data in enumerate(takes):
-        _atomic_bytes(path.with_name(f"{path.stem}.take{number}.wav"), data)
-    return takes[_choose(path, line, takes)]
-
-
-def reselect(paths: VoicePaths, line: VoiceLine) -> tuple[int, float] | None:
-    """Re-pick the best of the cached takes (no API call): (chosen index, its score), or None."""
-    path = raw_path(paths, line)
-    files = sorted(
-        path.parent.glob(f"{path.stem}.take*.wav"), key=lambda f: int(f.stem.rsplit("take", 1)[1])
-    )
-    if not files:
-        return None
-    takes = [f.read_bytes() for f in files]
-    chosen = _choose(path, line, takes)
-    summary = json.loads(path.with_name(f"{path.stem}.takes.json").read_text(encoding="utf-8"))
-    return chosen, float(summary["takes"][chosen]["score"])
+def has_raw(paths: VoicePaths, line: VoiceLine) -> bool:
+    """Every recording the line needs is cached (one raw, or every part's raw)."""
+    return all(source.path.is_file() for source in _sources(paths, line))
 
 
 def fetch_raw(paths: VoicePaths, line: VoiceLine, provider: TtsProvider | None) -> bytes:
-    path = raw_path(paths, line)
-    if path.is_file():
-        return path.read_bytes()
-    if provider is None:
-        raise MissingRaw(f"{line.id}: no cached raw WAV ({path.name}); run with --yes")
-    if line.takes > 1:
-        return _best_of_takes(paths, line, provider)
-    data = provider.synthesize(line.text, line.voice)
-    _atomic_bytes(path, data)
-    return data
+    """The line's raw WAV: its cached recording, or its parts fetched and spliced (parts.py)."""
+    if not line.parts:
+        return fetch(line_source(paths.raw_dir, line), provider)
+    clips = [read_wav(fetch(source, provider)) for source in _sources(paths, line)]
+    audio, rate = assemble(clips, line.parts)
+    return wav_bytes(audio, rate, subtype="FLOAT")
+
+
+def reselect(paths: VoicePaths, line: VoiceLine) -> list[tuple[str, int, float]]:
+    """Re-pick each multi-take recording of the line from its cached takes: (label, take, score)."""
+    picked: list[tuple[str, int, float]] = []
+    for source in _sources(paths, line):
+        if source.takes > 1:
+            result = reselect_source(source)
+            if result is not None:
+                picked.append((source.label, *result))
+    return picked
 
 
 def build_line(paths: VoicePaths, line: VoiceLine, data: bytes, encoder: Encoder) -> LineBuild:

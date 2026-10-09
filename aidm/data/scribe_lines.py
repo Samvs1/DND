@@ -10,7 +10,9 @@ voice build (M13.3) and are ignored here.
 - `ScribeLine(id, group, text, profile)`: `text` is the spoken text and may carry Fish S2 cues in
   square brackets (`[break]`, `[long-break]`, `[calm, warm]`); `ScribeLine.display` is the same
   text with every cue removed, which is what players read. `voiced` False marks a text-only line
-  (the refusals): he speaks aloud only for the welcome, welcome back, campaign victory and revive. `ScribeLines.group(name)` -> the lines
+  (the refusals): he speaks aloud only for the welcome, welcome back, campaign victory and revive.
+  A line made of spliced `parts` (the voice build records them separately) has no `text` of its
+  own: its text is the parts' texts joined. `ScribeLines.group(name)` -> the lines
   of one group in file order. Every group has at least one line and ids are unique.
 - `audio_url(line_id, static_dir=None)`: "/static/audio/voice/scribe/<line_id>.mp3" when that
   file exists under the web static folder, else "" (the voice build creates the files).
@@ -26,6 +28,7 @@ import json
 import re
 from enum import StrEnum
 from pathlib import Path
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -48,6 +51,15 @@ class ScribeGroup(StrEnum):
 
 class ScribeLine(BaseModel):
     model_config = ConfigDict(frozen=True, extra="ignore")
+
+    @model_validator(mode="before")
+    @classmethod
+    def _text_from_parts(cls, data: Any) -> Any:
+        """A line built from spliced `parts` (M13.4f) reads as the parts' texts joined."""
+        if isinstance(data, dict) and "text" not in data and data.get("parts"):
+            parts: list[dict[str, Any]] = data["parts"]
+            return {**data, "text": " ".join(str(part["text"]) for part in parts)}
+        return data
 
     id: str = Field(min_length=1, pattern=r"^[a-z0-9_.]+$")
     group: ScribeGroup

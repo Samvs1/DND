@@ -31,12 +31,12 @@ from aidm.server.voicegen.config import VoiceConfig, VoiceLine, load_config
 from aidm.server.voicegen.encode import Encoder, encode_mp3
 from aidm.server.voicegen.index import check
 from aidm.server.voicegen.provider import FakeTts, FishWavProvider, TtsProvider, VoiceProviderError
+from aidm.server.voicegen.rawcache import MissingRaw
 from aidm.server.voicegen.runner import (
     LineBuild,
-    MissingRaw,
     VoicePaths,
     build_lines,
-    raw_path,
+    has_raw,
     reselect,
 )
 
@@ -71,7 +71,7 @@ def provider_from_env(root: Path) -> TtsProvider:
 
 
 def _plan(paths: VoicePaths, lines: Sequence[VoiceLine], out: Out) -> int:
-    calls = [line for line in lines if not raw_path(paths, line).is_file()]
+    calls = [line for line in lines if not has_raw(paths, line)]
     for line in lines:
         state = "API call" if line in calls else "cached"
         out(f"  {line.id:<22} {len(line.text):>4} chars  {line.profile:<5}  {state}")
@@ -110,10 +110,8 @@ def _summary(builds: Sequence[LineBuild], paths: VoicePaths, out: Out) -> int:
 
 def _reselect(paths: VoicePaths, lines: Sequence[VoiceLine], out: Out) -> None:
     for line in lines:
-        if line.takes > 1:
-            picked = reselect(paths, line)
-            note = "no cached takes" if picked is None else f"take {picked[0]} (score {picked[1]})"
-            out(f"  {line.id:<22} reselected: {note}")
+        for label, take, score in reselect(paths, line):
+            out(f"  {label:<24} reselected: take {take} (score {score})")
 
 
 def _build(
@@ -125,7 +123,7 @@ def _build(
 ) -> int:
     factory, encoder, out = deps
     if args.reprocess:
-        missing = [line for line in lines if not raw_path(paths, line).is_file()]
+        missing = [line for line in lines if not has_raw(paths, line)]
         for line in missing:
             out(f"{line.id}: no cached raw WAV; run with --yes")
         if missing:
