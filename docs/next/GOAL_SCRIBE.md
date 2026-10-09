@@ -21,11 +21,12 @@ docs/DECISIONS.md when they land.
    fellowship and the road ahead, about one minute (**D:** `welcome.first` on a new campaign start,
    `welcome.return`, about 20-30 s, when a saved campaign is loaded). Shown on /screen with his portrait and
    subtitles; the opening narration waits until he is done; the host can skip him from their phone.
-2. **Victory**: he congratulates the party on the victory screen, with random variants so it does not repeat.
-   **D:** two moments: a short line on a won fight (`victory.fight.*`, 5 variants, 5-12 s, shown as a
-   victory banner on /screen) and a longer one on the campaign victory screen (`victory.campaign.*`,
-   3 variants, 25-45 s, a full overlay like the defeat overlay, with the epilogue). The server picks the
-   variant with the table RNG and never repeats the previous pick.
+2. **Victory**: he congratulates the party on the campaign victory screen (`victory.campaign.*`,
+   3 variants, a full overlay like the defeat overlay, with the epilogue). The server picks the variant
+   and never repeats the previous pick. **Owner feedback (M13.4): he does NOT speak after an ordinary
+   won fight.** The /screen still shows a visual "Victory" banner after a won fight (no voice).
+   Interactions with him must stay rare and unique: he speaks aloud ONLY for the welcome, the welcome
+   back, the campaign victory and a brief revive line.
 3. **The Scribe tab** on the phone: pay him to revive a fallen teammate, who is "rewritten" into the story.
    - Only outside combat. During combat the tab stays visible but disabled and he explains why, in character.
    - Uses the existing currency (`Character.gold`, `GoldChanged`) and character state (`dead`, HP).
@@ -38,8 +39,20 @@ docs/DECISIONS.md when they land.
    - **D:** the paying player's own hero pays (`payment: "payer"`); the payer's hero must be alive.
    - **D:** the revived hero returns with half its max HP (rounded up, `restore: "half"`), death saves reset,
      not dying, conditions cleared except exhaustion.
-   - Voice lines: revive confirmation (3 variants), refusal during combat (2), insufficient funds (2).
-     **D:** plus `none_fallen` (1) and `not_yet` (1, the hero is down but alive), text and voice.
+   - Voice: revive confirmation only, 3 short variants of a few seconds ending in "Rise." (like the
+     reference: short, solemn, done). **Refusals are text only** (owner: spoken refusals were too long
+     and repetitive): in combat, not enough gold, nobody fallen, not yet fallen, each one short
+     in-character sentence shown on the phone (`voiced: false` lines).
+
+## Voice and language (owner feedback on the first build, 2026-10-09)
+- Too fast and hurried (no rest after commas and sentences), and the s1 model sounded low quality.
+  Now: Fish **`s2.1-pro`**, `prosody.speed` 0.85, S2 cues in the text: `[break]` after commas,
+  `[long-break]` between sentences and paragraphs, a free-form delivery cue at paragraph starts
+  (`[calm, warm, gently amused]`). The game shows the text with the cues removed.
+- Language: archaic, gracious, like the reference character (thou/thee/thy to one person, ye/you to
+  the party, hath/hast/doth/'tis). Original sentences (the BG3 text rule and copyright); same register.
+- Never annoyed, curt or impatient, also when refusing (no gold, in combat): gracious, patient, gently
+  amused. Rewrites go ONE line at a time: the owner reviews a sample and green-lights the rest.
 
 ## Audio: built by us, never by hand
 - Fish Audio voice model (reference id) **`dab97346a1464e6ba09a592b4bd4b7d2`**. Generated at build time by a

@@ -555,3 +555,18 @@ M11.2 clock | `Clock.time()` added (LoopClock = loop time, ManualClock = `now`) 
 - Result: -16.0 +- 0.15 LUFS, true peak <= -1.1 dBTP, air above 10 kHz within 1.9 dB of the raw TTS (the 12 kHz shelf), wet/dry -7 to -8.5 dB (long) and -11.5 to -12.6 dB (short), tails 0.5-1.6 s.
 - `gen_scribe_voice.py --check` is now gate step 11.
 
+## M13.4b Scribe voice, second pass (owner feedback)
+- Model `s2.1-pro` (S1 is deprecated, retired 2026-12-31), `prosody.speed` 0.85, S2 bracket cues for pauses and delivery; `ScribeLine.display` strips the cues for subtitles; the voice --check, the raw cache key and the line hash use the cued text.
+- No line after an ordinary won fight: `ScribeGroup.VICTORY_FIGHT`, its 5 lines, mp3s and the `fight_won` trigger are gone.
+- Per-line `voice` overrides (`voice <- line.voice`): the 13 lines not yet rewritten are pinned to their first-build settings (backend s1, speed 1.0) so their hashes still match and the gate stays green until each is rewritten and approved.
+- Verification without listening: Fish ASR transcript of the raw sample (no cue spoken as words; 9 pauses over 0.6 s, longest 1.7 s), plus the usual LUFS / true peak / paired F0 / spectrogram report.
+- Lint gap found (not fixed here): `extend-exclude = ["data", ...]` in pyproject also matches `aidm/data`, so ruff skips that package; fixing it surfaces ~10 pre-existing findings. Logged as a follow-up.
+- Owner review of the s2.1-pro sample: "way better", asked for slightly less echo. Reverb wet 0.30 -> 0.24 and rt60 2.4 -> 2.2 s (long); 0.22 -> 0.18 and 1.8 -> 1.6 s (short): the reverb sits ~3 dB lower (welcome wet/dry -9.0 -> -12.2 dB). All 14 lines rewritten in the archaic, never-annoyed register and generated with s2.1-pro (Fish ASR: every transcript matches 0.93-1.00, no cue spoken).
+- Pace target ~85-105 wpm (the approved welcome is 106). Short lines with dense cues came out at 58-80 wpm, so five lines got fewer cues and a per-line `voice.prosody_speed` (0.95, revive.3 1.0); revive.2 stays at ~64 wpm on purpose (staccato beats: "Struck out. Rewritten.").
+
+## M13.4c Scribe: rare and brief (owner feedback)
+- Keep the visual fight "Victory" banner (M13.5); only his voice after fights is gone (as M13.4b).
+- Refusals are never voiced: `scribe_voice.refused` and `REFUSAL_GROUPS` removed; a refusal reaches only the requester as the typed ErrorMsg; the phone shows his `voiced: false` text for the code (refuse_combat, refuse_funds, none_fallen, not_yet, one short sentence each). Their mp3s are deleted; the voice build skips `voiced: false` lines.
+- Revive: 3 short original lines ending in "Rise." at per-line speed 1.05 (raw 5.6-6.2 s, 6.5-7.1 s with the tail; were ~17 s). The owner's in-game example line is not copied (BG3 text rule); same brevity and cadence.
+- He now speaks aloud for 8 lines only: welcome, welcome back, 3 campaign victories, 3 revives.
+

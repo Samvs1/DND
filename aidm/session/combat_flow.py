@@ -35,7 +35,7 @@ from aidm.rules.party_ai import safe_default_turn
 from aidm.rules.quest_rewards import resolution_reward_events
 from aidm.rules.social_deeds import combat_help_deed_events
 from aidm.rules.turns import begin_turn, next_turn
-from aidm.session import checkpoints, scribe_voice, votes
+from aidm.session import checkpoints, votes
 from aidm.session.combat_runner import CombatRunner
 from aidm.session.table_core import Player, TableCore
 from aidm.session.telling import maybe_epilogue, remember, tell
@@ -223,8 +223,6 @@ async def finish_fight(core: TableCore, status: EncounterStatus) -> None:
     events += core.apply_all(combat_help_deed_events(state, status, regs.tiers))
     events += core.apply_all(resolution_reward_events(state, regs.tiers, regs.catalogue))
     events += core.apply_all(milestone_events(state, events, regs.tiers, regs.catalogue))
-    if status is EncounterStatus.VICTORY:
-        scribe_voice.fight_won(core)
     text = await tell_segment(core)
     core.in_combat = False
     core.segment = []

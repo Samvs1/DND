@@ -22,7 +22,7 @@ def add_scribe_routes(app: FastAPI, static_dir: Path) -> None:
             {
                 "id": line.id,
                 "group": line.group.value,
-                "text": line.text,
+                "text": line.display,
                 "audio_url": audio_url(line.id, static_dir),
             }
             for line in scribe_lines().lines

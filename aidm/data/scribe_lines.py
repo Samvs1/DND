@@ -4,10 +4,14 @@ That file is the ONE source of what he says: the game reads each line's `id`, `g
 and `profile` from it; the voice settings and the sound chain in the same file belong to the
 voice build (M13.3) and are ignored here.
 
-- `ScribeGroup`: the moments he speaks (welcome_first, welcome_return, victory_fight,
-  victory_campaign, revive, refuse_combat, refuse_funds, none_fallen, not_yet).
-- `ScribeLine(id, group, text, profile)`; `ScribeLines.group(name)` -> the lines of one group in
-  file order. Every group has at least one line and ids are unique (validated on load).
+- `ScribeGroup`: the moments he speaks (welcome_first, welcome_return, victory_campaign, revive,
+  refuse_combat, refuse_funds, none_fallen, not_yet). He does not speak after an ordinary fight
+  (owner feedback, M13.4).
+- `ScribeLine(id, group, text, profile)`: `text` is the spoken text and may carry Fish S2 cues in
+  square brackets (`[break]`, `[long-break]`, `[calm, warm]`); `ScribeLine.display` is the same
+  text with every cue removed, which is what players read. `voiced` False marks a text-only line
+  (the refusals): he speaks aloud only for the welcome, welcome back, campaign victory and revive. `ScribeLines.group(name)` -> the lines
+  of one group in file order. Every group has at least one line and ids are unique.
 - `audio_url(line_id, static_dir=None)`: "/static/audio/voice/scribe/<line_id>.mp3" when that
   file exists under the web static folder, else "" (the voice build creates the files).
 
@@ -19,6 +23,7 @@ from __future__ import annotations
 
 import functools
 import json
+import re
 from enum import StrEnum
 from pathlib import Path
 
@@ -27,12 +32,12 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 DEFAULT_LINES = Path(__file__).resolve().parents[2] / "data" / "voice" / "scribe.json"
 DEFAULT_STATIC = Path(__file__).resolve().parents[1] / "web" / "static"
 VOICE_PARTS = ("audio", "voice", "scribe")
+_CUE = re.compile(r"\s*\[[^\]]*\]\s*")
 
 
 class ScribeGroup(StrEnum):
     WELCOME_FIRST = "welcome_first"
     WELCOME_RETURN = "welcome_return"
-    VICTORY_FIGHT = "victory_fight"
     VICTORY_CAMPAIGN = "victory_campaign"
     REVIVE = "revive"
     REFUSE_COMBAT = "refuse_combat"
@@ -48,6 +53,12 @@ class ScribeLine(BaseModel):
     group: ScribeGroup
     text: str = Field(min_length=1)
     profile: str = "long"
+    voiced: bool = True  # False: shown as text only, no audio is built for it
+
+    @property
+    def display(self) -> str:
+        """The text without the [bracket] speech cues, as players read it."""
+        return " ".join(_CUE.sub(" ", self.text).split())
 
 
 class ScribeLines(BaseModel):

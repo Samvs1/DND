@@ -1,12 +1,13 @@
 """Voice config resolution (M13.3): deep merge default <- profile <- line, hashes, selection."""
 
+import json
 import subprocess
 import sys
 
 import pytest
 
 from aidm.server.voicegen.config import deep_merge, load_config, parse_config
-from tests.unit.voicegen.helpers import small_config
+from tests.unit.voicegen.helpers import DEFAULT_CONFIG, small_config
 
 
 def test_deep_merge_nested_and_replace() -> None:
@@ -19,17 +20,21 @@ def test_deep_merge_nested_and_replace() -> None:
 def test_merge_order_default_profile_line() -> None:
     raw = small_config(chain={"reverb": {"rt60_s": 3.0}}, profile="short")
     line = parse_config(raw).lines[0]
-    assert line.chain["reverb"]["wet"] == 0.22  # from the short profile
-    assert line.chain["reverb"]["rt60_s"] == 3.0  # line override beats the profile's 1.8
+    short = raw["profiles"]["short"]["reverb"]
+    assert line.chain["reverb"]["wet"] == short["wet"]  # from the short profile
+    assert line.chain["reverb"]["rt60_s"] == 3.0  # the line override beats the profile's rt60
+    assert short["rt60_s"] != 3.0
     assert line.chain["reverb"]["damping_hz"] == raw["chain"]["reverb"]["damping_hz"]
 
 
 def test_real_config_profiles() -> None:
-    config = load_config()
-    by_id = {line.id: line for line in config.lines}
-    assert by_id["welcome.first"].chain["reverb"]["wet"] == 0.30
-    assert by_id["revive.1"].chain["reverb"]["wet"] == 0.22
-    assert by_id["revive.1"].chain["reverb"]["rt60_s"] == 1.8
+    raw = json.loads(DEFAULT_CONFIG.read_text(encoding="utf-8"))
+    by_id = {line.id: line for line in load_config().lines}
+    short = raw["profiles"]["short"]["reverb"]
+    assert by_id["welcome.first"].chain["reverb"]["wet"] == raw["chain"]["reverb"]["wet"]
+    assert by_id["revive.1"].chain["reverb"]["wet"] == short["wet"]
+    assert by_id["revive.1"].chain["reverb"]["rt60_s"] == short["rt60_s"]
+    assert short["wet"] < raw["chain"]["reverb"]["wet"]  # short lines are drier
 
 
 def test_hashes_track_text_and_chain() -> None:
@@ -55,3 +60,21 @@ def test_game_server_never_imports_the_voice_build() -> None:
     code = "import sys, aidm.server.app; print('aidm.server.voicegen' in sys.modules)"
     done = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, check=True)
     assert done.stdout.strip() == "False"
+
+
+def test_a_line_can_override_its_voice_settings() -> None:
+    raw = small_config()
+    raw["lines"][0]["voice"] = {"prosody_speed": 0.8}
+    config = parse_config(raw)
+    first, second = config.lines[0], config.lines[1]
+    assert first.voice["prosody_speed"] == 0.8 and second.voice == raw["voice"]
+    assert first.voice["reference_id"] == raw["voice"]["reference_id"]
+    assert first.raw_key != parse_config(small_config()).lines[0].raw_key
+
+
+def test_text_only_lines_are_not_built() -> None:
+    raw = small_config()
+    raw["lines"].append(
+        {"id": "test.text", "group": "not_yet", "text": "Shown only.", "voiced": False}
+    )
+    assert [line.id for line in parse_config(raw).lines] == ["test.long", "test.short"]

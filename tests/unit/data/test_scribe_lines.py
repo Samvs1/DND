@@ -9,20 +9,20 @@ from pydantic import ValidationError
 from aidm.data.scribe_lines import (
     DEFAULT_LINES,
     ScribeGroup,
+    ScribeLine,
     audio_url,
     load_scribe_lines,
     scribe_lines,
 )
 
-# docs/next/GOAL_SCRIBE.md "What he does" 1-3 (decisions D: variant counts per moment)
+# docs/next/GOAL_SCRIBE.md "What he does" 1-3 (variant counts; no fight-victory lines since M13.4)
 EXPECTED_COUNTS = {
     ScribeGroup.WELCOME_FIRST: 1,
     ScribeGroup.WELCOME_RETURN: 1,
-    ScribeGroup.VICTORY_FIGHT: 5,
     ScribeGroup.VICTORY_CAMPAIGN: 3,
     ScribeGroup.REVIVE: 3,
-    ScribeGroup.REFUSE_COMBAT: 2,
-    ScribeGroup.REFUSE_FUNDS: 2,
+    ScribeGroup.REFUSE_COMBAT: 1,
+    ScribeGroup.REFUSE_FUNDS: 1,
     ScribeGroup.NONE_FALLEN: 1,
     ScribeGroup.NOT_YET: 1,
 }
@@ -73,3 +73,22 @@ def test_audio_url_only_when_the_file_exists(tmp_path: Path) -> None:
     (folder / "revive.1.mp3").write_bytes(b"ID3")
     assert audio_url("revive.1", tmp_path) == "/static/audio/voice/scribe/revive.1.mp3"
     assert audio_url("revive.2", tmp_path) == ""
+
+
+def test_display_text_drops_the_speech_cues() -> None:
+    line = ScribeLine(
+        id="t.1", group=ScribeGroup.REVIVE, text="[calm, warm] Ah. [long-break] Rise, [break] friend."
+    )
+    assert line.display == "Ah. Rise, friend."
+    assert all("[" not in line.display for line in scribe_lines().lines)
+
+
+def test_he_speaks_aloud_rarely_refusals_are_text_only() -> None:
+    lines = scribe_lines()
+    text_only = {ScribeGroup.REFUSE_COMBAT, ScribeGroup.REFUSE_FUNDS}
+    text_only |= {ScribeGroup.NONE_FALLEN, ScribeGroup.NOT_YET}
+    for line in lines.lines:
+        assert line.voiced is (line.group not in text_only), line.id
+    revive = [line.display for line in lines.group(ScribeGroup.REVIVE)]
+    assert all(len(text.split()) <= 10 and text.endswith("Rise.") for text in revive)
+

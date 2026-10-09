@@ -114,7 +114,10 @@ async def test_new_campaign_welcome_comes_before_the_opening_narration(tmp_path:
             assert [(m.group, m.line_id, m.to_player_id) for m in lines] == [
                 ("welcome_first", "welcome.first", None)
             ]
-            assert lines[0].text.startswith("Ah. There you are.")
+            assert (
+                lines[0].text.startswith("Ah. So ye have come at last.")
+                and "[" not in lines[0].text
+            )
             assert lines[0].audio_url == expected_audio_url("welcome.first")
             assert _index(msgs, ScribeLineMsg) < _index(msgs, NarrationChunkMsg)
         assert_replays(table)
@@ -158,17 +161,16 @@ async def test_boot_load_welcomes_back_once_on_the_first_connection(tmp_path: Pa
         assert _groups(back.drain() + screen.drain()) == []
 
 
-async def test_won_fight_gets_one_victory_line(tmp_path: Path) -> None:
+async def test_won_fight_gets_no_scribe_line(tmp_path: Path) -> None:
     async with running(disabled_llm(tmp_path), inn_state()) as (table, _):
         ann = await join(table, "Ann", "fighter")
         await start_fight(table, "wolf")
         ann.drain()
         await _win(table)
         msgs = ann.drain()
-        lines = of_type(msgs, ScribeLineMsg)
-        assert [m.group for m in lines] == ["victory_fight"]
-        assert lines[0].line_id.startswith("victory.fight.") and lines[0].to_player_id is None
-        assert _index(msgs, ScribeLineMsg) < _index(msgs, NarrationDone)
+        # Owner feedback (M13.4): he stays silent after an ordinary won fight.
+        assert of_type(msgs, ScribeLineMsg) == []
+        assert of_type(msgs, NarrationDone)
         assert_replays(table)
 
 

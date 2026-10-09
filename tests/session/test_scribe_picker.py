@@ -16,14 +16,14 @@ def _run(seed: int, group: ScribeGroup, count: int) -> list[str]:
 @settings(max_examples=40, deadline=None)
 @given(seed=st.integers(min_value=0, max_value=2**31))
 def test_no_immediate_repeat_within_a_group(seed: int) -> None:
-    for group in (ScribeGroup.VICTORY_FIGHT, ScribeGroup.REFUSE_COMBAT, ScribeGroup.REVIVE):
+    for group in (ScribeGroup.VICTORY_CAMPAIGN, ScribeGroup.REVIVE):
         picks = _run(seed, group, 60)
         assert all(a != b for a, b in zip(picks, picks[1:], strict=False))
 
 
 def test_every_variant_is_used_over_many_picks() -> None:
-    picks = _run(7, ScribeGroup.VICTORY_FIGHT, 200)
-    assert set(picks) == {line.id for line in scribe_lines().group(ScribeGroup.VICTORY_FIGHT)}
+    picks = _run(7, ScribeGroup.VICTORY_CAMPAIGN, 200)
+    assert set(picks) == {line.id for line in scribe_lines().group(ScribeGroup.VICTORY_CAMPAIGN)}
 
 
 def test_a_single_line_group_repeats_its_only_line() -> None:
@@ -31,15 +31,15 @@ def test_a_single_line_group_repeats_its_only_line() -> None:
 
 
 def test_same_seed_same_sequence_other_seed_differs() -> None:
-    assert _run(11, ScribeGroup.VICTORY_FIGHT, 30) == _run(11, ScribeGroup.VICTORY_FIGHT, 30)
-    runs = {tuple(_run(seed, ScribeGroup.VICTORY_FIGHT, 30)) for seed in range(5)}
+    assert _run(11, ScribeGroup.VICTORY_CAMPAIGN, 30) == _run(11, ScribeGroup.VICTORY_CAMPAIGN, 30)
+    runs = {tuple(_run(seed, ScribeGroup.VICTORY_CAMPAIGN, 30)) for seed in range(5)}
     assert len(runs) > 1
 
 
 def test_groups_remember_their_own_last_line() -> None:
     memory = ScribeMemory()
-    fight = scribe_lines().group(ScribeGroup.VICTORY_FIGHT)
+    fight = scribe_lines().group(ScribeGroup.VICTORY_CAMPAIGN)
     first = memory.pick(fight, 5)
     memory.pick(scribe_lines().group(ScribeGroup.REVIVE), 5)
     assert memory.pick(fight, 5).id != first.id
-    assert memory.current is not None and memory.current.startswith("victory.fight.")
+    assert memory.current is not None and memory.current.startswith("victory.campaign.")

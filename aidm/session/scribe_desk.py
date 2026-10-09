@@ -43,7 +43,6 @@ async def revive(core: TableCore, player: Player, msg: ScribeRevive) -> None:
         unknown = refused.reason is ScribeRefusal.UNKNOWN_TARGET
         code = ErrorCode.UNKNOWN_TARGET if unknown else ErrorCode.REFUSED
         core.error(player.id, code, REFUSAL_TEXT[refused.reason], refusal=refused.reason.value)
-        scribe_voice.refused(core, player.id, refused.reason)
         return
     core.apply_all(events)
     scribe_voice.revived(core)

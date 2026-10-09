@@ -45,7 +45,12 @@ async def _ask(seat: Seat, target: str) -> None:
     await seat.table.settle()
 
 
-async def test_refusals_are_addressed_to_the_requester(tmp_path: Path) -> None:
+def _refusals(seat: Seat) -> list[str | None]:
+    return [m.refusal for m in of_type(seat.drain(), ErrorMsg)]
+
+
+async def test_refusals_are_never_voiced_only_the_requester_is_told(tmp_path: Path) -> None:
+    # Owner feedback (M13.4c): no spoken refusal lines; the phone shows his text for the code.
     state = _state(gold=10)
     hp = state.creatures["wizard"].hp
     apply(state, HpChanged(creature_id="wizard", delta=-hp, new_hp=0))
@@ -56,28 +61,34 @@ async def test_refusals_are_addressed_to_the_requester(tmp_path: Path) -> None:
         for seat in (ann, bob, screen):
             seat.drain()
         await _ask(ann, "rogue")
-        assert _lines(screen) == [("refuse_funds", ann.player_id)]
-        assert _lines(bob) == [("refuse_funds", ann.player_id)]
         await _ask(ann, "wizard")
-        assert _lines(ann) == [("refuse_funds", ann.player_id), ("not_yet", ann.player_id)]
-        await _ask(bob, "rogue")
-        await _ask(ann, "nobody")
-        assert _lines(screen) == [("not_yet", ann.player_id)]
-        assert of_type(screen.drain(), ErrorMsg) == []
+        msgs = ann.drain()
+        assert of_type(msgs, ScribeLineMsg) == []
+        assert [m.refusal for m in of_type(msgs, ErrorMsg)] == [
+            "scribe_no_funds",
+            "scribe_not_fallen",
+        ]
+        assert _lines(bob) == [] and _lines(screen) == []
+        assert _refusals(screen) == []
         assert_replays(table)
 
 
-async def test_combat_and_nobody_fallen_refusals_have_lines(tmp_path: Path) -> None:
+async def test_combat_and_nobody_fallen_refusals_are_silent(tmp_path: Path) -> None:
     async with running(disabled_llm(tmp_path), _state(gold=100, dead=())) as (table, _):
         ann = await join(table, "Ann", "fighter")
+        ann.drain()
         await _ask(ann, "rogue")
-        assert _lines(ann) == [("none_fallen", ann.player_id)]
+        msgs = ann.drain()
+        assert of_type(msgs, ScribeLineMsg) == []
+        assert [m.refusal for m in of_type(msgs, ErrorMsg)] == ["scribe_none_fallen"]
     async with running(disabled_llm(tmp_path), _state(gold=100)) as (table, _):
         ann = await join(table, "Ann", "fighter")
         await start_fight(table, "wolf")
         ann.drain()
         await _ask(ann, "rogue")
-        assert _lines(ann) == [("refuse_combat", ann.player_id)]
+        msgs = ann.drain()
+        assert of_type(msgs, ScribeLineMsg) == []
+        assert [m.refusal for m in of_type(msgs, ErrorMsg)] == ["scribe_in_combat"]
 
 
 async def test_revive_is_heard_by_everyone_and_leaves_the_dice_alone(tmp_path: Path) -> None:

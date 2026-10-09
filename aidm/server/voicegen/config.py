@@ -1,7 +1,9 @@
 """The voice build config: data/voice/scribe.json resolved per line (M13.3).
 
 The file holds `voice` (Fish TTS settings), `chain` (the default sound chain), `profiles` (named
-partial chains) and `lines` (id, group, text, profile, optional partial `chain`). The chain of a
+partial chains) and `lines` (id, group, text, profile, optional partial `chain`, optional partial
+`voice`: a line's voice settings are the deep merge voice <- line.voice; `voiced: false` marks a
+text-only line, which the build skips). The chain of a
 line is the deep merge default <- profile <- line: nested dicts merge key by key, any other value
 replaces. Hashes are stable (sorted-key JSON):
 - `raw_key`: sha1(text | voice settings)[:12], the name of the cached raw WAV, so only a text or
@@ -102,6 +104,8 @@ def parse_config(raw: Mapping[str, Any]) -> VoiceConfig:
     profiles: Mapping[str, Any] = raw.get("profiles", {})
     lines: list[VoiceLine] = []
     for item in raw["lines"]:
+        if item.get("voiced", True) is False:
+            continue  # text-only line (shown, never spoken): nothing to build
         profile = str(item.get("profile", "long"))
         if profile not in profiles:
             raise ValueError(f"line {item['id']}: unknown profile {profile}")
@@ -113,7 +117,7 @@ def parse_config(raw: Mapping[str, Any]) -> VoiceConfig:
                 text=str(item["text"]),
                 profile=profile,
                 chain=resolved,
-                voice=voice,
+                voice=deep_merge(voice, item.get("voice", {})),
             )
         )
     if len({line.id for line in lines}) != len(lines):
