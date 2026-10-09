@@ -223,6 +223,8 @@ The **Hero** tab shows hit points, armour class, speed, initiative, proficiency,
 ### How a fight is laid out
 There is no grid. The battlefield is a handful of **zones** (a bridge, a courtyard, a ledge), joined by edges that have a distance in feet. Moving inside a zone is free. Moving to another zone costs the distance of the edge, and **twice as much** if the zone you enter is rough ground. You can only move as far as your speed allows each turn.
 
+The screen shows the battlefield as a **board**: one card per zone with its name and size, badges for **cover**, **high ground** and **rough ground**, any surfaces on it (with the rounds they have left), which zones it is next to and how far, and the creatures standing in it. On your phone, target chips show each creature's zone and how far away it is.
+
 Three things about where you stand:
 - **Range** works in zones. A range of 10 feet or less (melee, touch, self) means the same zone. Up to 60 feet reaches one zone away, and anything longer reaches two zones away. Shooting beyond a weapon's normal range is done at disadvantage.
 - **Cover**: a ranged attack from another zone into a zone with half cover gives the target +2 AC, and three-quarters cover gives +5 AC. Melee and same-zone attacks ignore cover.
@@ -253,7 +255,7 @@ An attack roll is a d20 plus your attack bonus against the target's armour class
 - A rogue's **Sneak Attack** adds extra damage once per turn with a finesse or ranged weapon when you have advantage, or when an ally who can act is next to the target and you do not have disadvantage. It is 1d6 at level 1, 2d6 at level 3 and 3d6 at level 5.
 
 ### Other actions
-To move, press **Move to** on a zone card on the board: you can go to any zone your movement reaches, by the cheapest way. Standing up from prone costs half your speed. These are the other actions on the hotbar:
+To move, open **Move to** under **Targets** on your phone (on your turn) and tap a zone. Each zone shows its distance from you (or "here"), and zones you cannot reach with the movement you have left are greyed out. You go by the cheapest way. Standing up from prone costs half your speed. These are the other actions on the hotbar:
 - **Dash**: adds your speed again to your movement this turn.
 - **Disengage**: has no effect in this version: leaving an enemy never provokes a free attack.
 - **Dodge**: attacks against you have disadvantage until the start of your next turn.
