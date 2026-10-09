@@ -87,6 +87,7 @@ class AssetSpec:
     size: tuple[int, int] | None
     transparent: bool = False
     v1: bool = False
+    hand: bool = False
 
 
 def split_key(key: str) -> tuple[str, str]:
@@ -95,10 +96,12 @@ def split_key(key: str) -> tuple[str, str]:
     return kind, slug
 
 
-def _spec(key: str, file: str, *, transparent: bool = False, v1: bool = False) -> AssetSpec:
+def _spec(
+    key: str, file: str, *, transparent: bool = False, v1: bool = False, hand: bool = False
+) -> AssetSpec:
     kind = split_key(key)[0]
     size = None if kind in AUDIO_KINDS else placeholder_size(kind)
-    return AssetSpec(key, kind, file, size, transparent, v1)
+    return AssetSpec(key, kind, file, size, transparent, v1, hand)
 
 
 def _portraits() -> list[AssetSpec]:
@@ -204,7 +207,7 @@ def _audio() -> list[AssetSpec]:
 
 
 def _ui() -> list[AssetSpec]:
-    return [_spec(a.key, a.file, transparent=a.transparent, v1=a.v1) for a in UI_ART]
+    return [_spec(a.key, a.file, transparent=a.transparent, v1=a.v1, hand=a.hand) for a in UI_ART]
 
 
 def derive_specs(static_dir: Path) -> list[AssetSpec]:

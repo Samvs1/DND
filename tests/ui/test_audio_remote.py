@@ -3,7 +3,7 @@
 from playwright.sync_api import Browser
 
 from tests.ui.conftest import LiveServer, open_screen
-from tests.ui.table_helpers import HAS_TEXT, PHONE, WIDE, go_tab, start_table
+from tests.ui.table_helpers import HAS_TEXT, PHONE, WIDE, go_tab, quiet_scribe, start_table
 
 FAKE_AUDIO = """() => {
   window.__clips = [];
@@ -30,6 +30,7 @@ def _table(browser: Browser, live_server: LiveServer, errors: list[str]):
     screen = open_screen(browser, live_server.base, errors, WIDE, f"({FAKE_AUDIO})()")
     host, _guest = start_table(browser, live_server.base, PHONE, errors)
     screen.wait_for_function(HAS_TEXT, timeout=20000)
+    quiet_scribe(screen, host)
     go_tab(host, "more")
     return screen, host
 

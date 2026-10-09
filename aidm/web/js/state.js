@@ -60,7 +60,9 @@ export function initialState() {
     shop: null, // the latest `shop_stock` message (an open shop's stock and prices)
     hostStats: null, // the latest `host_stats` message (host only)
     wizardOpen: null, // null = open until the player has a hero; true/false once chosen
-    ctab: 'play', // the phone controller tab: play | hero | journal | more
+    scribeLine: null, // the Scribe line being shown on this device (voice.js), or null
+    scribeSpeaking: false, // his clip is playing here: narration.js holds its queue
+    ctab: 'play', // the phone controller tab: play | hero | journal | scribe | more
     jtab: 'journal', // the Journal tab's sub-tab: journal | map
     lan: { lan: false, url: null },
   };

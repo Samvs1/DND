@@ -5,6 +5,7 @@ import { bindRemoteAudio } from './audio/remote.js';
 import { createMusic } from './audio/music.js';
 import { createNarrationAudio } from './audio/narration.js';
 import { createDispatch } from './handlers.js';
+import { createScribeVoice } from './scribe/voice.js';
 import { loadSettings } from './settings/model.js';
 import { createStore, saved } from './state.js';
 import { createStory } from './story.js';
@@ -54,6 +55,10 @@ function show(state) {
 await loadAssets();
 bindRemoteAudio({ store, saved, mode });
 const music = createMusic({ store, mode, makeAudio });
+// The Scribe's voice lives for the whole page (a line can arrive while a view is still mounting). The screen
+// shows every line; a phone its own and the shared ones.
+const ownLine = (msg) => msg.to_player_id == null || msg.to_player_id === store.get().me.playerId;
+createScribeVoice({ store, mode, makeAudio, accept: mode === 'screen' ? () => true : ownLine });
 store.subscribe(show);
 show(store.get());
 

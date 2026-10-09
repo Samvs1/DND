@@ -9,7 +9,7 @@ from pathlib import Path
 from playwright.sync_api import Browser, Page, ViewportSize
 
 from tests.ui.conftest import LiveServer
-from tests.ui.table_helpers import PHONE, WIDE, snap, start_table
+from tests.ui.table_helpers import PHONE, WIDE, quiet_scribe, snap, start_table
 
 FULL_HD = ViewportSize(width=1920, height=1080)
 FAKE_AUDIO = """() => {
@@ -89,6 +89,7 @@ def test_screen_plays_narration_and_music_follows_the_fight(
     screen = _screen(browser, combat_server.base, WIDE, errors)
     host, _guest = start_table(browser, combat_server.base, PHONE, errors)
     screen.wait_for_selector("[data-testid=screen-table]:not([hidden])", timeout=20000)
+    quiet_scribe(screen, host)
     screen.wait_for_function("window.aidm.music.state().playing === 'exploration'", timeout=20000)
     assert _names(screen) == [screen.evaluate("window.aidm.music.state().url")]
     assert _names(screen)[0].endswith("/audio/music/ambient.mp3")

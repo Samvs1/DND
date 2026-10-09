@@ -7,7 +7,27 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 `python scripts/gen_assets_todo.py`. Prompts start with the style bible
 (`docs/STYLE_BIBLE.md`). Never overwrite a real or v1 asset.
 
-13 placeholder entries: spell_icon 2, music 1, sfx 10
+17 placeholder entries: portrait 3, spell_icon 2, music 1, sfx 10
+
+## portrait (3)
+
+### portrait.scribe.rewrite
+- file: aidm/web/static/img/portraits/scribe_rewrite.png
+- size: 512x512
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: An old scribe in dark robes writing in a great ledger with a glowing quill, warm light rising from the page, square head-and-shoulders portrait. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.
+
+### portrait.scribe.seated
+- file: aidm/web/static/img/portraits/scribe_seated.png
+- size: 512x512
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The Scribe seated at his desk (owner art, copied in by hand). Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.
+
+### portrait.scribe.welcome
+- file: aidm/web/static/img/portraits/scribe_welcome.png
+- size: 512x512
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: An old gracious scribe in dark robes rising from his desk with one hand raised in welcome, candlelit ledger behind him, square head-and-shoulders portrait. Full-length hero standing centred in the lower half of a detailed atmospheric scene that fits the subject, square composition, the face readable at small sizes. Target size 512x512.
 
 ## spell_icon (2)
 
@@ -92,3 +112,11 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 - size: n/a (audio)
 - transparent: no
 - prompt: Audio brief (not an image): a soft wooden button click, 0.2 seconds.
+
+## scene (0)
+
+### scene.scribe
+- file: aidm/web/static/img/scenes/scribe.png
+- size: 1536x864
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: A candlelit scriptorium at night: a long oak desk, an open ledger, shelves of scrolls, soft gold light, wide 16:9 view with calm dark space in the middle for text. Wide 16:9 painterly establishing scene behind full-screen interface text, low contrast and dark in the middle third, no characters in the foreground. Target size 1536x864.

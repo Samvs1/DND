@@ -21,7 +21,7 @@ from tests.ui.table_helpers import (
 from tests.ui.wizard_helpers import HeroSpec, complete_wizard, join
 
 NO_HSCROLL = "document.documentElement.scrollWidth <= window.innerWidth"
-TABS = ("play", "hero", "journal", "more")
+TABS = ("play", "hero", "journal", "scribe", "more")
 PANE = "[data-testid=pane-{}]"
 ACTION_ENABLED = "!document.querySelector('[data-testid=action-input]').disabled"
 CHIP = "document.querySelector('[data-testid=status-chip]').textContent"

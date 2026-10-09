@@ -10,6 +10,8 @@ import { mountGear } from '../screen/gear.js';
 import { mountScreenDice } from '../screen/dice.js';
 import { mountFloor } from '../screen/floor.js';
 import { mountDefeat, mountLevelBanner } from '../screen/overlays.js';
+import { mountScribeOverlay } from '../screen/scribe.js';
+import { mountFightBanner, mountVictory } from '../screen/victory.js';
 import { mountScreenVote } from '../screen/vote.js';
 import { mountSettings } from '../settings/settings.js';
 import { mountFeed } from '../table/feed.js';
@@ -72,6 +74,9 @@ export function mountScreen(root, ctx) {
     mountScreenDice(widgets, ctx),
     mountLevelBanner(overlays, store),
     mountDefeat(overlays, store),
+    mountVictory(overlays, store),
+    mountFightBanner(overlays, store),
+    mountScribeOverlay(overlays, ctx),
     mountGear(overlays, store),
     mountSettings(overlays, ctx),
     mountScene(scene, store),

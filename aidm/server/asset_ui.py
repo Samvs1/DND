@@ -19,6 +19,7 @@ class UiArt:
     subject: str
     transparent: bool
     v1: bool = False
+    hand: bool = False  # owner art copied in by hand: never generated
 
 
 UI_ART = (
@@ -28,6 +29,34 @@ UI_ART = (
         "The quiet aftermath of a lost battle at dusk: a torn banner on a broken spear, a dropped "
         "sword and a guttering torch on an empty hillside under a heavy sky, sombre, no bodies, "
         "no gore, wide 16:9 view with calm dark space in the middle for text",
+        transparent=False,
+    ),
+    UiArt(
+        "portrait.scribe.seated",
+        "img/portraits/scribe_seated.png",
+        "The Scribe seated at his desk (owner art, copied in by hand)",
+        transparent=False,
+        hand=True,
+    ),
+    UiArt(
+        "portrait.scribe.welcome",
+        "img/portraits/scribe_welcome.png",
+        "An old gracious scribe in dark robes rising from his desk, one hand raised in welcome, "
+        "candlelit ledger behind him, square head-and-shoulders portrait",
+        transparent=False,
+    ),
+    UiArt(
+        "portrait.scribe.rewrite",
+        "img/portraits/scribe_rewrite.png",
+        "An old scribe in dark robes writing in a great ledger with a glowing quill, warm light "
+        "rising from the page, square head-and-shoulders portrait",
+        transparent=False,
+    ),
+    UiArt(
+        "scene.scribe",
+        "img/scenes/scribe.png",
+        "A candlelit scriptorium at night: a long oak desk, an open ledger, shelves of scrolls, "
+        "soft gold light, wide 16:9 view with calm dark space in the middle for text",
         transparent=False,
     ),
     UiArt(
@@ -45,8 +74,15 @@ UI_ART = (
         v1=True,
     ),
     UiArt(
-        "ui_icon.tab-journal",
+        "ui_icon.tab-scribe",
         "img/icons/tabs/scribe.png",
+        "A quill and an inkwell (the Scribe tab)",
+        transparent=True,
+        v1=True,
+    ),
+    UiArt(
+        "ui_icon.tab-journal",
+        "img/icons/tabs/map.png",
         "An open journal (the journal and map tab)",
         transparent=True,
         v1=True,

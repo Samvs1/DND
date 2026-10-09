@@ -54,7 +54,7 @@ def test_whole_flow_with_the_keyboard_alone(
     assert page.evaluate(FOCUSED, "[data-testid=ct-tab-play]")
     assert page.locator("[data-testid=sheet]").is_hidden()
     assert page.locator("[data-testid=action-input]").is_visible()
-    for _ in range(3):
+    for _ in range(4):  # hero, journal, scribe, more
         page.keyboard.press("ArrowRight")
     assert page.evaluate(FOCUSED, "[data-testid=ct-tab-more]")
     tab_to(page, "[data-testid=open-settings]")

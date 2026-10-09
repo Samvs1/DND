@@ -81,7 +81,7 @@ export function createNarrationAudio({ store, mode, makeAudio = (url) => new Aud
   }
 
   function pump() {
-    if (current || blocked || queue.length === 0) return;
+    if (current || blocked || queue.length === 0 || store.get().scribeSpeaking) return; // the Scribe holds the floor
     if (muted()) {
       flush();
       return;
@@ -114,6 +114,7 @@ export function createNarrationAudio({ store, mode, makeAudio = (url) => new Aud
   });
   const stopStore = store.subscribe(() => {
     if ((queue.length > 0 || current) && muted()) flush();
+    else if (queue.length > 0) pump(); // resumes once the Scribe has finished or was skipped
   });
   document.addEventListener('pointerdown', unlock);
   document.addEventListener('keydown', unlock);

@@ -107,7 +107,7 @@ body.is-controller #app {
 
 .ct-tabs {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   background: var(--stone-1);
   border-top: 2px solid var(--stone-3);
 }

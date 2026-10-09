@@ -71,6 +71,8 @@ def build_entry(
     source = str(old.get("source") or "")
     if not source and real:
         source = "v1" if spec.v1 else "manual"
+    elif not source and spec.hand:
+        source = "manual"
     licence = str(old.get("license") or (V1_LICENSE if source == "v1" else ""))
     prompt = "" if refresh_prompt and not real else str(old.get("prompt") or "")
     if not prompt and not real:

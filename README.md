@@ -86,8 +86,8 @@ single-device view: to play solo, open `/screen` in one window and `/play` in an
    ability scores (point buy, standard array or rolled), skills, equipment, spells and a short backstory. You
    can export a hero to a JSON file and import it later.
 4. **Start**: when every player has a hero the host starts the campaign. The AI writes a three-act campaign
-   (or uses the built-in sample). The screen shows the table and each phone opens its controller, with four
-   tabs: **Play**, **Hero**, **Journal** (with the map) and **More**.
+   (or uses the built-in sample). The screen shows the table and each phone opens its controller, with five
+   tabs: **Play**, **Hero**, **Journal** (with the map), **Scribe** and **More**.
 5. **Exploration** (Play tab): type (or dictate) what your hero does. The phone shows the last narration line
    and a toast with your own dice; the full story and every roll are on the screen. Actions queue in order,
    one waiting action per player: the screen shows who is typing, who is acting and who is next, and your
@@ -95,6 +95,10 @@ single-device view: to play solo, open `/screen` in one window and `/play` in an
 6. **Combat** (Play tab): the zone board and initiative strip are on the screen. On your turn your phone shows
    "Your turn", target chips (name and health state), and the hotbar with hit chances, spells with slot counts,
    class features, items, move, dash, disengage, hide and end turn. Other players can send suggestions.
+   **The Scribe** (Scribe tab): when a hero has fallen, a standing hero can pay 25 gp per level of the fallen hero
+   to have the Scribe rewrite them into the story. Outside combat only. He speaks rarely: a welcome, a welcome
+   back, the campaign victory and a brief line at a revive. If he refuses, his reason shows as text on your
+   phone. The host can skip his long speeches.
 7. **Hero** tab: stats, inventory (equip, unequip, drop, use), the spellbook, and the level-up dialog when you
    have earned a level (levels 1 to 5). The **Journal** tab holds the journal and the map (travel).
 8. **More** tab: settings, text size, hero file export, the host panel (host only) and the screen's audio

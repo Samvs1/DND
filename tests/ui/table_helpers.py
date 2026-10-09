@@ -18,6 +18,12 @@ HAS_TEXT = (
 )
 
 
+def quiet_scribe(*pages: Page) -> None:
+    """End the Scribe's welcome on these pages (it holds the narration audio), client side only."""
+    for page in pages:
+        page.evaluate("() => window.aidm.dispatch({ type: 'scribe_skip', line_id: null })")
+
+
 def player(
     browser: Browser, base: str, name: str, spec: HeroSpec, size: ViewportSize, errors: list[str]
 ) -> Page:
@@ -61,6 +67,7 @@ def start_with_screen(
     host, guest = start_table(browser, base, size, errors, specs)
     screen.wait_for_selector("[data-testid=screen-table]:not([hidden])", timeout=20000)
     screen.wait_for_function(HAS_TEXT, timeout=20000)
+    quiet_scribe(screen, host, guest)
     return screen, host, guest
 
 

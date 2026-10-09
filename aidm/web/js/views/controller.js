@@ -1,10 +1,13 @@
-// Phone controller (/play once the adventure runs): a persistent hero strip on top, four tabs (Play, Hero,
-// Journal, More) and dialogs for shop, host and settings. The shared story, party and board live on /screen.
+// Phone controller (/play once the adventure runs): a persistent hero strip on top, five tabs (Play, Hero,
+// Journal, Scribe, More) and dialogs for shop, host and settings. The shared story, party and board live on /screen.
 import { createController } from '../combat/controller.js';
 import { mountDefeatPanel } from '../controller/defeat.js';
 import { mountJournalTab } from '../controller/journal.js';
 import { mountMore } from '../controller/more.js';
 import { mountPlay } from '../controller/play.js';
+import { mountScribeTab } from '../controller/scribe.js';
+import { mountScribeBanner } from '../controller/scribe_banner.js';
+import { mountVictoryPanel } from '../controller/victory.js';
 import { mountStrip } from '../controller/strip.js';
 import { mountTabs } from '../controller/tabs.js';
 import { mountToast } from '../controller/toast.js';
@@ -44,6 +47,7 @@ export function mountController(root, ctx) {
     ...mountPlay(panes.play, ctx, ctrl),
     mountSheet(panes.hero, ctx, (state) => state.ctab === 'hero'),
     mountJournalTab(panes.journal, ctx),
+    mountScribeTab(panes.scribe, ctx, toastSlot),
     mountMore(panes.more, ctx),
     mountNotices(notices, store),
     mountLevelUp(levelSlot, ctx),
@@ -55,6 +59,8 @@ export function mountController(root, ctx) {
     mountHostGate(dialogs, ctx),
     mountSettings(dialogs, ctx),
     mountDefeatPanel(root, ctx),
+    mountVictoryPanel(root, ctx),
+    mountScribeBanner(root, ctx),
   ];
   return () => {
     stops.forEach((stop) => stop());

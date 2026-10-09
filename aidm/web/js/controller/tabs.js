@@ -1,4 +1,4 @@
-// Bottom tab bar of the phone controller: Play, Hero, Journal, More. The current tab is `store.ctab`; each
+// Bottom tab bar of the phone controller: Play, Hero, Journal, Scribe, More. The current tab is `store.ctab`; each
 // pane is hidden unless it is the current one. Arrow keys move between tabs. Each tab shows its icon
 // `ui_icon.tab-<id>` (owner art or a generated icon; the placeholder until then).
 import { assetUrl } from '../assets.js';
@@ -7,7 +7,7 @@ import { myHero } from '../table/lookup.js';
 import { t } from '../strings.js';
 import { h } from '../ui/dom.js';
 
-export const TABS = ['play', 'hero', 'journal', 'more'];
+export const TABS = ['play', 'hero', 'journal', 'scribe', 'more'];
 
 function levelReady(state) {
   const hero = myHero(state);
