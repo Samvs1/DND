@@ -59,7 +59,7 @@ from aidm.session.public_feed import PublicFeed
 from aidm.session.reducer import apply as reduce
 from aidm.session.scribe_picker import ScribeMemory
 from aidm.session.table_clock import Clock, LoopClock, TimerHandle
-from aidm.session.table_records import OpenVote, PendingHostile
+from aidm.session.table_records import OpenVote, PendingHostile, TurnClock
 from aidm.session.views import public_floor, public_state
 
 type TtsHook = Callable[[str, NarrationTone], Awaitable[str | None]]
@@ -82,7 +82,7 @@ async def no_tts(text: str, tone: NarrationTone) -> str | None:
 class TableConfig:
     clock: Clock = field(default_factory=LoopClock)
     vote_seconds: float = 30.0
-    turn_seconds: float | None = 90.0
+    turn_seconds: float | None = 180.0  # the turn timer default (M15.1; host setting)
     campaign_timeout_s: float = CAMPAIGN_TIMEOUT_S
     tts: TtsHook = no_tts
     tts_wait_s: float = 8.0
@@ -100,6 +100,7 @@ class Player:
     is_host: bool = False
     creature_id: str | None = None
     conns: set[str] = field(default_factory=set[str])
+    left_at: float | None = None  # clock time the last connection closed (M15.1 grace)
 
     @property
     def connected(self) -> bool:
@@ -160,7 +161,8 @@ class TableCore:
         self.in_combat = False
         self.segment: list[AnyEvent] = []
         self.turn_key: str | None = None
-        self.turn_timer: TimerHandle | None = None
+        self.turn_clock = TurnClock()  # M15.1 (session/turn_clock.py)
+        self.turn_seconds = self.config.turn_seconds  # the host's turn timer; None = off
         self.issued_rolls: dict[str, list[Roll]] = {}
         self.rolled_for: dict[str, str | None] = {}  # player -> their hero when they rolled
         self.inbox: asyncio.Queue[Inbound] = asyncio.Queue()
@@ -260,7 +262,11 @@ class TableCore:
             for p in self.players.values()
         ]
         return TableMeta(
-            seats=seats, next_id=self.next_counter, tts_enabled=self.tts_enabled, audio=self.audio
+            seats=seats,
+            next_id=self.next_counter,
+            tts_enabled=self.tts_enabled,
+            audio=self.audio,
+            turn_timer=int(self.turn_seconds or 0),
         )
 
     def autosave(self, *, force: bool = False) -> bool:
@@ -333,7 +339,7 @@ class TableCore:
             checkpoint=mark.label if (mark := self.retry_checkpoint()) is not None else None,
             audio=self.audio,
             floor=self.floor_view(),
-        )
+        ).model_copy(update={"turn_timer": int(self.turn_seconds or 0)})
         return Snapshot(seq=self.state.event_count, state=view)
 
     def retry_checkpoint(self) -> Checkpoint | None:
@@ -355,7 +361,13 @@ class TableCore:
 
     def floor_view(self) -> FloorView:
         players = [p.info() for p in self.players.values()]
-        return public_floor(self.state, players, self.queue, self.resolving, self.typing.ids())
+        view = public_floor(self.state, players, self.queue, self.resolving, self.typing.ids())
+        return view.model_copy(update={"seconds_left": self.turn_left()})
+
+    def turn_left(self) -> float | None:
+        """Seconds left on the running turn countdown (M15.1), or None."""
+        deadline = self.turn_clock.deadline
+        return None if deadline is None else max(0.0, deadline - self.config.clock.time())
 
     def broadcast_floor(self) -> None:
         self.broadcast(FloorState(floor=self.floor_view()))

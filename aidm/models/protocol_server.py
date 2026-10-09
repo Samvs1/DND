@@ -28,6 +28,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from aidm.models.combat import HitChance
 from aidm.models.creation import CreationError
 from aidm.models.dice import Roll
+from aidm.models.encounter import EncounterStatus
 from aidm.models.leveling import LevelUpOptions
 from aidm.models.narration import NarrationTone
 from aidm.models.protocol_views import (
@@ -179,6 +180,9 @@ class EncounterOfferMsg(_Server):
 class CombatState(_Server):
     type: Literal["combat_state"] = "combat_state"
     combat: PublicCombat | None = None
+    outcome: EncounterStatus | None = Field(
+        default=None, description="how the fight ended (only with combat None; M15.1)"
+    )
 
 
 class HitChances(_Server):

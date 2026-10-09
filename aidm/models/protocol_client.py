@@ -15,7 +15,8 @@ M11.2 `DeviceRole` (`Hello.role`: "screen" = the shared display, "controller" = 
 `spectator: true` is the older spelling of role "screen"), `Typing` (composing on/off) and
 `AudioSettingsMsg` (the screen's volumes and mutes, from any seated player); M13.1
 `ScribeRevive` (pay the Scribe to rewrite a fallen hero, `aidm.rules.scribe`); M13.2 `ScribeSkip`
-(host only: stop the Scribe's current line on every screen).
+(host only: stop the Scribe's current line on every screen); M15.1 `HostTurnTimer` (host only:
+the combat turn timer, off / 90 s / 3 min / 5 min).
 """
 
 from enum import StrEnum
@@ -199,6 +200,13 @@ class HostTtsToggle(_Client):
     enabled: bool
 
 
+class HostTurnTimer(_Client):
+    """M15.1: the host's combat turn timer in seconds (0 = off)."""
+
+    type: Literal["host_turn_timer"] = "host_turn_timer"
+    seconds: Literal[0, 90, 180, 300]
+
+
 class HostSave(_Client):
     type: Literal["host_save"] = "host_save"
 
@@ -272,6 +280,7 @@ HOST_MESSAGES: tuple[type[BaseModel], ...] = (
     HostKick,
     HostDifficulty,
     HostTtsToggle,
+    HostTurnTimer,
     HostSave,
     HostLoad,
     HostNew,

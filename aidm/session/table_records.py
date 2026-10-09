@@ -2,8 +2,10 @@
 
 `PendingHostile`: a point-of-no-return tool call waiting for the acting player's confirmation
 (`explore.confirm_hostile`). `OpenVote`: the open ready vote (`votes`) and its public view.
+`TurnClock`: the running combat turn clock (`session.turn_clock`, M15.1): the end timer, the
+30 s warning timer and the deadline the countdown is shown from.
 
-Public API: `PendingHostile`, `OpenVote`.
+Public API: `PendingHostile`, `OpenVote`, `TurnClock`.
 """
 
 from collections.abc import Awaitable, Callable
@@ -48,3 +50,16 @@ class OpenVote:
             declined=tuple(sorted(self.declined)),
             seconds=self.seconds,
         )
+
+
+@dataclass
+class TurnClock:
+    end: TimerHandle | None = None
+    warn: TimerHandle | None = None
+    deadline: float | None = None  # clock time the turn runs out (None: no countdown shown)
+
+    def stop(self) -> None:
+        for timer in (self.end, self.warn):
+            if timer is not None:
+                timer.cancel()
+        self.end = self.warn = self.deadline = None

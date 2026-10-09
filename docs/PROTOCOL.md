@@ -33,6 +33,7 @@ Machine-readable schema: `aidm/web/protocol.json`.
 | client | `host_save` | `type`: host_save |
 | client | `host_start` | `theme`: string or null (optional), `type`: host_start |
 | client | `host_tts_toggle` | `enabled`: boolean, `type`: host_tts_toggle |
+| client | `host_turn_timer` | `seconds`: integer, `type`: host_turn_timer |
 | client | `import_character` | `text`: string, `type`: import_character |
 | client | `level_up` | `choices`: LevelUpChoices, `type`: level_up |
 | client | `ping` | `type`: ping |
@@ -53,7 +54,7 @@ Machine-readable schema: `aidm/web/protocol.json`.
 | server | `audio_settings` | `settings`: AudioSettings, `type`: audio_settings |
 | server | `character_export` | `creature_id`: string, `name`: string, `text`: string, `type`: character_export |
 | server | `chat` | `name`: string, `player_id`: string, `text`: string, `type`: chat |
-| server | `combat_state` | `combat`: PublicCombat or null (optional), `type`: combat_state |
+| server | `combat_state` | `combat`: PublicCombat or null (optional), `outcome`: EncounterStatus or null (optional), `type`: combat_state |
 | server | `creation_result` | `errors`: array of CreationError (optional), `ok`: boolean, `sheet`: CharacterSheet or null (optional), `type`: creation_result |
 | server | `dice_roll` | `dice`: DiceView, `seq`: integer, `type`: dice_roll |
 | server | `encounter_offer` | `offer`: PublicOffer, `type`: encounter_offer |

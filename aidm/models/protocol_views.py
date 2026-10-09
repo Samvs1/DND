@@ -237,6 +237,9 @@ class FloorView(_View):
     holder: FloorSeat | None = None
     queue: tuple[FloorSeat, ...] = ()
     typing: tuple[FloorSeat, ...] = ()
+    seconds_left: float | None = Field(
+        default=None, description="seconds left on the running turn timer (M15.1)"
+    )
 
 
 class PublicState(_View):
@@ -267,6 +270,7 @@ class PublicState(_View):
     defeat: str | None = Field(default=None, description="the defeat epilogue (phase defeated)")
     checkpoint: str | None = Field(default=None, description="label of the retry checkpoint")
     audio: AudioSettings = AudioSettings()
+    turn_timer: int = Field(default=0, description="the host's turn timer in seconds, 0 = off")
     floor: FloorView = FloorView()
     scribe: ScribeView = ScribeView()
 

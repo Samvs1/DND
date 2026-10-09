@@ -44,7 +44,7 @@ def kick(core: TableCore, host: Player, target_id: str) -> None:
     if core.pending is not None and core.pending.player_id == target.id:
         core.pending = None
     votes.drop_voter(core, target.id)
-    lobby.release_turn(core, target.creature_id)
+    lobby.release_turn(core, target, grace=False)
     core.broadcast_queue()
     core.broadcast_roster()
     core.notice(host.id, NoticeKind.HOST, f"{target.name} was removed from the table.")

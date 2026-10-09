@@ -20,6 +20,7 @@ Public API: `submit_action`, `kick_resolver`, `resolve_next`, `resolve_action`,
 """
 
 from aidm.dm.adjudicator import AdjudicationOptions, AdjudicationResult, adjudicate
+from aidm.dm.llm_types import ToolCall
 from aidm.dm.precheck import (
     InventoryIntent,
     ItemIntent,
@@ -48,6 +49,7 @@ from aidm.session.table_core import Job, Player, TableCore
 from aidm.session.table_records import PendingHostile
 from aidm.session.telling import conclude, remember, tell_text
 
+HOLD = "{name} stands on the brink of violence."
 STAY_HAND = "You stay your hand, and the moment passes without bloodshed."
 ACTION_SPENT = (
     "You have already used your action this turn. Move, use a bonus action or end your turn."
@@ -67,6 +69,8 @@ def submit_action(core: TableCore, player: Player, msg: SubmitAction) -> None:
     if pc.hp <= 0:  # M11.1: a downed hero cannot act (v1: the unconscious hero kept typing)
         core.error(player.id, ErrorCode.NO_CHARACTER, "You are unconscious and cannot act.")
         return
+    if core.pending is not None and core.pending.player_id == player.id:
+        core.pending = None  # a new action answers the open "Are you sure?" with no (M15.1)
     if core.combat_active():
         _combat_text(core, player, pc, msg.text)
         return
@@ -196,11 +200,8 @@ async def adjudicated(
         core.apply,
     )
     if result.pending is not None and result.pending_call is not None:
-        core.pending = PendingHostile(
-            entry.player_id, entry.creature_id, result.pending_call, result.pending.prompt
-        )
-        msg = PendingConfirmationMsg(player_id=entry.player_id, prompt=result.pending.prompt)
-        core.send(entry.player_id, msg)
+        await _hold(core, entry, result.pending_call, result.pending.prompt)
+        return result
     events = await conclude(
         core,
         result,
@@ -211,6 +212,16 @@ async def adjudicated(
     if not creative:
         await combat_flow.after_resolution(core, events)
     return result
+
+
+async def _hold(core: TableCore, entry: QueueEntry, call: ToolCall, prompt: str) -> None:
+    """A point-of-no-return act waits for its player (M15.1 playtest): the narrator never tells
+    it as done (one engine hold line instead), and the question goes out AFTER that line."""
+    actor = core.state.creatures.get(entry.creature_id)
+    name = actor.name if actor is not None else "The hero"
+    await tell_text(core, HOLD.format(name=name))
+    core.pending = PendingHostile(entry.player_id, entry.creature_id, call, prompt)
+    core.send(entry.player_id, PendingConfirmationMsg(player_id=entry.player_id, prompt=prompt))
 
 
 async def confirm_hostile(core: TableCore, player: Player) -> None:

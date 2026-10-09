@@ -82,7 +82,11 @@ async def new_campaign(core: TableCore, host: Player) -> None:
         for p in core.players.values()
     ]
     meta = TableMeta(
-        seats=seats, next_id=core.next_counter, tts_enabled=core.tts_enabled, audio=core.audio
+        seats=seats,
+        next_id=core.next_counter,
+        tts_enabled=core.tts_enabled,
+        audio=core.audio,
+        turn_timer=int(core.turn_seconds or 0),
     )
     switch(core, LoadedCampaign(state.campaign_id, state, state, [], meta), host.token)
     core.notice(None, NoticeKind.HOST, "The host started a new campaign.")

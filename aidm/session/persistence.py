@@ -80,6 +80,7 @@ class TableMeta(BaseModel):
     next_id: int = Field(default=1, ge=1)
     tts_enabled: bool = False
     audio: AudioSettings | None = None  # M11.2; None in older saves (the table keeps its own)
+    turn_timer: int | None = None  # M15.1 seconds, 0 = off; None in older saves
 
 
 class SnapshotFile(BaseModel):

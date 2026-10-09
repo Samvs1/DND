@@ -58,6 +58,7 @@ ALLOWED: tuple[type, ...] = (
     c.HostEnd,
     c.HostKick,
     c.HostTtsToggle,
+    c.HostTurnTimer,
     c.AudioSettingsMsg,
 )
 LOCKED = "The party has fallen. The host can try again, load a save or begin a new adventure."

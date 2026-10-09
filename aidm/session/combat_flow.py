@@ -5,8 +5,10 @@ plays monsters with `rules.monster_ai` (via `CombatRunner.play_turn` + legendary
 plays a hero whose player is away (disconnected, kicked, never seated) or who is down with
 `rules.party_ai.safe_default_turn` (Dodge, or Dash toward allies), and stops at a connected
 player's standing hero: the segment since the last narration is told in ONE
-`narrate_round_segment` call, then `combat_state` + `turn_prompt` go out and the turn timer
-starts (default 90 s; on timeout or disconnect the safe default plays that turn).
+`narrate_round_segment` call, then `combat_state` + `turn_prompt` go out and the turn clock
+starts (`turn_clock`, M15.1: the host's timer, default 3 min, only when another player waits;
+an owner who is away keeps the turn for a short reconnect grace; on timeout the safe default
+plays that turn). The fight's end sends `combat_state` with no combat and the `outcome`.
 Only that hero's player may send `combat_command`; anyone else gets `not_your_turn` and nothing
 is consumed. A fight's end runs loot (`end_encounter_with_loot`), bystander deeds
 (`combat_help_deed_events`), region rewards (`resolution_reward_events`) and spoke milestones
@@ -35,7 +37,7 @@ from aidm.rules.party_ai import safe_default_turn
 from aidm.rules.quest_rewards import resolution_reward_events
 from aidm.rules.social_deeds import combat_help_deed_events
 from aidm.rules.turns import begin_turn, next_turn
-from aidm.session import checkpoints, votes
+from aidm.session import checkpoints, turn_clock, votes
 from aidm.session.combat_runner import CombatRunner
 from aidm.session.table_core import Player, TableCore
 from aidm.session.telling import maybe_epilogue, remember, tell
@@ -77,11 +79,13 @@ async def begin_combat(core: TableCore) -> None:
 
 
 def _prompt_player(core: TableCore, creature_id: str) -> Player | None:
+    """The seat that gets this turn: a connected owner, or one who left within the reconnect
+    grace (M15.1: a phone that drops for a moment does not lose its turns)."""
     creature = core.state.creatures[creature_id]
     owner = core.owner_of(creature_id)
-    if creature.pc is None or creature.hp <= 0 or owner is None or not owner.connected:
+    if creature.pc is None or creature.hp <= 0 or owner is None:
         return None
-    return owner
+    return owner if owner.connected or turn_clock.grace_left(core, owner) > 0 else None
 
 
 async def advance(core: TableCore) -> None:
@@ -124,11 +128,13 @@ async def _prompt(core: TableCore, creature_id: str, owner: Player) -> None:
         return
     key = f"{enc.id}:{enc.round}:{enc.active_index}"
     core.turn_key = key
-    seconds = core.config.turn_seconds
+    if owner.connected:
+        turn_clock.start(core, key, turn_clock.limit_for(core, owner))
+    else:
+        turn_clock.grace(core, key, owner)
     core.broadcast(CombatState(combat=public_combat(core.state)))
+    seconds = core.turn_left()
     core.broadcast(TurnPrompt(creature_id=creature_id, player_id=owner.id, seconds=seconds))
-    if seconds is not None:
-        core.turn_timer = core.start_timer("turn", key, seconds)
 
 
 async def tell_segment(core: TableCore) -> str:
@@ -141,9 +147,7 @@ async def tell_segment(core: TableCore) -> str:
 
 def end_player_turn(core: TableCore) -> None:
     core.turn_key = None
-    if core.turn_timer is not None:
-        core.turn_timer.cancel()
-        core.turn_timer = None
+    turn_clock.stop(core)
 
 
 def autoplay_safe(core: TableCore, run: CombatRunner, creature_id: str) -> None:
@@ -199,8 +203,7 @@ async def turn_timeout(core: TableCore, key: str) -> None:
     if core.turn_key != key or enc is None:
         return
     if core.paused:
-        seconds = core.config.turn_seconds or 0.0
-        core.turn_timer = core.start_timer("turn", key, seconds)
+        turn_clock.start(core, key, core.turn_seconds or turn_clock.GRACE_SECONDS)
         return
     active = enc.active_id()
     end_player_turn(core)
@@ -227,5 +230,5 @@ async def finish_fight(core: TableCore, status: EncounterStatus) -> None:
     core.in_combat = False
     core.segment = []
     await remember(core, text or FIGHT_OVER, events)
-    core.broadcast(CombatState(combat=None))
+    core.broadcast(CombatState(combat=None, outcome=status))
     await maybe_epilogue(core)

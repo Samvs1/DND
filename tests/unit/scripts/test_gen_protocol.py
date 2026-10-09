@@ -88,6 +88,7 @@ CLIENT_TYPES = {
     "host_kick",
     "host_difficulty",
     "host_tts_toggle",
+    "host_turn_timer",
     "host_save",
     "host_load",
     "host_new",

@@ -7,7 +7,8 @@ minting another (QA-06); a kicked token, connection or name is refused (QA-07): 
 reload restores the feed), the public event lines it missed (`last_seq`), and whatever waits for
 that player (their turn prompt, a pending hostile
 confirmation). `closed` drops a connection; a player with no connection left is away: they
-leave the open vote, and their hero's current turn is auto-played. `create` builds a hero
+leave the open vote, and their hero's current turn is auto-played after a short reconnect
+grace (M15.1; coming back in time keeps the turn). `create` builds a hero
 through `rules.creation` (rolled scores must be the ones this table rolled for that player, and
 `roll` issues one set per player: QA-11);
 `import_hero` (lobby only) takes a character JSON document validated by `rules.character_io`
@@ -44,7 +45,7 @@ from aidm.rules.campaign_install import install_campaign
 from aidm.rules.character_io import CharacterImportInvalid, export_character, import_character
 from aidm.rules.creation import build_character, validate_creation
 from aidm.rules.sheet import build_sheet
-from aidm.session import combat_flow, scribe_voice, votes
+from aidm.session import combat_flow, scribe_voice, turn_clock, votes
 from aidm.session.stats import send_host_stats
 from aidm.session.table_core import Player, TableCore
 from aidm.session.telling import conclude
@@ -69,8 +70,11 @@ def hello(core: TableCore, conn_id: str, msg: Hello) -> None:
         player = core.new_player(msg.name)
         if core.kicked_names:
             core.notice(_host_id(core), NoticeKind.HOST, f"{player.name} joined the table.")
+    was_away = not player.connected
     player.conns.add(conn_id)
     core.conn_player[conn_id] = player.id
+    if was_away:
+        turn_clock.resume(core, player)  # M15.1: back within the grace, the turn is theirs
     welcome = Welcome(player_id=player.id, token=player.token, is_host=player.is_host)
     core.send_conn(conn_id, welcome)
     core.send_conn(conn_id, core.snapshot())
@@ -107,7 +111,7 @@ def _resend_waiting(core: TableCore, conn_id: str, player: Player) -> None:
     enc = core.state.encounter
     active = enc.active_id() if enc is not None and core.turn_key is not None else None
     if active is not None and active == player.creature_id:
-        seconds = core.config.turn_seconds
+        seconds = core.turn_left()
         core.send_conn(
             conn_id, TurnPrompt(creature_id=active, player_id=player.id, seconds=seconds)
         )
@@ -131,16 +135,23 @@ def _leave_seat(core: TableCore, conn_id: str, player: Player) -> None:
         seat.conns.discard(conn_id)
     if player.connected:
         return
+    player.left_at = core.config.clock.time()
     core.broadcast_roster()
     votes.drop_voter(core, player.id)
-    release_turn(core, player.creature_id)
+    release_turn(core, player, grace=True)
 
 
-def release_turn(core: TableCore, creature_id: str | None) -> None:
-    """A hero whose player left plays its current turn by the safe default."""
+def release_turn(core: TableCore, player: Player, *, grace: bool) -> None:
+    """A hero whose player left plays its current turn by the safe default: after the
+    reconnect grace when the connection dropped (M15.1), at once when the seat was removed."""
     enc = core.state.encounter
     key = core.turn_key
-    if key is not None and enc is not None and enc.active_id() == creature_id:
+    if key is None or enc is None or enc.active_id() != player.creature_id:
+        return
+    if grace:
+        turn_clock.grace(core, key, player)
+        core.broadcast_floor()
+    else:
         core.schedule(lambda: combat_flow.turn_timeout(core, key))
 
 

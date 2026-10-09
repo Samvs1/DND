@@ -51,6 +51,7 @@ from aidm.session import (
     scribe_voice,
     sheet_view,
     spectators,
+    turn_clock,
     votes,
 )
 from aidm.session.stats import send_host_stats
@@ -224,6 +225,8 @@ class Table(TableCore):
         elif fired.kind == "turn":
             key = fired.key
             self.schedule(lambda: combat_flow.turn_timeout(self, key))
+        elif fired.kind == "turn_warn":
+            turn_clock.warn(self, fired.key)
 
     def _client(self, conn_id: str, msg: AnyClientMsg) -> None:
         if isinstance(msg, c.Ping):

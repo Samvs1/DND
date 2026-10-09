@@ -1134,6 +1134,33 @@
           "title": "HostTtsToggle",
           "type": "object"
         },
+        "HostTurnTimer": {
+          "additionalProperties": false,
+          "description": "M15.1: the host's combat turn timer in seconds (0 = off).",
+          "properties": {
+            "seconds": {
+              "enum": [
+                0,
+                90,
+                180,
+                300
+              ],
+              "title": "Seconds",
+              "type": "integer"
+            },
+            "type": {
+              "const": "host_turn_timer",
+              "default": "host_turn_timer",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "seconds"
+          ],
+          "title": "HostTurnTimer",
+          "type": "object"
+        },
         "ImportCharacter": {
           "additionalProperties": false,
           "properties": {
@@ -1939,6 +1966,7 @@
           "host_save": "#/$defs/HostSave",
           "host_start": "#/$defs/HostStart",
           "host_tts_toggle": "#/$defs/HostTtsToggle",
+          "host_turn_timer": "#/$defs/HostTurnTimer",
           "import_character": "#/$defs/ImportCharacter",
           "level_up": "#/$defs/LevelUp",
           "ping": "#/$defs/Ping",
@@ -2041,6 +2069,9 @@
           "$ref": "#/$defs/HostTtsToggle"
         },
         {
+          "$ref": "#/$defs/HostTurnTimer"
+        },
+        {
           "$ref": "#/$defs/HostSave"
         },
         {
@@ -2114,6 +2145,7 @@
       "host_save",
       "host_start",
       "host_tts_toggle",
+      "host_turn_timer",
       "import_character",
       "level_up",
       "ping",
@@ -2713,6 +2745,18 @@
               ],
               "default": null
             },
+            "outcome": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/EncounterStatus"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "how the fight ended (only with combat None; M15.1)"
+            },
             "type": {
               "const": "combat_state",
               "default": "combat_state",
@@ -3119,6 +3163,17 @@
           "title": "EncounterOfferMsg",
           "type": "object"
         },
+        "EncounterStatus": {
+          "enum": [
+            "active",
+            "victory",
+            "defeat",
+            "fled",
+            "parley"
+          ],
+          "title": "EncounterStatus",
+          "type": "string"
+        },
         "EpilogueMsg": {
           "additionalProperties": false,
           "properties": {
@@ -3463,6 +3518,19 @@
               },
               "title": "Queue",
               "type": "array"
+            },
+            "seconds_left": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "seconds left on the running turn timer (M15.1)",
+              "title": "Seconds Left"
             },
             "typing": {
               "default": [],
@@ -4707,6 +4775,7 @@
               "default": {
                 "holder": null,
                 "queue": [],
+                "seconds_left": null,
                 "typing": []
               }
             },
@@ -4835,6 +4904,12 @@
               "default": false,
               "title": "Tts Enabled",
               "type": "boolean"
+            },
+            "turn_timer": {
+              "default": 0,
+              "description": "the host's turn timer in seconds, 0 = off",
+              "title": "Turn Timer",
+              "type": "integer"
             },
             "vote": {
               "anyOf": [

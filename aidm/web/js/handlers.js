@@ -47,11 +47,6 @@ function onNotice(msg, { store }) {
   store.update({ notices });
 }
 
-function onNarration(msg, ctx) {
-  if (ctx.store.get().confirm) ctx.store.update({ confirm: null });
-  relay(msg, ctx);
-}
-
 function onVoteOpen(msg, ctx) {
   const vote = {
     vote_id: msg.vote_id,
@@ -126,6 +121,9 @@ function onHostStats(msg, ctx) {
 }
 
 function onCombat(msg, ctx) {
+  // A fight that starts drops the server's open "Are you sure?" (begin_combat): close it too.
+  const before = ctx.store.get().snapshot?.state.combat ?? null;
+  if (!before && msg.combat && ctx.store.get().confirm) ctx.store.update({ confirm: null });
   patchSnapshot(ctx, { combat: msg.combat ?? null });
   relay(msg, ctx);
 }
@@ -168,7 +166,7 @@ export const HANDLERS = {
   host_stats: onHostStats,
   level_up_available: onLevelUp,
   lobby_roster: onRoster,
-  narration_chunk: onNarration,
+  narration_chunk: relay, // never clears the open confirm (M15.1 playtest)
   narration_done: relay,
   notice: onNotice,
   pending_confirmation: onConfirmation,

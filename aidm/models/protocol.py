@@ -45,6 +45,7 @@ type AnyClientMsg = (
     | c.HostKick
     | c.HostDifficulty
     | c.HostTtsToggle
+    | c.HostTurnTimer
     | c.HostSave
     | c.HostLoad
     | c.HostNew

@@ -2,7 +2,8 @@
 
 Everyone else gets `error not_host`. Pause stops the exploration queue, combat commands and turn
 timeouts (a timer that fires while paused restarts); resume continues. Start generates the
-campaign, force vote passes the open vote. Kick, TTS toggle (immediate) and difficulty, save,
+campaign, force vote passes the open vote, the turn timer (M15.1, `turn_clock.set_timer`) applies
+at once. Kick, TTS toggle (immediate) and difficulty, save,
 load, new and end (jobs: they touch the game state or the files) live in `host_controls` and
 `host_switch`. Token totals reach the host as `host_stats` after every job (`session.stats`).
 
@@ -24,9 +25,10 @@ from aidm.models.protocol_client import (
     HostSave,
     HostStart,
     HostTtsToggle,
+    HostTurnTimer,
 )
 from aidm.models.protocol_server import ErrorCode, NoticeKind
-from aidm.session import explore, host_controls, host_switch, lobby, votes
+from aidm.session import explore, host_controls, host_switch, lobby, turn_clock, votes
 from aidm.session.table_core import Player, TableCore
 
 
@@ -57,6 +59,8 @@ def host_message(core: TableCore, player: Player, msg: AnyClientMsg) -> None:
             host_controls.kick(core, player, target)
         case HostTtsToggle(enabled=enabled):
             host_controls.set_tts(core, player, enabled)
+        case HostTurnTimer(seconds=seconds):
+            turn_clock.set_timer(core, seconds)
         case HostDifficulty():
             core.schedule(partial(host_controls.set_difficulty, core, player, msg))
         case HostSave():

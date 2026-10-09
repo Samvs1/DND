@@ -23,6 +23,7 @@ from aidm.models.protocol_server import (
 )
 from aidm.session.combat_runner import ai_command
 from aidm.session.table import Table
+from aidm.session.turn_clock import GRACE_SECONDS
 from aidm.session.views import public_combat
 from tests.session.table_fixtures import (
     Seat,
@@ -113,11 +114,15 @@ async def test_turn_timer_plays_a_safe_default(tmp_path: Path) -> None:
 
 
 async def test_disconnect_autoplays_the_turn(tmp_path: Path) -> None:
-    async with running(disabled_llm(tmp_path)) as (table, _):
+    """A dropped owner keeps the turn for the reconnect grace (M15.1), then it is auto-played."""
+    async with running(disabled_llm(tmp_path)) as (table, clock):
         seats = list(await _fight(table))
         on, off = _seat_of(seats, table)
         key = table.turn_key
         table.disconnect(on.conn.id)
+        await table.settle()
+        assert table.turn_key == key
+        clock.advance(GRACE_SECONDS)
         await table.settle()
         assert table.turn_key != key
         assert any("hesitates" in n.text for n in of_type(off.drain(), Notice))
