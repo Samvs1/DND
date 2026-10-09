@@ -15,8 +15,10 @@ through `rules.creation` (rolled scores must be the ones this table rolled for t
 (problems come back as `creation_result` errors) and `export_hero` sends the player's hero as
 that document. `start_campaign` (host) generates the campaign with its own timeout
 (`TableConfig.campaign_timeout_s`, 150 s by default: the quality model needs ~25-45 s per call),
-installs it and narrates the opening through `telling.conclude`; the fallback notice is shown
-only for a live model (fake mode uses the sample campaign by design).
+installs it and narrates the opening through `telling.conclude`. When a live model could not
+write a plan, an INFO notice (`PREPARED`) says a prepared adventure is played tonight; it is
+not the sticky fallback banner, since narration stays live (M16.1). Fake mode uses the sample
+campaign by design and shows no notice.
 
 Public API: `hello`, `closed`, `roll`, `create`, `import_hero`, `export_hero`, `start_campaign`,
 `party_text`.
@@ -52,7 +54,10 @@ from aidm.session.telling import conclude
 
 GENERATING = "The Dungeon Master is writing your campaign. This can take up to two minutes."
 MAX_CATCH_UP = 500
-FELL_BACK = "The tale-weaver faltered, so a ready-made tale begins instead."
+PREPARED = (
+    "Tonight the table plays a prepared adventure from the Dungeon Master's shelf; "
+    "the telling is still live."
+)
 
 
 def hello(core: TableCore, conn_id: str, msg: Hello) -> None:
@@ -270,7 +275,7 @@ async def start_campaign(core: TableCore, host: Player, theme: str | None) -> No
         core.phase = TablePhase.LOBBY
         raise
     if result.source is CampaignSource.FALLBACK and core.llm.mode is LlmMode.LIVE:
-        core.notice(None, NoticeKind.FALLBACK, FELL_BACK)
+        core.notice(None, NoticeKind.INFO, PREPARED)
     events = core.apply_all(install_campaign(core.state, result.plan, core.state.seed))
     core.phase = TablePhase.PLAY
     scribe_voice.welcome_first(core)

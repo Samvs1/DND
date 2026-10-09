@@ -6,6 +6,8 @@ Public API:
   JSON did not parse (the client then raises `max_tokens` before retrying).
 - `validate_tool_calls(completion, tools) -> CallCheck`: every call must name a listed tool and
   carry JSON object arguments that validate against its pydantic model (empty arguments = {}).
+  Arguments holding one complete JSON value followed by extra data keep the first value (M16.1:
+  the live model sent a whole plan followed by stray characters).
 - `feedback_message(errors) -> dict`: the user-role message appended before a retry. It tells the
   model what was rejected and to answer again; it never echoes player text.
 """
@@ -42,13 +44,22 @@ def _pydantic_errors(name: str, exc: ValidationError) -> list[str]:
     return out
 
 
+def parse_arguments(text: str) -> Any:
+    """The first JSON value of `text` (surrounding whitespace and trailing data are ignored)."""
+    body = text.strip()
+    if not body:
+        return {}
+    value, _end = json.JSONDecoder().raw_decode(body)
+    return value
+
+
 def _check_one(raw: RawToolCall, tools: Mapping[str, ToolDef]) -> tuple[ToolCall | None, list[str]]:
     defn = tools.get(raw.name)
     if defn is None:
         listed = ", ".join(sorted(tools))
         return None, [f"unknown tool {raw.name!r}; use only: {listed}"]
     try:
-        data: Any = json.loads(raw.arguments) if raw.arguments.strip() else {}
+        data: Any = parse_arguments(raw.arguments)
     except json.JSONDecodeError as exc:
         return None, [f"{raw.name}: arguments are not valid JSON ({exc.msg} at char {exc.pos})"]
     if not isinstance(data, dict):

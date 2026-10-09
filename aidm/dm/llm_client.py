@@ -14,9 +14,9 @@ Public API:
   - `call_tools(messages, tools, role, *, tool_choice, max_tokens, max_retries, player_text,
     require_call, timeout_s) -> ToolCallResult | LlmFailure`: every call is parsed and
     validated against its tool model; an invalid or truncated answer is retried (bounded)
-    with the validation errors fed back as a message; truncation doubles `max_tokens` (up to
-    the cap). Structured calls use at least `settings.structured_max_tokens` (4000).
-    Empty content is fine.
+    with the validation errors fed back as a message (and written to the log row);
+    truncation doubles `max_tokens` (up to the cap). Structured calls use at least
+    `settings.structured_max_tokens` (4000). Empty content is fine.
     Timeouts and transport errors are not retried (the turn falls back instead of stalling).
     `timeout_s` overrides `settings.timeout_s` for this call (M6.2: campaign generation).
   - `structured(messages, schema, role, *, fallback, player_text, timeout_s)
@@ -43,7 +43,7 @@ from aidm.dm.llm_backend import (
     LlmBackend,
     Message,
 )
-from aidm.dm.llm_log import LlmCallLog, LlmCallRecord, hash_player_text
+from aidm.dm.llm_log import LlmCallLog, LlmCallRecord, hash_player_text, short_errors
 from aidm.dm.llm_settings import LlmSettings, ModelChoice, resolve_models
 from aidm.dm.llm_types import (
     FailureReason,
@@ -122,6 +122,7 @@ class LlmClient:
         attempt: int,
         usage: tuple[int, int] = (0, 0),
         player_hash: str | None = None,
+        errors: Sequence[str] = (),
     ) -> None:
         failed = outcome != "ok"
         self.totals.add(role, usage[0], usage[1], failed=failed)
@@ -136,6 +137,7 @@ class LlmClient:
                 prompt_tokens=usage[0],
                 completion_tokens=usage[1],
                 player_text_hash=player_hash,
+                errors=short_errors(errors),
             )
         )
 
@@ -192,7 +194,7 @@ class LlmClient:
                 errors = ("no tool was called; call one of the listed tools",)
             outcome = "ok" if not errors else ("truncated" if check.truncated else "invalid")
             usage = (sent.prompt_tokens, sent.completion_tokens)
-            self.record_call("tools", role, _ms(start), outcome, attempt, usage, phash)
+            self.record_call("tools", role, _ms(start), outcome, attempt, usage, phash, errors)
             if not errors:
                 return ToolCallResult(check.calls, sent.content, attempt)
             if check.truncated:

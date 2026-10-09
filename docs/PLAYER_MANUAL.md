@@ -19,7 +19,7 @@ Everything you need to play at the table, in plain words. The tables in the Refe
 1. The host starts the game with the LAN option. The screen shows a QR code in the lobby, before the adventure starts. Once play begins the QR code goes away and the space is used for the story and the board.
 2. Scan the QR code with your phone, or type the address shown on the screen.
 3. Enter your name and press **Join**. The first person in becomes the host. The lobby shows who is at the table.
-4. Everyone builds a hero (see Your hero). When every player has a hero, the host presses **Start the adventure**. The host can type a campaign theme first, or leave it blank for a surprise.
+4. Everyone builds a hero (see Your hero). When every player has a hero, the host presses **Start the adventure**. The host can type a campaign theme first, or leave it blank for a surprise. Writing the campaign takes up to two minutes. If the live AI cannot write one, the table sees "Tonight the table plays a prepared adventure from the Dungeon Master's shelf; the telling is still live." and plays the built-in campaign with live narration.
 
 ### Reconnecting
 Your seat is kept for you. If your phone sleeps, loses Wi-Fi or you close the page, open the game address again in the same browser: it remembers your seat and reconnects you by itself. A different browser or device, or cleared site data, gives you a new seat without your hero. If your connection drops during a fight, your turn waits 30 seconds for you to come back; after that, and on every later turn while you are still away, the game plays a careful turn for you (see Combat).
@@ -612,5 +612,6 @@ The tables in this manual are written by the game from its data. Races, classes,
 - **No Dictate button**: it only appears over HTTPS (or on the host's own computer) in a browser with speech input. Use your keyboard's dictation key.
 - **No sound**: press **Enable sound** in the banner, check the volume sliders on the More tab, and remember the screen is the default audio device. No spoken narration: the host must turn on **Spoken narration** in the Host panel (and the host's computer needs a Fish Audio key and voice).
 - **"The storyteller lost the thread"**: the live AI is not answering. The game uses plain fallback telling and keeps going. Press **Dismiss**.
+- **"Tonight the table plays a prepared adventure"**: the live AI could not write a campaign in time, so the built-in one is played. Narration is still live; nothing is wrong.
 - **I closed the page**: open the game address again in the same browser; it reconnects you to your hero.
 - **My hero is down and I cannot act**: wait for a companion to heal you (a potion, a healing spell or the Help action) or for a short rest. The Scribe only helps heroes who have died.

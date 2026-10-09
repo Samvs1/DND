@@ -32,6 +32,7 @@ from aidm.models.protocol_server import (
 )
 from aidm.models.state import GameState
 from aidm.models.world_events import NpcIntroduced
+from aidm.session.lobby import PREPARED
 from aidm.session.persistence import CampaignStore
 from aidm.session.public_feed import MAX_ROLLS, PublicFeed, public_line
 from aidm.session.reducer import apply as reduce
@@ -217,7 +218,7 @@ async def test_export_and_import_character_over_the_protocol(tmp_path: Path) -> 
 
 
 async def test_fake_mode_narrates_free_text_without_the_fallback_banner(tmp_path: Path) -> None:
-    for mode, banners in ((LlmMode.FAKE, 0), (LlmMode.LIVE, 1)):
+    for mode, prepared in ((LlmMode.FAKE, 0), (LlmMode.LIVE, 1)):
         llm, _ = fake_client(tmp_path)
         llm.mode = mode
         async with running(llm, GameState(campaign_id="t", seed=3)) as (table, _):
@@ -227,10 +228,14 @@ async def test_fake_mode_narrates_free_text_without_the_fallback_banner(tmp_path
             ann.send(SubmitAction(text="I wave at the gulls"))
             await table.settle()
             msgs = ann.drain()
-        fallback = [n for n in of_type(msgs, Notice) if n.kind is NoticeKind.FALLBACK]
+        notices = of_type(msgs, Notice)
+        fallback = [n for n in notices if n.kind is NoticeKind.FALLBACK]
+        info = [n for n in notices if n.kind is NoticeKind.INFO and n.text == PREPARED]
         # The fake script has no campaign generator, so it uses the sample campaign by design;
-        # only a live model that fails to write a campaign shows the banner.
-        assert len(fallback) == banners
+        # a live model that fails to write a campaign says so with an INFO notice (M16.1), never
+        # the sticky "lost the thread" banner: the telling itself is still live.
+        assert fallback == []
+        assert len(info) == prepared
         assert len(of_type(msgs, NarrationDone)) >= 2
 
 
