@@ -601,3 +601,8 @@ M11.2 clock | `Clock.time()` added (LoopClock = loop time, ManualClock = `now`) 
 - Class features the data marks `unsupported` get an asterisk in the feature table and a note (they are on the sheet but cannot be used yet). Reactions are shown on the hotbar but no reaction ability works; the manual says so.
 - Numbers that live in code, not data (DC ladder, XP thresholds), are hand-written in the manual and pinned by `test_hand_written_numbers_match_the_rules`.
 - Server: `aidm/server/manual_routes.py` serves `/manual` (`aidm/web/manual.html`, its own small entry `js/manual_page.js`, no table connection) and `/api/manual` (the file as `text/markdown`, read per request, 404 when missing). The phone opens the same view (`js/manual/view.js`) in a full-screen panel from the More tab (`open-manual`). The renderer (`js/manual/markdown.js`) builds DOM nodes only, so source text cannot inject markup.
+
+## M14.2 Manual accuracy review
+- The manual describes the game as built, not as intended: where the engine has a rule but no player can reach it (scroll copying, giving a potion in a fight, throwing a weapon, Medicine stabilising, a replacement hero after the start), the manual leaves it out and PROGRESS lists it as a follow-up for the owner.
+- Review method: two fresh read-only subagents, one per half of the hand-written text, each claim traced to code/data/strings.js; generated tables are covered by `gen_manual.py --check` (gate step 12).
+

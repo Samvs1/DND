@@ -7,7 +7,7 @@ Everything you need to play at the table, in plain words. The tables in the Refe
 ### What you need
 - One computer runs the game and acts as the server. It is called the host's computer here.
 - A TV or laptop shows the shared screen. Each player uses their own phone (or laptop) as a controller.
-- Everyone must be on the same Wi-Fi network. One to four players can sit at the table.
+- Everyone must be on the same Wi-Fi network. The game is made for one to four players.
 - A spoken narrator and music are optional. Without them the game still works, and the story appears as text.
 
 ### The two surfaces
@@ -22,20 +22,20 @@ Everything you need to play at the table, in plain words. The tables in the Refe
 4. Everyone builds a hero (see Your hero). When every player has a hero, the host presses **Start the adventure**. The host can type a campaign theme first, or leave it blank for a surprise.
 
 ### Reconnecting
-Your seat is kept for you. If your phone sleeps, loses Wi-Fi or you close the page, open the game again in the same browser with the same name and you are back with your hero. If you are away when it is your turn in a fight, the game plays a careful turn for you (see Combat).
+Your seat is kept for you. If your phone sleeps, loses Wi-Fi or you close the page, open the game address again in the same browser: it remembers your seat and reconnects you by itself. A different browser or device, or cleared site data, gives you a new seat without your hero. If you are away when it is your turn in a fight, the game plays a careful turn for you (see Combat).
 
 ### The microphone button
-You can dictate your actions. The microphone button next to **Act** only appears when the page is served over a secure connection (the host starts the game with the HTTPS option) and your browser supports speech input. Your browser will warn once about the certificate: choose Advanced, then continue to the site. Without the button, use the dictation key on your phone keyboard instead.
+You can dictate your actions. The **Dictate** button next to **Act** only appears when the page is served over a secure connection (the host starts the game with the HTTPS option, or you play on the host's own computer) and your browser supports speech input. Your browser will warn once about the certificate: choose Advanced, then continue to the site. Without the button, use the dictation key on your phone keyboard instead.
 
 ### Sound
-- The narrator reads the story aloud and music plays. By default **the screen is the audio device**: while a screen is connected, phones stay quiet until you turn sound on.
+- Music plays, and the narrator can read the story aloud. Spoken narration plays only when the host has switched **Spoken narration** on in the Host panel and the host's computer has a Fish Audio key and voice. By default **the screen is the audio device**: while a screen is connected, phones stay quiet until you turn sound on.
 - On the **More** tab, the **Screen sound** section changes narrator volume, music volume and mute on the shared screen from your phone. Any seated player can do this, and the last change wins.
 - The **Settings** button on your phone has its own volume and mute for sound played on that phone, plus text speed, text size and a reduce-motion switch.
 - If your browser holds back spoken narration, a banner offers **Enable sound**. Press it once.
 
 ## 2. Your hero
 
-Open the hero wizard from the lobby (**Create my hero**). It has ten steps: Race, Class, Background, Abilities, Skills, Equipment, Spells, Portrait, Name and Review (the Spells step only matters for casters). You can go back at any step.
+Open the hero wizard from the lobby (**Create my hero**). It has up to ten steps: Race, Class, Background, Abilities, Skills, Equipment, Spells, Portrait, Name and Review. The Spells step appears only for casters and for races that grant a cantrip. You can go back at any step.
 
 ### Races
 Your race sets your size, speed, darkvision, bonuses to ability scores and a few traits. A race with subraces asks you to pick one.
@@ -104,16 +104,16 @@ Casters pick their cantrips and first spells in the wizard. Only spells the game
 - **Cleric**: you prepare from the whole cleric list, with the same limit. Your Life domain spells are always prepared and do not count against it.
 - **Ranger**: starts casting at level 2 and knows a fixed number of spells.
 - **Warlock**: knows a fixed number of spells and uses a few Pact Magic slots that come back on a short rest.
-- **Fighter and rogue** do not cast spells.
+- **Fighter and rogue** do not cast spells. A **High Elf** of any class picks one cantrip from its heritage.
 
 ### Portrait and name
 Pick a face for your hero, enter a name and pronouns, and write a short backstory if you like (optional). The Review step shows your hit points, armour class, speed and attacks. When you are ready, press **Create hero**.
 
 ### Hero files
-On the More tab, **Export hero file** saves your hero as a file. In the wizard, **Import a saved hero** loads one, so you can bring a hero to another adventure. If a file cannot be used, the wizard tells you what is wrong.
+On the More tab, **Export hero file** saves your hero as a file. In the wizard, **Import a saved hero** loads one, but only in the lobby before the adventure starts, so you can bring a hero to another adventure. If a file cannot be used, the wizard tells you what is wrong.
 
 ### A new hero later
-If your hero is lost for good, you can make a new one between scenes (not during a fight). You cannot make a second hero while your first is alive.
+A player who joins after the adventure has started builds a hero between scenes (not during a fight). A hero who has died is brought back by **the Scribe** (see The Scribe); there is no way to swap in a different hero during an adventure.
 
 ## 3. Playing the story
 
@@ -124,7 +124,7 @@ On the **Play** tab, type what your hero does in plain words and press **Act**. 
 Actions are handled one at a time, in the order they were sent. You may have one action waiting at a time. The screen shows who is typing, who is acting now and who is next. Your phone shows **Waiting (n)** while your action is in line. If the storyteller stumbles, you see a plain in-story fallback instead of an error.
 
 ### What the Dungeon Master can and cannot do
-The storyteller describes the world and decides what happens, but it only does so by asking the game engine. **The engine owns every number**: difficulty, damage, hit points, spell slots, experience and gold. The storyteller cannot make up a damage total, hand out treasure beyond the rules, or invent things that were never introduced. If you try something clever, the engine rolls for it. Actions that cannot be undone, such as attacking someone friendly, ask you to confirm first (**Are you sure?**).
+The storyteller describes the world and decides what happens, but it only does so by asking the game engine. **The engine owns every number**: difficulty, damage, hit points, spell slots, experience and gold. The storyteller cannot make up a damage total, hand out treasure beyond the rules, or invent things that were never introduced. If you try something clever, the engine rolls for it. Attacking someone who is not already hostile (a friendly or neutral person) asks you first (**Are you sure?**), because they will fight back. Nothing else asks.
 
 ### Checks and difficulty
 When the outcome is uncertain, you roll a d20, add your modifier and compare it with a difficulty number (DC) the engine picks from a fixed ladder:
@@ -145,23 +145,23 @@ When the outcome is uncertain, you roll a d20, add your modifier and compare it 
 - The big dice on the screen show what was rolled, what it was against, and whether it was a success, failure or critical.
 
 ### Trouble ahead
-When the party arrives somewhere dangerous, the game warns you first and nothing starts without a choice. The screen shows who you face and how hard the fight looks (easy, medium, hard or deadly). You choose:
+When the party arrives somewhere dangerous, the game warns you first and nothing starts without a choice. Every phone with a hero shows a **Trouble ahead** box: who you face and how hard the fight looks (trivial to deadly). The first player to press a choice decides for the whole party:
 - **Fight**: the fight begins.
 - **Ambush them**: the whole party rolls Stealth. If at least half succeed, the foes are surprised. The fight starts either way.
 - **Slip away**: each hero rolls the better of Stealth and Athletics. If at least half succeed, the party goes back to where it came from and there is no fight. If not, the fight begins.
-- **Parley**: one hero tries to talk (Persuasion, or Intimidation). On a success there is no fight. On a failure the fight begins.
+- **Parley**: your hero (the one whose player pressed it) rolls Persuasion. On a success there is no fight. On a failure the fight begins.
 
-The place you arrive at is always safe. A fight is never started by a timer.
+The first place of each region is always safe. Fights start only from a warning you answer or from what the party does, never from a timer.
 
 ### Votes
-Some things need the whole table: **travelling**, **resting** (short or long) and **browsing a shop**. When someone asks, a vote opens on every phone and on the screen.
+Some things need the whole table: **travelling**, **resting** (short or long) and **browsing a shop**. To ask, type it on the Play tab (*take a short rest*, *make camp* for a long rest, *go to* a place) or press **Trade** when a trader is here; a vote then opens on every phone and on the screen. Typing *look around* or *inventory* gets an instant answer without a vote.
 - Each player presses **Ready** or **Not yet**. The person who asked counts as ready.
 - It passes as soon as more than half are ready and fails as soon as half or more decline.
 - If time runs out (30 seconds), it passes when more are ready than declined. Silence does not block the table.
 - Only connected players with a living hero vote. The host can press **Host: decide now** to force the open vote.
 
 ### The map and travel
-The **Journal** tab has a **Map** section. It shows the region as places you can visit, with your current place marked and unexplored places in fog. Some places are locked until something happens in the story. Choose a place and press **Travel to** it: the table votes. You cannot travel during a fight. Arriving may start a story scene or a warning (see Trouble ahead).
+The **Journal** tab has a **Map** section. It shows the region as places you can visit, with your current place marked and unexplored places in fog. Some places are locked until something happens in the story. Under **Travel**, each place connected to yours has a **Travel to** button: press it and the table votes. You cannot travel during a fight. Arriving may start a story scene or a warning (see Trouble ahead).
 
 ### Rests
 Rests also need a vote and happen between fights.
@@ -210,7 +210,7 @@ Things you can buy that matter most:
 <!-- end generated:consumables -->
 
 ### Loot and gold
-After a victory the party's loot is gathered into one reward: experience for every living hero, gold shared out evenly (any remainder goes to the first heroes), items handed out in turn, and any camp supplies found go to the shared pool. Gold is kept per hero and shows on your sheet. Quests pay gold and experience when they are completed, and reaching new places and clearing them can pay experience too.
+After a victory the party's loot is gathered into one reward: experience for every living hero, gold shared out evenly (any remainder goes to the first heroes), items handed out in turn, and any camp supplies found go to the shared pool. Gold is kept per hero and shows on your sheet. The adventure's main quests pay gold, experience and sometimes an item when they are completed; side quests that come up in play pay nothing by themselves. Reaching new places and clearing them can pay experience too.
 
 ### Quests and the journal
 The **Journal** tab lists quests as Active, Offered, Completed or Failed, with who gave each one and the current objective. It also keeps what is known so far and earlier scenes. Nothing here changes by itself: it only records what happened.
@@ -235,7 +235,7 @@ At the start of a fight everyone rolls initiative: a d4 plus the Dexterity modif
 When it is your turn, your phone says **Your turn** and the hotbar is active. Each turn you have:
 - one **action**, one **bonus action** and one **reaction** (shown on the hotbar),
 - **movement** up to your speed in feet,
-- the option to describe something creative in the free-text box (see Suggestions).
+- the option to type a creative action in the Play box and press **Act**. It uses your action, and it is refused once your action is spent.
 
 The reaction is shown for completeness, but no reaction abilities work in this version.
 
@@ -253,38 +253,40 @@ An attack roll is a d20 plus your attack bonus against the target's armour class
 - A rogue's **Sneak Attack** adds extra damage once per turn with a finesse or ranged weapon when you have advantage, or when an ally who can act is next to the target and you do not have disadvantage. It is 1d6 at level 1, 2d6 at level 3 and 3d6 at level 5.
 
 ### Other actions
-These are the actions on the hotbar:
-- **Move to**: walk to a neighbouring zone (shows the cost in feet).
+To move, press **Move to** on a zone card on the board: you can go to any zone your movement reaches, by the cheapest way. Standing up from prone costs half your speed. These are the other actions on the hotbar:
 - **Dash**: adds your speed again to your movement this turn.
-- **Disengage**: marks you as having disengaged. No free attacks are made when you leave, so this rarely matters in this version.
+- **Disengage**: has no effect in this version: leaving an enemy never provokes a free attack.
 - **Dodge**: attacks against you have disadvantage until the start of your next turn.
 - **Hide**: roll Stealth against the best Perception of the standing enemies. You stay hidden until you attack.
-- **Help**: an ally in your zone gets advantage on their next attack or check.
-- **Throw**: hurl a weapon or a nearby object.
+- **Help** (action): an ally in your zone gets advantage on their next attack or check. Helping an ally who is down gets them back up with 1 hit point.
+- **Throw** (action): hurl a carried object at a foe in your zone or the next one (1d4 damage).
 - **Shove** (bonus action): in your zone, knock a foe prone or push them to another zone. They can be at most one size larger than you, they roll Athletics or Acrobatics (the better one) and you must beat that.
-- **Jump** (bonus action): leap to a neighbouring zone, ignoring rough ground.
+- **Jump** (bonus action): leap to a neighbouring zone, ignoring rough ground. It still uses movement equal to the distance, and you cannot jump while prone.
 - **Flee**: leave the fight from a zone where no enemy stands. It is refused when an enemy is in your zone. You are then out of the fight. If everyone else falls, the party counts as having fled rather than as defeated.
-- **Use item**: drinking a potion, or giving one to an ally in your zone, is a bonus action. It is refused (and nothing is used) if the target is at full health or dead.
+- **Use item**: in a fight you drink a potion yourself as a bonus action. Outside a fight you can give one to another hero from the sheet. It is refused (and nothing is used) if the hero is at full health or dead.
 
 ### Spells and slots
 Pick **Spells**, choose a spell, then choose its target or the zone. Casting a spell uses your action or bonus action depending on the spell. A bonus-action spell does not stop you from casting an action spell on the same turn.
 - **Cantrips** cost nothing. They get stronger at character level 5.
 - Levelled spells use a **slot** of that level (or a higher one for a stronger effect). Slots come back on a long rest. Warlock pact slots come back on a short rest too.
 - **Concentration**: you can concentrate on one spell at a time, and casting another concentration spell ends the first. It also ends if you are knocked out or incapacitated, or if you fail a Constitution save. You make that save each time you take damage, against a DC of 10 or half the damage, whichever is higher.
-- Area spells hit everyone in the chosen zone, **friends included** (never the caster). One damage roll counts for all, and each target saves on their own.
+- Area spells hit everyone in the target zone, **friends included** (never the caster). Self-range areas such as Burning Hands, Thunderwave, Color Spray, Fear and Spirit Guardians use your own zone, and Lightning Bolt also hits the neighbouring zones. One damage roll counts for all, and each target saves on their own.
 - Spell attacks use your proficiency bonus plus your casting modifier.
 
 ### Class features
-The hotbar lists your class features that can be used:
+**On the hotbar** (you use them):
 - **Second Wind** (fighter): bonus action, heals 1d10 plus your level, once per short rest.
 - **Action Surge** (fighter): gives one extra action, once per short rest.
-- **Cunning Action** (rogue): Dash, Disengage or Hide as a bonus action.
-- **Arcane Recovery** (wizard): after a short rest, regain spent slots that add up to half your wizard level (rounded up), none higher than 5th.
+- **Cunning Action** (rogue): Dash, Disengage or Hide as a bonus action (under Bonus actions).
 - **Channel Divinity: Turn Undead** (cleric): turns undead creatures nearby.
-- **Dark One's Blessing** (warlock fiend): temporary hit points when you drop a foe.
-- Races add their own features, for example the dragonborn **Breath Weapon**, the halfling's **Lucky** (a natural 1 is rerolled once) and the half-orc's **Savage Attacks**.
+- **Breath Weapon** (dragonborn).
 
-Some features appear on the sheet but cannot be used at the table yet; they are marked with an asterisk in the class table below.
+**Automatic** (they just work):
+- **Arcane Recovery** (wizard): on your first short rest after a long rest, you regain spent slots that add up to half your wizard level (rounded up), highest first, none higher than 5th.
+- **Dark One's Blessing** (warlock fiend): temporary hit points when you drop a foe.
+- The halfling's **Lucky** (a natural 1 is rerolled once) and the half-orc's **Savage Attacks**.
+
+Some features appear on the sheet but cannot be used at the table yet; they are marked with an asterisk in the class table below. Three choices can be picked but do nothing yet: the fighting style **Protection**, and the ranger's **Giant Killer** and **Horde Breaker**.
 
 ### Features by level
 
@@ -435,9 +437,9 @@ Casters get more cantrips, spells and slots as they level up.
 - The game goes up to **level 5**. The experience you need: 300 for level 2, 900 for level 3, 2,700 for level 4 and 6,500 for level 5. Experience keeps counting after that.
 - When you have enough, the phone shows **Level up!** and the Hero tab shows **Choose level-up options**. A level-up is always your choice: it never happens by itself.
 - In the dialog you pick what your class asks for at that level: a new path (subclass) at the right level, new spells (and for a known-spell caster, one spell may be swapped), and at level 4 an **ability score improvement**: +2 to one ability or +1 to two, never above 20.
-- Your maximum hit points rise by a fixed average for your hit die (half the die plus one) plus your Constitution modifier. You are not healed by levelling. A hero who is down or dead cannot level up.
+- Your maximum hit points rise by a fixed average for your hit die (half the die plus one) plus your Constitution modifier, and your current hit points rise by the same amount, but levelling does not heal you to full. A hero who is down or dead cannot level up.
 - Spell slots you already spent stay spent when your slots grow.
-- A wizard can add two spells to their spellbook per level, and can copy a spell from a scroll for 50 gold per spell level.
+- A wizard adds two spells to their spellbook per level.
 
 ### Spell list
 
@@ -520,12 +522,13 @@ At the start of each of your turns while dying, you roll a d20 against a **DC of
 - A natural 20: you get up with 1 hit point. A natural 1 counts as two failures.
 - **Three successes** and you are **stable**: still at 0 hit points and out cold, but no longer rolling. **Three failures** and the hero **dies**.
 - Taking damage while at 0 is one failure (two for a critical hit). Damage that is at least your maximum hit points kills outright.
-- Healing a dying hero brings them back up and clears their counts. Healing words, potions and **Spare the Dying** (which stabilises) all work. **Revivify** brings back a hero who has died.
+- Healing a dying hero brings them back up and clears their counts. Healing spells, potions, the **Help** action (up with 1 hit point) and **Spare the Dying** (which stabilises) all work. **Revivify** brings back a hero who has died.
+- Death saves are only rolled in a fight. After a fight, a hero at 0 hit points stays down without rolling until a potion, a healing spell or a short rest brings them back.
 
 While you are down, your phone says **You are down**. Your companions carry on.
 
 ### A hero who has died
-A dead hero is out of the story unless the party revives them. Outside a fight, **the Scribe** can do it for gold (see The Scribe). A player whose hero is lost for good can make a new hero between scenes.
+A dead hero is out of the story unless the party revives them. Outside a fight, **the Scribe** can do it for gold (see The Scribe).
 
 ### Defeat
 The party is defeated when every hero is dead, or when no hero can act (all at 0 hit points or dead) and no ally can help. The screen shows **Defeat** and the checkpoint it will return to, and phones are locked. **The host** (or the only player) chooses:
@@ -533,7 +536,7 @@ The party is defeated when every hero is dead, or when no hero can act (all at 0
 - **Load a save**: pick a saved campaign.
 - **New adventure**: start over.
 
-Checkpoints are made automatically when you arrive somewhere new and when a fight starts. The newest few are kept.
+Checkpoints are made automatically whenever the party arrives somewhere (unless arriving starts a fight) and when a fight starts. The newest 10 are kept.
 
 ## 7. The Scribe
 
@@ -541,7 +544,7 @@ Checkpoints are made automatically when you arrive somewhere new and when a figh
 The Scribe is a quiet keeper of a ledger in which every tale is written. He speaks rarely, in a warm, calm and gently amused voice, and he believes some tales may yet be amended. He has no fixed place; he is there when the table needs him.
 
 ### When he speaks
-A short welcome when the adventure begins, a welcome back when you return, a brief line when a hero is rewritten, and a line when the campaign is won. The host can skip his speeches. If he refuses, his reason is shown as text on your phone.
+A welcome of about a minute when the adventure begins, a welcome back when a saved adventure is loaded, a brief line when a hero is rewritten, and a farewell when the campaign is won. While he speaks on the screen, the story waits. He stays silent after an ordinary fight; the screen just shows **Victory!**. The host can skip the welcome, the welcome back and the victory speech from their phone. If he refuses a request, his reason is shown as text on your phone.
 
 ### Rewriting a fallen hero
 On the **Scribe** tab you can see fallen heroes (dead heroes, not ones at 0 hit points who are still alive). A standing hero pays the Scribe to rewrite a fallen hero into the story. Rules:
@@ -574,11 +577,11 @@ Nothing is spent on a refusal.
 ### Starting and hosting
 - Start the server with the LAN option so phones can join. Add the HTTPS option to enable the microphone button. The first browser to join becomes the host.
 - Windows may ask whether Python may accept connections: allow it on private networks.
-- The game needs a DeepSeek key for the live Dungeon Master and a Fish Audio key for the voice, both optional. Without keys the game still plays with a built-in fallback storyteller.
+- The game needs a DeepSeek key for the live Dungeon Master and a Fish Audio key and voice for spoken narration, both optional. Spoken narration starts switched off: turn on **Spoken narration** in the Host panel. Without keys the game still plays with a built-in fallback storyteller.
 
 ### Host controls
 Open **More**, then **Host panel** (only the host sees it).
-- **Pause the game / Resume the game**: no turns or actions are handled while paused. Timers wait.
+- **Pause the game / Resume the game**: no turns or actions are handled while paused. Fight turn timers wait; an open vote keeps running.
 - **Force the open vote**: pass the current vote.
 - **Kick**: remove a player (asks first).
 - **Monster health** and **Monster damage** multipliers: from x0.25 to x3. The health change applies to monsters that appear from then on.
@@ -597,8 +600,8 @@ The tables in this manual are written by the game from its data. Races, classes,
 ### Troubleshooting
 - **The page will not open on my phone**: check that you are on the same Wi-Fi, use the address from the screen, and ask the host to allow the game through the firewall on private networks.
 - **A certificate warning**: with the HTTPS option this is normal once per browser. Choose Advanced, then continue.
-- **No microphone button**: it only appears over HTTPS in a browser with speech input. Use your keyboard's dictation key.
-- **No sound**: press **Enable sound** in the banner, check the volume sliders on the More tab, and remember the screen is the default audio device.
-- **"The storyteller lost the thread"**: the live AI is not answering. The game uses plain fallback telling and keeps going. Press **Try again**.
-- **I closed the page**: open it again with the same name in the same browser to return to your hero.
-- **My hero is down and I cannot act**: wait for your companions, or for the Scribe outside a fight.
+- **No Dictate button**: it only appears over HTTPS (or on the host's own computer) in a browser with speech input. Use your keyboard's dictation key.
+- **No sound**: press **Enable sound** in the banner, check the volume sliders on the More tab, and remember the screen is the default audio device. No spoken narration: the host must turn on **Spoken narration** in the Host panel (and the host's computer needs a Fish Audio key and voice).
+- **"The storyteller lost the thread"**: the live AI is not answering. The game uses plain fallback telling and keeps going. Press **Dismiss**.
+- **I closed the page**: open the game address again in the same browser; it reconnects you to your hero.
+- **My hero is down and I cannot act**: wait for a companion to heal you (a potion, a healing spell or the Help action) or for a short rest. The Scribe only helps heroes who have died.
