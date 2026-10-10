@@ -5,14 +5,21 @@ from pathlib import Path
 
 from starlette.testclient import TestClient
 
-from aidm.models.protocol_client import CreateCharacter, DefeatRetry, Hello, HostStart
+from aidm.models.commands import EndTurnCommand
+from aidm.models.protocol_client import (
+    CombatCommandMsg,
+    CreateCharacter,
+    DefeatRetry,
+    Hello,
+    HostStart,
+)
 from aidm.models.state import GameState
 from aidm.session.persistence import CampaignStore
 from aidm.session.session_log import FileLog, MemoryLog, SessionLog
 from aidm.session.turn_clock import GRACE_SECONDS
 from tests.session.defeat_fixtures import end_turns_until_over, party_of
 from tests.session.server_fixtures import hello, make_app, read_until
-from tests.session.table_fixtures import fake_llm, join, running, start_fight
+from tests.session.table_fixtures import assert_replays, fake_llm, join, running, start_fight
 from tests.unit.rules.creation_fixtures import default_choices
 
 
@@ -144,3 +151,26 @@ async def test_session_log_campaign_start_records_source_and_problems(tmp_path: 
     assert row["source"] in {"model", "fallback"}
     assert isinstance(row["attempts"], int) and isinstance(row["problems"], list)
     assert ann.token not in "\n".join(sink.lines)
+
+
+async def test_session_log_narration_lines_and_mid_fight_record(tmp_path: Path) -> None:
+    # M20.1: every telling logs its source; a mid-fight segment is recorded in the save.
+    sink = MemoryLog()
+    llm, _ = fake_llm(tmp_path)
+    async with running(llm, session_log=sink) as (table, _clock):
+        ann = await join(table, "Ann", "fighter")
+        bob = await join(table, "Bob", "rogue")
+        await start_fight(table, "wolf")
+        enc = table.state.encounter
+        assert enc is not None and table.turn_key is not None
+        fight_start = len(table.log)
+        active = enc.active_id() or ""
+        seat = ann if table.players[ann.player_id].creature_id == active else bob
+        seat.send(CombatCommandMsg(command=EndTurnCommand(actor_id=active)))
+        await table.settle()
+        mid = [e.event for e in table.log[fight_start:] if e.event.type == "narration_recorded"]
+        assert table.in_combat and mid, "the segment told before the next prompt is recorded"
+        assert_replays(table)
+    lines = sink.records("narration")
+    assert lines and {"source", "retried", "flags", "failure"} <= lines[0].keys()
+    assert {r["source"] for r in lines} <= {"model", "mixed", "template"}

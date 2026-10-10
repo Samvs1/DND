@@ -21,15 +21,27 @@ from aidm.dm.entities import display_name, entity_registry
 from aidm.dm.guard_alive import living_terms, standing_terms
 from aidm.dm.guard_rewards import rewarded
 from aidm.dm.guard_secrets import SecretKey, secret_keys
+from aidm.dm.guard_text import plain
 from aidm.models import events as ev
 from aidm.models.state import GameState
 from aidm.rules.scene import SceneView, current_scene, node_display_name
 
-_WORD = re.compile(r"[A-Za-z]+")
+_WORD = re.compile(r"[A-Za-z]+(?:'[A-Za-z]+)*")
 
 
 def words_of(text: str) -> set[str]:
-    return {w.casefold() for w in _WORD.findall(text)}
+    """Lowercase words; an apostrophe name counts whole and by its parts ("el'skalfidar", "el",
+    "skalfidar"), whatever apostrophe it was written with."""
+    out: set[str] = set()
+    for word in _WORD.findall(plain(text)):
+        low = word.casefold()
+        out.add(low)
+        out.update(part for part in low.split("'") if part)
+    return out
+
+
+def _plain_keys(terms: dict[str, str]) -> dict[str, str]:
+    return {plain(term): name for term, name in terms.items()}
 
 
 @dataclass(frozen=True)
@@ -121,14 +133,15 @@ def guard_scene(state: GameState, events: Sequence[ev.AnyEvent] = ()) -> GuardSc
     reg = entity_registry(state)
     scene = current_scene(state)
     present_ids = set(scene.npc_ids)
-    living = {c.name for c in state.creatures.values() if not c.dead}
-    present_npcs = {state.world.npcs[i].name for i in present_ids}
+    living = {plain(c.name) for c in state.creatures.values() if not c.dead}
+    present_npcs = {plain(state.world.npcs[i].name) for i in present_ids}
     absent_ids = [i for i in state.world.npcs if i not in present_ids]
-    absent = {state.world.npcs[i].name for i in absent_ids} - present_npcs - living
+    absent = {plain(state.world.npcs[i].name) for i in absent_ids} - present_npcs - living
     monsters = {state.creatures[c].name for c in scene.monster_ids}
     present_roles = _role_words(state, present_ids) | words_of(" ".join(monsters))
     known = set().union(*(words_of(n) for n in reg.all_names - reg.hidden_features))
-    party = {c.name: c.pc.class_index for c in state.creatures.values() if c.pc is not None}
+    party = {plain(c.name): c.pc.class_index for c in state.creatures.values() if c.pc is not None}
+    dead = frozenset(plain(n) for n in reg.dead) - living
     carried = (_carried(state) | {state.world.items[i].name for i in scene.item_ids}) - _lost_items(
         events
     )
@@ -143,14 +156,14 @@ def guard_scene(state: GameState, events: Sequence[ev.AnyEvent] = ()) -> GuardSc
             _role_words(state, absent_ids) - present_roles - lex.titles - lex.sentence_starters
         ),
         present_roles=frozenset(present_roles),
-        dead=frozenset(reg.dead - living),
+        dead=dead,
         others_present=len(present_ids) + len(scene.monster_ids),
         item_nouns=_item_nouns(carried, lex),
         feature_words=_feature_words(state, scene),
         secrets=secret_keys(
             state, frozenset(known | _all_role_words(state)), lex.secret_stop_words
         ),
-        living_terms=(terms := living_terms(state, frozenset(reg.dead - living), lex)),
+        living_terms=(terms := _plain_keys(living_terms(state, dead, lex))),
         standing_terms=standing_terms(state, terms),
         rewarded=rewarded(events),
         other_places=_other_places(state),
@@ -159,9 +172,9 @@ def guard_scene(state: GameState, events: Sequence[ev.AnyEvent] = ()) -> GuardSc
 
 def _other_places(state: GameState) -> dict[str, str]:
     """Lowercase display name -> name of every map node the party is NOT at (QA-10)."""
-    here = state.world.node_names.get(state.world.current_node or "", "").casefold()
+    here = plain(state.world.node_names.get(state.world.current_node or "", "")).casefold()
     return {
-        name.casefold(): name
+        plain(name).casefold(): name
         for node, name in state.world.node_names.items()
         if node != state.world.current_node and name.casefold() != here and len(name) >= 4
     }

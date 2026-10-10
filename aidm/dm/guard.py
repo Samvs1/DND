@@ -39,7 +39,7 @@ from aidm.dm.guard_pronoun import PronounContext, pronoun_declared_dead
 from aidm.dm.guard_rewards import unearned_rewards
 from aidm.dm.guard_scene import GuardScene, guard_scene
 from aidm.dm.guard_secrets import leaked_secrets
-from aidm.dm.guard_text import tokenize
+from aidm.dm.guard_text import plain, tokenize
 from aidm.dm.guard_types import GuardReport, ProseCheck, Violation
 from aidm.dm.guard_world import dead_acting, destroyed_items, unlisted_features
 from aidm.dm.llm_backend import Message
@@ -90,7 +90,7 @@ def check_prose(
     frozen = scene if scene is not None else guard_scene(state, events)
     told = context if context is not None else PronounContext()
     found: list[Violation] = []
-    for sentence in split_sentences(text):
+    for sentence in split_sentences(plain(text)):
         found.extend(v for v in _sentence_violations(sentence, frozen, told) if v not in found)
     return GuardReport(tuple(found))
 
@@ -114,7 +114,7 @@ def scrub_messages(messages: Sequence[Message], terms: Sequence[str]) -> list[Me
         copy = dict(message)
         content = copy.get("content")
         if message.get("role") != "system" and isinstance(content, str):
-            copy["content"] = pattern.sub(SCRUB_TOKEN, content)
+            copy["content"] = pattern.sub(SCRUB_TOKEN, plain(content))
         out.append(copy)
     return out
 

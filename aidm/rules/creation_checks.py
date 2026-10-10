@@ -19,6 +19,8 @@ Public API:
 - `skill_tool_language_errors(choices, refs, regs)`, `equipment_errors(choices, refs)`,
   `class_choice_errors(choices, refs, level)`, `text_errors(choices)`.
 - `MAX_NAME_CHARS` (40), `MAX_PRONOUN_CHARS` (30), `MAX_PORTRAIT_ID_CHARS` (64).
+- `hero_name(raw) -> str`: the stored name: trimmed, every typographic apostrophe as the plain one
+  (M20.1: a phone keyboard's "El’Skalfidar" is "El'Skalfidar" everywhere after creation).
 """
 
 from collections import Counter
@@ -40,6 +42,7 @@ MAX_NAME_CHARS = 40
 MAX_PRONOUN_CHARS = 30
 MAX_PORTRAIT_ID_CHARS = 64
 _E = CreationErrorCode
+_APOSTROPHES = str.maketrans(dict.fromkeys("’‘ʼ`´′", "'"))
 
 
 @dataclass(frozen=True)
@@ -240,9 +243,13 @@ def class_choice_errors(
     return errors
 
 
+def hero_name(raw: str) -> str:
+    return raw.strip().translate(_APOSTROPHES)
+
+
 def text_errors(choices: CreationChoices) -> list[CreationError]:
     errors: list[CreationError] = []
-    name = choices.name.strip()
+    name = hero_name(choices.name)
     if not name or len(name) > MAX_NAME_CHARS:
         detail = f"a name needs 1..{MAX_NAME_CHARS} characters"
         errors.append(_err(_E.NAME_INVALID, "name", detail))

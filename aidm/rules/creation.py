@@ -47,6 +47,7 @@ from aidm.rules.creation_checks import (
     granted_languages,
     granted_skills,
     granted_tools,
+    hero_name,
     pick_count,
     pick_errors,
     resolve_refs,
@@ -335,7 +336,7 @@ def build_character(
     skills = _proficient_skills(choices, refs, effects.skills)
     creature = Creature(
         id=creature_id,
-        name=choices.name.strip(),
+        name=hero_name(choices.name),
         kind=CreatureKind.PC,
         abilities=abilities,
         max_hp=max_hp,

@@ -4,6 +4,9 @@ import asyncio
 from collections.abc import AsyncIterator
 from pathlib import Path
 
+from aidm.dm.guard_flow import NarrationSource
+from aidm.dm.guard_types import GuardReport
+from aidm.dm.llm_types import LlmFailure
 from aidm.dm.narration_stream import NarrationChunk, NarrationStream
 from aidm.models.narration import NarrationTone
 from aidm.models.protocol import AnyServerMsg
@@ -21,6 +24,22 @@ class ListStream(NarrationStream):
         self.tone = tone
         self.chunks = []
         self._texts = sentences
+
+    @property
+    def source(self) -> NarrationSource:
+        return NarrationSource.TEMPLATE
+
+    @property
+    def failure(self) -> LlmFailure | None:
+        return None
+
+    @property
+    def reports(self) -> list[GuardReport]:
+        return []
+
+    @property
+    def retried(self) -> bool:
+        return False
 
     async def _run(self) -> AsyncIterator[NarrationChunk]:
         for text in self._texts:

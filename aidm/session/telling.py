@@ -16,7 +16,10 @@ Fights that start are handled by the caller (`combat_flow.after_resolution`).
 
 Every told narration is also kept in `core.public` (the story history for reconnects).
 
-Public API: `tell`, `tell_text`, `remember`, `follow_ups`, `conclude`, `maybe_epilogue`.
+Every `tell` also writes one `narration` diagnostics line (source, retry, guard flags; M20.1).
+
+Public API: `tell`, `tell_text`, `remember`, `follow_ups`, `conclude`, `maybe_epilogue`,
+`MAX_DIAG_FLAGS`.
 """
 
 from collections.abc import Sequence
@@ -47,6 +50,8 @@ from aidm.session.narration_pipe import NarrationPipe
 from aidm.session.table_core import TableCore
 from aidm.session.views import public_offer
 
+MAX_DIAG_FLAGS = 8
+
 
 async def tell(core: TableCore, stream: NarrationStream) -> str:
     """Stream the sentences as `narration_chunk`s (the pipe adds audio), then `narration_done`."""
@@ -63,7 +68,22 @@ async def tell(core: TableCore, stream: NarrationStream) -> str:
         raise
     core.broadcast(NarrationDone(id=nid))
     core.public.add_narration(nid, stream.text, tone, core.state.event_count)
+    _diag_narration(core, stream)
     return stream.text
+
+
+def _diag_narration(core: TableCore, stream: NarrationStream) -> None:
+    """M20.1: where a narration came from and what the guard flagged (model words only, never
+    the player's), so a playtest's fallbacks can be explained from the logs."""
+    flags = [f"{v.kind.value}:{v.span}" for r in stream.reports for v in r.violations]
+    failure = stream.failure.reason.value if stream.failure is not None else None
+    core.diag(
+        "narration",
+        source=stream.source.value,
+        retried=stream.retried,
+        flags=flags[:MAX_DIAG_FLAGS],
+        failure=failure,
+    )
 
 
 async def tell_text(

@@ -158,6 +158,13 @@ def test_backstory_and_name_limits() -> None:
     assert _codes(_with(base, name="   ")) == [(E.NAME_INVALID, "name")]
 
 
+def test_name_stored_with_plain_apostrophes() -> None:
+    # M20.1: a phone keyboard's typographic apostrophe is stored as the plain one.
+    base = default_choices("ranger", "elf", "high-elf")
+    pc = build_character(_with(base, name="  El’Skalfidar "), REGS, "pc1")
+    assert pc.name == "El'Skalfidar"
+
+
 def test_half_elf_ability_choices() -> None:
     base = default_choices("fighter", "half-elf", None)
     assert _codes(_with(base, ability_choice_picks=["cha", "str"])) == [

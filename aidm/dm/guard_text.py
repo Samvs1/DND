@@ -2,9 +2,12 @@
 
 Matching is always on word boundaries, so "unbroken" never matches "broken" and "Miranda"
 never matches "Mira". Possessives ("Mira's") and simple plurals ("goblins") reduce to their base.
+Every typographic apostrophe counts as the plain one (`plain`, M20.1: a hero stored as
+"El’Skalfidar" was flagged in every model sentence that named him), on the prose side and on the
+name side alike.
 
-Public API: `Token(text, start, end, initial)`, `tokenize(text)`, `base_word(word)`,
-`singular_forms(word)`, `find_phrases(text, phrases)` (cached patterns),
+Public API: `APOSTROPHES`, `plain(text)`, `Token(text, start, end, initial)`, `tokenize(text)`,
+`base_word(word)`, `singular_forms(word)`, `find_phrases(text, phrases)` (cached patterns),
 `is_negated(tokens, index, negations, span)`.
 """
 
@@ -15,9 +18,16 @@ from functools import cache
 
 from aidm.dm.sentence_chunker import ABBREVIATIONS
 
-_TOKEN = re.compile(r"[A-Za-z]+(?:['’][A-Za-z]+)*")
+APOSTROPHES = "’‘ʼ`´′"
+_PLAIN = str.maketrans(dict.fromkeys(APOSTROPHES, "'"))
+_TOKEN = re.compile(rf"[A-Za-z]+(?:['{APOSTROPHES}][A-Za-z]+)*")
 _STARTS = frozenset('.!?"“‘(:\n')
 _STEM = re.compile(r"([A-Za-z][A-Za-z.]*?)\.$")
+
+
+def plain(text: str) -> str:
+    """The text with every typographic apostrophe as the ASCII one (same length)."""
+    return text.translate(_PLAIN)
 
 
 @dataclass(frozen=True)
@@ -29,7 +39,7 @@ class Token:
 
     @property
     def lower(self) -> str:
-        return self.text.casefold().replace("’", "'")
+        return plain(self.text).casefold()
 
     @property
     def capitalised(self) -> bool:
@@ -56,7 +66,7 @@ def tokenize(text: str) -> list[Token]:
 
 
 def base_word(word: str) -> str:
-    clean = word.replace("’", "'")
+    clean = plain(word)
     if clean.lower().endswith("'s"):
         return clean[:-2]
     return clean.rstrip("'")
@@ -84,10 +94,10 @@ def _compiled(phrases: frozenset[str]) -> re.Pattern[str]:
 
 
 def find_phrases(text: str, phrases: Iterable[str]) -> list[re.Match[str]]:
-    words = frozenset(phrases)
+    words = frozenset(plain(p) for p in phrases)
     if not words:
         return []
-    return list(_compiled(words).finditer(text.replace("’", "'")))
+    return list(_compiled(words).finditer(plain(text)))
 
 
 def is_negated(tokens: list[Token], index: int, negations: frozenset[str], span: int = 3) -> bool:

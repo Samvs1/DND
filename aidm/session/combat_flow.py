@@ -13,6 +13,7 @@ Only that hero's player may send `combat_command`; anyone else gets `not_your_tu
 is consumed. A fight's end runs loot (`end_encounter_with_loot`), bystander deeds
 (`combat_help_deed_events`), region rewards (`resolution_reward_events`) and spoke milestones
 (`milestone_events`, M9.2), tells the last segment, records it and returns to exploration.
+Every mid-fight segment narration is recorded too (`narration_recorded`, M20.1).
 A lost fight that wiped the party is turned into the DEFEATED phase right after the job by
 `defeat_flow.after_job` (M11.1); the fight start was marked as a retry checkpoint.
 
@@ -23,7 +24,7 @@ Public API: `MAX_COMBAT_STEPS`, `runner`, `after_resolution`, `begin_combat`, `a
 
 from collections.abc import Sequence
 
-from aidm.dm.narrator import narrate_round_segment
+from aidm.dm.narrator import narrate_round_segment, record_narration
 from aidm.models.commands import AnyCommand, EndTurnCommand, MonsterActionCommand
 from aidm.models.encounter import EncounterStatus
 from aidm.models.events import AnyEvent
@@ -140,12 +141,18 @@ async def _prompt(core: TableCore, creature_id: str, owner: Player) -> None:
     core.diag("turn_prompt", creature_id=creature_id, player_id=owner.id, seconds=seconds)
 
 
-async def tell_segment(core: TableCore) -> str:
-    """Tell the combat events since the last narration in ONE batched call."""
+async def tell_segment(core: TableCore, *, record: bool = True) -> str:
+    """Tell the combat events since the last narration in ONE batched call; a mid-fight telling
+    is recorded (M20.1: the save shows what the table heard; the fight's end records its own)."""
     if not core.segment:
         return ""
     events, core.segment = core.segment, []
-    return await tell(core, narrate_round_segment(core.state, events, core.llm))
+    text = await tell(core, narrate_round_segment(core.state, events, core.llm))
+    recorded = record_narration(core.state, text) if record else None
+    if recorded is not None:
+        core.apply(recorded)
+        core.segment = [e for e in core.segment if e is not recorded]
+    return text
 
 
 def end_player_turn(core: TableCore) -> None:
@@ -237,7 +244,7 @@ async def finish_fight(core: TableCore, status: EncounterStatus) -> None:
     events += core.apply_all(combat_help_deed_events(state, status, regs.tiers))
     events += core.apply_all(resolution_reward_events(state, regs.tiers, regs.catalogue))
     events += core.apply_all(milestone_events(state, events, regs.tiers, regs.catalogue))
-    text = await tell_segment(core)
+    text = await tell_segment(core, record=False)
     core.in_combat = False
     core.segment = []
     await remember(core, text or FIGHT_OVER, events)
