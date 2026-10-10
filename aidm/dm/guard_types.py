@@ -33,6 +33,7 @@ class ViolationKind(StrEnum):
     UNEARNED_REWARD = "unearned_reward"
     FALSE_TRAVEL = "false_travel"
     INVENTED_STRANGER = "invented_stranger"
+    DOWNED_RISING = "downed_rising"
 
 
 SCRUBBED_KINDS = frozenset({ViolationKind.UNKNOWN_NAME, ViolationKind.ABSENT_NPC})

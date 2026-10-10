@@ -6,14 +6,17 @@ M5.4 arrival order through `telling.conclude`), `rest_job` (`rules.rests`), `sho
 offer, first answer wins), `buy`/`sell` (`rules.shop`), `give` (`rules.social_deeds.gift_events`
 + region rewards), `level` (`rules.leveling.level_up`), `equip`/`unequip`/`drop` and the equip/drop
 pre-check intents (`rules.equipment`), `use_item` (M7.5b: a potion outside a fight on the hero
-or another living hero, `rules.items.use_item_events`; full HP refuses without consuming).
+or another living hero, `rules.items.use_item_events`; full HP refuses without consuming),
+`help_up` / `help_up_intent` (M20.2: outside a fight a standing hero helps a downed ally up to
+1 HP, `rules.downed`; the button and the typed sentence).
 Refusals are typed and player-safe; nothing is spent on a refusal.
 
 Public API: `travel_job`, `rest_job`, `shop_job`, `item_intent`, `answer`, `buy`, `sell`, `give`,
-`level`, `equip`, `unequip`, `drop`, `use_item`, `send_stock`.
+`level`, `equip`, `unequip`, `drop`, `use_item`, `help_up`, `help_up_intent`, `send_stock`.
 """
 
 from aidm.dm.arrival import offer_data
+from aidm.dm.help_intent import HelpUpIntent
 from aidm.dm.llm_types import ToolCall
 from aidm.dm.precheck import ItemAction, ItemIntent, RestKind, TakeIntent
 from aidm.dm.tool_context import ToolContext
@@ -26,6 +29,7 @@ from aidm.models.protocol_client import (
     Drop,
     Equip,
     Give,
+    HelpUp,
     LevelUp,
     ShopBuy,
     ShopSell,
@@ -35,6 +39,7 @@ from aidm.models.protocol_client import (
 from aidm.models.protocol_server import ErrorCode, NoticeKind, ShopStock
 from aidm.models.state import Creature, CreatureKind
 from aidm.rules.command_checks import CommandRefused
+from aidm.rules.downed import HelpUpRefused, help_up_events
 from aidm.rules.equipment import (
     EquipRefused,
     drop_events,
@@ -308,3 +313,26 @@ async def take_intent(core: TableCore, player: Player, intent: TakeIntent) -> No
     core.apply_all(events)
     name = item.name if item.catalog_id is None else item.name.lower()
     await remember(core, await tell_text(core, f"{pc.name} picks up the {name}."))
+
+
+async def help_up(core: TableCore, player: Player, msg: HelpUp) -> None:
+    pc = _hero(core, player)
+    if pc is not None:
+        await _help_up(core, player, pc, msg.target_id)
+
+
+async def help_up_intent(core: TableCore, player: Player, intent: HelpUpIntent) -> None:
+    pc = core.state.creatures.get(intent.actor_id)
+    if pc is not None:
+        await _help_up(core, player, pc, intent.target_id)
+
+
+async def _help_up(core: TableCore, player: Player, pc: Creature, target_id: str) -> None:
+    try:
+        events = help_up_events(core.state, pc.id, target_id)
+    except HelpUpRefused as refused:
+        core.error(player.id, ErrorCode.REFUSED, refused.detail, refused.reason.value)
+        return
+    core.apply_all(events)
+    target = core.state.creatures[target_id]
+    await remember(core, await tell_text(core, f"{pc.name} helps {target.name} up."))

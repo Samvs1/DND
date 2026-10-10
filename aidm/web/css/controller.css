@@ -489,6 +489,18 @@ body.is-controller #app {
   color: var(--gold-dim);
 }
 
+/* M20.2: help a downed ally up (outside a fight) */
+.ct-help {
+  display: grid;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.ct-help-up {
+  min-height: 44px;
+  font-size: 1.05rem;
+}
+
 .ct-ideas {
   display: grid;
   gap: 0.6rem;

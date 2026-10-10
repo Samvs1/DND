@@ -18,7 +18,7 @@ from dataclasses import dataclass, field
 
 from aidm.data.guard_lexicon import GuardLexicon, guard_lexicon
 from aidm.dm.entities import display_name, entity_registry
-from aidm.dm.guard_alive import living_terms, standing_terms
+from aidm.dm.guard_alive import downed_terms, living_terms, standing_terms
 from aidm.dm.guard_rewards import rewarded
 from aidm.dm.guard_secrets import SecretKey, secret_keys
 from aidm.dm.guard_text import plain
@@ -61,6 +61,7 @@ class GuardScene:
     secrets: tuple[SecretKey, ...] = ()
     living_terms: dict[str, str] = field(default_factory=dict[str, str])
     standing_terms: dict[str, str] = field(default_factory=dict[str, str])
+    downed_terms: dict[str, str] = field(default_factory=dict[str, str])
     rewarded: bool = False
     other_places: dict[str, str] = field(default_factory=dict[str, str])
 
@@ -165,6 +166,7 @@ def guard_scene(state: GameState, events: Sequence[ev.AnyEvent] = ()) -> GuardSc
         ),
         living_terms=(terms := _plain_keys(living_terms(state, dead, lex))),
         standing_terms=standing_terms(state, terms),
+        downed_terms=_plain_keys(downed_terms(state, dead, lex)),
         rewarded=rewarded(events),
         other_places=_other_places(state),
     )

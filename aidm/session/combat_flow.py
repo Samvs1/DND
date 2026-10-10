@@ -13,6 +13,7 @@ Only that hero's player may send `combat_command`; anyone else gets `not_your_tu
 is consumed. A fight's end runs loot (`end_encounter_with_loot`), bystander deeds
 (`combat_help_deed_events`), region rewards (`resolution_reward_events`) and spoke milestones
 (`milestone_events`, M9.2), tells the last segment, records it and returns to exploration.
+A fight that ends without a defeat leaves dying heroes stable (`rules.downed`, M20.2).
 Every mid-fight segment narration is recorded too (`narration_recorded`, M20.1).
 A lost fight that wiped the party is turned into the DEFEATED phase right after the job by
 `defeat_flow.after_job` (M11.1); the fight start was marked as a retry checkpoint.
@@ -31,6 +32,7 @@ from aidm.models.events import AnyEvent
 from aidm.models.protocol_server import CombatState, ErrorCode, NoticeKind, TurnPrompt
 from aidm.rules.command_checks import CommandRefused
 from aidm.rules.commands import execute_command
+from aidm.rules.downed import stabilise_after_fight
 from aidm.rules.encounter import encounter_outcome
 from aidm.rules.loot import end_encounter_with_loot, loot_rng
 from aidm.rules.milestones import milestone_events
@@ -241,6 +243,8 @@ async def finish_fight(core: TableCore, status: EncounterStatus) -> None:
     state, regs = core.state, core.regs
     rng = loot_rng(state)
     events = core.apply_all(end_encounter_with_loot(state, status, regs.loot, regs.catalogue, rng))
+    if status is not EncounterStatus.DEFEAT:  # M20.2: the dying are stable once it is over
+        events += core.apply_all(stabilise_after_fight(state))
     events += core.apply_all(combat_help_deed_events(state, status, regs.tiers))
     events += core.apply_all(resolution_reward_events(state, regs.tiers, regs.catalogue))
     events += core.apply_all(milestone_events(state, events, regs.tiers, regs.catalogue))

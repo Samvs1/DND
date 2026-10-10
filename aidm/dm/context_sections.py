@@ -134,9 +134,17 @@ def _sheet(c: Creature, short: bool) -> str:
     return line + (f", backstory: {story}" if story else "")
 
 
+def _life_note(c: Creature) -> str:
+    if c.dead:
+        return " (dead)"
+    if c.hp <= 0:  # M20.2: senseless until healed or helped up; prose cannot raise them
+        return " (down at 0 HP: senseless until an ally helps them up or heals them)"
+    return ""
+
+
 def party_lines(state: GameState, short: bool) -> list[str]:
     pcs = sorted((c for c in state.creatures.values() if c.pc is not None), key=lambda c: c.id)
-    return [_sheet(c, short) + (" (dead)" if c.dead else "") for c in pcs]
+    return [_sheet(c, short) + _life_note(c) for c in pcs]
 
 
 def quest_lines(state: GameState) -> list[str]:

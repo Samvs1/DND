@@ -16,7 +16,8 @@ M11.2 `DeviceRole` (`Hello.role`: "screen" = the shared display, "controller" = 
 `AudioSettingsMsg` (the screen's volumes and mutes, from any seated player); M13.1
 `ScribeRevive` (pay the Scribe to rewrite a fallen hero, `aidm.rules.scribe`); M13.2 `ScribeSkip`
 (host only: stop the Scribe's current line on every screen); M15.1 `HostTurnTimer` (host only:
-the combat turn timer, off / 90 s / 3 min / 5 min).
+the combat turn timer, off / 90 s / 3 min / 5 min); M20.2 `HelpUp` (outside a fight, help a
+downed party member up to 1 HP, `aidm.rules.downed`).
 """
 
 from enum import StrEnum
@@ -155,6 +156,11 @@ class UseItem(_Client):
     type: Literal["use_item"] = "use_item"
     item_id: str
     target_id: str | None = None
+
+
+class HelpUp(_Client):
+    type: Literal["help_up"] = "help_up"
+    target_id: str = Field(min_length=1, max_length=64)
 
 
 class RequestSheet(_Client):

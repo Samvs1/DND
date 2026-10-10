@@ -752,6 +752,8 @@ export const STRINGS = {
     now_weighing: 'The Dungeon Master weighs what {name} does.',
     now_yours: 'The Dungeon Master weighs your action.',
     now_move: 'Your move. What does {name} do?',
+    now_downHelp: 'You are down. An ally can help you up, or the party can rest.',
+    helpUp: 'Help {name} up',
     now_round: 'Round {n}',
     now_next: 'you are next',
     now_inTurns: 'your turn in {n} turns',

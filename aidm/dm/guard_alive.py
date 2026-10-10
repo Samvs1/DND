@@ -14,9 +14,12 @@ stillness cue follows it (`death_soft_cues`, QA-03: "he is gone, still and cold"
 A creature that still has hit points (or an NPC outside a fight) declared down, out cold or
 beaten (`defeat_claims`, M19.1: the narrator told a whole fight as won while it had only begun)
 is flagged by `unhurt_declared_down` with the terms of `standing_terms`.
+A hero at 0 HP told waking, standing or coming to (`rise_claims`) with no healing event is
+flagged by `downed_rising` with the terms of `downed_terms` (M20.2).
 
 Public API: `CLAIM_REACH`, `living_terms(state, dead, lex) -> dict[str, str]` (term -> name),
-`standing_terms(state, terms) -> dict[str, str]`, `soft_claim_after(sentence, end, lex) -> bool`,
+`standing_terms(state, terms) -> dict[str, str]`, `downed_terms(state, dead, lex)`,
+`soft_claim_after(sentence, end, lex) -> bool`, `downed_rising(sentence, tokens, terms, lex)`,
 `living_declared_dead(sentence, tokens, terms, lex) -> list[Violation]`,
 `unhurt_declared_down(sentence, tokens, terms, lex) -> list[Violation]`.
 """
@@ -31,6 +34,7 @@ from aidm.models.state import GameState
 CLAIM_REACH = 40
 MIN_TERM_LEN = 4
 _WORD = re.compile(r"[A-Za-z]+")
+_CLAUSE = re.compile(r"\b(?:while|whilst|as|when|but|though|until|before|after)\b|[;:]", re.I)
 
 
 def _living_names(state: GameState) -> set[str]:
@@ -41,9 +45,19 @@ def _living_names(state: GameState) -> set[str]:
 
 
 def living_terms(state: GameState, dead: frozenset[str], lex: GuardLexicon) -> dict[str, str]:
+    return _terms(_living_names(state), dead, lex)
+
+
+def downed_terms(state: GameState, dead: frozenset[str], lex: GuardLexicon) -> dict[str, str]:
+    """M20.2: the living at 0 HP (only an engine event raises them)."""
+    downed = {c.name for c in state.creatures.values() if not c.dead and c.hp <= 0}
+    return _terms(downed, dead, lex)
+
+
+def _terms(names: set[str], dead: frozenset[str], lex: GuardLexicon) -> dict[str, str]:
     dead_words = {w.casefold() for name in dead for w in _WORD.findall(name)}
     terms: dict[str, str] = {}
-    for name in sorted(_living_names(state)):
+    for name in sorted(names):
         terms[name] = name
         for word in _WORD.findall(name):
             low = word.casefold()
@@ -121,4 +135,27 @@ def unhurt_declared_down(
             if _claimed(sentence, tokens, m.end(), lex, lex.defeat_claims):
                 detail = f"{terms[term]} is still standing; no engine event beat them"
                 return [Violation(ViolationKind.UNHURT_DECLARED_DOWN, m.group(0), detail)]
+    return []
+
+
+def _clause_end(sentence: str, start: int) -> int:
+    """Where the clause after a name ends ("Slendee lies still while the ranger gets up")."""
+    found = _CLAUSE.search(sentence, start)
+    return found.start() if found is not None else len(sentence)
+
+
+def downed_rising(
+    sentence: str, tokens: list[Token], terms: dict[str, str], lex: GuardLexicon
+) -> list[Violation]:
+    """A hero at 0 HP told waking, standing or coming to with no healing event (M20.2: "her
+    breathing steadies" was told while nothing had happened)."""
+    if not terms or not find_phrases(sentence, lex.rise_claims):
+        return []
+    for term in sorted(terms, key=lambda t: (-len(t), t)):
+        pattern = rf"(?<![A-Za-z]){re.escape(term)}(?:'s|s)?(?![A-Za-z])"
+        for m in re.finditer(pattern, sentence, re.IGNORECASE):
+            clause = sentence[: _clause_end(sentence, m.end())]
+            if _claimed(clause, tokens, m.end(), lex, lex.rise_claims):
+                detail = f"{terms[term]} is down at 0 HP; no engine event raised them"
+                return [Violation(ViolationKind.DOWNED_RISING, m.group(0), detail)]
     return []

@@ -79,6 +79,7 @@ CLIENT_TYPES = {
     "unequip",
     "drop",
     "use_item",
+    "help_up",
     "request_sheet",
     "request_hit_chances",
     "chat",

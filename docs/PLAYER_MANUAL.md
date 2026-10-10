@@ -544,7 +544,8 @@ At the start of each of your turns while dying, you roll a d20 against a **DC of
 - **Three successes** and you are **stable**: still at 0 hit points and out cold, but no longer rolling. **Three failures** and the hero **dies**.
 - Taking damage while at 0 is one failure (two for a critical hit). Damage that is at least your maximum hit points kills outright.
 - Healing a dying hero brings them back up and clears their counts. Healing spells, potions, the **Help** action (up with 1 hit point) and **Spare the Dying** (which stabilises) all work. **Revivify** brings back a hero who has died.
-- Death saves are only rolled in a fight. After a fight, a hero at 0 hit points stays down without rolling until a potion, a healing spell or a short rest brings them back.
+- Death saves are only rolled in a fight. When a fight ends and the party has not lost, every dying hero becomes **stable** (no more death saves; the counts reset).
+- **Helping a hero up outside a fight**: a hero who is down stays down until someone raises them. Any standing hero can help them up with 1 hit point, for free: press **Help <name> up** on the Play tab (it appears on every standing hero's phone while an ally is down), or type it ("I help Mira up", "wake Mira", "help her up"). A potion, a healing spell or a short rest works too. The downed hero's phone says so.
 
 While you are down, your phone says **You are down**. Your companions carry on.
 
@@ -629,4 +630,4 @@ The tables in this manual are written by the game from its data. Races, classes,
 - **I closed the page**: open the game address again in the same browser; it reconnects you to your hero.
 - **"This table was restarted. Join again to take a seat."**: the server was restarted since this page joined. Press **Join**.
 - **Someone else is the host**: the first player in is the host. If that player has left, the role moves to the next player by itself (at once in the lobby, after 60 seconds during an adventure).
-- **My hero is down and I cannot act**: wait for a companion to heal you (a potion, a healing spell or the Help action) or for a short rest. The Scribe only helps heroes who have died.
+- **My hero is down and I cannot act**: ask a companion to help you up (outside a fight the **Help <name> up** button on their phone, in a fight the Help action), to heal you, or to take a short rest. The Scribe only helps heroes who have died.

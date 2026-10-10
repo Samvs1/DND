@@ -238,3 +238,7 @@ The hero returns with ceil(max HP / 2) (`restore` "half"; "one" and "full" suppo
 House rule (owner choice): a fight a hero starts by attacking a present NPC opens with that attack, rolled before the first turn and spending nothing (BG3: an attack out of combat is free, then initiative runs); the hero still takes their normal turn by initiative. The adjudicator names the NPC in `start_encounter(opening_strike_on=...)`; the engine uses the first attack option that reaches (main hand first, never a bonus-action attack). Not SRD: the SRD has no free opening attack outside surprise.
 NPC foes the party was talking to start in the party's zone (melee range); catalogue monsters still start one zone away.
 Outdoor zones (bridge, forest, ruins, swamp, village, wilds) are 25 ft apart (was 30 ft), so a 25 ft hero (dwarf, halfling) can move one zone and still act; Dash gives two. Indoor zones stay 15 ft; rough ground still doubles the cost.
+
+## Downed heroes (M20.2, owner playtest 3: a hero lay at 0 HP between two fights and nothing outside a fight could raise her)
+When a fight ends and the party was not defeated, every dying hero becomes stable (SRD 5.1 "Stabilizing a Creature": with the fight over, an ally has the time a DC 10 Medicine check or a healer's kit needs; the engine grants it instead of a roll).
+Outside a fight a standing hero helps a downed (alive, 0 HP) ally up to 1 HP at no cost (BG3 Help out of combat). In a fight the Help action does the same for an action.

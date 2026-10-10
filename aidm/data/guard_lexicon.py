@@ -43,6 +43,7 @@ class GuardLexicon(BaseModel):
     secret_stop_words: frozenset[str] = frozenset()
     death_claims: frozenset[str] = frozenset()
     defeat_claims: frozenset[str] = frozenset()
+    rise_claims: frozenset[str] = frozenset()
     death_hedges: frozenset[str] = frozenset()
     pronoun_death_claims: frozenset[str] = frozenset()
     death_soft_claims: frozenset[str] = frozenset()

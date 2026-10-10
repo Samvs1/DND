@@ -12,7 +12,9 @@ Public API:
   `TravelIntent(node_id)`, `ItemIntent(actor_id, action, item)` (`ItemAction`
   EQUIP/UNEQUIP/DROP, `item` is the inventory index), `InventoryIntent(actor_id)`,
   `LookIntent(text)` (the deterministic description, `look_around_text`),
-  `TakeIntent(actor_id, item_id)` (M19.3: "pick up / take / grab <a visible item here>").
+  `TakeIntent(actor_id, item_id)` (M19.3: "pick up / take / grab <a visible item here>"),
+  `HelpUpIntent(actor_id, target_id)` (M20.2: "help her up", "wake <a downed hero>";
+  `aidm.dm.help_intent`).
 - `Intent` (the union), `precheck(state, actor_id, text) -> Intent | None`.
 - `look_around_text(state) -> str`: the scene manifest as plain prose.
 - `SHOP_ROLES`: role words that make a present NPC a shopkeeper.
@@ -23,6 +25,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 
 from aidm.dm.entities import display_name
+from aidm.dm.help_intent import HelpUpIntent, help_up_intent
 from aidm.models.encounter import EncounterStatus
 from aidm.models.state import Creature, GameState
 from aidm.models.world import WorldNpc
@@ -80,7 +83,14 @@ class TakeIntent:
 
 
 type Intent = (
-    RestIntent | ShopIntent | TravelIntent | ItemIntent | InventoryIntent | LookIntent | TakeIntent
+    RestIntent
+    | ShopIntent
+    | TravelIntent
+    | ItemIntent
+    | InventoryIntent
+    | LookIntent
+    | TakeIntent
+    | HelpUpIntent
 )
 
 SHOP_ROLES = (
@@ -239,6 +249,9 @@ def precheck(state: GameState, actor_id: str, text: str) -> Intent | None:
     clean = _normalise(text)
     if not clean:
         return None
+    helped = help_up_intent(state, actor_id, clean)
+    if helped is not None:
+        return helped
     if _SHORT.fullmatch(clean):
         return RestIntent(RestKind.SHORT)
     if _LONG.fullmatch(clean):

@@ -147,6 +147,13 @@
     "unconscious", "knocked out", "out cold", "is dying", "lies dying", "lay dying", "beaten down",
     "senseless", "lies still", "lay still"
   ],
+  "rise_claims": [
+    "wakes", "woke", "wakes up", "awakens", "awoke", "stirs awake", "jolts awake", "blinks awake",
+    "comes to", "came to", "comes round", "comes around", "regains consciousness",
+    "opens her eyes", "opens his eyes", "opens their eyes", "sits up", "sat up", "gets up",
+    "got up", "to her feet", "to his feet", "to their feet", "back on her feet",
+    "back on his feet", "back on their feet", "stands up", "stood up", "is awake", "is up again"
+  ],
   "death_hedges": [
     "nearly", "almost", "half", "seemingly", "playing", "feigning", "if", "unless", "wants", "want"
   ],

@@ -917,6 +917,28 @@
           "title": "HelpCommand",
           "type": "object"
         },
+        "HelpUp": {
+          "additionalProperties": false,
+          "properties": {
+            "target_id": {
+              "maxLength": 64,
+              "minLength": 1,
+              "title": "Target Id",
+              "type": "string"
+            },
+            "type": {
+              "const": "help_up",
+              "default": "help_up",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "target_id"
+          ],
+          "title": "HelpUp",
+          "type": "object"
+        },
         "HideCommand": {
           "additionalProperties": false,
           "properties": {
@@ -1955,6 +1977,7 @@
           "export_character": "#/$defs/ExportCharacter",
           "give": "#/$defs/Give",
           "hello": "#/$defs/Hello",
+          "help_up": "#/$defs/HelpUp",
           "host_difficulty": "#/$defs/HostDifficulty",
           "host_end": "#/$defs/HostEnd",
           "host_force_vote": "#/$defs/HostForceVote",
@@ -2115,6 +2138,9 @@
         },
         {
           "$ref": "#/$defs/ScribeSkip"
+        },
+        {
+          "$ref": "#/$defs/HelpUp"
         }
       ]
     },
@@ -2134,6 +2160,7 @@
       "export_character",
       "give",
       "hello",
+      "help_up",
       "host_difficulty",
       "host_end",
       "host_force_vote",

@@ -22,6 +22,7 @@ Public API: `submit_action`, `kick_resolver`, `resolve_next`, `resolve_action`,
 
 from aidm.dm.adjudicator import AdjudicationOptions, AdjudicationResult, adjudicate
 from aidm.dm.combat_intent import combat_move
+from aidm.dm.help_intent import HelpUpIntent
 from aidm.dm.llm_types import ToolCall
 from aidm.dm.precheck import (
     InventoryIntent,
@@ -187,6 +188,8 @@ async def resolve_action(core: TableCore, entry: QueueEntry) -> None:
         await party_actions.item_intent(core, player, intent)
     elif isinstance(intent, TakeIntent):
         await party_actions.take_intent(core, player, intent)
+    elif isinstance(intent, HelpUpIntent):
+        await party_actions.help_up_intent(core, player, intent)
     elif isinstance(intent, TravelIntent):
         detail = f"travel to {node_display_name(core.state, intent.node_id)}"
         job = party_actions.travel_job(core, entry.creature_id, intent.node_id)
