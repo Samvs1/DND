@@ -2,7 +2,7 @@
   {
     "index": "wilds",
     "name": "Open Wilds",
-    "hop_feet": 30,
+    "hop_feet": 25,
     "zones": [
       {"key": "open_ground", "names": ["Open Ground", "Windswept Field"], "tags": ["open"], "distance_label": "about 40 ft across"},
       {"key": "boulders", "names": ["Boulder Cluster", "Tumbled Stones"], "tags": ["rocks"], "distance_label": "about 20 ft across", "cover": "half"},
@@ -15,7 +15,7 @@
   {
     "index": "forest",
     "name": "Forest",
-    "hop_feet": 30,
+    "hop_feet": 25,
     "zones": [
       {"key": "clearing", "names": ["Sunlit Clearing", "Fern Glade"], "tags": ["open"], "distance_label": "about 40 ft across"},
       {"key": "thicket", "names": ["Bramble Thicket", "Briar Tangle"], "tags": ["brush"], "distance_label": "about 25 ft across", "cover": "half", "difficult": true},
@@ -29,7 +29,7 @@
   {
     "index": "ruins",
     "name": "Ruins",
-    "hop_feet": 30,
+    "hop_feet": 25,
     "zones": [
       {"key": "courtyard", "names": ["Cracked Courtyard", "Weedy Plaza"], "tags": ["open"], "distance_label": "about 40 ft across"},
       {"key": "rubble", "names": ["Rubble Pile", "Collapsed Wall"], "tags": ["rubble"], "distance_label": "about 20 ft across", "cover": "half", "difficult": true},
@@ -42,7 +42,7 @@
   {
     "index": "bridge",
     "name": "Bridge Crossing",
-    "hop_feet": 30,
+    "hop_feet": 25,
     "zones": [
       {"key": "near_bank", "names": ["Near Bank", "Reed Shore"], "tags": ["bank"], "distance_label": "about 30 ft across"},
       {"key": "bridge_span", "names": ["Bridge Span", "Rope Bridge"], "tags": ["bridge"], "distance_label": "about 40 ft long"},
@@ -68,7 +68,7 @@
   {
     "index": "village",
     "name": "Village",
-    "hop_feet": 30,
+    "hop_feet": 25,
     "zones": [
       {"key": "square", "names": ["Village Square", "Market Green"], "tags": ["open"], "distance_label": "about 40 ft across"},
       {"key": "well", "names": ["Old Well", "Stone Trough"], "tags": ["well"], "distance_label": "about 15 ft across", "cover": "half"},
@@ -81,7 +81,7 @@
   {
     "index": "swamp",
     "name": "Swamp",
-    "hop_feet": 30,
+    "hop_feet": 25,
     "zones": [
       {"key": "mire", "names": ["Sucking Mire", "Black Mud"], "tags": ["mud"], "distance_label": "about 35 ft across", "difficult": true},
       {"key": "hummock", "names": ["Dry Hummock", "Grassy Island"], "tags": ["hill"], "distance_label": "about 20 ft across", "high_ground": true},

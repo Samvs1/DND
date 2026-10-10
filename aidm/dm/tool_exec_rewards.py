@@ -109,7 +109,8 @@ def _setup(
     start = zone_map.zones[0].id
     foes_zone = zone_neighbors(zone_map, start)[0][0]
     spawns = [MonsterSpawn(monster=m, zone_id=foes_zone) for m in args.monster_ids]
-    spawns += [MonsterSpawn(monster=n.archetype_id, zone_id=foes_zone, name=n.name) for n in npcs]
+    # M19.2: an NPC the party was talking to stands right there (melee range), not a zone away.
+    spawns += [MonsterSpawn(monster=n.archetype_id, zone_id=start, name=n.name) for n in npcs]
     return EncounterSetup(
         encounter_id=f"enc-{state.event_count}",
         zone_map=zone_map,

@@ -233,3 +233,8 @@ M9.2 starting supplies | installing a campaign adds `STARTING_CAMP_SUPPLIES` = 4
 House rule (owner request 2026-10-09, M13.1): outside combat, a player's own standing hero may pay the Scribe to rewrite a fallen (dead) PC into the story; a PC at 0 HP who is still alive is not fallen.
 Price = `base_gp + per_level_gp x level` of the fallen hero (data/bg3/scribe.json: 0 + 25 x level; level 1 = 25 gp, level 5 = 125 gp), paid from the payer's gold, never below 0.
 The hero returns with ceil(max HP / 2) (`restore` "half"; "one" and "full" supported), death saves reset, all conditions cleared except `keep_conditions` (exhaustion). No SRD equivalent (Revivify/Raise Dead are spells with material costs); this replaces them as a table service.
+
+## Fight start (M19, owner playtest 2026-10-10)
+House rule (owner choice): a fight a hero starts by attacking a present NPC opens with that attack, rolled before the first turn and spending nothing (BG3: an attack out of combat is free, then initiative runs); the hero still takes their normal turn by initiative. The adjudicator names the NPC in `start_encounter(opening_strike_on=...)`; the engine uses the first attack option that reaches (main hand first, never a bonus-action attack). Not SRD: the SRD has no free opening attack outside surprise.
+NPC foes the party was talking to start in the party's zone (melee range); catalogue monsters still start one zone away.
+Outdoor zones (bridge, forest, ruins, swamp, village, wilds) are 25 ft apart (was 30 ft), so a 25 ft hero (dwarf, halfling) can move one zone and still act; Dash gives two. Indoor zones stay 15 ft; rough ground still doubles the cost.

@@ -17,7 +17,8 @@ Public API: `attack_command`, `throw_command`, `hide_command`, `help_command`,
 `dodge_command`; each `(state, command, regs[, rng]) -> list[AnyEvent]` or `CommandRefused`.
 `check_attack_target(state, actor, target_id, profile, regs)`: the target checks of an attack
 (a living combatant, not the attacker's charmer, in the profile's range band); monster actions
-(M3.8) use it too.
+(M3.8) use it too. `opening_strike(state, attacker_id, target_id, regs, rng)`: the free weapon
+attack that starts a fight (M19.2).
 """
 
 from aidm.data.combat_data import CombatRegistries
@@ -34,7 +35,7 @@ from aidm.models.commands import (
 from aidm.models.encounter import TurnEconomy
 from aidm.models.events import AnyEvent, CheckResolved
 from aidm.models.state import GameState
-from aidm.rules.attack_profiles import find_option, throw_profile
+from aidm.rules.attack_profiles import attack_options, find_option, throw_profile
 from aidm.rules.attacks import resolve_attack
 from aidm.rules.checks import passive_score
 from aidm.rules.command_checks import (
@@ -182,3 +183,20 @@ def dodge_command(state: GameState, cmd: DodgeCommand, regs: CombatRegistries) -
     economy = spend(state, cmd.actor_id, action=True, reason="dodge")
     dodging = new_condition(DODGING, source_id=cmd.actor_id)
     return [changed(cmd.actor_id, economy, "dodge"), *apply_condition(actor.creature, dodging)]
+
+
+def opening_strike(
+    state: GameState, attacker_id: str, target_id: str, regs: CombatRegistries, rng: Rng
+) -> list[AnyEvent]:
+    """The weapon attack that starts a fight (M19.2, owner choice, BG3 style): rolled before the
+    first turn and spending nothing, with the first option the hotbar would offer that reaches
+    the target (main hand first, never a bonus-action attack). Empty when nothing reaches."""
+    creature = state.creatures[attacker_id]
+    feats = regs.chars.features
+    for profile in attack_options(creature, regs.chars):
+        if profile.economy is AttackEconomy.BONUS_ACTION:
+            continue
+        sit = attack_situation(state, attacker_id, target_id, profile, feats)
+        if sit.range_check.in_range:
+            return list(resolve_attack(rng, state, attacker_id, target_id, profile, feats).events)
+    return []

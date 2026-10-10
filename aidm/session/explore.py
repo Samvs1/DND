@@ -12,8 +12,9 @@ with `apply` wired to THE reducer (dice and mechanical events are broadcast as t
 then `telling.conclude` (arrival, rewards, narration, NPC voice, memory, epilogue) and the
 fight check. A point-of-no-return result stores `PendingHostile` and asks only the acting
 player (`pending_confirmation`); `confirm_hostile` re-runs the stored call with
-`confirm_hostile=True` (no second model call), `cancel_hostile` drops it. Every entry ends in
-narration or a typed notice: never silent.
+`confirm_hostile=True` (no second model call), `cancel_hostile` drops it. A fight started by a
+weapon attack on an NPC rolls that attack before the narration (`opening.strike_if_opening`,
+M19.2). Every entry ends in narration or a typed notice: never silent.
 
 Public API: `submit_action`, `kick_resolver`, `resolve_next`, `resolve_action`,
 `adjudicated`, `confirm_hostile`, `cancel_hostile`, `inventory_text`.
@@ -45,6 +46,7 @@ from aidm.models.state import Creature
 from aidm.rules.scene import node_display_name
 from aidm.rules.turns import EconomyRefused, spend_action
 from aidm.session import combat_flow, party_actions, votes
+from aidm.session.opening import strike_if_opening
 from aidm.session.table_core import Job, Player, TableCore
 from aidm.session.table_records import PendingHostile
 from aidm.session.telling import conclude, remember, tell_text
@@ -202,10 +204,13 @@ async def adjudicated(
     if result.pending is not None and result.pending_call is not None:
         await _hold(core, entry, result.pending_call, result.pending.prompt)
         return result
+    events = list(result.events)
+    for done in result.executed:  # M19.2: a fight opened with a weapon attack rolls it now
+        events += strike_if_opening(core, done.call, entry.creature_id, done.result.events)
     events = await conclude(
         core,
         result,
-        list(result.events),
+        events,
         actor_id=entry.creature_id,
         player_text=entry.text,
     )
@@ -236,6 +241,7 @@ async def confirm_hostile(core: TableCore, player: Player) -> None:
         core.notice(player.id, NoticeKind.REFUSED, "The moment has passed.")
         return
     events = core.apply_all(list(result.events))
+    events += strike_if_opening(core, pending.call, pending.actor_id, events)
     events = await conclude(core, None, events, actor_id=pending.actor_id)
     await combat_flow.after_resolution(core, events)
 

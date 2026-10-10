@@ -136,17 +136,26 @@ class GrantXpArgs(_Args):
 
 
 class StartEncounterArgs(_Args):
-    """Start a fight with catalogue monsters (CR budget enforced) and/or present NPCs."""
+    """Start a fight with catalogue monsters (CR budget enforced) and/or present NPCs. When the
+    acting hero starts it by attacking a present NPC with a weapon, also name that NPC in
+    opening_strike_on: the engine rolls that attack before the first turn."""
 
     monster_ids: list[str] = Field(default_factory=list[str], max_length=8)
     terrain_tags: list[str] = Field(default_factory=list[str], max_length=3)
     surprise: SurpriseKind = SurpriseKind.NONE
     against_npcs: list[str] = Field(default_factory=list[str], max_length=4)
+    opening_strike_on: str | None = Field(
+        default=None,
+        max_length=64,
+        description="the NPC (one of against_npcs) the acting hero's weapon attack opens on",
+    )
 
     @model_validator(mode="after")
     def _someone(self) -> Self:
         if not self.monster_ids and not self.against_npcs:
             raise ValueError("name at least one monster id or NPC")
+        if self.opening_strike_on is not None and self.opening_strike_on not in self.against_npcs:
+            raise ValueError("opening_strike_on must be one of against_npcs")
         return self
 
 
