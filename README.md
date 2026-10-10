@@ -162,8 +162,9 @@ delete `static/img` in the copy and start the server with `AIDM_WEB_ROOT=<copy>`
 
 ### AI-generated art
 
-Some art is AI generated (277 assets: portraits, banners, monster tokens, spell, item and condition icons,
-and the phone's action icons). The rest are still placeholders. It was made by `scripts/gen_assets.py`
+Some art is AI generated (279 assets: portraits, banners, monster tokens, spell, item and condition icons,
+and the phone's action icons). Every picture is now real art; only some sounds (the social music bed and
+the sound effects) are still silent placeholders. It was made by `scripts/gen_assets.py`
 (OpenAI image API, hard cap 15 EUR since 2026-10-10 (`--cap 15`), every call booked in `logs/asset_spend.json`), reviewed with `scripts/contact_sheet.py` and
 installed with `scripts/install_assets.py`. `scripts/final_review.py` and `scripts/assets_report.py` write the
 final review sheets and `ASSETS_REPORT.md`. To undo one asset: `python scripts/revert_asset.py <key>`.

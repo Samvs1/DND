@@ -18,7 +18,7 @@ from aidm.server.app import WEB_DIR, create_app
 from aidm.server.asset_keys import AUDIO_KINDS, split_key
 from aidm.server.assets import AssetCatalog, asset_url
 from aidm.server.settings import server_settings_from_env
-from tests.asset_helpers import image_placeholder
+from tests.asset_helpers import artless_manifest, image_placeholder
 
 MANIFEST = json.loads((WEB_DIR / "static" / "assets" / "manifest.json").read_text(encoding="utf-8"))
 SVG_NS = "{http://www.w3.org/2000/svg}svg"
@@ -89,16 +89,21 @@ def test_every_manifest_key_resolves(client: TestClient) -> None:
         _check(client, key)
 
 
-def test_manifest_endpoint_lists_every_key_with_a_url(client: TestClient) -> None:
+def test_manifest_endpoint_lists_every_key_with_a_url(client: TestClient, tmp_path: Path) -> None:
     response = client.get("/api/assets/manifest")
     assert response.status_code == 200
     urls = response.json()
     assert set(urls) == set(MANIFEST)
     assert urls["portrait.class.fighter"].startswith("/static/")
-    placeholder = image_placeholder(MANIFEST)
-    kind = MANIFEST[placeholder]["kind"]
-    assert urls[placeholder].startswith(f"/assets/placeholder/{kind}/")
     assert urls["music.social"] == ""
+    # Every picture is real art now; a web root without the files resolves them to placeholders.
+    bare = artless_manifest(tmp_path)
+    web = tmp_path / "artless-web"
+    (web / "static" / "assets").mkdir(parents=True)
+    (web / "static" / "assets" / "manifest.json").write_text(json.dumps(bare), encoding="utf-8")
+    placeholder = image_placeholder(bare)
+    kind = bare[placeholder]["kind"]
+    assert AssetCatalog(web).urls()[placeholder].startswith(f"/assets/placeholder/{kind}/")
 
 
 UNKNOWN_PATHS = [

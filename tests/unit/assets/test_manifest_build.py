@@ -9,7 +9,7 @@ from starlette.testclient import TestClient
 
 from aidm.server.asset_routes import add_asset_routes
 from aidm.server.assets import AssetCatalog
-from tests.asset_helpers import image_placeholder
+from tests.asset_helpers import artless_manifest, image_placeholder
 from tests.unit.scripts.helpers import load_script
 
 bm = load_script("build_manifest")
@@ -57,14 +57,15 @@ def test_check_fails_when_stale(tmp_path: Path) -> None:
     assert bm.run(web, check=True) == 1
 
 
-def test_entries_have_the_documented_fields_and_v1_files_are_real() -> None:
+def test_entries_have_the_documented_fields_and_v1_files_are_real(tmp_path: Path) -> None:
     manifest = bm.build_manifest(REAL_WEB)
     entry = manifest["portrait.class.fighter"]
     assert entry["status"] == "real" and entry["source"] == "v1" and entry["license"]
     assert entry["size"] == [824, 490]
     token = manifest[KEY]
     assert token["transparent"] is True and set(token) >= FIELDS  # generated adds review fields
-    placeholder = manifest[image_placeholder(manifest)]
+    bare = artless_manifest(tmp_path)  # every picture is real art now: build one without any
+    placeholder = bare[image_placeholder(bare)]
     assert placeholder["status"] == "placeholder" and set(placeholder) == FIELDS
     assert {e["kind"] for e in manifest.values()} == KINDS
 

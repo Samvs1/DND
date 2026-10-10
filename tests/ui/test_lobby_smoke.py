@@ -1,13 +1,30 @@
 """Browser smoke test of the lobby (Playwright chromium, FakeLLM server, M7.1)."""
 
+import shutil
 from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
 from playwright.sync_api import Browser, Page, sync_playwright
 
-from tests.asset_helpers import image_placeholder, live_manifest
-from tests.ui.conftest import LiveServer
+from tests.asset_helpers import live_manifest
+from tests.ui.conftest import WEB_SOURCE, LiveServer, _serve
+
+KEPT_ART = ("portrait.class.fighter", "spell_icon.school.fire")
+
+
+@pytest.fixture
+def sparse_art_server(tmp_path: Path) -> Iterator[LiveServer]:
+    """A copy of aidm/web with only the KEPT_ART pictures: every other picture is a placeholder
+    (since 2026-10-10 the real web root has real art for every picture key)."""
+    web = tmp_path / "web"
+    shutil.copytree(WEB_SOURCE, web, ignore=shutil.ignore_patterns("img"))
+    manifest = live_manifest()
+    for key in KEPT_ART:
+        rel = Path("static") / str(manifest[key]["file"])
+        (web / rel).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy(WEB_SOURCE / rel, web / rel)
+    yield from _serve(tmp_path, None, web)
 
 
 @pytest.fixture(scope="module")
@@ -73,12 +90,14 @@ def test_start_is_disabled_without_a_hero_and_server_refusal_is_friendly(
 
 
 def test_assets_helper_resolves_real_placeholder_and_silence(
-    browser: Browser, live_server: LiveServer
+    browser: Browser, sparse_art_server: LiveServer
 ) -> None:
     manifest = live_manifest()
-    key = image_placeholder(manifest)
+    key = next(
+        k for k in sorted(manifest) if k not in KEPT_ART and manifest[k]["kind"] == "spell_icon"
+    )  # its file is not in the sparse copy, so it resolves to a placeholder
     page = browser.new_page()
-    page.goto(f"{live_server.base}/play")
+    page.goto(f"{sparse_art_server.base}/play")
     page.wait_for_selector("[data-testid=join-form]")
     result = page.evaluate(
         """async (key) => {

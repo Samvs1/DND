@@ -44,10 +44,22 @@ STATIC_REFS = {
 }
 SINGLE_KINDS = frozenset(STATIC_REFS)
 SCRIBE_REFS = ("img/portraits/scribe_seated.png", "img/scenes/scribe.png")
+# Two spell icons failed three sheet attempts (tiled cells, a faint outline, a neighbour's
+# fragment): drawn singly against accepted free-standing spell icons (owner request 2026-10-10).
+_SPELL_REFS = {
+    "spell_icon.invisibility": ("img/spells/blur.png", "img/spells/sleep.png"),
+    "spell_icon.magic-missile": ("img/spells/scorching-ray.png", "img/spells/sleep.png"),
+}
 KEY_REFS = {
     "portrait.scribe.welcome": SCRIBE_REFS,
     "portrait.scribe.rewrite": SCRIBE_REFS,
+    **_SPELL_REFS,
 }
+SINGLE_ICON_NOTE = (
+    "One free-standing emblem centred in the square with clear empty space around it: no tile,"
+    " frame, border or square backdrop, plain transparent background. It is shown small, so keep"
+    " the shapes bold, bright and readable."
+)
 V1_SHEET = ("assets_src", "sheets", "overhaul_sheet.png")
 
 
@@ -85,10 +97,12 @@ def _finish(spec: AssetSpec) -> str:
     return crop + (" Transparent background." if spec.transparent else "")
 
 
-def single_prompt(bible: StyleBible, spec: AssetSpec, *, with_refs: bool) -> str:
-    """Prompt for one portrait, banner or zone card."""
+def single_prompt(
+    bible: StyleBible, spec: AssetSpec, *, with_refs: bool, note: str | None = None
+) -> str:
+    """Prompt for one portrait, banner or zone card (or an icon drawn on its own, with `note`)."""
     subject = build_subject(spec)
-    note = bible.kinds.get(spec.kind, "")
+    note = bible.kinds.get(spec.kind, "") if note is None else note
     if with_refs:
         body = f"{REFERENCE_TEXT} Create a new subject: {subject}."
     else:

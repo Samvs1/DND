@@ -11,7 +11,14 @@ from aidm.server.assetgen import cli
 from aidm.server.assetgen.costs import load_price_table
 from aidm.server.assetgen.plan import build_calls, select_keys
 from aidm.server.assetgen.priority import derive_tiers, render_priority
-from aidm.server.assetgen.prompts import REFERENCE_TEXT, SCRIBE_REFS, RefSources, references_for
+from aidm.server.assetgen.prompts import (
+    KEY_REFS,
+    REFERENCE_TEXT,
+    SCRIBE_REFS,
+    SINGLE_ICON_NOTE,
+    RefSources,
+    references_for,
+)
 from aidm.server.assetgen.provider import SHEET_MARK
 from aidm.server.assetgen.synthetic_png import png_size, synthetic_png
 from tests.unit.assetgen.helpers import REPO_ROOT, make_repo, small_manifest
@@ -140,3 +147,33 @@ def test_scribe_poses_use_his_own_art_as_references(tmp_path: Path) -> None:
         assert [p.relative_to(tmp_path).as_posix() for p in refs] == list(SCRIBE_REFS)
     other = references_for("portrait", sources, key="portrait.npc.acolyte")
     assert [p.name for p in other] == ["fighter_cropped.png"]
+
+
+def test_an_icon_with_its_own_references_is_drawn_alone(tmp_path: Path) -> None:
+    """Owner request 2026-10-10: the two spell icons that failed three sheet attempts are drawn
+    singly against accepted free-standing spell icons, with the single-icon note."""
+    keys = ["spell_icon.invisibility", "spell_icon.magic-missile"]
+    for key in keys:
+        for rel in KEY_REFS[key]:
+            (tmp_path / rel).parent.mkdir(parents=True, exist_ok=True)
+            (tmp_path / rel).write_bytes(b"x")
+    manifest = {
+        key: {
+            "kind": "spell_icon",
+            "file": f"img/spells/{key[11:]}.png",
+            "size": [128, 128],
+            "transparent": True,
+        }
+        for key in keys
+    }
+    manifest["spell_icon.sleep"] = {**manifest[keys[0]], "file": "img/spells/sleep2.png"}
+    refs = RefSources(static_dir=tmp_path)
+    calls = build_calls(manifest, [*keys, "spell_icon.sleep"], bible=BIBLE, table=TABLE, refs=refs)
+    singles = [c for c in calls if len(c.keys) == 1 and c.keys[0] in keys]
+    assert len(singles) == 2
+    for call in singles:
+        assert SINGLE_ICON_NOTE in call.request.prompt and SHEET_MARK not in call.request.prompt
+        assert [p.relative_to(tmp_path).as_posix() for p in call.request.references] == list(
+            KEY_REFS[call.keys[0]]
+        )
+    assert any("spell_icon.sleep" in c.keys and SHEET_MARK in c.request.prompt for c in calls)

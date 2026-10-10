@@ -4,7 +4,8 @@
 entry only when it is a placeholder, not v1, and its target file does not exist: real and v1 art
 is never selected and no existing file is ever overwritten. `build_calls` turns the keys into
 calls: portraits, banners and zone cards one call each; tokens and icons batched as 4x4 sheets of
-up to 16 cells (icons of every icon kind share sheets). Each call carries its worst-case estimate.
+up to 16 cells (icons of every icon kind share sheets), except an icon with its own references
+(`KEY_REFS`), which is drawn alone against them. Each call carries its worst-case estimate.
 Calls come out in priority order (the order of the keys: P1 first, then P2); `fit_to_cap` keeps
 the longest prefix of that order whose worst case fits under the cap and cuts the rest.
 
@@ -21,6 +22,8 @@ from aidm.server.asset_prompts import StyleBible
 from aidm.server.assetgen.costs import PriceTable
 from aidm.server.assetgen.priority import PriorityTiers, is_eligible
 from aidm.server.assetgen.prompts import (
+    KEY_REFS,
+    SINGLE_ICON_NOTE,
     SINGLE_KINDS,
     RefSources,
     references_for,
@@ -103,7 +106,8 @@ def _single(
 ) -> PlannedCall:
     spec = spec_of(key, entry)
     references = references_for(spec.kind, refs, key=key)
-    prompt = single_prompt(bible, spec, with_refs=bool(references))
+    note = SINGLE_ICON_NOTE if spec.kind in SHEET_GROUPS else None
+    prompt = single_prompt(bible, spec, with_refs=bool(references), note=note)
     request = ImageRequest(
         prompt, table.size_for(spec.kind), table.default_quality, spec.transparent, references
     )
@@ -145,7 +149,7 @@ def build_calls(
     grouped: dict[str, list[str]] = {}
     for key in keys:
         kind = split_key(key)[0]
-        if kind in SHEET_GROUPS:
+        if kind in SHEET_GROUPS and key not in KEY_REFS:
             grouped.setdefault(SHEET_GROUPS[kind], []).append(key)
         else:
             calls.append(_single(key, manifest[key], bible, table, refs))

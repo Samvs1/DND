@@ -7,21 +7,7 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 `python scripts/gen_assets_todo.py`. Prompts start with the style bible
 (`docs/STYLE_BIBLE.md`). Never overwrite a real or v1 asset.
 
-13 placeholder entries: spell_icon 2, music 1, sfx 10
-
-## spell_icon (2)
-
-### spell_icon.invisibility
-- file: aidm/web/static/img/spells/invisibility.png
-- size: 128x128
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The spell Invisibility (illusion, level 2) shown as illusion magic. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.
-
-### spell_icon.magic-missile
-- file: aidm/web/static/img/spells/magic-missile.png
-- size: 128x128
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The spell Magic Missile (evocation, level 1) shown as a violet force bolt. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.
+11 placeholder entries: music 1, sfx 10
 
 ## music (1)
 

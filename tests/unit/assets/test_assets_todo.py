@@ -7,7 +7,7 @@ from pathlib import Path
 
 from aidm.server.asset_keys import AUDIO_KINDS, derive_specs
 from aidm.server.asset_prompts import STYLE_BIBLE_PATH, build_prompt, load_style_bible
-from tests.asset_helpers import image_placeholder
+from tests.asset_helpers import artless_manifest, image_placeholder
 from tests.unit.scripts.helpers import load_script
 
 todo = load_script("gen_assets_todo")
@@ -64,7 +64,7 @@ def test_todo_check_fails_when_stale_and_write_fixes_it(tmp_path: Path) -> None:
     todo.todo_file(root).write_text("# old\n", encoding="utf-8")
     assert todo.run(root, check=True) == 1
     data = json.loads(target.read_text(encoding="utf-8"))
-    key = image_placeholder(data)  # listed before: every placeholder is (see the test below)
+    key = next(k for k in sorted(data) if data[k]["status"] == "placeholder")  # listed before
     data[key]["status"] = "real"
     target.write_text(json.dumps(data), encoding="utf-8")
     todo.run(root, check=False)
@@ -72,15 +72,18 @@ def test_todo_check_fails_when_stale_and_write_fixes_it(tmp_path: Path) -> None:
     assert f"### {key}\n" not in text and "\n### " in text
 
 
-def test_todo_lists_every_placeholder_with_path_size_transparency_and_prompt() -> None:
+def test_todo_lists_every_placeholder_with_path_size_transparency_and_prompt(
+    tmp_path: Path,
+) -> None:
     text = todo.todo_file(ROOT).read_text(encoding="utf-8")
     placeholders = _placeholders()
     assert text.count("\n### ") == len(placeholders) > 0
     for key, entry in placeholders.items():
         assert f"\n### {key}\n- file: aidm/web/static/{entry['file']}\n" in text, key
-    key = image_placeholder()
-    entry = placeholders[key]
-    block = text.split(f"### {key}\n", 1)[1].split("\n###", 1)[0]
+    bare = artless_manifest(tmp_path)  # every picture is real art now: render one without any
+    key = image_placeholder(bare)
+    entry = bare[key]
+    block = todo.render(bare).split(f"### {key}\n", 1)[1].split("\n###", 1)[0]
     size = entry["size"]
     assert isinstance(size, list) and len(size) == 2
     assert f"- size: {size[0]}x{size[1]}" in block and "- prompt: " in block

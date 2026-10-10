@@ -146,6 +146,11 @@ def _item(slug: str) -> str:
     return f"A {_words(slug)} (a category icon: the typical object of that kind)"
 
 
+# A spell whose damage-type look would draw the wrong picture (owner request 2026-10-10: Magic
+# Missile came out as one violet bolt, the same as Eldritch Blast; SRD: "three glowing darts").
+SPELL_LOOKS = {"magic-missile": "three small glowing violet darts of force flying side by side"}
+
+
 def _spell(slug: str) -> str:
     if slug.startswith("school."):
         school = slug.partition(".")[2]
@@ -156,8 +161,8 @@ def _spell(slug: str) -> str:
     school = spell.school.name.lower() if spell is not None else "magic"
     level = f"level {spell.level}" if spell is not None and spell.level else "cantrip"
     damage = _damage_types(defn.model_dump()) if defn is not None else []
-    looks = ", ".join(SCHOOL_LOOKS.get(d, d) for d in damage) or f"{school} magic"
-    return f"The spell {name} ({school}, {level}) shown as {looks}"
+    looks = SPELL_LOOKS.get(slug) or ", ".join(SCHOOL_LOOKS.get(d, d) for d in damage)
+    return f"The spell {name} ({school}, {level}) shown as {looks or f'{school} magic'}"
 
 
 def _condition(slug: str) -> str:

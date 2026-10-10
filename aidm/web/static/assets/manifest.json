@@ -4384,10 +4384,12 @@
    128
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The spell Invisibility (illusion, level 2) shown as illusion magic. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: The spell Invisibility (illusion, level 2) shown as illusion magic. One free-standing emblem centred in the square with clear empty space around it: no tile, frame, border or square backdrop, plain transparent background. It is shown small, so keep the shapes bold, bright and readable. Compose for a final crop to 128x128. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.019
  },
  "spell_icon.lesser-restoration": {
   "kind": "spell_icon",
@@ -4457,10 +4459,12 @@
    128
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The spell Magic Missile (evocation, level 1) shown as a violet force bolt. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Match the style, palette, lighting, framing and painterly quality of the reference images exactly. Create a new subject: The spell Magic Missile (evocation, level 1) shown as three small glowing violet darts of force flying side by side. One free-standing emblem centred in the square with clear empty space around it: no tile, frame, border or square backdrop, plain transparent background. It is shown small, so keep the shapes bold, bright and readable. Compose for a final crop to 128x128. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0191
  },
  "spell_icon.mass-healing-word": {
   "kind": "spell_icon",

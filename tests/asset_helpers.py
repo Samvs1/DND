@@ -2,6 +2,8 @@
 
 Tests name a key by its status, never a fixed key, so installing new art cannot silently turn a
 "placeholder" test into a real-art test (M12.2 filled most placeholders and broke the fixed picks).
+Since 2026-10-10 every picture is real art, so picture-placeholder tests use `artless_manifest`:
+the manifest `build_manifest` makes for a web root with no art at all.
 """
 
 import json
@@ -38,3 +40,13 @@ def expected_audio_url(line_id: str) -> str:
     """The Scribe line URL rule: the mp3 path when the built file exists, else "" (text only)."""
     exists = (VOICE_FILES / f"{line_id}.mp3").is_file()
     return f"/static/audio/voice/scribe/{line_id}.mp3" if exists else ""
+
+
+def artless_manifest(tmp_path: Path) -> dict[str, dict[str, Any]]:
+    """The manifest of a web root without any art: every picture key is a placeholder."""
+    from tests.unit.scripts.helpers import load_script
+
+    web = tmp_path / "artless-web"
+    (web / "static").mkdir(parents=True)
+    built: dict[str, dict[str, Any]] = load_script("build_manifest").build_manifest(web)
+    return built
