@@ -587,3 +587,22 @@ body.is-controller #app {
 .ct[data-tab='play'] .ct-chip-status {
   display: none; /* the Now card says the same, bigger */
 }
+
+/* M19.4: the Move list under the Now card on my turn. */
+.ct-moves {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.ct-moves .side-h {
+  margin: 0;
+}
+
+.ct-target.place.here {
+  border-style: dashed;
+}
+
+.ct-t-need {
+  color: var(--muted);
+  font-size: 0.8rem;
+}

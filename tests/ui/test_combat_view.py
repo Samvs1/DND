@@ -75,7 +75,6 @@ def test_two_players_fight_attack_move_suggest_and_end_turn(
     # Move to a zone the hero can reach: the Move to list on the phone.
     go = active.locator("[data-testid=zone-chip]:not([disabled])")
     if go.count():
-        active.click("[data-testid=places] summary")
         before = active.locator("[data-testid=pip-move]").inner_text()
         go.first.click()
         active.wait_for_function(
@@ -211,7 +210,6 @@ def test_move_to_list_shows_zone_badges_and_the_rough_cost(
     _screen, host, guest = start_fight(browser, combat_server.base, errors)
     active, _other = split_turn(host, guest)
     has_hit_chance(active)
-    active.click("[data-testid=places] summary")
     zone_id = active.locator("[data-testid=zone-chip]:not([disabled])").first.get_attribute(
         "data-zone"
     )

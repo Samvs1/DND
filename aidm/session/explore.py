@@ -21,6 +21,7 @@ Public API: `submit_action`, `kick_resolver`, `resolve_next`, `resolve_action`,
 """
 
 from aidm.dm.adjudicator import AdjudicationOptions, AdjudicationResult, adjudicate
+from aidm.dm.combat_intent import combat_move
 from aidm.dm.llm_types import ToolCall
 from aidm.dm.precheck import (
     InventoryIntent,
@@ -35,6 +36,7 @@ from aidm.dm.precheck import (
 )
 from aidm.dm.tool_context import ToolContext
 from aidm.dm.tool_exec import execute_tool
+from aidm.models.commands import DashCommand, MoveCommand
 from aidm.models.protocol_client import SubmitAction
 from aidm.models.protocol_server import (
     ErrorCode,
@@ -90,6 +92,10 @@ def _combat_text(core: TableCore, player: Player, pc: Creature, text: str) -> No
     if enc is None or enc.active_id() != pc.id or core.turn_key is None:
         core.error(player.id, ErrorCode.NOT_YOUR_TURN, "It is not your turn.")
         return
+    moves = combat_move(core.state, pc.id, text)
+    if moves is not None:  # M19.4: "I move to the ravine" moves (no action spent)
+        core.schedule(lambda: _typed_move(core, player, pc.id, moves))
+        return
     if not _action_left(core, pc.id):
         core.error(player.id, ErrorCode.REFUSED, ACTION_SPENT)
         return
@@ -111,6 +117,20 @@ def _combat_text(core: TableCore, player: Player, pc: Creature, text: str) -> No
         await combat_flow.after_player_step(core, pc.id)
 
     core.schedule(job)
+
+
+async def _typed_move(
+    core: TableCore, player: Player, creature_id: str, moves: list[MoveCommand | DashCommand]
+) -> None:
+    """The commands the phone's Move list sends; a refusal is answered the same way."""
+    for command in moves:
+        await combat_flow.player_command(core, player, command)
+    goal = next((m.zone_id for m in moves if isinstance(m, MoveCommand)), None)
+    enc = core.state.encounter
+    here = enc.combatants.get(creature_id) if enc is not None else None
+    if enc is not None and here is not None and here.zone_id == goal:
+        zone = next(z.name for z in enc.zone_map.zones if z.id == goal)
+        core.notice(player.id, NoticeKind.INFO, f"You move to {zone}.")
 
 
 def _action_left(core: TableCore, creature_id: str) -> bool:
