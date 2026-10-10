@@ -548,10 +548,9 @@ body.is-controller #app {
 
 .ct-chip-icon {
   flex: none;
-  width: 1.4rem;
-  height: 1.4rem;
-  border-radius: 50%;
-  image-rendering: pixelated;
+  width: 1.6rem;
+  height: 1.6rem;
+  image-rendering: auto; /* the action icons are painted pixel art at 64 px: smooth scaling reads better */
 }
 
 .ct-chip-lock {
