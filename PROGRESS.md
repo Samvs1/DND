@@ -1,4 +1,4 @@
-NEXT: none queued. All picture placeholders are real art (11 audio placeholders remain: music.social + 10 sfx). Next playtest: send logs/session.jsonl and logs/llm.jsonl with any report. Files in flight: none. Last gate: FULL GATE PASS 12/12 (2743 passed, 13 skipped).
+NEXT: M20.0 (main session): study playthrough save c-20261010-161143-6031 ("The Weight of Echoes", Slendee warlock L2 [seat p4 'Slender'] + El'Skalfidar ranger L3 [seat p7 'Glaford'], 2026-10-10 18:11-19:50, reconnect 22:56) in saves/<id>/events.jsonl, logs/session.jsonl and logs/llm.jsonl; find bugs and improvements yourself, then write the M20 block (diagnosis + checkpoints) and ask the owner only real decisions. See the M20 block below for the owner's report. Files in flight: none. Last gate: FULL GATE PASS 12/12 (2743 passed, 13 skipped).
 
 # PROGRESS
 
@@ -175,6 +175,11 @@ Diagnosis (main session, events.jsonl + session/llm logs): (1) the narrator gets
 - [x] M19.3 **H** Picking things up and keepsakes: `take_item(item_id)` (adjudicator) and a deterministic precheck ("pick up / take / grab <visible item>") move a visible world item into the actor's inventory (`ItemRemoved` + `InventoryChanged`); `give_keepsake(name, description)` hands the acting hero a found story object (no value, cannot be sold), carried on the hero and listed in the manifest, the sheet (Hero tab, Keepsakes) and the journal. Old saves load (empty keepsakes). Tests (tool, precheck, reducer, replay, sheet). Gate: tests/ai + tests/session + UI sheet test. (main session; a typed pick-up is deterministic: one engine line, no model call)
 - [x] M19.4 **M** Moving in a fight: on my turn the phone shows a Move list right under the Now card (each zone with its distance; one out of reach says what it needs: "Dash first"), not a collapsed box under the hotbar; typed moves in a fight ("I move to the ravine", "I run to Old Kern") run the engine's move for the actor (same refusals as the button). Tests (precheck, UI 393x702 screenshot). Gate: UI tests. (main session; `controller/moves.js`, `dm/combat_intent.py`; a typed move spends no action)
 - [x] M19.5 **ORCH** Manual, README, DECISIONS; one short live narration probe (lengths by weight, no repetition); screenshots judged; FULL gate. Commit `M19: Truthful telling, fight starts, picking things up`. (live probe: minor 16 words, normal 32, fight start 55 with no blow told)
+
+
+## M20 Playtest 3 (owner report 2026-10-11, save c-20261010-161143-6031; binding) - TO PLAN
+Owner report (verbatim points): (1) Slendee went dying and the ally fled the battle; the ally could not help her up and they were soft-locked in the downed state until he got her up. (2) "The combat turns seem" (unfinished sentence; see 5). (3) Range seems bugged: casting Eldritch Blast on an enemy in range shows 'out of range' on the phone but still casts it. (4) Statements should each get a new line (e.g. "Slendee has true strike" on its own line). (5) MAJOR: when combat starts the turns are not clear or are buggy; read the combat with the Stirge(s); it is not always clear whose turn it is (UI bug, combat bug, or misreading).
+Already seen by the main session (2026-10-11): 6 fights in the final timeline (5 victory, 1 fled), 2 defeats + 2 retries, 5 auto-turns, host moved 4 times, campaign written by the model in 3 attempts; llm.jsonl had 3 `invalid` calls, all `creative_effect: reason: Extra inputs are not permitted` (the model sends a `reason` field the CreativeEffectArgs schema lacks).
 
 ---
 
