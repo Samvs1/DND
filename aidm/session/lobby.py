@@ -278,6 +278,7 @@ async def start_campaign(core: TableCore, host: Player, theme: str | None) -> No
     core.phase = TablePhase.GENERATING
     core.notice(None, NoticeKind.PROGRESS, GENERATING)
     core.broadcast_snapshot()
+    scribe_voice.welcome_first(core)  # M18.1: his welcome covers the wait while the world is written
     try:
         result = await generate_campaign(
             theme,
@@ -299,5 +300,4 @@ async def start_campaign(core: TableCore, host: Player, theme: str | None) -> No
         core.notice(None, NoticeKind.INFO, PREPARED)
     events = core.apply_all(install_campaign(core.state, result.plan, core.state.seed))
     core.phase = TablePhase.PLAY
-    scribe_voice.welcome_first(core)
     await conclude(core, None, events)

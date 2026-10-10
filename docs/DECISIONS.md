@@ -646,3 +646,8 @@ M11.2 clock | `Clock.time()` added (LoopClock = loop time, ManualClock = `now`) 
 ## M17.1 Host follows the table
 - A `hello` with a token no seat knows is refused (`unknown_seat`) instead of seating a new player: after a restart an old page auto-joined 2 s after the screen and took the first seat, so the host role went to a page nobody was using. The client forgets the token, keeps the name and shows the join form; a Join without a token seats normally.
 - Host handover (`session/host_seat.py`): LOBBY/GENERATING at once when the host has no connection; other phases at once for a host who never connected in this server run (loaded save), else after `HOST_AWAY_S` = 60 s away (a sleeping phone keeps the role). Heir = earliest-created connected seat. A returning former host is an ordinary player.
+
+## M18.1 The Scribe's intro and the music
+- `welcome_first` is sent right after the GENERATING snapshot (owner: start the intro while the world builds). His line is about a minute and generation 30-90 s, so the wait is covered; the opening narration is held on the screen until he finishes (narration.js waits on `scribeSpeaking`). A failed start that returns to the lobby would welcome again on the next Start: acceptable, it only happens after an error.
+- The music ducks to 0 under any Scribe subtitle (`store.scribeLine`), fading with the bed's own FADE_MS, and returns after. Owner: "the background music also plays while the scribe is speaking, distracting from the intro".
+- Art budget: the owner raised the generation cap to 15 EUR on 2026-10-10 (`gen_assets.py --cap 15`).

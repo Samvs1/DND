@@ -24,7 +24,10 @@ import { fetchLan, mountInvite } from '../ui/invite.js';
 // The board only reads; this stands in for the interactive controller.
 const WATCHER = { readOnly: true, ui: { arming: null, target: null }, subscribe: () => () => {}, pickToken() {}, pickZone() {} };
 
-function applyPhase(state, waiting, table, combat) {
+function applyPhase(state, waiting, table, combat, tagline) {
+  const writing = state.snapshot?.state.phase === 'generating'; // M18.1: the Scribe speaks over this wait
+  const line = t(writing ? 'screen.writing' : 'screen.waiting');
+  if (tagline.textContent !== line) tagline.textContent = line;
   const playing = ['play', 'ended', 'defeated'].includes(state.snapshot?.state.phase);
   waiting.hidden = playing;
   table.hidden = !playing;
@@ -37,10 +40,11 @@ export function mountScreen(root, ctx) {
   const { store, story } = ctx;
   document.body.classList.add('is-table', 'is-screen');
   const slot = h('div', {});
+  const tagline = h('p', { class: 'tagline', 'data-testid': 'screen-tagline' }, t('screen.waiting'));
   const waiting = h(
     'div',
     { class: 'sc-wait', 'data-testid': 'screen-waiting' },
-    h('header', { class: 'masthead' }, h('h1', {}, t('app.title')), h('p', { class: 'tagline' }, t('screen.waiting'))),
+    h('header', { class: 'masthead' }, h('h1', {}, t('app.title')), tagline),
     h('div', { class: 'lobby' }, slot),
   );
   const scene = h('header', { class: 'tb-scene' });
@@ -55,7 +59,7 @@ export function mountScreen(root, ctx) {
   const overlays = h('div', { class: 'sc-overlays' });
   root.append(waiting, table, overlays);
 
-  const render = (state) => applyPhase(state, waiting, table, combat);
+  const render = (state) => applyPhase(state, waiting, table, combat, tagline);
   render(store.get());
   const stops = [
     store.subscribe(render),

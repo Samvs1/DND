@@ -123,6 +123,22 @@ async def test_new_campaign_welcome_comes_before_the_opening_narration(tmp_path:
         assert_replays(table)
 
 
+async def test_welcome_starts_while_the_world_is_being_written(tmp_path: Path) -> None:
+    """M18.1 owner request: his welcome covers the campaign generation wait. The line arrives after
+    the GENERATING snapshot and before the first snapshot of the installed world (phase play)."""
+    llm, _ = fake_client(tmp_path)
+    async with running(llm, GameState(campaign_id="t", seed=3)) as (table, _):
+        ann = await _hero(table, "Ann", "fighter")
+        ann.drain()
+        ann.send(HostStart())
+        await table.settle()
+        msgs = ann.drain()
+    phases = [(i, m.state.phase.value) for i, m in enumerate(msgs) if isinstance(m, Snapshot)]
+    generating = next(i for i, phase in phases if phase == "generating")
+    playing = next(i for i, phase in phases if phase == "play")
+    assert generating < _index(msgs, ScribeLineMsg) < playing
+
+
 async def test_host_load_welcomes_back_but_not_a_lobby_save(tmp_path: Path) -> None:
     store = CampaignStore(tmp_path / "saves")
     async with running(disabled_llm(tmp_path), inn_state(), store=store) as (first, _):

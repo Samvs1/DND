@@ -3,6 +3,7 @@
 // victory or defeat stinger plays once, then the exploration bed fades back in. Keys come from assetUrl
 // (`music.<state>`); a state with no file is silence (a missing stinger goes straight back to the bed).
 // It follows the same mute/volume settings and the same screen-is-the-audio-device default as narration.
+// While the Scribe speaks (his subtitle is up) the music fades out, and fades back in after (M18.1).
 // Audio elements come from `makeAudio(url)` (tests install a fake as `window.__aidmMakeAudio`).
 import { assetUrl, hasAsset } from '../assets.js';
 import { audioMuted, currentSettings, onSettingsChange, reducedMotion } from '../settings/model.js';
@@ -33,13 +34,15 @@ export function createMusic({ store, mode, makeAudio = (url) => new Audio(url) }
   let wasCombat = false;
   let timer = null;
   let blocked = false;
+  let duck = 1; // 0..1: the music level under the Scribe (M18.1)
 
+  const ducked = () => (store.get().scribeLine ? 0 : 1);
   const muted = () => audioMuted(currentSettings(), store.get(), mode, 'music');
   const target = () => (currentSettings().musicVolume / 100) * GAIN;
 
   function setVolume(ch, level) {
     ch.level = level;
-    ch.el.volume = Math.max(0, Math.min(1, level * target()));
+    ch.el.volume = Math.max(0, Math.min(1, level * target() * duck));
   }
 
   function halt(ch) {
@@ -53,6 +56,11 @@ export function createMusic({ store, mode, makeAudio = (url) => new Audio(url) }
 
   function tick() {
     const step = reducedMotion() ? 1 : TICK_MS / FADE_MS; // reduced motion: switch beds without a fade
+    const want = ducked();
+    if (duck !== want) {
+      duck = want < duck ? Math.max(want, duck - step) : Math.min(want, duck + step);
+      if (channel) setVolume(channel, channel.level);
+    }
     if (channel && channel.level < 1) setVolume(channel, Math.min(1, channel.level + step));
     for (const ch of [...fading]) {
       setVolume(ch, ch.level - step);
@@ -61,7 +69,7 @@ export function createMusic({ store, mode, makeAudio = (url) => new Audio(url) }
         fading.delete(ch);
       }
     }
-    if ((!channel || channel.level >= 1) && fading.size === 0) {
+    if ((!channel || channel.level >= 1) && fading.size === 0 && duck === ducked()) {
       clearInterval(timer);
       timer = null;
     }
@@ -150,6 +158,7 @@ export function createMusic({ store, mode, makeAudio = (url) => new Audio(url) }
     if (wasCombat && !inCombat && snap) stinger = stingerFor(state.lastOutcome);
     if (inCombat) stinger = null;
     wasCombat = inCombat;
+    if (duck !== ducked()) startTicking();
     sync();
   }
 
@@ -178,6 +187,7 @@ export function createMusic({ store, mode, makeAudio = (url) => new Audio(url) }
       fadingOut: [...fading].map((c) => c.key),
       muted: muted(),
       blocked,
+      duck,
     }),
     stop() {
       stopSettings();

@@ -791,6 +791,7 @@ export const STRINGS = {
   screen: {
     heading: 'Spectator screen',
     waiting: 'Waiting for the adventure to begin.',
+    writing: 'The world is being written. The Scribe keeps you company meanwhile.',
     name: 'Screen',
     acting: '{name} is acting',
     actingClock: '{name} is acting - {clock}',

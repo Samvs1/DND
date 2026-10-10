@@ -3,8 +3,9 @@
 Every appearance is ONE `scribe_line` broadcast (screens and phones) with a line of
 data/voice/scribe.json picked by `ScribeMemory` (its own seeded random; no events, no replay
 impact, a reconnect never replays old lines):
-- `welcome_first`: a new campaign enters play, sent BEFORE the opening narration
-  (`lobby.start_campaign`);
+- `welcome_first`: the host starts a new campaign; sent as soon as the world starts being
+  written (`lobby.start_campaign`, M18.1), so his welcome covers that wait and comes before the
+  opening narration (the screen holds the narration until he finishes);
 - `welcome_back`: a saved campaign was loaded (host load and defeat load, `host_switch.load`);
   a boot-time `--load` marks it due (`welcome_back_later`) and `on_join` sends it when the first
   screen or player connects. A save still in the lobby gets no welcome back;
