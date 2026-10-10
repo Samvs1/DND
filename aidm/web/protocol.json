@@ -2540,6 +2540,14 @@
               "title": "Inventory",
               "type": "array"
             },
+            "keepsakes": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/KeepsakeLine"
+              },
+              "title": "Keepsakes",
+              "type": "array"
+            },
             "languages": {
               "items": {
                 "type": "string"
@@ -3718,6 +3726,26 @@
             "qty"
           ],
           "title": "InventoryLine",
+          "type": "object"
+        },
+        "KeepsakeLine": {
+          "additionalProperties": false,
+          "description": "A story object the hero carries (M19.3): no value, cannot be sold or equipped.",
+          "properties": {
+            "description": {
+              "default": "",
+              "title": "Description",
+              "type": "string"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "title": "KeepsakeLine",
           "type": "object"
         },
         "LevelUpAvailable": {

@@ -149,6 +149,13 @@ class InventoryLine(_Line):
     value_gp: float = 0.0
 
 
+class KeepsakeLine(_Line):
+    """A story object the hero carries (M19.3): no value, cannot be sold or equipped."""
+
+    name: str
+    description: str = ""
+
+
 class ConditionLine(_Line):
     name: str
     rounds_left: int | None = None
@@ -195,6 +202,7 @@ class CharacterSheet(_Line):
     languages: list[str]
     resistances: list[DamageType]
     inventory: list[InventoryLine]
+    keepsakes: list[KeepsakeLine] = []
     gold: int
     conditions: list[ConditionLine]
     death_saves: DeathSaveLine

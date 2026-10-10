@@ -10,7 +10,7 @@ an `isinstance` dispatch), `apply_world_event(state, event)`.
 
 from typing import assert_never
 
-from aidm.models.character import Equipped
+from aidm.models.character import Equipped, Keepsake
 from aidm.models.memory import MAX_NARRATION_LOG
 from aidm.models.state import GameState
 from aidm.models.world import WorldNpc
@@ -24,6 +24,7 @@ from aidm.models.world_events import (
     ItemPlaced,
     ItemRemoved,
     ItemsTraded,
+    KeepsakeGained,
     LevelUpReady,
     NarrationRecorded,
     NodeDescribed,
@@ -55,6 +56,7 @@ type WorldEvent = (
     | NodeDescribed
     | ItemPlaced
     | ItemRemoved
+    | KeepsakeGained
     | NarrationRecorded
     | SceneSummarised
     | EquipmentChanged
@@ -95,6 +97,7 @@ WORLD_EVENT_TYPES = (
     NodeDescribed,
     ItemPlaced,
     ItemRemoved,
+    KeepsakeGained,
     NarrationRecorded,
     SceneSummarised,
     EquipmentChanged,
@@ -180,6 +183,13 @@ def _equip(state: GameState, creature_id: str, equipped: Equipped, ac: int) -> N
     creature.ac = ac
 
 
+def _keep(state: GameState, creature_id: str, keepsake: Keepsake) -> None:
+    creature = state.creatures.get(creature_id)
+    if creature is None or creature.pc is None:
+        raise ReducerError(f"no hero {creature_id!r} to keep {keepsake.name!r}")
+    creature.pc.keepsakes.append(keepsake.model_copy())
+
+
 def apply_world_event(state: GameState, event: WorldEvent) -> None:
     if isinstance(event, SCENE_EVENT_TYPES):
         _scene_event(state, event)
@@ -210,6 +220,8 @@ def apply_world_event(state: GameState, event: WorldEvent) -> None:
             world.shop_npc_id = npc_id
         case EquipmentChanged(creature_id=creature_id, equipped=equipped, ac=ac):
             _equip(state, creature_id, equipped, ac)
+        case KeepsakeGained(creature_id=creature_id, keepsake=keepsake):
+            _keep(state, creature_id, keepsake)
         case RewardGranted(kind=kind, source=source):
             _rewarded(state, kind, source)
         case HostileActPending() | ItemsTraded() | LevelUpReady():

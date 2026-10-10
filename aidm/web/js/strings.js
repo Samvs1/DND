@@ -514,6 +514,8 @@ export const STRINGS = {
     concentrating: 'Concentrating on {spell}',
     inventory: 'Inventory',
     invEmpty: 'You carry nothing.',
+    keepsakes: 'Keepsakes',
+    keepsakesHint: 'Things you found or were given. They have no price and stay with you.',
     weight: 'Weight',
     weightLine: '{n} lb',
     value: 'Value',

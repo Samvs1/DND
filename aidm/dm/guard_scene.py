@@ -76,6 +76,7 @@ def _carried(state: GameState) -> set[str]:
     for creature in state.creatures.values():
         if creature.pc is not None:
             names.update(display_name(i.item) for i in creature.pc.inventory)
+            names.update(k.name for k in creature.pc.keepsakes)
     return names
 
 

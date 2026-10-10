@@ -4,7 +4,9 @@ from pathlib import Path
 
 from playwright.sync_api import Browser, Page
 
+from aidm.models.character import Keepsake
 from aidm.models.events import HpChanged, InventoryChanged
+from aidm.models.world_events import KeepsakeGained
 from aidm.rules.leveling import gain_xp, xp_for_level
 from tests.ui.conftest import LiveServer
 from tests.ui.table_helpers import PHONE, go_tab, snap, start_table
@@ -164,4 +166,29 @@ def test_sheet_on_a_phone(browser: Browser, live_server: LiveServer, shots_dir: 
     snap(host, shots_dir, "controller_sheet_inventory", 390)
     host.click("[data-testid=tab-spells]")
     host.wait_for_selector("[data-testid=no-spells]")
+    assert errors == []
+
+
+def test_keepsakes_show_under_the_inventory(
+    browser: Browser, live_server: LiveServer, shots_dir: Path
+) -> None:
+    """M19.3: a story object the hero keeps is listed on the Hero tab with its description."""
+    errors: list[str] = []
+    host, _guest = start_table(browser, live_server.base, PHONE, errors)
+    _open(host)
+    pid = host.evaluate("window.aidm.store.get().players.find(p => p.name === 'Ann').creature_id")
+    assert live_server.app is not None and live_server.loop is not None
+    table = live_server.app.state.registry.table
+    note = Keepsake(id="keepsake-oilcloth", name="Oilcloth Scrap", description="A charcoal map.")
+
+    async def keep() -> None:
+        table.apply_all([KeepsakeGained(creature_id=pid, keepsake=note)])
+
+    live_server.loop.call_soon_threadsafe(table.schedule, keep)
+    host.wait_for_function(f"({SHEET}.keepsakes || []).length === 1", timeout=20000)
+    host.click("[data-testid=tab-inventory]")
+    row = host.locator("[data-testid=keepsake]")
+    row.wait_for()
+    assert "Oilcloth Scrap" in row.inner_text() and "charcoal map" in row.inner_text()
+    snap(host, shots_dir, "sheet_keepsakes", 390)
     assert errors == []

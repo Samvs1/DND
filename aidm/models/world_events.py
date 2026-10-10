@@ -28,6 +28,7 @@ Public API:
   the manifest.
 - `NodeDescribed(node_id, text)`: the established description of a place (stored once).
 - `ItemPlaced(item)` / `ItemRemoved(item_id)`: a world item appears in / leaves a place.
+- `KeepsakeGained(creature_id, keepsake)` (M19.3): a hero now carries a story object.
 - `NarrationRecorded(text, scene_turn)`: one narrated turn joins the rolling memory and the
   scene turn counter becomes `scene_turn`.
 - `SceneSummarised(summary)` (M4.7): a scene summary joins the rolling memory and the count of
@@ -41,7 +42,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from aidm.models.character import Equipped
+from aidm.models.character import Equipped, Keepsake
 from aidm.models.memory import SceneSummary
 from aidm.models.world import Fact, Quest, WorldFeature, WorldItem, WorldNpc
 
@@ -152,6 +153,14 @@ class ItemRemoved(_WorldEvent):
     item_id: str
 
 
+class KeepsakeGained(_WorldEvent):
+    """A hero now carries a story object (M19.3: picked up, or handed over by the DM)."""
+
+    type: Literal["keepsake_gained"] = "keepsake_gained"
+    creature_id: str
+    keepsake: Keepsake
+
+
 class NarrationRecorded(_WorldEvent):
     type: Literal["narration_recorded"] = "narration_recorded"
     text: str = Field(min_length=1)
@@ -187,6 +196,7 @@ WorldEvents = (
     | NodeDescribed
     | ItemPlaced
     | ItemRemoved
+    | KeepsakeGained
     | NarrationRecorded
     | SceneSummarised
     | EquipmentChanged

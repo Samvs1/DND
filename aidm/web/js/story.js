@@ -30,6 +30,7 @@ const FEED_EVENTS = new Set([
   'short_rest_taken',
   'long_rest_taken',
   'items_traded',
+  'keepsake_gained',
   'secret_revealed',
   'encounter_started',
   'encounter_ended',

@@ -29,6 +29,7 @@ from aidm.dm.precheck import (
     RestIntent,
     RestKind,
     ShopIntent,
+    TakeIntent,
     TravelIntent,
     precheck,
 )
@@ -164,6 +165,8 @@ async def resolve_action(core: TableCore, entry: QueueEntry) -> None:
         core.notice(player.id, NoticeKind.INFO, inventory_text(actor))
     elif isinstance(intent, ItemIntent):
         await party_actions.item_intent(core, player, intent)
+    elif isinstance(intent, TakeIntent):
+        await party_actions.take_intent(core, player, intent)
     elif isinstance(intent, TravelIntent):
         detail = f"travel to {node_display_name(core.state, intent.node_id)}"
         job = party_actions.travel_job(core, entry.creature_id, intent.node_id)

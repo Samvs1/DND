@@ -7,20 +7,24 @@ and a two-handed main weapon. The armour class moves by the DIFFERENCE between t
 new gear (armour formula + shield + armour-dependent fighting styles), the same delta rule
 level-up uses, so feature bonuses already in `Creature.ac` are kept. Dropping puts ONE item on
 the ground at the current place (`ItemPlaced`), unequipping the last equipped copy first.
+Taking (M19.3) is the reverse: a visible item lying at the current place leaves it
+(`ItemRemoved`) and joins the hero: a catalogue item into the inventory, anything else (a story
+object with no catalogue entry) as a keepsake.
 
 Public API: `EquipRefusal`, `EquipRefused`, `equip_events(creature, item, regs)`,
-`unequip_events(creature, item, regs)`, `drop_events(state, creature, item, regs)`.
+`unequip_events(creature, item, regs)`, `drop_events(state, creature, item, regs)`,
+`take_events(state, creature, item_id)`.
 """
 
 from enum import StrEnum
 
 from aidm.data.character_data import CharacterRegistries
 from aidm.data.srd_equipment import SrdEquipment
-from aidm.models.character import Equipped
+from aidm.models.character import Equipped, Keepsake
 from aidm.models.events import AnyEvent, InventoryChanged
 from aidm.models.state import Creature, GameState
 from aidm.models.world import WorldItem
-from aidm.models.world_events import EquipmentChanged, ItemPlaced
+from aidm.models.world_events import EquipmentChanged, ItemPlaced, ItemRemoved, KeepsakeGained
 from aidm.rules.defense import armor_class
 from aidm.rules.features import feature_ac_bonus
 from aidm.rules.item_grants import carried_qty
@@ -35,6 +39,7 @@ class EquipRefusal(StrEnum):
     NOT_EQUIPMENT = "not_equipment"
     ALREADY_EQUIPPED = "already_equipped"
     NOT_EQUIPPED = "not_equipped"
+    NOT_HERE = "not_here"
 
 
 class EquipRefused(ValueError):
@@ -140,3 +145,19 @@ def drop_events(
     events.append(InventoryChanged(creature_id=creature.id, item=item, delta=-1, qty=carried - 1))
     events.append(ItemPlaced(item=placed))
     return events
+
+
+def take_events(state: GameState, creature: Creature, item_id: str) -> list[AnyEvent]:
+    """`creature` picks up the visible world item `item_id` lying at the current place."""
+    _hero(creature)
+    item = state.world.items.get(item_id)
+    here = state.world.current_node
+    if item is None or item.hidden or item.node_id != here:
+        raise EquipRefused(EquipRefusal.NOT_HERE, "that is not lying here")
+    gone = ItemRemoved(item_id=item.id)
+    if item.catalog_id is None:
+        keepsake = Keepsake(id=item.id, name=item.name[:40])
+        return [gone, KeepsakeGained(creature_id=creature.id, keepsake=keepsake)]
+    qty = carried_qty(creature, item.catalog_id) + item.qty
+    stack = InventoryChanged(creature_id=creature.id, item=item.catalog_id, delta=item.qty, qty=qty)
+    return [gone, stack]

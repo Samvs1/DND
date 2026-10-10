@@ -18,6 +18,7 @@ from aidm.models.sheet import (
     FeatureActionLine,
     FeatureLine,
     InventoryLine,
+    KeepsakeLine,
     ResourceLine,
     SkillLine,
 )
@@ -168,6 +169,7 @@ def build_sheet(creature: Creature, regs: CharacterRegistries) -> CharacterSheet
         languages=list(pc.languages),
         resistances=list(creature.resistances),
         inventory=_inventory(pc, regs),
+        keepsakes=[KeepsakeLine(name=k.name, description=k.description) for k in pc.keepsakes],
         gold=pc.gold,
         conditions=[
             ConditionLine(name=c.name, rounds_left=c.rounds_left) for c in creature.conditions

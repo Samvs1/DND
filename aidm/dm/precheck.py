@@ -11,7 +11,8 @@ Public API:
 - Intents (frozen): `RestIntent(kind)` (`RestKind` SHORT/LONG), `ShopIntent(npc_id)`,
   `TravelIntent(node_id)`, `ItemIntent(actor_id, action, item)` (`ItemAction`
   EQUIP/UNEQUIP/DROP, `item` is the inventory index), `InventoryIntent(actor_id)`,
-  `LookIntent(text)` (the deterministic description, `look_around_text`).
+  `LookIntent(text)` (the deterministic description, `look_around_text`),
+  `TakeIntent(actor_id, item_id)` (M19.3: "pick up / take / grab <a visible item here>").
 - `Intent` (the union), `precheck(state, actor_id, text) -> Intent | None`.
 - `look_around_text(state) -> str`: the scene manifest as plain prose.
 - `SHOP_ROLES`: role words that make a present NPC a shopkeeper.
@@ -72,7 +73,15 @@ class LookIntent:
     text: str
 
 
-type Intent = RestIntent | ShopIntent | TravelIntent | ItemIntent | InventoryIntent | LookIntent
+@dataclass(frozen=True)
+class TakeIntent:
+    actor_id: str
+    item_id: str
+
+
+type Intent = (
+    RestIntent | ShopIntent | TravelIntent | ItemIntent | InventoryIntent | LookIntent | TakeIntent
+)
 
 SHOP_ROLES = (
     "merchant",
@@ -119,6 +128,12 @@ _UNEQUIP = re.compile(
     r"(?:unequip|unwield|sheathe|stow|put away|take off|doff) (?:my |the )?(?P<item>[a-z ,'-]+)"
 )
 _DROP = re.compile(r"(?:drop|discard|throw away) (?:my |the |a |an )?(?P<item>[a-z ,'-]+)")
+_TAKE = re.compile(
+    r"(?:pick up|take|grab|collect|retrieve|scoop up|pocket|lift|get) (?:up )?"
+    r"(?:the |a |an |that |this )?(?P<item>[a-z0-9 ,'-]+?)(?: up)?"
+    r"(?: (?:from|off|at|on) (?:the )?[a-z0-9 ,'-]+)?|"
+    r"pick (?:the |a |an |that |this )?(?P<item2>[a-z0-9 ,'-]+?) up"
+)
 _INVENTORY = re.compile(
     r"(?:(?:check|open|show|see|look in|look at) )?(?:my |our )?"
     r"(?:inventory|pack|backpack|bag|belongings)|what (?:am i|are we) carrying|"
@@ -209,6 +224,15 @@ def _item_command(state: GameState, actor_id: str, text: str) -> ItemIntent | No
     return None
 
 
+def _take(state: GameState, scene: SceneView, actor_id: str, name: str) -> TakeIntent | None:
+    wanted = _words(name)
+    for item_id in scene.item_ids:
+        have = _words(state.world.items[item_id].name)
+        if wanted and (have <= wanted or wanted <= have):
+            return TakeIntent(actor_id, item_id)
+    return None
+
+
 def precheck(state: GameState, actor_id: str, text: str) -> Intent | None:
     if _in_fight(state):
         return None
@@ -230,7 +254,11 @@ def precheck(state: GameState, actor_id: str, text: str) -> Intent | None:
     travel = _TRAVEL.fullmatch(clean)
     if travel:
         return _travel(state, scene, travel["dest"])
-    return _item_command(state, actor_id, clean)
+    item = _item_command(state, actor_id, clean)
+    take = _TAKE.fullmatch(clean)
+    if item is None and take:
+        return _take(state, scene, actor_id, take["item"] or take["item2"])
+    return item
 
 
 def _listing(names: list[str]) -> str:

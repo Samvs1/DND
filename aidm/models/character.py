@@ -8,6 +8,8 @@ replays like any other creature (docs/DECISIONS.md M2.2).
 Public API:
 - `Size`: the SRD size categories (values are the SRD spelling, "Medium").
 - `InventoryItem(item, qty)`: an SRD equipment index and a count.
+- `Keepsake(id, name, description)`: a story object the hero carries (a note, a key, a trinket;
+  M19.3): no gold value, cannot be sold or equipped.
 - `Equipped(armor, shield, main_hand, off_hand, ranged)`: equipment indexes in use (None = empty).
 - `PcData`: race/subrace, `class_index`, `level`, `subclass` (None until the subclass level),
   `background`, `base_abilities` (before racial bonuses), `armor_proficiencies`,
@@ -16,7 +18,8 @@ Public API:
   (choice id -> picked option ids, e.g. a fighting style), `feature_choices` (feature id ->
   picks: expertise skills, ancestry option), `xp` (experience points), `inventory`, `equipped`,
   `gold`, `cantrips`, `race_cantrips`, `spells_known` (known/pact casters), `spellbook` (wizards),
-  `prepared` (prepared casters), `portrait_id`, `pronouns`, `backstory` (<= 400 chars).
+  `prepared` (prepared casters), `portrait_id`, `pronouns`, `backstory` (<= 400 chars),
+  `keepsakes`.
 
 State models are mutable (only the reducer mutates them) and every field added later needs a
 default (docs/DECISIONS.md M1.2 schema growth).
@@ -29,6 +32,8 @@ from pydantic import BaseModel, ConfigDict, Field
 from aidm.models.abilities import Ability
 
 MAX_BACKSTORY_CHARS = 400
+MAX_KEEPSAKE_NAME = 40
+MAX_KEEPSAKE_TEXT = 200
 
 
 class Size(StrEnum):
@@ -45,6 +50,14 @@ class InventoryItem(BaseModel):
 
     item: str = Field(min_length=1)
     qty: int = Field(default=1, ge=1)
+
+
+class Keepsake(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    id: str = Field(min_length=1)
+    name: str = Field(min_length=1, max_length=MAX_KEEPSAKE_NAME)
+    description: str = Field(default="", max_length=MAX_KEEPSAKE_TEXT)
 
 
 class Equipped(BaseModel):
@@ -87,3 +100,4 @@ class PcData(BaseModel):
     portrait_id: str = ""
     pronouns: str = ""
     backstory: str = Field(default="", max_length=MAX_BACKSTORY_CHARS)
+    keepsakes: list[Keepsake] = Field(default_factory=list[Keepsake])

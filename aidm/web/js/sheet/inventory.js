@@ -1,6 +1,7 @@
 // Sheet "Inventory" tab: carried items with weight and value, equipped slots, equip / unequip / drop (server
 // messages), potions used outside a fight on yourself or a party member (`use_item`), gold and the shared camp
 // supplies. Gear changes and item use wait until a fight ends (in a fight potions go through the hotbar).
+// Keepsakes (M19.3: story objects with no price) are listed under the items.
 import { assetUrl } from '../assets.js';
 import { t } from '../strings.js';
 import { h } from '../ui/dom.js';
@@ -48,5 +49,12 @@ export function renderInventory(s, { client, camp, locked, party = [] }) {
     locked ? h('p', { class: 'hint' }, t('sheet.gearLocked')) : null,
     s.inventory.length ? h('ul', { class: 'inv-list', 'data-testid': 'inv-list' }, ...s.inventory.map((i) => line(i, opts))) : h('p', { class: 'hint' }, t('sheet.invEmpty')),
     s.inventory.some((i) => i.category === 'potion') ? h('p', { class: 'hint' }, t('sheet.potionHint')) : null,
+    ...keepsakes(s.keepsakes ?? []),
   ];
+}
+
+function keepsakes(list) {
+  if (!list.length) return [];
+  const rows = list.map((k) => h('li', { class: 'inv-line keepsake', 'data-testid': 'keepsake' }, h('div', { class: 'inv-main' }, h('strong', {}, k.name), k.description ? h('div', { class: 'hint inv-meta' }, k.description) : null)));
+  return [h('h3', {}, t('sheet.keepsakes')), h('p', { class: 'hint' }, t('sheet.keepsakesHint')), h('ul', { class: 'inv-list', 'data-testid': 'keepsake-list' }, ...rows)];
 }

@@ -128,6 +128,8 @@ def _sheet(c: Creature, short: bool) -> str:
     gear = _gear(c)
     if gear:
         line += f", gear: {', '.join(gear)}"
+    if pc.keepsakes:  # M19.3: story objects the hero really carries
+        line += f", keepsakes: {', '.join(k.name for k in pc.keepsakes)}"
     story = _backstory(c)
     return line + (f", backstory: {story}" if story else "")
 

@@ -9,7 +9,8 @@ Public API:
 - One `<Tool>Args` model per tool: `RequestCheckArgs`, `RequestSaveArgs`, `CreativeEffectArgs`,
   `UpdateAttitudeArgs`, `RevealSecretArgs`, `MovePartyArgs`, `IntroduceNpcArgs`,
   `IntroduceFeatureArgs`, `GrantItemArgs`, `GrantXpArgs`, `StartEncounterArgs`, `OpenShopArgs`,
-  `UpdateQuestArgs`, `RecordFactArgs`, `NoMechanicsArgs`.
+  `UpdateQuestArgs`, `RecordFactArgs`, `TakeItemArgs`, `GiveKeepsakeArgs` (M19.3),
+  `NoMechanicsArgs`.
 - `DM_TOOLS`: every `ToolDef` in SPEC order; `dm_tool(name) -> ToolDef`;
   `dm_tools_param(names=None) -> list[dict]` (the OpenAI `tools` parameter).
 """
@@ -182,6 +183,21 @@ class RecordFactArgs(_Args):
     tags: list[str] = Field(default_factory=list[str], max_length=8)
 
 
+class TakeItemArgs(_Args):
+    """The acting hero picks up a visible item lying here (an id from the manifest's items)."""
+
+    item_id: str = _id()
+
+
+class GiveKeepsakeArgs(_Args):
+    """Hand the acting hero a story object they found or were given (a note, a key, a trinket,
+    a map scrap): it has no gold value and cannot be sold. Use it whenever the hero takes such a
+    thing, so it is really carried."""
+
+    name: str = Field(min_length=1, max_length=40)
+    description: str = Field(default="", max_length=200)
+
+
 class NoMechanicsArgs(_Args):
     """Pure narration: nothing changes."""
 
@@ -205,6 +221,8 @@ DM_TOOLS: tuple[ToolDef, ...] = (
     _def("open_shop", OpenShopArgs),
     _def("update_quest", UpdateQuestArgs),
     _def("record_fact", RecordFactArgs),
+    _def("take_item", TakeItemArgs),
+    _def("give_keepsake", GiveKeepsakeArgs),
     _def("no_mechanics", NoMechanicsArgs),
 )
 _BY_NAME = {d.name: d for d in DM_TOOLS}
