@@ -93,13 +93,16 @@ single-device view: to play solo, open `/screen` in one window and `/play` in an
    can export a hero to a JSON file and import it later.
 4. **Start**: when every player has a hero the host starts the campaign. The AI writes a three-act campaign
    (or uses the built-in sample). The screen shows the table and each phone opens its controller, with five
-   tabs: **Play**, **Hero**, **Journal** (with the map), **Scribe** and **More**.
-5. **Exploration** (Play tab): type (or dictate) what your hero does. The phone shows the recent story in full
-   and a toast with your own dice; the full story and every roll are on the screen. Actions queue in order,
+   tabs at the top: **Play**, **Hero**, **Journal** (with the map and the story), **Scribe** and **More**. The full
+   screen button next to the hero hides the browser bars (Android).
+5. **Exploration** (Play tab): type (or dictate) what your hero does. The phone is a controller, not a second
+   screen: a Now card (your move, the story is being told, who is acting, your place in line), the action box,
+   idea chips from the scene (people, things, ways on, look, search, rest, trade; a tap fills the action box)
+   and your last roll. The story and every roll are on the screen (Journal, Story keeps the recent story). Actions queue in order,
    one waiting action per player: the screen shows who is typing, who is acting and who is next, and your
    phone shows "Waiting (n)". Travel, rests and shopping ask the table for a quick vote.
-6. **Combat** (Play tab): the zone board and initiative strip are on the screen. On your turn your phone shows
-   "Your turn", target chips (name and health state), and the hotbar with hit chances, spells with slot counts,
+6. **Combat** (Play tab): the zone board and initiative strip are on the screen. Your phone says the round and how
+   many turns until yours; on your turn it shows "Your turn", target chips (name and health state), and the hotbar with hit chances, spells with slot counts,
    class features, items, move, dash, disengage, hide and end turn. Other players can send suggestions.
    **The Scribe** (Scribe tab): when a hero has fallen, a standing hero can pay 25 gp per level of the fallen hero
    to have the Scribe rewrite them into the story. Outside combat only. He speaks rarely: a welcome, a welcome

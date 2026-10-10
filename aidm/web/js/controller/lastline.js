@@ -1,8 +1,9 @@
-// The story box of the Play tab: the recent story in full, newest at the bottom, scrolling inside itself.
+// The story box (Journal, Story; M18.2): the recent story in full, newest at the bottom, scrolling inside itself.
+// The phone's Play tab no longer shows it: the story is told on the shared screen.
 import { t } from '../strings.js';
 import { clear, h } from '../ui/dom.js';
 
-const SHOWN = 8;
+const SHOWN = 30;
 const NEAR_END = 40;
 
 export function itemText(item) {

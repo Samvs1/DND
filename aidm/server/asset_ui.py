@@ -2,8 +2,9 @@
 
 Unlike the other keys these do not come from a data registry; they are the few pictures the views
 ask for by name (js/screen/overlays.js and js/controller/defeat.js read `scene.defeat`,
-js/controller/tabs.js reads `ui_icon.tab-<id>`). Three tab icons point at the owner's v1 tab icons
-(real art, never regenerated); the rest start as placeholders for the asset generator.
+js/controller/tabs.js reads `ui_icon.tab-<id>`, js/controller/ideas.js `ui_icon.act-<kind>` for the
+Play tab's idea chips, M18.2). The tab icons point at the owner's v1 tab icons (real art, never
+regenerated); the rest start as placeholders for the asset generator.
 `subject` is the prompt subject sentence (asset_prompts) and the ASSETS_TODO description.
 
 Public API: `UiArt`, `UI_ART`, `ui_subject`.
@@ -21,6 +22,22 @@ class UiArt:
     v1: bool = False
     hand: bool = False  # owner art copied in by hand: never generated
 
+
+# The Play tab's idea chips (M18.2, js/controller/ideas.js): one icon per kind of action.
+_MEDALLION = (
+    ", a small game icon on a round dark slate medallion with a thin gold rim "
+    "(an action chip of a phone controller)"
+)
+_ACTS = (
+    ("talk", "Two overlapping speech bubbles (talk to someone)"),
+    ("examine", "A brass magnifying glass over a small carved rune stone (examine something)"),
+    ("take", "An open hand reaching down to pick up a small leather pouch (pick something up)"),
+    ("travel", "A worn leather boot on a winding dirt path beside a wooden signpost (travel on)"),
+    ("look", "An open watchful eye with a faint golden glow around it (look around)"),
+    ("search", "A small lantern casting warm light over scattered leaves and stones (search)"),
+    ("rest", "A small campfire of crossed logs beside a rolled bedroll (rest)"),
+    ("trade", "A leather coin purse with gold coins spilling out of it (trade)"),
+)
 
 UI_ART = (
     UiArt(
@@ -100,6 +117,15 @@ UI_ART = (
         "A brass cog wheel with three small dots beneath it on a dark slate rounded-square tile "
         "(the more and settings tab of a phone tab bar)",
         transparent=True,
+    ),
+    *(
+        UiArt(
+            f"ui_icon.act-{kind}",
+            f"img/icons/actions/{kind}.png",
+            what + _MEDALLION,
+            transparent=True,
+        )
+        for kind, what in _ACTS
     ),
 )
 

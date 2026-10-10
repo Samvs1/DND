@@ -1,5 +1,7 @@
-// Phone controller (/play once the adventure runs): a persistent hero strip on top, five tabs (Play, Hero,
-// Journal, Scribe, More) and dialogs for shop, host, settings and the manual. The shared story, party and board live on /screen.
+// Phone controller (/play once the adventure runs): a persistent hero strip on top with the five tabs (Play, Hero,
+// Journal, Scribe, More) right under it (M18.2: never at the bottom, where a browser toolbar can cover them), an open
+// vote as a sticky card at the top of the content, and dialogs for shop, host, settings and the manual. The shared
+// story, party and board live on /screen; nothing important is pinned to the bottom of the phone.
 import { createController } from '../combat/controller.js';
 import { mountDefeatPanel } from '../controller/defeat.js';
 import { mountJournalTab } from '../controller/journal.js';
@@ -32,11 +34,11 @@ export function mountController(root, ctx) {
   const notices = h('div', { class: 'ct-notices' });
   const panes = Object.fromEntries(TABS.map((id) => [id, h('section', { class: `ct-pane ct-pane-${id}`, id: `ct-pane-${id}`, role: 'tabpanel', 'aria-labelledby': `ct-tab-${id}`, 'data-testid': `pane-${id}` })]));
   const nav = h('nav', { class: 'ct-tabs', role: 'tablist', 'aria-label': t('ct.tabs'), 'data-testid': 'ct-tabs' });
-  const main = h('main', { class: 'ct-main' }, notices, levelSlot, ...Object.values(panes));
   const sheetSlot = h('div', { class: 'ct-sheet' });
+  const main = h('main', { class: 'ct-main' }, sheetSlot, notices, levelSlot, ...Object.values(panes));
   const toastSlot = h('div', { class: 'ct-toasts' });
   const dialogs = h('div', { class: 'ct-dialogs' });
-  root.append(h('div', { class: 'ct', 'data-testid': 'controller' }, strip, main, nav), sheetSlot, toastSlot, dialogs);
+  root.append(h('div', { class: 'ct', 'data-testid': 'controller' }, strip, nav, main), toastSlot, dialogs);
   const ctrl = createController(ctx);
 
   const stops = [

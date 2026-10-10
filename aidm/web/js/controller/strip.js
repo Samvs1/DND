@@ -7,6 +7,7 @@ import { t } from '../strings.js';
 import { clear, h } from '../ui/dom.js';
 import { titleCase } from '../ui/format.js';
 import { everySecond } from '../ui/countdown.js';
+import { mountFullscreen } from '../ui/fullscreen.js';
 import { statusOf } from './status.js';
 
 function resourceText(state) {
@@ -17,7 +18,8 @@ function resourceText(state) {
 export function mountStrip(root, store) {
   const chip = h('span', { class: 'ct-chip-status', role: 'status', 'data-testid': 'status-chip' });
   const body = h('div', { class: 'ct-strip-body' });
-  root.append(body, chip);
+  const side = h('div', { class: 'ct-strip-side' }, chip);
+  root.append(body, side);
   let last = '';
 
   function renderChip(state) {
@@ -49,8 +51,10 @@ export function mountStrip(root, store) {
   render(store.get());
   const stopTick = everySecond(store, renderChip); // the turn countdown (M15.1)
   const stop = store.subscribe(render);
+  const stopFs = mountFullscreen(side); // M18.2: hides the browser's bars on Android
   return () => {
     stopTick();
     stop();
+    stopFs();
   };
 }

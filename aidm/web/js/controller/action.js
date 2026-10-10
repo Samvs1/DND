@@ -1,6 +1,7 @@
 // The action box: THE way to act out of combat (first come first served through the server queue). Enter sends,
 // Shift+Enter adds a line. Disabled with a stated reason when the party fell, the hero is down, it is not your
 // turn in a fight, the game is paused or an action of yours is already waiting. Tells the table while you type.
+// In a fight it shows only on your own turn (M18.2); the idea chips fill it through `store.emit('compose', {text})`.
 import { isMyTurn } from '../combat/model.js';
 import { mySeat } from '../state.js';
 import { hasPendingAction, publicState } from '../table/lookup.js';
@@ -51,6 +52,7 @@ export function mountAction(root, { store, client }) {
 
   function render(state) {
     const why = blockedReason(state);
+    root.hidden = why === 'fight'; // someone else's turn: the hotbar's suggestion box is the way to help
     input.disabled = why !== null;
     send.disabled = why !== null;
     if (why) typing.off();
@@ -80,10 +82,19 @@ export function mountAction(root, { store, client }) {
       form.requestSubmit();
     }
   });
+  function compose({ text }) {
+    if (input.disabled || !text) return;
+    input.value = text;
+    input.focus();
+    input.setSelectionRange(text.length, text.length);
+    typing.change(text);
+  }
   render(store.get());
   const stop = store.subscribe(render);
+  const stopCompose = store.on('compose', compose);
   return () => {
     stop();
+    stopCompose();
     typing.off();
     clearTimeout(gentleTimer);
   };

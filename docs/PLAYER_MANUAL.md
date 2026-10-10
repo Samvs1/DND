@@ -12,7 +12,7 @@ Everything you need to play at the table, in plain words. The tables in the Refe
 
 ### The two surfaces
 - **The screen** (the page `/screen`) is the table everyone looks at: scene art, the story, the party, the battle board, big dice, who is acting and who is waiting, votes, the narrator's voice and the music.
-- **The phone** (the page `/play`, or just the game address) is your controller. It shows your hero and your buttons. It has five tabs: **Play**, **Hero**, **Journal**, **Scribe** and **More**.
+- **The phone** (the page `/play`, or just the game address) is your controller. It shows your hero and your buttons, not the story: the story is told on the screen. Its five tabs sit at the top, right under your hero: **Play**, **Hero**, **Journal**, **Scribe** and **More**. The square button next to your hero switches **full screen**, which hides the browser's own bars (on Android this stops a bottom toolbar from covering the game); it is also on the More tab.
 - There is no single-device mode. To play alone, open the screen in one window and the controller in another.
 
 ### Joining
@@ -118,7 +118,13 @@ A player who joins after the adventure has started builds a hero between scenes 
 ## 3. Playing the story
 
 ### Typing your action
-On the **Play** tab, type what your hero does in plain words and press **Act**. You can also dictate. The Dungeon Master (an AI storyteller) reads it, decides what is needed and narrates the result. Your phone shows the recent story in full in a box that fills the tab and scrolls (the newest line is at the bottom), with the action box below it near your thumb, and a small note with your own dice. The full story and every roll are on the screen.
+On the **Play** tab, type what your hero does in plain words and press **Act**. You can also dictate. The Dungeon Master (an AI storyteller) reads it, decides what is needed and narrates the result on the screen. The Play tab is your controller:
+- **The Now card** at the top says what is going on for you: *Your move*, *The story is being told. Watch the screen.*, whose action the Dungeon Master is weighing, your place in line, or that the game is paused. Under it: where you are and your active quest's objective.
+- **The action box** sits right under it.
+- **Ideas**: chips built from the scene: **People here** (talk to someone), **Things here** (take a closer look at something, pick up an item), **Ways on** (travel to a connected place; a locked way is greyed out) and **Anytime** (look around, search, short rest, and **Trade** when a trader is here). Tapping a chip writes the sentence in the action box; it never sends by itself, so you can change it and press **Act**.
+- **Your last roll** stays on the tab (label, dice, total and outcome); a short note also pops up when you roll.
+
+The story itself is not repeated on the phone. If you missed a line, open **Journal**, then **Story**: the recent story in full, newest at the bottom.
 
 ### The action queue
 Actions are handled one at a time, in the order they were sent. You may have one action waiting at a time. The screen shows who is typing, who is acting now and who is next. Your phone shows **Waiting (n)** while your action is in line. If the storyteller stumbles, you see a plain in-story fallback instead of an error.
@@ -154,7 +160,7 @@ When the party arrives somewhere dangerous, the game warns you first and nothing
 The first place of each region is always safe. Fights start only from a warning you answer or from what the party does, never from a timer.
 
 ### Votes
-Some things need the whole table: **travelling**, **resting** (short or long) and **browsing a shop**. To ask, type it on the Play tab (*take a short rest*, *make camp* for a long rest, *go to* a place) or press **Trade** when a trader is here; a vote then opens on every phone and on the screen. Typing *look around* or *inventory* gets an instant answer without a vote.
+Some things need the whole table: **travelling**, **resting** (short or long) and **browsing a shop**. To ask, type it on the Play tab (*take a short rest*, *make camp* for a long rest, *go to* a place) or press **Trade** when a trader is here; a vote then opens on every phone (as a card at the top of the page) and on the screen. Typing *look around* or *inventory* gets an instant answer without a vote.
 - Each player presses **Ready** or **Not yet**. The person who asked counts as ready.
 - It passes as soon as more than half are ready and fails as soon as half or more decline.
 - If time runs out (30 seconds), it passes when more are ready than declined. Silence does not block the table.
@@ -213,7 +219,7 @@ Things you can buy that matter most:
 After a victory the party's loot is gathered into one reward: experience for every living hero, gold shared out evenly (any remainder goes to the first heroes), items handed out in turn, and any camp supplies found go to the shared pool. Gold is kept per hero and shows on your sheet. The adventure's main quests pay gold, experience and sometimes an item when they are completed; side quests that come up in play pay nothing by themselves. Reaching new places and clearing them can pay experience too.
 
 ### Quests and the journal
-The **Journal** tab lists quests as Active, Offered, Completed or Failed, with who gave each one and the current objective. It also keeps what is known so far and earlier scenes. Nothing here changes by itself: it only records what happened.
+The **Journal** tab has three sections: **Journal**, **Map** and **Story** (the recent story in full, for catching up). The Journal section lists quests as Active, Offered, Completed or Failed, with who gave each one and the current objective. It also keeps what is known so far and earlier scenes. Nothing here changes by itself: it only records what happened.
 
 ### Your hero's sheet
 The **Hero** tab shows hit points, armour class, speed, initiative, proficiency, passive Perception, abilities, saving throws, skills, attacks, features, conditions and resources. Its **Inventory** section lets you equip, unequip, drop and use items. **Spellbook** shows your slots and spells. Gear changes wait until a fight ends. Potions are drunk from the hotbar in a fight.

@@ -1,4 +1,4 @@
-// Bottom tab bar of the phone controller: Play, Hero, Journal, Scribe, More. The current tab is `store.ctab`; each
+// Tab bar of the phone controller, right under the hero strip (M18.2; never at the bottom): Play, Hero, Journal, Scribe, More. The current tab is `store.ctab`; each
 // pane is hidden unless it is the current one. Arrow keys move between tabs. Each tab shows its icon
 // `ui_icon.tab-<id>` (owner art or a generated icon; the placeholder until then).
 import { assetUrl } from '../assets.js';
@@ -35,6 +35,7 @@ export function mountTabs(nav, panes, store) {
 
   function render(state) {
     const current = TABS.includes(state.ctab) ? state.ctab : 'play';
+    if (nav.parentElement) nav.parentElement.dataset.tab = current; // CSS: the Play tab's Now card replaces the chip
     for (const id of TABS) {
       const { button, badge } = buttons.get(id);
       button.setAttribute('aria-selected', id === current ? 'true' : 'false');

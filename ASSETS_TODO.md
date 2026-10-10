@@ -7,7 +7,7 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 `python scripts/gen_assets_todo.py`. Prompts start with the style bible
 (`docs/STYLE_BIBLE.md`). Never overwrite a real or v1 asset.
 
-13 placeholder entries: spell_icon 2, music 1, sfx 10
+21 placeholder entries: spell_icon 2, music 1, sfx 10
 
 ## spell_icon (2)
 
@@ -92,3 +92,53 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 - size: n/a (audio)
 - transparent: no
 - prompt: Audio brief (not an image): a soft wooden button click, 0.2 seconds.
+
+## ui_icon (0)
+
+### ui_icon.act-examine
+- file: aidm/web/static/img/icons/actions/examine.png
+- size: 64x64
+- transparent: yes
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: A brass magnifying glass over a small carved rune stone (examine something), a small game icon on a round dark slate medallion with a thin gold rim (an action chip of a phone controller). One small interface symbol on a dark slate rounded-square tile with a thin worn edge, bold shapes readable at 24 px, matching the reference tab icons, one cell of a 4x4 icon sheet. Target size 64x64. Transparent background.
+
+### ui_icon.act-look
+- file: aidm/web/static/img/icons/actions/look.png
+- size: 64x64
+- transparent: yes
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: An open watchful eye with a faint golden glow around it (look around), a small game icon on a round dark slate medallion with a thin gold rim (an action chip of a phone controller). One small interface symbol on a dark slate rounded-square tile with a thin worn edge, bold shapes readable at 24 px, matching the reference tab icons, one cell of a 4x4 icon sheet. Target size 64x64. Transparent background.
+
+### ui_icon.act-rest
+- file: aidm/web/static/img/icons/actions/rest.png
+- size: 64x64
+- transparent: yes
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: A small campfire of crossed logs beside a rolled bedroll (rest), a small game icon on a round dark slate medallion with a thin gold rim (an action chip of a phone controller). One small interface symbol on a dark slate rounded-square tile with a thin worn edge, bold shapes readable at 24 px, matching the reference tab icons, one cell of a 4x4 icon sheet. Target size 64x64. Transparent background.
+
+### ui_icon.act-search
+- file: aidm/web/static/img/icons/actions/search.png
+- size: 64x64
+- transparent: yes
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: A small lantern casting warm light over scattered leaves and stones (search the area), a small game icon on a round dark slate medallion with a thin gold rim (an action chip of a phone controller). One small interface symbol on a dark slate rounded-square tile with a thin worn edge, bold shapes readable at 24 px, matching the reference tab icons, one cell of a 4x4 icon sheet. Target size 64x64. Transparent background.
+
+### ui_icon.act-take
+- file: aidm/web/static/img/icons/actions/take.png
+- size: 64x64
+- transparent: yes
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: An open hand reaching down to pick up a small leather pouch (pick something up), a small game icon on a round dark slate medallion with a thin gold rim (an action chip of a phone controller). One small interface symbol on a dark slate rounded-square tile with a thin worn edge, bold shapes readable at 24 px, matching the reference tab icons, one cell of a 4x4 icon sheet. Target size 64x64. Transparent background.
+
+### ui_icon.act-talk
+- file: aidm/web/static/img/icons/actions/talk.png
+- size: 64x64
+- transparent: yes
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Two overlapping speech bubbles (talk to someone), a small game icon on a round dark slate medallion with a thin gold rim (an action chip of a phone controller). One small interface symbol on a dark slate rounded-square tile with a thin worn edge, bold shapes readable at 24 px, matching the reference tab icons, one cell of a 4x4 icon sheet. Target size 64x64. Transparent background.
+
+### ui_icon.act-trade
+- file: aidm/web/static/img/icons/actions/trade.png
+- size: 64x64
+- transparent: yes
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: A leather coin purse with gold coins spilling out of it (trade), a small game icon on a round dark slate medallion with a thin gold rim (an action chip of a phone controller). One small interface symbol on a dark slate rounded-square tile with a thin worn edge, bold shapes readable at 24 px, matching the reference tab icons, one cell of a 4x4 icon sheet. Target size 64x64. Transparent background.
+
+### ui_icon.act-travel
+- file: aidm/web/static/img/icons/actions/travel.png
+- size: 64x64
+- transparent: yes
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: A worn leather boot on a winding dirt path beside a wooden signpost (travel on), a small game icon on a round dark slate medallion with a thin gold rim (an action chip of a phone controller). One small interface symbol on a dark slate rounded-square tile with a thin worn edge, bold shapes readable at 24 px, matching the reference tab icons, one cell of a 4x4 icon sheet. Target size 64x64. Transparent background.

@@ -651,3 +651,9 @@ M11.2 clock | `Clock.time()` added (LoopClock = loop time, ManualClock = `now`) 
 - `welcome_first` is sent right after the GENERATING snapshot (owner: start the intro while the world builds). His line is about a minute and generation 30-90 s, so the wait is covered; the opening narration is held on the screen until he finishes (narration.js waits on `scribeSpeaking`). A failed start that returns to the lobby would welcome again on the next Start: acceptable, it only happens after an error.
 - The music ducks to 0 under any Scribe subtitle (`store.scribeLine`), fading with the bed's own FADE_MS, and returns after. Owner: "the background music also plays while the scribe is speaking, distracting from the intro".
 - Art budget: the owner raised the generation cap to 15 EUR on 2026-10-10 (`gen_assets.py --cap 15`).
+
+## M18.2 The phone is a controller (docs/next/GOAL_PHONE_UI.md)
+- Brave on Android lays its bottom toolbar OVER the page (M16.3's viewport-fixed root did not reveal the bottom tab bar), so nothing important is pinned to the bottom any more: tabs under the hero strip, the vote card sticky at the top of the content (was a bottom sheet), 6rem scroll room at the bottom of every pane, the action box near the top of the Play tab.
+- Full screen (Fullscreen API) is offered next to the hero and on More: it hides the browser's bars on Android. No PWA manifest: installing needs a valid certificate, which the LAN game's self-signed one is not.
+- The Play tab shows no story text (owner: it is on the screen); the story moved to Journal, Story. Idea chips come only from the public scene (npcs, features, items, exits) and fill the action box, never send: an accidental tap must not act.
+- On the Play tab the header status chip is hidden: the Now card says the same, bigger.
