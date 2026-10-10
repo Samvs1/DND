@@ -1,4 +1,4 @@
-NEXT: M19.5 (main session): manual + README, one live narration probe, FULL gate, commit `M19: Truthful telling, fight starts, picking things up`. Files in flight: none. Last gate: M19.4 non-UI tests 2636 passed, combat + phone UI tests green, lint/types clean.
+NEXT: none queued. M19 closed. Next playtest: send logs/session.jsonl and logs/llm.jsonl with any report. Files in flight: none. Last gate: FULL GATE PASS 12/12 (M19.5; 2742 passed, 13 skipped).
 
 # PROGRESS
 
@@ -174,7 +174,7 @@ Diagnosis (main session, events.jsonl + session/llm logs): (1) the narrator gets
 - [x] M19.2 **H** Fight start: NPC foes you were talking to start in the party's zone (catalogue monsters still one zone away); `start_encounter` takes `opening_strike_on` (an NPC it names): the acting hero goes first in round 1 and their main weapon attack on that NPC is rolled at once as their action (the turn goes on: bonus action, movement, end turn); outdoor terrains hop 25 ft (data; indoor stays 15). RULES_DECISIONS lines. Tests (placement, opening strike events, replay == snapshot). Gate: tests/unit/rules + tests/ai + tests/session. (main session; the strike is rolled in the session right after the fight's events apply: `session/opening.py` + `rules.combat_actions.opening_strike`)
 - [x] M19.3 **H** Picking things up and keepsakes: `take_item(item_id)` (adjudicator) and a deterministic precheck ("pick up / take / grab <visible item>") move a visible world item into the actor's inventory (`ItemRemoved` + `InventoryChanged`); `give_keepsake(name, description)` hands the acting hero a found story object (no value, cannot be sold), carried on the hero and listed in the manifest, the sheet (Hero tab, Keepsakes) and the journal. Old saves load (empty keepsakes). Tests (tool, precheck, reducer, replay, sheet). Gate: tests/ai + tests/session + UI sheet test. (main session; a typed pick-up is deterministic: one engine line, no model call)
 - [x] M19.4 **M** Moving in a fight: on my turn the phone shows a Move list right under the Now card (each zone with its distance; one out of reach says what it needs: "Dash first"), not a collapsed box under the hotbar; typed moves in a fight ("I move to the ravine", "I run to Old Kern") run the engine's move for the actor (same refusals as the button). Tests (precheck, UI 393x702 screenshot). Gate: UI tests. (main session; `controller/moves.js`, `dm/combat_intent.py`; a typed move spends no action)
-- [ ] M19.5 **ORCH** Manual, README, DECISIONS; one short live narration probe (lengths by weight, no repetition); screenshots judged; FULL gate. Commit `M19: Truthful telling, fight starts, picking things up`.
+- [x] M19.5 **ORCH** Manual, README, DECISIONS; one short live narration probe (lengths by weight, no repetition); screenshots judged; FULL gate. Commit `M19: Truthful telling, fight starts, picking things up`. (live probe: minor 16 words, normal 32, fight start 55 with no blow told)
 
 ---
 

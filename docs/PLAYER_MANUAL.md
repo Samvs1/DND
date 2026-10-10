@@ -126,6 +126,10 @@ On the **Play** tab, type what your hero does in plain words and press **Act**. 
 
 The story itself is not repeated on the phone. If you missed a line, open **Journal**, then **Story**: the recent story in full, newest at the bottom.
 
+The Dungeon Master says as much as the moment is worth: a line or two for something small (a look around, small talk, a try that fails), two or three sentences usually, and a little more for big moments (a discovery, a fight starting or ending, a death, arriving somewhere new). It only tells what the game really did: if nothing changed, it describes your attempt, not a result.
+
+**Picking things up**: type *pick up the pouch* (or *take*, *grab*, *pocket* ...) or tap a **Things here** chip, and an item lying where you are goes into your pack at once; the screen says so in one short line. Things you find in the story that are not ordinary gear (a note, a key, a strange trinket) become **keepsakes**: you carry them, they have no price and cannot be sold, and they are listed under **Keepsakes** in your Hero tab's inventory.
+
 ### The action queue
 Actions are handled one at a time, in the order they were sent. You may have one action waiting at a time. The screen shows who is typing, who is acting now and who is next. Your phone shows **Waiting (n)** while your action is in line. If the storyteller stumbles, you see a plain in-story fallback instead of an error.
 
@@ -227,14 +231,17 @@ The **Hero** tab shows hit points, armour class, speed, initiative, proficiency,
 ## 4. Combat
 
 ### How a fight is laid out
-There is no grid. The battlefield is a handful of **zones** (a bridge, a courtyard, a ledge), joined by edges that have a distance in feet. Moving inside a zone is free. Moving to another zone costs the distance of the edge, and **twice as much** if the zone you enter is rough ground. You can only move as far as your speed allows each turn.
+There is no grid. The battlefield is a handful of **zones** (a bridge, a courtyard, a ledge), joined by edges that have a distance in feet: **25 feet** between zones outdoors and **15 feet** indoors (caves, crypts, keeps), so every hero can reach the next zone and still act. Moving inside a zone is free. Moving to another zone costs the distance of the edge, and **twice as much** if the zone you enter is rough ground. You can only move as far as your speed allows each turn.
 
-The screen shows the battlefield as a **board**: one card per zone with its name and size, badges for **cover**, **high ground** and **rough ground**, any surfaces on it (with the rounds they have left), which zones it is next to and how far, and the creatures standing in it. A surface such as grease, ice or a web makes its zone rough ground while it lasts, so entering it costs double. Each zone in your phone's Move to list shows the same cover, high ground, rough ground and surface badges. On your phone, target chips show each creature's zone and how far away it is.
+The screen shows the battlefield as a **board**: one card per zone with its name and size, badges for **cover**, **high ground** and **rough ground**, any surfaces on it (with the rounds they have left), which zones it is next to and how far, and the creatures standing in it. A surface such as grease, ice or a web makes its zone rough ground while it lasts, so entering it costs double. Each zone in your phone's **Move** list shows the same cover, high ground, rough ground and surface badges. On your phone, target chips show each creature's zone and how far away it is.
 
 Three things about where you stand:
 - **Range** works in zones. A range of 10 feet or less (melee, touch, self) means the same zone. Up to 60 feet reaches one zone away, and anything longer reaches two zones away. Shooting beyond a weapon's normal range is done at disadvantage.
 - **Cover**: a ranged attack from another zone into a zone with half cover gives the target +2 AC, and three-quarters cover gives +5 AC. Melee and same-zone attacks ignore cover.
 - **High ground**: when you attack from high ground and the target is not on it, you have advantage. A ranged attacker below a target on high ground has disadvantage. In the same zone, nothing changes.
+
+### Starting a fight yourself
+If you attack someone you were talking to (*I swing my hammer at the tollkeeper*), the game first asks **Are you sure?**. When you confirm, the fight starts with them in your zone, and your swing is rolled at once as the **opening strike**, before anyone's turn (as in the video game). The screen tells what really happened. Then initiative is rolled and you still get your normal turn. Creatures that turn up to fight (an ambush, a monster) start one zone away instead.
 
 ### Initiative and turns
 At the start of a fight everyone rolls initiative: a d4 plus the Dexterity modifier (as in the video game). The turn order appears on the screen. If a side was surprised, its creatures lose their first turn. Heroes who are down keep their place in the order.
@@ -267,7 +274,7 @@ An attack roll is a d20 plus your attack bonus against the target's armour class
 - A rogue's **Sneak Attack** adds extra damage once per turn with a finesse or ranged weapon when you have advantage, or when an ally who can act is next to the target and you do not have disadvantage. It is 1d6 at level 1, 2d6 at level 3 and 3d6 at level 5.
 
 ### Other actions
-To move, open **Move to** under **Targets** on your phone (on your turn) and tap a zone. Each zone shows its distance from you (or "here") and the same facts as the board: cover, high ground, rough ground and any surfaces with their rounds left. Zones you cannot reach with the movement you have left are greyed out. You go by the cheapest way. Standing up from prone costs half your speed. These are the other actions on the hotbar:
+To move, use the **Move** list right under the Now card on your phone (on your turn; its heading shows the feet you have left) and tap a zone. Each zone shows its distance from you (or "here") and the same facts as the board: cover, high ground, rough ground and any surfaces with their rounds left. A zone you cannot reach with the movement you have left is greyed out and says what it needs: **Dash first** (Dash doubles your movement for the turn) or **too far this turn**. You can also type it: *I move to the ravine*, *I run to Old Kern* (to the zone they stand in) or *I dash to the gully* (Dash first if needed). Moving does not use your action. You go by the cheapest way. Standing up from prone costs half your speed. These are the other actions on the hotbar:
 - **Dash**: adds your speed again to your movement this turn.
 - **Disengage**: has no effect in this version: leaving an enemy never provokes a free attack.
 - **Dodge**: attacks against you have disadvantage until the start of your next turn.
