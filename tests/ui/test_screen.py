@@ -169,3 +169,29 @@ def test_music_fades_out_while_the_scribe_speaks(browser: Browser, live_server: 
     quiet_scribe(screen)
     screen.wait_for_function(f"{MUSIC}.duck === 1 && {bed}.volume > 0.1", timeout=5000)
     assert errors == []
+
+
+def test_screen_while_the_world_is_written_shows_the_scribe(
+    browser: Browser, live_server: LiveServer, shots_dir: Path
+) -> None:
+    """M18.1: during GENERATING the screen says the world is being written and the Scribe's welcome
+    plays over it (the fake writer is instant, so the phase is staged on the client)."""
+    errors: list[str] = []
+    screen = _screen(browser, live_server.base, FULL_HD, errors)
+    tagline = screen.locator("[data-testid=screen-tagline]")
+    assert "Waiting for the adventure" in tagline.inner_text()
+    screen.evaluate(
+        """() => {
+          const snap = window.aidm.store.get().snapshot;
+          window.aidm.dispatch({ ...snap, state: { ...snap.state, phase: 'generating' } });
+          window.aidm.dispatch({ type: 'scribe_line', line_id: 'welcome.first',
+            group: 'welcome_first', text: 'Ah. So ye have come at last. Sit, sit.',
+            audio_url: '', to_player_id: null });
+        }"""
+    )
+    screen.wait_for_function(
+        "document.querySelector('[data-testid=screen-tagline]').textContent.includes('written')"
+    )
+    screen.locator("[data-testid=screen-scribe]").wait_for(state="visible")
+    snap(screen, shots_dir, "screen_generating_scribe", 1920)
+    assert errors == []

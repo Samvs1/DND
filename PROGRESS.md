@@ -1,4 +1,4 @@
-NEXT: M18.4 (main session): screen-while-generating screenshot judged, FULL gate, commit `M18: Phone controller and the Scribe's intro`. Files in flight: none. Last gate: M18.3 manifest/todo/priority checks ok, phone UI test green.
+NEXT: none queued. M18 closed. Next playtest: send logs/session.jsonl and logs/llm.jsonl with any report. Files in flight: none. Last gate: FULL GATE PASS 12/12 (M18.4; 2710 passed, 13 skipped).
 
 # PROGRESS
 
@@ -165,7 +165,7 @@ Owner: (1) start the Scribe's intro while the world is being built, and the musi
 - [x] M18.1 **H** The Scribe's welcome starts when the host presses Start (phase GENERATING, `lobby.start_campaign`), so it covers the generation wait; the opening narration still waits for him on the screen; the screen's waiting tagline says the world is being written; the music fades out while his subtitle is up and back in after (`audio/music.js` duck). Tests: session (line between the GENERATING and PLAY snapshots), UI (music duck). Manual updated. Gate: targeted session + UI tests. (done by the main session)
 - [x] M18.2 **H** Phone controller redesign (design: docs/next/GOAL_PHONE_UI.md): navigation at the TOP (never under a browser toolbar), no story text on the Act tab (status, scene card, composer, context chips from the public scene, your last roll), the story kept as a Journal sub-tab, combat tab without the story box, scroll room at the bottom of every pane, a web app manifest so "Add to Home screen" opens the controller full screen. UI tests at 393x702 and 390x844 (nav inside the top of the viewport; no story text on Act; chips fill the composer). Manual + README updated. Gate: UI tests. (done by the main session; screenshots phone_*_393x702.png judged)
 - [x] M18.3 **ORCH** Action icons through the M10 pipeline (`--cap 15`): one 4x4 sheet for the chip icons (talk, look, search, travel, rest, trade, take, examine), contact sheet opened and judged by the main session, installed, wired into the chips. Gate: build_manifest --check, gen_assets_todo --check, UI tests. (one sheet call, 0.034 EUR, ledger 4.42 of 15 EUR; review_42: all 8 accepted)
-- [ ] M18.4 **ORCH** Screenshots judged (phone 393x702 explore + combat + journal story, screen while generating with the Scribe), docs, FULL gate. Commit `M18: Phone controller and the Scribe's intro`.
+- [x] M18.4 **ORCH** Screenshots judged (phone 393x702 explore + combat + journal story, screen while generating with the Scribe), docs, FULL gate. Commit `M18: Phone controller and the Scribe's intro`. (commit `M18: Phone controller and the Scribe's intro`; screen_generating_scribe_1920.png judged)
 
 ---
 
