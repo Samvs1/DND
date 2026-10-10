@@ -143,6 +143,10 @@
     "breathes his last", "breathes her last", "breathed his last", "breathed her last",
     "passes away", "passed away"
   ],
+  "defeat_claims": [
+    "unconscious", "knocked out", "out cold", "is dying", "lies dying", "lay dying", "beaten down",
+    "senseless", "lies still", "lay still"
+  ],
   "death_hedges": [
     "nearly", "almost", "half", "seemingly", "playing", "feigning", "if", "unless", "wants", "want"
   ],
@@ -185,7 +189,9 @@
     "is yours", "are yours", "now yours", "now belongs to you", "fills your", "filling your",
     "added to your", "adds to your", "appears in your", "appear in your", "materialises in your",
     "materializes in your", "lands in your", "rains down", "showers you", "you now own",
-    "you now have", "you now carry", "rewards you", "rewarded with", "grants you", "granted you"
+    "you now have", "you now carry", "rewards you", "rewarded with", "grants you", "granted you",
+    "you gather the", "you gather it", "gathers the", "gather it coin", "you collect the",
+    "collects the", "scoop up", "scoops up", "you pick up", "picks up", "takes up", "you take the"
   ],
   "reward_nouns": [
     "gold", "coins", "coin", "gp", "platinum", "silver", "crowns", "treasure", "fortune",

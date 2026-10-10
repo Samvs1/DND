@@ -5,7 +5,8 @@ lines. Private NPC data (motive, unrevealed secrets) is rendered ONLY by `npc_pr
 the other builders never read it.
 
 Public API:
-- `manifest_lines(state, scene, show_ids) -> list[str]` (ends with `CLOSED_WORLD`).
+- `manifest_lines(state, scene, show_ids, describe_place=True) -> list[str]` (ends with
+  `CLOSED_WORLD`).
 - `party_lines(state, short) -> list[str]`: one compact sheet line per living PC.
 - `quest_lines(state) -> list[str]`; `relevant_facts(facts, focus, k) -> list[Fact]` (THE fact
   retrieval: top-k by entity overlap with `focus`, ties broken by recency; deterministic);
@@ -54,10 +55,12 @@ def _joined(items: list[str]) -> str:
     return "; ".join(items) if items else "none"
 
 
-def _place_lines(state: GameState, scene: SceneView, show_ids: bool) -> list[str]:
+def _place_lines(
+    state: GameState, scene: SceneView, show_ids: bool, describe: bool = True
+) -> list[str]:
     node_tag = _tag(show_ids, scene.node_id) if scene.node_id is not None else ""
     lines = [f"Place: {scene.node_name}{node_tag}"]
-    if scene.description:
+    if scene.description and describe:
         lines.append(f"Established description: {scene.description}")
     exits = [
         node_display_name(state, e)
@@ -69,9 +72,13 @@ def _place_lines(state: GameState, scene: SceneView, show_ids: bool) -> list[str
     return lines
 
 
-def manifest_lines(state: GameState, scene: SceneView, show_ids: bool) -> list[str]:
+def manifest_lines(
+    state: GameState, scene: SceneView, show_ids: bool, describe_place: bool = True
+) -> list[str]:
+    """The closed world of the current place. `describe_place` False drops the established
+    description (the narrator after a scene's first turn: it kept retelling it, M19.1)."""
     world = state.world
-    lines = _place_lines(state, scene, show_ids)
+    lines = _place_lines(state, scene, show_ids, describe_place)
     party = [_creature_line(state, cid, show_ids) for cid in scene.party_ids]
     lines.append(f"Party present: {_joined(party)}")
     npcs = [_npc_line(world.npcs[nid], show_ids) for nid in scene.npc_ids]

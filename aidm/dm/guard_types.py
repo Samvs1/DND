@@ -3,7 +3,7 @@
 Public API:
 - `ViolationKind`: UNKNOWN_NAME, DEAD_ACTING, ITEM_DESTROYED, WRONG_IDENTITY, UNLISTED_FEATURE,
   ABSENT_NPC, INVENTED_CROWD, ERASED_PRESENT, SECRET_LEAK (M4.7), LIVING_DECLARED_DEAD and
-  UNEARNED_REWARD (M4.8);
+  UNEARNED_REWARD (M4.8), UNHURT_DECLARED_DOWN (M19.1);
   `SCRUBBED_KINDS` (names removed from a retry).
 - `Violation(kind, span, detail)`: `span` is the offending text as written (a name, a phrase).
 - `GuardReport(violations)`: `ok`, `scrub_terms` (distinct offending names, removed from the
@@ -29,6 +29,7 @@ class ViolationKind(StrEnum):
     ERASED_PRESENT = "erased_present"
     SECRET_LEAK = "secret_leak"
     LIVING_DECLARED_DEAD = "living_declared_dead"
+    UNHURT_DECLARED_DOWN = "unhurt_declared_down"
     UNEARNED_REWARD = "unearned_reward"
     FALSE_TRAVEL = "false_travel"
     INVENTED_STRANGER = "invented_stranger"

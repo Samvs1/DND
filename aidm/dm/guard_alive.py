@@ -11,9 +11,14 @@ neither negated ("not dead") nor hedged ("nearly dead", `death_hedges`) is flagg
 "Bob is gone" (`death_soft_claims`) counts only right after the name and only when a
 stillness cue follows it (`death_soft_cues`, QA-03: "he is gone, still and cold").
 
+A creature that still has hit points (or an NPC outside a fight) declared down, out cold or
+beaten (`defeat_claims`, M19.1: the narrator told a whole fight as won while it had only begun)
+is flagged by `unhurt_declared_down` with the terms of `standing_terms`.
+
 Public API: `CLAIM_REACH`, `living_terms(state, dead, lex) -> dict[str, str]` (term -> name),
-`soft_claim_after(sentence, end, lex) -> bool`,
-`living_declared_dead(sentence, tokens, terms, lex) -> list[Violation]`.
+`standing_terms(state, terms) -> dict[str, str]`, `soft_claim_after(sentence, end, lex) -> bool`,
+`living_declared_dead(sentence, tokens, terms, lex) -> list[Violation]`,
+`unhurt_declared_down(sentence, tokens, terms, lex) -> list[Violation]`.
 """
 
 import re
@@ -52,8 +57,23 @@ def _index_at(tokens: list[Token], start: int) -> int | None:
     return next((i for i, t in enumerate(tokens) if t.start == start), None)
 
 
-def _claimed(sentence: str, tokens: list[Token], end: int, lex: GuardLexicon) -> bool:
-    for m in find_phrases(sentence[end : end + CLAIM_REACH], lex.death_claims):
+def standing_terms(state: GameState, terms: dict[str, str]) -> dict[str, str]:
+    """The living terms minus anyone at 0 hit points (a downed hero may be told unconscious) and
+    any term sharing a word with a fallen creature ("the fallen goblin lies still" next to a
+    living goblin is about the dead one)."""
+    fallen = [c.name for c in state.creatures.values() if c.dead or c.hp <= 0]
+    fallen_words = {w.casefold() for name in fallen for w in _WORD.findall(name)}
+    return {
+        term: name
+        for term, name in terms.items()
+        if name not in fallen and not {w.casefold() for w in _WORD.findall(term)} & fallen_words
+    }
+
+
+def _claimed(
+    sentence: str, tokens: list[Token], end: int, lex: GuardLexicon, claims: frozenset[str]
+) -> bool:
+    for m in find_phrases(sentence[end : end + CLAIM_REACH], claims):
         index = _index_at(tokens, end + m.start())
         if index is None:
             continue
@@ -82,8 +102,23 @@ def living_declared_dead(
     for term in sorted(terms, key=lambda t: (-len(t), t)):
         pattern = rf"(?<![A-Za-z]){re.escape(term)}(?:'s|s)?(?![A-Za-z])"
         for m in re.finditer(pattern, sentence, re.IGNORECASE):
-            if _claimed(sentence, tokens, m.end(), lex) or soft_claim_after(sentence, m.end(), lex):
+            claimed = _claimed(sentence, tokens, m.end(), lex, lex.death_claims)
+            if claimed or soft_claim_after(sentence, m.end(), lex):
                 name = terms[term]
                 detail = f"{name} is alive; no engine event killed them"
                 return [Violation(ViolationKind.LIVING_DECLARED_DEAD, m.group(0), detail)]
+    return []
+
+
+def unhurt_declared_down(
+    sentence: str, tokens: list[Token], terms: dict[str, str], lex: GuardLexicon
+) -> list[Violation]:
+    if not terms or not find_phrases(sentence, lex.defeat_claims):
+        return []
+    for term in sorted(terms, key=lambda t: (-len(t), t)):
+        pattern = rf"(?<![A-Za-z]){re.escape(term)}(?:'s|s)?(?![A-Za-z])"
+        for m in re.finditer(pattern, sentence, re.IGNORECASE):
+            if _claimed(sentence, tokens, m.end(), lex, lex.defeat_claims):
+                detail = f"{terms[term]} is still standing; no engine event beat them"
+                return [Violation(ViolationKind.UNHURT_DECLARED_DOWN, m.group(0), detail)]
     return []

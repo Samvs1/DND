@@ -31,7 +31,7 @@ max_sentences) -> GuardedSentences`.
 import re
 from collections.abc import Sequence
 
-from aidm.dm.guard_alive import living_declared_dead
+from aidm.dm.guard_alive import living_declared_dead, unhurt_declared_down
 from aidm.dm.guard_claims import false_travel, invented_strangers
 from aidm.dm.guard_flow import MAX_SENTENCES, GuardedSentences
 from aidm.dm.guard_names import absent_people, crowds, erased_people, unknown_names, wrong_identity
@@ -71,6 +71,7 @@ def _sentence_violations(
         *unlisted_features(sentence, tokens, scene),
         *leaked_secrets(sentence, scene.secrets),
         *living_declared_dead(sentence, tokens, scene.living_terms, scene.lexicon),
+        *unhurt_declared_down(sentence, tokens, scene.standing_terms, scene.lexicon),
         *pronoun_declared_dead(sentence, tokens, scene, context),
         *unearned_rewards(sentence, scene.rewarded, scene.lexicon, scene.party),
         *false_travel(sentence, scene),

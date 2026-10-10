@@ -10,8 +10,8 @@ from aidm.dm.guard_types import GuardReport, Violation, ViolationKind, no_guard
 from aidm.dm.llm_backend import BackendError, BackendTimeout
 from aidm.dm.llm_types import FailureReason
 from aidm.dm.narration_templates import CLOSING_LINE
+from aidm.dm.narration_weight import style_for, weight_for
 from aidm.dm.narrator import (
-    NARRATION_STYLE,
     NUMBERS_ALLOWED,
     narrate,
     narrate_round_segment,
@@ -65,7 +65,7 @@ async def test_prompt_carries_style_facts_and_no_numbers_rule(tmp_path: Path) ->
     client, fake = fake_client(tmp_path)
     await narrate(state, adjudication, client, actor_id="fighter", player_text="I climb").collect()
     body = "\n".join(str(m["content"]) for m in fake.requests[0].messages)
-    assert NARRATION_STYLE in body and "no mechanics numbers" in body.lower()
+    assert style_for(weight_for(result.events)) in body and "no mechanics numbers" in body.lower()
     assert NUMBERS_ALLOWED not in body
     assert result.summary in body and "RESOLVED TOOL RESULTS" in body
     assert "<player_action" in body and "NPC PRIVATE" not in body

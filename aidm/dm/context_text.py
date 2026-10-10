@@ -39,8 +39,8 @@ _ROLE = {
         " Use only ids from the manifest. Call no_mechanics when nothing needs the rules."
     ),
     ContextPurpose.NARRATE: (
-        "Your job now: narrate what happened in 2 to 6 vivid sentences, second person plural"
-        " or by character name. No numbers or ids in prose. Name only listed entities."
+        "Your job now: narrate what happened, as briefly as the STYLE below asks, second person"
+        " plural or by character name. No numbers or ids in prose. Name only listed entities."
     ),
     ContextPurpose.NPC_VOICE: (
         "Your job now: speak as the named NPC, in character, using their private notes but"

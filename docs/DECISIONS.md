@@ -657,3 +657,10 @@ M11.2 clock | `Clock.time()` added (LoopClock = loop time, ManualClock = `now`) 
 - Full screen (Fullscreen API) is offered next to the hero and on More: it hides the browser's bars on Android. No PWA manifest: installing needs a valid certificate, which the LAN game's self-signed one is not.
 - The Play tab shows no story text (owner: it is on the screen); the story moved to Journal, Story. Idea chips come only from the public scene (npcs, features, items, exits) and fill the action box, never send: an accidental tap must not act.
 - On the Play tab the header status chip is hidden: the Now card says the same, bigger.
+
+## M19.1 Narration weight, repetition and truth
+- The engine sets the beat's weight from its events (`dm/narration_weight.py`): MAJOR (fight start/end, death, revival, arrival, discovery, secret, level, quest completed/failed, long rest, epilogue) 3-5 sentences under 110 words; NORMAL 2-3 under 70; MINOR (nothing, or only a failed check or a miss) 1-2 under 40. Max tokens 250/350/500 bound the stream. A pending hostile act is MINOR and "nothing has happened yet".
+- Repetition: every style says to reuse nothing from the "Narrated:" lines or the place's established description, and the narrator only receives that description on a scene's first turn or on arrival (the adjudicator always sees it).
+- Truth notes: no world change -> "describe only the attempt" (no moves, pick-ups, gains, losses, wounds); a fight that only began -> "no blow has landed".
+- Guard: `defeat_claims` (unconscious, knocked out, out cold, is dying, lies still...) after the name of a creature that still has hit points, or an NPC outside a fight, is UNHURT_DECLARED_DOWN; names sharing a word with a fallen creature are skipped (ambiguous). Phrases that misfire on ordinary prose ("puts down", "defeated", "collapses", "crumples") were left out on purpose. Gathering verbs ("you gather the", "picks up", "scoop up"...) joined `gain_phrases`, so invented gold is caught as an unearned reward.
+- Noted, not changed: ruff's `extend-exclude = ["data", ...]` also excludes `aidm/data/*.py` from `ruff check .`.

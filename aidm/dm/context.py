@@ -162,9 +162,11 @@ def build_context(
 ) -> ContextPack:
     scene = current_scene(state)
     show_ids = purpose in (ContextPurpose.ADJUDICATE, ContextPurpose.SUMMARIZE)
+    arriving = state.world.scene_turn == 0 or any(e.type == "party_moved" for e in events)
+    describe = purpose is not ContextPurpose.NARRATE or arriving
     sections = [
         ContextSection(SectionKey.SYSTEM, "SYSTEM", (system_text(purpose),)),
-        _section(SectionKey.MANIFEST, manifest_lines(state, scene, show_ids)),
+        _section(SectionKey.MANIFEST, manifest_lines(state, scene, show_ids, describe)),
         _section(SectionKey.PARTY, party_lines(state, short=False)),
         _section(SectionKey.QUESTS, quest_lines(state)),
         _section(

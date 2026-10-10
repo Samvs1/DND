@@ -2,8 +2,11 @@
 
 `narrate` makes ONE streamed QUALITY call with the NARRATE context pack (no NPC private data,
 no ids) plus the resolved tool results as authoritative facts, and returns a `NarrationStream`
-of sentence chunks carrying the scene tone. Style: 2 to 6 sentences, second person plural or
-character names, no mechanics numbers unless the player asked for them (`allow_numbers`).
+of sentence chunks carrying the scene tone. How much it says follows the engine's weight of the
+beat (`narration_weight`, M19.1: 1-2, 2-3 or 3-5 sentences, the stream bounded to match), never
+reusing what was already narrated; second person plural or character names, no mechanics
+numbers unless the player asked for them (`allow_numbers`). When nothing changed, or a fight has
+only just begun, the facts say so, so the model cannot tell an outcome the engine did not produce.
 Every sentence passes THE guard (`aidm.dm.guard`, default `prose_checker(state, events)`)
 before it is yielded: one regeneration with a correction and scrubbed names, then the template.
 Without a model (no key, outage, timeout, empty answer) the stream falls back to the
@@ -17,7 +20,7 @@ secret, shop or introduction events, or `social=True`) is SOCIAL, anything else 
 The narration is recorded into memory by applying `record_narration(state, text)` (a
 `NarrationRecorded` event) through the session reducer.
 
-Public API: `NARRATION_STYLE`, `NUMBERS_ALLOWED`, `SEGMENT_STYLE`, `NarrationInput`,
+Public API: `NUMBERS_ALLOWED`, `NarrationInput`,
 `tone_for(state, events=(), *, social=False)`, `narration_messages(...)`,
 `narrate(state, source, llm, *, actor_id, player_text, tone, allow_numbers, guard,
 budget_tokens) -> NarrationStream`, `narrate_round_segment(state, events, llm, *, guard,
@@ -35,6 +38,14 @@ from aidm.dm.guard_types import ProseCheck
 from aidm.dm.llm_client import LlmClient
 from aidm.dm.narration_stream import NarrationStream
 from aidm.dm.narration_templates import template_narration
+from aidm.dm.narration_weight import (
+    NarrationWeight,
+    max_tokens_for,
+    segment_style_for,
+    style_for,
+    truth_notes,
+    weight_for,
+)
 from aidm.models.encounter import EncounterStatus
 from aidm.models.encounter_events import EncounterEnded, EncounterStarted
 from aidm.models.events import AnyEvent
@@ -48,18 +59,7 @@ from aidm.models.world_events import (
     ShopOpened,
 )
 
-NARRATION_MAX_TOKENS = 700
-NARRATION_STYLE = (
-    "Write 2 to 6 sentences of prose only, no lists, headings or name lists. Address the party"
-    " in the second person plural or name the characters. State no mechanics numbers: no dice"
-    " totals, DCs, damage amounts, hit points or XP. Describe exactly the resolved outcomes"
-    " below; a failed attempt is told as a failure in the fiction."
-)
 NUMBERS_ALLOWED = "The player asked about the numbers: you may state them plainly."
-SEGMENT_STYLE = (
-    "Describe the consecutive enemy turns below as ONE flowing passage of 2 to 6 sentences,"
-    " in order, fast and vivid. State no mechanics numbers. Fallen creatures stay fallen."
-)
 _SOCIAL_EVENTS = (AttitudeChanged, SecretRevealed, ShopOpened, NpcIntroduced)
 
 type NarrationInput = AdjudicationResult | Sequence[AnyEvent]
@@ -91,6 +91,7 @@ def _unpack(source: NarrationInput) -> tuple[list[AnyEvent], list[str], str | No
     facts = [r.result.summary for r in source.executed if r.result.summary]
     if source.pending is not None:
         facts.append(f"Awaiting the player's confirmation: {source.pending.prompt}")
+        facts.append("Nothing has happened yet: do not tell the act as done.")
     return list(source.events), facts, source.notice
 
 
@@ -130,11 +131,17 @@ def narrate(
     budget_tokens: int = DEFAULT_BUDGET_TOKENS,
 ) -> NarrationStream:
     events, facts, notice = _unpack(source)
-    style = f"{NARRATION_STYLE} {NUMBERS_ALLOWED}" if allow_numbers else NARRATION_STYLE
+    weight = (
+        NarrationWeight.MINOR
+        if isinstance(source, AdjudicationResult) and source.pending
+        else weight_for(events)
+    )
+    style = style_for(weight)
+    style = f"{style} {NUMBERS_ALLOWED}" if allow_numbers else style
     messages = narration_messages(
         state,
         events,
-        facts,
+        [*facts, *truth_notes(events)],
         style,
         actor_id=actor_id,
         player_text=player_text,
@@ -145,7 +152,7 @@ def narrate(
         messages,
         guard if guard is not None else prose_checker(state, events),
         template_narration(events, state, notice),
-        max_tokens=NARRATION_MAX_TOKENS,
+        max_tokens=max_tokens_for(weight),
         player_text=player_text,
     )
     return NarrationStream(tone or tone_for(state, events), sentences)
@@ -159,13 +166,16 @@ def narrate_round_segment(
     guard: ProseCheck | None = None,
     budget_tokens: int = DEFAULT_BUDGET_TOKENS,
 ) -> NarrationStream:
-    messages = narration_messages(state, events, [], SEGMENT_STYLE, budget_tokens=budget_tokens)
+    died = any(e.type in ("creature_died", "encounter_ended") for e in events)
+    weight = NarrationWeight.MAJOR if died else NarrationWeight.NORMAL
+    style = segment_style_for(weight)
+    messages = narration_messages(state, events, [], style, budget_tokens=budget_tokens)
     sentences = guarded_narration(
         llm,
         messages,
         guard if guard is not None else prose_checker(state, events),
         template_narration(events, state),
-        max_tokens=NARRATION_MAX_TOKENS,
+        max_tokens=max_tokens_for(weight),
     )
     return NarrationStream(NarrationTone.COMBAT, sentences)
 
