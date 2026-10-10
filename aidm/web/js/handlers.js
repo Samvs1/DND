@@ -25,6 +25,7 @@ function onWelcome(msg, { store, saved }) {
     joined: true,
     me: { playerId: msg.player_id, isHost: Boolean(msg.is_host) },
     errorCode: null,
+    joinNote: null,
     ...(sameSeat ? {} : { snapshot: null, players: [], lastSeq: 0, notices: [], fallback: false, wizardOpen: null, confirm: null, turnEndsAt: null, lastOutcome: null, levelUps: {}, sheet: null, sheetOpen: false, levelUpOpen: false, refusal: null, panel: null, shop: null, hostStats: null }),
   });
   if (!sameSeat) store.emit('reset', {});
@@ -33,12 +34,19 @@ function onWelcome(msg, { store, saved }) {
 function onSnapshot(msg, { store }) {
   const state = msg.state;
   const endsAt = turnEndsAt(state.floor?.seconds_left);
-  store.update({ snapshot: msg, phase: state.phase, players: state.players || [], lastSeq: msg.seq, turnEndsAt: endsAt });
+  store.update({ snapshot: msg, phase: state.phase, lastSeq: msg.seq, turnEndsAt: endsAt, ...withMe(store, state.players || []) });
   store.emit('snapshot', msg);
 }
 
+// The host role can move (M17.1): every page reads its own host flag from the player list.
+function withMe(store, players) {
+  const me = store.get().me;
+  const mine = players.find((p) => p.id === me.playerId);
+  return mine && Boolean(mine.is_host) !== me.isHost ? { players, me: { ...me, isHost: Boolean(mine.is_host) } } : { players };
+}
+
 function onRoster(msg, { store }) {
-  store.update({ players: msg.players || [] });
+  store.update(withMe(store, msg.players || []));
 }
 
 function onNotice(msg, { store }) {
@@ -97,9 +105,16 @@ function onLevelUp(msg, ctx) {
 
 let refusalCount = 0;
 
-function onError(msg, { store }) {
+function onError(msg, { store, saved }) {
   // The text is never shown. A typed refusal (combat command, gear change) is mapped to friendly
   // wording by the combat view and the sheet; every other code goes to the banner.
+  if (msg.code === 'unknown_seat') {
+    // M17.1: our seat is from an earlier server run. Forget the token (keep the name) and show the
+    // join form with a short line; the player joins again by pressing Join.
+    saved.setToken(null);
+    store.update({ joined: false, me: { playerId: null, isHost: false }, snapshot: null, players: [], phase: 'lobby', lastSeq: 0, errorCode: null, joinNote: 'restarted' });
+    return;
+  }
   if (msg.refusal) {
     refusalCount += 1;
     store.update({ refusal: { code: msg.refusal, n: refusalCount } });

@@ -44,6 +44,7 @@ from aidm.session import (
     explore,
     floor,
     host,
+    host_seat,
     lobby,
     party_actions,
     relay,
@@ -228,6 +229,8 @@ class Table(TableCore):
             self.schedule(lambda: combat_flow.turn_timeout(self, key))
         elif fired.kind == "turn_warn":
             turn_clock.warn(self, fired.key)
+        elif fired.kind == "host_away":
+            host_seat.check(self, "timer")
 
     def _client(self, conn_id: str, msg: AnyClientMsg) -> None:
         if isinstance(msg, c.Ping):

@@ -1,8 +1,10 @@
 """Seats, characters and the campaign start (SPEC 8, 9, 10 lobby phase).
 
 `hello` seats a new player (the first one is the host) or, with a known token, reconnects the seat;
-a second `hello` on a seated connection re-uses its seat (or moves it to the token's seat), never
-minting another (QA-06); a kicked token, connection or name is refused (QA-07): the connection gets
+a token no seat here knows is refused (`unknown_seat`, M17.1: a page from an earlier server run
+must join again); the host role moves on hello and close by `host_seat.check`; a second `hello`
+on a seated connection re-uses its seat (or moves it to the token's seat), never minting another
+(QA-06); a kicked token, connection or name is refused (QA-07): the connection gets
 `welcome`, a full `snapshot`, the `story_history` (recent narration and public event lines, so a
 reload restores the feed), the public event lines it missed (`last_seq`), and whatever waits for
 that player (their turn prompt, a pending hostile
@@ -47,11 +49,12 @@ from aidm.rules.campaign_install import install_campaign
 from aidm.rules.character_io import CharacterImportInvalid, export_character, import_character
 from aidm.rules.creation import build_character, validate_creation
 from aidm.rules.sheet import build_sheet
-from aidm.session import combat_flow, scribe_voice, turn_clock, votes
+from aidm.session import combat_flow, host_seat, scribe_voice, turn_clock, votes
 from aidm.session.stats import send_host_stats
 from aidm.session.table_core import Player, TableCore
 from aidm.session.telling import conclude
 
+STALE_SEAT = "This table was restarted. Join again to take a seat."
 GENERATING = "The Dungeon Master is writing your campaign. This can take up to two minutes."
 MAX_CATCH_UP = 500
 PREPARED = (
@@ -67,6 +70,9 @@ def hello(core: TableCore, conn_id: str, msg: Hello) -> None:
         core.send_conn(conn_id, ErrorMsg(code=ErrorCode.REFUSED, text=text))
         return
     seated = core.player_for(conn_id)
+    if msg.token and known is None and seated is None:
+        _refuse_stale(core, conn_id, msg)
+        return
     if seated is not None and known not in (None, seated):
         _leave_seat(core, conn_id, seated)  # this connection switches to the token's seat
         seated = None
@@ -101,6 +107,14 @@ def hello(core: TableCore, conn_id: str, msg: Hello) -> None:
     if core.resume_combat and player.creature_id is not None:
         core.resume_combat = False
         core.schedule(lambda: combat_flow.advance(core))
+    host_seat.check(core, "hello")
+
+
+def _refuse_stale(core: TableCore, conn_id: str, msg: Hello) -> None:
+    """M17.1: a token no seat here knows (a page from an earlier server run) is not seated; the
+    page clears it and shows the join form, so a stale page never takes a seat (or the host)."""
+    core.diag("hello_refused", conn=conn_id, name=msg.name, reason="unknown_seat")
+    core.send_conn(conn_id, ErrorMsg(code=ErrorCode.UNKNOWN_SEAT, text=STALE_SEAT))
 
 
 def _kicked(core: TableCore, conn_id: str, msg: Hello, known: Player | None) -> bool:
@@ -140,6 +154,7 @@ def closed(core: TableCore, conn_id: str) -> None:
     player = core.player_for(conn_id)
     if player is not None:
         _leave_seat(core, conn_id, player)
+        host_seat.check(core, "closed")
 
 
 def _leave_seat(core: TableCore, conn_id: str, player: Player) -> None:

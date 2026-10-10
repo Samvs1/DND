@@ -18,11 +18,13 @@ function joinForm(ctx) {
     required: true,
   });
   const error = h('p', { class: 'form-error', role: 'alert' });
+  const note = h('p', { class: 'hint', role: 'status', 'data-testid': 'join-note', hidden: true }, t('join.restarted'));
   const button = h('button', { type: 'submit', class: 'btn btn-primary' }, t('join.button'));
   const form = h(
     'form',
     { class: 'panel join', 'data-testid': 'join-form', novalidate: true },
     h('h2', {}, t('join.heading')),
+    note,
     h('label', { for: 'join-name' }, t('join.nameLabel')),
     input,
     error,
@@ -36,7 +38,7 @@ function joinForm(ctx) {
     ctx.saved.setName(name);
     ctx.client.connect(name);
   });
-  return form;
+  return { form, input, note };
 }
 
 function heroLine(state, player) {
@@ -95,7 +97,7 @@ function hostControls(ctx) {
 
 export function mountLobby(root, ctx) {
   const { store } = ctx;
-  const join = joinForm(ctx);
+  const { form: join, input: joinName, note: joinNote } = joinForm(ctx);
   const roster = h('ul', { class: 'roster', 'data-testid': 'roster' });
   const { form: host, start } = hostControls(ctx);
   const edit = h('button', { type: 'button', class: 'btn btn-small', 'data-testid': 'edit-hero', onclick: () => store.update({ wizardOpen: true }) }, t('lobby.editHero'));
@@ -117,6 +119,8 @@ export function mountLobby(root, ctx) {
 
   function render(state) {
     join.hidden = state.joined;
+    joinNote.hidden = state.joined || state.joinNote !== 'restarted';
+    if (!state.joined && !joinName.value) joinName.value = ctx.saved.name() || '';
     table.hidden = !state.joined;
     renderRoster(roster, state);
     const generating = state.phase === 'generating';

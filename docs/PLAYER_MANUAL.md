@@ -18,11 +18,11 @@ Everything you need to play at the table, in plain words. The tables in the Refe
 ### Joining
 1. The host starts the game with the LAN option. The screen shows a QR code in the lobby, before the adventure starts. Once play begins the QR code goes away and the space is used for the story and the board.
 2. Scan the QR code with your phone, or type the address shown on the screen.
-3. Enter your name and press **Join**. The first person in becomes the host. The lobby shows who is at the table.
+3. Enter your name and press **Join**. The first person in becomes the host. The lobby shows who is at the table, with a **Host** tag. If the host leaves the lobby, the next player who is still there (in the order they joined) becomes the host at once, and everyone sees "<name> is now the host."
 4. Everyone builds a hero (see Your hero). When every player has a hero, the host presses **Start the adventure**. The host can type a campaign theme first, or leave it blank for a surprise. Writing the campaign takes up to two minutes. If the live AI cannot write one, the table sees "Tonight the table plays a prepared adventure from the Dungeon Master's shelf; the telling is still live." and plays the built-in campaign with live narration.
 
 ### Reconnecting
-Your seat is kept for you. If your phone sleeps, loses Wi-Fi or you close the page, open the game address again in the same browser: it remembers your seat and reconnects you by itself. A different browser or device, or cleared site data, gives you a new seat without your hero. If your connection drops during a fight, your turn waits 30 seconds for you to come back; after that, and on every later turn while you are still away, the game plays a careful turn for you (see Combat).
+Your seat is kept for you. If your phone sleeps, loses Wi-Fi or you close the page, open the game address again in the same browser: it remembers your seat and reconnects you by itself. A different browser or device, or cleared site data, gives you a new seat without your hero. When the host restarts the game server, every open page shows the join form again with your name filled in and the line "This table was restarted. Join again to take a seat.": press **Join** (a loaded save still reconnects you to your hero by itself). An old page left open can never take a seat on its own. If your connection drops during a fight, your turn waits 30 seconds for you to come back; after that, and on every later turn while you are still away, the game plays a careful turn for you (see Combat).
 
 ### The microphone button
 You can dictate your actions. The **Dictate** button next to **Act** only appears when the page is served over a secure connection (the host starts the game with the HTTPS option, or you play on the host's own computer) and your browser supports speech input. Your browser will warn once about the certificate: choose Advanced, then continue to the site. Without the button, use the dictation key on your phone keyboard instead.
@@ -583,7 +583,7 @@ Nothing is spent on a refusal.
 ## 8. For the host
 
 ### Starting and hosting
-- Start the server with the LAN option so phones can join. Add the HTTPS option to enable the microphone button. The first browser to join becomes the host.
+- Start the server with the LAN option so phones can join. Add the HTTPS option to enable the microphone button. The first browser to join becomes the host. The role follows the people at the table: in the lobby it moves at once to the next player when the host leaves; during an adventure the host keeps it while away for up to 60 seconds (a sleeping phone), then it moves to the player who joined earliest among those connected. A loaded save gives it to the first player to connect if the old host does not come back. A former host who returns is an ordinary player.
 - Windows may ask whether Python may accept connections: allow it on private networks.
 - The game needs a DeepSeek key for the live Dungeon Master and a Fish Audio key and voice for spoken narration, both optional. Spoken narration starts switched off: turn on **Spoken narration** in the Host panel. Without keys the game still plays with a built-in fallback storyteller.
 
@@ -614,4 +614,6 @@ The tables in this manual are written by the game from its data. Races, classes,
 - **"The storyteller lost the thread"**: the live AI is not answering. The game uses plain fallback telling and keeps going. Press **Dismiss**.
 - **"Tonight the table plays a prepared adventure"**: the live AI could not write a campaign in time, so the built-in one is played. Narration is still live; nothing is wrong.
 - **I closed the page**: open the game address again in the same browser; it reconnects you to your hero.
+- **"This table was restarted. Join again to take a seat."**: the server was restarted since this page joined. Press **Join**.
+- **Someone else is the host**: the first player in is the host. If that player has left, the role moves to the next player by itself (at once in the lobby, after 60 seconds during an adventure).
 - **My hero is down and I cannot act**: wait for a companion to heal you (a potion, a healing spell or the Help action) or for a short rest. The Scribe only helps heroes who have died.

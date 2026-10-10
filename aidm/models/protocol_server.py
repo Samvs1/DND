@@ -72,6 +72,7 @@ class ErrorCode(StrEnum):
     UNKNOWN_TARGET = "unknown_target"
     NO_VOTE = "no_vote"
     PAUSED = "paused"
+    UNKNOWN_SEAT = "unknown_seat"  # M17.1: a token from an earlier server run; join again
 
 
 class Welcome(_Server):

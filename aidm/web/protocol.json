@@ -3206,7 +3206,8 @@
             "invalid",
             "unknown_target",
             "no_vote",
-            "paused"
+            "paused",
+            "unknown_seat"
           ],
           "title": "ErrorCode",
           "type": "string"

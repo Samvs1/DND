@@ -85,7 +85,9 @@ single-device view: to play solo, open `/screen` in one window and `/play` in an
 1. **Screen**: run `python -m aidm --lan`, then open `http://<host>:8000/screen` on the TV. It shows a QR code
    while seats are free.
 2. **Host**: open the LAN URL on your phone (or scan the QR) and enter your name. The first player in is the
-   host. Everyone else does the same. Reconnecting with the same browser brings you back to your hero.
+   host; if the host leaves the lobby, the next player still there becomes host (during an adventure after
+   60 seconds away). Everyone else does the same. Reconnecting with the same browser brings you back to your
+   hero. After a server restart every open page shows the join form again (an old page never takes a seat by itself).
 3. **Wizard**: each player builds a hero: race, class (fighter, rogue, wizard, cleric, ranger, warlock),
    ability scores (point buy, standard array or rolled), skills, equipment, spells and a short backstory. You
    can export a hero to a JSON file and import it later.
@@ -200,7 +202,11 @@ unavailable, 4 a line failed its measurement checks.
   block audio until you click once: use the "Click to enable sound" banner.
 - **Phones cannot reach the game.** Use `--lan`, put every device on the same Wi-Fi, and check the firewall note above.
 - **A campaign takes long to start.** The model can need up to two minutes to write the plan; the lobby shows progress.
-- **A player vanished.** Reopen the page in the same browser: the stored token returns the same hero.
+- **A player vanished.** Reopen the page in the same browser: the stored token returns the same hero (within
+  one server run, or after `--load`). After a restart without `--load` the page asks to join again.
+- **The wrong player is host.** The host is the first seat; when that player is gone the role moves to the
+  earliest-joined connected player (at once in the lobby, after 60 s away during play). `logs/session.jsonl`
+  shows each `host_moved` and any `hello_refused` (a page from an earlier server run).
 - **The `.env` loader prints a warning about a line.** python-dotenv skips lines it cannot parse (for example a
   line that starts with `/`); harmless.
 

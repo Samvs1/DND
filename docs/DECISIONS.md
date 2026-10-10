@@ -642,3 +642,7 @@ M11.2 clock | `Clock.time()` added (LoopClock = loop time, ManualClock = `now`) 
 
 ## M16.3 Phone fits the visible viewport
 - The controller root (`body.is-controller`) is `position: fixed` with `height: var(--app-h)`, set by `ui/fit.js` from `visualViewport.height`, because `100dvh` can exceed the visible area in browsers with a bottom toolbar (Brave Android) and pushed the tab bar off screen. The body is a flex column so a banner shrinks `#app` instead of pushing the tab bar away. The Play tab's story box shows the last 8 items in full and replaces the tap-to-open recent-lines dialog.
+
+## M17.1 Host follows the table
+- A `hello` with a token no seat knows is refused (`unknown_seat`) instead of seating a new player: after a restart an old page auto-joined 2 s after the screen and took the first seat, so the host role went to a page nobody was using. The client forgets the token, keeps the name and shows the join form; a Join without a token seats normally.
+- Host handover (`session/host_seat.py`): LOBBY/GENERATING at once when the host has no connection; other phases at once for a host who never connected in this server run (loaded save), else after `HOST_AWAY_S` = 60 s away (a sleeping phone keeps the role). Heir = earliest-created connected seat. A returning former host is an ordinary player.

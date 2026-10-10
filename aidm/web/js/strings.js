@@ -36,6 +36,7 @@ export const STRINGS = {
     unknown_target: 'That target is not here.',
     no_vote: 'There is nothing to vote on.',
     paused: 'The table is paused.',
+    unknown_seat: 'This table was restarted. Join again to take a seat.',
   },
   join: {
     heading: 'Join the table',
@@ -43,6 +44,7 @@ export const STRINGS = {
     namePlaceholder: 'Wanderer',
     button: 'Join',
     nameRequired: 'Please enter a name.',
+    restarted: 'This table was restarted. Join again to take a seat.',
   },
   lobby: {
     heading: 'The Lobby',

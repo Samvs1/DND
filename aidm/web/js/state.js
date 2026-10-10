@@ -49,6 +49,7 @@ export function initialState() {
     notices: [],
     fallback: false,
     errorCode: null,
+    joinNote: null, // "restarted": our seat was from an earlier server run (M17.1); the join form says so
     confirm: null, // a pending point-of-no-return prompt for this player
     turnEndsAt: null, // local ms time the running turn timer ends (ui/countdown.js), or null
     lastOutcome: null, // how the last fight ended: victory | defeat | fled | parley (combat_state.outcome)
