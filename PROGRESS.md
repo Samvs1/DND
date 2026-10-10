@@ -1,4 +1,4 @@
-NEXT: none queued. M19 closed. Next playtest: send logs/session.jsonl and logs/llm.jsonl with any report. Files in flight: none. Last gate: FULL GATE PASS 12/12 (M19.5; 2742 passed, 13 skipped).
+NEXT: owner request 2026-10-10: generate the last 2 placeholder PICTURES (spell_icon.invisibility, spell_icon.magic-missile; the other 11 placeholders are audio). Both already had 3 rejected attempts (tiled, faint, neighbour fragment). Plan: in aidm/server/assetgen/prompts.py KEY_REFS add invisibility -> img/spells/blur.png, sleep.png, eldritch-blast.png and magic-missile -> scorching-ray.png, eldritch-blast.png, blur.png; in plan.build_calls generate a key with KEY_REFS as a single call even if its kind is a sheet kind (+ unit test in tests/unit/assetgen); then gen_assets.py --only both --cap 15 --yes, contact sheet, review json, install, DECISIONS line (4th attempt by owner request). Files in flight: none. Last gate: FULL GATE PASS 12/12 (M19.5; 2742 passed, 13 skipped).
 
 # PROGRESS
 
