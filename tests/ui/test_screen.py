@@ -148,9 +148,7 @@ def test_music_is_silent_when_muted_or_a_screen_plays_it(
     assert errors == []
 
 
-def test_music_fades_out_while_the_scribe_speaks(
-    browser: Browser, live_server: LiveServer
-) -> None:
+def test_music_fades_out_while_the_scribe_speaks(browser: Browser, live_server: LiveServer) -> None:
     """M18.1 owner request: the music distracted from his intro. It fades to silence under his
     subtitle and fades back in once he is done (here: a host-style skip)."""
     errors: list[str] = []

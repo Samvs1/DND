@@ -278,7 +278,7 @@ async def start_campaign(core: TableCore, host: Player, theme: str | None) -> No
     core.phase = TablePhase.GENERATING
     core.notice(None, NoticeKind.PROGRESS, GENERATING)
     core.broadcast_snapshot()
-    scribe_voice.welcome_first(core)  # M18.1: his welcome covers the wait while the world is written
+    scribe_voice.welcome_first(core)  # M18.1: his welcome covers the world-writing wait
     try:
         result = await generate_campaign(
             theme,
