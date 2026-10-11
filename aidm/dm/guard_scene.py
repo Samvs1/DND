@@ -23,6 +23,7 @@ from aidm.dm.guard_rewards import rewarded
 from aidm.dm.guard_secrets import SecretKey, secret_keys
 from aidm.dm.guard_text import plain
 from aidm.models import events as ev
+from aidm.models.encounter import EncounterStatus
 from aidm.models.state import GameState
 from aidm.rules.scene import SceneView, current_scene, node_display_name
 
@@ -62,6 +63,7 @@ class GuardScene:
     living_terms: dict[str, str] = field(default_factory=dict[str, str])
     standing_terms: dict[str, str] = field(default_factory=dict[str, str])
     downed_terms: dict[str, str] = field(default_factory=dict[str, str])
+    offer_pending: bool = False
     rewarded: bool = False
     other_places: dict[str, str] = field(default_factory=dict[str, str])
 
@@ -168,9 +170,17 @@ def guard_scene(state: GameState, events: Sequence[ev.AnyEvent] = ()) -> GuardSc
         living_terms=(terms := _plain_keys(living_terms(state, dead, lex))),
         standing_terms=standing_terms(state, terms),
         downed_terms=_plain_keys(downed_terms(state, dead, lex)),
+        offer_pending=_offer_pending(state),
         rewarded=rewarded(events),
         other_places=_other_places(state),
     )
+
+
+def _offer_pending(state: GameState) -> bool:
+    """An encounter offer waits for the party's answer and no fight runs (M20.6)."""
+    enc = state.encounter
+    fighting = enc is not None and enc.status is EncounterStatus.ACTIVE
+    return state.campaign is not None and state.campaign.offer is not None and not fighting
 
 
 def _other_places(state: GameState) -> dict[str, str]:

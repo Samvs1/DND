@@ -7,10 +7,11 @@ nothing meaningful changed or the only outcome is a failed check or a miss. `sty
 asks for 1-2 / 2-3 / 3-5 sentences with a word ceiling, and `max_tokens_for(weight)` bounds the
 stream. Every style forbids reusing what was already narrated (owner: the same images came back
 in every line). `truth_notes(events)` adds authoritative lines where the model tends to invent:
-nothing changed (describe the attempt only) and a fight that has just begun (no blow landed).
+nothing changed (describe the attempt only), a fight that has just begun (no blow landed) and
+an encounter offer (M20.6: the foes arrive; nobody acts until the party chooses).
 
 Public API: `NarrationWeight`, `weight_for`, `style_for`, `segment_style_for`, `max_tokens_for`,
-`truth_notes`, `NOTHING_CHANGED`, `FIGHT_JUST_BEGAN`.
+`truth_notes`, `NOTHING_CHANGED`, `FIGHT_JUST_BEGAN`, `OFFER_STANDOFF`.
 """
 
 from collections.abc import Sequence
@@ -88,6 +89,11 @@ FIGHT_JUST_BEGAN = (
     "The fight has only just begun: describe the standoff and where everyone stands. No blow has"
     " landed yet; nobody is hurt, down or beaten."
 )
+OFFER_STANDOFF = (
+    "Danger has appeared, but nothing has happened yet: the party has not chosen whether to fight,"
+    " strike first, slip away or talk. Describe only the foes arriving (exactly as many as listed)"
+    " and the tension. No hero acts, nobody attacks, casts, hits, falls or flees."
+)
 
 
 def _types(events: Sequence[AnyEvent]) -> list[str]:
@@ -143,4 +149,6 @@ def truth_notes(events: Sequence[AnyEvent]) -> list[str]:
         notes.append(NOTHING_CHANGED)
     if "encounter_started" in types and not any(t in _BLOWS for t in types):
         notes.append(FIGHT_JUST_BEGAN)
+    if "encounter_offered" in types and "encounter_started" not in types:
+        notes.append(OFFER_STANDOFF)  # M20.6: the stirge was "blasted" before any choice
     return notes

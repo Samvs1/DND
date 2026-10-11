@@ -147,6 +147,14 @@
     "unconscious", "knocked out", "out cold", "is dying", "lies dying", "lay dying", "beaten down",
     "senseless", "lies still", "lay still"
   ],
+  "blow_claims": [
+    "slays", "slew", "slain", "kills", "killed", "cuts down", "cut down", "cuts it down",
+    "strikes down", "struck down", "shoots down", "shot down", "catches it", "sending it tumbling",
+    "sends it tumbling", "tumbling into", "falls dead", "drops dead", "lies dead", "lifeless",
+    "blasts it", "pierces", "impales", "skewers", "runs it through", "burst of eldritch",
+    "eldritch light", "the arrow takes", "an arrow takes", "the bolt takes", "takes it down",
+    "brings it down", "knocks it from the air", "drops it"
+  ],
   "rise_claims": [
     "wakes", "woke", "wakes up", "awakens", "awoke", "stirs awake", "jolts awake", "blinks awake",
     "comes to", "came to", "comes round", "comes around", "regains consciousness",

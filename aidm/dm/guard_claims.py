@@ -11,8 +11,12 @@
   and the noun is not a role or name word of anyone present (so "a guard approaches" with Hobb
   the guard present is clean).
 
+- Offer blows (M20.6, playtest 3: "the burst of eldritch light catches it mid-flight, sending it
+  tumbling into the black water" was told while the party had not yet chosen to fight): while an
+  encounter offer waits for the party's answer, a violent outcome (`blow_claims`) is flagged.
+
 Public API: `PLACE_REACH`, `ENTRANCE_REACH`, `false_travel(sentence, scene)`,
-`invented_strangers(sentence, scene)`.
+`invented_strangers(sentence, scene)`, `offer_blows(sentence, scene)`.
 """
 
 import re
@@ -55,3 +59,13 @@ def invented_strangers(sentence: str, scene: GuardScene) -> list[Violation]:
             detail = f"no {noun} is in this scene; only registered NPCs exist"
             return [Violation(ViolationKind.INVENTED_STRANGER, m.group(0), detail)]
     return []
+
+
+def offer_blows(sentence: str, scene: GuardScene) -> list[Violation]:
+    if not scene.offer_pending:
+        return []
+    hit = find_phrases(sentence, scene.lexicon.blow_claims)
+    if not hit:
+        return []
+    detail = "nothing has happened yet: the party has not chosen to fight"
+    return [Violation(ViolationKind.OFFER_BLOW, hit[0].group(0), detail)]

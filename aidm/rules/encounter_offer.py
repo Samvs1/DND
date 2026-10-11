@@ -96,6 +96,14 @@ def _company(
     return picked
 
 
+def _boss_themes(region: RegionPlan, node: NodePlan) -> tuple[str, ...]:
+    """The boss's company: its lair's themes, else the region's (M20.6, playtest 3: a lair has no
+    themes of its own, so the region boss, a lone acolyte, was a trivial fight)."""
+    if node.encounter_themes:
+        return node.encounter_themes
+    return tuple(sorted({m for n in region.nodes() for m in n.encounter_themes}))
+
+
 def _spoke_tables(data: OfferData, tier: int, size: int) -> EncounterTables:
     per_pc = data.tables.spoke_max_monsters_per_pc.get(tier)
     if per_pc is None:
@@ -117,7 +125,8 @@ def _monsters(
     size = len(levels)
     if boss is not None:
         cap = rating_cap_xp(levels, Difficulty(data.tables.boss_rating_cap), data.tables)
-        return _company(rng, data, node.encounter_themes, cap, [boss.archetype_id], size)[1:]
+        themes = _boss_themes(region, node)
+        return _company(rng, data, themes, cap, [boss.archetype_id], size)[1:]
     rating = data.tables.spoke_rating_cap.get(region.tier, Difficulty.MEDIUM.value)
     cap = rating_cap_xp(levels, Difficulty(rating), data.tables)
     xps = {m: _xp(data, m) for m in node.encounter_themes}

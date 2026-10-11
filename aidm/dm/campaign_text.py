@@ -6,10 +6,12 @@ no model is available). The encounter offer IS the warning beat, so its template
 names the danger and the choices. Never renders motives, secrets or ally paths.
 """
 
+from collections import Counter
 from collections.abc import Callable
 from typing import Any
 
 from aidm.dm.entities import display_name
+from aidm.dm.wording import counted
 from aidm.models import campaign_events as ce
 from aidm.models.campaign_state import EncounterOffer, RegionResolution
 from aidm.models.state import GameState
@@ -18,8 +20,10 @@ from aidm.rules.scene import node_display_name
 CHOICES_LINE = "Fight, strike first, slip away, or try to talk?"
 
 
-def _foes(state: GameState, offer: EncounterOffer) -> str:
-    names = [display_name(m).lower() for m in dict.fromkeys(offer.monster_ids)]
+def _foes(state: GameState, offer: EncounterOffer, *, digits: bool) -> str:
+    """The boss, then each kind of foe with its count (M20.6: two rats are two rats)."""
+    counts = Counter(offer.monster_ids)
+    names = [counted(display_name(m).lower(), n, digits=digits) for m, n in counts.items()]
     boss = state.world.npcs.get(offer.boss_npc_id or "")
     if boss is not None:
         names.insert(0, boss.name)
@@ -29,9 +33,10 @@ def _foes(state: GameState, offer: EncounterOffer) -> str:
 def _offer_fact(state: GameState, e: ce.EncounterOffered) -> str:
     o = e.offer
     return (
-        f"WARNING BEAT at {node_display_name(state, o.node_id)}: {_foes(state, o)} "
+        f"WARNING BEAT at {node_display_name(state, o.node_id)}: {_foes(state, o, digits=True)} "
         f"({o.difficulty}). The party chooses: fight, surprise (Stealth DC {o.surprise_dc}), "
-        f"escape (DC {o.escape_dc}) or parley (DC {o.parley_dc}). Nothing has started yet."
+        f"escape (DC {o.escape_dc}) or parley (DC {o.parley_dc}). Nothing has started yet: "
+        "nobody has attacked, cast, hit, fallen or fled."
     )
 
 
@@ -39,7 +44,7 @@ def _offer_story(state: GameState, e: ce.EncounterOffered) -> str:
     boss = state.world.npcs.get(e.offer.boss_npc_id or "")
     if boss is not None:
         return f"{boss.name} is waiting for you here, and the air turns cold. {CHOICES_LINE}"
-    return f"Danger stirs ahead: {_foes(state, e.offer)}. {CHOICES_LINE}"
+    return f"Danger stirs ahead: {_foes(state, e.offer, digits=False)}. {CHOICES_LINE}"
 
 
 def _resolved_fact(state: GameState, e: ce.RegionResolved) -> str:

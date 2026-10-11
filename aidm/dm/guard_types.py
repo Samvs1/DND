@@ -34,6 +34,7 @@ class ViolationKind(StrEnum):
     FALSE_TRAVEL = "false_travel"
     INVENTED_STRANGER = "invented_stranger"
     DOWNED_RISING = "downed_rising"
+    OFFER_BLOW = "offer_blow"
 
 
 SCRUBBED_KINDS = frozenset({ViolationKind.UNKNOWN_NAME, ViolationKind.ABSENT_NPC})

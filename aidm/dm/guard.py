@@ -32,7 +32,7 @@ import re
 from collections.abc import Sequence
 
 from aidm.dm.guard_alive import downed_rising, living_declared_dead, unhurt_declared_down
-from aidm.dm.guard_claims import false_travel, invented_strangers
+from aidm.dm.guard_claims import false_travel, invented_strangers, offer_blows
 from aidm.dm.guard_flow import MAX_SENTENCES, GuardedSentences
 from aidm.dm.guard_names import absent_people, crowds, erased_people, unknown_names, wrong_identity
 from aidm.dm.guard_pronoun import PronounContext, pronoun_declared_dead
@@ -77,6 +77,7 @@ def _sentence_violations(
         *unearned_rewards(sentence, scene.rewarded, scene.lexicon, scene.party),
         *false_travel(sentence, scene),
         *invented_strangers(sentence, scene),
+        *offer_blows(sentence, scene),
     ]
 
 

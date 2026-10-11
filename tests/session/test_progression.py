@@ -9,12 +9,13 @@ from aidm.models.events import AnyEvent
 from aidm.models.state import GameState
 from aidm.models.world import QuestState
 from aidm.models.world_events import AttitudeChanged, PartyMoved
-from aidm.rules.campaign_install import boss_npc_id
+from aidm.rules.campaign_install import boss_npc_id, install_campaign
 from aidm.rules.progression import campaign_complete, region_resolution_events
 from aidm.rules.social import deed_attitude_events
 from aidm.session.reducer import replay
 from tests.ai.tool_fixtures import run_tool
 from tests.session.progression_fixtures import (
+    SEED,
     Rigged,
     answer,
     apply_all,
@@ -24,6 +25,7 @@ from tests.session.progression_fixtures import (
     plan,
     win_fight,
 )
+from tests.sim.sim_setup import build_party
 
 R1 = plan().acts[0].region
 R2 = plan().acts[1].region
@@ -182,3 +184,23 @@ def test_full_three_act_progression_reaches_campaign_complete() -> None:
     finals = [e for e in log if isinstance(e, RegionResolved)]
     assert [e.final for e in finals] == [False, False, True]
     assert replay(start, log) == state
+
+
+def test_a_lair_without_themes_still_gives_the_boss_company() -> None:
+    # M20.6 (playtest 3): a generated lair has no themes of its own, so the region boss (a lone
+    # acolyte) was a trivial fight. Its company now comes from the region's themes.
+    sample = plan()
+    act = sample.acts[0]
+    gateway = act.region.gateway.model_copy(update={"encounter_themes": ()})
+    region = act.region.model_copy(update={"gateway": gateway})
+    bare = sample.model_copy(
+        update={"acts": (act.model_copy(update={"region": region}), *sample.acts[1:])}
+    )
+    state = GameState(campaign_id="prog", seed=SEED)
+    build_party(state, 1)
+    log = apply_all(state, install_campaign(state, bare, SEED))
+    _visit_spokes(state, log)
+    move(state, R1.gateway.id, log)
+    offer = pending(state)
+    assert offer.boss_npc_id == boss_npc_id(R1) and offer.monster_ids
+    assert offer.difficulty in ("medium", "hard")
