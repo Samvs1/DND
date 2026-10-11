@@ -5,8 +5,11 @@ environment win. `server_settings_from_env(environ)` builds `ServerSettings`; th
 lives only inside `LlmSettings` and the Fish key inside `FishSettings` (private, not repr'd).
 `/healthz` reports booleans from here.
 
+`AIDM_AI_TURN_PAUSE` (seconds, 0..5, default 1.5): how long the shared screen holds each monster
+turn so the table can follow it (M20.3, owner choice).
+
 Public API: `ServerSettings`, `load_env`, `server_settings_from_env`, `DEFAULT_HOST`,
-`DEFAULT_PORT`.
+`DEFAULT_PORT`, `DEFAULT_AI_TURN_PAUSE_S`.
 """
 
 import logging
@@ -24,6 +27,8 @@ from aidm.server.tts import FishSettings, fish_settings_from_env
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8000
 DEFAULT_SAVES = Path("saves")
+DEFAULT_AI_TURN_PAUSE_S = 1.5
+MAX_AI_TURN_PAUSE_S = 5.0
 _TRUE = {"1", "true", "yes", "on"}
 
 
@@ -40,6 +45,7 @@ class ServerSettings:
     lan_url: str | None = None
     https: bool = False
     web_root: Path | None = None  # AIDM_WEB_ROOT: serve a copy of aidm/web (tests, art-less runs)
+    ai_turn_pause_s: float = DEFAULT_AI_TURN_PAUSE_S
 
     @property
     def fish_ready(self) -> bool:
@@ -52,6 +58,14 @@ def _port(value: str | None) -> int:
     except ValueError:
         return DEFAULT_PORT
     return port if 0 < port < 65536 else DEFAULT_PORT
+
+
+def _pause(value: str | None) -> float:
+    try:
+        seconds = float(value) if value else DEFAULT_AI_TURN_PAUSE_S
+    except ValueError:
+        return DEFAULT_AI_TURN_PAUSE_S
+    return min(max(seconds, 0.0), MAX_AI_TURN_PAUSE_S)
 
 
 def _web_root(value: str | None) -> Path | None:
@@ -93,4 +107,5 @@ def server_settings_from_env(
         fish=fish_settings_from_env(environ),
         web_root=_web_root(environ.get("AIDM_WEB_ROOT")),
         tts_enabled=(environ.get("TTS_ENABLED") or "").strip().lower() in _TRUE,
+        ai_turn_pause_s=_pause(environ.get("AIDM_AI_TURN_PAUSE")),
     )

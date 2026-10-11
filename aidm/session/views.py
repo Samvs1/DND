@@ -224,6 +224,8 @@ def public_combat(state: GameState) -> PublicCombat | None:
             )
         )
     active = enc.active_id()
+    shown = 0 <= enc.active_index < len(enc.initiative)
+    last = enc.initiative[enc.active_index].creature_id if shown else None
     return PublicCombat(
         encounter_id=enc.id,
         round=enc.round,
@@ -233,6 +235,7 @@ def public_combat(state: GameState) -> PublicCombat | None:
         initiative=tuple(e.creature_id for e in enc.initiative),
         active_id=active,
         economy=enc.combatant(active).economy if active is not None else None,
+        turn_of=active or last,
     )
 
 

@@ -93,6 +93,7 @@ class TableConfig:
     new_state: Callable[[], GameState] = new_game_state
     tts_enabled: bool = False
     session_log: SessionLog = field(default_factory=SessionLog)  # M15.3 diagnostics
+    ai_turn_pause_s: float = 0.0  # M20.3: how long the screen holds each AI turn
 
 
 @dataclass

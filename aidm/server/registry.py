@@ -40,6 +40,7 @@ class TableRegistry:
             tts_enabled=settings.tts_enabled,
             tts=tts_hook(FishTts(settings.fish)),
             session_log=FileLog(Path(settings.saves_dir).parent / "logs" / "session.jsonl"),
+            ai_turn_pause_s=settings.ai_turn_pause_s,
         )
         self._state = state
         self._campaign_id = campaign_id

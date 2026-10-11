@@ -4,16 +4,19 @@
 plays monsters with `rules.monster_ai` (via `CombatRunner.play_turn` + legendary actions),
 plays a hero whose player is away (disconnected, kicked, never seated) or who is down with
 `rules.party_ai.safe_default_turn` (Dodge, or Dash toward allies), and stops at a connected
-player's standing hero: the segment since the last narration is told in ONE
-`narrate_round_segment` call, then `combat_state` + `turn_prompt` go out and the turn clock
-starts (`turn_clock`, M15.1: the host's timer, default 3 min, only when another player waits;
-an owner who is away keeps the turn for a short reconnect grace; on timeout the safe default
-plays that turn). The fight's end sends `combat_state` with no combat and the `outcome`.
+player's standing hero: `combat_state` + `turn_prompt` go out and the turn clock starts at once
+(`turn_clock`, M15.1: the host's timer, default 3 min, only when another player waits; an owner
+who is away keeps the turn for a short reconnect grace; on timeout the safe default plays that
+turn), then the segment since the last narration is told in ONE `narrate_round_segment` call
+(M20.3: before, the hero who ended a turn still saw "Your turn" until it was told). The fight's
+end sends `combat_state` with no combat and the `outcome`.
 Only that hero's player may send `combat_command`; anyone else gets `not_your_turn` and nothing
 is consumed. A fight's end runs loot (`end_encounter_with_loot`), bystander deeds
 (`combat_help_deed_events`), region rewards (`resolution_reward_events`) and spoke milestones
 (`milestone_events`, M9.2), tells the last segment, records it and returns to exploration.
 A fight that ends without a defeat leaves dying heroes stable (`rules.downed`, M20.2).
+Every AI turn sends `combat_state` as it begins and with its results, then holds
+`TableConfig.ai_turn_pause_s` so the table sees whose turn it is (M20.3).
 Every mid-fight segment narration is recorded too (`narration_recorded`, M20.1).
 A lost fight that wiped the party is turned into the DEFEATED phase right after the job by
 `defeat_flow.after_job` (M11.1); the fight start was marked as a retry checkpoint.
@@ -23,6 +26,7 @@ Public API: `MAX_COMBAT_STEPS`, `runner`, `after_resolution`, `begin_combat`, `a
 `finish_fight`, `end_player_turn`.
 """
 
+import asyncio
 from collections.abc import Sequence
 
 from aidm.dm.narrator import narrate_round_segment, record_narration
@@ -78,6 +82,7 @@ async def begin_combat(core: TableCore) -> None:
     core.broadcast_queue()
     if core.vote is not None:
         votes.close_vote(core, passed=False, reason="a fight broke out")
+    core.broadcast_snapshot()  # M20.3: every view knows of the fight before its first turn
     await advance(core)
 
 
@@ -115,19 +120,32 @@ async def advance(core: TableCore) -> None:
         if owner is not None:
             await _prompt(core, active, owner)
             return
-        if state.creatures[active].pc is not None:
-            why = "downed" if state.creatures[active].hp <= 0 else "away"
-            core.diag("auto_turn", creature_id=active, reason=why)
-            autoplay_safe(core, run, active)
-        else:
-            run.play_turn(active)
-        if encounter_outcome(state) is None:
-            run.legendary()
+        await _ai_turn(core, run, active)
     core.schedule(lambda: advance(core))
 
 
+async def _ai_turn(core: TableCore, run: CombatRunner, active: str) -> None:
+    """One AI turn the table can follow (M20.3): the board shows it begin, then its results, and
+    holds `ai_turn_pause_s` (0 in tests and sims) before the next turn."""
+    state = core.state
+    core.broadcast(CombatState(combat=public_combat(state)))
+    if state.creatures[active].pc is not None:
+        why = "downed" if state.creatures[active].hp <= 0 else "away"
+        core.diag("auto_turn", creature_id=active, reason=why)
+        autoplay_safe(core, run, active)
+    else:
+        run.play_turn(active)
+    if encounter_outcome(state) is not None:
+        return
+    run.legendary()
+    core.broadcast(CombatState(combat=public_combat(state)))
+    if core.config.ai_turn_pause_s > 0:
+        await asyncio.sleep(core.config.ai_turn_pause_s)
+
+
 async def _prompt(core: TableCore, creature_id: str, owner: Player) -> None:
-    await tell_segment(core)
+    """The hero's turn starts at once (M20.3: the phone flips the moment the turn passes); the
+    story of the turns since the last telling follows the prompt."""
     enc = core.state.encounter
     if enc is None:
         return
@@ -141,6 +159,7 @@ async def _prompt(core: TableCore, creature_id: str, owner: Player) -> None:
     seconds = core.turn_left()
     core.broadcast(TurnPrompt(creature_id=creature_id, player_id=owner.id, seconds=seconds))
     core.diag("turn_prompt", creature_id=creature_id, player_id=owner.id, seconds=seconds)
+    await tell_segment(core)
 
 
 async def tell_segment(core: TableCore, *, record: bool = True) -> str:

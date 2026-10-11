@@ -24,7 +24,7 @@ export function mountSuggest(root, { store }, ctrl) {
     const combat = combatOf(state);
     const mine = isMyTurn(state);
     form.hidden = !combat || mine || !myCreatureId(state);
-    if (combat && !mine) input.setAttribute('aria-label', t('combat.suggestLabel', { name: tokenById(combat, combat.active_id)?.name ?? '' }));
+    if (combat && !mine) input.setAttribute('aria-label', t('combat.suggestLabel', { name: tokenById(combat, combat.active_id ?? combat.turn_of)?.name ?? '' }));
     clear(list);
     for (const s of ctrl.ui.suggestions) list.append(h('li', { class: 'suggest-in', 'data-testid': 'suggestion' }, t('combat.suggestFrom', { name: s.name, text: s.text })));
     for (const text of ctrl.ui.sent) list.append(h('li', { class: 'suggest-out' }, t('combat.suggestSent', { text })));

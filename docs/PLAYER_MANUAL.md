@@ -244,7 +244,7 @@ Three things about where you stand:
 If you attack someone you were talking to (*I swing my hammer at the tollkeeper*), the game first asks **Are you sure?**. When you confirm, the fight starts with them in your zone, and your swing is rolled at once as the **opening strike**, before anyone's turn (as in the video game). The screen tells what really happened. Then initiative is rolled and you still get your normal turn. Creatures that turn up to fight (an ambush, a monster) start one zone away instead.
 
 ### Initiative and turns
-At the start of a fight everyone rolls initiative: a d4 plus the Dexterity modifier (as in the video game). The turn order appears on the screen. If a side was surprised, its creatures lose their first turn. Heroes who are down keep their place in the order.
+At the start of a fight everyone rolls initiative: a d4 plus the Dexterity modifier (as in the video game). The turn order appears on the screen. If a side was surprised, its creatures lose their first turn. Heroes who are down keep their place in the order. The screen always names whose turn it is (**It is Goblin's turn**) and lights them in the turn order; each monster's turn is held on the screen for a moment (about a second and a half) so the table can follow what it did. The moment you end your turn your phone stops showing **Your turn**; the story of what happened is told while the next hero already plays.
 
 ### Your turn
 When it is your turn, your phone says **Your turn** (with the time left when a turn timer runs, for example **Your turn - 2:41**) and the hotbar is active. Each turn you have:

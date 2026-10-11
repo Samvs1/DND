@@ -54,7 +54,7 @@ def _serve(
 ) -> Iterator[LiveServer]:
     port = free_port()
     settings = server_settings_from_env(
-        {"AIDM_FAKE_LLM": "1"}, port=port, saves_dir=tmp_path / "saves"
+        {"AIDM_FAKE_LLM": "1", "AIDM_AI_TURN_PAUSE": "0.3"}, port=port, saves_dir=tmp_path / "saves"
     )
     settings = replace(
         settings,

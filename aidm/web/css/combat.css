@@ -40,6 +40,20 @@
   font-size: 1.2rem;
 }
 
+/* M20.3: whose turn it is, big enough to read across the room */
+.init-turn {
+  flex: none;
+  padding: 0.1rem 0.7rem;
+  color: var(--parchment);
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  border-left: 4px solid var(--gold);
+}
+
+.init-turn.foe {
+  border-left-color: var(--blood-text);
+}
+
 .init-list {
   display: flex;
   gap: 0.3rem;

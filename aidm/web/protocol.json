@@ -4263,6 +4263,18 @@
               "title": "Tokens",
               "type": "array"
             },
+            "turn_of": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Turn Of"
+            },
             "zones": {
               "default": [],
               "items": {

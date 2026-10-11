@@ -126,7 +126,7 @@ export function mountHotbar(root, ctx, ctrl) {
     note.textContent = ctrl.ui.message;
     root.classList.toggle('waiting', !mine);
     if (!mine) {
-      const who = tokenById(combat, combat.active_id)?.name ?? '';
+      const who = tokenById(combat, combat.active_id ?? combat.turn_of)?.name ?? '';
       head.append(h('p', { class: 'hb-wait', 'data-testid': 'hotbar-wait' }, t('combat.notYourTurn', { name: who })));
       return;
     }

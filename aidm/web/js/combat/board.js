@@ -62,7 +62,7 @@ function zoneCard(state, ctrl, combat, zone) {
     tokenChip(tk, {
       hero: party.find((c) => c.id === tk.creature_id),
       zoneName: zone.name,
-      flags: { active: tk.creature_id === combat.active_id, targeted: tk.creature_id === ctrl.ui.target, mine: tk.creature_id === me, pickable: Boolean(arming) && !zoneStep },
+      flags: { active: tk.creature_id === (combat.active_id ?? combat.turn_of), targeted: tk.creature_id === ctrl.ui.target, mine: tk.creature_id === me, pickable: Boolean(arming) && !zoneStep },
       onPick: (token) => ctrl.pickToken(token),
     }),
   );

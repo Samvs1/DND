@@ -25,7 +25,7 @@ export function statusOf(state, now = Date.now()) {
   if (combat) {
     const clock = clockText(state.turnEndsAt, now); // M15.1: the turn timer's countdown, when one runs
     if (isMyTurn(state)) return { key: 'mine', text: clock ? t('ct.status_yourTurnClock', { clock }) : t('ct.status_yourTurn') };
-    const who = tokenById(combat, combat.active_id)?.name ?? '';
+    const who = tokenById(combat, combat.active_id ?? combat.turn_of)?.name ?? ''; // M20.3: a held AI turn
     return { key: 'acting', text: clock ? t('ct.status_actingClock', { name: who, clock }) : t('ct.status_acting', { name: who }) };
   }
   const holder = view.floor?.holder ?? null;

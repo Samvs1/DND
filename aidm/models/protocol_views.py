@@ -186,6 +186,7 @@ class PublicCombat(_View):
     initiative: tuple[str, ...] = ()
     active_id: str | None = None
     economy: TurnEconomy | None = None
+    turn_of: str | None = None  # M20.3: whose turn it is, or was until the next one begins
 
 
 class QueueEntry(_View):

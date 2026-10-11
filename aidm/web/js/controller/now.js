@@ -44,7 +44,7 @@ export function turnsUntilMine(state) {
     const token = tokenById(combat, id);
     return token && isLive(token);
   });
-  const at = order.indexOf(combat.active_id);
+  const at = order.indexOf(combat.active_id ?? combat.turn_of);
   const mine = order.indexOf(me);
   return at < 0 || mine < 0 ? null : (mine - at + order.length) % order.length;
 }
