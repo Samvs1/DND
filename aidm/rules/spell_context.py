@@ -14,7 +14,8 @@ Public API:
   slot level above the spell's level, the spellcasting modifier).
 - `cast_roll(ctx, effect, dice, *, crit, shared) -> Roll`: rolls (and logs) the dice once, or
   reuses the shared roll of the same effect.
-- `spell_attack_profile(spell, name, ctx) -> AttackProfile`; `cast_zone_of(ctx, creature_id)
+- `spell_attack_profile(spell, name, ctx) -> AttackProfile`, `spell_profile(spell, name,
+  attack_bonus, key="")` (the same without a cast); `cast_zone_of(ctx, creature_id)
   -> str | None` (None outside a fight).
 """
 
@@ -90,12 +91,17 @@ def cast_dice(
 
 
 def spell_attack_profile(spell: SpellDef, name: str, ctx: CastContext) -> AttackProfile:
+    return spell_profile(spell, name, ctx.numbers.attack_bonus)
+
+
+def spell_profile(spell: SpellDef, name: str, attack_bonus: int, key: str = "") -> AttackProfile:
+    """The attack of a spell (the cast and the hit-chance preview, M20.4, use this one)."""
     band = spell_band(spell)
     ranged = spell.range.kind == "feet" and band.normal_hops > 0
     return AttackProfile(
-        key=spell.index,
+        key=key or spell.index,
         name=name,
-        attack_bonus=ctx.numbers.attack_bonus,
+        attack_bonus=attack_bonus,
         ranged=ranged,
         range_normal=spell.range.feet or 5,
         economy=AttackEconomy.ACTION,

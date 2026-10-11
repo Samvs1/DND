@@ -36,6 +36,7 @@ def hit_chances_for(core: TableCore, player: Player, msg: RequestHitChances) -> 
     if msg.target_id not in enc.combatants or pc.id not in enc.combatants:
         core.error(player.id, ErrorCode.UNKNOWN_TARGET, "That target is not in this fight.")
         return
-    chances = hit_chances(core.state, pc.id, msg.target_id, core.regs.combat.chars)
+    regs = core.regs.combat
+    chances = hit_chances(core.state, pc.id, msg.target_id, regs.chars, regs.spells)
     reply = HitChances(attacker_id=pc.id, target_id=msg.target_id, chances=tuple(chances))
     core.send(player.id, reply)

@@ -36,6 +36,8 @@ class FallenHero(BaseModel):
     name: str
     level: int = Field(ge=1)
     price_gp: int = Field(ge=0)
+    purse_gp: int = Field(default=0, ge=0)  # M20.4: what the fallen hero's own purse pays
+    due_gp: int = Field(default=0, ge=0)  # what the requesting hero still pays
 
 
 class ScribeView(BaseModel):

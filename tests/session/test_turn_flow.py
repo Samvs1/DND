@@ -8,9 +8,16 @@ out before the segment is told."""
 from pathlib import Path
 
 from aidm.models.commands import EndTurnCommand
+from aidm.models.leveling import LevelUpChoices
 from aidm.models.protocol import AnyServerMsg
-from aidm.models.protocol_client import CombatCommandMsg
-from aidm.models.protocol_server import CombatState, NarrationChunkMsg, TurnPrompt
+from aidm.models.protocol_client import CombatCommandMsg, LevelUp
+from aidm.models.protocol_server import (
+    CombatState,
+    ErrorCode,
+    ErrorMsg,
+    NarrationChunkMsg,
+    TurnPrompt,
+)
 from aidm.server.settings import DEFAULT_AI_TURN_PAUSE_S, server_settings_from_env
 from aidm.session.table import Table
 from tests.session.table_fixtures import Seat, fake_llm, join, running, start_fight
@@ -67,3 +74,18 @@ def test_ai_turn_pause_setting() -> None:
     assert server_settings_from_env({"AIDM_AI_TURN_PAUSE": "0"}).ai_turn_pause_s == 0.0
     assert server_settings_from_env({"AIDM_AI_TURN_PAUSE": "99"}).ai_turn_pause_s == 5.0
     assert server_settings_from_env({"AIDM_AI_TURN_PAUSE": "soon"}).ai_turn_pause_s == 1.5
+
+
+async def test_level_up_waits_until_the_fight_is_over(tmp_path: Path) -> None:
+    # M20.4 (playtest 3: a hero levelled up mid-fight and gained 6 HP in an ally's turn).
+    llm, _ = fake_llm(tmp_path)
+    async with running(llm) as (table, _clock):
+        ann = await join(table, "Ann", "fighter")
+        await start_fight(table, "wolf")
+        ann.drain()
+        count = table.state.event_count
+        ann.send(LevelUp(choices=LevelUpChoices()))
+        await table.settle()
+        errors = [m for m in ann.drain() if isinstance(m, ErrorMsg)]
+        assert errors and errors[0].code is ErrorCode.WRONG_PHASE
+        assert table.state.event_count == count

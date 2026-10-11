@@ -2,7 +2,7 @@
 // A descriptor is {id, label, sub, art, tip, flags, off (disabled reason), run}; hotbar.js renders them.
 import { assetUrl } from '../assets.js';
 import { t } from '../strings.js';
-import { isEnemy, isLive, percent } from './model.js';
+import { isEnemy, isLive, percent, tokenById } from './model.js';
 
 const ATTACK_KEYS = new Set(['main_hand', 'ranged', 'unarmed']);
 
@@ -60,6 +60,13 @@ function simple(id, type, ctx, extra = {}) {
   };
 }
 
+// M20.4: Flee costs no action; with a foe in your zone it needs Disengage first (the slot says so).
+function engaged({ combat, econ, me }) {
+  const mine = combat ? tokenById(combat, me) : null;
+  if (!mine || econ.disengaged) return false;
+  return combat.tokens.some((tk) => isEnemy(tk) && isLive(tk) && tk.zone_id === mine.zone_id);
+}
+
 export function moveSlots(ctx) {
   const { ctrl, econ, me } = ctx;
   const needsAction = econ.action ? null : 'no_action';
@@ -71,7 +78,7 @@ export function moveSlots(ctx) {
     simple('hide', 'hide', ctx),
     pick('help', [{ need: 'creature', valid: ally(me), prompt: t('combat.pickTarget') }], (p) => ({ type: 'help', actor_id: me, target_id: p[0][0] })),
     pick('throw', [{ need: 'creature', valid: foe, prompt: t('combat.pickTarget') }], (p) => ({ type: 'throw', actor_id: me, target_id: p[0][0] })),
-    { id: 'flee', group: 'moves', label: t('hotbar.flee'), tip: t('hotbar.tip_flee'), off: needsAction, run: () => ctrl.send({ type: 'flee', actor_id: me }) },
+    { id: 'flee', group: 'moves', label: t('hotbar.flee'), tip: t('hotbar.tip_flee'), sub: engaged(ctx) ? t('hotbar.disengageFirst') : null, off: null, run: () => ctrl.send({ type: 'flee', actor_id: me }) },
   ];
 }
 

@@ -1,19 +1,22 @@
 """The Scribe's revive, pure (M13.1, house rule, GOAL_SCRIBE.md). Data: data/bg3/scribe.json.
 
 A fallen hero (a PC with `dead`) is rewritten into the story for gold, outside combat only. The
-price is `base_gp + per_level_gp x level` of the fallen hero; the requesting player's own hero
-pays from its `gold` and must be standing (alive, above 0 HP). A PC at 0 HP who is still alive is
-not fallen (`scribe_not_fallen`). The table-wide blocks come first: a defeated table (the defeat
-flow's lock), a paused table, an active fight, nobody fallen.
+price is `base_gp + per_level_gp x level` of the fallen hero; with payment "fallen_first" (owner
+choice M20.4) the fallen hero's own purse pays first and the requesting player's own hero pays
+the rest from its `gold`; that hero must be standing (alive, above 0 HP). A PC at 0 HP who is
+still alive is not fallen (`scribe_not_fallen`). The table-wide blocks come first: a defeated
+table (the defeat flow's lock), a paused table, an active fight, nobody fallen.
 
-The revive is `GoldChanged` (payer, when the price is above 0), one `ConditionRemoved` per
-cleared condition name (all but `keep_conditions`), then `CharacterRewritten` with the restored
-HP ("half" = ceil(max HP / 2), "one" = 1, "full" = max HP). THE reducer applies them.
+The revive is `GoldChanged` (the fallen hero's purse, then the payer, each when above 0), one
+`ConditionRemoved` per cleared condition name (all but `keep_conditions`), then
+`CharacterRewritten` with the restored HP ("half" = ceil(max HP / 2), "one" = 1, "full" = max
+HP). THE reducer applies them.
 
 Public API:
 - `ScribeRefusal` (the refusal codes, stable strings for the UI and the Scribe's lines),
   `ScribeRefused(reason, detail)`: nothing is spent on a refusal.
-- `revive_price(level, table) -> int`, `restored_hp(max_hp, table) -> int`.
+- `revive_price(level, table) -> int`, `restored_hp(max_hp, table) -> int`,
+  `purse_share(target, cost, table) -> int` (what the fallen hero's purse pays).
 - `fallen_heroes(state) -> list[Creature]` (dead PCs, by id).
 - `table_block(state, *, paused) -> ScribeRefusal | None`.
 - `scribe_view(state, table, *, paused) -> ScribeView` (the public `scribe` state).
@@ -86,17 +89,29 @@ def table_block(state: GameState, *, paused: bool) -> ScribeRefusal | None:
     return None
 
 
+def purse_share(target: Creature, cost: int, table: ScribeTable) -> int:
+    """What the fallen hero's own purse pays of `cost` (M20.4, payment "fallen_first")."""
+    if table.payment != "fallen_first" or target.pc is None:
+        return 0
+    return min(target.pc.gold, cost)
+
+
+def _fallen(c: Creature, table: ScribeTable) -> FallenHero:
+    price = revive_price(_level(c), table)
+    purse = purse_share(c, price, table)
+    return FallenHero(
+        creature_id=c.id,
+        name=c.name,
+        level=_level(c),
+        price_gp=price,
+        purse_gp=purse,
+        due_gp=price - purse,
+    )
+
+
 def scribe_view(state: GameState, table: ScribeTable, *, paused: bool) -> ScribeView:
     block = table_block(state, paused=paused)
-    fallen = tuple(
-        FallenHero(
-            creature_id=c.id,
-            name=c.name,
-            level=_level(c),
-            price_gp=revive_price(_level(c), table),
-        )
-        for c in fallen_heroes(state)
-    )
+    fallen = tuple(_fallen(c, table) for c in fallen_heroes(state))
     return ScribeView(
         available=block is None, reason=block.value if block is not None else None, fallen=fallen
     )
@@ -137,12 +152,18 @@ def revive_events(
     payer = _payer(state, payer_id)
     target = _target(state, target_id)
     cost = revive_price(_level(target), table)
+    purse = purse_share(target, cost, table)
+    due = cost - purse
     gold = payer.pc.gold if payer.pc is not None else 0
-    if gold < cost:
-        raise ScribeRefused(ScribeRefusal.NO_FUNDS, f"{cost} gp needed, {gold} gp carried")
+    if gold < due:
+        detail = f"{cost} gp needed, {purse} gp in {target.name}'s purse, {gold} gp carried"
+        raise ScribeRefused(ScribeRefusal.NO_FUNDS, detail)
     events: list[AnyEvent] = []
-    if cost > 0:
-        events.append(GoldChanged(creature_id=payer.id, delta=-cost, gold=gold - cost))
+    if purse > 0 and target.pc is not None:
+        own = target.pc.gold
+        events.append(GoldChanged(creature_id=target.id, delta=-purse, gold=own - purse))
+    if due > 0:
+        events.append(GoldChanged(creature_id=payer.id, delta=-due, gold=gold - due))
     events.extend(_cleared(target, table))
     hp = restored_hp(target.max_hp, table)
     events.append(CharacterRewritten(target_id=target.id, payer_id=payer.id, cost_gp=cost, hp=hp))

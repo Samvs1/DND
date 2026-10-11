@@ -33,6 +33,7 @@ function header(sheet, hero, store) {
   const fill = h('span', { class: 'hp-fill good' });
   fill.style.width = `${Math.round(ratio * 100)}%`;
   const ready = Boolean(store.get().sheet?.level_up);
+  const fighting = Boolean(publicState(store.get())?.combat); // M20.4: level up between fights
   return [
     h('img', { class: 'sh-portrait', src: assetUrl(portraitKeys(hero ?? { class_index: sheet.class_index })), alt: '', width: 56, height: 56 }),
     h(
@@ -42,7 +43,8 @@ function header(sheet, hero, store) {
       h('p', { class: 'muted' }, t('table.classLine', { level: sheet.level, race: titleCase(sheet.race), cls: titleCase(sheet.class_index) }), sheet.subclass ? ` (${titleCase(sheet.subclass)})` : ''),
       h('div', { class: 'hp sh-xp', 'aria-hidden': 'true' }, fill),
       h('p', { class: 'hint' }, xp),
-      ready ? h('button', { type: 'button', class: 'btn btn-small btn-primary', 'data-testid': 'sheet-levelup', onclick: () => store.update({ levelUpOpen: true }) }, t('sheet.levelButton')) : null,
+      ready && !fighting ? h('button', { type: 'button', class: 'btn btn-small btn-primary', 'data-testid': 'sheet-levelup', onclick: () => store.update({ levelUpOpen: true }) }, t('sheet.levelButton')) : null,
+      ready && fighting ? h('p', { class: 'hint', 'data-testid': 'sheet-levelup-later' }, t('sheet.levelAfterFight')) : null,
     ),
   ];
 }

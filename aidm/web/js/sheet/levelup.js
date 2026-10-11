@@ -1,7 +1,7 @@
 // Level-up dialog: builds valid `level_up` choices from the server's options (subclass, ability score
 // improvement, class and feature picks, new cantrips and spells, an optional spell swap). The submit button
 // enables only when every pick count is right; a refusal from the server shows friendly text here.
-import { myHero } from '../table/lookup.js';
+import { myHero, publicState } from '../table/lookup.js';
 import { t } from '../strings.js';
 import { clear, h } from '../ui/dom.js';
 import { titleCase } from '../ui/format.js';
@@ -167,7 +167,8 @@ export function mountLevelUp(root, { store, client }) {
   function render(state) {
     const hero = myHero(state);
     const offered = hero ? state.levelUps[hero.id] : 0;
-    button.hidden = !(hero && ((offered && (hero.level ?? 1) < offered) || options()));
+    const fighting = Boolean(publicState(state)?.combat); // M20.4: levels are taken between fights
+    button.hidden = fighting || !(hero && ((offered && (hero.level ?? 1) < offered) || options()));
     if (submitted && state.errorCode) {
       submitted = false;
       error.textContent = t('levelup.invalid');
@@ -178,7 +179,7 @@ export function mountLevelUp(root, { store, client }) {
       submitted = false;
       store.update({ levelUpOpen: false });
     }
-    if (state.levelUpOpen) {
+    if (state.levelUpOpen && !fighting) {
       if (!dialog.open) client.send('request_sheet');
       show(state);
       openDialog(dialog);

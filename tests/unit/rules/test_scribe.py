@@ -99,7 +99,9 @@ def test_revive_success_events_and_state() -> None:
     state = _state(gold=40)
     target = state.creatures["rogue"]
     events = revive_events(state, "fighter", "rogue", TABLE)
-    assert events[0] == GoldChanged(creature_id="fighter", delta=-25, gold=15)
+    # M20.4 owner choice: the fallen hero's own purse pays first (40 gp covers the 25 gp).
+    assert events[0] == GoldChanged(creature_id="rogue", delta=-25, gold=15)
+    assert not any(isinstance(e, GoldChanged) and e.creature_id == "fighter" for e in events)
     rewritten = events[-1]
     assert isinstance(rewritten, CharacterRewritten)
     assert rewritten == CharacterRewritten(
@@ -112,7 +114,7 @@ def test_revive_success_events_and_state() -> None:
     assert not rogue.dead and not rogue.stable
     assert rogue.hp == rewritten.hp
     assert (rogue.death_save_successes, rogue.death_save_failures) == (0, 0)
-    assert _gold_of(state, "fighter") == 15 and _gold_of(state, "rogue") == 40
+    assert _gold_of(state, "fighter") == 40 and _gold_of(state, "rogue") == 15
     assert replay(start, events).model_dump() == state.model_dump()
     assert fallen_heroes(state) == []
 
@@ -139,8 +141,28 @@ def test_revive_picks_the_requested_target() -> None:
 
 def test_exact_funds_reach_zero_never_negative() -> None:
     state = _state(gold=25)
+    _gold(state, "rogue", 0)  # an empty purse: the payer pays it all
     events = revive_events(state, "fighter", "rogue", TABLE)
     assert events[0] == GoldChanged(creature_id="fighter", delta=-25, gold=0)
+
+
+def test_scribe_fallen_purse_pays_first_and_the_payer_tops_up() -> None:
+    # Playtest 3: the ranger had 44 gp for a 50 gp revive while the warlock's 56 gp lay unused.
+    state = _state(level=2, gold=44)
+    _gold(state, "rogue", 56)
+    events = revive_events(state, "fighter", "rogue", TABLE)
+    assert events[0] == GoldChanged(creature_id="rogue", delta=-50, gold=6)
+    state = _state(gold=15)
+    _gold(state, "rogue", 10)
+    paid = [
+        e for e in revive_events(state, "fighter", "rogue", TABLE) if isinstance(e, GoldChanged)
+    ]
+    assert paid == [
+        GoldChanged(creature_id="rogue", delta=-10, gold=0),
+        GoldChanged(creature_id="fighter", delta=-15, gold=0),
+    ]
+    view = scribe_view(state, TABLE, paused=False).fallen[0]
+    assert (view.price_gp, view.purse_gp, view.due_gp) == (25, 10, 15)
 
 
 def _refused(state: GameState, payer: str, target: str, *, paused: bool = False) -> ScribeRefusal:
@@ -150,7 +172,9 @@ def _refused(state: GameState, payer: str, target: str, *, paused: bool = False)
 
 
 def test_refusal_no_funds() -> None:
-    assert _refused(_state(gold=24), "fighter", "rogue") is ScribeRefusal.NO_FUNDS
+    state = _state(gold=14)
+    _gold(state, "rogue", 10)  # 10 from the purse + 14 carried < 25
+    assert _refused(state, "fighter", "rogue") is ScribeRefusal.NO_FUNDS
 
 
 def test_refusal_none_fallen() -> None:

@@ -4,9 +4,10 @@ Vote jobs (run once a ready vote passes): `travel_job` (the `move_party` DM tool
 M5.4 arrival order through `telling.conclude`), `rest_job` (`rules.rests`), `shop_job` (the
 `open_shop` tool, then `shop_stock` to everyone). Hero jobs: `answer` (the pending encounter
 offer, first answer wins), `buy`/`sell` (`rules.shop`), `give` (`rules.social_deeds.gift_events`
-+ region rewards), `level` (`rules.leveling.level_up`), `equip`/`unequip`/`drop` and the equip/drop
-pre-check intents (`rules.equipment`), `use_item` (M7.5b: a potion outside a fight on the hero
-or another living hero, `rules.items.use_item_events`; full HP refuses without consuming),
++ region rewards), `level` (`rules.leveling.level_up`; not in a fight, M20.4),
+`equip`/`unequip`/`drop` and the equip/drop pre-check intents (`rules.equipment`), `use_item`
+(M7.5b: a potion outside a fight on the hero or another living hero,
+`rules.items.use_item_events`; full HP refuses without consuming),
 `help_up` / `help_up_intent` (M20.2: outside a fight a standing hero helps a downed ally up to
 1 HP, `rules.downed`; the button and the typed sentence).
 Refusals are typed and player-safe; nothing is spent on a refusal.
@@ -210,6 +211,9 @@ async def give(core: TableCore, player: Player, msg: Give) -> None:
 async def level(core: TableCore, player: Player, msg: LevelUp) -> None:
     pc = _hero(core, player)
     if pc is None:
+        return
+    if core.combat_active():  # M20.4: as in the video game, levels are taken between fights
+        core.error(player.id, ErrorCode.WRONG_PHASE, "Level up when the fight is over.")
         return
     if not can_level_up(pc):
         core.error(player.id, ErrorCode.REFUSED, "Your hero is not ready to level up yet.")

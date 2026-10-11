@@ -3,6 +3,7 @@
 import { assetUrl } from '../assets.js';
 import { t } from '../strings.js';
 import { h } from '../ui/dom.js';
+import { percent } from './model.js';
 
 /** Slot levels this hero can still cast with: [{level, current, max}]. */
 export function openSlots(casting) {
@@ -38,6 +39,14 @@ export function startCast(ctx, spell, slot) {
   ctrl.arm({ steps: [step], build: (picks) => castCommand(me, spell, slot, picks) });
 }
 
+// M20.4: an attack spell shows its hit chance on the picked target, like a weapon (`spell:<index>`).
+function chanceTag(ctx, spell) {
+  const target = ctx.ctrl.ui.target;
+  const chance = target ? ctx.ctrl.ui.chances[target]?.[`spell:${spell.index}`] : null;
+  if (!chance) return null;
+  return h('span', { class: 'tag', 'data-testid': 'spell-chance' }, chance.in_range ? percent(chance.probability) : t('hotbar.outOfRange'));
+}
+
 function spellRow(ctx, spell, slots) {
   const { econ } = ctx;
   const bonus = spell.casting_time === 'bonus_action';
@@ -55,6 +64,7 @@ function spellRow(ctx, spell, slots) {
     levels.length > 1 ? null : h('span', { class: 'spell-name' }, spell.name),
     spell.concentration ? h('span', { class: 'tag', title: t('hotbar.concentration') }, 'C') : null,
     bonus ? h('span', { class: 'tag' }, t('hotbar.spellBonus')) : null,
+    chanceTag(ctx, spell),
     ...(levels.length ? buttons : [h('span', { class: 'hint' }, t('hotbar.noSlot'))]),
   );
 }

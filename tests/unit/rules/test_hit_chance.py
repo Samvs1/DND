@@ -121,3 +121,18 @@ def test_preview_matches_rolled_frequency() -> None:
     trials = 4000
     hits = sum(roll_attack(rng, state, "a", "gob", profile, FEATS).hit for _ in range(trials))
     assert abs(hits / trials - 319 / 400) < 0.03
+
+
+def test_hit_chances_add_attack_spells_the_hero_can_cast() -> None:
+    # M20.4 (playtest 3): Eldritch Blast (SRD 5.1: 120 ft, ranged spell attack) is previewed like
+    # a weapon, so the phone no longer says "Out of range" when the blast reaches.
+    hero = make_pc("a", class_index="warlock")
+    state = fight([(hero, Side.PARTY, "gate"), (monster("gob"), Side.HOSTILE, "wall")])
+    chances = {c.option: c for c in hit_chances(state, "a", "gob", REGS.chars, REGS.spells)}
+    assert chances["main_hand"].in_range is False  # a dagger needs the same zone
+    blast = chances["spell:eldritch-blast"]
+    assert blast.in_range and blast.probability > 0
+    assert "spell:charm-person" not in chances  # a saving throw spell has no attack roll
+    assert "spell:eldritch-blast" not in {
+        c.option for c in hit_chances(state, "a", "gob", REGS.chars)
+    }

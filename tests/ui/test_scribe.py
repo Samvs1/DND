@@ -97,8 +97,10 @@ def test_scribe_tab_empty_fallen_revive_and_refusals(
     assert host.locator("[data-testid=scribe-fallen]").count() == 0
     assert host.evaluate(NO_HSCROLL)
     snap(host, shots_dir, "scribe_tab", 390)
-    # Mira falls: one card with the price; Brienne has too little gold at first.
+    # Mira falls with an empty purse (M20.4: her own gold would pay first): one card with the
+    # price; Brienne has too little gold at first.
     _set_gold(live_server, "Brienne", 10)
+    _set_gold(live_server, "Mira", 0)
     _kill(live_server, "Mira")
     host.wait_for_selector("[data-testid=scribe-fallen]", timeout=20000)
     assert host.locator("[data-testid=scribe-fallen]").count() == 1

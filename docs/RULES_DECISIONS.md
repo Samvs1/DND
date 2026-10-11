@@ -242,3 +242,8 @@ Outdoor zones (bridge, forest, ruins, swamp, village, wilds) are 25 ft apart (wa
 ## Downed heroes (M20.2, owner playtest 3: a hero lay at 0 HP between two fights and nothing outside a fight could raise her)
 When a fight ends and the party was not defeated, every dying hero becomes stable (SRD 5.1 "Stabilizing a Creature": with the fight over, an ally has the time a DC 10 Medicine check or a healer's kit needs; the engine grants it instead of a roll).
 Outside a fight a standing hero helps a downed (alive, 0 HP) ally up to 1 HP at no cost (BG3 Help out of combat). In a fight the Help action does the same for an action.
+
+## Flee, level-up timing, the Scribe's fee (M20.4, owner playtest 3)
+Flee (BG3, no action) is allowed with an enemy in your zone once you have Disengaged this turn; before, the refusal said "disengage first" but Disengage did not lift it, and the button needed the action Disengage had spent.
+Level-up waits until the fight is over (BG3 does not level mid-fight; the playtest showed +6 HP gained in an ally's turn).
+House rule change (owner choice 2026-10-11): the Scribe's fee comes from the fallen hero's own purse first; the requesting hero pays the rest (data/bg3/scribe.json `payment: "fallen_first"`).

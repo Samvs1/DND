@@ -264,7 +264,7 @@ The reaction is shown for completeness, but no reaction abilities work in this v
 
 ### The hotbar
 - Buttons are numbered. On a keyboard, **keys 1 to 9** use the numbered slots on your turn, and **Esc** cancels an aim.
-- Pick a **target chip** (name and health: Unhurt, Wounded, Bloodied, Fallen, Fled). Attacks then show your **chance to hit** and the chance of a critical hit against that target's armour class, and whether you have advantage or disadvantage.
+- Pick a **target chip** (name and health: Unhurt, Wounded, Bloodied, Fallen, Fled). Attacks then show your **chance to hit** and the chance of a critical hit against that target's armour class, and whether you have advantage or disadvantage. Spells with an attack roll (Eldritch Blast, Fire Bolt, ...) show their chance too, in the spell list, and the chip shows your best chance; it says **Out of range** only when neither a weapon nor such a spell can reach.
 - Sections: **Attacks**, **Spells**, **Actions**, **Bonus actions**, **Items** and **Class features**.
 
 ### Attacks
@@ -283,7 +283,7 @@ To move, use the **Move** list right under the Now card on your phone (on your t
 - **Throw** (action): hurl a carried object at a foe in your zone or the next one (1d4 damage).
 - **Shove** (bonus action): in your zone, knock a foe prone or push them to another zone. They can be at most one size larger than you, they roll Athletics or Acrobatics (the better one) and you must beat that.
 - **Jump** (bonus action): leap to a neighbouring zone, ignoring rough ground. It still uses movement equal to the distance, and you cannot jump while prone.
-- **Flee**: leave the fight from a zone where no enemy stands. It is refused when an enemy is in your zone. You are then out of the fight. If everyone else falls, the party counts as having fled rather than as defeated.
+- **Flee** (no action): leave the fight. With an enemy in your zone you must **Disengage** first (the Flee button then says **Disengage first**); after Disengage you can flee in the same turn. You are then out of the fight. If everyone else falls, the party counts as having fled rather than as defeated.
 - **Use item**: in a fight you drink a potion yourself as a bonus action. Outside a fight you can give one to another hero from the sheet. It is refused (and nothing is used) if the hero is at full health or dead.
 
 ### Spells and slots
@@ -456,7 +456,7 @@ Casters get more cantrips, spells and slots as they level up.
 
 ### Levelling up
 - The game goes up to **level 5**. The experience you need: 300 for level 2, 900 for level 3, 2,700 for level 4 and 6,500 for level 5. Experience keeps counting after that.
-- When you have enough, the phone shows **Level up!** and the Hero tab shows **Choose level-up options**. A level-up is always your choice: it never happens by itself.
+- When you have enough, the phone shows **Level up!** and the Hero tab shows **Choose level-up options**. A level-up is always your choice: it never happens by itself. During a fight it waits: the Hero tab says **A new level waits: choose it when the fight is over** (as in the video game).
 - In the dialog you pick what your class asks for at that level: a new path (subclass) at the right level, new spells (and for a known-spell caster, one spell may be swapped), and at level 4 an **ability score improvement**: +2 to one ability or +1 to two, never above 20.
 - Your maximum hit points rise by a fixed average for your hit die (half the die plus one) plus your Constitution modifier, and your current hit points rise by the same amount, but levelling does not heal you to full. A hero who is down or dead cannot level up.
 - Spell slots you already spent stay spent when your slots grow.
@@ -572,7 +572,7 @@ A welcome of about a minute as soon as the host presses **Start the adventure** 
 On the **Scribe** tab you can see fallen heroes (dead heroes, not ones at 0 hit points who are still alive). A standing hero pays the Scribe to rewrite a fallen hero into the story. Rules:
 - Only **outside combat**.
 - The price is **25 gp per level** of the fallen hero.
-- **You pay from your own hero's gold.** You must be standing yourself.
+- **The fallen hero's own purse pays first**; you pay the rest from your own hero's gold (the card shows the split, for example **50 gp from Mira's purse, 0 gp from you**). You must be standing yourself.
 - The rewritten hero comes back with **half of their maximum hit points** (rounded up), their death saves reset and their conditions cleared (exhaustion stays).
 
 <!-- generated:scribe_prices -->
@@ -590,7 +590,7 @@ On the **Scribe** tab you can see fallen heroes (dead heroes, not ones at 0 hit 
 - Nobody has fallen.
 - The hero you chose has not fallen (a hero at 0 hit points who is alive is not fallen).
 - Your own hero is down: a standing hero must pay.
-- You do not have enough gold.
+- The fallen hero's purse and your gold together are not enough.
 
 Nothing is spent on a refusal.
 

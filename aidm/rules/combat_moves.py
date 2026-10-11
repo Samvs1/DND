@@ -15,7 +15,8 @@
 - Flee (M3.10, BG3 Flee; no action): a creature that can move and shares its zone with no
   standing, non-incapacitated enemy leaves the fight: its movement drops to 0 and it withdraws
   as FLED (`rules.encounter.withdraw_combatant`; out of the turn order, no kill XP). ENGAGED
-  when an enemy stands in its zone. The caller then ends the turn.
+  when an enemy stands in its zone and it has not Disengaged this turn (M20.4, playtest 3: the
+  refusal said "disengage first" but Disengage did not lift it). The caller then ends the turn.
 
 Entering a zone (move, jump, being pushed) triggers its surfaces (`rules.surfaces.
 enter_zone_events`): only the destination zone counts (zones are abstract; passing through an
@@ -211,9 +212,11 @@ def flee_command(state: GameState, cmd: FleeCommand, regs: CombatRegistries) -> 
     actor = acting(state, cmd.actor_id)
     if actor.creature.hp <= 0 or effective_speed(actor.creature) <= 0:
         raise CommandRefused(RefusalCode.CANNOT_MOVE, "You cannot move right now.")
-    zone = actor.combatant.zone_id
-    if any(actor.enc.combatant(o.id).zone_id == zone for o in opponents(state, actor)):
-        raise CommandRefused(RefusalCode.ENGAGED, "Enemies are too close to slip away.")
-    economy = actor.combatant.economy.model_copy(update={"movement_left": 0})
+    zone, economy = actor.combatant.zone_id, actor.combatant.economy
+    engaged = any(actor.enc.combatant(o.id).zone_id == zone for o in opponents(state, actor))
+    if engaged and not economy.disengaged:
+        detail = "Enemies are in your zone: Disengage first, then flee."
+        raise CommandRefused(RefusalCode.ENGAGED, detail)
+    economy = economy.model_copy(update={"movement_left": 0})
     withdrew = withdraw_combatant(state, cmd.actor_id, WithdrawReason.FLED)
     return [changed(cmd.actor_id, economy, "flee"), *withdrew]

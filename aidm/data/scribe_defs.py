@@ -3,7 +3,8 @@
 - `base_gp`, `per_level_gp`: a revive costs `base_gp + per_level_gp x level` of the fallen hero.
 - `restore`: the HP a rewritten hero returns with: "half" (max HP / 2, rounded up), "one" or
   "full".
-- `payment`: who pays; "payer" = the requesting player's own hero (the only mode so far).
+- `payment`: who pays; "payer" = the requesting player's own hero; "fallen_first" (owner choice
+  M20.4, playtest 3) = the fallen hero's own purse first, the requesting hero pays the rest.
 - `keep_conditions`: condition names a revive does not clear (exhaustion).
 
 Public API: `RestoreMode`, `ScribeTable`, `load_scribe_table(path=None)`, `scribe_table()`
@@ -31,7 +32,7 @@ class ScribeTable(BaseModel):
     base_gp: int = Field(default=0, ge=0)
     per_level_gp: int = Field(ge=0)
     restore: RestoreMode = "half"
-    payment: Literal["payer"] = "payer"
+    payment: Literal["payer", "fallen_first"] = "payer"
     keep_conditions: tuple[str, ...] = ()
 
 

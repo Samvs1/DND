@@ -135,7 +135,7 @@ export function mountHotbar(root, ctx, ctrl) {
     head.append(h('strong', { class: 'hb-turn' }, t('combat.yourTurn')), pips(econ, sheet?.speed), h('span', { class: 'hb-keys', 'data-testid': 'hotbar-keys' }, t('hotbar.keysHint')));
     const bar = aimBar(ctrl);
     if (bar) aim.append(...bar.filter(Boolean));
-    fillBody(body, pop, { ctrl, sheet, econ, me: myCreatureId(state) }, ctrl);
+    fillBody(body, pop, { ctrl, sheet, econ, me: myCreatureId(state), combat }, ctrl);
   }
 
   function keys(event) {

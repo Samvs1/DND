@@ -22,9 +22,11 @@ Public API:
 - `hit_chance(state, attacker_id, target_id, profile, feats) -> HitChance`: exact math over the
   d20 and the bonus dice: a natural 1 misses, a natural >= the crit threshold hits and crits,
   otherwise total >= AC hits; Lucky rerolls a natural 1 once; out of range -> probability 0.
-- `hit_chances(state, attacker_id, target_id, regs) -> list[HitChance]`: every attack option
-  of the attacker against the target (the hotbar tooltip). The character sheet keeps
-  `AttackLine.hit_chance` None because a sheet has no target (docs/DECISIONS.md M3.3).
+- `hit_chances(state, attacker_id, target_id, regs, spells=None) -> list[HitChance]`: every
+  attack option of the attacker against the target (the hotbar tooltip); with the spell registry
+  also each attack-roll spell it can cast now (`spell:<index>`, `rules.spell_chances`, M20.4).
+  The character sheet keeps `AttackLine.hit_chance` None because a sheet has no target
+  (docs/DECISIONS.md M3.3).
 """
 
 from collections.abc import Sequence
@@ -34,6 +36,7 @@ from fractions import Fraction
 from aidm.data.character_data import CharacterRegistries
 from aidm.data.feature_defs import FeatureDef
 from aidm.data.registry import Registry
+from aidm.data.spell_defs import SpellDef
 from aidm.models.combat import AttackProfile, HitChance
 from aidm.models.dice import AdvState
 from aidm.models.encounter import Encounter
@@ -51,6 +54,7 @@ from aidm.rules.conditions import (
 from aidm.rules.d20 import combine_adv
 from aidm.rules.dice import parse_dice
 from aidm.rules.features import attack_advantage_sources, crit_threshold, rerolls_natural_ones
+from aidm.rules.spell_chances import spell_attack_options
 from aidm.rules.zones import (
     MELEE_BAND,
     cover_ac_bonus,
@@ -207,10 +211,14 @@ def hit_chance(
 
 
 def hit_chances(
-    state: GameState, attacker_id: str, target_id: str, regs: CharacterRegistries
+    state: GameState,
+    attacker_id: str,
+    target_id: str,
+    regs: CharacterRegistries,
+    spells: Registry[SpellDef] | None = None,
 ) -> list[HitChance]:
     attacker = state.creatures[attacker_id]
-    return [
-        hit_chance(state, attacker_id, target_id, option, regs.features)
-        for option in attack_options(attacker, regs)
-    ]
+    options = attack_options(attacker, regs)
+    if spells is not None:  # M20.4: attack spells too, so "Out of range" means nothing reaches
+        options += spell_attack_options(attacker, regs, spells)
+    return [hit_chance(state, attacker_id, target_id, option, regs.features) for option in options]

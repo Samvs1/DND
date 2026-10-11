@@ -15,13 +15,18 @@ function heroDown(hero) {
   return Boolean(hero) && (hero.dead || hero.hp <= 0);
 }
 
+// M20.4 (owner choice): the fallen hero's own purse pays first (`purse_gp`); you pay the rest (`due_gp`).
 function fallenCard(f, { gold, locked, onRevive }) {
-  const short = gold < f.price_gp;
+  const purse = f.purse_gp ?? 0;
+  const due = f.due_gp ?? f.price_gp;
+  const short = gold < due;
+  const ask = purse > 0 ? t('scribe.confirmPurse', { price: f.price_gp, name: f.name, purse, due }) : t('scribe.confirm', { price: f.price_gp, name: f.name });
   return h(
     'li',
     { class: 'sc-fallen', 'data-testid': 'scribe-fallen', 'data-id': f.creature_id },
     h('div', { class: 'sc-fallen-head' }, h('strong', { 'data-testid': 'scribe-fallen-name' }, f.name), h('span', { class: 'hint' }, t('scribe.fallenLevel', { n: f.level })), h('span', { class: 'sc-price', 'data-testid': 'scribe-price' }, t('scribe.price', { n: f.price_gp }))),
-    locked ? h('button', { type: 'button', class: 'btn', disabled: true, 'data-testid': 'scribe-revive-off' }, t('scribe.revive')) : confirmButton({ label: t('scribe.revive'), ask: t('scribe.confirm', { price: f.price_gp, name: f.name }), yes: t('scribe.confirmYes'), testid: 'scribe-revive', onYes: () => onRevive(f.creature_id) }),
+    locked ? h('button', { type: 'button', class: 'btn', disabled: true, 'data-testid': 'scribe-revive-off' }, t('scribe.revive')) : confirmButton({ label: t('scribe.revive'), ask, yes: t('scribe.confirmYes'), testid: 'scribe-revive', onYes: () => onRevive(f.creature_id) }),
+    purse > 0 ? h('p', { class: 'hint', 'data-testid': 'scribe-purse' }, t('scribe.fromPurse', { n: purse, name: f.name, due })) : null,
     short && !locked ? h('p', { class: 'sc-warn', role: 'status', 'data-testid': 'scribe-gold-warn' }, t('scribe.youHave', { n: gold })) : null,
   );
 }

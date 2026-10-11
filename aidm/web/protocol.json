@@ -3321,6 +3321,12 @@
               "title": "Creature Id",
               "type": "string"
             },
+            "due_gp": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Due Gp",
+              "type": "integer"
+            },
             "level": {
               "minimum": 1,
               "title": "Level",
@@ -3333,6 +3339,12 @@
             "price_gp": {
               "minimum": 0,
               "title": "Price Gp",
+              "type": "integer"
+            },
+            "purse_gp": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Purse Gp",
               "type": "integer"
             }
           },

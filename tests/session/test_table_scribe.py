@@ -59,8 +59,10 @@ async def test_revive_round_trip_picks_target_and_replays(tmp_path: Path) -> Non
         wizard = table.state.creatures["wizard"]
         assert not wizard.dead and wizard.hp == -(-wizard.max_hp // 2)
         assert table.state.creatures["rogue"].dead
-        fighter = table.state.creatures["fighter"].pc
-        assert fighter is not None and fighter.gold == 75
+        fighter, wizard_purse = table.state.creatures["fighter"].pc, wizard.pc
+        # M20.4 owner choice: the fallen hero's own purse (100 gp) pays the 25 gp first.
+        assert fighter is not None and fighter.gold == 100
+        assert wizard_purse is not None and wizard_purse.gold == 75
         msgs = ann.drain()
         lines = [m.line for m in of_type(msgs, EventMsg) if m.kind == "character_rewritten"]
         assert lines == ["The Scribe rewrites Celes into the story."]
