@@ -161,7 +161,7 @@ When the party arrives somewhere dangerous, the game warns you first and nothing
 - **Slip away**: each hero rolls the better of Stealth and Athletics. If at least half succeed, the party goes back to where it came from and there is no fight. If not, the fight begins.
 - **Parley**: your hero (the one whose player pressed it) rolls Persuasion. On a success there is no fight. On a failure the fight begins.
 
-The first place of each region is always safe. Fights start only from a warning you answer or from what the party does, never from a timer.
+The first place of each region is always safe. Fights start only from a warning you answer or from what the party does, never from a timer. The master of a region waits in its last place with company: foes from around the region who make it a hard fight.
 
 ### Votes
 Some things need the whole table: **travelling**, **resting** (short or long) and **browsing a shop**. To ask, type it on the Play tab (*take a short rest*, *make camp* for a long rest, *go to* a place) or press **Trade** when a trader is here; a vote then opens on every phone (as a card at the top of the page) and on the screen. Typing *look around* or *inventory* gets an instant answer without a vote.
