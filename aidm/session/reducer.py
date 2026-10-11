@@ -179,9 +179,11 @@ def _apply_pc_event(
 
 
 def _apply_death_event(
-    target: Creature,
+    state: GameState,
     event: DeathSaveRolled | DeathSavesSet | Stabilized | CreatureDied | CreatureRevived,
 ) -> None:
+    target = _creature(state, event.creature_id)
+    _npc_fate(state, event)
     match event:
         case CreatureRevived():
             target.dead = False
@@ -199,6 +201,26 @@ def _apply_death_event(
         case CreatureDied():
             target.dead = True
             target.stable = False
+
+
+def _npc_fate(
+    state: GameState,
+    event: DeathSaveRolled | DeathSavesSet | Stabilized | CreatureDied | CreatureRevived,
+) -> None:
+    """M20.5: a world NPC's fight creature dying (or coming back) is the NPC's own fate. Saves
+    from before M20.5 carry no `npc_id`: the one NPC with exactly the creature's name."""
+    if not isinstance(event, CreatureDied | CreatureRevived):
+        return
+    creature = state.creatures[event.creature_id]
+    if creature.pc is not None:
+        return
+    if creature.npc_id is not None:
+        npc = state.world.npcs.get(creature.npc_id)
+    else:
+        named = [n for n in state.world.npcs.values() if n.name == creature.name]
+        npc = named[0] if len(named) == 1 else None
+    if npc is not None:
+        npc.dead = isinstance(event, CreatureDied)
 
 
 def _apply_party_event(state: GameState, event: PartyDefeated | CharacterRewritten) -> None:
@@ -270,7 +292,7 @@ def apply(state: GameState, event: AnyEvent) -> GameState:
         case (
             DeathSaveRolled() | DeathSavesSet() | Stabilized() | CreatureDied() | CreatureRevived()
         ):
-            _apply_death_event(_creature(state, event.creature_id), event)
+            _apply_death_event(state, event)
         case ResourceSet(creature_id=cid, key=key, resource=resource):
             _creature(state, cid).resources[key] = resource
         case ResourceRemoved(creature_id=cid, key=key):

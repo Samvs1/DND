@@ -136,13 +136,14 @@ def guard_scene(state: GameState, events: Sequence[ev.AnyEvent] = ()) -> GuardSc
     present_ids = set(scene.npc_ids)
     living = {plain(c.name) for c in state.creatures.values() if not c.dead}
     present_npcs = {plain(state.world.npcs[i].name) for i in present_ids}
-    absent_ids = [i for i in state.world.npcs if i not in present_ids]
+    absent_ids = [i for i, n in state.world.npcs.items() if i not in present_ids and not n.dead]
     absent = {plain(state.world.npcs[i].name) for i in absent_ids} - present_npcs - living
     monsters = {state.creatures[c].name for c in scene.monster_ids}
     present_roles = _role_words(state, present_ids) | words_of(" ".join(monsters))
     known = set().union(*(words_of(n) for n in reg.all_names - reg.hidden_features))
     party = {plain(c.name): c.pc.class_index for c in state.creatures.values() if c.pc is not None}
-    dead = frozenset(plain(n) for n in reg.dead) - living
+    slain = {n.name for n in state.world.npcs.values() if n.dead}  # M20.5
+    dead = frozenset(plain(n) for n in reg.dead | slain) - living
     carried = (_carried(state) | {state.world.items[i].name for i in scene.item_ids}) - _lost_items(
         events
     )

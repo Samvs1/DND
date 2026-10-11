@@ -32,6 +32,8 @@ Public API:
   abilities (a slug with an entry in data/bg3/features.json works like a feature).
   Player characters (M2.2): `pc` holds the character sheet data (`aidm.models.character.PcData`);
   None for NPCs and monsters. A PC is a Creature with `kind` PC and `pc` set.
+  World NPCs in a fight (M20.5): `npc_id` is the `WorldNpc` this combat creature is; its death
+  is the NPC's death (the reducer marks `WorldNpc.dead`).
 - `RechargeKind`: SHORT_REST (restored by short and long rests) / LONG_REST (long rests only).
 - `Resource(current, maximum, recharge, turn_recharge)`: `current` is within [0, maximum].
   `turn_recharge` (M3.8): at the start of the owner's turn a spent pool refills when a d6 rolls
@@ -166,6 +168,7 @@ class Creature(BaseModel):
     creature_type: str | None = None
     traits: list[str] = Field(default_factory=list[str])
     pc: PcData | None = None
+    npc_id: str | None = None
 
     @model_validator(mode="after")
     def _check_hp(self) -> "Creature":

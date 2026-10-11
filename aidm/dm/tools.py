@@ -139,8 +139,8 @@ class GrantXpArgs(_Args):
 
 class StartEncounterArgs(_Args):
     """Start a fight with catalogue monsters (CR budget enforced) and/or present NPCs. When the
-    acting hero starts it by attacking a present NPC with a weapon, also name that NPC in
-    opening_strike_on: the engine rolls that attack before the first turn."""
+    acting hero starts it by attacking a present NPC, also name that NPC in opening_strike_on and
+    the attack they used in opening_attack: the engine rolls that attack before the first turn."""
 
     monster_ids: list[str] = Field(default_factory=list[str], max_length=8)
     terrain_tags: list[str] = Field(default_factory=list[str], max_length=3)
@@ -149,7 +149,15 @@ class StartEncounterArgs(_Args):
     opening_strike_on: str | None = Field(
         default=None,
         max_length=64,
-        description="the NPC (one of against_npcs) the acting hero's weapon attack opens on",
+        description="the NPC (one of against_npcs) the acting hero's attack opens on",
+    )
+    opening_attack: str | None = Field(
+        default=None,
+        max_length=64,
+        description=(
+            "the attack the hero named: a spell id with an attack roll (eldritch-blast,"
+            " fire-bolt) or a weapon slot (main_hand, ranged, unarmed); empty = main weapon"
+        ),
     )
 
     @model_validator(mode="after")

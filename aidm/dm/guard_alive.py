@@ -40,7 +40,7 @@ _CLAUSE = re.compile(r"\b(?:while|whilst|as|when|but|though|until|before|after)\
 def _living_names(state: GameState) -> set[str]:
     names = {c.name for c in state.creatures.values() if not c.dead}
     dead_names = {c.name for c in state.creatures.values() if c.dead}
-    names |= {n.name for n in state.world.npcs.values() if n.name not in dead_names}
+    names |= {n.name for n in state.world.npcs.values() if n.name not in dead_names and not n.dead}
     return names
 
 

@@ -192,7 +192,10 @@ def _setup(
     spawns = [MonsterSpawn(monster=m, zone_id=foes) for m in offer.monster_ids]
     boss = state.world.npcs.get(offer.boss_npc_id or "")
     if boss is not None:
-        spawns.insert(0, MonsterSpawn(monster=boss.archetype_id, zone_id=foes, name=boss.name))
+        boss_spawn = MonsterSpawn(
+            monster=boss.archetype_id, zone_id=foes, name=boss.name, npc_id=boss.id
+        )
+        spawns.insert(0, boss_spawn)
     pcs = sorted(c.id for c in state.creatures.values() if c.pc is not None and not c.dead)
     return EncounterSetup(
         encounter_id=f"enc-{state.event_count}",

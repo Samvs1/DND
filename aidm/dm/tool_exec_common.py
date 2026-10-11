@@ -35,11 +35,13 @@ def require_npc(state: GameState, npc_id: str) -> WorldNpc:
     npc = state.world.npcs.get(npc_id)
     if npc is None:
         raise ToolRefused(f"unknown npc {npc_id!r}; introduce_npc registers new NPCs")
+    if npc.dead:  # M20.5: a slain NPC does not talk, trade or fight again
+        raise ToolRefused(f"{npc.name} is dead")
     return npc
 
 
 def npc_is_present(state: GameState, npc: WorldNpc) -> bool:
-    return npc.node_id == state.world.current_node
+    return npc.node_id == state.world.current_node and not npc.dead
 
 
 def new_entity_id(prefix: str, name: str, taken: Iterable[str]) -> str:

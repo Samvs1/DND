@@ -89,6 +89,7 @@ class WorldNpc(BaseModel):
     hostile: bool = False
     motive: str = ""
     secrets: list[NpcSecret] = Field(default_factory=list[NpcSecret])
+    dead: bool = False  # M20.5: their fight creature died; never present, never fought again
 
 
 class PublicNpcView(BaseModel):

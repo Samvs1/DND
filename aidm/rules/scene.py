@@ -1,6 +1,7 @@
 """The current scene as a derived, read-only view of state (SPEC 2.2 closed world, 6.4, 9).
 
-Nothing here is stored twice: presence comes from `WorldNpc.node_id`, visibility from
+Nothing here is stored twice: presence comes from `WorldNpc.node_id` (a dead NPC is never
+present, M20.5), visibility from
 `WorldFeature.hidden/discovered` and `WorldItem.hidden`, exits from `World.neighbours`. The
 context builder (`aidm.dm.context`) renders this view as the scene manifest, so anything not in
 it does not exist for the narrator.
@@ -71,7 +72,7 @@ def current_scene(state: GameState) -> SceneView:
     world = state.world
     node = world.current_node
     party = sorted(c.id for c in state.creatures.values() if c.pc is not None and not c.dead)
-    npcs = sorted(n.id for n in world.npcs.values() if n.node_id == node)
+    npcs = sorted(n.id for n in world.npcs.values() if n.node_id == node and not n.dead)
     features = sorted(
         f.id
         for f in world.features.values()

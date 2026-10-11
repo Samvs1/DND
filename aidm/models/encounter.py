@@ -150,6 +150,7 @@ class MonsterSpawn(BaseModel):
     zone_id: str = Field(min_length=1)
     side: Side = Side.HOSTILE
     name: str | None = None
+    npc_id: str | None = None  # M20.5: the world NPC this creature is (its death is theirs)
 
 
 class EncounterSetup(BaseModel):

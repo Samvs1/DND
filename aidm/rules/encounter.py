@@ -157,6 +157,8 @@ def start_encounter(
     for spawn in setup.monsters:
         block = monsters.get(spawn.monster)
         creature = creature_from_monster(block, _spawn_id(taken, spawn.monster), name=spawn.name)
+        if spawn.npc_id is not None:  # M20.5: this creature IS that world NPC
+            creature = creature.model_copy(update={"npc_id": spawn.npc_id})
         if spawn.side is Side.HOSTILE:
             creature = scale_spawn(creature, state.difficulty.monster_hp)
         spawned.append((creature, spawn.side, spawn.zone_id, block.xp))
