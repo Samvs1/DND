@@ -36,7 +36,6 @@ from aidm.models.combat_events import (
 from aidm.models.encounter import EncounterStatus, WithdrawReason
 from aidm.models.encounter_events import CombatantWithdrew, EncounterEnded, EncounterStarted
 from aidm.models.state import GameState
-from aidm.models.world import QuestState
 from aidm.rules.scene import node_display_name
 
 QUIET_LINE = "The moment passes, and the world waits for what you do next."
@@ -48,12 +47,6 @@ _ENDINGS = {
     EncounterStatus.FLED: "You break away and leave the fight behind.",
     EncounterStatus.PARLEY: "Weapons lower as the fighting stops.",
     EncounterStatus.ACTIVE: "The fight goes on.",
-}
-_QUESTS = {
-    QuestState.OFFERED: "A new task is offered: {title}.",
-    QuestState.ACTIVE: "A task now lies before you: {title}.",
-    QuestState.COMPLETED: "You have seen {title} through to the end.",
-    QuestState.FAILED: "{title} has slipped beyond your reach.",
 }
 
 
@@ -177,7 +170,6 @@ _LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     we.AttitudeChanged: _attitude,
     we.SecretRevealed: _secret,
     we.PartyMoved: lambda s, e: f"You travel on to {node_display_name(s, e.to_node)}.",
-    we.QuestUpdated: lambda s, e: _QUESTS[e.quest.state].format(title=e.quest.title),
     we.ShopOpened: lambda s, e: f"{_who(s, e.npc_id)} lays out their wares.",
     we.ItemPlaced: lambda s, e: (
         None

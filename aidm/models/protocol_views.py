@@ -13,7 +13,8 @@ Public API:
   visible items and present NPCs.
 - `MapNode`, `PublicMap`: the region graph with fog (visited nodes and their neighbours).
 - `PublicQuest` (title, state, giver and objective once taken on); `PublicSummary` (scene
-  summaries); `PublicOffer` (a pending encounter offer: foes, boss, options).
+  summaries); `PublicOffer` (a pending encounter offer: foes, boss, options);
+  `PublicQuestOffer` (M23.4: the giver's open question, the phones' Accept / Not now card).
 - `PublicZone`, `CombatToken`, `PublicCombat`: zones (with terrain), tokens (monster index for
   art), initiative, the active creature and its economy pips.
 - `QueueEntry`, `VoteKind`, `VoteView`: the exploration queue and the open ready vote.
@@ -146,6 +147,13 @@ class PublicOffer(_View):
     options: tuple[OfferChoice, ...] = ()
 
 
+class PublicQuestOffer(_View):
+    quest_id: str
+    giver: str
+    title: str
+    objective: str = ""
+
+
 class CombatToken(_View):
     creature_id: str
     name: str
@@ -259,6 +267,7 @@ class PublicState(_View):
     summaries: tuple[PublicSummary, ...] = ()
     combat: PublicCombat | None = None
     offer: PublicOffer | None = None
+    quest_offer: PublicQuestOffer | None = None
     queue: tuple[QueueEntry, ...] = ()
     resolving: QueueEntry | None = None
     vote: VoteView | None = None

@@ -309,7 +309,8 @@ body.is-controller #app {
   display: none;
 }
 
-.ct-sheet .vote {
+.ct-sheet .vote,
+.ct-sheet .quest-card {
   margin: 0;
   border-radius: 0 0 var(--radius) var(--radius);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);

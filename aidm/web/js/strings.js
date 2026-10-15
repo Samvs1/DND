@@ -278,6 +278,10 @@ export const STRINGS = {
     offer_surprise: 'Ambush them',
     offer_escape: 'Slip away',
     offer_parley: 'Parley',
+    questOfferTitle: '{giver} asks: {title}',
+    questOfferAccept: 'Accept',
+    questOfferLater: 'Not now',
+    questOfferHint: 'Not now keeps it open: they will ask again the next time you arrive.',
   },
   combat: {
     heading: 'The fight',

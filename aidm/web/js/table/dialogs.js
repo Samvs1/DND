@@ -1,5 +1,6 @@
 // Table dialogs (native <dialog>, focus trapped by the browser): the point-of-no-return confirmation,
-// the encounter offer (fight / surprise / escape / parley). The level-up dialog lives in sheet/levelup.js.
+// the encounter offer (fight / surprise / escape / parley). The level-up dialog lives in sheet/levelup.js;
+// the quest offer card (M23.4) in table/quest_offer.js.
 import { mySeat } from '../state.js';
 import { t } from '../strings.js';
 import { clear, h } from '../ui/dom.js';

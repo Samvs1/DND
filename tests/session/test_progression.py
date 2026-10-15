@@ -7,7 +7,6 @@ from aidm.models.campaign_state import OfferChoice, RegionResolution
 from aidm.models.encounter import EncounterStatus
 from aidm.models.events import AnyEvent
 from aidm.models.state import GameState
-from aidm.models.world import QuestState
 from aidm.models.world_events import AttitudeChanged, PartyMoved
 from aidm.rules.campaign_install import install_campaign
 from aidm.rules.plan_ids import boss_npc_id
@@ -142,7 +141,7 @@ def test_boss_parley_improves_attitude_and_alliance_resolves_region() -> None:
     assert state.world.region_tier == 2
 
 
-def test_boss_defeat_resolves_region_and_offers_next_quests() -> None:
+def test_boss_defeat_resolves_region_and_offers_no_quests() -> None:
     _, state, log = campaign_state()
     _visit_spokes(state, log)
     assert R2.arrival.id in state.world.locked_nodes
@@ -153,8 +152,7 @@ def test_boss_defeat_resolves_region_and_offers_next_quests() -> None:
     assert state.campaign is not None
     assert state.campaign.resolved == {R1.id: RegionResolution.DEFEAT}
     act2 = {q.id for q in plan().quests if q.act == 2}
-    assert act2 <= set(state.world.quests)
-    assert all(state.world.quests[q].state is QuestState.OFFERED for q in act2)
+    assert not act2 & set(state.world.quests)  # M23.4: the act-2 givers ask on arrival
     assert move(state, R1.arrival.id, log) == []  # the boss no longer waits at the gateway
     move(state, R1.spokes[0].id, log)
     move(state, R1.gateway.id, log)

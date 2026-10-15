@@ -127,7 +127,6 @@ _LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     ),
     we.SecretRevealed: _secret,
     we.PartyMoved: lambda s, e: f"The party travelled to {node_display_name(s, e.to_node)}.",
-    we.QuestUpdated: lambda s, e: f"Quest '{e.quest.title}' is now {e.quest.state.value}.",
     we.FactRecorded: lambda s, e: None,
     we.ShopOpened: lambda s, e: f"{_who(s, e.npc_id)} opened their shop.",
     we.ItemPlaced: lambda s, e: (

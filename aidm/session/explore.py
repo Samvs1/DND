@@ -14,9 +14,10 @@ fight check. M22.1: the player's words are declared to the table first (`declare
 not for the private inventory listing), also for a creative action or a typed move in a fight.
 A point-of-no-return result stores `PendingHostile` and asks only the acting player
 (`pending_confirmation`); `confirm_hostile` re-runs the stored call with
-`confirm_hostile=True` (no second model call), `cancel_hostile` drops it. A fight started by a
-weapon attack on an NPC rolls that attack before the narration (`opening.strike_if_opening`,
-M19.2). Every entry ends in narration or a typed notice: never silent.
+`confirm_hostile=True` (no second model call), `cancel_hostile` drops it. A crossing that
+leaves open tasks behind (M23.4, `move_party`) asks the same way, without the hold line. A
+fight started by a weapon attack on an NPC rolls that attack before the narration
+(`opening.strike_if_opening`, M19.2). Every entry ends in narration or a typed notice: never silent.
 
 Public API: `submit_action`, `kick_resolver`, `resolve_next`, `resolve_action`,
 `adjudicated`, `confirm_hostile`, `cancel_hostile`, `inventory_text`.
@@ -45,7 +46,6 @@ from aidm.models.protocol_client import SubmitAction
 from aidm.models.protocol_server import (
     ErrorCode,
     NoticeKind,
-    PendingConfirmationMsg,
     Resolving,
 )
 from aidm.models.protocol_views import QueueEntry, TablePhase, VoteKind
@@ -55,8 +55,8 @@ from aidm.rules.turns import EconomyRefused, spend_action
 from aidm.session import combat_flow, hand_over, party_actions, votes
 from aidm.session.declared import declare
 from aidm.session.opening import strike_if_opening
+from aidm.session.quest_people import CROSS_STAY, hold
 from aidm.session.table_core import Job, Player, TableCore
-from aidm.session.table_records import PendingHostile
 from aidm.session.telling import conclude, remember, tell_text
 
 HOLD = "{name} stands on the brink of violence."
@@ -259,11 +259,11 @@ async def adjudicated(
 async def _hold(core: TableCore, entry: QueueEntry, call: ToolCall, prompt: str) -> None:
     """A point-of-no-return act waits for its player (M15.1 playtest): the narrator never tells
     it as done (one engine hold line instead), and the question goes out AFTER that line."""
-    actor = core.state.creatures.get(entry.creature_id)
-    name = actor.name if actor is not None else "The hero"
-    await tell_text(core, HOLD.format(name=name))
-    core.pending = PendingHostile(entry.player_id, entry.creature_id, call, prompt)
-    core.send(entry.player_id, PendingConfirmationMsg(player_id=entry.player_id, prompt=prompt))
+    if call.name != "move_party":  # M23.4: a crossing only asks, nothing violent is held
+        actor = core.state.creatures.get(entry.creature_id)
+        name = actor.name if actor is not None else "The hero"
+        await tell_text(core, HOLD.format(name=name))
+    hold(core, entry.player_id, entry.creature_id, call, prompt)
 
 
 async def confirm_hostile(core: TableCore, player: Player) -> None:
@@ -289,7 +289,8 @@ async def cancel_hostile(core: TableCore, player: Player) -> None:
         core.error(player.id, ErrorCode.REFUSED, "Nothing is waiting for your confirmation.")
         return
     core.pending = None
-    await remember(core, await tell_text(core, STAY_HAND))
+    line = CROSS_STAY if pending.call.name == "move_party" else STAY_HAND
+    await remember(core, await tell_text(core, line))
 
 
 def inventory_text(creature: Creature) -> str:

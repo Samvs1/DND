@@ -8,9 +8,10 @@ through THE public projection in `session.public_feed`, never as raw events (Npc
 CampaignInstalled embed motives and secrets).
 
 Public API: `public_creature`, `public_scene`, `public_map`, `public_quests`, `public_combat`,
-`public_offer`, `public_facts`, `public_summaries`, `public_floor` (M11.2: floor holder, queue
-and typing by player and hero name), `public_state`, `stock_lines`
-(dice views live in `session.public_feed`).
+`public_offer`, `public_quest_offer` (M23.4: the giver's open question; derived from
+`World.quest_ask`, so a reconnecting phone gets the card back), `public_facts`,
+`public_summaries`, `public_floor` (M11.2: floor holder, queue and typing by player and hero
+name), `public_state`, `stock_lines` (dice views live in `session.public_feed`).
 """
 
 from collections.abc import Sequence
@@ -35,6 +36,7 @@ from aidm.models.protocol_views import (
     PublicMap,
     PublicOffer,
     PublicQuest,
+    PublicQuestOffer,
     PublicScene,
     PublicState,
     PublicSummary,
@@ -261,6 +263,21 @@ def public_offer(state: GameState) -> PublicOffer | None:
     )
 
 
+def public_quest_offer(state: GameState) -> PublicQuestOffer | None:
+    ask = state.world.quest_ask
+    quest = state.world.quests.get(ask.quest_id) if ask is not None else None
+    npc = state.world.npcs.get(ask.npc_id) if ask is not None else None
+    if quest is None or npc is None:
+        return None
+    goal = quest.objective
+    return PublicQuestOffer(
+        quest_id=quest.id,
+        giver=npc.name,
+        title=quest.title,
+        objective="" if leaks(goal, private_texts(state)) else goal,
+    )
+
+
 def _floor_seat(state: GameState, info: PlayerInfo, position: int = 0) -> FloorSeat:
     hero = state.creatures.get(info.creature_id or "")
     return FloorSeat(
@@ -324,6 +341,7 @@ def public_state(
         summaries=public_summaries(state),
         combat=public_combat(state),
         offer=public_offer(state),
+        quest_offer=public_quest_offer(state),
         queue=tuple(queue),
         resolving=resolving,
         vote=vote,

@@ -7,7 +7,11 @@ done by a move, a pick-up, a fight or an attitude change moves its quest at once
 2. `milestones.milestone_events` of the batch (first visit, cleared spoke);
 3. passes of `quest_progress.quest_progress_events`, each followed by region resolution, until a
    pass moves nothing (at most `MAX_PASSES`): a finished Peace route allies the boss, the
-   alliance resolves the region, and the main quest completes, all in the same batch.
+   alliance resolves the region, and the main quest completes, all in the same batch;
+4. once a pass moved nothing (M23.4, `rules.quest_offers` / `rules.quest_leaving`): the open
+   tasks of a region the party left close as left behind (a task whose steps were all done
+   completed in step 3 first), then the giver here asks (only on an arrival in the batch), then
+   the leads of the party's region.
 Every pass reads the applied state, so nothing is paid twice; whatever the pass bound leaves
 is picked up by the next batch.
 
@@ -21,6 +25,8 @@ from aidm.dm.tool_context import ToolRegistries
 from aidm.models.events import AnyEvent
 from aidm.models.state import GameState
 from aidm.rules.milestones import milestone_events
+from aidm.rules.quest_leaving import left_behind_events
+from aidm.rules.quest_offers import ask_events, lead_events
 from aidm.rules.quest_progress import quest_progress_events
 from aidm.rules.quest_rewards import resolution_reward_events
 
@@ -41,4 +47,9 @@ def settle_after(
             break
         out += moved
         out += apply_all(resolution_reward_events(state, tiers, catalogue))
+    else:
+        return out  # still moving: the people part waits for the next batch
+    out += apply_all(left_behind_events(state))
+    out += apply_all(ask_events(state, [*batch, *out]))
+    out += apply_all(lead_events(state))
     return out

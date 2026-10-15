@@ -40,7 +40,12 @@ from aidm.models.world_events import (
     ShopOpened,
 )
 from aidm.session.campaign_apply import refresh_travel
-from aidm.session.quest_apply import QUEST_EVENT_TYPES, QuestEvent, apply_quest_event
+from aidm.session.quest_apply import (
+    QUEST_EVENT_TYPES,
+    QuestEvent,
+    apply_quest_event,
+    quest_updated,
+)
 from aidm.session.reducer_errors import ReducerError
 
 type WorldEvent = (
@@ -137,6 +142,7 @@ def _moved(state: GameState, event: PartyMoved) -> None:
     world.scene_index = event.scene_index
     world.shop_npc_id = None
     world.scene_turn = 0
+    world.quest_ask = None  # leaving the node withdraws the giver's question (M23.4)
     if event.to_node not in world.visited:
         world.visited.append(event.to_node)
     refresh_travel(state)
@@ -232,7 +238,7 @@ def apply_world_event(state: GameState, event: WorldEvent) -> None:
         case PartyMoved():
             _moved(state, event)
         case QuestUpdated(quest=quest):
-            world.quests[quest.id] = quest
+            quest_updated(state, quest)
         case FactRecorded(fact=fact):
             world.facts.append(fact)
         case ShopOpened(npc_id=npc_id):

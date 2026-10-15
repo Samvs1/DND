@@ -17,7 +17,8 @@ M11.2 `DeviceRole` (`Hello.role`: "screen" = the shared display, "controller" = 
 `ScribeRevive` (pay the Scribe to rewrite a fallen hero, `aidm.rules.scribe`); M13.2 `ScribeSkip`
 (host only: stop the Scribe's current line on every screen); M15.1 `HostTurnTimer` (host only:
 the combat turn timer, off / 90 s / 3 min / 5 min); M20.2 `HelpUp` (outside a fight, help a
-downed party member up to 1 HP, `aidm.rules.downed`).
+downed party member up to 1 HP, `aidm.rules.downed`); M23.4 `AnswerQuestOffer` (Accept / Not now
+on the giver's quest card, `aidm.rules.quest_offers`).
 """
 
 from enum import StrEnum
@@ -96,6 +97,12 @@ class AnswerOffer(_Client):
     type: Literal["answer_offer"] = "answer_offer"
     choice: OfferChoice
     skill: Skill | None = None
+
+
+class AnswerQuestOffer(_Client):
+    type: Literal["answer_quest_offer"] = "answer_quest_offer"
+    quest_id: str = Field(min_length=1, max_length=MAX_NAME * 2)
+    accept: bool
 
 
 class LevelUp(_Client):

@@ -43,6 +43,8 @@ _BOOKKEEPING = frozenset(
         "level_up_ready",
         "difficulty_set",
         "action_declared",
+        "quest_lead_removed",
+        "quest_ask_declined",
     }
 )
 _MAJOR = frozenset(

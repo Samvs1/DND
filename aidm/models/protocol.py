@@ -28,6 +28,7 @@ type AnyClientMsg = (
     | c.CancelHostile
     | c.Vote
     | c.AnswerOffer
+    | c.AnswerQuestOffer
     | c.LevelUp
     | c.ShopBuy
     | c.ShopSell

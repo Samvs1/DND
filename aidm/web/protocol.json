@@ -53,6 +53,33 @@
           "title": "AnswerOffer",
           "type": "object"
         },
+        "AnswerQuestOffer": {
+          "additionalProperties": false,
+          "properties": {
+            "accept": {
+              "title": "Accept",
+              "type": "boolean"
+            },
+            "quest_id": {
+              "maxLength": 80,
+              "minLength": 1,
+              "title": "Quest Id",
+              "type": "string"
+            },
+            "type": {
+              "const": "answer_quest_offer",
+              "default": "answer_quest_offer",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "quest_id",
+            "accept"
+          ],
+          "title": "AnswerQuestOffer",
+          "type": "object"
+        },
         "AttackCommand": {
           "additionalProperties": false,
           "properties": {
@@ -1964,6 +1991,7 @@
       "discriminator": {
         "mapping": {
           "answer_offer": "#/$defs/AnswerOffer",
+          "answer_quest_offer": "#/$defs/AnswerQuestOffer",
           "audio_settings": "#/$defs/AudioSettingsMsg",
           "cancel_hostile": "#/$defs/CancelHostile",
           "chat": "#/$defs/Chat",
@@ -2040,6 +2068,9 @@
         },
         {
           "$ref": "#/$defs/AnswerOffer"
+        },
+        {
+          "$ref": "#/$defs/AnswerQuestOffer"
         },
         {
           "$ref": "#/$defs/LevelUp"
@@ -2147,6 +2178,7 @@
     },
     "types": [
       "answer_offer",
+      "answer_quest_offer",
       "audio_settings",
       "cancel_hostile",
       "chat",
@@ -4736,6 +4768,35 @@
           "title": "PublicQuest",
           "type": "object"
         },
+        "PublicQuestOffer": {
+          "additionalProperties": false,
+          "properties": {
+            "giver": {
+              "title": "Giver",
+              "type": "string"
+            },
+            "objective": {
+              "default": "",
+              "title": "Objective",
+              "type": "string"
+            },
+            "quest_id": {
+              "title": "Quest Id",
+              "type": "string"
+            },
+            "title": {
+              "title": "Title",
+              "type": "string"
+            }
+          },
+          "required": [
+            "quest_id",
+            "giver",
+            "title"
+          ],
+          "title": "PublicQuestOffer",
+          "type": "object"
+        },
         "PublicScene": {
           "additionalProperties": false,
           "properties": {
@@ -4965,6 +5026,17 @@
               },
               "title": "Players",
               "type": "array"
+            },
+            "quest_offer": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/PublicQuestOffer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
             },
             "quests": {
               "default": [],

@@ -2,7 +2,9 @@
 
 `introduce_npc` / `introduce_feature` are the only ways new people and features exist (capped
 per scene, NPC stat blocks from the SRD catalogue). `move_party` only follows `legal_neighbours`
-(the campaign graph minus the derived locks) and never moves while an encounter offer waits.
+(the campaign graph minus the derived locks) and never moves while an encounter offer waits;
+leaving a region with open tasks first asks (M23.4, `rules.quest_leaving.crossing`): the same
+point-of-no-return `pending` as a hostile act, executed again with `confirm_hostile` on yes.
 Attitude goes through `aidm.rules.social` (bounded). Quests and facts: `aidm.dm.tool_exec_ledger`.
 
 Public API: `run_update_attitude`, `run_reveal_secret`, `run_move_party`, `run_introduce_npc`,
@@ -10,7 +12,13 @@ Public API: `run_update_attitude`, `run_reveal_secret`, `run_move_party`, `run_i
 `(state, args, ctx, rng, regs) -> ToolResult`.
 """
 
-from aidm.dm.tool_context import ToolContext, ToolRefused, ToolRegistries, ToolResult
+from aidm.dm.tool_context import (
+    PendingConfirmation,
+    ToolContext,
+    ToolRefused,
+    ToolRegistries,
+    ToolResult,
+)
 from aidm.dm.tool_exec_common import new_entity_id, npc_is_present, require_npc
 from aidm.dm.tools import (
     IntroduceFeatureArgs,
@@ -33,6 +41,7 @@ from aidm.models.world_events import (
 from aidm.rules.checks import dc_for_tier
 from aidm.rules.dice import Rng
 from aidm.rules.projection import project_state
+from aidm.rules.quest_leaving import crossing, crossing_prompt
 from aidm.rules.secrets import reveal_refusal
 from aidm.rules.shop import npc_shop_stock
 from aidm.rules.social import (
@@ -86,6 +95,12 @@ def run_move_party(
         raise ToolRefused(f"{args.node_id!r} is not a neighbour; legal exits: {listed}")
     if args.node_id not in legal_neighbours(world, world.current_node):
         raise ToolRefused(f"the way to {args.node_id!r} is still barred")
+    cross = None if ctx.confirm_hostile else crossing(state, args.node_id)
+    if cross is not None:
+        prompt = crossing_prompt(cross)
+        pending = PendingConfirmation(ctx.actor_id, (), "move_party", prompt)
+        summary = "waiting for the party to agree to leave open tasks behind"
+        return ToolResult(summary=summary, pending=pending)
     event = PartyMoved(
         from_node=world.current_node, to_node=args.node_id, scene_index=world.scene_index + 1
     )

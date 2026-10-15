@@ -40,7 +40,7 @@ Public API:
 - `EquipmentChanged(creature_id, equipped, ac)` (M6.2): the hero's worn/held gear becomes
   `equipped` and its armour class `ac` (computed by `aidm.rules.equipment`).
 - The quest events of `aidm.models.quest_events` (M23: `QuestStepDone`, `RouteDiscovered`,
-  `QuestLeadAdded`, `KeepsakeGiven`).
+  `QuestLeadAdded`, `QuestLeadRemoved`, `QuestAsked`, `QuestAskDeclined`, `KeepsakeGiven`).
 - `WorldEvents`: the union of these classes (joins `AnyEvent`).
 """
 

@@ -12,13 +12,14 @@ from aidm.models.campaign_state import EncounterOffer, OfferChoice
 from aidm.models.encounter import EncounterStatus, Side
 from aidm.models.events import AnyEvent, CreatureDied
 from aidm.models.state import GameState
-from aidm.models.world_events import PartyMoved
+from aidm.models.world_events import PartyMoved, QuestUpdated
 from aidm.rules.campaign_install import install_campaign
 from aidm.rules.dice import Rng
 from aidm.rules.encounter import encounter_outcome, end_encounter
 from aidm.rules.encounter_offer import OfferData, arrival_offer_events
 from aidm.rules.offer_answer import answer_offer
 from aidm.rules.progression import region_resolution_events
+from aidm.rules.quest_plan import side_world_quest
 from aidm.session.reducer import apply
 from tests.ai.tool_fixtures import tool_call
 from tests.sim.sim_setup import build_party
@@ -42,13 +43,26 @@ def plan() -> CampaignPlan:
     return load_sample_campaign()
 
 
-def campaign_state(level: int = 1) -> tuple[GameState, GameState, list[AnyEvent]]:
-    """(the state before install, the live state, the log applied since)."""
+def campaign_state(
+    level: int = 1, *, offered: bool = True
+) -> tuple[GameState, GameState, list[AnyEvent]]:
+    """(the state before install, the live state, the log applied since). `offered`: the act-1
+    side quests are offered as if their givers had asked (M23.4: install offers none)."""
     state = GameState(campaign_id="prog", seed=SEED)
     build_party(state, level)
     start = state.model_copy(deep=True)
     log = apply_all(state, install_campaign(state, plan(), SEED))
+    if offered:
+        offer_act_quests(state, 1, log)
     return start, state, log
+
+
+def offer_act_quests(state: GameState, act: int, log: list[AnyEvent] | None = None) -> None:
+    """Offer an act's side quests directly (what the givers' asks do one by one, M23.4)."""
+    events: list[AnyEvent] = [
+        QuestUpdated(quest=side_world_quest(plan(), q)) for q in plan().quests if q.act == act
+    ]
+    apply_all(state, events, log)
 
 
 def apply_all(
@@ -62,10 +76,13 @@ def apply_all(
 
 
 def move(state: GameState, node: str, log: list[AnyEvent]) -> list[AnyEvent]:
-    """move_party through the DM tool, then the world's arrival (offer) events."""
-    result = execute_tool(
-        state, tool_call("move_party", node_id=node), ToolContext("fighter"), random.Random(1), REGS
-    )
+    """move_party through the DM tool, then the world's arrival (offer) events. A crossing that
+    leaves open tasks behind asks first (M23.4): the party says yes."""
+    call = tool_call("move_party", node_id=node)
+    result = execute_tool(state, call, ToolContext("fighter"), random.Random(1), REGS)
+    if result.pending is not None:
+        sure = ToolContext("fighter", confirm_hostile=True)
+        result = execute_tool(state, call, sure, random.Random(1), REGS)
     assert result.ok, result.error
     apply_all(state, list(result.events), log)
     moved = result.events[0]

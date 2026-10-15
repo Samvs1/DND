@@ -4,19 +4,49 @@ Same semantics as the reducer: plain assignment of resolved values, `ReducerErro
 that does not fit the state (an engine bug). Steps are sequential: a `QuestStepDone` must name
 the next step. Quests are frozen models, so a change replaces the quest.
 
-Public API: `QuestEvent` (the union), `QUEST_EVENT_TYPES`, `apply_quest_event(state, event)`.
+M23.4: a `QuestUpdated` (applied through `quest_updated`) removes that quest's lead (the quest
+is known now) and closes the giver's open question once the quest is no longer offered;
+`QuestAsked` opens the question (one at a time), `QuestAskDeclined` closes it, a move clears it
+(`world_apply`).
+
+Public API: `QuestEvent` (the union), `QUEST_EVENT_TYPES`, `apply_quest_event(state, event)`,
+`quest_updated(state, quest)`.
 """
 
 from typing import assert_never
 
-from aidm.models.quest_events import KeepsakeGiven, QuestLeadAdded, QuestStepDone, RouteDiscovered
+from aidm.models.quest_events import (
+    KeepsakeGiven,
+    QuestAskDeclined,
+    QuestAsked,
+    QuestLeadAdded,
+    QuestLeadRemoved,
+    QuestStepDone,
+    RouteDiscovered,
+)
 from aidm.models.state import GameState
-from aidm.models.world import MAX_QUEST_LOG, Quest, RouteProgress
+from aidm.models.world import MAX_QUEST_LOG, Quest, QuestAsk, QuestState, RouteProgress
 from aidm.session.reducer_errors import ReducerError
 
-type QuestEvent = QuestStepDone | RouteDiscovered | QuestLeadAdded | KeepsakeGiven
+type QuestEvent = (
+    QuestStepDone
+    | RouteDiscovered
+    | QuestLeadAdded
+    | QuestLeadRemoved
+    | QuestAsked
+    | QuestAskDeclined
+    | KeepsakeGiven
+)
 
-QUEST_EVENT_TYPES = (QuestStepDone, RouteDiscovered, QuestLeadAdded, KeepsakeGiven)
+QUEST_EVENT_TYPES = (
+    QuestStepDone,
+    RouteDiscovered,
+    QuestLeadAdded,
+    QuestLeadRemoved,
+    QuestAsked,
+    QuestAskDeclined,
+    KeepsakeGiven,
+)
 
 
 def _quest(state: GameState, quest_id: str) -> Quest:
@@ -71,6 +101,39 @@ def _given(state: GameState, event: KeepsakeGiven) -> None:
     npc.keepsakes.append(keepsake.model_copy())
 
 
+def quest_updated(state: GameState, quest: Quest) -> None:
+    world = state.world
+    world.quests[quest.id] = quest
+    world.leads = [lead for lead in world.leads if lead.quest_id != quest.id]
+    ask = world.quest_ask
+    if ask is not None and ask.quest_id == quest.id and quest.state is not QuestState.OFFERED:
+        world.quest_ask = None
+
+
+def _asked(state: GameState, ask: QuestAsk) -> None:
+    world = state.world
+    quest = world.quests.get(ask.quest_id)
+    if world.quest_ask is not None:
+        raise ReducerError(f"quest {world.quest_ask.quest_id!r} is already being asked")
+    if quest is None or quest.state is not QuestState.OFFERED:
+        raise ReducerError(f"quest {ask.quest_id!r} is not offered")
+    world.quest_ask = ask
+
+
+def _declined(state: GameState, quest_id: str) -> None:
+    world = state.world
+    if world.quest_ask is None or world.quest_ask.quest_id != quest_id:
+        raise ReducerError(f"quest {quest_id!r} is not being asked")
+    world.quest_ask = None
+
+
+def _lead_removed(state: GameState, quest_id: str) -> None:
+    world = state.world
+    if not any(lead.quest_id == quest_id for lead in world.leads):
+        raise ReducerError(f"quest {quest_id!r} has no lead")
+    world.leads = [lead for lead in world.leads if lead.quest_id != quest_id]
+
+
 def apply_quest_event(state: GameState, event: QuestEvent) -> None:
     world = state.world
     match event:
@@ -82,6 +145,12 @@ def apply_quest_event(state: GameState, event: QuestEvent) -> None:
             if any(known.quest_id == lead.quest_id for known in world.leads):
                 raise ReducerError(f"quest {lead.quest_id!r} already has a lead")
             world.leads.append(lead)
+        case QuestLeadRemoved(quest_id=quest_id):
+            _lead_removed(state, quest_id)
+        case QuestAsked(ask=ask):
+            _asked(state, ask)
+        case QuestAskDeclined(quest_id=quest_id):
+            _declined(state, quest_id)
         case KeepsakeGiven():
             _given(state, event)
         case _:

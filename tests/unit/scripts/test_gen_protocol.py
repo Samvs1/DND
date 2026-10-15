@@ -72,6 +72,7 @@ CLIENT_TYPES = {
     "cancel_hostile",
     "vote",
     "answer_offer",
+    "answer_quest_offer",
     "level_up",
     "shop_buy",
     "shop_sell",

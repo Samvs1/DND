@@ -30,6 +30,8 @@ Public API:
   steps_done)`); `log` the last `MAX_QUEST_LOG` lines of what happened in it; `closed_reason`
   `left_behind` marks a failed quest that was left behind on crossing a gateway (no penalty).
 - `QuestLead(quest_id, text)`: a journal line pointing at a side quest's giver (M23).
+- `QuestAsk(quest_id, npc_id, node_id)`: the giver's open question (M23.4): the phones show the
+  Accept / Not now card while it is set; answering, declining or leaving the node clears it.
 - `Fact(id, text, entity_ids, tags)`: the fact ledger.
 - `WorldItem(id, name, catalog_id, qty, node_id, hidden, discover_dc, quest_id)`: an item lying
   in a place (dropped, found); visible items are part of the manifest. A hidden item is found by
@@ -43,7 +45,8 @@ Public API:
   description of a node, stored once and never regenerated), `items` (world items by id),
   `lore_names` (world-bible names the guard allows), `scene_turn` (narrated turns in the
   current scene; reset by a move). The derived scene view is `aidm.rules.scene.current_scene`.
-  M23: `leads` (quest leads); `WorldNpc.keepsakes` holds keepsakes handed to that NPC.
+  M23: `leads` (quest leads), `quest_ask` (the pending quest offer, at most one);
+  `WorldNpc.keepsakes` holds keepsakes handed to that NPC.
 """
 
 from __future__ import annotations
@@ -187,6 +190,14 @@ class QuestLead(BaseModel):
     text: str = Field(min_length=1, max_length=160)
 
 
+class QuestAsk(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    quest_id: str = Field(min_length=1)
+    npc_id: str = Field(min_length=1)
+    node_id: str = Field(min_length=1)
+
+
 class Fact(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
@@ -229,3 +240,4 @@ class World(BaseModel):
     lore_names: list[str] = Field(default_factory=list[str])
     scene_turn: int = Field(default=0, ge=0)
     leads: list[QuestLead] = Field(default_factory=list[QuestLead])
+    quest_ask: QuestAsk | None = None

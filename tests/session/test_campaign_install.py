@@ -7,7 +7,6 @@ from aidm.models.campaign_events import CampaignInstalled
 from aidm.models.dm_tiers import AttitudeBand
 from aidm.models.events import AnyEvent, event_adapter
 from aidm.models.state import GameState
-from aidm.models.world import QuestState
 from aidm.models.world_events import PartyMoved
 from aidm.rules.campaign_install import install_campaign
 from aidm.rules.plan_ids import boss_npc_id
@@ -39,9 +38,7 @@ def test_install_registers_cast_bosses_quests_and_graph() -> None:
         boss = world.npcs[boss_npc_id(region)]
         assert boss.node_id == region.gateway.id and boss.archetype_id == region.boss.monster_id
         assert npc_is_hostile(boss) is (region.boss.ally_path is None)
-    act1 = {q.id for q in plan.quests if q.act == 1}
-    assert set(world.quests) == act1
-    assert all(q.state is QuestState.OFFERED for q in world.quests.values())
+    assert world.quests == {}  # M23.4: no bulk offering, the givers ask on arrival
     assert world.node_names[arrival] == plan.acts[0].region.arrival.name
     assert plan.title in world.lore_names
     assert world.region_tier == 1

@@ -3,6 +3,7 @@
 Phases: start the campaign, chaos probes, exploration rounds (all three act at once, so the
 queue is exercised), travel by ready vote, the encounter offer and a FULL combat (each bot
 answers its own `turn_prompt`), a short rest, a level-up and the walk to the region gateway.
+M23.4: every quest a giver offers is accepted; a crossing question is confirmed.
 
 Public API: `Director`.
 """
@@ -86,6 +87,7 @@ class Director:
         if phase != "play":
             self.report.fail(f"campaign did not reach phase play (phase={phase})")
         self.hub = scene_of(self.state()).get("node_id", "")
+        await self.accept_quest_offer()
 
     async def probes(self) -> None:
         self.step("chaos probes")
@@ -146,12 +148,30 @@ class Director:
     async def travel(self, name: str) -> bool:
         self.step(f"travel to {name}")
         before = scene_of(self.state()).get("node_id")
-        passed = await self.propose(self.proposer(self.party.explorer), f"I travel to {name}")
+        proposer = self.proposer(self.party.explorer)
+        mark = proposer.conn.mark()
+        passed = await self.propose(proposer, f"I travel to {name}")
+        if passed and proposer.conn.of_type("pending_confirmation", mark):
+            await proposer.conn.send({"type": "confirm_hostile"})  # M23.4: leave tasks behind
+            await self.settle()
         after = scene_of(self.state()).get("node_id")
         if not passed or after == before:
             self.report.fail(f"travel to {name} did not move the party ({before} -> {after})")
             return False
+        await self.accept_quest_offer()
         return True
+
+    async def accept_quest_offer(self) -> None:
+        """M23.4: a giver asks on arrival; the bots take every quest they are offered."""
+        card = self.state().get("quest_offer")
+        if not card:
+            return
+        self.report.say(f"accept quest {card['quest_id']}")
+        send = {"type": "answer_quest_offer", "quest_id": card["quest_id"], "accept": True}
+        await self.host.conn.send(send)
+        await self.settle()
+        if self.state().get("quest_offer"):
+            self.report.fail(f"quest offer {card['quest_id']} still open after accepting")
 
     # --- combat ----------------------------------------------------------------------------
 

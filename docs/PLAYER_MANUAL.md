@@ -179,7 +179,7 @@ Some things need the whole table: **travelling**, **resting** (short or long) an
 - Only connected players with a living hero vote. The host can press **Host: decide now** to force the open vote.
 
 ### The map and travel
-The **Journal** tab has a **Map** section. It shows the region as places you can visit, with your current place marked and unexplored places in fog. Some places are locked until something happens in the story. Under **Travel**, each place connected to yours has a **Travel to** button: press it and the table votes. You cannot travel during a fight. Arriving may start a story scene or a warning (see Trouble ahead).
+The **Journal** tab has a **Map** section. It shows the region as places you can visit, with your current place marked and unexplored places in fog. Some places are locked until something happens in the story. Under **Travel**, each place connected to yours has a **Travel to** button: press it and the table votes. You cannot travel during a fight. Arriving may start a story scene, a warning (see Trouble ahead) or someone asking for help (see Quests and the journal). Crossing into the next region with unfinished side quests asks first (see Leaving a region).
 
 ### Rests
 Rests also need a vote and happen between fights.
@@ -232,6 +232,14 @@ After a victory the party's loot is gathered into one reward: experience for eve
 
 ### Quests and the journal
 The **Journal** tab has three sections: **Journal**, **Map** and **Story** (the recent story in full, for catching up). The Journal section lists quests as Active, Offered, Completed or Failed, with who gave each one and the current objective. It also keeps what is known so far and earlier scenes. Each region has one **main quest**, active from the moment you arrive: it ends when the region's master is defeated, or when you finish another way of dealing with them that you discover by talking to the right people or by doing one of its steps. Quests are made of steps, and the game checks a step off by itself as soon as what it asks has really happened (you went there, won the fight there, carry the item, handed it over, met the person). Only the quest items the game placed for a task count for it; see *Quest items and keepsakes* above. Work you did before taking a quest on counts once it is active. An offered quest does not move until it is accepted; when every step of an accepted quest is done, it completes and pays its reward once.
+
+**Quests come from people.** Nobody hands you a list. When the party arrives where someone needs help, that person asks (one ask per arrival): the story tells it, and every phone with a hero shows a card at the top of the Play tab, *<name> asks: <quest>*, with what they want and two buttons. The first player to answer decides for the party:
+- **Accept**: the quest becomes active. Anything you already did for it counts at once.
+- **Not now**: nothing is lost and nobody minds. The quest stays offered, and the card comes back the next time you arrive where that person is.
+
+The card stays while you keep playing (typing something else does not answer it) and goes away if the party walks on; it is not shown while a Trouble ahead warning or a fight is on, and it comes back if you reload the page. When you first arrive in a region, the journal also gets **leads** for people elsewhere in it: *Someone at Thornwood Shrine may need help.* Go there to hear them out; the lead disappears once they ask.
+
+**Leaving a region.** Regions are one-way: once you cross from a region's last place into the next region, you cannot go back. If you still have offered or active side quests there, the game asks first, on the phone of the player who proposed the trip: *Crossing into <region> leaves these behind: <quests>. Go on?* Say no and the party stays. Say yes and the party crosses; tasks whose steps were all done complete and pay as usual, and the rest are closed as **left behind**: no penalty, no lost goodwill, they just stay unfinished in the journal. The same happens to the tasks of a region you had already left before this rule existed (older saves).
 
 ### Your hero's sheet
 The **Hero** tab shows hit points, armour class, speed, initiative, proficiency, passive Perception, abilities, saving throws, skills, attacks, features, conditions and resources. Its **Inventory** section lets you equip, unequip, drop and use items. **Spellbook** shows your slots and spells. Gear changes wait until a fight ends. Potions are drunk from the hotbar in a fight.

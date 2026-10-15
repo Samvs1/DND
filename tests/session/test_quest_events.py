@@ -30,6 +30,8 @@ def _installed() -> tuple[GameState, GameState, list[AnyEvent]]:
     build_party(state, 1)
     start = state.model_copy(deep=True)
     events = install_campaign(state, plan, 3)
+    # M23.4: install offers nothing; the act-1 quests are offered as if their givers asked
+    events += [QuestUpdated(quest=side_world_quest(plan, q)) for q in plan.quests if q.act == 1]
     for event in events:
         apply(state, event)
     return start, state, events

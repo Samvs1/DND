@@ -8,7 +8,11 @@ Public API:
   quest's own steps (`route_id` None) or of one of its known routes is done; a non-empty
   `log_line` joins the quest log.
 - `RouteDiscovered(quest_id, route_id)`: the party now knows this route of the main quest.
-- `QuestLeadAdded(lead)`: a journal lead toward a side quest's giver.
+- `QuestLeadAdded(lead)`: a journal lead toward a side quest's giver (a `QuestUpdated` of that
+  quest removes it, the quest is known then).
+- `QuestLeadRemoved(quest_id)`: a lead of a region the party left (M23.4).
+- `QuestAsked(ask)`: the giver asks the party (M23.4): the Accept / Not now card is open.
+- `QuestAskDeclined(quest_id)`: "Not now": the card closes, the quest stays offered.
 - `KeepsakeGiven(creature_id, keepsake_id, npc_id)`: the hero hands a keepsake to an NPC; it
   leaves the hero and joins `WorldNpc.keepsakes`.
 - `QuestEvents`: the union of these classes.
@@ -21,7 +25,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from aidm.models.quests import MAX_STEPS
-from aidm.models.world import QuestLead
+from aidm.models.world import QuestAsk, QuestLead
 
 
 class _QuestEvent(BaseModel):
@@ -47,6 +51,21 @@ class QuestLeadAdded(_QuestEvent):
     lead: QuestLead
 
 
+class QuestLeadRemoved(_QuestEvent):
+    type: Literal["quest_lead_removed"] = "quest_lead_removed"
+    quest_id: str = Field(min_length=1)
+
+
+class QuestAsked(_QuestEvent):
+    type: Literal["quest_asked"] = "quest_asked"
+    ask: QuestAsk
+
+
+class QuestAskDeclined(_QuestEvent):
+    type: Literal["quest_ask_declined"] = "quest_ask_declined"
+    quest_id: str = Field(min_length=1)
+
+
 class KeepsakeGiven(_QuestEvent):
     type: Literal["keepsake_given"] = "keepsake_given"
     creature_id: str = Field(min_length=1)
@@ -54,4 +73,12 @@ class KeepsakeGiven(_QuestEvent):
     npc_id: str = Field(min_length=1)
 
 
-QuestEvents = QuestStepDone | RouteDiscovered | QuestLeadAdded | KeepsakeGiven
+QuestEvents = (
+    QuestStepDone
+    | RouteDiscovered
+    | QuestLeadAdded
+    | QuestLeadRemoved
+    | QuestAsked
+    | QuestAskDeclined
+    | KeepsakeGiven
+)

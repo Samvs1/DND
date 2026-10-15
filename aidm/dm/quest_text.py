@@ -4,16 +4,37 @@
 `QUEST_TEMPLATE_LINES` join `aidm.dm.narration_templates` (for players when no model is
 available). A step line names the quest and the step that was done (its log line); a route line
 names the route the party just found. Only discovered routes are ever named. A hand-over line
-says who handed what to whom (M23.3), the same for both.
+says who handed what to whom (M23.3), the same for both. M23.4: the quest state lines live here
+(taken on, left behind), the giver's ask (the model is told "<giver> asks the party:
+<objective>" and to invent no other quest) and a new lead; a declined ask and a dropped lead are
+bookkeeping (no line).
 """
 
 from collections.abc import Callable
 from typing import Any
 
-from aidm.models.quest_events import KeepsakeGiven, QuestStepDone, RouteDiscovered
+from aidm.models.quest_events import (
+    KeepsakeGiven,
+    QuestAskDeclined,
+    QuestAsked,
+    QuestLeadAdded,
+    QuestLeadRemoved,
+    QuestStepDone,
+    RouteDiscovered,
+)
 from aidm.models.state import GameState
+from aidm.models.world import ClosedReason, QuestState
+from aidm.models.world_events import QuestUpdated
 from aidm.rules.plan_ids import main_quest_id
 from aidm.rules.quest_plan import main_quest
+
+_QUESTS = {
+    QuestState.OFFERED: "A new task is offered: {title}.",
+    QuestState.ACTIVE: "A task now lies before you: {title}.",
+    QuestState.COMPLETED: "You have seen {title} through to the end.",
+    QuestState.FAILED: "{title} has slipped beyond your reach.",
+}
+LEFT_BEHIND_STORY = "{title} is left behind, unfinished."
 
 
 def _title(state: GameState, quest_id: str) -> str:
@@ -63,13 +84,64 @@ def _given(state: GameState, e: KeepsakeGiven) -> str:
     return f"{who} hands the {thing} to {npc.name if npc is not None else 'them'}."
 
 
+def _left(e: QuestUpdated) -> bool:
+    return e.quest.closed_reason is ClosedReason.LEFT_BEHIND
+
+
+def _updated_fact(state: GameState, e: QuestUpdated) -> str:
+    quest = e.quest
+    if _left(e):
+        return f"Quest '{quest.title}' was left behind unfinished (no penalty)."
+    if quest.state is QuestState.ACTIVE and quest.objective:
+        return f"The party took on the quest '{quest.title}': {quest.objective}"
+    return f"Quest '{quest.title}' is now {quest.state.value}."
+
+
+def _updated_story(state: GameState, e: QuestUpdated) -> str:
+    if _left(e):
+        return LEFT_BEHIND_STORY.format(title=e.quest.title)
+    return _QUESTS[e.quest.state].format(title=e.quest.title)
+
+
+def _giver(state: GameState, e: QuestAsked) -> str:
+    npc = state.world.npcs.get(e.ask.npc_id)
+    return npc.name if npc is not None else "Someone"
+
+
+def _asked_fact(state: GameState, e: QuestAsked) -> str:
+    quest = state.world.quests.get(e.ask.quest_id)
+    goal = (quest.objective or quest.title) if quest is not None else "a task"
+    return (
+        f"{_giver(state, e)} asks the party: {goal.rstrip('.')}. The players answer it"
+        " themselves (Accept or Not now); invent no other quest."
+    )
+
+
+def _asked_story(state: GameState, e: QuestAsked) -> str:
+    return f"{_giver(state, e)} asks for your help: {_title(state, e.ask.quest_id)}."
+
+
+def _no_line(state: GameState, e: object) -> None:
+    return None
+
+
 QUEST_EVENT_LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
+    QuestUpdated: _updated_fact,
+    QuestAsked: _asked_fact,
+    QuestLeadAdded: lambda s, e: f"A lead for the party: {e.lead.text}",
+    QuestLeadRemoved: _no_line,
+    QuestAskDeclined: _no_line,
     QuestStepDone: _step_fact,
     RouteDiscovered: _route_fact,
     KeepsakeGiven: _given,
 }
 
 QUEST_TEMPLATE_LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
+    QuestUpdated: _updated_story,
+    QuestAsked: _asked_story,
+    QuestLeadAdded: lambda s, e: e.lead.text,
+    QuestLeadRemoved: _no_line,
+    QuestAskDeclined: _no_line,
     QuestStepDone: _step_story,
     RouteDiscovered: _route_story,
     KeepsakeGiven: _given,
