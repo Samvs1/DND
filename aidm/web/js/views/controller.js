@@ -1,6 +1,6 @@
 // Phone controller (/play once the adventure runs): a persistent hero strip on top with the five tabs (Play, Hero,
 // Journal, Scribe, More) right under it (M18.2: never at the bottom, where a browser toolbar can cover them), an open
-// vote and a giver's quest offer (M23.4) as sticky cards at the top of the content, and dialogs for shop, host, settings and the manual. The shared
+// vote, a giver's quest offer (M23.4) and the finale choice (M23.9) as sticky cards at the top of the content, and dialogs for shop, host, settings and the manual. The shared
 // story, party and board live on /screen; nothing important is pinned to the bottom of the phone.
 import { createController } from '../combat/controller.js';
 import { mountDefeatPanel } from '../controller/defeat.js';
@@ -22,6 +22,7 @@ import { mountSheetSync } from '../sheet/sync.js';
 import { mountShop } from '../shop/shop.js';
 import { mountConfirm, mountOffer } from '../table/dialogs.js';
 import { mountNotices } from '../table/notices.js';
+import { mountFinale } from '../table/finale.js';
 import { mountQuestOffer } from '../table/quest_offer.js';
 import { mountVote } from '../table/vote.js';
 import { t } from '../strings.js';
@@ -57,6 +58,7 @@ export function mountController(root, ctx) {
     mountLevelUp(levelSlot, ctx),
     mountVote(sheetSlot, ctx),
     mountQuestOffer(sheetSlot, ctx),
+    mountFinale(sheetSlot, ctx),
     mountToast(toastSlot, ctx),
     mountQuestToast(toastSlot, ctx),
     mountConfirm(dialogs, ctx),

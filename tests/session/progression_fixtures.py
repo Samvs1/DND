@@ -47,14 +47,15 @@ def plan() -> CampaignPlan:
 
 
 def campaign_state(
-    level: int = 1, *, offered: bool = True
+    level: int = 1, *, offered: bool = True, plan_: CampaignPlan | None = None
 ) -> tuple[GameState, GameState, list[AnyEvent]]:
     """(the state before install, the live state, the log applied since). `offered`: the act-1
-    side quests are offered as if their givers had asked (M23.4: install offers none)."""
+    side quests are offered as if their givers had asked (M23.4: install offers none). `plan_`
+    replaces the sample plan (same regions, e.g. without its finale)."""
     state = GameState(campaign_id="prog", seed=SEED)
     build_party(state, level)
     start = state.model_copy(deep=True)
-    log = apply_all(state, install_campaign(state, plan(), SEED))
+    log = apply_all(state, install_campaign(state, plan_ or plan(), SEED))
     if offered:
         offer_act_quests(state, 1, log)
     return start, state, log

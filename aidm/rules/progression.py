@@ -13,7 +13,9 @@ Public API:
 - `region_resolution_events(state) -> list[AnyEvent]`: `RegionResolved` (+ the next act's
   quest items) for every unresolved region whose boss is defeated or allied; empty otherwise. The
   session calls it after a fight ends and after attitude changes.
-- `campaign_complete(state) -> bool`.
+- `campaign_complete(state) -> bool`: the story is over: the final region is resolved and, when
+  the plan has a finale, its ending was chosen (M23.9; an epilogue written before M23.9 also
+  counts, so such a save stays finished).
 """
 
 from aidm.models.campaign import NodePlan, RegionPlan
@@ -90,4 +92,8 @@ def region_resolution_events(state: GameState) -> list[AnyEvent]:
 
 
 def campaign_complete(state: GameState) -> bool:
-    return state.campaign is not None and state.campaign.complete
+    campaign = state.campaign
+    if campaign is None or not campaign.complete:
+        return False
+    chosen = campaign.finale_choice is not None or campaign.epilogue is not None
+    return campaign.plan.finale is None or chosen

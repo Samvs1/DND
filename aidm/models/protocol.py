@@ -29,6 +29,7 @@ type AnyClientMsg = (
     | c.Vote
     | c.AnswerOffer
     | c.AnswerQuestOffer
+    | c.ChooseFinale
     | c.LevelUp
     | c.ShopBuy
     | c.ShopSell

@@ -53,6 +53,7 @@ from aidm.rules.dice import Rng
 from aidm.rules.dm_tiers import party_levels
 from aidm.rules.encounter import start_encounter
 from aidm.rules.encounter_budget import adjusted_xp, pick_monsters, rate_encounter, rating_cap_xp
+from aidm.rules.finale import finale_open
 from aidm.rules.progression import boss_defeated, boss_npc, node_plan, region_of
 from aidm.rules.quest_progress import route_effects
 from aidm.rules.social import attitude_band, attitude_score, hostile_attitude_events
@@ -182,6 +183,8 @@ def arrival_offer_events(
     node_id = state.world.current_node
     region, node = region_of(state, node_id), node_plan(state, node_id)
     if campaign is None or region is None or node is None or campaign.offer is not None:
+        return []
+    if finale_open(state) is not None:  # M23.9: no new danger while the finale card is open
         return []
     if state.encounter is not None and state.encounter.status is EncounterStatus.ACTIVE:
         return []

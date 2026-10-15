@@ -12,11 +12,14 @@
 5. only when 1-4 hold nothing beyond the Force route: a nudge toward an undiscovered route whose
    hint NPC lives in this region, alive and not hostile, else the unexplored exits from here.
 
+M23.9: while the finale card is open, the answer is that choice (the question, then where to
+answer it) before anything else.
+
 Never told: an undiscovered route (except as the nudge), where a hidden quest item lies beyond
 the place the step text itself names, secrets, motives, or the name of a boss the party has not
 reached (it reads "the master of <region>", the journal's rule, `session.views_quests`).
 
-Public API: `MAX_LINES`, `NOTHING`, `what_now(state) -> tuple[str, ...]`.
+Public API: `MAX_LINES`, `NOTHING`, `FINALE_LINE`, `what_now(state) -> tuple[str, ...]`.
 """
 
 import re
@@ -26,6 +29,7 @@ from aidm.models.encounter import EncounterStatus
 from aidm.models.quests import FORCE_ROUTE_ID, QuestKind, QuestStep, StepKind
 from aidm.models.state import GameState
 from aidm.models.world import Quest, QuestState
+from aidm.rules.finale import finale_open
 from aidm.rules.plan_ids import boss_npc_id, main_quest_id
 from aidm.rules.progression import region_of
 from aidm.rules.quest_plan import main_quest
@@ -38,6 +42,7 @@ from aidm.rules.world_graph import legal_neighbours, travel_route
 MAX_LINES = 6
 NOTHING = "Nothing presses right now: look around and talk to the people here."
 FIGHTING = "First win this fight, or get away."
+FINALE_LINE = "Choose how the story ends on the finale card (Play tab)."
 DANGER = "Danger bars the way here: choose what to do on the encounter card."
 _NUMBERS = {2: "two", 3: "three", 4: "four", 5: "five", 6: "six", 7: "seven"}
 _TITLES = frozenset(
@@ -282,6 +287,9 @@ def _urgent(state: GameState) -> list[str]:
 
 
 def what_now(state: GameState) -> tuple[str, ...]:
+    finale = finale_open(state)
+    if finale is not None:
+        return (finale.question, FINALE_LINE)
     found = _act_of(state)
     if found is None:
         return (NOTHING,)

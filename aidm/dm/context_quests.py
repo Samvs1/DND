@@ -8,7 +8,9 @@ knows, never more:
   step about a quest item, where it is: "lies at <place>" when visible, "carried by <hero>",
   "handed to <npc>", else "not found yet" (a hidden item's place is never given);
 - the open quest card ("<giver> is asking now: <title>"), each other OFFERED quest with its giver
-  and where the giver is, and the journal leads.
+  and where the giver is, and the journal leads;
+- the finale (M23.9): while it is open, the question and the two ending TITLES with "never choose
+  for them" (the ending texts stay out until chosen); once chosen, that ending and its text.
 With ids (`show_ids`: the adjudicator) quests and routes show their ids, and a `free` current
 step says the model judges it (`update_quest`); every other step is the engine's.
 
@@ -22,6 +24,7 @@ Public API: `quest_lines(state, show_ids) -> list[str]`, `route_hint_lines(state
 from aidm.models.quests import QuestKind, QuestStep, StepKind
 from aidm.models.state import GameState
 from aidm.models.world import Quest, QuestState
+from aidm.rules.finale import chosen_ending, finale_open
 from aidm.rules.plan_ids import main_quest_id
 from aidm.rules.quest_plan import main_quest
 from aidm.rules.quest_steps import step_count
@@ -134,7 +137,21 @@ def quest_lines(state: GameState, show_ids: bool) -> list[str]:
         if q.state is QuestState.OFFERED and q is not asked
     ]
     lines += [f"Lead: {lead.text}" for lead in world.leads]
-    return lines
+    return [*lines, *_finale_lines(state)]
+
+
+def _finale_lines(state: GameState) -> list[str]:
+    finale = finale_open(state)
+    if finale is not None:
+        a, b = (o.title for o in finale.options)
+        return [
+            f'FINALE (waiting for the players): {finale.question} Endings: "{a}" or "{b}".'
+            " The players choose on their card; never choose for them or tell an ending."
+        ]
+    ending = chosen_ending(state)
+    if ending is not None:
+        return [f'FINALE: the party chose "{ending.title}": {ending.text}']
+    return []
 
 
 def route_hint_lines(state: GameState, npc_id: str | None) -> list[str]:

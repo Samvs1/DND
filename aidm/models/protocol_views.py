@@ -171,6 +171,21 @@ class PublicQuestOffer(_View):
     objective: str = ""
 
 
+class PublicFinaleOption(_View):
+    id: str
+    title: str
+
+
+class PublicFinale(_View):
+    """M23.9: the plan's finale question. `chosen` is None while the party must still choose
+    (the card shows); afterwards it is the chosen ending's id and `ending` its text."""
+
+    question: str
+    options: tuple[PublicFinaleOption, ...] = ()
+    chosen: str | None = None
+    ending: str = ""
+
+
 class CombatToken(_View):
     creature_id: str
     name: str
@@ -286,6 +301,7 @@ class PublicState(_View):
     combat: PublicCombat | None = None
     offer: PublicOffer | None = None
     quest_offer: PublicQuestOffer | None = None
+    finale: PublicFinale | None = None
     queue: tuple[QueueEntry, ...] = ()
     resolving: QueueEntry | None = None
     vote: VoteView | None = None

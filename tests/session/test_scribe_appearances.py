@@ -8,6 +8,7 @@ from aidm.models.encounter import EncounterStatus, Side
 from aidm.models.events import CreatureDied
 from aidm.models.protocol import AnyServerMsg
 from aidm.models.protocol_client import (
+    ChooseFinale,
     CreateCharacter,
     Hello,
     HostLoad,
@@ -198,6 +199,10 @@ async def test_campaign_victory_replaces_the_fight_line_and_survives_reconnect(
         snap = table.snapshot().state
         assert not snap.complete and snap.epilogue is None
         await _win(table)
+        assert _groups(ann.drain()) == []  # M23.9: the finale card first, the story is not over
+        assert table.snapshot().state.finale is not None
+        ann.send(ChooseFinale(option_id="silence-the-song", confirm=True))
+        await table.settle()
         msgs = ann.drain()
         assert _groups(msgs) == ["victory_campaign"]
         assert _index(msgs, ScribeLineMsg) < _index(msgs, EpilogueMsg)

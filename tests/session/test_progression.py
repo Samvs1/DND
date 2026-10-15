@@ -9,6 +9,7 @@ from aidm.models.events import AnyEvent
 from aidm.models.state import GameState
 from aidm.models.world_events import AttitudeChanged, PartyMoved
 from aidm.rules.campaign_install import install_campaign
+from aidm.rules.finale import choose_events, finale_open
 from aidm.rules.plan_ids import boss_npc_id
 from aidm.rules.progression import campaign_complete, region_resolution_events
 from aidm.rules.social import deed_attitude_events
@@ -180,9 +181,12 @@ def test_full_three_act_progression_reaches_campaign_complete() -> None:
         if act:
             move(state, plan().acts[act].region.arrival.id, log)
         _tour(state, log, act)
-    assert campaign_complete(state)
+    assert not campaign_complete(state)  # M23.9: the sample plan ends on the finale choice
+    assert finale_open(state) is not None
     finals = [e for e in log if isinstance(e, RegionResolved)]
     assert [e.final for e in finals] == [False, False, True]
+    apply_all(state, choose_events(state, "let-it-finish"), log)
+    assert campaign_complete(state) and finale_open(state) is None
     assert replay(start, log) == state
 
 

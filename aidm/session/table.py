@@ -102,6 +102,7 @@ JOBS: dict[type, JobMaker] = {
     c.CancelHostile: lambda core, p, m: partial(explore.cancel_hostile, core, p),
     c.AnswerOffer: lambda core, p, m: partial(party_actions.answer, core, p, m),
     c.AnswerQuestOffer: lambda core, p, m: partial(quest_people.answer_quest, core, p, m),
+    c.ChooseFinale: lambda core, p, m: partial(quest_people.choose_finale, core, p, m),
     c.LevelUp: lambda core, p, m: partial(party_actions.level, core, p, m),
     c.ShopBuy: lambda core, p, m: partial(party_actions.buy, core, p, m),
     c.ShopSell: lambda core, p, m: partial(party_actions.sell, core, p, m),

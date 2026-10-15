@@ -331,6 +331,19 @@ body.is-controller #app {
   display: none;
 }
 
+/* M23.9: the finale card's two endings, one per row (titles can be long) */
+.finale-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.finale-options .btn {
+  width: 100%;
+  white-space: normal;
+}
+
 .quest-strip-text {
   min-width: 0;
   overflow: hidden;

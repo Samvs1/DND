@@ -17,6 +17,7 @@ from aidm.models.campaign_events import (
     DifficultySet,
     EncounterOffered,
     EpilogueWritten,
+    FinaleChosen,
     OfferResolved,
     RegionResolved,
 )
@@ -32,6 +33,7 @@ type CampaignEvent = (
     | EncounterOffered
     | OfferResolved
     | EpilogueWritten
+    | FinaleChosen
     | DifficultySet
 )
 
@@ -41,6 +43,7 @@ CAMPAIGN_EVENT_TYPES = (
     EncounterOffered,
     OfferResolved,
     EpilogueWritten,
+    FinaleChosen,
     DifficultySet,
 )
 
@@ -75,6 +78,15 @@ def _installed(state: GameState, event: CampaignInstalled) -> None:
     refresh_travel(state)
 
 
+def _finale_chosen(campaign: CampaignState, option_id: str) -> None:
+    finale = campaign.plan.finale
+    if finale is None or not campaign.complete or campaign.finale_choice is not None:
+        raise ReducerError("no finale is waiting for a choice")
+    if option_id not in {o.id for o in finale.options}:
+        raise ReducerError(f"unknown ending {option_id!r}")
+    campaign.finale_choice = option_id
+
+
 def apply_campaign_event(state: GameState, event: CampaignEvent) -> None:
     match event:
         case CampaignInstalled():
@@ -103,6 +115,8 @@ def apply_campaign_event(state: GameState, event: CampaignEvent) -> None:
             if not campaign.complete:
                 raise ReducerError("the campaign is not complete")
             campaign.epilogue = text
+        case FinaleChosen(option_id=option_id):
+            _finale_chosen(_campaign(state), option_id)
         case DifficultySet(monster_hp=hp, monster_damage=damage):
             state.difficulty = Difficulty(monster_hp=hp, monster_damage=damage)
         case _:

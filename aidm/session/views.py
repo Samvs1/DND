@@ -49,13 +49,14 @@ from aidm.models.state import Creature, GameState
 from aidm.models.zones import Zone
 from aidm.rules.gateway_lock import locked_reason
 from aidm.rules.hex_layout import Hex, hex_layout
+from aidm.rules.progression import campaign_complete
 from aidm.rules.scene import current_scene, node_display_name
 from aidm.rules.scribe import scribe_view
 from aidm.rules.shop import StockEntry
 from aidm.rules.social import public_npc_view
 from aidm.rules.zones import zone_is_difficult
 from aidm.session.public_feed import leaks, private_texts
-from aidm.session.views_quests import public_leads, public_quests
+from aidm.session.views_quests import public_finale, public_leads, public_quests
 
 MAX_PUBLIC_FACTS = 12
 MAX_PUBLIC_SUMMARIES = 8
@@ -319,13 +320,14 @@ def public_state(
         combat=public_combat(state),
         offer=public_offer(state),
         quest_offer=public_quest_offer(state),
+        finale=public_finale(state),
         queue=tuple(queue),
         resolving=resolving,
         vote=vote,
         campaign_title=campaign.plan.title if campaign is not None else "",
         region_tier=state.world.region_tier,
         camp_supplies=state.camp_supplies,
-        complete=campaign.complete if campaign is not None else False,
+        complete=campaign_complete(state),
         epilogue=campaign.epilogue if campaign is not None else None,
         tts_enabled=tts_enabled,
         screens=screens,

@@ -11,14 +11,21 @@
   that player (`pending_confirmation`); `confirm_hostile` executes it again confirmed. The travel
   vote's job and the adjudicator's `move_party` both use it for a crossing.
 - `CROSS_STAY`: the line told when a crossing is called off.
+- `choose_finale(core, player, msg)` (M23.9): the finale card, from the same players as the quest
+  card. The phone asks "Are you sure? This ends the story." itself and sends `confirm: true`;
+  without it nothing happens but that question back to the sender (no event). Confirmed ->
+  `FinaleChosen`, told through `conclude` (the chosen ending as an engine fact), whose
+  `maybe_epilogue` then runs the campaign-complete path (Scribe line, epilogue, victory).
 
-Public API: `answer_quest`, `hold`, `CROSS_STAY`, `NOT_NOW`, `LET_GO`.
+Public API: `answer_quest`, `hold`, `choose_finale`, `CROSS_STAY`, `NOT_NOW`, `LET_GO`,
+`SURE`, `NO_FINALE`.
 """
 
 from aidm.dm.llm_types import ToolCall
-from aidm.models.protocol_client import AnswerQuestOffer
+from aidm.models.protocol_client import AnswerQuestOffer, ChooseFinale
 from aidm.models.protocol_server import ErrorCode, NoticeKind, PendingConfirmationMsg
 from aidm.models.quests import QuestKind
+from aidm.rules.finale import FinaleRefused, choose_events
 from aidm.rules.quest_offers import QuestOfferRefused, answer_events
 from aidm.session import combat_flow
 from aidm.session.table_core import Player, TableCore
@@ -29,6 +36,8 @@ CROSS_STAY = "The party stays on this side of the border for now."
 NOT_NOW = "{name} says not now; {giver} may ask again another time."
 LET_GO = "{name} says not now; {giver} lets the favour go."
 NOTHING = "Nobody is asking for your help right now."
+SURE = "Are you sure? This ends the story."
+NO_FINALE = "There is no ending to choose right now."
 
 
 def hold(core: TableCore, player_id: str, actor_id: str, call: ToolCall, prompt: str) -> None:
@@ -58,3 +67,20 @@ async def answer_quest(core: TableCore, player: Player, msg: AnswerQuestOffer) -
         return
     every = await conclude(core, None, events, actor_id=pc.id)
     await combat_flow.after_resolution(core, every)
+
+
+async def choose_finale(core: TableCore, player: Player, msg: ChooseFinale) -> None:
+    pc = core.living_pc(player)
+    if pc is None:
+        core.error(player.id, ErrorCode.NO_CHARACTER, "You need a living hero for that.")
+        return
+    try:
+        events = choose_events(core.state, msg.option_id)
+    except FinaleRefused:
+        core.error(player.id, ErrorCode.REFUSED, NO_FINALE)
+        return
+    if not msg.confirm:
+        core.notice(player.id, NoticeKind.INFO, SURE)
+        return
+    core.apply_all(events)
+    await conclude(core, None, events, actor_id=pc.id)

@@ -262,6 +262,33 @@
           "title": "Chat",
           "type": "object"
         },
+        "ChooseFinale": {
+          "additionalProperties": false,
+          "properties": {
+            "confirm": {
+              "default": false,
+              "title": "Confirm",
+              "type": "boolean"
+            },
+            "option_id": {
+              "maxLength": 40,
+              "minLength": 1,
+              "title": "Option Id",
+              "type": "string"
+            },
+            "type": {
+              "const": "choose_finale",
+              "default": "choose_finale",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "option_id"
+          ],
+          "title": "ChooseFinale",
+          "type": "object"
+        },
         "CombatCommandMsg": {
           "additionalProperties": false,
           "properties": {
@@ -2008,6 +2035,7 @@
           "audio_settings": "#/$defs/AudioSettingsMsg",
           "cancel_hostile": "#/$defs/CancelHostile",
           "chat": "#/$defs/Chat",
+          "choose_finale": "#/$defs/ChooseFinale",
           "combat_command": "#/$defs/CombatCommandMsg",
           "confirm_hostile": "#/$defs/ConfirmHostile",
           "create_character": "#/$defs/CreateCharacter",
@@ -2085,6 +2113,9 @@
         },
         {
           "$ref": "#/$defs/AnswerQuestOffer"
+        },
+        {
+          "$ref": "#/$defs/ChooseFinale"
         },
         {
           "$ref": "#/$defs/LevelUp"
@@ -2199,6 +2230,7 @@
       "audio_settings",
       "cancel_hostile",
       "chat",
+      "choose_finale",
       "combat_command",
       "confirm_hostile",
       "create_character",
@@ -4617,6 +4649,65 @@
           "title": "PublicFeature",
           "type": "object"
         },
+        "PublicFinale": {
+          "additionalProperties": false,
+          "description": "M23.9: the plan's finale question. `chosen` is None while the party must still choose\n(the card shows); afterwards it is the chosen ending's id and `ending` its text.",
+          "properties": {
+            "chosen": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Chosen"
+            },
+            "ending": {
+              "default": "",
+              "title": "Ending",
+              "type": "string"
+            },
+            "options": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/PublicFinaleOption"
+              },
+              "title": "Options",
+              "type": "array"
+            },
+            "question": {
+              "title": "Question",
+              "type": "string"
+            }
+          },
+          "required": [
+            "question"
+          ],
+          "title": "PublicFinale",
+          "type": "object"
+        },
+        "PublicFinaleOption": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "title": "Id",
+              "type": "string"
+            },
+            "title": {
+              "title": "Title",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "title"
+          ],
+          "title": "PublicFinaleOption",
+          "type": "object"
+        },
         "PublicMap": {
           "additionalProperties": false,
           "properties": {
@@ -5060,6 +5151,17 @@
               },
               "title": "Facts",
               "type": "array"
+            },
+            "finale": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/PublicFinale"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
             },
             "floor": {
               "$ref": "#/$defs/FloorView",

@@ -4,6 +4,9 @@
 model); `CAMPAIGN_TEMPLATE_LINES` join `aidm.dm.narration_templates` (no digits, for players when
 no model is available). The encounter offer IS the warning beat, so its template line always
 names the danger and the choices. Never renders motives, secrets or ally paths.
+M23.9: with a finale in the plan the final resolution ends on the finale question (the model is
+told not to choose for the party), and `FinaleChosen` tells the chosen ending (its title and the
+plan's text, public once chosen).
 """
 
 from collections import Counter
@@ -14,7 +17,9 @@ from aidm.dm.entities import display_name
 from aidm.dm.wording import counted
 from aidm.models import campaign_events as ce
 from aidm.models.campaign_state import EncounterOffer, RegionResolution
+from aidm.models.quests import FinalePlan
 from aidm.models.state import GameState
+from aidm.rules.finale import chosen_ending
 from aidm.rules.scene import node_display_name
 
 CHOICES_LINE = "Fight, strike first, slip away, or try to talk?"
@@ -47,17 +52,48 @@ def _offer_story(state: GameState, e: ce.EncounterOffered) -> str:
     return f"Danger stirs ahead: {_foes(state, e.offer, digits=False)}. {CHOICES_LINE}"
 
 
+def _finale(state: GameState, e: ce.RegionResolved) -> FinalePlan | None:
+    campaign = state.campaign
+    return campaign.plan.finale if e.final and campaign is not None else None
+
+
 def _resolved_fact(state: GameState, e: ce.RegionResolved) -> str:
+    finale = _finale(state, e)
+    if finale is not None:
+        a, b = (o.title for o in finale.options)
+        return (
+            f"Region {e.region_id} resolved by {e.how.value}. The last region is resolved. "
+            f'The party must now choose: {finale.question} The two endings: "{a}" or "{b}". '
+            "Do NOT choose for them and do not tell either ending: end with that question."
+        )
     end = " The campaign is complete." if e.final else " The way to the next region is open."
     return f"Region {e.region_id} resolved by {e.how.value}.{end}"
 
 
 def _resolved_story(state: GameState, e: ce.RegionResolved) -> str:
+    finale = _finale(state, e)
+    if finale is not None:
+        return f"The last shadow lifts, and one choice remains. {finale.question}"
     if e.final:
         return "The last shadow lifts, and your tale draws to its close."
     if e.how is RegionResolution.ALLIANCE:
         return "An uneasy alliance is struck, and the way onward opens."
     return "With its master fallen, the land breathes again, and the way onward opens."
+
+
+def _chosen_fact(state: GameState, e: ce.FinaleChosen) -> str | None:
+    ending = chosen_ending(state)
+    if ending is None:
+        return None
+    return (
+        f'FINALE: the party chose the ending "{ending.title}": {ending.text} Tell this ending '
+        "as it happens now; the campaign is complete."
+    )
+
+
+def _chosen_story(state: GameState, e: ce.FinaleChosen) -> str | None:
+    ending = chosen_ending(state)
+    return f"{ending.title}. {ending.text}" if ending is not None else None
 
 
 def _answer_story(state: GameState, e: ce.OfferResolved) -> str | None:
@@ -76,6 +112,7 @@ CAMPAIGN_EVENT_LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = 
         + f": {e.detail}."
     ),
     ce.RegionResolved: _resolved_fact,
+    ce.FinaleChosen: _chosen_fact,
     ce.CampaignInstalled: lambda s, e: None,
 }
 
@@ -83,4 +120,5 @@ CAMPAIGN_TEMPLATE_LINES: dict[type[Any], Callable[[GameState, Any], str | None]]
     ce.EncounterOffered: _offer_story,
     ce.OfferResolved: _answer_story,
     ce.RegionResolved: _resolved_story,
+    ce.FinaleChosen: _chosen_story,
 }

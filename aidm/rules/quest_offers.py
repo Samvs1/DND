@@ -10,7 +10,8 @@ backfill) and place the act's quest items.
   quest's giver is present, alive and not hostile, and that quest is unknown or still offered
   ("Not now" earlier, or an old save's bulk offer), the giver asks: `QuestUpdated(offered)` for an
   unknown quest (kind, objective and steps from `quest_plan`), then `QuestAsked`. One ask per
-  arrival (the first quest in plan order); none while an encounter offer waits or a fight runs.
+  arrival (the first quest in plan order); none while an encounter offer waits, a fight runs or
+  the finale card is open (M23.9).
 - The answer (`answer_events`): Accept -> `QuestUpdated(active)` (a stored quest without steps,
   an old save's, gets its derived steps and objective in that same event); Not now ->
   `QuestAskDeclined` (stays offered, asked again on the next arrival); Not now for a favour
@@ -32,6 +33,7 @@ from aidm.models.state import GameState
 from aidm.models.world import Quest, QuestAsk, QuestLead, QuestState
 from aidm.models.world_events import PartyMoved, QuestUpdated
 from aidm.rules.favours import withdrawn
+from aidm.rules.finale import finale_open
 from aidm.rules.progression import region_of
 from aidm.rules.quest_plan import quest_steps, side_world_quest
 from aidm.rules.quest_steps import npc_meetable
@@ -79,7 +81,8 @@ def _busy(state: GameState) -> bool:
     enc = state.encounter
     fighting = enc is not None and enc.status is EncounterStatus.ACTIVE
     offer = state.campaign is not None and state.campaign.offer is not None
-    return fighting or offer or state.world.quest_ask is not None
+    finale = finale_open(state) is not None  # M23.9: the finale card asks first
+    return fighting or offer or finale or state.world.quest_ask is not None
 
 
 def ask_events(state: GameState, batch: Sequence[AnyEvent]) -> list[AnyEvent]:

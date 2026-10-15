@@ -6,7 +6,7 @@ from pathlib import Path
 
 from playwright.sync_api import Browser, Page
 
-from aidm.models.campaign_events import RegionResolved
+from aidm.models.campaign_events import FinaleChosen, RegionResolved
 from aidm.models.campaign_state import RegionResolution
 from aidm.models.damage import DamagePacket, DamageType
 from aidm.models.events import GoldChanged
@@ -200,6 +200,7 @@ def test_campaign_victory_screens(
         assert campaign is not None
         region = campaign.plan.all_regions()[-1].id
         table.apply(RegionResolved(region_id=region, how=RegionResolution.DEFEAT, final=True))
+        table.apply(FinaleChosen(option_id="silence-the-song"))  # M23.9: the ending is chosen
         await maybe_epilogue(table)
 
     _job(live_server, win)

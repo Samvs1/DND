@@ -2,13 +2,21 @@
 
 Owner rule: only DONE step texts leave the server. The text of a step that is not done yet is
 the answer to "What now?" (M23.8) and never part of any snapshot. Every text passes `leaks`.
-Public API: `public_quests`, `public_leads`.
+M23.9 `public_finale`: the finale question with both ending titles once the final region is
+resolved (the card while nothing is chosen), then the chosen ending and its text.
+Public API: `public_quests`, `public_leads`, `public_finale`.
 """
 
-from aidm.models.protocol_views import PublicQuest, PublicRoute
+from aidm.models.protocol_views import (
+    PublicFinale,
+    PublicFinaleOption,
+    PublicQuest,
+    PublicRoute,
+)
 from aidm.models.quests import QuestKind, RoutePlan
 from aidm.models.state import GameState
 from aidm.models.world import Quest
+from aidm.rules.finale import chosen_ending, finale_open
 from aidm.rules.plan_ids import main_quest_id
 from aidm.rules.quest_plan import main_quest
 from aidm.session.public_feed import leaks, private_texts
@@ -107,3 +115,17 @@ def public_quests(state: GameState) -> tuple[PublicQuest, ...]:
 def public_leads(state: GameState) -> tuple[str, ...]:
     private = _private(state)
     return tuple(t for t in (_clean(lead.text, private) for lead in state.world.leads) if t)
+
+
+def public_finale(state: GameState) -> PublicFinale | None:
+    campaign = state.campaign
+    finale = campaign.plan.finale if campaign is not None else None
+    chosen = chosen_ending(state)
+    if finale is None or (finale_open(state) is None and chosen is None):
+        return None
+    return PublicFinale(
+        question=finale.question,
+        options=tuple(PublicFinaleOption(id=o.id, title=o.title) for o in finale.options),
+        chosen=chosen.id if chosen is not None else None,
+        ending=chosen.text if chosen is not None else "",
+    )

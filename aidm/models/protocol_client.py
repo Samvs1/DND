@@ -19,7 +19,9 @@ M11.2 `DeviceRole` (`Hello.role`: "screen" = the shared display, "controller" = 
 the combat turn timer, off / 90 s / 3 min / 5 min); M20.2 `HelpUp` (outside a fight, help a
 downed party member up to 1 HP, `aidm.rules.downed`); M23.4 `AnswerQuestOffer` (Accept / Not now
 on the giver's quest card, `aidm.rules.quest_offers`); M23.8 `AskWhatNow` (the What now? button:
-answered at once from the state, never a turn, `aidm.rules.quest_hints`).
+answered at once from the state, never a turn, `aidm.rules.quest_hints`); M23.9 `ChooseFinale`
+(the finale card: one of the plan's two endings; only `confirm: true`, sent after the phone's
+"Are you sure? This ends the story", makes the choice, `aidm.rules.finale`).
 """
 
 from enum import StrEnum
@@ -104,6 +106,12 @@ class AnswerQuestOffer(_Client):
     type: Literal["answer_quest_offer"] = "answer_quest_offer"
     quest_id: str = Field(min_length=1, max_length=MAX_NAME * 2)
     accept: bool
+
+
+class ChooseFinale(_Client):
+    type: Literal["choose_finale"] = "choose_finale"
+    option_id: str = Field(min_length=1, max_length=MAX_NAME)
+    confirm: bool = False
 
 
 class LevelUp(_Client):

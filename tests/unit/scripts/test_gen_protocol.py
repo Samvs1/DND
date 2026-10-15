@@ -74,6 +74,7 @@ CLIENT_TYPES = {
     "vote",
     "answer_offer",
     "answer_quest_offer",
+    "choose_finale",  # M23.9
     "level_up",
     "shop_buy",
     "shop_sell",

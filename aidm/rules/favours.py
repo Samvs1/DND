@@ -30,6 +30,7 @@ from aidm.models.quests import QuestKind, QuestStep, StepKind
 from aidm.models.state import GameState
 from aidm.models.world import MAX_QUEST_LOG, ClosedReason, Quest, QuestAsk, QuestState, WorldNpc
 from aidm.models.world_events import QuestUpdated
+from aidm.rules.finale import finale_open
 from aidm.rules.plan_ids import boss_npc_id
 from aidm.rules.progression import region_of
 from aidm.rules.quest_steps import step_met
@@ -69,7 +70,8 @@ def _check_moment(state: GameState) -> None:
     if enc is not None and enc.status is EncounterStatus.ACTIVE:
         raise FavourRefused("no favours during a fight")
     campaign = state.campaign
-    if state.world.quest_ask is not None or (campaign is not None and campaign.offer is not None):
+    asking = state.world.quest_ask is not None or finale_open(state) is not None
+    if asking or (campaign is not None and campaign.offer is not None):
         raise FavourRefused("another question is waiting for the players; ask later")
     current = open_favour(state)
     if current is not None:

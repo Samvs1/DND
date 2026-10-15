@@ -14,6 +14,8 @@ Public API:
   consequences (a check, a retreat, an attitude change, the fight) are separate events.
 - `EpilogueWritten(text, source)` (M5.7): the epilogue of the finished campaign (`source` is
   "model", "template" or "mixed"); stored in `CampaignState.epilogue`, so a reconnect can show it.
+- `FinaleChosen(option_id)` (M23.9): the party chose one of the plan's two endings (after the
+  final region resolved, confirmed on the phone); the campaign is complete after it.
 - `DifficultySet(monster_hp, monster_damage)` (M6.5): the host's difficulty multipliers
   (`GameState.difficulty`).
 - `CampaignEvents`: the union of these classes (joins `AnyEvent`).
@@ -66,6 +68,11 @@ class EpilogueWritten(_CampaignEvent):
     source: Literal["model", "template", "mixed"]
 
 
+class FinaleChosen(_CampaignEvent):
+    type: Literal["finale_chosen"] = "finale_chosen"
+    option_id: str = Field(min_length=1)
+
+
 class DifficultySet(_CampaignEvent):
     type: Literal["difficulty_set"] = "difficulty_set"
     monster_hp: float = Field(ge=MIN_MULTIPLIER, le=MAX_MULTIPLIER)
@@ -78,5 +85,6 @@ CampaignEvents = (
     | EncounterOffered
     | OfferResolved
     | EpilogueWritten
+    | FinaleChosen
     | DifficultySet
 )
