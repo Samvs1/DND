@@ -1,5 +1,6 @@
 """M23.8 What now? on the phone: the button in the Now card opens the engine's answer in a panel
-under the card (asker only), the shared screen shows it as one card in its feed, Dismiss closes it."""
+under the card (asker only), the shared screen shows it as one card in its feed, Dismiss closes
+it."""
 
 from pathlib import Path
 
