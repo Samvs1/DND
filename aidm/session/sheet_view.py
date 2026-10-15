@@ -5,13 +5,18 @@ The derived sheet comes from `rules.sheet.build_sheet` (never stored), and `leve
 `rules.level_options.level_up_options` while the hero can level up, so the level-up dialog can
 offer exactly the picks `rules.leveling.validate_level_up` will accept.
 
-Public API: `send_sheet`.
+Public API: `send_sheet`, `quest_titles(state)` (quest id -> title, for quest items).
 """
 
 from aidm.models.protocol_server import ErrorCode, SheetMsg
+from aidm.models.state import GameState
 from aidm.rules.level_options import level_up_options
 from aidm.rules.sheet import build_sheet
 from aidm.session.table_core import Player, TableCore
+
+
+def quest_titles(state: GameState) -> dict[str, str]:
+    return {qid: quest.title for qid, quest in state.world.quests.items()}
 
 
 def send_sheet(core: TableCore, player: Player) -> None:
@@ -22,7 +27,7 @@ def send_sheet(core: TableCore, player: Player) -> None:
     chars = core.regs.combat.chars
     msg = SheetMsg(
         creature_id=creature.id,
-        sheet=build_sheet(creature, chars),
+        sheet=build_sheet(creature, chars, quest_titles(core.state)),
         level_up=level_up_options(creature, chars),
     )
     core.send(player.id, msg)

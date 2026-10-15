@@ -144,6 +144,12 @@ def _attitude(state: GameState, e: we.AttitudeChanged) -> str:
     return f"{who} turns hostile." if e.hostile else f"{who}'s manner toward you shifts."
 
 
+def _item_found(state: GameState, e: we.ItemDiscovered) -> str:
+    item = state.world.items.get(e.item_id)
+    name = item.name if item is not None else "something hidden"
+    return f"{_who(state, e.creature_id)} finds {name}."
+
+
 _LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     ev.CheckResolved: _check,
     AttackRolled: _attack,
@@ -173,7 +179,12 @@ _LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     we.PartyMoved: lambda s, e: f"You travel on to {node_display_name(s, e.to_node)}.",
     we.QuestUpdated: lambda s, e: _QUESTS[e.quest.state].format(title=e.quest.title),
     we.ShopOpened: lambda s, e: f"{_who(s, e.npc_id)} lays out their wares.",
-    we.ItemPlaced: lambda s, e: None if e.item.hidden else f"{e.item.name} lies here.",
+    we.ItemPlaced: lambda s, e: (
+        None
+        if e.item.hidden or e.item.node_id != s.world.current_node
+        else f"{e.item.name} lies here."
+    ),
+    we.ItemDiscovered: _item_found,
     we.HostileActPending: lambda s, e: "You stand on the brink of violence.",
     **CAMPAIGN_TEMPLATE_LINES,
     **QUEST_TEMPLATE_LINES,

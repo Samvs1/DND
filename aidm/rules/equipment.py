@@ -9,7 +9,7 @@ level-up uses, so feature bonuses already in `Creature.ac` are kept. Dropping pu
 the ground at the current place (`ItemPlaced`), unequipping the last equipped copy first.
 Taking (M19.3) is the reverse: a visible item lying at the current place leaves it
 (`ItemRemoved`) and joins the hero: a catalogue item into the inventory, anything else (a story
-object with no catalogue entry) as a keepsake.
+object with no catalogue entry) as a keepsake; a quest item keeps its `quest_id` (M23.3).
 
 Public API: `EquipRefusal`, `EquipRefused`, `equip_events(creature, item, regs)`,
 `unequip_events(creature, item, regs)`, `drop_events(state, creature, item, regs)`,
@@ -156,7 +156,7 @@ def take_events(state: GameState, creature: Creature, item_id: str) -> list[AnyE
         raise EquipRefused(EquipRefusal.NOT_HERE, "that is not lying here")
     gone = ItemRemoved(item_id=item.id)
     if item.catalog_id is None:
-        keepsake = Keepsake(id=item.id, name=item.name[:40])
+        keepsake = Keepsake(id=item.id, name=item.name[:40], quest_id=item.quest_id)
         return [gone, KeepsakeGained(creature_id=creature.id, keepsake=keepsake)]
     qty = carried_qty(creature, item.catalog_id) + item.qty
     stack = InventoryChanged(creature_id=creature.id, item=item.catalog_id, delta=item.qty, qty=qty)

@@ -84,7 +84,7 @@ def region_resolution_events(state: GameState) -> list[AnyEvent]:
         final = len(resolved) == len(acts)
         events.append(RegionResolved(region_id=region.id, how=how, final=final))
         if act.index < len(acts):
-            events.extend(act_quest_events(campaign.plan, act.index + 1))
+            events.extend(act_quest_events(state, campaign.plan, act.index + 1))
     return events
 
 

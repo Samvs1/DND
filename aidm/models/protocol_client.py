@@ -132,6 +132,9 @@ class ShopSell(_Client):
 
 
 class Give(_Client):
+    """Hand something to an NPC who is here: `item_id` is an inventory item key, or (M23.3) the id
+    of a keepsake the hero carries (a quest item is delivered this way)."""
+
     type: Literal["give"] = "give"
     npc_id: str
     item_id: str

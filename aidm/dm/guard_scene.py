@@ -93,6 +93,8 @@ def _carried(state: GameState) -> set[str]:
         if creature.pc is not None:
             names.update(display_name(i.item) for i in creature.pc.inventory)
             names.update(k.name for k in creature.pc.keepsakes)
+    for npc in state.world.npcs.values():  # M23.3: things handed over still exist
+        names.update(k.name for k in npc.keepsakes)
     return names
 
 

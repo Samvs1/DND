@@ -3,8 +3,11 @@
 Every number is computed by the rules that own it (checks, weapon attacks, spellcasting, feature
 hooks); this module only assembles them. Initiative shows the +DEX bonus (BG3 rolls 1d4 + DEX).
 
-Public API: `build_sheet(creature, regs) -> CharacterSheet` (ValueError for a non-PC).
+Public API: `build_sheet(creature, regs, quest_titles) -> CharacterSheet` (ValueError for a
+non-PC); `quest_titles` (quest id -> title) names the quest of each quest item (M23.3).
 """
+
+from collections.abc import Mapping
 
 from aidm.data.character_data import CharacterRegistries
 from aidm.data.item_catalogue import CatalogueItem, item_catalogue
@@ -132,7 +135,20 @@ def _inventory(pc: PcData, regs: CharacterRegistries) -> list[InventoryLine]:
     return lines
 
 
-def build_sheet(creature: Creature, regs: CharacterRegistries) -> CharacterSheet:
+def _keepsakes(pc: PcData, quest_titles: Mapping[str, str]) -> list[KeepsakeLine]:
+    return [
+        KeepsakeLine(
+            name=k.name,
+            description=k.description,
+            quest_title=quest_titles.get(k.quest_id, "a task") if k.quest_id else None,
+        )
+        for k in pc.keepsakes
+    ]
+
+
+def build_sheet(
+    creature: Creature, regs: CharacterRegistries, quest_titles: Mapping[str, str] | None = None
+) -> CharacterSheet:
     pc = creature.pc
     if pc is None:
         raise ValueError(f"{creature.id!r} has no character sheet")
@@ -169,7 +185,7 @@ def build_sheet(creature: Creature, regs: CharacterRegistries) -> CharacterSheet
         languages=list(pc.languages),
         resistances=list(creature.resistances),
         inventory=_inventory(pc, regs),
-        keepsakes=[KeepsakeLine(name=k.name, description=k.description) for k in pc.keepsakes],
+        keepsakes=_keepsakes(pc, quest_titles or {}),
         gold=pc.gold,
         conditions=[
             ConditionLine(name=c.name, rounds_left=c.rounds_left) for c in creature.conditions

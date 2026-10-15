@@ -14,7 +14,8 @@ Public API:
   `LookIntent(text)` (the deterministic description, `look_around_text`),
   `TakeIntent(actor_id, item_id)` (M19.3: "pick up / take / grab <a visible item here>"),
   `HelpUpIntent(actor_id, target_id)` (M20.2: "help her up", "wake <a downed hero>";
-  `aidm.dm.help_intent`).
+  `aidm.dm.help_intent`), `GiveIntent(actor_id, npc_id, thing)` (M23.3: "give the <thing> to
+  <name>"; `aidm.dm.give_intent`).
 - `Intent` (the union), `precheck(state, actor_id, text) -> Intent | None`.
 - `look_around_text(state) -> str`: the scene manifest as plain prose.
 - `SHOP_ROLES`: role words that make a present NPC a shopkeeper.
@@ -25,6 +26,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 
 from aidm.dm.entities import display_name
+from aidm.dm.give_intent import GiveIntent, give_intent
 from aidm.dm.help_intent import HelpUpIntent, help_up_intent
 from aidm.models.encounter import EncounterStatus
 from aidm.models.state import Creature, GameState
@@ -91,6 +93,7 @@ type Intent = (
     | LookIntent
     | TakeIntent
     | HelpUpIntent
+    | GiveIntent
 )
 
 SHOP_ROLES = (
@@ -260,6 +263,9 @@ def precheck(state: GameState, actor_id: str, text: str) -> Intent | None:
         return LookIntent(look_around_text(state))
     if _INVENTORY.fullmatch(clean):
         return InventoryIntent(actor_id)
+    given = give_intent(state, actor_id, clean)
+    if given is not None:
+        return given
     scene = current_scene(state)
     shop = _SHOP.fullmatch(clean)
     if shop:

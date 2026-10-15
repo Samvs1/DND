@@ -88,6 +88,12 @@ def _attack(state: GameState, e: AttackRolled) -> str:
     return f"{_who(state, e.attacker_id)} attacks {_who(state, e.target_id)} and {verdict}."
 
 
+def _item_found(state: GameState, e: we.ItemDiscovered) -> str:
+    item = state.world.items.get(e.item_id)
+    name = item.name if item is not None else "something hidden"
+    return f"{_who(state, e.creature_id)} found {name}."
+
+
 _LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     ev.CheckResolved: _check,
     ev.HpChanged: _hp,
@@ -124,7 +130,12 @@ _LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     we.QuestUpdated: lambda s, e: f"Quest '{e.quest.title}' is now {e.quest.state.value}.",
     we.FactRecorded: lambda s, e: None,
     we.ShopOpened: lambda s, e: f"{_who(s, e.npc_id)} opened their shop.",
-    we.ItemPlaced: lambda s, e: None if e.item.hidden else f"{e.item.name} lies here.",
+    we.ItemPlaced: lambda s, e: (
+        None
+        if e.item.hidden or e.item.node_id != s.world.current_node
+        else f"{e.item.name} lies here."
+    ),
+    we.ItemDiscovered: _item_found,
     we.ItemRemoved: lambda s, e: None,
     we.KeepsakeGained: lambda s, e: f"{_who(s, e.creature_id)} keeps the {e.keepsake.name}.",
     CharacterRewritten: lambda s, e: f"The Scribe rewrites {_who(s, e.target_id)} into the story.",

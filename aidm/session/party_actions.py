@@ -3,23 +3,23 @@
 Vote jobs (run once a ready vote passes): `travel_job` (the `move_party` DM tool, then the
 M5.4 arrival order through `telling.conclude`), `rest_job` (`rules.rests`), `shop_job` (the
 `open_shop` tool, then `shop_stock` to everyone). Hero jobs: `answer` (the pending encounter
-offer, first answer wins), `buy`/`sell` (`rules.shop`), `give` (`rules.social_deeds.gift_events`
-+ region rewards), `level` (`rules.leveling.level_up`; not in a fight, M20.4),
-`equip`/`unequip`/`drop` and the equip/drop pre-check intents (`rules.equipment`), `use_item`
-(M7.5b: a potion outside a fight on the hero or another living hero,
+offer, first answer wins), `buy`/`sell` (`rules.shop`), `level` (`rules.leveling.level_up`; not
+in a fight, M20.4), `equip`/`unequip`/`drop` and the equip/drop pre-check intents
+(`rules.equipment`), `use_item` (M7.5b: a potion outside a fight on the hero or another living hero,
 `rules.items.use_item_events`; full HP refuses without consuming),
 `help_up` / `help_up_intent` (M20.2: outside a fight a standing hero helps a downed ally up to
-1 HP, `rules.downed`; the button and the typed sentence).
+1 HP, `rules.downed`; the button and the typed sentence). Picking up and giving live in
+`aidm.session.hand_over` (M23.3).
 Refusals are typed and player-safe; nothing is spent on a refusal.
 
-Public API: `travel_job`, `rest_job`, `shop_job`, `item_intent`, `answer`, `buy`, `sell`, `give`,
+Public API: `travel_job`, `rest_job`, `shop_job`, `item_intent`, `answer`, `buy`, `sell`,
 `level`, `equip`, `unequip`, `drop`, `use_item`, `help_up`, `help_up_intent`, `send_stock`.
 """
 
 from aidm.dm.arrival import offer_data
 from aidm.dm.help_intent import HelpUpIntent
 from aidm.dm.llm_types import ToolCall
-from aidm.dm.precheck import ItemAction, ItemIntent, RestKind, TakeIntent
+from aidm.dm.precheck import ItemAction, ItemIntent, RestKind
 from aidm.dm.tool_context import ToolContext
 from aidm.dm.tool_exec import execute_tool
 from aidm.dm.tools import dm_tool
@@ -29,7 +29,6 @@ from aidm.models.protocol_client import (
     AnswerOffer,
     Drop,
     Equip,
-    Give,
     HelpUp,
     LevelUp,
     ShopBuy,
@@ -45,7 +44,6 @@ from aidm.rules.equipment import (
     EquipRefused,
     drop_events,
     equip_events,
-    take_events,
     unequip_events,
 )
 from aidm.rules.items import use_item_events
@@ -53,7 +51,6 @@ from aidm.rules.leveling import LevelUpInvalid, can_level_up, level_up
 from aidm.rules.offer_answer import OfferRefused, answer_offer
 from aidm.rules.rests import RestRefused, long_rest, short_rest
 from aidm.rules.shop import ShopRefused, buy_events, npc_shop_stock, sell_events
-from aidm.rules.social_deeds import GiftRefused, gift_events
 from aidm.session import combat_flow
 from aidm.session.table_core import Job, Player, TableCore
 from aidm.session.telling import conclude, remember, tell_text
@@ -192,19 +189,6 @@ async def sell(core: TableCore, player: Player, msg: ShopSell) -> None:
     _trade(core, player, events, f"Sold {msg.qty} x {msg.item_id.replace('-', ' ')}.")
 
 
-async def give(core: TableCore, player: Player, msg: Give) -> None:
-    pc = _hero(core, player)
-    if pc is None:
-        return
-    try:
-        events = gift_events(core.state, pc.id, msg.npc_id, msg.item_id, core.regs.tiers)
-    except GiftRefused:
-        core.error(player.id, ErrorCode.REFUSED, "That gift cannot be given here.")
-        return
-    core.apply_all(events)
-    await conclude(core, None, events, actor_id=pc.id)  # follow_ups settles regions and quests
-
-
 async def level(core: TableCore, player: Player, msg: LevelUp) -> None:
     pc = _hero(core, player)
     if pc is None:
@@ -297,23 +281,6 @@ async def _item(
         core.error(
             player.id, ErrorCode.REFUSED, refused.detail.capitalize() + ".", refused.reason.value
         )
-
-
-async def take_intent(core: TableCore, player: Player, intent: TakeIntent) -> None:
-    """M19.3: a typed pick-up of a visible item here; one short engine line tells the table."""
-    pc = core.state.creatures.get(intent.actor_id)
-    item = core.state.world.items.get(intent.item_id)
-    if pc is None or item is None:
-        return
-    try:
-        events = take_events(core.state, pc, intent.item_id)
-    except EquipRefused as refused:
-        detail = refused.detail.capitalize() + "."
-        core.error(player.id, ErrorCode.REFUSED, detail, refused.reason.value)
-        return
-    core.apply_all(events)
-    name = item.name if item.catalog_id is None else item.name.lower()
-    await remember(core, await tell_text(core, f"{pc.name} picks up the {name}."))
 
 
 async def help_up(core: TableCore, player: Player, msg: HelpUp) -> None:

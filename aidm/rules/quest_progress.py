@@ -6,7 +6,8 @@ state already records (a step event must be applied before the quest can complet
 A pass, in order:
 1. Backfill: every act up to the current one (`current_act`) has its main quest
    (`quest_plan.main_world_quest`: active, Force known); fresh installs, act changes and old
-   saves get it here.
+   saves get it here. The current act's quest items missing from the world are placed
+   (`quest_items.quest_item_events`, idempotent: old saves get theirs here, M23.3).
 2. Each ACTIVE main quest: route steps met by the state are recorded (`QuestStepDone` with the
    step text as log line); an unknown route is discovered first (`RouteDiscovered`) when one of
    its steps is met or its hint NPC can be met (present, alive, not hostile). Once nothing moves
@@ -36,6 +37,7 @@ from aidm.models.world import MAX_QUEST_LOG, Quest, QuestState
 from aidm.models.world_events import QuestUpdated
 from aidm.rules.plan_ids import boss_npc_id, main_quest_id
 from aidm.rules.progression import region_of
+from aidm.rules.quest_items import quest_item_events
 from aidm.rules.quest_plan import main_quest, main_world_quest
 from aidm.rules.quest_rewards import quest_reward_events
 from aidm.rules.quest_steps import npc_meetable, steps_met
@@ -63,11 +65,12 @@ def current_act(state: GameState) -> int | None:
 
 def _backfill(state: GameState, plan: CampaignPlan) -> list[AnyEvent]:
     last = current_act(state) or 0
-    return [
+    events: list[AnyEvent] = [
         QuestUpdated(quest=main_world_quest(plan, act.index))
         for act in plan.acts[:last]
         if main_quest_id(act.region) not in state.world.quests
     ]
+    return [*events, *(quest_item_events(state, plan, last) if last else [])]
 
 
 def _route_steps(state: GameState, quest: Quest, route: RoutePlan) -> list[AnyEvent]:

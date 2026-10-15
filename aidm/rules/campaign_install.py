@@ -12,8 +12,9 @@ be turned by deeds; a boss without one starts hostile (DECISIONS M5.3).
 
 Public API: `install_campaign(state, plan, seed) -> list[AnyEvent]` (`ValueError` when a campaign
 is already installed or an id clashes), `plan_npc(npc) -> WorldNpc`,
-`act_quest_events(plan, act) -> list[AnyEvent]` (the side quests of an act, offered, with their
-steps read through `aidm.rules.quest_plan`).
+`act_quest_events(state, plan, act) -> list[AnyEvent]` (the side quests of an act, offered, with
+their steps read through `aidm.rules.quest_plan`, and the act's quest items placed in the world,
+`aidm.rules.quest_items`, M23.3).
 """
 
 from aidm.models.campaign import CampaignPlan, NpcPlan, RegionPlan, RevealKind, SecretPlan
@@ -23,6 +24,7 @@ from aidm.models.state import GameState
 from aidm.models.world import NpcSecret, WorldNpc
 from aidm.models.world_events import NpcIntroduced, PartyMoved, QuestUpdated
 from aidm.rules.plan_ids import boss_npc_id
+from aidm.rules.quest_items import quest_item_events
 from aidm.rules.quest_plan import side_world_quest
 from aidm.rules.rests import STARTING_CAMP_SUPPLIES
 from aidm.rules.social import band_floor
@@ -69,8 +71,11 @@ def _boss(region: RegionPlan) -> WorldNpc:
     )
 
 
-def act_quest_events(plan: CampaignPlan, act: int) -> list[AnyEvent]:
-    return [QuestUpdated(quest=side_world_quest(plan, q)) for q in plan.quests if q.act == act]
+def act_quest_events(state: GameState, plan: CampaignPlan, act: int) -> list[AnyEvent]:
+    events: list[AnyEvent] = [
+        QuestUpdated(quest=side_world_quest(plan, q)) for q in plan.quests if q.act == act
+    ]
+    return [*events, *quest_item_events(state, plan, act)]
 
 
 def install_campaign(state: GameState, plan: CampaignPlan, seed: int) -> list[AnyEvent]:
@@ -84,7 +89,7 @@ def install_campaign(state: GameState, plan: CampaignPlan, seed: int) -> list[An
         CampaignInstalled(plan=plan, graph=build_campaign_graph(plan, seed), seed=seed)
     ]
     events += [NpcIntroduced(npc=npc) for npc in npcs]
-    events += act_quest_events(plan, 1)
+    events += act_quest_events(state, plan, 1)
     supplies = state.camp_supplies + STARTING_CAMP_SUPPLIES
     events.append(CampSuppliesChanged(delta=STARTING_CAMP_SUPPLIES, camp_supplies=supplies))
     arrival = plan.acts[0].region.arrival.id

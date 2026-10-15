@@ -810,6 +810,7 @@
         },
         "Give": {
           "additionalProperties": false,
+          "description": "Hand something to an NPC who is here: `item_id` is an inventory item key, or (M23.3) the id\nof a keepsake the hero carries (a quest item is delivered this way).",
           "properties": {
             "item_id": {
               "title": "Item Id",
@@ -3769,7 +3770,7 @@
         },
         "KeepsakeLine": {
           "additionalProperties": false,
-          "description": "A story object the hero carries (M19.3): no value, cannot be sold or equipped.",
+          "description": "A story object the hero carries (M19.3): no value, cannot be sold or equipped. A quest\nitem (M23.3) names the quest it belongs to in `quest_title`.",
           "properties": {
             "description": {
               "default": "",
@@ -3779,6 +3780,18 @@
             "name": {
               "title": "Name",
               "type": "string"
+            },
+            "quest_title": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Quest Title"
             }
           },
           "required": [

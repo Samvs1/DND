@@ -30,6 +30,8 @@ Public API:
   the manifest.
 - `NodeDescribed(node_id, text)`: the established description of a place (stored once).
 - `ItemPlaced(item)` / `ItemRemoved(item_id)`: a world item appears in / leaves a place.
+- `ItemDiscovered(item_id, creature_id)` (M23.3): a hidden world item was found; it joins the
+  manifest.
 - `KeepsakeGained(creature_id, keepsake)` (M19.3): a hero now carries a story object.
 - `NarrationRecorded(text, scene_turn)`: one narrated turn joins the rolling memory and the
   scene turn counter becomes `scene_turn`.
@@ -165,6 +167,12 @@ class ItemRemoved(_WorldEvent):
     item_id: str
 
 
+class ItemDiscovered(_WorldEvent):
+    type: Literal["item_discovered"] = "item_discovered"
+    item_id: str
+    creature_id: str | None = None
+
+
 class KeepsakeGained(_WorldEvent):
     """A hero now carries a story object (M19.3: picked up, or handed over by the DM)."""
 
@@ -209,6 +217,7 @@ WorldEvents = (
     | NodeDescribed
     | ItemPlaced
     | ItemRemoved
+    | ItemDiscovered
     | KeepsakeGained
     | NarrationRecorded
     | SceneSummarised

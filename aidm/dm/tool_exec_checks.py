@@ -2,8 +2,8 @@
 
 Every roll goes through the condition-aware rules functions and is logged as a `CheckResolved`
 event; consequences are separate tool calls. A search check (Perception, Investigation, WIS or
-INT) also discovers hidden features of the current place whose DC the total meets (M4.3,
-`aidm.rules.scene.discovery_events`).
+INT) also discovers hidden features (M4.3) and hidden items (M23.3) of the current place whose
+DC the total meets (`aidm.rules.scene.discovery_events`).
 
 Public API: `run_request_check(state, args, ctx, rng, regs)`,
 `run_request_save(state, args, ctx, rng, regs)` -> `ToolResult`.
@@ -17,6 +17,7 @@ from aidm.models.checks import CheckResult
 from aidm.models.dice import AdvState
 from aidm.models.events import AnyEvent, CheckResolved
 from aidm.models.state import GameState
+from aidm.models.world_events import FeatureDiscovered
 from aidm.rules.checks import dc_for_tier
 from aidm.rules.conditions import (
     ability_check_with_conditions,
@@ -53,7 +54,12 @@ def run_request_check(
     event = CheckResolved(creature_id=creature.id, result=result, reason=args.reason)
     found = discovery_events(state, creature.id, result)
     summary = _outcome(creature.name, label, result)
-    names = [state.world.features[e.feature_id].name for e in found]
+    names = [
+        state.world.features[e.feature_id].name
+        if isinstance(e, FeatureDiscovered)
+        else state.world.items[e.item_id].name
+        for e in found
+    ]
     if names:
         summary += f"; discovered: {', '.join(names)}"
     return ToolResult(events=(event, *found), summary=summary)

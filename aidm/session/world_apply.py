@@ -23,6 +23,7 @@ from aidm.models.world_events import (
     FeatureDiscovered,
     FeatureIntroduced,
     HostileActPending,
+    ItemDiscovered,
     ItemPlaced,
     ItemRemoved,
     ItemsTraded,
@@ -60,6 +61,7 @@ type WorldEvent = (
     | NodeDescribed
     | ItemPlaced
     | ItemRemoved
+    | ItemDiscovered
     | KeepsakeGained
     | NarrationRecorded
     | SceneSummarised
@@ -72,6 +74,7 @@ type SceneEvent = (
     | NodeDescribed
     | ItemPlaced
     | ItemRemoved
+    | ItemDiscovered
     | NarrationRecorded
     | SceneSummarised
 )
@@ -81,6 +84,7 @@ SCENE_EVENT_TYPES = (
     NodeDescribed,
     ItemPlaced,
     ItemRemoved,
+    ItemDiscovered,
     NarrationRecorded,
     SceneSummarised,
 )
@@ -103,6 +107,7 @@ WORLD_EVENT_TYPES = (
     NodeDescribed,
     ItemPlaced,
     ItemRemoved,
+    ItemDiscovered,
     KeepsakeGained,
     NarrationRecorded,
     SceneSummarised,
@@ -173,6 +178,11 @@ def _scene_event(state: GameState, event: SceneEvent) -> None:
         case ItemRemoved(item_id=item_id):
             if world.items.pop(item_id, None) is None:
                 raise ReducerError(f"unknown item {item_id!r}")
+        case ItemDiscovered(item_id=item_id):
+            item = world.items.get(item_id)
+            if item is None or not item.hidden:
+                raise ReducerError(f"no hidden item {item_id!r}")
+            item.hidden = False
         case NarrationRecorded(text=text, scene_turn=turn):
             _narrated(state, text, turn)
         case SceneSummarised(summary=summary):

@@ -150,10 +150,12 @@ class InventoryLine(_Line):
 
 
 class KeepsakeLine(_Line):
-    """A story object the hero carries (M19.3): no value, cannot be sold or equipped."""
+    """A story object the hero carries (M19.3): no value, cannot be sold or equipped. A quest
+    item (M23.3) names the quest it belongs to in `quest_title`."""
 
     name: str
     description: str = ""
+    quest_title: str | None = None
 
 
 class ConditionLine(_Line):

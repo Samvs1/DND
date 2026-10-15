@@ -168,7 +168,7 @@ def test_installed_quests_keep_their_target() -> None:
     base["quests"][0]["against"] = base["npcs"][1]["name"]
     plan = assemble_plan(CampaignDraft.model_validate(base))
     assert isinstance(plan, CampaignPlan)
-    first = act_quest_events(plan, plan.quests[0].act)[0]
+    first = act_quest_events(GameState(campaign_id="t", seed=1), plan, plan.quests[0].act)[0]
     assert isinstance(first, QuestUpdated)
     assert first.quest.against_npc_id == plan.npcs[1].id
 

@@ -11,9 +11,11 @@ Public API:
   feature_ids, item_ids, exits, locked_exits, turn)`: ids in deterministic (sorted) order.
 - `current_scene(state) -> SceneView`.
 - `node_display_name(state, node_id) -> str`: `World.node_names` or the humanised id.
-- `discovery_events(state, creature_id, result) -> list[FeatureDiscovered]`: a Perception or
-  Investigation check (or a WIS/INT ability check) finds every hidden, undiscovered feature in
-  the current place whose `discover_dc` is at most the roll total (`FeatureDiscovered`).
+- `discovery_events(state, creature_id, result) -> list[FeatureDiscovered | ItemDiscovered]`: a
+  Perception or Investigation check (or a WIS/INT ability check) finds every hidden, undiscovered
+  feature in the current place whose `discover_dc` is at most the roll total
+  (`FeatureDiscovered`), then every hidden item there whose `discover_dc` it meets
+  (`ItemDiscovered`, M23.3: hidden quest items).
 """
 
 from dataclasses import dataclass
@@ -22,7 +24,7 @@ from aidm.models.abilities import Ability, Skill
 from aidm.models.checks import CheckKind, CheckResult
 from aidm.models.encounter import EncounterStatus, Side
 from aidm.models.state import GameState
-from aidm.models.world_events import FeatureDiscovered
+from aidm.models.world_events import FeatureDiscovered, ItemDiscovered
 
 _SEARCH_SKILLS = (Skill.PERCEPTION, Skill.INVESTIGATION)
 _SEARCH_ABILITIES = (Ability.WIS, Ability.INT)
@@ -106,10 +108,11 @@ def _is_search(result: CheckResult) -> bool:
 
 def discovery_events(
     state: GameState, creature_id: str, result: CheckResult
-) -> list[FeatureDiscovered]:
+) -> list[FeatureDiscovered | ItemDiscovered]:
     if not _is_search(result):
         return []
     node = state.world.current_node
+    total = result.roll.total
     found = sorted(
         f.id
         for f in state.world.features.values()
@@ -117,6 +120,14 @@ def discovery_events(
         and f.hidden
         and not f.discovered
         and f.discover_dc is not None
-        and result.roll.total >= f.discover_dc
+        and total >= f.discover_dc
     )
-    return [FeatureDiscovered(feature_id=fid, creature_id=creature_id) for fid in found]
+    items = sorted(
+        i.id
+        for i in state.world.items.values()
+        if i.node_id == node and i.hidden and i.discover_dc is not None and total >= i.discover_dc
+    )
+    events: list[FeatureDiscovered | ItemDiscovered] = [
+        FeatureDiscovered(feature_id=fid, creature_id=creature_id) for fid in found
+    ]
+    return events + [ItemDiscovered(item_id=iid, creature_id=creature_id) for iid in items]

@@ -24,6 +24,7 @@ Public API: `submit_action`, `kick_resolver`, `resolve_next`, `resolve_action`,
 
 from aidm.dm.adjudicator import AdjudicationOptions, AdjudicationResult, adjudicate
 from aidm.dm.combat_intent import combat_move
+from aidm.dm.give_intent import GiveIntent
 from aidm.dm.help_intent import HelpUpIntent
 from aidm.dm.llm_types import ToolCall
 from aidm.dm.precheck import (
@@ -51,7 +52,7 @@ from aidm.models.protocol_views import QueueEntry, TablePhase, VoteKind
 from aidm.models.state import Creature
 from aidm.rules.scene import node_display_name
 from aidm.rules.turns import EconomyRefused, spend_action
-from aidm.session import combat_flow, party_actions, votes
+from aidm.session import combat_flow, hand_over, party_actions, votes
 from aidm.session.declared import declare
 from aidm.session.opening import strike_if_opening
 from aidm.session.table_core import Job, Player, TableCore
@@ -195,9 +196,11 @@ async def resolve_action(core: TableCore, entry: QueueEntry) -> None:
     elif isinstance(intent, ItemIntent):
         await party_actions.item_intent(core, player, intent)
     elif isinstance(intent, TakeIntent):
-        await party_actions.take_intent(core, player, intent)
+        await hand_over.take_intent(core, player, intent)
     elif isinstance(intent, HelpUpIntent):
         await party_actions.help_up_intent(core, player, intent)
+    elif isinstance(intent, GiveIntent):
+        await hand_over.give_intent(core, player, intent)
     elif isinstance(intent, TravelIntent):
         detail = f"travel to {node_display_name(core.state, intent.node_id)}"
         job = party_actions.travel_job(core, entry.creature_id, intent.node_id)

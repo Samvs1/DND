@@ -31,8 +31,10 @@ Public API:
   `left_behind` marks a failed quest that was left behind on crossing a gateway (no penalty).
 - `QuestLead(quest_id, text)`: a journal line pointing at a side quest's giver (M23).
 - `Fact(id, text, entity_ids, tags)`: the fact ledger.
-- `WorldItem(id, name, catalog_id, qty, node_id, hidden)`: an item lying in a place (dropped,
-  found); visible items are part of the manifest.
+- `WorldItem(id, name, catalog_id, qty, node_id, hidden, discover_dc, quest_id)`: an item lying
+  in a place (dropped, found); visible items are part of the manifest. A hidden item is found by
+  a search check meeting `discover_dc` (M23.3); `quest_id` marks a quest item the engine placed
+  (picked up, it becomes a `Keepsake` with that `quest_id`).
 - `World(current_node, neighbours, locked_nodes, visited, region_tier, scene_index, npcs,
   features, quests, facts, shop_npc_id, node_names, descriptions, items, lore_names,
   scene_turn)`: `neighbours` maps a node id to its legal travel neighbours (the region graph of
@@ -203,6 +205,8 @@ class WorldItem(BaseModel):
     qty: int = Field(default=1, ge=1)
     node_id: str | None = None
     hidden: bool = False
+    discover_dc: int | None = Field(default=None, ge=0)
+    quest_id: str | None = None
 
 
 class World(BaseModel):
