@@ -47,6 +47,7 @@ from aidm.models.protocol_views import (
 )
 from aidm.models.state import Creature, GameState
 from aidm.models.zones import Zone
+from aidm.rules.gateway_lock import locked_reason
 from aidm.rules.hex_layout import Hex, hex_layout
 from aidm.rules.scene import current_scene, node_display_name
 from aidm.rules.scribe import scribe_view
@@ -96,6 +97,7 @@ def public_scene(state: GameState) -> PublicScene | None:
             name=node_display_name(state, node),
             locked=node in scene.locked_exits,
             visited=node in world.visited,
+            locked_reason=locked_reason(state, node) or "",
         )
         for node in scene.exits
     )

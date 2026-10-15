@@ -23,6 +23,7 @@ from aidm.dm.context_text import CLOSED_WORLD
 from aidm.dm.entities import display_name
 from aidm.models.state import Creature, GameState
 from aidm.models.world import Fact, QuestState, WorldNpc
+from aidm.rules.gateway_lock import short_reason
 from aidm.rules.scene import SceneView, node_display_name
 from aidm.rules.social import attitude_band, attitude_score
 
@@ -66,7 +67,7 @@ def _place_lines(
     exits = [
         node_display_name(state, e)
         + _tag(show_ids, e)
-        + (" (locked)" if e in scene.locked_exits else "")
+        + (f" ({short_reason(state, e)})" if e in scene.locked_exits else "")
         for e in scene.exits
     ]
     lines.append(f"Exits: {_joined(exits)}")

@@ -3,6 +3,7 @@
 import pytest
 
 from aidm.dm.precheck import (
+    BarredIntent,
     InventoryIntent,
     ItemAction,
     ItemIntent,
@@ -73,10 +74,11 @@ def test_travel_positive(text: str, node: str) -> None:
     assert precheck(state, "fighter", text) == TravelIntent(node)
 
 
-def test_travel_to_a_locked_exit_is_not_an_intent() -> None:
+def test_travel_to_a_locked_exit_says_it_is_barred() -> None:
     state = _state()
     assert "crypt" in state.world.locked_nodes
-    assert precheck(state, "fighter", "let's head back to the crypt") is None
+    intent = precheck(state, "fighter", "let's head back to the crypt")
+    assert intent == BarredIntent("The way to Crypt is barred for now.")  # M23.8: no model call
 
 
 @pytest.mark.parametrize(

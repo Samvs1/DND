@@ -80,6 +80,19 @@
           "title": "AnswerQuestOffer",
           "type": "object"
         },
+        "AskWhatNow": {
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "what_now",
+              "default": "what_now",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "title": "AskWhatNow",
+          "type": "object"
+        },
         "AttackCommand": {
           "additionalProperties": false,
           "properties": {
@@ -2034,7 +2047,8 @@
           "typing": "#/$defs/Typing",
           "unequip": "#/$defs/Unequip",
           "use_item": "#/$defs/UseItem",
-          "vote": "#/$defs/Vote"
+          "vote": "#/$defs/Vote",
+          "what_now": "#/$defs/AskWhatNow"
         },
         "propertyName": "type"
       },
@@ -2173,6 +2187,9 @@
         },
         {
           "$ref": "#/$defs/HelpUp"
+        },
+        {
+          "$ref": "#/$defs/AskWhatNow"
         }
       ]
     },
@@ -2221,7 +2238,8 @@
       "typing",
       "unequip",
       "use_item",
-      "vote"
+      "vote",
+      "what_now"
     ]
   },
   "server": {
@@ -4544,6 +4562,11 @@
               "title": "Locked",
               "type": "boolean"
             },
+            "locked_reason": {
+              "default": "",
+              "title": "Locked Reason",
+              "type": "string"
+            },
             "name": {
               "title": "Name",
               "type": "string"
@@ -6421,6 +6444,37 @@
           "title": "Welcome",
           "type": "object"
         },
+        "WhatNowAnswer": {
+          "additionalProperties": false,
+          "description": "M23.8: the engine's answer to What now? (`aidm.rules.quest_hints`), sent to the asker's\nphone and to the shared screens; `asked_by` is the asker's seat name.",
+          "properties": {
+            "asked_by": {
+              "default": "",
+              "title": "Asked By",
+              "type": "string"
+            },
+            "lines": {
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 8,
+              "minItems": 1,
+              "title": "Lines",
+              "type": "array"
+            },
+            "type": {
+              "const": "what_now_answer",
+              "default": "what_now_answer",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "lines"
+          ],
+          "title": "WhatNowAnswer",
+          "type": "object"
+        },
         "ZoneEdge": {
           "additionalProperties": false,
           "properties": {
@@ -6550,7 +6604,8 @@
           "vote_closed": "#/$defs/VoteClosed",
           "vote_open": "#/$defs/VoteOpen",
           "vote_update": "#/$defs/VoteUpdate",
-          "welcome": "#/$defs/Welcome"
+          "welcome": "#/$defs/Welcome",
+          "what_now_answer": "#/$defs/WhatNowAnswer"
         },
         "propertyName": "type"
       },
@@ -6662,6 +6717,9 @@
         },
         {
           "$ref": "#/$defs/ScribeSkipMsg"
+        },
+        {
+          "$ref": "#/$defs/WhatNowAnswer"
         }
       ]
     },
@@ -6701,7 +6759,8 @@
       "vote_closed",
       "vote_open",
       "vote_update",
-      "welcome"
+      "welcome",
+      "what_now_answer"
     ]
   }
 }

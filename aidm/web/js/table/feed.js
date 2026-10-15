@@ -95,8 +95,19 @@ function narrationNode(item) {
   return p;
 }
 
+/** M23.8: the engine's What now? answer as one compact card in the feed. */
+function whatNowNode(item) {
+  return h(
+    'div',
+    { class: 'what-now-card', 'data-testid': 'what-now-card' },
+    h('p', { class: 'what-now-head' }, t('table.whatNowAsked', { name: item.askedBy })),
+    h('ul', { class: 'what-now-lines' }, ...item.lines.map((line) => h('li', {}, line))),
+  );
+}
+
 function plainNode(item) {
   if (item.kind === 'event') return h('p', { class: 'event-line', 'data-testid': 'event-line' }, item.text);
+  if (item.kind === 'what_now') return whatNowNode(item);
   return h('p', { class: 'epilogue', 'data-testid': 'epilogue' }, h('strong', {}, t('table.epilogue')), ' ', item.text);
 }
 

@@ -15,8 +15,12 @@ Public API:
   `TakeIntent(actor_id, item_id)` (M19.3: "pick up / take / grab <a visible item here>"),
   `HelpUpIntent(actor_id, target_id)` (M20.2: "help her up", "wake <a downed hero>";
   `aidm.dm.help_intent`), `GiveIntent(actor_id, npc_id, thing)` (M23.3: "give the <thing> to
-  <name>"; `aidm.dm.give_intent`).
+  <name>"; `aidm.dm.give_intent`), `BarredIntent(text)` (M23.8: "go to <a locked exit>"; the
+  world reason, `aidm.rules.gateway_lock`).
 - `Intent` (the union), `precheck(state, actor_id, text) -> Intent | None`.
+- `asks_what_now(state, actor_id, text) -> bool` (M23.8: "what now", "what should we do", "where
+  to", "i'm lost", "help me"...; never "help <a downed hero> up", the help-up pre-check wins).
+  It is answered before the queue, also in a fight: What now? is not a turn.
 - `look_around_text(state) -> str`: the scene manifest as plain prose.
 - `SHOP_ROLES`: role words that make a present NPC a shopkeeper.
 """
@@ -31,6 +35,7 @@ from aidm.dm.help_intent import HelpUpIntent, help_up_intent
 from aidm.models.encounter import EncounterStatus
 from aidm.models.state import Creature, GameState
 from aidm.models.world import WorldNpc
+from aidm.rules.gateway_lock import locked_reason, short_reason
 from aidm.rules.scene import SceneView, current_scene, node_display_name
 from aidm.rules.world_graph import legal_neighbours
 
@@ -84,6 +89,11 @@ class TakeIntent:
     item_id: str
 
 
+@dataclass(frozen=True)
+class BarredIntent:
+    text: str
+
+
 type Intent = (
     RestIntent
     | ShopIntent
@@ -94,6 +104,7 @@ type Intent = (
     | TakeIntent
     | HelpUpIntent
     | GiveIntent
+    | BarredIntent
 )
 
 SHOP_ROLES = (
@@ -161,6 +172,24 @@ _LOOK = re.compile(
 )
 
 
+_WHAT_NOW = re.compile(
+    r"(?:so |ok |okay |hmm |um |well )?(?:"
+    r"what now|now what|what next|what(?: is|'s) next|what(?: is|'s) the plan|"
+    r"what (?:should|do|can|must) (?:i|we) do(?: now| next| here)?|"
+    r"where to(?: now| next)?|where (?:do|should|can) (?:i|we) go(?: now| next| from here)?|"
+    r"where now|(?:i'm|i am|we're|we are) lost|help(?: me| us)?|"
+    r"(?:give (?:me|us) )?a hint|hint|any (?:ideas|hints)"
+    r")"
+)
+
+
+def asks_what_now(state: GameState, actor_id: str, text: str) -> bool:
+    clean = " ".join(text.lower().replace("’", "'").split()).strip(" .!?")
+    if _WHAT_NOW.fullmatch(clean) is None:
+        return False
+    return help_up_intent(state, actor_id, _normalise(text)) is None
+
+
 def _normalise(text: str) -> str:
     clean = " ".join(text.lower().replace("’", "'").split())
     clean = clean.rstrip(".!?").removesuffix(" please").strip()
@@ -176,13 +205,17 @@ def _in_fight(state: GameState) -> bool:
     return enc is not None and enc.status is EncounterStatus.ACTIVE
 
 
-def _travel(state: GameState, scene: SceneView, dest: str) -> TravelIntent | None:
+def _travel(state: GameState, scene: SceneView, dest: str) -> TravelIntent | BarredIntent | None:
     wanted = _words(dest)
     if state.campaign is not None and state.campaign.offer is not None:
         return None
-    for node in legal_neighbours(state.world, state.world.current_node):
-        if wanted in (_words(node), _words(node_display_name(state, node))):
+    for node in scene.exits:
+        if wanted not in (_words(node), _words(node_display_name(state, node))):
+            continue
+        if node in legal_neighbours(state.world, state.world.current_node):
             return TravelIntent(node)
+        reason = locked_reason(state, node)
+        return BarredIntent(reason) if reason is not None else None
     return None
 
 
@@ -305,7 +338,8 @@ def look_around_text(state: GameState) -> str:
     if items:
         parts.append(f"Lying here: {_listing(items)}.")
     exits = [
-        node_display_name(state, e) + (" (locked)" if e in scene.locked_exits else "")
+        node_display_name(state, e)
+        + (f" ({short_reason(state, e)})" if e in scene.locked_exits else "")
         for e in scene.exits
     ]
     parts.append(f"Ways on: {_listing(exits)}." if exits else "There is no obvious way on.")

@@ -1,5 +1,6 @@
 // Map panel: the act/region banner (assetUrl), the fogged region graph, and a Travel button per neighbour of the
 // current place. Travel sends the same text action a player could type, which opens the table's travel vote.
+// M23.8: a locked way shows why it is shut under its button (`exit.locked_reason`).
 import { assetUrl } from '../assets.js';
 import { t } from '../strings.js';
 import { createPanel } from '../ui/modal.js';
@@ -19,7 +20,8 @@ function travelList(view, client, store) {
     };
     const label = exit.locked ? t('map.travelLocked', { name: exit.name }) : t('map.travel', { name: exit.name });
     const button = h('button', { type: 'button', class: 'btn btn-small', disabled: exit.locked || fighting, 'data-testid': 'map-travel', 'data-node': exit.node_id, onclick: go }, label);
-    return h('li', { class: `map-exit${exit.locked ? ' locked' : ''}` }, button);
+    const why = exit.locked && exit.locked_reason ? h('p', { class: 'hint map-locked-why', 'data-testid': 'map-locked-why' }, exit.locked_reason) : null;
+    return h('li', { class: `map-exit${exit.locked ? ' locked' : ''}` }, button, why);
   });
   return [h('ul', { class: 'map-travel-list' }, ...rows), h('p', { class: 'hint' }, fighting ? t('map.inFight') : t('map.travelHint'))];
 }

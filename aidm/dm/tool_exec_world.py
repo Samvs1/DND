@@ -40,6 +40,7 @@ from aidm.models.world_events import (
 )
 from aidm.rules.checks import dc_for_tier
 from aidm.rules.dice import Rng
+from aidm.rules.gateway_lock import locked_reason
 from aidm.rules.projection import project_state
 from aidm.rules.quest_leaving import crossing, crossing_prompt
 from aidm.rules.secrets import reveal_refusal
@@ -94,7 +95,8 @@ def run_move_party(
         listed = ", ".join(legal_neighbours(world, world.current_node)) or "none"
         raise ToolRefused(f"{args.node_id!r} is not a neighbour; legal exits: {listed}")
     if args.node_id not in legal_neighbours(world, world.current_node):
-        raise ToolRefused(f"the way to {args.node_id!r} is still barred")
+        why = locked_reason(state, args.node_id) or "it is barred"
+        raise ToolRefused(f"the way to {args.node_id!r} is still barred: {why}")
     cross = None if ctx.confirm_hostile else crossing(state, args.node_id)
     if cross is not None:
         prompt = crossing_prompt(cross)

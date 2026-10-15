@@ -24,6 +24,7 @@ SERVER_TYPES = {
     "scribe_line",  # M13.2
     "scribe_skip",  # M13.2
     "player_action",  # M22.1
+    "what_now_answer",  # M23.8
     "welcome",
     "snapshot",
     "event",
@@ -82,6 +83,7 @@ CLIENT_TYPES = {
     "drop",
     "use_item",
     "help_up",
+    "what_now",  # M23.8
     "request_sheet",
     "request_hit_chances",
     "chat",

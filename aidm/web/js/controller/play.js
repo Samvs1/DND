@@ -11,15 +11,17 @@ import { mountLastRoll } from './lastroll.js';
 import { mountMoves } from './moves.js';
 import { mountNow } from './now.js';
 import { mountTargets } from './targets.js';
+import { mountWhatNow } from './what_now.js';
 
 export function mountPlay(root, ctx, ctrl) {
   const now = h('div', { class: 'ct-now-wrap' });
+  const whatNow = h('div', { class: 'ct-wn-wrap' });
   const moves = h('div', { class: 'ct-moves-wrap' });
   const hotbar = h('div', { class: 'hotbar', 'data-testid': 'hotbar', role: 'region', 'aria-label': t('hotbar.label') });
   const targets = h('div', { class: 'ct-targets-wrap' });
   const box = h('div', { class: 'ct-action' });
   const ideas = h('div', { class: 'ct-ideas-wrap' });
   const roll = h('div', { class: 'ct-roll-wrap' });
-  root.append(now, moves, hotbar, targets, box, ideas, roll);
-  return [mountNow(now, ctx), mountMoves(moves, ctx, ctrl), mountHotbar(hotbar, ctx, ctrl), mountTargets(targets, ctx, ctrl), mountAction(box, ctx), mountIdeas(ideas, ctx), mountLastRoll(roll, ctx)];
+  root.append(now, whatNow, moves, hotbar, targets, box, ideas, roll);
+  return [mountNow(now, ctx), mountWhatNow(whatNow, ctx), mountMoves(moves, ctx, ctrl), mountHotbar(hotbar, ctx, ctrl), mountTargets(targets, ctx, ctrl), mountAction(box, ctx), mountIdeas(ideas, ctx), mountLastRoll(roll, ctx)];
 }

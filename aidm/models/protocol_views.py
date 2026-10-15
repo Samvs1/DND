@@ -88,6 +88,7 @@ class PublicExit(_View):
     name: str
     locked: bool = False
     visited: bool = False
+    locked_reason: str = ""  # M23.8: why a locked way is shut (`rules.gateway_lock`)
 
 
 class PublicFeature(_View):

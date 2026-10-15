@@ -1,6 +1,6 @@
 """M5.4 progression: travel legality, gateway locks, offers, escape/parley, region resolution."""
 
-from aidm.dm.precheck import TravelIntent, precheck
+from aidm.dm.precheck import BarredIntent, TravelIntent, precheck
 from aidm.models.abilities import Skill
 from aidm.models.campaign_events import EncounterOffered, OfferResolved, RegionResolved
 from aidm.models.campaign_state import OfferChoice, RegionResolution
@@ -61,7 +61,8 @@ def test_gateway_unlocks_only_after_every_spoke() -> None:
     win_fight(state, log)
     barred = run_tool(state, "move_party", node_id=R1.gateway.id)
     assert barred.error is not None and "barred" in barred.error
-    assert precheck(state, "fighter", f"go to the {R1.gateway.name}") is None
+    shut = precheck(state, "fighter", f"go to the {R1.gateway.name}")
+    assert isinstance(shut, BarredIntent) and "stays shut" in shut.text  # M23.8: it says why
     _visit_spokes(state, log)
     assert R1.gateway.id not in state.world.locked_nodes
     assert R2.arrival.id in state.world.locked_nodes

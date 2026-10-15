@@ -213,6 +213,7 @@ export const HANDLERS = {
   vote_open: onVoteOpen,
   vote_update: onVoteUpdate,
   welcome: onWelcome,
+  what_now_answer: relay, // M23.8: the asker's phone opens it (controller/what_now.js), the screen feeds it (story.js)
 };
 
 export function createDispatch(ctx) {

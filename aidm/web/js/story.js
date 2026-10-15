@@ -8,6 +8,7 @@
 // breaks as newlines between segments; `narrationBlocks(item)` gives the same segments for plain renderers.
 // M22.1: a player's typed action is {kind: 'action', seq, text, creatureId, playerName, heroName}, live from
 // `player_action` and restored from the history; it sits before the telling of what it did.
+// M23.8: a What now? answer is {kind: 'what_now', lines, askedBy, text} (live only, never stored: not a turn).
 
 /** The paragraph segments of a narration item: a run of prose, one line, or one speaker's quoted words. */
 export function narrationBlocks(item) {
@@ -170,6 +171,7 @@ export function createStory(store) {
   store.on('narration_done', onDone);
   store.on('event', onEvent);
   store.on('player_action', onAction);
+  store.on('what_now_answer', (msg) => push({ kind: 'what_now', lines: msg.lines || [], askedBy: msg.asked_by || '', text: (msg.lines || []).join(' ') }));
   store.on('dice_roll', onDice);
   store.on('epilogue', (msg) => push({ kind: 'epilogue', text: msg.text }));
   store.on('story_history', load);

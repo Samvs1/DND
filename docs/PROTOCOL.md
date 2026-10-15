@@ -52,6 +52,7 @@ Machine-readable schema: `aidm/web/protocol.json`.
 | client | `unequip` | `item_id`: string, `type`: unequip |
 | client | `use_item` | `item_id`: string, `target_id`: string or null (optional), `type`: use_item |
 | client | `vote` | `ready`: boolean, `type`: vote, `vote_id`: string |
+| client | `what_now` | `type`: what_now |
 | server | `ability_rolls` | `rolls`: array of Roll (optional), `type`: ability_rolls |
 | server | `audio_settings` | `settings`: AudioSettings, `type`: audio_settings |
 | server | `character_export` | `creature_id`: string, `name`: string, `text`: string, `type`: character_export |
@@ -88,3 +89,4 @@ Machine-readable schema: `aidm/web/protocol.json`.
 | server | `vote_open` | `detail`: string (optional), `kind`: VoteKind, `proposer_id`: string, `seconds`: number, `type`: vote_open, `vote_id`: string, `voters`: array of string (optional) |
 | server | `vote_update` | `declined`: array of string (optional), `ready`: array of string (optional), `type`: vote_update, `vote_id`: string |
 | server | `welcome` | `is_host`: boolean (optional), `player_id`: string, `token`: string, `type`: welcome |
+| server | `what_now_answer` | `asked_by`: string (optional), `lines`: array of string, `type`: what_now_answer |

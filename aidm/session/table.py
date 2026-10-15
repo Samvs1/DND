@@ -56,6 +56,7 @@ from aidm.session import (
     spectators,
     turn_clock,
     votes,
+    what_now,
 )
 from aidm.session.stats import send_host_stats
 from aidm.session.table_core import (
@@ -88,6 +89,7 @@ IMMEDIATE: dict[type, Immediate] = {
     c.Typing: floor.typing,
     c.AudioSettingsMsg: audio_remote.set_audio,
     c.ScribeSkip: scribe_voice.skip,
+    c.AskWhatNow: what_now.answer,  # M23.8: read-only, not a turn, works while paused
     **{cls: host.host_message for cls in c.HOST_MESSAGES},
     **{cls: defeat_flow.defeat_message for cls in c.DEFEAT_MESSAGES},
 }

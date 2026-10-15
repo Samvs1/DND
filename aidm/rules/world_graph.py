@@ -17,7 +17,9 @@ Public API:
 - Travel helpers for the world state: `graph_neighbours(edges) -> dict[node, [dst...]]`,
   `locked_nodes_for(edges, visited, resolved=()) -> list[node]` (a node is locked while every edge
   into it is closed; the gateway unlocks when all spokes are visited), and
-  `legal_neighbours(world, node) -> tuple[node, ...]` (the exits `move_party` may use now).
+  `legal_neighbours(world, node) -> tuple[node, ...]` (the exits `move_party` may use now) and
+  `travel_route(world, start, goal) -> tuple[node, ...] | None` (M23.8: the shortest walk over
+  the legal exits as they stand now, goal included, start excluded; None when the way is shut).
 """
 
 from __future__ import annotations
@@ -250,3 +252,26 @@ def legal_neighbours(world: World, node: str | None) -> tuple[str, ...]:
     if node is None:
         return ()
     return tuple(n for n in world.neighbours.get(node, ()) if n not in world.locked_nodes)
+
+
+def travel_route(world: World, start: str | None, goal: str) -> tuple[str, ...] | None:
+    """Shortest walk from `start` to `goal` over the exits open now (breadth first, exits in
+    their stored order, so ties are deterministic)."""
+    if start is None:
+        return None
+    came: dict[str, str | None] = {start: None}
+    queue = deque([start])
+    while queue:
+        node = queue.popleft()
+        if node == goal:
+            path: list[str] = []
+            step: str | None = node
+            while step is not None and step != start:
+                path.append(step)
+                step = came[step]
+            return tuple(reversed(path))
+        for nxt in legal_neighbours(world, node):
+            if nxt not in came:
+                came[nxt] = node
+                queue.append(nxt)
+    return None

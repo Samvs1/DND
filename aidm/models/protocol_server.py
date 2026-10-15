@@ -17,6 +17,7 @@ queue, typing; broadcast on every queue or typing change) and `AudioSettingsStat
 screen's audio, broadcast on every change; also in `PublicState.audio`); M13.2 `ScribeLineMsg`
 (one of the Scribe's lines, broadcast) and `ScribeSkipMsg` (the host skipped him).
 M22.1 `PlayerActionMsg` (a player's typed words, broadcast; also in `StoryHistory`).
+M23.8 `WhatNowAnswer` (the What now? lines: to the asker's phone and the screens, not stored).
 `ErrorMsg.refusal` carries the typed reason of a refused combat command or gear change (a
 `RefusalCode` or `EquipRefusal` value) so a client shows its own friendly wording.
 """
@@ -130,6 +131,15 @@ class PlayerActionMsg(_Server):
 
     type: Literal["player_action"] = "player_action"
     entry: StoryEntry
+
+
+class WhatNowAnswer(_Server):
+    """M23.8: the engine's answer to What now? (`aidm.rules.quest_hints`), sent to the asker's
+    phone and to the shared screens; `asked_by` is the asker's seat name."""
+
+    type: Literal["what_now_answer"] = "what_now_answer"
+    lines: tuple[str, ...] = Field(min_length=1, max_length=8)
+    asked_by: str = ""
 
 
 class DiceRoll(_Server):

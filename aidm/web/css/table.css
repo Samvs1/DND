@@ -198,6 +198,32 @@ textarea {
   box-shadow: inset 3px 0 0 var(--gold), 0 2px 8px rgba(0, 0, 0, 0.45);
 }
 
+/* M23.8: the What now? answer in the screen feed */
+.what-now-card {
+  max-width: min(100%, 48rem);
+  margin: 0.3rem 0 0.9rem;
+  padding: 0.5rem 0.9rem;
+  background: rgba(33, 26, 21, 0.6);
+  border: 1px solid var(--gold-dim);
+  border-left: 4px solid var(--amethyst);
+  border-radius: var(--radius);
+}
+
+.what-now-head {
+  margin: 0 0 0.3rem;
+  color: var(--gold);
+  font-family: var(--font-display);
+  letter-spacing: 0.03em;
+}
+
+.what-now-lines {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  padding-left: 1.2rem;
+  color: var(--parchment);
+}
+
 .act-portrait {
   flex: none;
   width: 2.75em;

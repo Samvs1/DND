@@ -512,7 +512,7 @@ body.is-controller #app {
 }
 
 .ct-now-goal::before {
-  content: 'C6  ';
+  content: '\25C6\00A0\00A0';
   color: var(--gold-dim);
 }
 
@@ -580,7 +580,8 @@ body.is-controller #app {
   background: var(--stone-2);
 }
 
-.ct-chip:disabled {
+.ct-chip:disabled,
+.ct-chip[aria-disabled='true'] {
   opacity: 0.5;
   cursor: not-allowed;
 }
@@ -651,4 +652,62 @@ body.is-controller #app {
   .quest-card .quest-hint {
     display: none;
   }
+}
+
+/* M23.8: What now? (button beside the objective, the answer panel under the Now card) */
+.ct-now-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.ct-now-row .ct-now-goal {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.ct-what-now {
+  flex: 0 0 auto;
+  min-height: 36px;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.ct-wn {
+  margin-top: 0.5rem;
+  padding: 0.6rem 0.8rem;
+  background: var(--stone-1);
+  border: 1px solid var(--gold-dim);
+  border-left: 6px solid var(--gold);
+  border-radius: var(--radius);
+}
+
+.ct-wn-head {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ct-wn-title {
+  margin: 0;
+  color: var(--gold);
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+}
+
+.ct-wn-lines {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0.4rem 0 0;
+  padding-left: 1.1rem;
+  color: var(--parchment);
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
+.ct-locked-why {
+  margin: 0.3rem 0 0;
+  color: var(--parchment-dim);
+  font-size: 0.9rem;
 }

@@ -2,6 +2,7 @@
 // the active main quest's objective under it. Never the story text: that is told on the shared screen.
 // M20.2: outside a fight, a standing hero gets one "Help <name> up" button per downed ally (1 HP, `help_up`), and a
 // downed hero's own line says what can raise them.
+// M23.8: the What now? button sits beside the objective (controller/what_now.js).
 import { combatOf, isLive, myCreatureId, tokenById } from '../combat/model.js';
 import { myHero, playerName, publicState } from '../table/lookup.js';
 import { mainObjective } from '../table/scene.js';
@@ -9,6 +10,7 @@ import { t } from '../strings.js';
 import { h } from '../ui/dom.js';
 import { everySecond } from '../ui/countdown.js';
 import { statusOf } from './status.js';
+import { whatNowButton } from './what_now.js';
 
 /** True while a narration is still arriving (the screen is telling it). */
 export function telling(story) {
@@ -82,7 +84,8 @@ export function mountNow(root, { store, story, client }) {
   const place = h('p', { class: 'ct-now-place', 'data-testid': 'now-place' });
   const goal = h('p', { class: 'ct-now-goal', 'data-testid': 'now-goal' });
   const help = h('div', { class: 'ct-help', hidden: true, 'data-testid': 'help-up-list' });
-  const card = h('section', { class: 'ct-now', 'data-testid': 'now-card' }, line, place, goal, help);
+  const row = h('div', { class: 'ct-now-row' }, goal, whatNowButton(client));
+  const card = h('section', { class: 'ct-now', 'data-testid': 'now-card' }, line, place, row, help);
   root.append(card);
 
   function render(state) {

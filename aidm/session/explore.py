@@ -18,6 +18,8 @@ A point-of-no-return result stores `PendingHostile` and asks only the acting pla
 leaves open tasks behind (M23.4, `move_party`) asks the same way, without the hold line. A
 fight started by a weapon attack on an NPC rolls that attack before the narration
 (`opening.strike_if_opening`, M19.2). Every entry ends in narration or a typed notice: never silent.
+M23.8: a typed "what now" is answered before the queue (`what_now.answer`, not a turn), and a typed
+move to a locked exit is told why it is shut (`BarredIntent`, `rules.gateway_lock`).
 
 Public API: `submit_action`, `kick_resolver`, `resolve_next`, `resolve_action`,
 `adjudicated`, `confirm_hostile`, `cancel_hostile`, `inventory_text`.
@@ -29,6 +31,7 @@ from aidm.dm.give_intent import GiveIntent
 from aidm.dm.help_intent import HelpUpIntent
 from aidm.dm.llm_types import ToolCall
 from aidm.dm.precheck import (
+    BarredIntent,
     InventoryIntent,
     ItemIntent,
     LookIntent,
@@ -37,6 +40,7 @@ from aidm.dm.precheck import (
     ShopIntent,
     TakeIntent,
     TravelIntent,
+    asks_what_now,
     precheck,
 )
 from aidm.dm.tool_context import ToolContext
@@ -52,7 +56,7 @@ from aidm.models.protocol_views import QueueEntry, TablePhase, VoteKind
 from aidm.models.state import Creature
 from aidm.rules.scene import node_display_name
 from aidm.rules.turns import EconomyRefused, spend_action
-from aidm.session import combat_flow, hand_over, party_actions, votes
+from aidm.session import combat_flow, hand_over, party_actions, votes, what_now
 from aidm.session.declared import declare
 from aidm.session.opening import strike_if_opening
 from aidm.session.quest_people import CROSS_STAY, hold
@@ -73,6 +77,9 @@ def submit_action(core: TableCore, player: Player, msg: SubmitAction) -> None:
         core.error(player.id, ErrorCode.WRONG_PHASE, text)
         return
     pc = core.living_pc(player)
+    if asks_what_now(core.state, pc.id if pc is not None else "", msg.text):
+        what_now.answer(core, player)  # M23.8: not a turn, also in a fight
+        return
     if pc is None:
         core.error(player.id, ErrorCode.NO_CHARACTER, "You need a living hero to act.")
         return
@@ -189,7 +196,7 @@ async def resolve_action(core: TableCore, entry: QueueEntry) -> None:
         declare(core, entry)
     if intent is None:
         await adjudicated(core, entry)
-    elif isinstance(intent, LookIntent):
+    elif isinstance(intent, LookIntent | BarredIntent):
         await remember(core, await tell_text(core, intent.text))
     elif isinstance(intent, InventoryIntent):
         core.notice(player.id, NoticeKind.INFO, inventory_text(actor))

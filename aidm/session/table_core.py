@@ -187,6 +187,7 @@ class TableCore:
         self.typing_limit = RateLimit(limit=12, window=4.0)
         self.audio = AudioSettings()  # M11.2 audio remote (session/audio_remote.py)
         self.audio_limit = RateLimit(limit=20, window=2.0)
+        self.what_now_limit = RateLimit(limit=1, window=5.0)  # M23.8: screen copies per player
         self.scribe = ScribeMemory()  # M13.2 line picks (session/scribe_voice.py); not persisted
 
     # --- ids, seats, lookups -------------------------------------------------------------
