@@ -6,9 +6,12 @@ Every typographic apostrophe counts as the plain one (`plain`, M20.1: a hero sto
 "El’Skalfidar" was flagged in every model sentence that named him), on the prose side and on the
 name side alike.
 
-Public API: `APOSTROPHES`, `plain(text)`, `Token(text, start, end, initial)`, `tokenize(text)`,
-`base_word(word)`, `singular_forms(word)`, `find_phrases(text, phrases)` (cached patterns),
-`is_negated(tokens, index, negations, span)`.
+Double quote marks of any style are `QUOTE_MARKS` (M20.7: NPC speech is stripped of them and
+narration before an NPC's reply must hold none).
+
+Public API: `APOSTROPHES`, `QUOTE_MARKS`, `plain(text)`, `Token(text, start, end, initial)`,
+`tokenize(text)`, `base_word(word)`, `singular_forms(word)`, `find_phrases(text, phrases)`
+(cached patterns), `is_negated(tokens, index, negations, span)`.
 """
 
 import re
@@ -19,6 +22,7 @@ from functools import cache
 from aidm.dm.sentence_chunker import ABBREVIATIONS
 
 APOSTROPHES = "’‘ʼ`´′"
+QUOTE_MARKS = '"“”„‟«»″'
 _PLAIN = str.maketrans(dict.fromkeys(APOSTROPHES, "'"))
 _TOKEN = re.compile(rf"[A-Za-z]+(?:['{APOSTROPHES}][A-Za-z]+)*")
 _STARTS = frozenset('.!?"“‘(:\n')

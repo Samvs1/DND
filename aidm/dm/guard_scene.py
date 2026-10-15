@@ -64,6 +64,7 @@ class GuardScene:
     standing_terms: dict[str, str] = field(default_factory=dict[str, str])
     downed_terms: dict[str, str] = field(default_factory=dict[str, str])
     offer_pending: bool = False
+    voice_next: str = ""
     rewarded: bool = False
     other_places: dict[str, str] = field(default_factory=dict[str, str])
 

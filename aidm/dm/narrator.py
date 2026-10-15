@@ -21,7 +21,9 @@ The narration is recorded into memory by applying `record_narration(state, text)
 `NarrationRecorded` event) through the session reducer.
 
 `voice_next` names the NPC whose voice answers right after (M20.7): the style tells the model
-not to speak for them (`VOICE_NEXT`).
+not to speak for them (`VOICE_NEXT`), the guard flags spoken words or their reply
+(`aidm.dm.guard_claims.spoken_for`), and the template drops its stock `QUIET_LINE` (the reply
+follows, so a narration with nothing to tell stays silent).
 
 Public API: `NUMBERS_ALLOWED`, `VOICE_NEXT`, `NarrationInput`,
 `tone_for(state, events=(), *, social=False)`, `narration_messages(...)`,
@@ -40,7 +42,7 @@ from aidm.dm.guard import guarded_narration, prose_checker
 from aidm.dm.guard_types import ProseCheck
 from aidm.dm.llm_client import LlmClient
 from aidm.dm.narration_stream import NarrationStream
-from aidm.dm.narration_templates import template_narration
+from aidm.dm.narration_templates import QUIET_LINE, template_narration
 from aidm.dm.narration_weight import (
     NarrationWeight,
     max_tokens_for,
@@ -64,8 +66,9 @@ from aidm.models.world_events import (
 
 NUMBERS_ALLOWED = "The player asked about the numbers: you may state them plainly."
 VOICE_NEXT = (
-    "{name} answers right after you, in their own voice: do not write {name}'s words, reply"
-    " or decision; tell only the action and what the engine resolved, and stop."
+    "{name} answers right after you, in their own voice: do not write {name}'s words, reply,"
+    " silence or decision, and never say they keep quiet; tell only the action and what the"
+    " engine resolved, and stop with their answer still to come."
 )
 _SOCIAL_EVENTS = (AttitudeChanged, SecretRevealed, ShopOpened, NpcIntroduced)
 
@@ -156,11 +159,14 @@ def narrate(
         player_text=player_text,
         budget_tokens=budget_tokens,
     )
+    fallback = template_narration(events, state, notice)
+    if voice_next:  # the NPC's own reply follows: no stock filler line before it
+        fallback = [line for line in fallback if line != QUIET_LINE]
     sentences = guarded_narration(
         llm,
         messages,
-        guard if guard is not None else prose_checker(state, events),
-        template_narration(events, state, notice),
+        guard if guard is not None else prose_checker(state, events, voice_next=voice_next),
+        fallback,
         max_tokens=max_tokens_for(weight),
         player_text=player_text,
     )

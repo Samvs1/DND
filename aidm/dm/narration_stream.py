@@ -16,18 +16,18 @@ speech on its own line ("\\n" between segments; the story history for reconnects
 
 Public API (`NarrationTone` lives in `aidm.models.narration`): `NarrationChunk`,
 `NarrationStream(tone, sentences, *, speaker=None)` (`chunks`, `text`, `feed_text`, `source`,
-`failure`, `reports`, `retried`, `collect()`), `speech_text(sentence)`, `QUOTE_MARKS`.
+`failure`, `reports`, `retried`, `collect()`), `speech_text(sentence)` (quote marks:
+`aidm.dm.guard_text.QUOTE_MARKS`).
 """
 
 from collections.abc import AsyncIterator
 from dataclasses import dataclass
 
 from aidm.dm.guard_flow import GuardedSentences, NarrationSource
+from aidm.dm.guard_text import QUOTE_MARKS
 from aidm.dm.guard_types import GuardReport
 from aidm.dm.llm_types import LlmFailure
 from aidm.models.narration import NarrationTone
-
-QUOTE_MARKS = '"“”„‟«»″'
 
 
 def speech_text(sentence: str) -> str:

@@ -56,6 +56,7 @@ class GuardLexicon(BaseModel):
     gain_phrases: frozenset[str] = frozenset()
     reward_nouns: frozenset[str] = frozenset()
     promise_words: frozenset[str] = frozenset()
+    speech_verbs: frozenset[str] = frozenset()
 
     @model_validator(mode="after")
     def _check(self) -> GuardLexicon:

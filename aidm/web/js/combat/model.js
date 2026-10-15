@@ -20,6 +20,17 @@ export function isMyTurn(state) {
   return Boolean(combat && me && combat.active_id === me);
 }
 
+/** The token whose turn it is (a held AI turn has no active id, only `turn_of`; M20.3). */
+export function actingToken(combat) {
+  return tokenById(combat, combat?.active_id ?? combat?.turn_of);
+}
+
+/** True while a hero (not a monster or an ally creature) has the turn: only then does a turn clock run or a hint help. */
+export function heroActing(combat) {
+  const token = actingToken(combat);
+  return Boolean(token && token.side === 'party' && !token.monster_index);
+}
+
 export function isEnemy(token) {
   return token.side === 'hostile';
 }

@@ -2,7 +2,7 @@
 // active player sees the hints that arrive. Both lists are cleared when the turn changes.
 import { t } from '../strings.js';
 import { clear, h } from '../ui/dom.js';
-import { combatOf, isMyTurn, myCreatureId, tokenById } from './model.js';
+import { actingToken, combatOf, heroActing, isMyTurn, myCreatureId } from './model.js';
 
 const MAX_TEXT = 200;
 
@@ -23,8 +23,8 @@ export function mountSuggest(root, { store }, ctrl) {
   function render(state) {
     const combat = combatOf(state);
     const mine = isMyTurn(state);
-    form.hidden = !combat || mine || !myCreatureId(state);
-    if (combat && !mine) input.setAttribute('aria-label', t('combat.suggestLabel', { name: tokenById(combat, combat.active_id ?? combat.turn_of)?.name ?? '' }));
+    form.hidden = !combat || mine || !myCreatureId(state) || !heroActing(combat); // M20.8: no hints to a monster
+    if (combat && !mine) input.setAttribute('aria-label', t('combat.suggestLabel', { name: actingToken(combat)?.name ?? '' }));
     clear(list);
     for (const s of ctrl.ui.suggestions) list.append(h('li', { class: 'suggest-in', 'data-testid': 'suggestion' }, t('combat.suggestFrom', { name: s.name, text: s.text })));
     for (const text of ctrl.ui.sent) list.append(h('li', { class: 'suggest-out' }, t('combat.suggestSent', { text })));

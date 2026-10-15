@@ -217,5 +217,12 @@
   "promise_words": [
     "if", "will", "would", "could", "might", "may", "offer", "offers", "offered", "promise",
     "promises", "promised", "once", "when you", "after you", "should you", "unless", "for a price"
+  ],
+  "speech_verbs": [
+    "says", "said", "replies", "replied", "answers", "answered", "mutters", "muttered", "murmurs",
+    "murmured", "whispers", "whispered", "rasps", "rasped", "croaks", "croaked", "growls", "growled",
+    "snaps", "snapped", "tells you", "told you", "warns", "warned", "insists", "insisted", "explains",
+    "explained", "admits", "admitted", "calls out", "agrees", "agreed", "chuckles", "laughs",
+    "sighs"
   ]
 }

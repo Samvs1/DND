@@ -14,7 +14,8 @@ and the current scene (`aidm.dm.guard_scene`):
   or by a pronoun resolved to the creatures named before it (`aidm.dm.guard_pronoun`, QA-03);
 - gold or items handed over in prose when no event granted any (`aidm.dm.guard_rewards`, M4.8);
 - arrival at another map node without travel, and an invented stranger walking in
-  (`aidm.dm.guard_claims`, QA-10).
+  (`aidm.dm.guard_claims`, QA-10); with `prose_checker(..., voice_next=name)`, spoken words or
+  that NPC's reply in the narration told right before their own voice (`spoken_for`, M20.7).
 Vocabulary is data (data/bg3/guard_lexicon.json); matching uses word boundaries and negation
 windows, so "unbroken" and "no hidden door" are not flagged.
 
@@ -22,17 +23,19 @@ windows, so "unbroken" and "no hidden door" are not flagged.
 guard every sentence, ONE regeneration with a correction and the offending names scrubbed
 from the context, then the safe template (`aidm.dm.guard_flow.GuardedSentences`).
 
-Public API: `SCRUB_TOKEN`, `check_prose`, `prose_checker(state, events=()) -> ProseCheck`,
+Public API: `SCRUB_TOKEN`, `check_prose`, `prose_checker(state, events=(), *, voice_next=None)
+-> ProseCheck`,
 `scrub_messages(messages, terms)`, `retry_messages(messages, report, shown)`,
 `guarded_narration(llm, messages, check, fallback_lines, *, role, max_tokens, player_text,
 max_sentences) -> GuardedSentences`.
 """
 
+import dataclasses
 import re
 from collections.abc import Sequence
 
 from aidm.dm.guard_alive import downed_rising, living_declared_dead, unhurt_declared_down
-from aidm.dm.guard_claims import false_travel, invented_strangers, offer_blows
+from aidm.dm.guard_claims import false_travel, invented_strangers, offer_blows, spoken_for
 from aidm.dm.guard_flow import MAX_SENTENCES, GuardedSentences
 from aidm.dm.guard_names import absent_people, crowds, erased_people, unknown_names, wrong_identity
 from aidm.dm.guard_pronoun import PronounContext, pronoun_declared_dead
@@ -78,6 +81,7 @@ def _sentence_violations(
         *false_travel(sentence, scene),
         *invented_strangers(sentence, scene),
         *offer_blows(sentence, scene),
+        *spoken_for(sentence, scene),
     ]
 
 
@@ -97,9 +101,11 @@ def check_prose(
     return GuardReport(tuple(found))
 
 
-def prose_checker(state: GameState, events: Sequence[AnyEvent] = ()) -> ProseCheck:
+def prose_checker(
+    state: GameState, events: Sequence[AnyEvent] = (), *, voice_next: str | None = None
+) -> ProseCheck:
     """One checker per narration: it remembers who earlier sentences named (pronouns, QA-03)."""
-    scene = guard_scene(state, events)
+    scene = dataclasses.replace(guard_scene(state, events), voice_next=voice_next or "")
     context = PronounContext()
     return lambda text: check_prose(text, state, scene=scene, context=context)
 

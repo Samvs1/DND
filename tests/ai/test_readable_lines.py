@@ -6,7 +6,7 @@ from pathlib import Path
 
 from aidm.dm.event_text import event_line
 from aidm.dm.fake_llm import FakeStream, fake_text
-from aidm.dm.guard import guarded_narration
+from aidm.dm.guard import guarded_narration, prose_checker
 from aidm.dm.guard_flow import NarrationSource
 from aidm.dm.guard_types import GuardReport, Violation, ViolationKind
 from aidm.dm.narration_stream import NarrationStream, speech_text
@@ -127,3 +127,28 @@ async def test_narrator_leaves_the_answer_to_the_npc(tmp_path: Path) -> None:
     await narrate(inn_state(), [], client, voice_next="Mira").collect()
     sent = str(fake.requests[0].messages)
     assert VOICE_NEXT.format(name="Mira") in sent
+
+
+def test_guard_flags_words_put_in_the_npcs_mouth() -> None:
+    """M20.8 live probe: '"Nothing came through," Vess says' came before Vess's own reply."""
+    state = inn_state()
+    before = prose_checker(state, [], voice_next="Mira")
+    said = before('"Nothing came through," Mira says.').violations
+    assert [v.kind for v in said] == [ViolationKind.SPOKE_FOR_NPC]
+    assert [v.span for v in before("Mira mutters that the well is dry.").violations] == ["Mira"]
+    assert before("Aria leans on the bar and asks Mira about the well.").ok
+    assert prose_checker(state, [])('"Hello," Mira says.').ok  # nobody answers next
+
+
+async def test_narration_that_speaks_for_the_npc_retries_then_stays_silent(
+    tmp_path: Path,
+) -> None:
+    speaking = fake_text('Aria asks about the well. "It is dry," Mira says.')
+    client, _ = fake_client(tmp_path, [speaking, speaking])
+    stream = narrate(inn_state(), [], client, voice_next="Mira")
+    assert await stream.collect() == "Aria asks about the well."
+    assert stream.retried and stream.chunks[-1].text == "Aria asks about the well."
+    quiet, _ = fake_client(tmp_path, [fake_text('"Dry," Mira says.'), fake_text('"No."')])
+    silent = narrate(inn_state(), [], quiet, voice_next="Mira")
+    assert await silent.collect() == ""  # no stock filler: Mira's own reply follows
+    assert silent.source is NarrationSource.TEMPLATE

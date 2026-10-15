@@ -102,17 +102,22 @@ single-device view: to play solo, open `/screen` in one window and `/play` in an
    Type *pick up the ...* to take an item lying here; story finds become keepsakes on your Hero tab. The
    Dungeon Master's narration is as long as the moment is worth and never tells a result the game did not roll. Actions queue in order,
    one waiting action per player: the screen shows who is typing, who is acting and who is next, and your
-   phone shows "Waiting (n)". Travel, rests and shopping ask the table for a quick vote.
+   phone shows "Waiting (n)". Travel, rests and shopping ask the table for a quick vote. Statements from the
+   game itself ("Slendee gains True Strike.") each get their own line, and an NPC's reply shows once as
+   `Name: "..."`. A hero who is down outside a fight gets a **Help <name> up** button on every standing ally's
+   phone (or type "help her up").
 6. **Combat** (Play tab): the zone board and initiative strip are on the screen. Your phone says the round and how
    many turns until yours; on your turn it shows the Move list (or type *I move to ...*), "Your turn", target chips (name and health state), and the hotbar with hit chances, spells with slot counts,
-   class features, items, move, dash, disengage, hide and end turn. Other players can send suggestions.
+   class features, items, move, dash, disengage, hide, flee (after Disengage when a foe shares your zone) and end
+   turn. The screen names whose turn it is and holds each monster's turn for a moment; same-named foes get
+   letters (Goblin A, Goblin B). Other players can send suggestions.
    **The Scribe** (Scribe tab): when a hero has fallen, a standing hero can pay 25 gp per level of the fallen hero
-   to have the Scribe rewrite them into the story. Outside combat only. He speaks rarely: a welcome, a welcome
+   to have the Scribe rewrite them into the story; the fallen hero's own purse pays first. Outside combat only. He speaks rarely: a welcome, a welcome
    back, the campaign victory and a brief line at a revive. If he refuses, his reason shows as text on your
    phone. He speaks and appears only on the shared screen; the host can skip him from the Host panel and anyone
    can skip on the screen.
 7. **Hero** tab: stats, inventory (equip, unequip, drop, use), the spellbook, and the level-up dialog when you
-   have earned a level (levels 1 to 5). The **Journal** tab holds the journal and the map (travel).
+   have earned a level (levels 1 to 5; during a fight it waits until the fight is over). The **Journal** tab holds the journal and the map (travel).
 8. **More** tab: settings, text size, hero file export, the host panel (host only) and the screen's audio
    remote: separate narrator and music volume and mute. Any seated player can change them; the last change
    wins. The screen's gear button has the same sliders for the screen itself. The screen is the
@@ -199,6 +204,9 @@ unavailable, 4 a line failed its measurement checks.
 ## Troubleshooting
 
 - **A phone keeps dropping, or a turn was played for me.** `logs/session.jsonl` records connections (with the websocket close code), turns and where the campaign plan came from (the AI or the prepared adventure, with the reasons); send it along with a bug report. It never holds tokens or keys.
+- **The narration sounds robotic or repeats stock lines.** Each `narration` line in `logs/session.jsonl` says where
+  the text came from (`model`, `mixed` or `template`) and what the guard flagged (kind and the flagged words,
+  never player text), so a fallback can be traced to a name the guard did not know or a model failure.
 - **A banner says the Dungeon Master is using fallback narration.** There is no usable DeepSeek key (or the
   service is down). The game stays fully playable with template narration and the built-in sample campaign.
   Put `DEEPSEEK_API_KEY` in `.env`, restart, and check `http://127.0.0.1:8000/healthz`: it reports only

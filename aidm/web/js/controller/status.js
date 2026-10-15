@@ -1,5 +1,5 @@
 // What the phone's status chip says: whose turn it is, in a fight or at the free-for-all floor.
-import { combatOf, isMyTurn, tokenById } from '../combat/model.js';
+import { actingToken, combatOf, heroActing, isMyTurn } from '../combat/model.js';
 import { myHero, publicState } from '../table/lookup.js';
 import { t } from '../strings.js';
 import { clockText } from '../ui/countdown.js';
@@ -25,8 +25,10 @@ export function statusOf(state, now = Date.now()) {
   if (combat) {
     const clock = clockText(state.turnEndsAt, now); // M15.1: the turn timer's countdown, when one runs
     if (isMyTurn(state)) return { key: 'mine', text: clock ? t('ct.status_yourTurnClock', { clock }) : t('ct.status_yourTurn') };
-    const who = tokenById(combat, combat.active_id ?? combat.turn_of)?.name ?? ''; // M20.3: a held AI turn
-    return { key: 'acting', text: clock ? t('ct.status_actingClock', { name: who, clock }) : t('ct.status_acting', { name: who }) };
+    const who = actingToken(combat)?.name ?? ''; // M20.3: a held AI turn
+    // M20.8: a monster's turn has no clock (the last hero's would still be counting down)
+    const shown = heroActing(combat) ? clock : '';
+    return { key: 'acting', text: shown ? t('ct.status_actingClock', { name: who, clock: shown }) : t('ct.status_acting', { name: who }) };
   }
   const holder = view.floor?.holder ?? null;
   if (holder) {

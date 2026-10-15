@@ -6,7 +6,7 @@ import { t } from '../strings.js';
 import { clear, h } from '../ui/dom.js';
 import { attackSlots, bonusSlots, featureSlots, moveSlots } from './hotbar_slots.js';
 import { itemPopover, spellPopover } from './hotbar_magic.js';
-import { combatOf, isMyTurn, myCreatureId, tokenById } from './model.js';
+import { actingToken, combatOf, heroActing, isMyTurn, myCreatureId } from './model.js';
 import { mountSuggest } from './suggest.js';
 
 const NO_ECON = { action: false, bonus_action: false, movement_left: 0, reaction: false, attacks_left: 0 };
@@ -126,8 +126,9 @@ export function mountHotbar(root, ctx, ctrl) {
     note.textContent = ctrl.ui.message;
     root.classList.toggle('waiting', !mine);
     if (!mine) {
-      const who = tokenById(combat, combat.active_id ?? combat.turn_of)?.name ?? '';
-      head.append(h('p', { class: 'hb-wait', 'data-testid': 'hotbar-wait' }, t('combat.notYourTurn', { name: who })));
+      const who = actingToken(combat)?.name ?? '';
+      const line = heroActing(combat) ? 'combat.notYourTurn' : 'combat.notYourTurnFoe'; // hints are for allies
+      head.append(h('p', { class: 'hb-wait', 'data-testid': 'hotbar-wait' }, t(line, { name: who })));
       return;
     }
     const econ = combat.economy ?? NO_ECON;

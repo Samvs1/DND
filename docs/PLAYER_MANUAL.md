@@ -285,7 +285,7 @@ To move, use the **Move** list right under the Now card on your phone (on your t
 - **Throw** (action): hurl a carried object at a foe in your zone or the next one (1d4 damage).
 - **Shove** (bonus action): in your zone, knock a foe prone or push them to another zone. They can be at most one size larger than you, they roll Athletics or Acrobatics (the better one) and you must beat that.
 - **Jump** (bonus action): leap to a neighbouring zone, ignoring rough ground. It still uses movement equal to the distance, and you cannot jump while prone.
-- **Flee** (no action): leave the fight. With an enemy in your zone you must **Disengage** first (the Flee button then says **Disengage first**); after Disengage you can flee in the same turn. You are then out of the fight. If everyone else falls, the party counts as having fled rather than as defeated.
+- **Flee** (no action, uses the rest of your movement): leave the fight. With an enemy in your zone you must **Disengage** first (the Flee button then says **Disengage first**); after Disengage you can flee in the same turn. You are then out of the fight. If everyone else falls, the party counts as having fled rather than as defeated.
 - **Use item**: in a fight you drink a potion yourself as a bonus action. Outside a fight you can give one to another hero from the sheet. It is refused (and nothing is used) if the hero is at full health or dead.
 
 ### Spells and slots
@@ -418,7 +418,7 @@ Conditions are shown on tokens and on your sheet.
 <!-- end generated:conditions -->
 
 ### Suggestions
-When it is not your turn, you can **suggest a move** to the active hero. It is only a hint: they decide. The suggestion appears on their phone. You can also type something creative for your own turn in the free-text box (**Or describe something creative**), and the game works out what it means.
+When it is another hero's turn, you can **suggest a move** to them (not during a monster's turn). It is only a hint: they decide. The suggestion appears on their phone. You can also type something creative for your own turn in the free-text box (**Or describe something creative**), and the game works out what it means.
 
 ### Monster behaviour and loot
 Monsters have a fixed number of hit points. The host can scale monster health and damage (see For the host). Each defeated foe adds to the loot of the fight, and the experience of every defeated foe is split evenly among the living heroes.

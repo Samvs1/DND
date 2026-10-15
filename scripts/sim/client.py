@@ -1,7 +1,9 @@
 """A bot's real websocket connection: sends frames, records every server message.
 
 `Conn` keeps the full message log and the newest snapshot state so the bots and the director can
-wait for conditions with `wait_for` (a predicate over the log from a position onward).
+wait for conditions with `wait_for` (a predicate over the log from a position onward). Like the
+browser (`handlers.js` onCombat), a `combat_state` patches the state's `combat` at once: since
+M20.3 a hero's `turn_prompt` follows its `combat_state` before the next snapshot.
 
 Public API: `Conn`, `Msg`.
 """
@@ -51,6 +53,8 @@ class Conn:
                 msg: Msg = json.loads(raw)
                 if msg.get("type") == "snapshot":
                     self.state = msg["state"]
+                elif msg.get("type") == "combat_state" and self.state:
+                    self.state = {**self.state, "combat": msg.get("combat")}
                 self.log.append(msg)
                 self._wake.set()
         except websockets.ConnectionClosed:

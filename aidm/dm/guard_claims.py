@@ -15,18 +15,25 @@
   tumbling into the black water" was told while the party had not yet chosen to fight): while an
   encounter offer waits for the party's answer, a violent outcome (`blow_claims`) is flagged.
 
+- Spoken for (M20.7, playtest 3 and the M20.8 live probe: the narration wrote "'Nothing came
+  through,' Vess says" and then Vess's own voice answered differently): when an NPC answers right
+  after the narration (`GuardScene.voice_next`), a narration sentence holding spoken words (any
+  double quote mark) or that NPC's name with a speech verb (`speech_verbs`) is flagged.
+
 Public API: `PLACE_REACH`, `ENTRANCE_REACH`, `false_travel(sentence, scene)`,
-`invented_strangers(sentence, scene)`, `offer_blows(sentence, scene)`.
+`invented_strangers(sentence, scene)`, `offer_blows(sentence, scene)`,
+`spoken_for(sentence, scene)`.
 """
 
 import re
 
 from aidm.dm.guard_scene import GuardScene
-from aidm.dm.guard_text import find_phrases
+from aidm.dm.guard_text import QUOTE_MARKS, find_phrases
 from aidm.dm.guard_types import Violation, ViolationKind
 
 PLACE_REACH = 12
 ENTRANCE_REACH = 30
+_NAME_WORD = 4
 
 
 def false_travel(sentence: str, scene: GuardScene) -> list[Violation]:
@@ -69,3 +76,18 @@ def offer_blows(sentence: str, scene: GuardScene) -> list[Violation]:
         return []
     detail = "nothing has happened yet: the party has not chosen to fight"
     return [Violation(ViolationKind.OFFER_BLOW, hit[0].group(0), detail)]
+
+
+def spoken_for(sentence: str, scene: GuardScene) -> list[Violation]:
+    name = scene.voice_next
+    if not name:
+        return []
+    detail = f"{name} answers right after you in their own voice: write no spoken words or reply"
+    if any(q in sentence for q in QUOTE_MARKS):
+        return [Violation(ViolationKind.SPOKE_FOR_NPC, sentence[:40], detail)]
+    words = frozenset(w.lower() for w in re.findall(r"[A-Za-z']+", name) if len(w) >= _NAME_WORD)
+    lex = scene.lexicon
+    named = find_phrases(sentence, words - lex.titles)
+    if named and find_phrases(sentence, lex.speech_verbs):
+        return [Violation(ViolationKind.SPOKE_FOR_NPC, named[0].group(0), detail)]
+    return []

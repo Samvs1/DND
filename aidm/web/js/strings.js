@@ -313,6 +313,7 @@ export const STRINGS = {
     conditions: 'Conditions',
     waiting: 'Waiting for {name}',
     notYourTurn: "It is {name}'s turn. You can suggest a move.",
+    notYourTurnFoe: "It is {name}'s turn.",
     noHero: 'Spectating the fight.',
     downed: 'Your hero is down. The party fights on.',
     suggestLabel: 'Suggest a move to {name}',

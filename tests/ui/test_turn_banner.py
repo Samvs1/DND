@@ -10,6 +10,7 @@ from tests.ui.conftest import LiveServer
 from tests.ui.table_helpers import MAIN, split_turn, start_fight
 
 BANNER = "[data-testid=turn-banner]"
+AFTER_END = "phone_after_end_turn_390.png"
 WATCH = """() => {
   window.__turns = [];
   window.aidm.store.on('combat_state', (m) => {
@@ -54,15 +55,23 @@ def test_screen_names_every_turn_and_the_phone_flips_on_end_turn(
             continue
         ending.click("[data-testid=end-turn]")
         ending.wait_for_selector(MAIN, state="detached", timeout=3000)  # flips at once
+        if not (shots_dir / AFTER_END).exists():
+            ending.screenshot(path=str(shots_dir / AFTER_END))
         if screen.evaluate(GOBLIN_SEEN):
             break
         host.wait_for_timeout(1500)
         if screen.evaluate(GOBLIN_SEEN):
             break
     assert screen.evaluate(GOBLIN_SEEN), "the screen never got a goblin's turn"
-    split_turn(host, guest)  # a hero's turn again: no more combat_state until they act
+    _active, waiting = split_turn(host, guest)  # a hero's turn: no combat_state until they act
     goblin = screen.evaluate(HELD)  # a held goblin turn: the banner names it
     assert screen.inner_text(BANNER) == f"It is {goblin}'s turn"
     assert screen.locator(".init.current", has_text=goblin).count() >= 1
     screen.screenshot(path=str(shots_dir / "screen_goblin_turn_1280.png"))
+    # M20.8: a monster's turn shows no hero clock on a phone and offers no hint to the monster.
+    assert waiting.evaluate(HELD) == goblin
+    chip = "document.querySelector('[data-testid=status-chip]').textContent"
+    waiting.wait_for_function(f"(n) => {chip} === `${{n}} is acting`", arg=goblin)
+    assert waiting.inner_text("[data-testid=hotbar-wait]") == f"It is {goblin}'s turn."
+    assert not waiting.locator("[data-testid=suggest-input]").is_visible()
     assert errors == []
