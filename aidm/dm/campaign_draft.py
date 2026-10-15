@@ -5,84 +5,37 @@ resolves cross-references written as names (an NPC's home place, a quest giver, 
 condition's quest) and builds the validated `CampaignPlan`. Anything that does not resolve or
 validate becomes a `Problem`, which the generator feeds back on its retry.
 
-Repair over reject (M16.1): every draft model trims over-long strings at a word boundary and
-cuts over-long lists to the field's own `max_length` before validation (`fit_limits`); min
-lengths, required fields and enums still reject. Names resolve leniently (`_Ids.resolve`):
-the exact name first, then the one name that contains the written words (a quest against
-"Skarn" finds "Skarn the Hollow"). A required reference (home place, quest giver) that still
-does not resolve is a `Problem`; an optional one is dropped (a quest target or rival becomes
-None, a secret whose quest or item is unknown reveals at a friendly attitude instead).
+Repair over reject (M16.1): the draft models trim and cut to their limits and names resolve
+leniently (`aidm.dm.campaign_draft_base`). A required reference (home place, quest giver) that
+still does not resolve is a `Problem`; an optional one is dropped (a quest target or rival
+becomes None, a secret whose quest or item is unknown reveals at a friendly attitude instead).
+The quest parts (side quest steps, each act's Peace / Cunning route, the finale; M23.6) are
+joined by `aidm.dm.campaign_draft_quests.with_quests`, which repairs instead of rejecting and
+appends a note per repair to `repairs`.
 
 Public API:
 - Draft models: `NodeDraft`, `BossDraft`, `RegionDraft`, `ActDraft`, `SecretDraft`, `NpcDraft`,
   `QuestDraft`, `CampaignDraft` (the `structured` schema).
-- `assemble_plan(draft) -> CampaignPlan | list[Problem]`.
-- `slug_id(name, taken) -> str`: a plan id for a display name, unique among `taken`.
-- `trim_words(text, limit) -> str`; `fit_limits(data, limits) -> dict` (the repair step).
+- `assemble_plan(draft, repairs=None) -> CampaignPlan | list[Problem]`.
 """
 
 from __future__ import annotations
 
-import functools
-import re
-from collections.abc import Iterable, Mapping
 from typing import Any
 
-from pydantic import BaseModel, Field, ValidationError, model_validator
+from pydantic import Field, ValidationError
 
+from aidm.dm.campaign_draft_base import Draft, name_key, resolve_name, slug_id
+from aidm.dm.campaign_draft_quests import FinaleDraft, QuestDrafts, RouteDraft, with_quests
+from aidm.dm.campaign_steps import StepDraft
 from aidm.models.campaign import CampaignPlan, RevealKind, RewardTier
 from aidm.models.dm_tiers import AttitudeBand
 from aidm.models.problem import Problem
 
 MAX_VALIDATION_PROBLEMS = 12
-TRIM_TAIL = " \t\n,;:-"
-_LAST_SPACE = re.compile(r"\s\S*$")
 
 
-def trim_words(text: str, limit: int) -> str:
-    """`text` cut to at most `limit` characters at the last word boundary (hard cut if none)."""
-    if len(text) <= limit:
-        return text
-    space = _LAST_SPACE.search(text[: limit + 1])
-    head = text[: space.start()] if space is not None and space.start() > 0 else text[:limit]
-    return head.rstrip(TRIM_TAIL) or text[:limit]
-
-
-def fit_limits(data: Mapping[str, Any], limits: Mapping[str, int]) -> dict[str, Any]:
-    """A copy of `data` whose strings and lists named in `limits` fit their maximum length."""
-    out = dict(data)
-    for name, limit in limits.items():
-        value = out.get(name)
-        if isinstance(value, str):
-            out[name] = trim_words(value, limit)
-        elif isinstance(value, list) and len(value) > limit:
-            out[name] = value[:limit]
-    return out
-
-
-@functools.cache
-def _max_lengths(model: type[BaseModel]) -> dict[str, int]:
-    out: dict[str, int] = {}
-    for name, info in model.model_fields.items():
-        for meta in info.metadata:
-            limit = getattr(meta, "max_length", None)
-            if isinstance(limit, int):
-                out[name] = limit
-    return out
-
-
-class _Draft(BaseModel):
-    """Base of every draft model: over-long text and lists are repaired, not rejected."""
-
-    @model_validator(mode="before")
-    @classmethod
-    def _fit(cls, data: Any) -> Any:
-        if isinstance(data, Mapping):
-            return fit_limits(data, _max_lengths(cls))
-        return data
-
-
-class NodeDraft(_Draft):
+class NodeDraft(Draft):
     """A place: arrival (safe, no encounter themes), spoke, or gateway (the boss's lair)."""
 
     name: str = Field(min_length=1, max_length=40)
@@ -91,13 +44,13 @@ class NodeDraft(_Draft):
     encounter_themes: list[str] = Field(default_factory=list[str], max_length=3)
 
 
-class BossDraft(_Draft):
+class BossDraft(Draft):
     monster_id: str = Field(min_length=1)
     name: str = Field(min_length=1, max_length=40)
     ally_path: str | None = Field(default=None, max_length=300)
 
 
-class RegionDraft(_Draft):
+class RegionDraft(Draft):
     name: str = Field(min_length=1, max_length=40)
     flavour: str = Field(min_length=1, max_length=300)
     terrain_tags: list[str] = Field(min_length=1, max_length=4)
@@ -107,13 +60,15 @@ class RegionDraft(_Draft):
     boss: BossDraft
 
 
-class ActDraft(_Draft):
+class ActDraft(Draft):
     title: str = Field(min_length=1, max_length=60)
     goal: str = Field(min_length=1, max_length=200)
     region: RegionDraft
+    peace: RouteDraft | None = Field(default=None, description="from the boss's ally path")
+    cunning: RouteDraft | None = Field(default=None, description="optional")
 
 
-class SecretDraft(_Draft):
+class SecretDraft(Draft):
     text: str = Field(min_length=1, max_length=300)
     reveal_kind: RevealKind
     band: AttitudeBand | None = None
@@ -122,7 +77,7 @@ class SecretDraft(_Draft):
     fact_tag: str | None = Field(default=None, max_length=24)
 
 
-class NpcDraft(_Draft):
+class NpcDraft(Draft):
     name: str = Field(min_length=1, max_length=40)
     role: str = Field(min_length=1, max_length=40)
     archetype_id: str = Field(min_length=1)
@@ -133,7 +88,7 @@ class NpcDraft(_Draft):
     secrets: list[SecretDraft] = Field(default_factory=list[SecretDraft], max_length=2)
 
 
-class QuestDraft(_Draft):
+class QuestDraft(Draft):
     title: str = Field(min_length=1, max_length=60)
     giver: str = Field(min_length=1, max_length=40, description="the NPC who gives it")
     objective: str = Field(min_length=1, max_length=200)
@@ -143,9 +98,10 @@ class QuestDraft(_Draft):
     against: str | None = Field(
         default=None, max_length=40, description="an NPC the quest works against"
     )
+    steps: list[StepDraft] = Field(default_factory=list[StepDraft], max_length=4)
 
 
-class CampaignDraft(_Draft):
+class CampaignDraft(Draft):
     """Submit the whole campaign plan."""
 
     title: str = Field(min_length=1, max_length=80)
@@ -157,28 +113,7 @@ class CampaignDraft(_Draft):
     quests: list[QuestDraft] = Field(default_factory=list[QuestDraft], max_length=8)
     rival_name: str | None = Field(default=None, max_length=40)
     rival_hook: str | None = Field(default=None, max_length=200)
-
-
-def slug_id(name: str, taken: Iterable[str]) -> str:
-    base = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")[:48] or "x"
-    used = set(taken)
-    candidate, n = base, 2
-    while candidate in used:
-        candidate, n = f"{base}-{n}", n + 1
-    return candidate
-
-
-def _key(name: str) -> str:
-    return re.sub(r"[^a-z0-9]+", " ", name.lower()).strip()
-
-
-def _contains(key: str, written: str) -> bool:
-    """True when the name `key` holds every word of `written` in order, as whole words."""
-    return bool(written) and f" {written} " in f" {key} "
-
-
-def _short(written: str) -> str:
-    return written.removeprefix("the ") if written != "the" else written
+    finale: FinaleDraft | None = None
 
 
 class _Ids:
@@ -197,25 +132,12 @@ class _Ids:
         new_id = slug_id(name, self.taken)
         self.taken.add(new_id)
         if index is not None:
-            index.setdefault(_key(name), new_id)
+            index.setdefault(name_key(name), new_id)
         return new_id
-
-    def resolve(
-        self, index: Mapping[str, str], name: str, rivals: Iterable[str] = ()
-    ) -> str | None:
-        """The exact name, else the one name (of `index` or `rivals`) holding the written words."""
-        key = _key(name)
-        if key in index:
-            return index[key]
-        written = _short(key)
-        hits = {v for k, v in index.items() if _contains(k, written)}
-        if len(hits) != 1 or any(_contains(r, written) for r in rivals):
-            return None
-        return hits.pop()
 
     def find(self, index: dict[str, str], name: str, what: str, owner: str) -> str:
         """A required reference: unresolved names become a `Problem`."""
-        found = self.resolve(index, name)
+        found = resolve_name(index, name)
         if found is None:
             msg = f"{owner}: {what} {name!r} is not one of the names you defined"
             self.problems.append(Problem(code="unknown_reference", message=msg, subject=owner))
@@ -237,7 +159,7 @@ def _act(ids: _Ids, index: int, act: ActDraft) -> dict[str, Any]:
     reg = act.region
     nodes = [_node(ids, n) for n in (reg.arrival, *reg.spokes, reg.gateway)]
     boss = {"monster_id": reg.boss.monster_id, "name": reg.boss.name, "lair_node": nodes[-1]["id"]}
-    ids.bosses.add(_key(reg.boss.name))
+    ids.bosses.add(name_key(reg.boss.name))
     if reg.boss.ally_path:
         boss["ally_path"] = reg.boss.ally_path
     region = {
@@ -264,9 +186,9 @@ def _reveal(ids: _Ids, secret: SecretDraft) -> dict[str, Any]:
         band = secret.band if secret.band not in (None, AttitudeBand.HOSTILE) else None
         return {"kind": kind.value, "band": (band or AttitudeBand.FRIENDLY).value}
     if kind is RevealKind.QUEST_COMPLETED:
-        field, ref = "quest_id", ids.resolve(ids.quests, secret.quest_title or "")
+        field, ref = "quest_id", resolve_name(ids.quests, secret.quest_title or "")
     elif kind is RevealKind.ITEM_SHOWN:
-        field, ref = "item", ids.resolve(ids.items, secret.item or "")
+        field, ref = "item", resolve_name(ids.items, secret.item or "")
     else:
         field, ref = "fact_tag", (secret.fact_tag or "").strip().lower() or None
     return {"kind": kind.value, field: ref} if ref is not None else dict(FRIENDLY_REVEAL)
@@ -299,7 +221,7 @@ def _quest(ids: _Ids, quest_id: str, quest: QuestDraft) -> dict[str, Any]:
         "reward_tier": quest.reward_tier,
         "act": quest.act,
         "reward_item": quest.reward_item,
-        "against_npc_id": ids.resolve(ids.npcs, quest.against or "", ids.bosses),
+        "against_npc_id": resolve_name(ids.npcs, quest.against or "", ids.bosses),
     }
 
 
@@ -314,18 +236,30 @@ def _validation_problems(exc: ValidationError) -> list[Problem]:
 def _rival(ids: _Ids, draft: CampaignDraft) -> dict[str, Any] | None:
     if not draft.rival_name:
         return None
-    npc_id = ids.resolve(ids.npcs, draft.rival_name, ids.bosses)
+    npc_id = resolve_name(ids.npcs, draft.rival_name, ids.bosses)
     if npc_id is None:
         return None
     return {"npc_id": npc_id, "hook": draft.rival_hook or "A rival of the party."}
 
 
-def assemble_plan(draft: CampaignDraft) -> CampaignPlan | list[Problem]:
+def _quest_drafts(draft: CampaignDraft) -> QuestDrafts:
+    return QuestDrafts(
+        side_steps=tuple(q.steps for q in draft.quests),
+        peace=tuple(a.peace for a in draft.acts),
+        cunning=tuple(a.cunning for a in draft.acts),
+        finale=draft.finale,
+    )
+
+
+def assemble_plan(
+    draft: CampaignDraft, repairs: list[Problem] | None = None
+) -> CampaignPlan | list[Problem]:
+    """The plan of `draft`, or the problems to feed back; quest repairs go to `repairs`."""
     ids = _Ids()
     acts = [_act(ids, i + 1, a) for i, a in enumerate(draft.acts)]
     npc_ids = [ids.new(n.name, ids.npcs) for n in draft.npcs]
     quest_ids = [ids.new(q.title, ids.quests) for q in draft.quests]
-    ids.items = {_key(q.reward_item): q.reward_item for q in draft.quests if q.reward_item}
+    ids.items = {name_key(q.reward_item): q.reward_item for q in draft.quests if q.reward_item}
     raw = {
         "title": draft.title,
         "premise": draft.premise,
@@ -339,6 +273,7 @@ def assemble_plan(draft: CampaignDraft) -> CampaignPlan | list[Problem]:
     if ids.problems:
         return ids.problems
     try:
-        return CampaignPlan.model_validate(raw)
+        base = CampaignPlan.model_validate(raw)
     except ValidationError as exc:
         return _validation_problems(exc)
+    return with_quests(base, _quest_drafts(draft), repairs if repairs is not None else [])

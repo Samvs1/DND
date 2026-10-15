@@ -12,7 +12,7 @@ floor (`NpcSecret.min_score`); the campaign condition (`NpcSecret.reveal`):
   count: "remember that we know about the wreckers" cannot unlock a secret.
 
 Public API: `item_key(name) -> str`, `party_has_item(state, item) -> bool`,
-`engine_knows(state, tag) -> bool`,
+`engine_knows(state, tag) -> bool`, `fact_words(*texts) -> set[str]`,
 `reveal_refusal(state, npc, secret_id) -> str | None` (None: the secret may be revealed now,
 else the reason, phrased for the model without the secret's text).
 """
@@ -39,22 +39,23 @@ def party_has_item(state: GameState, item: str) -> bool:
     return False
 
 
-def _words(*texts: str) -> set[str]:
+def fact_words(*texts: str) -> set[str]:
+    """The lowercase words a fact tag is matched on (letters only)."""
     return {w for text in texts for w in re.findall(r"[a-z]+", text.lower())}
 
 
 def engine_knows(state: GameState, tag: str) -> bool:
     world = state.world
-    known = _words(*world.visited, *(world.node_names.get(n, "") for n in world.visited))
+    known = fact_words(*world.visited, *(world.node_names.get(n, "") for n in world.visited))
     for feature in world.features.values():
         if not feature.hidden or feature.discovered:
-            known |= _words(feature.id, feature.name)
+            known |= fact_words(feature.id, feature.name)
     for quest in world.quests.values():
         if quest.state is QuestState.COMPLETED:
-            known |= _words(quest.id, quest.title)
+            known |= fact_words(quest.id, quest.title)
     for npc in world.npcs.values():
-        known |= _words(*(secret.text for secret in npc.secrets if secret.revealed))
-    wanted = _words(tag)
+        known |= fact_words(*(secret.text for secret in npc.secrets if secret.revealed))
+    wanted = fact_words(tag)
     return bool(wanted) and wanted <= known
 
 

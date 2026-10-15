@@ -16,6 +16,9 @@ from aidm.dm.llm_client import LlmClient
 from aidm.dm.llm_factory import make_llm_client
 from aidm.dm.llm_settings import llm_settings_from_env
 from aidm.dm.llm_types import LlmMode
+from aidm.models.campaign import CampaignPlan
+from aidm.models.quests import RouteKind
+from aidm.rules.quest_plan import main_quests, quest_steps
 
 THEME = "a haunted river delta"
 PARTY = "four level-1 adventurers: fighter, rogue, cleric, wizard"
@@ -48,7 +51,29 @@ def _call_outcomes(log: Path) -> list[str]:
     if not log.exists():
         return []
     rows = [json.loads(line) for line in log.read_text(encoding="utf-8").splitlines() if line]
-    return [f"{r.get('kind')}:{r.get('outcome')}:{r.get('latency_ms')}ms" for r in rows]
+    return [
+        f"{r.get('kind')}:{r.get('outcome')}:{r.get('latency_ms')}ms:"
+        f"{r.get('completion_tokens')}tok"
+        for r in rows
+    ]
+
+
+def _quest_report(plan: CampaignPlan) -> list[str]:
+    """Per act: side quests with their step counts, the Peace route, Cunning, then the finale."""
+    lines = []
+    for main in main_quests(plan):
+        sides = [len(quest_steps(plan, q)) for q in plan.quests if q.act == main.act]
+        peace = next((r for r in main.routes if r.kind is RouteKind.PEACE), None)
+        cunning = next((r for r in main.routes if r.kind is RouteKind.CUNNING), None)
+        lines.append(
+            f"act {main.act}: side quests {len(sides)} steps {sides}; "
+            f"peace {[s.kind.value for s in peace.steps] if peace else None}; "
+            f"cunning {cunning.effect if cunning else None}"
+        )
+    finale = plan.finale
+    ends = [o.title for o in finale.options] if finale else []
+    lines.append(f"finale: {finale.question if finale else None} -> {ends}")
+    return lines
 
 
 async def test_live_campaign_generation_returns_a_valid_model_plan(
@@ -64,3 +89,8 @@ async def test_live_campaign_generation_returns_a_valid_model_plan(
     assert plan_problems(result.plan, SEED) == [], "the returned plan must validate"
     assert result.source is CampaignSource.MODEL, f"fell back to the sample: {why}"
     assert len(result.plan.acts) == 3 and len(result.plan.npcs) >= 1
+    for line in _quest_report(result.plan):
+        live_say(f"LIVE campaign quests: {line}")
+    live_say(f"LIVE campaign repairs: {[p.message for p in result.problems]}")
+    mains = main_quests(result.plan)  # M23.6 soft checks: every act derives a main quest
+    assert len(mains) == 3 and all(m.routes for m in mains)

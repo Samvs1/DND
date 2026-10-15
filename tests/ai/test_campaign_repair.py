@@ -13,7 +13,8 @@ from typing import Any
 import pytest
 from pydantic import ValidationError
 
-from aidm.dm.campaign_draft import CampaignDraft, NpcDraft, assemble_plan, fit_limits, trim_words
+from aidm.dm.campaign_draft import CampaignDraft, NpcDraft, assemble_plan
+from aidm.dm.campaign_draft_base import fit_limits, trim_words
 from aidm.dm.campaign_gen import CampaignSource, generate_campaign
 from aidm.dm.fake_llm import fake_tool_call
 from aidm.models.campaign import CampaignPlan, RevealKind

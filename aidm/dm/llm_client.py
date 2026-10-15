@@ -19,7 +19,7 @@ Public API:
     `settings.structured_max_tokens` (4000). Empty content is fine.
     Timeouts and transport errors are not retried (the turn falls back instead of stalling).
     `timeout_s` overrides `settings.timeout_s` for this call (M6.2: campaign generation).
-  - `structured(messages, schema, role, *, fallback, player_text, timeout_s)
+  - `structured(messages, schema, role, *, fallback, player_text, timeout_s, max_tokens)
     -> T | LlmFailure`: forces a single `submit_result` tool whose arguments are `schema`;
     on exhaustion returns `fallback` when given, else the `LlmFailure`.
   - `stream_text(messages, role, *, max_tokens, player_text) -> TextStream`.
@@ -211,6 +211,7 @@ class LlmClient:
         fallback: T | None = None,
         player_text: str | None = None,
         timeout_s: float | None = None,
+        max_tokens: int | None = None,
     ) -> T | LlmFailure:
         tool = ToolDef(STRUCTURED_TOOL, schema.__doc__ or "Return the result.", schema)
         result = await self.call_tools(
@@ -218,6 +219,7 @@ class LlmClient:
             [tool],
             role,
             tool_choice=STRUCTURED_TOOL,
+            max_tokens=max_tokens,
             player_text=player_text,
             require_call=True,
             timeout_s=timeout_s,

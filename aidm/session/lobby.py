@@ -294,7 +294,7 @@ async def start_campaign(core: TableCore, host: Player, theme: str | None) -> No
         "campaign",
         source=result.source.value,
         attempts=result.attempts,
-        problems=[p.message[:200] for p in result.problems[:5]],
+        problems=[p.message[:200] for p in result.problems[:12]],
     )
     if result.source is CampaignSource.FALLBACK and core.llm.mode is LlmMode.LIVE:
         core.notice(None, NoticeKind.INFO, PREPARED)
