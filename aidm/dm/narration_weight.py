@@ -42,6 +42,7 @@ _BOOKKEEPING = frozenset(
         "hostile_act_pending",
         "level_up_ready",
         "difficulty_set",
+        "action_declared",
     }
 )
 _MAJOR = frozenset(

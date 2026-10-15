@@ -6,6 +6,8 @@
 // A narration sentence is {index, text, audio, line, speaker} (M20.7): `line` is an engine statement shown
 // on its own line, `speaker` an NPC's spoken words shown once as `Name: "..."`. History text keeps those
 // breaks as newlines between segments; `narrationBlocks(item)` gives the same segments for plain renderers.
+// M22.1: a player's typed action is {kind: 'action', seq, text, creatureId, playerName, heroName}, live from
+// `player_action` and restored from the history; it sits before the telling of what it did.
 
 /** The paragraph segments of a narration item: a run of prose, one line, or one speaker's quoted words. */
 export function narrationBlocks(item) {
@@ -61,6 +63,17 @@ const FEED_EVENTS = new Set([
   'encounter_ended',
 ]);
 
+function actionItem(entry) {
+  return {
+    kind: 'action',
+    seq: entry.seq,
+    text: entry.text,
+    creatureId: entry.creature_id || '',
+    playerName: entry.player_name || '',
+    heroName: entry.hero_name || '',
+  };
+}
+
 export function createStory(store) {
   let items = [];
   let dice = [];
@@ -103,6 +116,13 @@ export function createStory(store) {
     push({ kind: 'event', seq: msg.seq, text: msg.line, eventKind: msg.kind });
   }
 
+  function onAction(msg) {
+    const entry = msg.entry;
+    if (!entry?.text || seenSeq.has(entry.seq)) return;
+    seenSeq.add(entry.seq);
+    push(actionItem(entry));
+  }
+
   function onDice(msg) {
     const roll = { seq: msg.seq, ...msg.dice, at: Date.now() };
     dice = [roll, ...dice].slice(0, MAX_DICE);
@@ -120,6 +140,9 @@ export function createStory(store) {
         const item = { kind: 'narration', id: entry.id, tone: entry.tone || 'exploration', sentences, done: true };
         byId.set(entry.id, item);
         items.push(item);
+      } else if (entry.kind === 'action' && entry.text && !seenSeq.has(entry.seq)) {
+        seenSeq.add(entry.seq);
+        items.push(actionItem(entry));
       } else if (entry.text && FEED_EVENTS.has(entry.event_kind) && !seenSeq.has(entry.seq)) {
         seenSeq.add(entry.seq);
         items.push({ kind: 'event', seq: entry.seq, text: entry.text, eventKind: entry.event_kind });
@@ -141,6 +164,7 @@ export function createStory(store) {
   store.on('narration_chunk', onChunk);
   store.on('narration_done', onDone);
   store.on('event', onEvent);
+  store.on('player_action', onAction);
   store.on('dice_roll', onDice);
   store.on('epilogue', (msg) => push({ kind: 'epilogue', text: msg.text }));
   store.on('story_history', load);

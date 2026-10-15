@@ -121,7 +121,8 @@ So players can queue, vote and chat during a 10 to 45 second model call without 
 
 The server never sends raw state. `session/views.py` builds the public state per snapshot and
 `session/public_feed.py` is THE projection for event lines (live broadcast, seq catch-up and the
-`story_history` sent after every hello all go through it; private events are not sent). Monsters show a coarse
+`story_history` sent after every hello all go through it; private events are not sent; a player's typed words,
+the `ActionDeclared` log event, go out as `player_action` and stay in the history, M22). Monsters show a coarse
 health state, NPCs only as `PublicNpcView`, secrets and campaign plan motives never leave the server, and the
 simulation asserts that no secret text appears in any received message. `/healthz` returns booleans only.
 A `/screen` connection (role `screen` in `hello`) has no seat and receives only public data: no inventories,

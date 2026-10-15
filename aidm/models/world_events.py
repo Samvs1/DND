@@ -24,6 +24,8 @@ Public API:
   or a milestone paying out (the numbers move through their own events); a milestone's
   `source` joins `CampaignState.milestones` (M9.2), so it is paid once.
 - `LevelUpReady(creature_id, level)` (M5.6): pure log event: the PC has enough XP for `level`.
+- `ActionDeclared(creature_id, player_name, text)` (M22.1): pure log event: the words a player
+  typed for their hero, as it starts to play out (shown to the table; nothing else changed).
 - `FeatureDiscovered(feature_id, creature_id)` (M4.3): a hidden feature was found; it joins
   the manifest.
 - `NodeDescribed(node_id, text)`: the established description of a place (stored once).
@@ -131,6 +133,13 @@ class LevelUpReady(_WorldEvent):
     level: int = Field(ge=2, le=20)
 
 
+class ActionDeclared(_WorldEvent):
+    type: Literal["action_declared"] = "action_declared"
+    creature_id: str
+    player_name: str = Field(min_length=1)
+    text: str = Field(min_length=1)
+
+
 class FeatureDiscovered(_WorldEvent):
     type: Literal["feature_discovered"] = "feature_discovered"
     feature_id: str
@@ -192,6 +201,7 @@ WorldEvents = (
     | ItemsTraded
     | RewardGranted
     | LevelUpReady
+    | ActionDeclared
     | FeatureDiscovered
     | NodeDescribed
     | ItemPlaced

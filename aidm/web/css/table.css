@@ -183,6 +183,86 @@ textarea {
   font-style: italic;
 }
 
+/* M22.1: a player's typed action: who said it (portrait, player, hero) and their words, before the telling */
+.act {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  width: fit-content;
+  max-width: min(100%, 48rem);
+  margin: 0.3rem 0 0.9rem;
+  padding: 0.4rem 0.9rem 0.4rem 0.4rem;
+  background: linear-gradient(90deg, rgba(210, 169, 78, 0.16), rgba(46, 36, 28, 0.7) 60%, rgba(33, 26, 21, 0.5));
+  border: 1px solid var(--gold-dim);
+  border-radius: var(--radius);
+  box-shadow: inset 3px 0 0 var(--gold), 0 2px 8px rgba(0, 0, 0, 0.45);
+}
+
+.act-portrait {
+  flex: none;
+  width: 2.75em;
+  height: 2.75em;
+  object-fit: cover;
+  image-rendering: pixelated;
+  background: var(--stone-0);
+  border: 2px solid var(--gold-dim);
+  border-radius: var(--radius);
+  box-shadow: 0 0 0 1px #000;
+}
+
+.act-body {
+  min-width: 0;
+}
+
+.act-who {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.05em;
+  line-height: 1.1;
+  letter-spacing: 0.05em;
+}
+
+.act-player {
+  color: var(--gold);
+  font-weight: 400;
+  text-shadow: 0 1px 0 #000;
+}
+
+.act-hero {
+  color: var(--parchment-dim);
+}
+
+.act-words {
+  margin: 0.15rem 0 0;
+  color: var(--parchment);
+  font-style: italic;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.act-words::before {
+  content: '\201C';
+  color: var(--gold-dim);
+}
+
+.act-words::after {
+  content: '\201D';
+  color: var(--gold-dim);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .act.live {
+    animation: act-in 0.35s ease-out;
+  }
+}
+
+@keyframes act-in {
+  from {
+    opacity: 0;
+    transform: translateX(-0.6rem);
+  }
+}
+
 .epilogue {
   margin: 1rem 0;
   padding: 0.8rem 1rem;

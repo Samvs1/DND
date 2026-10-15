@@ -16,6 +16,7 @@ Public API: `NoticeKind`, `ErrorCode`, `Welcome`, `Snapshot`, `EventMsg`, `Lobby
 queue, typing; broadcast on every queue or typing change) and `AudioSettingsState` (the
 screen's audio, broadcast on every change; also in `PublicState.audio`); M13.2 `ScribeLineMsg`
 (one of the Scribe's lines, broadcast) and `ScribeSkipMsg` (the host skipped him).
+M22.1 `PlayerActionMsg` (a player's typed words, broadcast; also in `StoryHistory`).
 `ErrorMsg.refusal` carries the typed reason of a refused combat command or gear change (a
 `RefusalCode` or `EquipRefusal` value) so a client shows its own friendly wording.
 """
@@ -121,6 +122,14 @@ class QueueState(_Server):
 class Resolving(_Server):
     type: Literal["resolving"] = "resolving"
     entry: QueueEntry
+
+
+class PlayerActionMsg(_Server):
+    """M22.1: a player's typed action as it starts to play out (`entry.kind == "action"`); the
+    screen shows the words with the hero's portrait and the player's name before the telling."""
+
+    type: Literal["player_action"] = "player_action"
+    entry: StoryEntry
 
 
 class DiceRoll(_Server):

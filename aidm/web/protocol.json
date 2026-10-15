@@ -4180,6 +4180,26 @@
           "title": "PickOption",
           "type": "object"
         },
+        "PlayerActionMsg": {
+          "additionalProperties": false,
+          "description": "M22.1: a player's typed action as it starts to play out (`entry.kind == \"action\"`); the\nscreen shows the words with the hero's portrait and the player's name before the telling.",
+          "properties": {
+            "entry": {
+              "$ref": "#/$defs/StoryEntry"
+            },
+            "type": {
+              "const": "player_action",
+              "default": "player_action",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "entry"
+          ],
+          "title": "PlayerActionMsg",
+          "type": "object"
+        },
         "PlayerInfo": {
           "additionalProperties": false,
           "properties": {
@@ -5787,11 +5807,21 @@
         },
         "StoryEntry": {
           "additionalProperties": false,
-          "description": "One line of the story history: a told narration (id, tone) or a public event line.",
+          "description": "One line of the story history: a told narration (id, tone), a public event line, or a\nplayer's typed action (M22.1: `text` is their words; who typed it and for which hero).",
           "properties": {
+            "creature_id": {
+              "default": "",
+              "title": "Creature Id",
+              "type": "string"
+            },
             "event_kind": {
               "default": "",
               "title": "Event Kind",
+              "type": "string"
+            },
+            "hero_name": {
+              "default": "",
+              "title": "Hero Name",
               "type": "string"
             },
             "id": {
@@ -5802,9 +5832,15 @@
             "kind": {
               "enum": [
                 "narration",
-                "event"
+                "event",
+                "action"
               ],
               "title": "Kind",
+              "type": "string"
+            },
+            "player_name": {
+              "default": "",
+              "title": "Player Name",
               "type": "string"
             },
             "seq": {
@@ -6329,6 +6365,7 @@
           "narration_done": "#/$defs/NarrationDone",
           "notice": "#/$defs/Notice",
           "pending_confirmation": "#/$defs/PendingConfirmationMsg",
+          "player_action": "#/$defs/PlayerActionMsg",
           "pong": "#/$defs/Pong",
           "queue_state": "#/$defs/QueueState",
           "resolving": "#/$defs/Resolving",
@@ -6371,6 +6408,9 @@
         },
         {
           "$ref": "#/$defs/Resolving"
+        },
+        {
+          "$ref": "#/$defs/PlayerActionMsg"
         },
         {
           "$ref": "#/$defs/DiceRoll"
@@ -6476,6 +6516,7 @@
       "narration_done",
       "notice",
       "pending_confirmation",
+      "player_action",
       "pong",
       "queue_state",
       "resolving",

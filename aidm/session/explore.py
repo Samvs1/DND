@@ -10,8 +10,10 @@ the manifest text; travel / short rest / long rest / shop -> a ready vote; inven
 private listing; equip / unequip / drop -> `party_actions.item_intent`), else the adjudicator
 with `apply` wired to THE reducer (dice and mechanical events are broadcast as they apply),
 then `telling.conclude` (arrival, rewards, narration, NPC voice, memory, epilogue) and the
-fight check. A point-of-no-return result stores `PendingHostile` and asks only the acting
-player (`pending_confirmation`); `confirm_hostile` re-runs the stored call with
+fight check. M22.1: the player's words are declared to the table first (`declared.declare`;
+not for the private inventory listing), also for a creative action or a typed move in a fight.
+A point-of-no-return result stores `PendingHostile` and asks only the acting player
+(`pending_confirmation`); `confirm_hostile` re-runs the stored call with
 `confirm_hostile=True` (no second model call), `cancel_hostile` drops it. A fight started by a
 weapon attack on an NPC rolls that attack before the narration (`opening.strike_if_opening`,
 M19.2). Every entry ends in narration or a typed notice: never silent.
@@ -50,6 +52,7 @@ from aidm.models.state import Creature
 from aidm.rules.scene import node_display_name
 from aidm.rules.turns import EconomyRefused, spend_action
 from aidm.session import combat_flow, party_actions, votes
+from aidm.session.declared import declare
 from aidm.session.opening import strike_if_opening
 from aidm.session.table_core import Job, Player, TableCore
 from aidm.session.table_records import PendingHostile
@@ -93,14 +96,14 @@ def _combat_text(core: TableCore, player: Player, pc: Creature, text: str) -> No
     if enc is None or enc.active_id() != pc.id or core.turn_key is None:
         core.error(player.id, ErrorCode.NOT_YOUR_TURN, "It is not your turn.")
         return
+    entry = QueueEntry(player_id=player.id, creature_id=pc.id, text=text)
     moves = combat_move(core.state, pc.id, text)
     if moves is not None:  # M19.4: "I move to the ravine" moves (no action spent)
-        core.schedule(lambda: _typed_move(core, player, pc.id, moves))
+        core.schedule(lambda: _typed_move(core, player, entry, moves))
         return
     if not _action_left(core, pc.id):
         core.error(player.id, ErrorCode.REFUSED, ACTION_SPENT)
         return
-    entry = QueueEntry(player_id=player.id, creature_id=pc.id, text=text)
 
     async def job() -> None:
         now = core.state.encounter
@@ -111,6 +114,7 @@ def _combat_text(core: TableCore, player: Player, pc: Creature, text: str) -> No
             core.error(player.id, ErrorCode.REFUSED, ACTION_SPENT)
             return
         await combat_flow.tell_segment(core)
+        declare(core, entry)
         result = await adjudicated(core, entry, creative=True)
         if result.executed:
             _spend_action(core, pc.id)
@@ -121,9 +125,11 @@ def _combat_text(core: TableCore, player: Player, pc: Creature, text: str) -> No
 
 
 async def _typed_move(
-    core: TableCore, player: Player, creature_id: str, moves: list[MoveCommand | DashCommand]
+    core: TableCore, player: Player, entry: QueueEntry, moves: list[MoveCommand | DashCommand]
 ) -> None:
     """The commands the phone's Move list sends; a refusal is answered the same way."""
+    creature_id = entry.creature_id
+    declare(core, entry)
     for command in moves:
         await combat_flow.player_command(core, player, command)
     goal = next((m.zone_id for m in moves if isinstance(m, MoveCommand)), None)
@@ -178,6 +184,8 @@ async def resolve_action(core: TableCore, entry: QueueEntry) -> None:
         core.notice(entry.player_id, NoticeKind.REFUSED, "Your hero can no longer act.")
         return
     intent = precheck(core.state, entry.creature_id, entry.text)
+    if not isinstance(intent, InventoryIntent):  # the listing is private: nothing to tell
+        declare(core, entry)
     if intent is None:
         await adjudicated(core, entry)
     elif isinstance(intent, LookIntent):

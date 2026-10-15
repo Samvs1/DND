@@ -1,4 +1,4 @@
-NEXT: none queued. M21 closed. Next playtest: a fight on the screen shows the hex map; send logs/session.jsonl and logs/llm.jsonl with any report. Files in flight: none. Last gate: FULL GATE PASS 12/12 (M21.4, run in foreground pieces: pytest without UI 2732 passed + 13 skipped, UI 60 + 52 passed; the 11 checks clean).
+NEXT: M22.2: run the FULL gate in foreground pieces (pytest without tests/ui, tests/ui, the 11 checks), tick M22.2 and commit `M22: Typed actions on the screen`. Files in flight: PROGRESS.md only. Last gate: pytest without UI 2739 passed + 13 skipped; ruff, format, pyright, lint-imports, check_structure, gen_protocol --check, gen_manual --check clean; tests/ui/test_player_action.py passed.
 
 # PROGRESS
 
@@ -210,6 +210,12 @@ Owner: "Currently there are 3-6 locations where it simply says: X, next to Y ...
 - [x] M21.2 **H** Screen hex board: hexes placed by axial coords (pointy-top, CSS clip-path), terrain art clipped in, name and size, icon overlay (cover half / three-quarters, high ground, rough ground, surfaces with rounds) with text when there is room and tooltips, tokens inside, active and targeted highlights, a small legend; the board takes about 60% of the screen height during a fight. Placeholder art until M21.3. Tests (UI: hexes touch exactly when linked; icons present; fits 1280x800 and 1920x1080). Screenshots sent to the owner. Gate: UI tests.
 - [x] M21.3 **M+ORCH** Art: asset keys `zone_hex.<zone key>` (55, top-down square terrain tiles clipped to hexes) and `zone_icon.<cover-half|cover-three-quarters|high-ground|rough>` + `surface_icon.<kind>` (16, two 4x4 sheets); prompt kinds in STYLE_BIBLE + asset_prompts; generate through scripts/gen_assets.py with a cap; contact sheets judged by the main session; manifest and ASSETS_TODO. Gate: build_manifest + gen_assets_todo --check, no hardcoded art test. (main session; 55 tiles + 4 zone icons + 16 surface icons accepted, 3 surface icons retried once; spend EUR 1.08, ledger EUR 5.55 of 15)
 - [x] M21.4 **ORCH** Manual (How a fight is laid out), README, DECISIONS; screenshots judged and sent (1280 and 1920, a 6-hex fight, surfaces); FULL gate. Commit `M21: Hex battle map`. (main session; m21_hex_fight and m21_hex_six at 1280 and 1920 judged and sent)
+
+
+## M22 Typed actions on the screen (owner request 2026-10-15; binding)
+Owner: "see what prompt was inputted by the player itself (not narrated) ... The prompt itself should show up to fill the entire party in of its own actions. Make the UI fit with the entire aesthetic and make it obvious who typed the prompt (playericon + name for example)."
+- [x] M22.1 **H** Typed words to the table: `ActionDeclared(creature_id, player_name, text)` pure log event applied as an action starts to play out (`session/declared.py`: exploration queue except the private inventory listing, a creative action in a fight after the earlier segment is told, a typed move), projected as ServerMsg `player_action {entry}` and kept in `StoryHistory` (StoryEntry kind `action`: player_name, hero_name, creature_id; rebuilt from the log), bookkeeping for narration weight, never an event line; screen feed card (`js/table/action_card.js`: hero portrait, player name, "as <hero>", the words in quotes; table.css `.act`), phone Journal > Story line `Ann (Brienne): "..."`; manual (Typing your action, The action queue, The two surfaces), DECISIONS M22. Tests: tests/session/test_declared_actions.py (7), tests/ui/test_player_action.py. Gate: tests/session + tests/ai + gen_protocol --check + the new UI test.
+- [ ] M22.2 **ORCH** Screenshots m22_player_action at 1280 and 1920 judged; FULL gate. Commit `M22: Typed actions on the screen`.
 
 ---
 

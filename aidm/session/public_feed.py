@@ -13,12 +13,14 @@ Non-public events are never sent: their seq is simply skipped (the snapshot seq 
 them). `private_texts` + `leaks` also filter the fact lines of the snapshot (`views`).
 
 `PublicFeed` keeps the public `EventMsg`s (live broadcast and seq catch-up), the recent
-narration and the recent dice rolls (`dice_view`: every roll is public; M9.4 restores the dice
-panel on reconnect), and builds the `StoryHistory` a (re)connecting client gets after its
-snapshot. A restored table rebuilds it by replaying the log (`PublicFeed.rebuild`; narration
-then comes from the logged `NarrationRecorded` events).
+narration, the recent typed actions (M22.1: an `ActionDeclared` is projected as a
+`PlayerActionMsg`, a player's own words are always public) and the recent dice rolls
+(`dice_view`: every roll is public; M9.4 restores the dice panel on reconnect), and builds the
+`StoryHistory` a (re)connecting client gets after its snapshot. A restored table rebuilds it by
+replaying the log (`PublicFeed.rebuild`; narration then comes from the logged
+`NarrationRecorded` events).
 
-Public API: `private_texts`, `leaks`, `public_line`, `dice_view`, `PublicFeed`.
+Public API: `private_texts`, `leaks`, `public_line`, `dice_view`, `action_entry`, `PublicFeed`.
 """
 
 from collections import deque
@@ -32,15 +34,16 @@ from aidm.models.combat_events import AttackRolled
 from aidm.models.dice import AdvState, D20Roll
 from aidm.models.events import AnyEvent, CheckResolved, DeathSaveRolled, DiceRolled, LoggedEvent
 from aidm.models.narration import NarrationTone
-from aidm.models.protocol_server import EventMsg, StoryHistory
+from aidm.models.protocol_server import EventMsg, PlayerActionMsg, StoryHistory
 from aidm.models.protocol_views import DiceView, RollEntry, StoryEntry
 from aidm.models.state import GameState
 from aidm.models.world import WorldNpc
-from aidm.models.world_events import NarrationRecorded
+from aidm.models.world_events import ActionDeclared, NarrationRecorded
 from aidm.session.reducer import apply as reduce
 
 MIN_PRIVATE_CHARS = 4
 MAX_NARRATIONS = 24
+MAX_ACTIONS = 24
 HISTORY_EVENTS = 60
 HISTORY_MAX = 80
 MAX_ROLLS = 12
@@ -129,6 +132,19 @@ def dice_view(event: AnyEvent) -> DiceView | None:
     return None
 
 
+def action_entry(state: GameState, seq: int, event: ActionDeclared) -> StoryEntry:
+    """The story line of a typed action: the player's words, who typed them, for which hero."""
+    hero = state.creatures.get(event.creature_id)
+    return StoryEntry(
+        kind="action",
+        seq=seq,
+        text=event.text,
+        creature_id=event.creature_id,
+        player_name=event.player_name,
+        hero_name=hero.name if hero is not None else "",
+    )
+
+
 @dataclass
 class PublicFeed:
     events: list[EventMsg] = field(default_factory=list[EventMsg])
@@ -136,9 +152,18 @@ class PublicFeed:
         default_factory=lambda: deque[StoryEntry](maxlen=MAX_NARRATIONS)
     )
     rolls: deque[RollEntry] = field(default_factory=lambda: deque[RollEntry](maxlen=MAX_ROLLS))
+    actions: deque[StoryEntry] = field(
+        default_factory=lambda: deque[StoryEntry](maxlen=MAX_ACTIONS)
+    )
 
-    def add_event(self, state: GameState, seq: int, event: AnyEvent) -> EventMsg | None:
+    def add_event(
+        self, state: GameState, seq: int, event: AnyEvent
+    ) -> EventMsg | PlayerActionMsg | None:
         """Project one applied event; returns the message to broadcast, or None (private)."""
+        if isinstance(event, ActionDeclared):
+            entry = action_entry(state, seq, event)
+            self.actions.append(entry)
+            return PlayerActionMsg(entry=entry)
         line = public_line(state, event)
         if line is None:
             return None
@@ -167,7 +192,9 @@ class PublicFeed:
             StoryEntry(kind="event", seq=m.seq, text=m.line, event_kind=m.kind)
             for m in self.events[-HISTORY_EVENTS:]
         ]
-        merged = sorted([*self.narrations, *events], key=lambda e: (e.seq, e.kind == "event"))
+        merged = sorted(
+            [*self.narrations, *events, *self.actions], key=lambda e: (e.seq, e.kind != "narration")
+        )
         return StoryHistory(entries=tuple(merged[-HISTORY_MAX:]), dice=tuple(self.rolls))
 
     @classmethod

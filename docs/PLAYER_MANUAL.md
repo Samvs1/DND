@@ -11,7 +11,7 @@ Everything you need to play at the table, in plain words. The tables in the Refe
 - A spoken narrator and music are optional. Without them the game still works, and the story appears as text.
 
 ### The two surfaces
-- **The screen** (the page `/screen`) is the table everyone looks at: scene art, the story, the party, the hex battle map, big dice, who is acting and who is waiting, votes, the narrator's voice and the music.
+- **The screen** (the page `/screen`) is the table everyone looks at: scene art, the story (with what each player typed), the party, the hex battle map, big dice, who is acting and who is waiting, votes, the narrator's voice and the music.
 - **The phone** (the page `/play`, or just the game address) is your controller. It shows your hero and your buttons, not the story: the story is told on the screen. Its five tabs sit at the top, right under your hero: **Play**, **Hero**, **Journal**, **Scribe** and **More**. The square button next to your hero switches **full screen**, which hides the browser's own bars (on Android this stops a bottom toolbar from covering the game); it is also on the More tab.
 - There is no single-device mode. To play alone, open the screen in one window and the controller in another.
 
@@ -124,7 +124,9 @@ On the **Play** tab, type what your hero does in plain words and press **Act**. 
 - **Ideas**: chips built from the scene: **People here** (talk to someone), **Things here** (take a closer look at something, pick up an item), **Ways on** (travel to a connected place; a locked way is greyed out) and **Anytime** (look around, search, short rest, and **Trade** when a trader is here). Tapping a chip writes the sentence in the action box; it never sends by itself, so you can change it and press **Act**.
 - **Your last roll** stays on the tab (label, dice, total and outcome); a short note also pops up when you roll.
 
-The story itself is not repeated on the phone. If you missed a line, open **Journal**, then **Story**: the recent story in full, newest at the bottom.
+**Everyone sees what you typed.** When your action starts to play out, the screen shows your words in the story as a small framed card with your hero's portrait, your name and your hero's name (**Ann as Brienne** *"I look inside the cabin"*); the storyteller's telling of what happened follows right under it. The same goes for a creative action or a typed move in a fight. Only *inventory* stays private: its answer goes to your phone alone, so the screen shows nothing for it. The cards stay in the story when the screen is reloaded or a saved adventure is loaded.
+
+The story itself is not repeated on the phone. If you missed a line, open **Journal**, then **Story**: the recent story in full, newest at the bottom (what someone typed reads there as **Ann (Brienne):** "I look inside the cabin").
 
 The Dungeon Master says as much as the moment is worth: a line or two for something small (a look around, small talk, a try that fails), two or three sentences usually, and a little more for big moments (a discovery, a fight starting or ending, a death, arriving somewhere new). It only tells what the game really did: if nothing changed, it describes your attempt, not a result.
 
@@ -133,7 +135,7 @@ The storyteller's prose reads as one paragraph. Plain statements from the game i
 **Picking things up**: type *pick up the pouch* (or *take*, *grab*, *pocket* ...) or tap a **Things here** chip, and an item lying where you are goes into your pack at once; the screen says so in one short line. Things you find in the story that are not ordinary gear (a note, a key, a strange trinket) become **keepsakes**: you carry them, they have no price and cannot be sold, and they are listed under **Keepsakes** in your Hero tab's inventory.
 
 ### The action queue
-Actions are handled one at a time, in the order they were sent. You may have one action waiting at a time. The screen shows who is typing, who is acting now and who is next. Your phone shows **Waiting (n)** while your action is in line. If the storyteller stumbles, you see a plain in-story fallback instead of an error.
+Actions are handled one at a time, in the order they were sent. You may have one action waiting at a time. The screen shows who is typing, who is acting now and who is next. Your words appear in the story when your turn in line comes up, not while they wait. Your phone shows **Waiting (n)** while your action is in line. If the storyteller stumbles, you see a plain in-story fallback instead of an error.
 
 ### What the Dungeon Master can and cannot do
 The storyteller describes the world and decides what happens, but it only does so by asking the game engine. **The engine owns every number**: difficulty, damage, hit points, spell slots, experience and gold. The storyteller cannot make up a damage total, hand out treasure beyond the rules, or invent things that were never introduced. If you try something clever, the engine rolls for it. Attacking someone who is not already hostile (a friendly or neutral person) asks you first (**Are you sure?**), because they will fight back. Nothing else asks. **Nothing happens until you answer**: the question stays on your phone until you press **Yes, do it** or **No, hold back** (the storyteller's voice does not close it), and the story only says that you hesitate on the brink. The attack is told once you confirm. Sending a new action instead counts as **No**.

@@ -300,14 +300,18 @@ class RollEntry(_View):
 
 
 class StoryEntry(_View):
-    """One line of the story history: a told narration (id, tone) or a public event line."""
+    """One line of the story history: a told narration (id, tone), a public event line, or a
+    player's typed action (M22.1: `text` is their words; who typed it and for which hero)."""
 
-    kind: Literal["narration", "event"]
+    kind: Literal["narration", "event", "action"]
     seq: int = Field(ge=0, description="event-log position the entry follows")
     text: str
     id: str = ""
     tone: NarrationTone | None = None
     event_kind: str = ""
+    creature_id: str = ""
+    player_name: str = ""
+    hero_name: str = ""
 
 
 class StockLine(_View):

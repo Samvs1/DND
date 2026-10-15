@@ -3,9 +3,11 @@
 // NPC's spoken words read once as `Name: "..."` (one speech block per speaker run; M20.7). A live sentence with audio is revealed when its clip starts playing
 // (`audio.enqueue`); one without is revealed with a typewriter; the
 // existing story is rendered at once. Reduced motion reveals everything immediately.
+// M22.1: a player's typed action is a card (portrait, player and hero name, their words; table/action_card.js).
 import { reducedMotion, revealMs } from '../settings/model.js';
 import { t } from '../strings.js';
 import { h } from '../ui/dom.js';
+import { actionCard } from './action_card.js';
 
 const TICK_MS = 16;
 const BACKLOG = 4; // beyond this many queued sentences, reveal at once to catch up
@@ -98,7 +100,7 @@ function plainNode(item) {
   return h('p', { class: 'epilogue', 'data-testid': 'epilogue' }, h('strong', {}, t('table.epilogue')), ' ', item.text);
 }
 
-export function mountFeed(root, story, audio = null) {
+export function mountFeed(root, story, audio = null, store = null) {
   const log = h('div', { class: 'feed', role: 'log', 'aria-live': 'off', 'aria-label': t('table.feed'), tabindex: '0', 'data-testid': 'feed' });
   const empty = h('p', { class: 'hint feed-empty' }, t('table.feedEmpty'));
   // The log itself is silent (its text is typed letter by letter); a finished paragraph is read out once.
@@ -115,7 +117,8 @@ export function mountFeed(root, story, audio = null) {
   function addItem(item, live) {
     empty.remove();
     const stick = nearBottom();
-    const node = item.kind === 'narration' ? narrationNode(item) : plainNode(item);
+    const node =
+      item.kind === 'narration' ? narrationNode(item) : item.kind === 'action' ? actionCard(item, store?.get() ?? {}, live) : plainNode(item);
     if (item.kind === 'narration') nodes.set(item.id, node);
     if (live && item.kind === 'narration') node.classList.add('typing');
     log.append(node);

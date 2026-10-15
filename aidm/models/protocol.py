@@ -73,6 +73,7 @@ type AnyServerMsg = (
     | s.CreationResult
     | s.QueueState
     | s.Resolving
+    | s.PlayerActionMsg
     | s.DiceRoll
     | s.NarrationChunkMsg
     | s.NarrationDone

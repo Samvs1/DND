@@ -23,6 +23,7 @@ SERVER_TYPES = {
     "audio_settings",  # M11.2
     "scribe_line",  # M13.2
     "scribe_skip",  # M13.2
+    "player_action",  # M22.1
     "welcome",
     "snapshot",
     "event",

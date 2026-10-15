@@ -49,6 +49,8 @@ body.is-screen .sc-wait {
 .tb.sc .scene-art { max-height: 9rem; object-fit: cover; }
 .tb.sc .feed > :last-child { border-left: 4px solid var(--accent, #c9a227); padding-left: 0.75rem; }
 .tb.sc .feed .speaking, .tb.sc .feed .typing { background: color-mix(in srgb, var(--accent, #c9a227) 18%, transparent); }
+/* M22.1: the newest typed action keeps its own card frame; it glows instead of taking the newest-line bar. */
+.tb.sc .feed > .act:last-child { border-left: 1px solid var(--gold); padding-left: 0.4rem; box-shadow: inset 3px 0 0 var(--gold), 0 0 14px rgba(210, 169, 78, 0.3); }
 .sc-widgets { display: flex; flex-direction: column; gap: 0.5rem; min-height: 0; }
 .sc-widgets .panel { padding: 0.5rem 0.75rem; }
 .sc-acting { font-size: 1.25rem; font-weight: 700; margin: 0; }

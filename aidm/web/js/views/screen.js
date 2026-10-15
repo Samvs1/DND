@@ -73,7 +73,7 @@ export function mountScreen(root, ctx) {
     mountGear(overlays, store),
     mountSettings(overlays, ctx),
     mountScene(scene, store),
-    mountFeed(feed, story, ctx.audio),
+    mountFeed(feed, story, ctx.audio, store),
     mountParty(party, store),
     mountInitiative(initiative, store),
     mountBoard(board, store),

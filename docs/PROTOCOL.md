@@ -71,6 +71,7 @@ Machine-readable schema: `aidm/web/protocol.json`.
 | server | `narration_done` | `id`: string, `type`: narration_done |
 | server | `notice` | `kind`: NoticeKind (optional), `text`: string, `type`: notice |
 | server | `pending_confirmation` | `player_id`: string, `prompt`: string, `type`: pending_confirmation |
+| server | `player_action` | `entry`: StoryEntry, `type`: player_action |
 | server | `pong` | `type`: pong |
 | server | `queue_state` | `entries`: array of QueueEntry (optional), `resolving`: QueueEntry or null (optional), `type`: queue_state |
 | server | `resolving` | `entry`: QueueEntry, `type`: resolving |

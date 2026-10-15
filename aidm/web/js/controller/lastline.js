@@ -1,7 +1,9 @@
 // The story box (Journal, Story; M18.2): the recent story in full, newest at the bottom, scrolling inside itself.
 // The phone's Play tab no longer shows it: the story is told on the shared screen.
-// A narration's engine lines and an NPC's quoted words each get their own line (M20.7).
+// A narration's engine lines and an NPC's quoted words each get their own line (M20.7); a typed action reads
+// Ann (Brienne): "..." (M22.1).
 import { narrationBlocks } from '../story.js';
+import { actionLine } from '../table/action_card.js';
 import { t } from '../strings.js';
 import { clear, h } from '../ui/dom.js';
 
@@ -14,6 +16,7 @@ export function itemText(item) {
 
 function itemBlocks(item) {
   if (item.kind === 'narration') return narrationBlocks(item).map((b) => b.trim()).filter(Boolean);
+  if (item.kind === 'action') return [actionLine(item)];
   const text = (item.text ?? '').trim();
   return text ? [text] : [];
 }

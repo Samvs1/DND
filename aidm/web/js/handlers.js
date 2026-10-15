@@ -197,6 +197,7 @@ export const HANDLERS = {
   narration_done: relay,
   notice: onNotice,
   pending_confirmation: onConfirmation,
+  player_action: relay, // M22.1: a player's typed words (story.js puts them in the feed)
   pong: relay,
   queue_state: onQueue,
   resolving: onResolving,

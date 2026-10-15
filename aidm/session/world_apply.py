@@ -15,6 +15,7 @@ from aidm.models.memory import MAX_NARRATION_LOG
 from aidm.models.state import GameState
 from aidm.models.world import WorldNpc
 from aidm.models.world_events import (
+    ActionDeclared,
     AttitudeChanged,
     EquipmentChanged,
     FactRecorded,
@@ -52,6 +53,7 @@ type WorldEvent = (
     | ItemsTraded
     | RewardGranted
     | LevelUpReady
+    | ActionDeclared
     | FeatureDiscovered
     | NodeDescribed
     | ItemPlaced
@@ -93,6 +95,7 @@ WORLD_EVENT_TYPES = (
     ItemsTraded,
     RewardGranted,
     LevelUpReady,
+    ActionDeclared,
     FeatureDiscovered,
     NodeDescribed,
     ItemPlaced,
@@ -224,7 +227,7 @@ def apply_world_event(state: GameState, event: WorldEvent) -> None:
             _keep(state, creature_id, keepsake)
         case RewardGranted(kind=kind, source=source):
             _rewarded(state, kind, source)
-        case HostileActPending() | ItemsTraded() | LevelUpReady():
+        case HostileActPending() | ItemsTraded() | LevelUpReady() | ActionDeclared():
             pass
         case _:
             assert_never(event)
