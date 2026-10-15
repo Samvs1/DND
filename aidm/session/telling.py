@@ -2,10 +2,9 @@
 
 `conclude` is the shared tail of an exploration resolution (M4.7 + M5.4/M5.6/M5.7 order):
 1. follow-ups of the applied mechanics: after a `PartyMoved`, `dm.arrival.on_arrival` (describe
-   once, then the world's encounter offer); after `EncounterEnded` / `AttitudeChanged`,
-   `rules.quest_rewards.resolution_reward_events` (region resolution + milestone rewards);
-   then the spoke milestones of the batch (`rules.milestones.milestone_events`: first visit,
-   a won fight or a successful parley);
+   once, then the world's encounter offer); then, after EVERY batch, `quest_flow.settle_after`
+   (region resolution + milestone rewards, the spoke milestones of the batch, then quest steps,
+   routes and main quests, M23.2);
 2. narrate (streamed sentence by sentence as `narration_chunk`, each carrying its audio url when
    the host's TTS toggle is on and the synthesis made it in time (`narration_pipe`); then
    `narration_done`);
@@ -34,7 +33,6 @@ from aidm.dm.narration_stream import NarrationChunk, NarrationStream
 from aidm.dm.narrator import narrate, record_narration
 from aidm.dm.npc_voice import npc_voice, voice_target
 from aidm.models.campaign_events import EncounterOffered
-from aidm.models.encounter_events import EncounterEnded
 from aidm.models.events import AnyEvent
 from aidm.models.narration import NarrationTone
 from aidm.models.protocol_server import (
@@ -43,11 +41,10 @@ from aidm.models.protocol_server import (
     NarrationDone,
 )
 from aidm.models.protocol_views import TablePhase
-from aidm.models.world_events import AttitudeChanged, PartyMoved
-from aidm.rules.milestones import milestone_events
-from aidm.rules.quest_rewards import resolution_reward_events
+from aidm.models.world_events import PartyMoved
 from aidm.session import scribe_voice
 from aidm.session.narration_pipe import NarrationPipe
+from aidm.session.quest_flow import settle_after
 from aidm.session.table_core import TableCore
 from aidm.session.views import public_offer
 
@@ -123,11 +120,7 @@ async def follow_ups(core: TableCore, events: Sequence[AnyEvent]) -> list[AnyEve
             retreat_node=moved[-1].from_node,
             apply=core.apply,
         )
-    if any(isinstance(e, EncounterEnded | AttitudeChanged) for e in events):
-        rewards = resolution_reward_events(core.state, core.regs.tiers, core.regs.catalogue)
-        out += core.apply_all(rewards)
-    milestones = milestone_events(core.state, events, core.regs.tiers, core.regs.catalogue)
-    out += core.apply_all(milestones)
+    out += settle_after(core.state, core.regs, [*events, *out], core.apply_all)
     return out
 
 

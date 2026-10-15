@@ -11,7 +11,9 @@ levels): a spoke's list is rated at most `tables.spoke_rating_cap[region tier]` 
 and fields at most `spoke_max_monsters_per_pc` monsters per PC; the boss and its company are
 rated at most `tables.boss_rating_cap` (hard) (`aidm.rules.encounter_budget.rating_cap_xp`,
 RULES_DECISIONS M9.2); a theme list too costly for the party still yields its cheapest monster
-(the warning beat lets the party escape or parley).
+(the warning beat lets the party escape or parley). A finished Cunning route of the region's
+main quest (`rules.quest_progress.route_effects`, M23.2) changes the boss fight: `boss_alone`
+offers the boss without company, `boss_surprised` starts the fight with the boss side surprised.
 Nothing starts without the warning beat: the offer lists fight / surprise / escape / parley
 (answered by `aidm.rules.offer_answer`).
 
@@ -52,6 +54,7 @@ from aidm.rules.dm_tiers import party_levels
 from aidm.rules.encounter import start_encounter
 from aidm.rules.encounter_budget import adjusted_xp, pick_monsters, rate_encounter, rating_cap_xp
 from aidm.rules.progression import boss_defeated, boss_npc, node_plan, region_of
+from aidm.rules.quest_progress import route_effects
 from aidm.rules.social import attitude_band, attitude_score, hostile_attitude_events
 from aidm.rules.zone_gen import generate_zone_map
 from aidm.rules.zones import zone_neighbors
@@ -125,6 +128,8 @@ def _monsters(
     size = len(levels)
     if boss is not None:
         cap = rating_cap_xp(levels, Difficulty(data.tables.boss_rating_cap), data.tables)
+        if "boss_alone" in route_effects(state, region):
+            return []
         themes = _boss_themes(region, node)
         return _company(rng, data, themes, cap, [boss.archetype_id], size)[1:]
     rating = data.tables.spoke_rating_cap.get(region.tier, Difficulty.MEDIUM.value)
@@ -222,6 +227,9 @@ def offer_fight_events(
     boss = state.world.npcs.get(offer.boss_npc_id or "")
     if boss is not None and not boss.hostile:
         events.extend(hostile_attitude_events(boss, "the party fights them"))
+    region = region_of(state, offer.node_id)
+    if boss is not None and region is not None and "boss_surprised" in route_effects(state, region):
+        surprise = SurpriseKind.HOSTILE
     setup = _setup(state, offer, data, rng, surprise)
     events.extend(start_encounter(rng, state, setup, data.monsters))
     return events

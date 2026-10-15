@@ -17,6 +17,7 @@ from typing import Any
 from aidm.dm.campaign_text import CAMPAIGN_EVENT_LINES
 from aidm.dm.condition_text import applied_line, removed_line
 from aidm.dm.entities import display_name
+from aidm.dm.quest_text import QUEST_EVENT_LINES
 from aidm.dm.wording import check_subject, with_article
 from aidm.models import events as ev
 from aidm.models import world_events as we
@@ -128,6 +129,7 @@ _LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     we.KeepsakeGained: lambda s, e: f"{_who(s, e.creature_id)} keeps the {e.keepsake.name}.",
     CharacterRewritten: lambda s, e: f"The Scribe rewrites {_who(s, e.target_id)} into the story.",
     **CAMPAIGN_EVENT_LINES,
+    **QUEST_EVENT_LINES,
 }
 
 

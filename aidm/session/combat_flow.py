@@ -12,8 +12,8 @@ turn), then the segment since the last narration is told in ONE `narrate_round_s
 end sends `combat_state` with no combat and the `outcome`.
 Only that hero's player may send `combat_command`; anyone else gets `not_your_turn` and nothing
 is consumed. A fight's end runs loot (`end_encounter_with_loot`), bystander deeds
-(`combat_help_deed_events`), region rewards (`resolution_reward_events`) and spoke milestones
-(`milestone_events`, M9.2), tells the last segment, records it and returns to exploration.
+(`combat_help_deed_events`), then `quest_flow.settle_after` (region rewards, spoke milestones,
+quest steps and routes, M23.2), tells the last segment, records it and returns to exploration.
 A fight that ends without a defeat leaves dying heroes stable (`rules.downed`, M20.2).
 Every AI turn sends `combat_state` as it begins and with its results, then holds
 `TableConfig.ai_turn_pause_s` so the table sees whose turn it is (M20.3).
@@ -39,13 +39,12 @@ from aidm.rules.commands import execute_command
 from aidm.rules.downed import stabilise_after_fight
 from aidm.rules.encounter import encounter_outcome
 from aidm.rules.loot import end_encounter_with_loot, loot_rng
-from aidm.rules.milestones import milestone_events
 from aidm.rules.party_ai import safe_default_turn
-from aidm.rules.quest_rewards import resolution_reward_events
 from aidm.rules.social_deeds import combat_help_deed_events
 from aidm.rules.turns import begin_turn, next_turn
 from aidm.session import checkpoints, turn_clock, votes
 from aidm.session.combat_runner import CombatRunner
+from aidm.session.quest_flow import settle_after
 from aidm.session.table_core import Player, TableCore
 from aidm.session.telling import maybe_epilogue, remember, tell
 from aidm.session.views import public_combat
@@ -265,8 +264,7 @@ async def finish_fight(core: TableCore, status: EncounterStatus) -> None:
     if status is not EncounterStatus.DEFEAT:  # M20.2: the dying are stable once it is over
         events += core.apply_all(stabilise_after_fight(state))
     events += core.apply_all(combat_help_deed_events(state, status, regs.tiers))
-    events += core.apply_all(resolution_reward_events(state, regs.tiers, regs.catalogue))
-    events += core.apply_all(milestone_events(state, events, regs.tiers, regs.catalogue))
+    events += settle_after(state, regs, events, core.apply_all)
     text = await tell_segment(core, record=False)
     core.in_combat = False
     core.segment = []

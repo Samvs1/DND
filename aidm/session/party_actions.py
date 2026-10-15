@@ -51,7 +51,6 @@ from aidm.rules.equipment import (
 from aidm.rules.items import use_item_events
 from aidm.rules.leveling import LevelUpInvalid, can_level_up, level_up
 from aidm.rules.offer_answer import OfferRefused, answer_offer
-from aidm.rules.quest_rewards import resolution_reward_events
 from aidm.rules.rests import RestRefused, long_rest, short_rest
 from aidm.rules.shop import ShopRefused, buy_events, npc_shop_stock, sell_events
 from aidm.rules.social_deeds import GiftRefused, gift_events
@@ -203,9 +202,7 @@ async def give(core: TableCore, player: Player, msg: Give) -> None:
         core.error(player.id, ErrorCode.REFUSED, "That gift cannot be given here.")
         return
     core.apply_all(events)
-    regs = core.regs
-    rewards = resolution_reward_events(core.state, regs.tiers, regs.catalogue)
-    await conclude(core, None, [*events, *core.apply_all(rewards)], actor_id=pc.id)
+    await conclude(core, None, events, actor_id=pc.id)  # follow_ups settles regions and quests
 
 
 async def level(core: TableCore, player: Player, msg: LevelUp) -> None:

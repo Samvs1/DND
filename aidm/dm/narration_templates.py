@@ -21,6 +21,7 @@ from typing import Any
 from aidm.dm.campaign_text import CAMPAIGN_TEMPLATE_LINES
 from aidm.dm.condition_text import applied_line, group_line, removed_line
 from aidm.dm.entities import display_name
+from aidm.dm.quest_text import QUEST_TEMPLATE_LINES
 from aidm.dm.wording import ABILITY_NAMES, check_subject
 from aidm.models import events as ev
 from aidm.models import world_events as we
@@ -175,6 +176,7 @@ _LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     we.ItemPlaced: lambda s, e: None if e.item.hidden else f"{e.item.name} lies here.",
     we.HostileActPending: lambda s, e: "You stand on the brink of violence.",
     **CAMPAIGN_TEMPLATE_LINES,
+    **QUEST_TEMPLATE_LINES,
 }
 
 
