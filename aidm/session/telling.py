@@ -9,7 +9,8 @@
 2. narrate (streamed sentence by sentence as `narration_chunk`, each carrying its audio url when
    the host's TTS toggle is on and the synthesis made it in time (`narration_pipe`); then
    `narration_done`);
-3. NPC voice when `voice_target` names a present NPC (second stream);
+3. NPC voice when `voice_target` names a present NPC (second stream, shown as `Name: "..."`;
+   the narration before it is told not to speak for that NPC, M20.7);
 4. ONE `record_narration` of narration + speech, then `summarise` when due (never mid-fight);
 5. a new encounter offer goes out as `encounter_offer`; the epilogue runs once it is ready.
 Fights that start are handled by the caller (`combat_flow.after_resolution`).
@@ -67,7 +68,7 @@ async def tell(core: TableCore, stream: NarrationStream) -> str:
         pipe.abort()
         raise
     core.broadcast(NarrationDone(id=nid))
-    core.public.add_narration(nid, stream.text, tone, core.state.event_count)
+    core.public.add_narration(nid, stream.feed_text, tone, core.state.event_count)
     _diag_narration(core, stream)
     return stream.text
 
@@ -92,7 +93,7 @@ async def tell_text(
     nid = core.next_id("n")
     pipe = NarrationPipe(core, nid)
     try:
-        pipe.add(NarrationChunk(0, text, tone))
+        pipe.add(NarrationChunk(0, text, tone, line=True))
         await pipe.finish()
     except BaseException:
         pipe.abort()
@@ -141,9 +142,16 @@ async def conclude(
     """Narrate applied mechanics (see the module docstring); returns every event of the turn."""
     every = [*events, *await follow_ups(core, events)]
     source = replace(result, events=tuple(every)) if result is not None else every
-    stream = narrate(core.state, source, core.llm, actor_id=actor_id, player_text=player_text)
-    text = await tell(core, stream)
     target = voice_target(core.state, result, player_text) if player_text else None
+    stream = narrate(
+        core.state,
+        source,
+        core.llm,
+        actor_id=actor_id,
+        player_text=player_text,
+        voice_next=core.state.world.npcs[target].name if target is not None else None,
+    )
+    text = await tell(core, stream)
     if target is not None:
         voice = npc_voice(
             core.state,

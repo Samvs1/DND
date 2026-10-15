@@ -3,6 +3,31 @@
 // `story_history` (sent after every snapshot on hello) replaces the log and the dice, so a reload restores both.
 // Views read `items` / `dice` and subscribe to live changes:
 // {type: 'item' | 'chunk' | 'done' | 'dice' | 'reset' | 'load'}.
+// A narration sentence is {index, text, audio, line, speaker} (M20.7): `line` is an engine statement shown
+// on its own line, `speaker` an NPC's spoken words shown once as `Name: "..."`. History text keeps those
+// breaks as newlines between segments; `narrationBlocks(item)` gives the same segments for plain renderers.
+
+/** The paragraph segments of a narration item: a run of prose, one line, or one speaker's quoted words. */
+export function narrationBlocks(item) {
+  const out = [];
+  let run = [];
+  let who = null;
+  const flush = () => {
+    if (run.length) out.push(who ? `${who}: "${run.join(' ')}"` : run.join(' '));
+    run = [];
+  };
+  for (const s of item.sentences) {
+    if (s.line || (s.speaker || null) !== who) flush();
+    if (s.line) {
+      out.push(s.text);
+      continue;
+    }
+    who = s.speaker || null;
+    run.push(s.text);
+  }
+  flush();
+  return out;
+}
 
 const MAX_ITEMS = 400;
 const MAX_DICE = 12;
@@ -60,7 +85,7 @@ export function createStory(store) {
       byId.set(msg.id, item);
       push(item);
     }
-    const sentence = { index: msg.index, text: msg.text, audio: msg.audio_url || null };
+    const sentence = { index: msg.index, text: msg.text, audio: msg.audio_url || null, line: Boolean(msg.line), speaker: msg.speaker || null };
     item.sentences.push(sentence);
     emit({ type: 'chunk', item, sentence });
   }
@@ -90,8 +115,9 @@ export function createStory(store) {
     seenSeq.clear();
     for (const entry of msg.entries || []) {
       if (entry.kind === 'narration') {
-        const sentence = { index: 0, text: entry.text, audio: null };
-        const item = { kind: 'narration', id: entry.id, tone: entry.tone || 'exploration', sentences: [sentence], done: true };
+        const parts = entry.text.split('\n').filter((part) => part.trim());
+        const sentences = parts.map((text, index) => ({ index, text, audio: null, line: parts.length > 1, speaker: null }));
+        const item = { kind: 'narration', id: entry.id, tone: entry.tone || 'exploration', sentences, done: true };
         byId.set(entry.id, item);
         items.push(item);
       } else if (entry.text && FEED_EVENTS.has(entry.event_kind) && !seenSeq.has(entry.seq)) {

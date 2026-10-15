@@ -47,7 +47,7 @@ def plural(noun: str) -> str:
     words = head.split(" ")
     last, low = words[-1], words[-1].lower()
     if low in _IRREGULAR:
-        last = _IRREGULAR[low]
+        last = _IRREGULAR[low].capitalize() if last[:1].isupper() else _IRREGULAR[low]
     elif low.endswith(("s", "x", "ch", "sh")):
         last += "es"
     elif low.endswith("y") and low[-2:-1] not in ("a", "e", "i", "o", "u"):

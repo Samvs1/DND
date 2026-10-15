@@ -6,6 +6,7 @@ ASCII, name creatures by their display name and NEVER leak private data: an intr
 feature, an NPC motive or an unrevealed secret is never rendered, and an introduced NPC is named
 only when in the party's current place (the campaign cast is introduced up front). Pure
 bookkeeping events (turn economy, resources, dice already shown in a check) render as None.
+Conditions read by display name in plain words (`aidm.dm.condition_text`, M20.7).
 
 Public API: `event_line(state, event) -> str | None`, `event_lines(state, events) -> list[str]`.
 """
@@ -14,6 +15,7 @@ from collections.abc import Callable, Sequence
 from typing import Any
 
 from aidm.dm.campaign_text import CAMPAIGN_EVENT_LINES
+from aidm.dm.condition_text import applied_line, removed_line
 from aidm.dm.entities import display_name
 from aidm.dm.wording import check_subject, with_article
 from aidm.models import events as ev
@@ -88,8 +90,8 @@ def _attack(state: GameState, e: AttackRolled) -> str:
 _LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     ev.CheckResolved: _check,
     ev.HpChanged: _hp,
-    ev.ConditionApplied: lambda s, e: f"{_who(s, e.creature_id)} is now {e.condition.name}.",
-    ev.ConditionRemoved: lambda s, e: f"{_who(s, e.creature_id)} is no longer {e.name}.",
+    ev.ConditionApplied: lambda s, e: applied_line(_who(s, e.creature_id), e.condition.name),
+    ev.ConditionRemoved: lambda s, e: removed_line(_who(s, e.creature_id), e.name),
     ev.CreatureDied: lambda s, e: f"{_who(s, e.creature_id)} is dead.",
     ev.Stabilized: lambda s, e: f"{_who(s, e.creature_id)} is stable.",
     ev.XpGained: lambda s, e: f"{_who(s, e.creature_id)} gains {e.amount} XP.",

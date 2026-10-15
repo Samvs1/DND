@@ -126,7 +126,7 @@ async def test_npc_conversation_turn_end_to_end(tmp_path: Path) -> None:
     speech = await stream.collect()
     assert stream.tone is NarrationTone.SOCIAL and stream.retried
     assert "nightshade" not in speech and "poisoned" not in speech
-    assert speech.startswith('"The well? Old stones')
+    assert speech == 'Mira: "The well? Old stones and older rumours, love." Mira smiles.'
     voice_requests = fake.requests[-2:]
     assert all(r.model == "deepseek-v4-pro" for r in voice_requests)
     assert "ENGINE GUARD" in str(voice_requests[1].messages)

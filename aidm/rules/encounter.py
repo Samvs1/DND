@@ -12,7 +12,8 @@ Public API:
   monster registry (an argument). Validates first (no active encounter, known zones, existing
   living party creatures placed once, known monster indexes, at least one combatant). Emits one
   `CreatureAdded` per spawn (ids `<monster>-<n>`, n = the first free number from 1, stats from
-  `rules.monster_stats.creature_from_monster`), then `EncounterStarted` (combatants, sorted
+  `rules.monster_stats.creature_from_monster`; spawns of one fight that share a name get letters
+  in spawn order, "Goblin A", "Goblin B", M20.7), then `EncounterStarted` (combatants, sorted
   initiative, round 1, no turn open), then a "surprised" condition (data-driven: no actions,
   movement or reactions until the end of the creature's first turn) on every creature of the
   surprised side.
@@ -34,8 +35,10 @@ Public API:
   expire, everything else persists), then `XpGained` per recipient. Refused for status ACTIVE.
 """
 
+from collections import Counter
 from collections.abc import Sequence
 from enum import StrEnum
+from string import ascii_uppercase
 
 from aidm.data.registry import Registry
 from aidm.data.srd_monsters import SrdMonster
@@ -65,6 +68,8 @@ from aidm.rules.monster_stats import creature_from_monster
 INITIATIVE_DIE = "1d4"
 SURPRISED = "surprised"
 SURPRISE_SOURCE = "surprise"
+
+type _Spawn = tuple[Creature, Side, str, int]
 
 
 class EncounterRefusal(StrEnum):
@@ -130,6 +135,19 @@ def _spawn_id(taken: set[str], monster: str) -> str:
     return f"{monster}-{n}"
 
 
+def _lettered(spawned: list[_Spawn]) -> list[_Spawn]:
+    counts = Counter(c.name for c, *_ in spawned)
+    seen: Counter[str] = Counter()
+    out: list[_Spawn] = []
+    for creature, side, zone_id, xp in spawned:
+        if counts[creature.name] > 1:
+            letter = ascii_uppercase[seen[creature.name] % len(ascii_uppercase)]
+            seen[creature.name] += 1
+            creature = creature.model_copy(update={"name": f"{creature.name} {letter}"})
+        out.append((creature, side, zone_id, xp))
+    return out
+
+
 def roll_initiative(rng: Rng, creatures: Sequence[Creature]) -> list[InitiativeEntry]:
     entries: list[InitiativeEntry] = []
     for c in creatures:
@@ -153,7 +171,7 @@ def start_encounter(
 ) -> list[AnyEvent]:
     _validate(state, setup, monsters)
     taken = set(state.creatures)
-    spawned: list[tuple[Creature, Side, str, int]] = []
+    spawned: list[_Spawn] = []
     for spawn in setup.monsters:
         block = monsters.get(spawn.monster)
         creature = creature_from_monster(block, _spawn_id(taken, spawn.monster), name=spawn.name)
@@ -162,6 +180,7 @@ def start_encounter(
         if spawn.side is Side.HOSTILE:
             creature = scale_spawn(creature, state.difficulty.monster_hp)
         spawned.append((creature, spawn.side, spawn.zone_id, block.xp))
+    spawned = _lettered(spawned)
     joined = [(state.creatures[p.creature_id], p.side, p.zone_id, 0) for p in setup.party]
     everyone = joined + spawned
     combatants: dict[str, Combatant] = {}

@@ -72,5 +72,7 @@ class NarrationPipe:
                     text=chunk.text,
                     audio_url=audio,
                     tone=chunk.tone,
+                    line=chunk.line,
+                    speaker=chunk.speaker,
                 )
             )

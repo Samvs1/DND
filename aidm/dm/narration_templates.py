@@ -9,7 +9,8 @@ Prose carries no mechanics numbers (the dice tray shows them). Every resolution 
 
 Public API:
 - `template_narration(events, state, notice=None) -> list[str]`: one in-fiction sentence per
-  meaningful event (duplicates collapsed); when nothing renders, `notice` or `QUIET_LINE`.
+  meaningful event (duplicates collapsed; one condition gained by several creatures reads once,
+  "2 Giant Rats are surprised.", M20.7); when nothing renders, `notice` or `QUIET_LINE`.
 - `template_line(state, event) -> str | None`.
 - `QUIET_LINE`, `CLOSING_LINE` (the graceful ending appended to a cut-off model stream).
 """
@@ -18,6 +19,7 @@ from collections.abc import Callable, Sequence
 from typing import Any
 
 from aidm.dm.campaign_text import CAMPAIGN_TEMPLATE_LINES
+from aidm.dm.condition_text import applied_line, group_line, removed_line
 from aidm.dm.entities import display_name
 from aidm.dm.wording import ABILITY_NAMES, check_subject
 from aidm.models import events as ev
@@ -145,8 +147,8 @@ _LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     ev.CheckResolved: _check,
     AttackRolled: _attack,
     ev.HpChanged: _hp,
-    ev.ConditionApplied: lambda s, e: f"{_who(s, e.creature_id)} is now {e.condition.name}.",
-    ev.ConditionRemoved: lambda s, e: f"{_who(s, e.creature_id)} is no longer {e.name}.",
+    ev.ConditionApplied: lambda s, e: applied_line(_who(s, e.creature_id), e.condition.name),
+    ev.ConditionRemoved: lambda s, e: removed_line(_who(s, e.creature_id), e.name),
     ev.CreatureDied: lambda s, e: f"{_who(s, e.creature_id)} falls and does not rise again.",
     ev.Stabilized: lambda s, e: f"{_who(s, e.creature_id)} steadies, no longer slipping away.",
     CreatureRevived: lambda s, e: f"{_who(s, e.creature_id)} gasps back to life.",
@@ -181,12 +183,26 @@ def template_line(state: GameState, event: ev.AnyEvent) -> str | None:
     return render(state, event) if render is not None else None
 
 
+def _condition_groups(state: GameState, events: Sequence[ev.AnyEvent]) -> dict[str, list[str]]:
+    groups: dict[str, list[str]] = {}
+    for event in events:
+        if isinstance(event, ev.ConditionApplied):
+            names = groups.setdefault(event.condition.name, [])
+            if (who := _who(state, event.creature_id)) not in names:
+                names.append(who)
+    return groups
+
+
 def template_narration(
     events: Sequence[ev.AnyEvent], state: GameState, notice: str | None = None
 ) -> list[str]:
+    groups = _condition_groups(state, events)
     lines: list[str] = []
     for event in events:
-        line = template_line(state, event)
+        if isinstance(event, ev.ConditionApplied):
+            line = group_line(groups[event.condition.name], event.condition.name)
+        else:
+            line = template_line(state, event)
         if line and line not in lines:
             lines.append(line)
     if lines:

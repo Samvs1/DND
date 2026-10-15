@@ -1,5 +1,6 @@
 // Story feed: narration paragraphs (one per narration id, a span per sentence, tone class), mechanical
-// event lines and the epilogue. A live sentence with audio is revealed when its clip starts playing
+// event lines and the epilogue. Inside a paragraph an engine statement (`line`) sits on its own line and an
+// NPC's spoken words read once as `Name: "..."` (one speech block per speaker run; M20.7). A live sentence with audio is revealed when its clip starts playing
 // (`audio.enqueue`); one without is revealed with a typewriter; the
 // existing story is rendered at once. Reduced motion reveals everything immediately.
 import { reducedMotion, revealMs } from '../settings/model.js';
@@ -63,9 +64,31 @@ function createTypist() {
   };
 }
 
+// The element a sentence's span goes into: the paragraph, or the speaker's quote (opened on their first words).
+function slotFor(p, sentence) {
+  if (sentence.line || !sentence.speaker) return p;
+  const last = p.lastElementChild;
+  if (last?.classList.contains('speech') && last.dataset.speaker === sentence.speaker) return last.querySelector('.said');
+  const said = h('span', { class: 'said' });
+  p.append(h('span', { class: 'speech', 'data-speaker': sentence.speaker, 'data-testid': 'speech' }, h('strong', { class: 'speaker' }, `${sentence.speaker}:`), ' "', said, '"'));
+  return said;
+}
+
+// An empty span placed for the sentence, and the text it will show (speech has no space before its closing quote).
+function placeSentence(p, sentence) {
+  const slot = slotFor(p, sentence);
+  const span = h('span', { class: sentence.line ? 'sentence line' : 'sentence', 'data-testid': sentence.line ? 'narration-line' : null });
+  const text = slot === p ? `${sentence.text} ` : `${slot.childElementCount ? ' ' : ''}${sentence.text}`;
+  slot.append(span);
+  return { span, text };
+}
+
 function narrationNode(item) {
   const p = h('p', { class: `narr tone-${item.tone}`, 'data-id': item.id, 'data-testid': 'narration' });
-  for (const sentence of item.sentences) p.append(h('span', { class: 'sentence' }, `${sentence.text} `));
+  for (const sentence of item.sentences) {
+    const { span, text } = placeSentence(p, sentence);
+    span.textContent = text;
+  }
   if (item.done) p.classList.add('done');
   return p;
 }
@@ -116,9 +139,7 @@ export function mountFeed(root, story, audio = null) {
     } else if (change.type === 'chunk') {
       const node = nodes.get(change.item.id);
       if (!node) return;
-      const span = h('span', { class: 'sentence' });
-      node.append(span);
-      const text = `${change.sentence.text} `;
+      const { span, text } = placeSentence(node, change.sentence);
       const reveal = () => {
         const stick = nearBottom();
         span.textContent = text;

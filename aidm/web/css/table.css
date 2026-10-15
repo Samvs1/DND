@@ -151,6 +151,17 @@ textarea {
   border-left-color: var(--gold-dim);
 }
 
+/* M20.7: an engine statement on its own line; an NPC's words once, as Name: "..." */
+.narr .sentence.line,
+.narr .speech {
+  display: block;
+}
+
+.narr .speaker {
+  color: var(--gold);
+  font-weight: 600;
+}
+
 .narr.typing .sentence:last-child::after {
   content: '|';
   margin-left: 1px;

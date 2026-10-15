@@ -20,10 +20,13 @@ secret, shop or introduction events, or `social=True`) is SOCIAL, anything else 
 The narration is recorded into memory by applying `record_narration(state, text)` (a
 `NarrationRecorded` event) through the session reducer.
 
-Public API: `NUMBERS_ALLOWED`, `NarrationInput`,
+`voice_next` names the NPC whose voice answers right after (M20.7): the style tells the model
+not to speak for them (`VOICE_NEXT`).
+
+Public API: `NUMBERS_ALLOWED`, `VOICE_NEXT`, `NarrationInput`,
 `tone_for(state, events=(), *, social=False)`, `narration_messages(...)`,
 `narrate(state, source, llm, *, actor_id, player_text, tone, allow_numbers, guard,
-budget_tokens) -> NarrationStream`, `narrate_round_segment(state, events, llm, *, guard,
+budget_tokens, voice_next) -> NarrationStream`, `narrate_round_segment(state, events, llm, *, guard,
 budget_tokens) -> NarrationStream`, `record_narration(state, text) -> NarrationRecorded | None`.
 """
 
@@ -60,6 +63,10 @@ from aidm.models.world_events import (
 )
 
 NUMBERS_ALLOWED = "The player asked about the numbers: you may state them plainly."
+VOICE_NEXT = (
+    "{name} answers right after you, in their own voice: do not write {name}'s words, reply"
+    " or decision; tell only the action and what the engine resolved, and stop."
+)
 _SOCIAL_EVENTS = (AttitudeChanged, SecretRevealed, ShopOpened, NpcIntroduced)
 
 type NarrationInput = AdjudicationResult | Sequence[AnyEvent]
@@ -129,6 +136,7 @@ def narrate(
     allow_numbers: bool = False,
     guard: ProseCheck | None = None,
     budget_tokens: int = DEFAULT_BUDGET_TOKENS,
+    voice_next: str | None = None,
 ) -> NarrationStream:
     events, facts, notice = _unpack(source)
     weight = (
@@ -138,6 +146,7 @@ def narrate(
     )
     style = style_for(weight)
     style = f"{style} {NUMBERS_ALLOWED}" if allow_numbers else style
+    style = f"{style} {VOICE_NEXT.format(name=voice_next)}" if voice_next else style
     messages = narration_messages(
         state,
         events,

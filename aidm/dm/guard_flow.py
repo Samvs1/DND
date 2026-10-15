@@ -13,11 +13,14 @@ never reaches a player, TTS or memory. Flow:
 Ending rules: nothing shown -> the whole template (`source` TEMPLATE); something shown but the
 model stopped -> the unfinished fragment is dropped and the template lines follow when fewer
 than `MIN_MODEL_SENTENCES` were shown (the outcome must be told), else `CLOSING_LINE` (`source`
-MIXED). At most `MAX_SENTENCES` sentences.
+MIXED). At most `MAX_SENTENCES` sentences. `template_start` is the index of the first template
+sentence (None while only model prose was shown): those are engine statements, shown each on its
+own line (M20.7).
 
 Public API: `NarrationSource`, `AttemptFactory`, `model_sentences(stream)`,
 `GuardedSentences(attempt, check, fallback_lines, *, max_attempts, max_sentences)` (`sentences`,
-`text`, `source`, `failure`, `reports`, `attempts`, `retried`, `collect()`), `MAX_SENTENCES`,
+`text`, `source`, `failure`, `reports`, `attempts`, `retried`, `template_start`, `collect()`),
+`MAX_SENTENCES`,
 `MIN_MODEL_SENTENCES`, `MAX_ATTEMPTS`, `REPEAT_OVERLAP`, `repeats(sentence, shown)`.
 """
 
@@ -103,6 +106,7 @@ class GuardedSentences:
         self.failure: LlmFailure | None = None
         self.attempts = 0
         self.source = NarrationSource.TEMPLATE
+        self.template_start: int | None = None
 
     @property
     def text(self) -> str:
@@ -166,6 +170,7 @@ class GuardedSentences:
             return
         self.source = NarrationSource.MIXED if shown else NarrationSource.TEMPLATE
         ending = self._fallback if shown < MIN_MODEL_SENTENCES else [CLOSING_LINE]
+        self.template_start = shown
         for line in ending:
             self.sentences.append(line)
             yield line

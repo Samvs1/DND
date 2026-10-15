@@ -3978,6 +3978,23 @@
               "title": "Index",
               "type": "integer"
             },
+            "line": {
+              "default": false,
+              "title": "Line",
+              "type": "boolean"
+            },
+            "speaker": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Speaker"
+            },
             "text": {
               "title": "Text",
               "type": "string"

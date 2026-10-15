@@ -231,3 +231,12 @@ def test_end_refuses_active_status() -> None:
     with pytest.raises(EncounterRefused) as err:
         end_encounter(state, EncounterStatus.ACTIVE)
     assert err.value.reason is EncounterRefusal.INVALID_STATUS
+
+
+def test_same_named_foes_get_letters_in_spawn_order() -> None:
+    """M20.7 (playtest 3: two stirges both read 'Stirge'): letters only where names collide."""
+    state, _ = started(4, [make_pc("ana")], ["goblin", "orc", "goblin", "goblin"])
+    names = [state.creatures[c].name for c in ("goblin-1", "goblin-2", "goblin-3", "orc-1")]
+    assert names == ["Goblin A", "Goblin B", "Goblin C", "Orc"]
+    alone, _ = started(4, [make_pc("ana")], ["goblin"])
+    assert alone.creatures["goblin-1"].name == "Goblin"

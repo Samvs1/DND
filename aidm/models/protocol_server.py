@@ -136,6 +136,8 @@ class NarrationChunkMsg(_Server):
     text: str
     audio_url: str | None = None
     tone: NarrationTone = NarrationTone.EXPLORATION
+    line: bool = False
+    speaker: str | None = None
 
 
 class NarrationDone(_Server):

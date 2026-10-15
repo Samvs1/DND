@@ -67,7 +67,7 @@ Machine-readable schema: `aidm/web/protocol.json`.
 | server | `host_stats` | `calls`: integer (optional), `completion_tokens`: integer (optional), `prompt_tokens`: integer (optional), `type`: host_stats |
 | server | `level_up_available` | `creature_id`: string, `level`: integer, `type`: level_up_available |
 | server | `lobby_roster` | `players`: array of PlayerInfo (optional), `type`: lobby_roster |
-| server | `narration_chunk` | `audio_url`: string or null (optional), `id`: string, `index`: integer, `text`: string, `tone`: NarrationTone (optional), `type`: narration_chunk |
+| server | `narration_chunk` | `audio_url`: string or null (optional), `id`: string, `index`: integer, `line`: boolean (optional), `speaker`: string or null (optional), `text`: string, `tone`: NarrationTone (optional), `type`: narration_chunk |
 | server | `narration_done` | `id`: string, `type`: narration_done |
 | server | `notice` | `kind`: NoticeKind (optional), `text`: string, `type`: notice |
 | server | `pending_confirmation` | `player_id`: string, `prompt`: string, `type`: pending_confirmation |
