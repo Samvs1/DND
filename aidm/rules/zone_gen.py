@@ -28,7 +28,7 @@ from aidm.rules.hex_layout import Hex, hex_neighbours, touching
 
 MIN_GENERATED_ZONES = 3
 MAX_GENERATED_ZONES = 6
-MAX_HEX_ROWS = 3
+MAX_HEX_ROWS = 2  # the screen shows hexes big enough to read on a TV (M21.2)
 
 
 def _terrains(tags: Sequence[str], terrains: Registry[TerrainTemplate]) -> list[TerrainTemplate]:

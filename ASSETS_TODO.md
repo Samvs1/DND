@@ -7,7 +7,7 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 `python scripts/gen_assets_todo.py`. Prompts start with the style bible
 (`docs/STYLE_BIBLE.md`). Never overwrite a real or v1 asset.
 
-11 placeholder entries: music 1, sfx 10
+60 placeholder entries: music 1, sfx 10
 
 ## music (1)
 
@@ -78,3 +78,299 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 - size: n/a (audio)
 - transparent: no
 - prompt: Audio brief (not an image): a soft wooden button click, 0.2 seconds.
+
+## zone_hex (0)
+
+### zone_hex.alley
+- file: aidm/web/static/img/zones/hex/alley.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Narrow Alley or Cart Lane in village, with low walls, rocks or debris to crouch behind. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.archway
+- file: aidm/web/static/img/zones/hex/archway.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Broken Archway or Leaning Gate in ruins, with low walls, rocks or debris to crouch behind. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.bailey
+- file: aidm/web/static/img/zones/hex/bailey.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Inner Bailey or Training Yard in keep. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.barracks
+- file: aidm/web/static/img/zones/hex/barracks.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Barracks Room or Guard Quarters in keep, with low walls, rocks or debris to crouch behind. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.battlements
+- file: aidm/web/static/img/zones/hex/battlements.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Battlements or Wall Walk in keep, with tall walls or thick cover that hides most of a person, a raised rise of higher ground. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.boardwalk
+- file: aidm/web/static/img/zones/hex/boardwalk.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Rotting Boardwalk or Plank Path in swamp. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.bridge_span
+- file: aidm/web/static/img/zones/hex/bridge_span.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Bridge Span or Rope Bridge in bridge crossing. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.cavern
+- file: aidm/web/static/img/zones/hex/cavern.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Echoing Cavern or Dripstone Hall in cave. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.clearing
+- file: aidm/web/static/img/zones/hex/clearing.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Sunlit Clearing or Fern Glade in forest. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.collapsed_vault
+- file: aidm/web/static/img/zones/hex/collapsed_vault.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Collapsed Vault or Caved-In Crypt in crypt, with low walls, rocks or debris to crouch behind, tangled, broken or boggy ground that is hard to cross. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.colonnade
+- file: aidm/web/static/img/zones/hex/colonnade.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Fallen Colonnade or Pillar Row in ruins, with tall walls or thick cover that hides most of a person. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.corridor
+- file: aidm/web/static/img/zones/hex/corridor.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Burial Corridor or Dusty Passage in crypt. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.courtyard
+- file: aidm/web/static/img/zones/hex/courtyard.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Cracked Courtyard or Weedy Plaza in ruins. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.creek
+- file: aidm/web/static/img/zones/hex/creek.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Shallow Creek or Pebbled Stream in forest, tangled, broken or boggy ground that is hard to cross. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.dais
+- file: aidm/web/static/img/zones/hex/dais.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Raised Dais or Altar Step in crypt, a raised rise of higher ground. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.dead_trees
+- file: aidm/web/static/img/zones/hex/dead_trees.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Drowned Trees or Hollow Stumps in swamp, with low walls, rocks or debris to crouch behind. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.deep_trees
+- file: aidm/web/static/img/zones/hex/deep_trees.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Old Pines or Shadowed Trunks in forest, with low walls, rocks or debris to crouch behind. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.fallen_oak
+- file: aidm/web/static/img/zones/hex/fallen_oak.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Fallen Oak or Toppled Trunk in forest, with tall walls or thick cover that hides most of a person. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.far_bank
+- file: aidm/web/static/img/zones/hex/far_bank.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Far Bank or Muddy Landing in bridge crossing. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.flooded_cell
+- file: aidm/web/static/img/zones/hex/flooded_cell.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Flooded Cell or Seeping Chamber in crypt, tangled, broken or boggy ground that is hard to cross. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.gallery
+- file: aidm/web/static/img/zones/hex/gallery.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Upper Gallery or Minstrel Balcony in keep, with low walls, rocks or debris to crouch behind, a raised rise of higher ground. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.game_trail
+- file: aidm/web/static/img/zones/hex/game_trail.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Game Trail or Deer Path in forest. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.garden
+- file: aidm/web/static/img/zones/hex/garden.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Vegetable Plots or Muddy Garden in village, tangled, broken or boggy ground that is hard to cross. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.gatehouse
+- file: aidm/web/static/img/zones/hex/gatehouse.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Toll Gatehouse or Stone Guardpost in bridge crossing, with tall walls or thick cover that hides most of a person, a raised rise of higher ground. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.great_hall
+- file: aidm/web/static/img/zones/hex/great_hall.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Great Hall or Feasting Hall in keep. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.hummock
+- file: aidm/web/static/img/zones/hex/hummock.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Dry Hummock or Grassy Island in swamp, a raised rise of higher ground. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.ledge
+- file: aidm/web/static/img/zones/hex/ledge.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Rock Ledge or Crystal Shelf in cave, a raised rise of higher ground. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.mire
+- file: aidm/web/static/img/zones/hex/mire.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Sucking Mire or Black Mud in swamp, tangled, broken or boggy ground that is hard to cross. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.near_bank
+- file: aidm/web/static/img/zones/hex/near_bank.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Near Bank or Reed Shore in bridge crossing. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.ossuary
+- file: aidm/web/static/img/zones/hex/ossuary.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Bone-Lined Ossuary or Skull Niche Hall in crypt. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.pool
+- file: aidm/web/static/img/zones/hex/pool.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Still Pool or Glimmering Pool in cave, tangled, broken or boggy ground that is hard to cross. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.pylon
+- file: aidm/web/static/img/zones/hex/pylon.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Bridge Pylon or Mossy Buttress in bridge crossing, with low walls, rocks or debris to crouch behind. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.reeds
+- file: aidm/web/static/img/zones/hex/reeds.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Tall Reeds or Cattail Bed in swamp, with low walls, rocks or debris to crouch behind, tangled, broken or boggy ground that is hard to cross. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.ridge
+- file: aidm/web/static/img/zones/hex/ridge.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Mossy Ridge or Root-Bound Knoll in forest, a raised rise of higher ground. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.rockfall
+- file: aidm/web/static/img/zones/hex/rockfall.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Rockfall or Scree Slope in cave, with low walls, rocks or debris to crouch behind, tangled, broken or boggy ground that is hard to cross. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.rooftop
+- file: aidm/web/static/img/zones/hex/rooftop.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Thatched Rooftop or Barn Loft in village, a raised rise of higher ground. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.rubble
+- file: aidm/web/static/img/zones/hex/rubble.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Rubble Pile or Collapsed Wall in ruins, with low walls, rocks or debris to crouch behind, tangled, broken or boggy ground that is hard to cross. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.sarcophagi
+- file: aidm/web/static/img/zones/hex/sarcophagi.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Sarcophagus Row or Lidded Tombs in crypt, with tall walls or thick cover that hides most of a person. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.shallows
+- file: aidm/web/static/img/zones/hex/shallows.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called River Shallows or Rushing Ford in bridge crossing, tangled, broken or boggy ground that is hard to cross. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.smithy
+- file: aidm/web/static/img/zones/hex/smithy.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Smithy Yard or Cooper's Shed in village, with tall walls or thick cover that hides most of a person. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.square
+- file: aidm/web/static/img/zones/hex/square.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Village Square or Market Green in village. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.stairwell
+- file: aidm/web/static/img/zones/hex/stairwell.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Spiral Stair or Stone Stairwell in keep, tangled, broken or boggy ground that is hard to cross. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.stalagmites
+- file: aidm/web/static/img/zones/hex/stalagmites.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Stalagmite Forest or Pillar Grotto in cave, with tall walls or thick cover that hides most of a person. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.stilt_hut
+- file: aidm/web/static/img/zones/hex/stilt_hut.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Stilt Hut or Fisher's Shack in swamp, with tall walls or thick cover that hides most of a person. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.sunken_hall
+- file: aidm/web/static/img/zones/hex/sunken_hall.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Sunken Hall or Roofless Chamber in ruins. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.thicket
+- file: aidm/web/static/img/zones/hex/thicket.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Bramble Thicket or Briar Tangle in forest, with low walls, rocks or debris to crouch behind, tangled, broken or boggy ground that is hard to cross. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.tower_stump
+- file: aidm/web/static/img/zones/hex/tower_stump.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Tower Stump or Crumbling Parapet in ruins, with low walls, rocks or debris to crouch behind, a raised rise of higher ground. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.tunnel
+- file: aidm/web/static/img/zones/hex/tunnel.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Narrow Tunnel or Low Passage in cave. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.
+
+### zone_hex.well
+- file: aidm/web/static/img/zones/hex/well.png
+- size: 384x384
+- transparent: no
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Old Well or Stone Trough in village, with low walls, rocks or debris to crouch behind. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.

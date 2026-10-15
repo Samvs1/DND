@@ -4984,6 +4984,246 @@
   "reviewed": true,
   "cost_eur": 0.010833
  },
+ "surface_icon.darkness": {
+  "kind": "surface_icon",
+  "file": "img/icons/surfaces/darkness.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Half cover: a low broken stone wall about waist high with a round wooden shield propped against it; 2: Three-quarters cover: a tall stone wall with a narrow arrow slit and a shield leaning on it, tall enough to hide almost all of whoever stands behind it; 3: High ground: a steep rocky crag with a small pennant flag planted on its summit; 4: Rough ground: a tangle of thorny brambles, loose stones and sticky mud; 5: The surface Fire: a burning patch of ground with bright orange flames; 6: The surface Oil: a dark glossy pool of spilled lamp oil; 7: The surface Rubble: a heap of broken stones and debris; 8: The surface Grease: a slick yellowish puddle of grease with a slippery sheen; 9: The surface Water: a shallow puddle of clear water with ripples; 10: The surface Ice: a patch of slippery pale-blue ice with cracks; 11: The surface Poison Cloud: a drifting cloud of sickly green poison gas; 12: The surface Steam: a billowing white cloud of hot steam; 13: The surface Web: a thick sticky spider web strung low across the ground; 14: The surface Fog: a low bank of grey-white fog; 15: The surface Magical Darkness: a pool of unnatural black darkness with faint violet edges; 16: The surface Stinking Cloud: a roiling yellow-green cloud of foul gas. One small battle-map marker: the object alone, centred, bold shapes readable at 24 px, seen from a slight top-down angle, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. One small patch of the substance lying on the ground (or hanging just above it), centred and round in outline, bold saturated colour readable at 24 px, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002119
+ },
+ "surface_icon.fire": {
+  "kind": "surface_icon",
+  "file": "img/icons/surfaces/fire.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Half cover: a low broken stone wall about waist high with a round wooden shield propped against it; 2: Three-quarters cover: a tall stone wall with a narrow arrow slit and a shield leaning on it, tall enough to hide almost all of whoever stands behind it; 3: High ground: a steep rocky crag with a small pennant flag planted on its summit; 4: Rough ground: a tangle of thorny brambles, loose stones and sticky mud; 5: The surface Fire: a burning patch of ground with bright orange flames; 6: The surface Oil: a dark glossy pool of spilled lamp oil; 7: The surface Rubble: a heap of broken stones and debris; 8: The surface Grease: a slick yellowish puddle of grease with a slippery sheen; 9: The surface Water: a shallow puddle of clear water with ripples; 10: The surface Ice: a patch of slippery pale-blue ice with cracks; 11: The surface Poison Cloud: a drifting cloud of sickly green poison gas; 12: The surface Steam: a billowing white cloud of hot steam; 13: The surface Web: a thick sticky spider web strung low across the ground; 14: The surface Fog: a low bank of grey-white fog; 15: The surface Magical Darkness: a pool of unnatural black darkness with faint violet edges; 16: The surface Stinking Cloud: a roiling yellow-green cloud of foul gas. One small battle-map marker: the object alone, centred, bold shapes readable at 24 px, seen from a slight top-down angle, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. One small patch of the substance lying on the ground (or hanging just above it), centred and round in outline, bold saturated colour readable at 24 px, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002119
+ },
+ "surface_icon.fog": {
+  "kind": "surface_icon",
+  "file": "img/icons/surfaces/fog.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Half cover: a low broken stone wall about waist high with a round wooden shield propped against it; 2: Three-quarters cover: a tall stone wall with a narrow arrow slit and a shield leaning on it, tall enough to hide almost all of whoever stands behind it; 3: High ground: a steep rocky crag with a small pennant flag planted on its summit; 4: Rough ground: a tangle of thorny brambles, loose stones and sticky mud; 5: The surface Fire: a burning patch of ground with bright orange flames; 6: The surface Oil: a dark glossy pool of spilled lamp oil; 7: The surface Rubble: a heap of broken stones and debris; 8: The surface Grease: a slick yellowish puddle of grease with a slippery sheen; 9: The surface Water: a shallow puddle of clear water with ripples; 10: The surface Ice: a patch of slippery pale-blue ice with cracks; 11: The surface Poison Cloud: a drifting cloud of sickly green poison gas; 12: The surface Steam: a billowing white cloud of hot steam; 13: The surface Web: a thick sticky spider web strung low across the ground; 14: The surface Fog: a low bank of grey-white fog; 15: The surface Magical Darkness: a pool of unnatural black darkness with faint violet edges; 16: The surface Stinking Cloud: a roiling yellow-green cloud of foul gas. One small battle-map marker: the object alone, centred, bold shapes readable at 24 px, seen from a slight top-down angle, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. One small patch of the substance lying on the ground (or hanging just above it), centred and round in outline, bold saturated colour readable at 24 px, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002119
+ },
+ "surface_icon.grease": {
+  "kind": "surface_icon",
+  "file": "img/icons/surfaces/grease.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: The surface Oil: a dark glossy pool of spilled lamp oil; 2: The surface Rubble: a heap of broken stones and debris; 3: The surface Grease: a slick yellowish puddle of grease with a slippery sheen. Leave cells 4 to 16 empty. One small patch of the substance lying on the ground (or hanging just above it), centred and round in outline, bold saturated colour readable at 24 px, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Transparent background. Fix from review: Keep the subject small and well inside its own cell with a wide empty margin on every side; nothing may touch or cross the top edge of the cell.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0109
+ },
+ "surface_icon.ice": {
+  "kind": "surface_icon",
+  "file": "img/icons/surfaces/ice.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Half cover: a low broken stone wall about waist high with a round wooden shield propped against it; 2: Three-quarters cover: a tall stone wall with a narrow arrow slit and a shield leaning on it, tall enough to hide almost all of whoever stands behind it; 3: High ground: a steep rocky crag with a small pennant flag planted on its summit; 4: Rough ground: a tangle of thorny brambles, loose stones and sticky mud; 5: The surface Fire: a burning patch of ground with bright orange flames; 6: The surface Oil: a dark glossy pool of spilled lamp oil; 7: The surface Rubble: a heap of broken stones and debris; 8: The surface Grease: a slick yellowish puddle of grease with a slippery sheen; 9: The surface Water: a shallow puddle of clear water with ripples; 10: The surface Ice: a patch of slippery pale-blue ice with cracks; 11: The surface Poison Cloud: a drifting cloud of sickly green poison gas; 12: The surface Steam: a billowing white cloud of hot steam; 13: The surface Web: a thick sticky spider web strung low across the ground; 14: The surface Fog: a low bank of grey-white fog; 15: The surface Magical Darkness: a pool of unnatural black darkness with faint violet edges; 16: The surface Stinking Cloud: a roiling yellow-green cloud of foul gas. One small battle-map marker: the object alone, centred, bold shapes readable at 24 px, seen from a slight top-down angle, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. One small patch of the substance lying on the ground (or hanging just above it), centred and round in outline, bold saturated colour readable at 24 px, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002119
+ },
+ "surface_icon.oil": {
+  "kind": "surface_icon",
+  "file": "img/icons/surfaces/oil.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: The surface Oil: a dark glossy pool of spilled lamp oil; 2: The surface Rubble: a heap of broken stones and debris; 3: The surface Grease: a slick yellowish puddle of grease with a slippery sheen. Leave cells 4 to 16 empty. One small patch of the substance lying on the ground (or hanging just above it), centred and round in outline, bold saturated colour readable at 24 px, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Transparent background. Fix from review: Keep the subject small and well inside its own cell with a wide empty margin on every side; nothing may touch or cross the top edge of the cell.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0109
+ },
+ "surface_icon.poison-cloud": {
+  "kind": "surface_icon",
+  "file": "img/icons/surfaces/poison-cloud.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Half cover: a low broken stone wall about waist high with a round wooden shield propped against it; 2: Three-quarters cover: a tall stone wall with a narrow arrow slit and a shield leaning on it, tall enough to hide almost all of whoever stands behind it; 3: High ground: a steep rocky crag with a small pennant flag planted on its summit; 4: Rough ground: a tangle of thorny brambles, loose stones and sticky mud; 5: The surface Fire: a burning patch of ground with bright orange flames; 6: The surface Oil: a dark glossy pool of spilled lamp oil; 7: The surface Rubble: a heap of broken stones and debris; 8: The surface Grease: a slick yellowish puddle of grease with a slippery sheen; 9: The surface Water: a shallow puddle of clear water with ripples; 10: The surface Ice: a patch of slippery pale-blue ice with cracks; 11: The surface Poison Cloud: a drifting cloud of sickly green poison gas; 12: The surface Steam: a billowing white cloud of hot steam; 13: The surface Web: a thick sticky spider web strung low across the ground; 14: The surface Fog: a low bank of grey-white fog; 15: The surface Magical Darkness: a pool of unnatural black darkness with faint violet edges; 16: The surface Stinking Cloud: a roiling yellow-green cloud of foul gas. One small battle-map marker: the object alone, centred, bold shapes readable at 24 px, seen from a slight top-down angle, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. One small patch of the substance lying on the ground (or hanging just above it), centred and round in outline, bold saturated colour readable at 24 px, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002119
+ },
+ "surface_icon.rubble": {
+  "kind": "surface_icon",
+  "file": "img/icons/surfaces/rubble.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: The surface Oil: a dark glossy pool of spilled lamp oil; 2: The surface Rubble: a heap of broken stones and debris; 3: The surface Grease: a slick yellowish puddle of grease with a slippery sheen. Leave cells 4 to 16 empty. One small patch of the substance lying on the ground (or hanging just above it), centred and round in outline, bold saturated colour readable at 24 px, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Transparent background. Fix from review: Keep the subject small and well inside its own cell with a wide empty margin on every side; nothing may touch or cross the top edge of the cell.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0109
+ },
+ "surface_icon.silence": {
+  "kind": "surface_icon",
+  "file": "img/icons/surfaces/silence.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: The surface Sleet Storm: a small grey cloud pouring sleet and icy rain; 2: The surface Silence: a hushed pale-blue sphere of stillness around a small cracked bell; 3: The surface Spike Growth: sharp thorny spikes and twisted roots bursting from the ground; 4: The surface Spirit Guardians: a ring of glowing golden spectral guardian spirits. Leave cells 5 to 16 empty. One small patch of the substance lying on the ground (or hanging just above it), centred and round in outline, bold saturated colour readable at 24 px, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.00815
+ },
+ "surface_icon.sleet-storm": {
+  "kind": "surface_icon",
+  "file": "img/icons/surfaces/sleet-storm.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: The surface Sleet Storm: a small grey cloud pouring sleet and icy rain; 2: The surface Silence: a hushed pale-blue sphere of stillness around a small cracked bell; 3: The surface Spike Growth: sharp thorny spikes and twisted roots bursting from the ground; 4: The surface Spirit Guardians: a ring of glowing golden spectral guardian spirits. Leave cells 5 to 16 empty. One small patch of the substance lying on the ground (or hanging just above it), centred and round in outline, bold saturated colour readable at 24 px, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.00815
+ },
+ "surface_icon.spike-growth": {
+  "kind": "surface_icon",
+  "file": "img/icons/surfaces/spike-growth.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: The surface Sleet Storm: a small grey cloud pouring sleet and icy rain; 2: The surface Silence: a hushed pale-blue sphere of stillness around a small cracked bell; 3: The surface Spike Growth: sharp thorny spikes and twisted roots bursting from the ground; 4: The surface Spirit Guardians: a ring of glowing golden spectral guardian spirits. Leave cells 5 to 16 empty. One small patch of the substance lying on the ground (or hanging just above it), centred and round in outline, bold saturated colour readable at 24 px, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.00815
+ },
+ "surface_icon.spirit-guardians": {
+  "kind": "surface_icon",
+  "file": "img/icons/surfaces/spirit-guardians.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: The surface Sleet Storm: a small grey cloud pouring sleet and icy rain; 2: The surface Silence: a hushed pale-blue sphere of stillness around a small cracked bell; 3: The surface Spike Growth: sharp thorny spikes and twisted roots bursting from the ground; 4: The surface Spirit Guardians: a ring of glowing golden spectral guardian spirits. Leave cells 5 to 16 empty. One small patch of the substance lying on the ground (or hanging just above it), centred and round in outline, bold saturated colour readable at 24 px, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.00815
+ },
+ "surface_icon.steam": {
+  "kind": "surface_icon",
+  "file": "img/icons/surfaces/steam.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Half cover: a low broken stone wall about waist high with a round wooden shield propped against it; 2: Three-quarters cover: a tall stone wall with a narrow arrow slit and a shield leaning on it, tall enough to hide almost all of whoever stands behind it; 3: High ground: a steep rocky crag with a small pennant flag planted on its summit; 4: Rough ground: a tangle of thorny brambles, loose stones and sticky mud; 5: The surface Fire: a burning patch of ground with bright orange flames; 6: The surface Oil: a dark glossy pool of spilled lamp oil; 7: The surface Rubble: a heap of broken stones and debris; 8: The surface Grease: a slick yellowish puddle of grease with a slippery sheen; 9: The surface Water: a shallow puddle of clear water with ripples; 10: The surface Ice: a patch of slippery pale-blue ice with cracks; 11: The surface Poison Cloud: a drifting cloud of sickly green poison gas; 12: The surface Steam: a billowing white cloud of hot steam; 13: The surface Web: a thick sticky spider web strung low across the ground; 14: The surface Fog: a low bank of grey-white fog; 15: The surface Magical Darkness: a pool of unnatural black darkness with faint violet edges; 16: The surface Stinking Cloud: a roiling yellow-green cloud of foul gas. One small battle-map marker: the object alone, centred, bold shapes readable at 24 px, seen from a slight top-down angle, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. One small patch of the substance lying on the ground (or hanging just above it), centred and round in outline, bold saturated colour readable at 24 px, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002119
+ },
+ "surface_icon.stinking-cloud": {
+  "kind": "surface_icon",
+  "file": "img/icons/surfaces/stinking-cloud.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Half cover: a low broken stone wall about waist high with a round wooden shield propped against it; 2: Three-quarters cover: a tall stone wall with a narrow arrow slit and a shield leaning on it, tall enough to hide almost all of whoever stands behind it; 3: High ground: a steep rocky crag with a small pennant flag planted on its summit; 4: Rough ground: a tangle of thorny brambles, loose stones and sticky mud; 5: The surface Fire: a burning patch of ground with bright orange flames; 6: The surface Oil: a dark glossy pool of spilled lamp oil; 7: The surface Rubble: a heap of broken stones and debris; 8: The surface Grease: a slick yellowish puddle of grease with a slippery sheen; 9: The surface Water: a shallow puddle of clear water with ripples; 10: The surface Ice: a patch of slippery pale-blue ice with cracks; 11: The surface Poison Cloud: a drifting cloud of sickly green poison gas; 12: The surface Steam: a billowing white cloud of hot steam; 13: The surface Web: a thick sticky spider web strung low across the ground; 14: The surface Fog: a low bank of grey-white fog; 15: The surface Magical Darkness: a pool of unnatural black darkness with faint violet edges; 16: The surface Stinking Cloud: a roiling yellow-green cloud of foul gas. One small battle-map marker: the object alone, centred, bold shapes readable at 24 px, seen from a slight top-down angle, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. One small patch of the substance lying on the ground (or hanging just above it), centred and round in outline, bold saturated colour readable at 24 px, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002119
+ },
+ "surface_icon.water": {
+  "kind": "surface_icon",
+  "file": "img/icons/surfaces/water.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Half cover: a low broken stone wall about waist high with a round wooden shield propped against it; 2: Three-quarters cover: a tall stone wall with a narrow arrow slit and a shield leaning on it, tall enough to hide almost all of whoever stands behind it; 3: High ground: a steep rocky crag with a small pennant flag planted on its summit; 4: Rough ground: a tangle of thorny brambles, loose stones and sticky mud; 5: The surface Fire: a burning patch of ground with bright orange flames; 6: The surface Oil: a dark glossy pool of spilled lamp oil; 7: The surface Rubble: a heap of broken stones and debris; 8: The surface Grease: a slick yellowish puddle of grease with a slippery sheen; 9: The surface Water: a shallow puddle of clear water with ripples; 10: The surface Ice: a patch of slippery pale-blue ice with cracks; 11: The surface Poison Cloud: a drifting cloud of sickly green poison gas; 12: The surface Steam: a billowing white cloud of hot steam; 13: The surface Web: a thick sticky spider web strung low across the ground; 14: The surface Fog: a low bank of grey-white fog; 15: The surface Magical Darkness: a pool of unnatural black darkness with faint violet edges; 16: The surface Stinking Cloud: a roiling yellow-green cloud of foul gas. One small battle-map marker: the object alone, centred, bold shapes readable at 24 px, seen from a slight top-down angle, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. One small patch of the substance lying on the ground (or hanging just above it), centred and round in outline, bold saturated colour readable at 24 px, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002119
+ },
+ "surface_icon.web": {
+  "kind": "surface_icon",
+  "file": "img/icons/surfaces/web.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Half cover: a low broken stone wall about waist high with a round wooden shield propped against it; 2: Three-quarters cover: a tall stone wall with a narrow arrow slit and a shield leaning on it, tall enough to hide almost all of whoever stands behind it; 3: High ground: a steep rocky crag with a small pennant flag planted on its summit; 4: Rough ground: a tangle of thorny brambles, loose stones and sticky mud; 5: The surface Fire: a burning patch of ground with bright orange flames; 6: The surface Oil: a dark glossy pool of spilled lamp oil; 7: The surface Rubble: a heap of broken stones and debris; 8: The surface Grease: a slick yellowish puddle of grease with a slippery sheen; 9: The surface Water: a shallow puddle of clear water with ripples; 10: The surface Ice: a patch of slippery pale-blue ice with cracks; 11: The surface Poison Cloud: a drifting cloud of sickly green poison gas; 12: The surface Steam: a billowing white cloud of hot steam; 13: The surface Web: a thick sticky spider web strung low across the ground; 14: The surface Fog: a low bank of grey-white fog; 15: The surface Magical Darkness: a pool of unnatural black darkness with faint violet edges; 16: The surface Stinking Cloud: a roiling yellow-green cloud of foul gas. One small battle-map marker: the object alone, centred, bold shapes readable at 24 px, seen from a slight top-down angle, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. One small patch of the substance lying on the ground (or hanging just above it), centred and round in outline, bold saturated colour readable at 24 px, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002119
+ },
  "ui_icon.act-examine": {
   "kind": "ui_icon",
   "file": "img/icons/actions/examine.png",
@@ -5305,5 +5545,792 @@
   "license": "AI generated via OpenAI API, check provider terms before commercial use",
   "reviewed": true,
   "cost_eur": 0.026
+ },
+ "zone_hex.alley": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/alley.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Narrow Alley or Cart Lane in village, with low walls, rocks or debris to crouch behind. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.archway": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/archway.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Broken Archway or Leaning Gate in ruins, with low walls, rocks or debris to crouch behind. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.bailey": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/bailey.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Inner Bailey or Training Yard in keep. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.barracks": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/barracks.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Barracks Room or Guard Quarters in keep, with low walls, rocks or debris to crouch behind. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.battlements": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/battlements.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Battlements or Wall Walk in keep, with tall walls or thick cover that hides most of a person, a raised rise of higher ground. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.boardwalk": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/boardwalk.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Rotting Boardwalk or Plank Path in swamp. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.boulders": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/boulders.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Boulder Cluster or Tumbled Stones in open wilds, with low walls, rocks or debris to crouch behind. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Compose for a final crop to 384x384.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0178
+ },
+ "zone_hex.bridge_span": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/bridge_span.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Bridge Span or Rope Bridge in bridge crossing. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.cavern": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/cavern.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Echoing Cavern or Dripstone Hall in cave. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.clearing": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/clearing.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Sunlit Clearing or Fern Glade in forest. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.collapsed_vault": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/collapsed_vault.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Collapsed Vault or Caved-In Crypt in crypt, with low walls, rocks or debris to crouch behind, tangled, broken or boggy ground that is hard to cross. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.colonnade": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/colonnade.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Fallen Colonnade or Pillar Row in ruins, with tall walls or thick cover that hides most of a person. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.corridor": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/corridor.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Burial Corridor or Dusty Passage in crypt. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.courtyard": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/courtyard.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Cracked Courtyard or Weedy Plaza in ruins. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.creek": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/creek.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Shallow Creek or Pebbled Stream in forest, tangled, broken or boggy ground that is hard to cross. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.dais": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/dais.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Raised Dais or Altar Step in crypt, a raised rise of higher ground. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.dead_trees": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/dead_trees.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Drowned Trees or Hollow Stumps in swamp, with low walls, rocks or debris to crouch behind. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.deep_trees": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/deep_trees.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Old Pines or Shadowed Trunks in forest, with low walls, rocks or debris to crouch behind. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.fallen_oak": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/fallen_oak.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Fallen Oak or Toppled Trunk in forest, with tall walls or thick cover that hides most of a person. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.far_bank": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/far_bank.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Far Bank or Muddy Landing in bridge crossing. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.flooded_cell": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/flooded_cell.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Flooded Cell or Seeping Chamber in crypt, tangled, broken or boggy ground that is hard to cross. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.gallery": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/gallery.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Upper Gallery or Minstrel Balcony in keep, with low walls, rocks or debris to crouch behind, a raised rise of higher ground. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.game_trail": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/game_trail.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Game Trail or Deer Path in forest. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.garden": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/garden.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Vegetable Plots or Muddy Garden in village, tangled, broken or boggy ground that is hard to cross. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.gatehouse": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/gatehouse.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Toll Gatehouse or Stone Guardpost in bridge crossing, with tall walls or thick cover that hides most of a person, a raised rise of higher ground. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.great_hall": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/great_hall.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Great Hall or Feasting Hall in keep. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.gully": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/gully.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Dry Gully or Shallow Ravine in open wilds, with low walls, rocks or debris to crouch behind. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Compose for a final crop to 384x384.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0178
+ },
+ "zone_hex.hillock": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/hillock.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Grassy Hillock or Low Rise in open wilds, a raised rise of higher ground. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Compose for a final crop to 384x384.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0178
+ },
+ "zone_hex.hummock": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/hummock.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Dry Hummock or Grassy Island in swamp, a raised rise of higher ground. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.ledge": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/ledge.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Rock Ledge or Crystal Shelf in cave, a raised rise of higher ground. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.lone_tree": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/lone_tree.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Lone Tree or Old Signpost Tree in open wilds, with low walls, rocks or debris to crouch behind. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Compose for a final crop to 384x384.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0178
+ },
+ "zone_hex.mire": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/mire.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Sucking Mire or Black Mud in swamp, tangled, broken or boggy ground that is hard to cross. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.near_bank": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/near_bank.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Near Bank or Reed Shore in bridge crossing. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.open_ground": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/open_ground.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Open Ground or Windswept Field in open wilds. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Compose for a final crop to 384x384.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0178
+ },
+ "zone_hex.ossuary": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/ossuary.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Bone-Lined Ossuary or Skull Niche Hall in crypt. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.pool": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/pool.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Still Pool or Glimmering Pool in cave, tangled, broken or boggy ground that is hard to cross. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.pylon": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/pylon.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Bridge Pylon or Mossy Buttress in bridge crossing, with low walls, rocks or debris to crouch behind. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.reeds": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/reeds.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Tall Reeds or Cattail Bed in swamp, with low walls, rocks or debris to crouch behind, tangled, broken or boggy ground that is hard to cross. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.ridge": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/ridge.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Mossy Ridge or Root-Bound Knoll in forest, a raised rise of higher ground. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.rockfall": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/rockfall.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Rockfall or Scree Slope in cave, with low walls, rocks or debris to crouch behind, tangled, broken or boggy ground that is hard to cross. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.rooftop": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/rooftop.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Thatched Rooftop or Barn Loft in village, a raised rise of higher ground. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.rubble": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/rubble.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Rubble Pile or Collapsed Wall in ruins, with low walls, rocks or debris to crouch behind, tangled, broken or boggy ground that is hard to cross. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.sarcophagi": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/sarcophagi.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Sarcophagus Row or Lidded Tombs in crypt, with tall walls or thick cover that hides most of a person. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.scrub": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/scrub.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Thorny Scrub or Gorse Patch in open wilds, tangled, broken or boggy ground that is hard to cross. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Compose for a final crop to 384x384.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.0179
+ },
+ "zone_hex.shallows": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/shallows.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called River Shallows or Rushing Ford in bridge crossing, tangled, broken or boggy ground that is hard to cross. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.smithy": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/smithy.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Smithy Yard or Cooper's Shed in village, with tall walls or thick cover that hides most of a person. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.square": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/square.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Village Square or Market Green in village. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.stairwell": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/stairwell.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Spiral Stair or Stone Stairwell in keep, tangled, broken or boggy ground that is hard to cross. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.stalagmites": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/stalagmites.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Stalagmite Forest or Pillar Grotto in cave, with tall walls or thick cover that hides most of a person. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.stilt_hut": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/stilt_hut.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Stilt Hut or Fisher's Shack in swamp, with tall walls or thick cover that hides most of a person. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.sunken_hall": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/sunken_hall.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Sunken Hall or Roofless Chamber in ruins. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.thicket": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/thicket.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Bramble Thicket or Briar Tangle in forest, with low walls, rocks or debris to crouch behind, tangled, broken or boggy ground that is hard to cross. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.tower_stump": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/tower_stump.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Tower Stump or Crumbling Parapet in ruins, with low walls, rocks or debris to crouch behind, a raised rise of higher ground. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.tunnel": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/tunnel.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Narrow Tunnel or Low Passage in cave. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_hex.well": {
+  "kind": "zone_hex",
+  "file": "img/zones/hex/well.png",
+  "size": [
+   384,
+   384
+  ],
+  "transparent": false,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The ground of a place called Old Well or Stone Trough in village, with low walls, rocks or debris to crouch behind. Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline. Target size 384x384.",
+  "source": "",
+  "license": ""
+ },
+ "zone_icon.cover-half": {
+  "kind": "zone_icon",
+  "file": "img/icons/zones/cover-half.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Half cover: a low broken stone wall about waist high with a round wooden shield propped against it; 2: Three-quarters cover: a tall stone wall with a narrow arrow slit and a shield leaning on it, tall enough to hide almost all of whoever stands behind it; 3: High ground: a steep rocky crag with a small pennant flag planted on its summit; 4: Rough ground: a tangle of thorny brambles, loose stones and sticky mud; 5: The surface Fire: a burning patch of ground with bright orange flames; 6: The surface Oil: a dark glossy pool of spilled lamp oil; 7: The surface Rubble: a heap of broken stones and debris; 8: The surface Grease: a slick yellowish puddle of grease with a slippery sheen; 9: The surface Water: a shallow puddle of clear water with ripples; 10: The surface Ice: a patch of slippery pale-blue ice with cracks; 11: The surface Poison Cloud: a drifting cloud of sickly green poison gas; 12: The surface Steam: a billowing white cloud of hot steam; 13: The surface Web: a thick sticky spider web strung low across the ground; 14: The surface Fog: a low bank of grey-white fog; 15: The surface Magical Darkness: a pool of unnatural black darkness with faint violet edges; 16: The surface Stinking Cloud: a roiling yellow-green cloud of foul gas. One small battle-map marker: the object alone, centred, bold shapes readable at 24 px, seen from a slight top-down angle, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. One small patch of the substance lying on the ground (or hanging just above it), centred and round in outline, bold saturated colour readable at 24 px, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002119
+ },
+ "zone_icon.cover-three-quarters": {
+  "kind": "zone_icon",
+  "file": "img/icons/zones/cover-three-quarters.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Half cover: a low broken stone wall about waist high with a round wooden shield propped against it; 2: Three-quarters cover: a tall stone wall with a narrow arrow slit and a shield leaning on it, tall enough to hide almost all of whoever stands behind it; 3: High ground: a steep rocky crag with a small pennant flag planted on its summit; 4: Rough ground: a tangle of thorny brambles, loose stones and sticky mud; 5: The surface Fire: a burning patch of ground with bright orange flames; 6: The surface Oil: a dark glossy pool of spilled lamp oil; 7: The surface Rubble: a heap of broken stones and debris; 8: The surface Grease: a slick yellowish puddle of grease with a slippery sheen; 9: The surface Water: a shallow puddle of clear water with ripples; 10: The surface Ice: a patch of slippery pale-blue ice with cracks; 11: The surface Poison Cloud: a drifting cloud of sickly green poison gas; 12: The surface Steam: a billowing white cloud of hot steam; 13: The surface Web: a thick sticky spider web strung low across the ground; 14: The surface Fog: a low bank of grey-white fog; 15: The surface Magical Darkness: a pool of unnatural black darkness with faint violet edges; 16: The surface Stinking Cloud: a roiling yellow-green cloud of foul gas. One small battle-map marker: the object alone, centred, bold shapes readable at 24 px, seen from a slight top-down angle, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. One small patch of the substance lying on the ground (or hanging just above it), centred and round in outline, bold saturated colour readable at 24 px, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002119
+ },
+ "zone_icon.high-ground": {
+  "kind": "zone_icon",
+  "file": "img/icons/zones/high-ground.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Half cover: a low broken stone wall about waist high with a round wooden shield propped against it; 2: Three-quarters cover: a tall stone wall with a narrow arrow slit and a shield leaning on it, tall enough to hide almost all of whoever stands behind it; 3: High ground: a steep rocky crag with a small pennant flag planted on its summit; 4: Rough ground: a tangle of thorny brambles, loose stones and sticky mud; 5: The surface Fire: a burning patch of ground with bright orange flames; 6: The surface Oil: a dark glossy pool of spilled lamp oil; 7: The surface Rubble: a heap of broken stones and debris; 8: The surface Grease: a slick yellowish puddle of grease with a slippery sheen; 9: The surface Water: a shallow puddle of clear water with ripples; 10: The surface Ice: a patch of slippery pale-blue ice with cracks; 11: The surface Poison Cloud: a drifting cloud of sickly green poison gas; 12: The surface Steam: a billowing white cloud of hot steam; 13: The surface Web: a thick sticky spider web strung low across the ground; 14: The surface Fog: a low bank of grey-white fog; 15: The surface Magical Darkness: a pool of unnatural black darkness with faint violet edges; 16: The surface Stinking Cloud: a roiling yellow-green cloud of foul gas. One small battle-map marker: the object alone, centred, bold shapes readable at 24 px, seen from a slight top-down angle, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. One small patch of the substance lying on the ground (or hanging just above it), centred and round in outline, bold saturated colour readable at 24 px, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002119
+ },
+ "zone_icon.rough": {
+  "kind": "zone_icon",
+  "file": "img/icons/zones/rough.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Half cover: a low broken stone wall about waist high with a round wooden shield propped against it; 2: Three-quarters cover: a tall stone wall with a narrow arrow slit and a shield leaning on it, tall enough to hide almost all of whoever stands behind it; 3: High ground: a steep rocky crag with a small pennant flag planted on its summit; 4: Rough ground: a tangle of thorny brambles, loose stones and sticky mud; 5: The surface Fire: a burning patch of ground with bright orange flames; 6: The surface Oil: a dark glossy pool of spilled lamp oil; 7: The surface Rubble: a heap of broken stones and debris; 8: The surface Grease: a slick yellowish puddle of grease with a slippery sheen; 9: The surface Water: a shallow puddle of clear water with ripples; 10: The surface Ice: a patch of slippery pale-blue ice with cracks; 11: The surface Poison Cloud: a drifting cloud of sickly green poison gas; 12: The surface Steam: a billowing white cloud of hot steam; 13: The surface Web: a thick sticky spider web strung low across the ground; 14: The surface Fog: a low bank of grey-white fog; 15: The surface Magical Darkness: a pool of unnatural black darkness with faint violet edges; 16: The surface Stinking Cloud: a roiling yellow-green cloud of foul gas. One small battle-map marker: the object alone, centred, bold shapes readable at 24 px, seen from a slight top-down angle, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. One small patch of the substance lying on the ground (or hanging just above it), centred and round in outline, bold saturated colour readable at 24 px, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.002119
  }
 }

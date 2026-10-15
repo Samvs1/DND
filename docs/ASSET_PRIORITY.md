@@ -9,8 +9,8 @@ overwritten. P2 is generated only with `--tier 2` or `--tier all` (P1 + P2), in 
 order listed (P1 first, then P2 by kind visibility); a run whose estimate exceeds
 `--cap` is cut from the end of that order.
 
-P1: 107 entries (item_icon 1, monster_token 30, portrait 59, region_banner 6, scene 1, spell_icon 1, ui_icon 9).
-P2: 172 entries (condition_icon 21, monster_token 65, portrait 10, region_banner 6, spell_icon 61, zone_card 9).
+P1: 112 entries (item_icon 1, monster_token 30, portrait 59, region_banner 6, scene 1, spell_icon 1, surface_icon 5, ui_icon 9).
+P2: 242 entries (condition_icon 21, monster_token 65, portrait 10, region_banner 6, spell_icon 61, surface_icon 11, zone_card 9, zone_hex 55, zone_icon 4).
 
 ## P1
 
@@ -130,9 +130,13 @@ P2: 172 entries (condition_icon 21, monster_token 65, portrait 10, region_banner
 - item_icon.tool
 - spell_icon.school.cold
 
-### surface icon (0)
+### surface icon (5)
 
-- (none)
+- surface_icon.fire
+- surface_icon.oil
+- surface_icon.rubble
+- surface_icon.grease
+- surface_icon.water
 
 ### region banner (6)
 
@@ -151,12 +155,14 @@ P2: 172 entries (condition_icon 21, monster_token 65, portrait 10, region_banner
 - NPC look `weretiger`: weretiger-human (P1); weretiger-hybrid, weretiger-tiger share its look (P2)
 - NPC look `werewolf`: werewolf-human (P1); werewolf-hybrid, werewolf-wolf share its look (P2)
 - damage types with no art key (shown as text): bludgeoning, piercing, psychic, slashing
-- surface icons: the manifest has no `surface_icon` key (surfaces are text chips)
 
 ## P2
 
 - region_banner (6): bridge, crypt, forest, keep, swamp, village
 - zone_card (9): bridge, cave, crypt, forest, keep, ruins, swamp, village, wilds
+- zone_hex (55): alley, archway, bailey, barracks, battlements, boardwalk, boulders, bridge_span, cavern, clearing, collapsed_vault, colonnade, corridor, courtyard, creek, dais, dead_trees, deep_trees, fallen_oak, far_bank, flooded_cell, gallery, game_trail, garden, gatehouse, great_hall, gully, hillock, hummock, ledge, lone_tree, mire, near_bank, open_ground, ossuary, pool, pylon, reeds, ridge, rockfall, rooftop, rubble, sarcophagi, scrub, shallows, smithy, square, stairwell, stalagmites, stilt_hut, sunken_hall, thicket, tower_stump, tunnel, well
+- zone_icon (4): cover-half, cover-three-quarters, high-ground, rough
+- surface_icon (11): darkness, fog, ice, poison-cloud, silence, sleet-storm, spike-growth, spirit-guardians, steam, stinking-cloud, web
 - monster_token (65): ankheg, assassin, barbed-devil, basilisk, bearded-devil, blue-dragon-wyrmling, centaur, chimera, crocodile, death-dog, dire-wolf, duergar, earth-elemental, ettin, fire-elemental, flying-sword, frost-giant, gelatinous-cube, ghast, giant-crocodile, giant-scorpion, gladiator, green-dragon-wyrmling, grick, griffon, grimlock, half-red-dragon-veteran, hell-hound, hezrou, hill-giant, hydra, ice-mephit, knight, lizardfolk, manticore, medusa, minotaur, noble, ochre-jelly, ogre-zombie, owlbear, priest, red-dragon-wyrmling, sahuagin, satyr, scout, shield-guardian, steam-mephit, stirge, stone-giant, swarm-of-bats, tyrannosaurus-rex, vampire-spawn, veteran, water-elemental, white-dragon-wyrmling, wight, winter-wolf, wolf, worg, wyvern, xorn, young-black-dragon, young-green-dragon, young-white-dragon
 - condition_icon (21): asleep, barkskin, blurred, chilled, dodging, expeditious-retreat, guidance, guided, helped, hidden, invisibility, invisible, longstrider, nauseated, poison-ward, resistance, shocked, silenced, slowed, surprised, true-strike
 - portrait (10): npc.werebear-bear, npc.werebear-hybrid, npc.wereboar-boar, npc.wereboar-hybrid, npc.wererat-hybrid, npc.wererat-rat, npc.weretiger-hybrid, npc.weretiger-tiger, npc.werewolf-hybrid, npc.werewolf-wolf

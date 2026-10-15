@@ -21,9 +21,6 @@ import { mountScene } from '../table/scene.js';
 import { h } from '../ui/dom.js';
 import { fetchLan, mountInvite } from '../ui/invite.js';
 
-// The board only reads; this stands in for the interactive controller.
-const WATCHER = { readOnly: true, ui: { arming: null, target: null }, subscribe: () => () => {}, pickToken() {}, pickZone() {} };
-
 function applyPhase(state, waiting, table, combat, tagline) {
   const writing = state.snapshot?.state.phase === 'generating'; // M18.1: the Scribe speaks over this wait
   const line = t(writing ? 'screen.writing' : 'screen.waiting');
@@ -79,7 +76,7 @@ export function mountScreen(root, ctx) {
     mountFeed(feed, story, ctx.audio),
     mountParty(party, store),
     mountInitiative(initiative, store),
-    mountBoard(board, store, WATCHER),
+    mountBoard(board, store),
   ];
   fetchLan(store);
   return () => {

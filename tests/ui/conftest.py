@@ -18,6 +18,7 @@ from aidm.dm.fake_llm import FakeLLM, FakeStep, FakeStream, default_fake_step, f
 from aidm.dm.llm_backend import CompletionRequest
 from aidm.dm.llm_client import LlmClient
 from aidm.dm.llm_types import LlmMode
+from aidm.models.difficulty import MIN_MULTIPLIER, Difficulty
 from aidm.models.state import GameState
 from aidm.server.app import create_app
 from aidm.server.settings import ServerSettings, server_settings_from_env
@@ -176,8 +177,13 @@ def journey_server(tmp_path: Path) -> Iterator[LiveServer]:
     def make(settings: ServerSettings) -> LlmClient:
         return LlmClient(FakeLLM(responder=_journey_responder), settings.llm, LlmMode.FAKE, None)
 
-    # A fixed dice seed keeps the fight's course (and so the journey) reproducible.
-    yield from _serve(tmp_path, make, state=new_game_state(seed=JOURNEY_SEED))
+    # A fixed dice seed keeps the fight's course (and so the journey) reproducible. The journey
+    # tests the flow, not the balance: the host's lowest monster damage keeps both heroes up while
+    # it passes a whole round after the reconnect (M21: new hex maps changed the dice, and two
+    # goblins in melee wiped the party before the reconnected hero got a fresh turn).
+    state = new_game_state(seed=JOURNEY_SEED)
+    state.difficulty = Difficulty(monster_damage=MIN_MULTIPLIER)
+    yield from _serve(tmp_path, make, state=state)
 
 
 @pytest.fixture

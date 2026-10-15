@@ -41,6 +41,8 @@ SHEET_GROUPS = {
     "spell_icon": "icon",
     "condition_icon": "icon",
     "ui_icon": "icon",
+    "zone_icon": "icon",
+    "surface_icon": "icon",
 }
 
 

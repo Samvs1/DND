@@ -36,6 +36,9 @@ SIZES: dict[str, Size] = {
     "spell_icon": (128, 128),
     "condition_icon": (128, 128),
     "zone_card": (640, 360),
+    "zone_hex": (384, 384),
+    "zone_icon": (128, 128),
+    "surface_icon": (128, 128),
     "region_banner": (1024, 256),
     "scene": (1536, 864),
     "ui_icon": (64, 64),
@@ -128,8 +131,9 @@ def _spell_icon(slug: str, meta: Meta) -> str:
     return _framed_glyph("spell_icon", slug, school_glyph(school, tint), tint)
 
 
-def _condition_icon(slug: str, meta: Meta) -> str:
-    rng = seeded("condition_icon", slug)
+def _badge(kind: str, slug: str) -> str:
+    """A round lettered badge: condition, zone mark and surface placeholders (128x128)."""
+    rng = seeded(kind, slug)
     tint = pick_hue(rng, lightness=0.5, sat=0.4)
     letter = escape(initials(slug))
     body = (
@@ -138,13 +142,32 @@ def _condition_icon(slug: str, meta: Meta) -> str:
         f'<text x="64" y="86" text-anchor="middle" font-family="monospace" font-size="64" '
         f'font-weight="bold" fill="{tint}">{letter}</text>'
     )
-    return svg_document(SIZES["condition_icon"], _label("condition_icon", slug), body)
+    return svg_document(SIZES[kind], _label(kind, slug), body)
+
+
+def _condition_icon(slug: str, meta: Meta) -> str:
+    return _badge("condition_icon", slug)
+
+
+def _zone_icon(slug: str, meta: Meta) -> str:
+    return _badge("zone_icon", slug)
+
+
+def _surface_icon(slug: str, meta: Meta) -> str:
+    return _badge("surface_icon", slug)
 
 
 def _zone_card(slug: str, meta: Meta) -> str:
     size = SIZES["zone_card"]
     return svg_document(
         size, _label("zone_card", slug), scene_body(slug, size, seeded("zone_card", slug))
+    )
+
+
+def _zone_hex(slug: str, meta: Meta) -> str:
+    size = SIZES["zone_hex"]
+    return svg_document(
+        size, _label("zone_hex", slug), scene_body(slug, size, seeded("zone_hex", slug))
     )
 
 
@@ -180,6 +203,9 @@ RENDERERS: dict[str, Callable[[str, Meta], str]] = {
     "spell_icon": _spell_icon,
     "condition_icon": _condition_icon,
     "zone_card": _zone_card,
+    "zone_hex": _zone_hex,
+    "zone_icon": _zone_icon,
+    "surface_icon": _surface_icon,
     "region_banner": _region_banner,
     "scene": _scene,
     "ui_icon": _ui_icon,

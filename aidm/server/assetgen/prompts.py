@@ -11,7 +11,7 @@ M13.6: the Scribe's poses use his owner-made seated portrait and wide scene, so 
 stays: skeletal face, deep purple hood and robe, glowing violet eyes, quill and ledger).
 
 Public API: `RefSources`, `references_for`, `spec_of`, `single_prompt`, `sheet_prompt`,
-`REFERENCE_TEXT`, `SINGLE_KINDS`, `KEY_REFS`.
+`REFERENCE_TEXT`, `SINGLE_KINDS`, `UNREFERENCED_KINDS`, `KEY_REFS`.
 """
 
 from collections.abc import Mapping, Sequence
@@ -42,7 +42,10 @@ STATIC_REFS = {
     "zone_card": SCENE_REFS,
     "scene": SCENE_REFS,
 }
-SINGLE_KINDS = frozenset(STATIC_REFS)
+# M21: hex tiles are drawn one per call WITHOUT references (the side-view zone cards would pull the
+# top-down tiles to an angle); the style bible prefix carries the look.
+UNREFERENCED_KINDS = frozenset({"zone_hex"})
+SINGLE_KINDS = frozenset(STATIC_REFS) | UNREFERENCED_KINDS
 SCRIBE_REFS = ("img/portraits/scribe_seated.png", "img/scenes/scribe.png")
 # Two spell icons failed three sheet attempts (tiled cells, a faint outline, a neighbour's
 # fragment): drawn singly against accepted free-standing spell icons (owner request 2026-10-10).
@@ -71,7 +74,9 @@ class RefSources:
 
 def references_for(kind: str, sources: RefSources, key: str = "") -> tuple[Path, ...]:
     """Existing reference files for a key (`KEY_REFS`), its kind, or the v1 sheet for a sheet."""
-    if key in KEY_REFS:
+    if kind in UNREFERENCED_KINDS:
+        paths = []
+    elif key in KEY_REFS:
         paths = [sources.static_dir / rel for rel in KEY_REFS[key]]
     elif kind in STATIC_REFS:
         paths = [sources.static_dir / rel for rel in STATIC_REFS[kind]]

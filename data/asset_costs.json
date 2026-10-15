@@ -14,6 +14,7 @@
     "spell_icon": "1024x1024",
     "condition_icon": "1024x1024",
     "zone_card": "1536x1024",
+    "zone_hex": "1024x1024",
     "region_banner": "1536x1024",
     "scene": "1536x1024"
   },

@@ -29,6 +29,9 @@ Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with 
 - `spell_icon`: One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet.
 - `condition_icon`: One simple symbolic mark of the status, centred, bold shapes readable at 32 px, plain transparent background, one cell of a 4x4 icon sheet.
 - `zone_card`: Wide 16:9 battlefield scene seen at a slight angle, open ground in the middle for tokens to stand on, no characters, no creatures, details at the edges only.
+- `zone_hex`: Top-down battlefield tile seen from almost straight above with only a slight angle, the ground of the place filling the whole square edge to edge, its features (rocks, trees, walls, water) placed around the edges and a clear open patch in the middle where tokens stand, muted and a little dark so tokens stay readable, no characters, no creatures, no border, no frame, no hexagon outline.
+- `zone_icon`: One small battle-map marker: the object alone, centred, bold shapes readable at 24 px, seen from a slight top-down angle, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet.
+- `surface_icon`: One small patch of the substance lying on the ground (or hanging just above it), centred and round in outline, bold saturated colour readable at 24 px, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet.
 - `region_banner`: Very wide panoramic strip 4:1, a landscape or interior vista with a calm horizon band in the middle, no characters, no creatures, a dark soft edge on the left and right.
 - `scene`: Wide 16:9 painterly establishing scene behind full-screen interface text, low contrast and dark in the middle third, no characters in the foreground.
 - `ui_icon`: One small interface symbol on a dark slate rounded-square tile with a thin worn edge, bold shapes readable at 24 px, matching the reference tab icons, one cell of a 4x4 icon sheet.
@@ -43,5 +46,9 @@ Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with 
   light direction (top left) and margin. Items by category and material, spells by school colour (fire ember, frost cyan, necrotic
   sickly green, radiant gold, force violet), conditions as a plain symbol, never a face or text.
 - Zone card (`zone_card.*`, 640x360): terrain only. Muted so tokens and the aim highlights stay readable on top of it.
+- Zone hex tile (`zone_hex.*`, 384x384, M21): the screen clips it to a pointy-top hexagon, so keep the corners unimportant and
+  the middle open; one per zone type, so the place must be recognisable from above (a boulder field, a reed bed, an ossuary).
+- Zone and surface icons (`zone_icon.*`, `surface_icon.*`, 128x128, transparent, M21): shown at 24-40 px on the hexes and in
+  the map legend; one plain object or substance, never text or a letter.
 - Region banner (`region_banner.*`, 1024x256): it sits behind the scene title at low opacity, so keep the middle band calm and
   the contrast gentle. `tier1` is a hopeful dawn, `tier2` a dusk, `tier3` a dark stronghold under storm light.

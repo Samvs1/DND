@@ -26,6 +26,7 @@ from aidm.data.srd import srd
 from aidm.data.zone_templates import zone_templates
 from aidm.server.asset_keys import AUDIO_KINDS, AssetSpec, split_key
 from aidm.server.asset_ui import ui_subject
+from aidm.server.asset_zone_art import surface_icon_subject, zone_hex_subject, zone_icon_subject
 
 STYLE_BIBLE_PATH = Path(__file__).resolve().parent.parent.parent / "docs" / "STYLE_BIBLE.md"
 _PREFIX = re.compile(r"## Prompt prefix\s+```text\n(.*?)\n```", re.S)
@@ -191,6 +192,9 @@ def _subject(spec: AssetSpec) -> str:
         "item_icon": _item,
         "spell_icon": _spell,
         "condition_icon": _condition,
+        "zone_hex": zone_hex_subject,
+        "zone_icon": zone_icon_subject,
+        "surface_icon": surface_icon_subject,
     }
     return builders.get(kind, _place)(slug)
 

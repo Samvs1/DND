@@ -21,6 +21,7 @@ from aidm.data.spell_defs import shipped_spell_ids
 from aidm.data.srd import srd
 from aidm.data.zone_templates import zone_templates
 from aidm.server.asset_ui import UI_ART
+from aidm.server.asset_zone_art import zone_art_files
 from aidm.server.placeholders import placeholder_size
 
 AUDIO_KINDS = frozenset({"music", "sfx"})
@@ -206,6 +207,11 @@ def _audio() -> list[AssetSpec]:
     return out
 
 
+def _zone_art() -> list[AssetSpec]:
+    """M21: hex tiles per zone type, zone marks and surface icons (`asset_zone_art`)."""
+    return [_spec(key, file, transparent=clear) for key, file, clear in zone_art_files()]
+
+
 def _ui() -> list[AssetSpec]:
     return [_spec(a.key, a.file, transparent=a.transparent, v1=a.v1, hand=a.hand) for a in UI_ART]
 
@@ -220,6 +226,7 @@ def derive_specs(static_dir: Path) -> list[AssetSpec]:
         *_spells(),
         *_conditions(),
         *_places(),
+        *_zone_art(),
         *_audio(),
     ]
     return sorted(specs, key=lambda s: s.key)
