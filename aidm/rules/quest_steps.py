@@ -11,10 +11,11 @@ it is active. A step is met when its count reaches `QuestStep.goal()`:
   quest owning the step (quest items placed by the engine; flavour keepsakes never count) plus
   inventory entries with the item's key;
 - deliver: the NPC holds such a keepsake (`WorldNpc.keepsakes`, handed over by `KeepsakeGiven`);
+  for a favour a flavour keepsake (no `quest_id`) of that name counts too (M23.5);
 - meet: the party stands where the NPC is, the NPC alive and not hostile;
 - win_over: the NPC (alive, not hostile) reaches the band's floor score;
 - learn: `rules.secrets.engine_knows(tag)`;
-- free: never by itself (only the AI proposes it, M23.5).
+- free: never by itself (the AI proposes it through `update_quest`, `rules.quest_free`).
 
 Public API: `step_count(state, step, owner) -> int` (0..goal, the x of "x/N"),
 `step_met(state, step, owner) -> bool`, `steps_met(state, steps, done, owner) -> int` (how many
@@ -24,7 +25,7 @@ leading steps are met when `done` are already recorded; steps are sequential),
 
 from collections.abc import Callable
 
-from aidm.models.quests import QuestStep, StepKind
+from aidm.models.quests import QuestKind, QuestStep, StepKind
 from aidm.models.state import GameState
 from aidm.models.world import WorldNpc
 from aidm.rules.milestones import clear_key
@@ -92,12 +93,22 @@ def _obtain(state: GameState, step: QuestStep, owner: str) -> int:
     return min(step.goal(), _carried(state, step.item or "", owner))
 
 
+def _owners(state: GameState, owner: str) -> frozenset[str | None]:
+    """Whose keepsakes count for a deliver step: the owning quest's; a favour also counts a
+    flavour keepsake (it asks for one the party already carries, M23.5)."""
+    quest = state.world.quests.get(owner)
+    if quest is not None and quest.kind is QuestKind.FAVOUR:
+        return frozenset({owner, None})
+    return frozenset({owner})
+
+
 def _deliver(state: GameState, step: QuestStep, owner: str) -> int:
     npc = state.world.npcs.get(step.npc or "")
     if npc is None:
         return 0
     wanted = item_key(step.item or "")
-    held = sum(1 for k in npc.keepsakes if k.quest_id == owner and item_key(k.name) == wanted)
+    owners = _owners(state, owner)
+    held = sum(1 for k in npc.keepsakes if k.quest_id in owners and item_key(k.name) == wanted)
     return min(step.goal(), held)
 
 

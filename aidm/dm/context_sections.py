@@ -8,11 +8,12 @@ Public API:
 - `manifest_lines(state, scene, show_ids, describe_place=True) -> list[str]` (ends with
   `CLOSED_WORLD`).
 - `party_lines(state, short) -> list[str]`: one compact sheet line per living PC.
-- `quest_lines(state) -> list[str]`; `relevant_facts(facts, focus, k) -> list[Fact]` (THE fact
+- `relevant_facts(facts, focus, k) -> list[Fact]` (THE fact
   retrieval: top-k by entity overlap with `focus`, ties broken by recency; deterministic);
   `fact_lines(state, focus, k) -> list[str]` (their texts).
 - `memory_lines(state, last_n) -> list[str]`: scene summaries then the last narration turns.
 - `npc_private_lines(state, npc_id) -> list[str]`.
+The QUESTS section lives in `aidm.dm.context_quests` (M23.5).
 - `scene_focus(state, scene, actor_id, npc_id) -> frozenset[str]`: entity ids of the scene.
 """
 
@@ -145,19 +146,6 @@ def _life_note(c: Creature) -> str:
 def party_lines(state: GameState, short: bool) -> list[str]:
     pcs = sorted((c for c in state.creatures.values() if c.pc is not None), key=lambda c: c.id)
     return [_sheet(c, short) + _life_note(c) for c in pcs]
-
-
-def quest_lines(state: GameState) -> list[str]:
-    open_states = (QuestState.OFFERED, QuestState.ACTIVE)
-    out: list[str] = []
-    for qid in sorted(state.world.quests):
-        quest = state.world.quests[qid]
-        if quest.state not in open_states:
-            continue
-        giver = state.world.npcs.get(quest.giver_npc_id or "")
-        by = f", given by {giver.name}" if giver is not None else ""
-        out.append(f"{quest.title} [{qid}] ({quest.state.value}){by}")
-    return out
 
 
 def scene_focus(

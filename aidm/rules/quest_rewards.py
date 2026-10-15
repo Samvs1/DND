@@ -5,7 +5,8 @@ failed); completed and failed are final. Completing a CAMPAIGN quest (one of the
 pays its reward tier: XP per living PC by party level (`dm_tiers.xp_by_level`), gold by the quest
 act's region tier (`quest_gold_gp`) shared among the PCs, and the plot item (`reward_item`,
 inventory key `rules.secrets.item_key`). Quests the AI invents during play pay nothing, so a
-model cannot farm XP by creating and completing quests.
+model cannot farm XP by creating and completing quests; a favour (M23.5) never pays XP, gold or
+items, even if its id matched a plan quest (its only reward is the asker's goodwill, a deed).
 
 Milestones: a resolved region pays its tier's `grant_xp` tier (`region_milestone_xp_tier`), and the
 final region adds `final_milestone_xp_tier`. XP flags level-ups (`LevelUpReady`).
@@ -29,6 +30,7 @@ from aidm.models.campaign import QuestPlan
 from aidm.models.campaign_events import RegionResolved
 from aidm.models.dm_tiers import XpTier
 from aidm.models.events import AnyEvent
+from aidm.models.quests import QuestKind
 from aidm.models.state import GameState
 from aidm.models.world import Quest, QuestState
 from aidm.rules.dm_tiers import party_level, xp_award
@@ -63,7 +65,7 @@ def _plan_quest(state: GameState, quest_id: str) -> QuestPlan | None:
 
 def quest_payout(state: GameState, quest: Quest, tiers: DmTiers) -> Payout | None:
     plan = _plan_quest(state, quest.id)
-    if plan is None or quest.state is not QuestState.COMPLETED:
+    if plan is None or quest.kind is not QuestKind.SIDE or quest.state is not QuestState.COMPLETED:
         return None
     party = reward_party(state)
     gold = tiers.quest_gold_gp[str(plan.act)][plan.reward_tier]

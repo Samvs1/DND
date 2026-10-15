@@ -7,7 +7,8 @@ names the route the party just found. Only discovered routes are ever named. A h
 says who handed what to whom (M23.3), the same for both. M23.4: the quest state lines live here
 (taken on, left behind), the giver's ask (the model is told "<giver> asks the party:
 <objective>" and to invent no other quest) and a new lead; a declined ask and a dropped lead are
-bookkeeping (no line).
+bookkeeping (no line). M23.5 favours: asked ("asks the party a favour"), taken on, done ("they are
+grateful", never a reward) and let go; an offered favour has no line of its own (the ask says it).
 """
 
 from collections.abc import Callable
@@ -22,8 +23,9 @@ from aidm.models.quest_events import (
     QuestStepDone,
     RouteDiscovered,
 )
+from aidm.models.quests import QuestKind
 from aidm.models.state import GameState
-from aidm.models.world import ClosedReason, QuestState
+from aidm.models.world import ClosedReason, Quest, QuestState
 from aidm.models.world_events import QuestUpdated
 from aidm.rules.plan_ids import main_quest_id
 from aidm.rules.quest_plan import main_quest
@@ -88,37 +90,76 @@ def _left(e: QuestUpdated) -> bool:
     return e.quest.closed_reason is ClosedReason.LEFT_BEHIND
 
 
+def _favour_fact(state: GameState, quest: Quest) -> str:
+    giver = _npc(state, quest.giver_npc_id)
+    if quest.closed_reason is ClosedReason.WITHDRAWN:
+        return f"The favour '{quest.title}' for {giver} was let go (no penalty)."
+    if quest.state is QuestState.COMPLETED:
+        return f"The favour '{quest.title}' for {giver} is done: they are grateful (no reward)."
+    if quest.state is QuestState.ACTIVE:
+        return f"The party agreed to do {giver} a favour: {quest.objective or quest.title}"
+    return f"Favour '{quest.title}' is now {quest.state.value}."
+
+
+def _favour_story(state: GameState, quest: Quest) -> str | None:
+    giver = _npc(state, quest.giver_npc_id)
+    if quest.closed_reason is ClosedReason.WITHDRAWN:
+        return f"You let {giver}'s favour go."
+    if quest.state is QuestState.COMPLETED:
+        return f"You did {giver} a favour: {quest.title}. They will remember it."
+    if quest.state is QuestState.ACTIVE:
+        return f"You agree to do {giver} a favour: {quest.title}."
+    return None  # offered: the ask line says it
+
+
 def _updated_fact(state: GameState, e: QuestUpdated) -> str:
     quest = e.quest
     if _left(e):
         return f"Quest '{quest.title}' was left behind unfinished (no penalty)."
+    if quest.kind is QuestKind.FAVOUR:
+        return _favour_fact(state, quest)
     if quest.state is QuestState.ACTIVE and quest.objective:
         return f"The party took on the quest '{quest.title}': {quest.objective}"
     return f"Quest '{quest.title}' is now {quest.state.value}."
 
 
-def _updated_story(state: GameState, e: QuestUpdated) -> str:
+def _updated_story(state: GameState, e: QuestUpdated) -> str | None:
     if _left(e):
         return LEFT_BEHIND_STORY.format(title=e.quest.title)
+    if e.quest.kind is QuestKind.FAVOUR:
+        return _favour_story(state, e.quest)
     return _QUESTS[e.quest.state].format(title=e.quest.title)
 
 
-def _giver(state: GameState, e: QuestAsked) -> str:
-    npc = state.world.npcs.get(e.ask.npc_id)
+def _npc(state: GameState, npc_id: str | None) -> str:
+    npc = state.world.npcs.get(npc_id or "")
     return npc.name if npc is not None else "Someone"
+
+
+def _giver(state: GameState, e: QuestAsked) -> str:
+    return _npc(state, e.ask.npc_id)
+
+
+def _is_favour(state: GameState, quest_id: str) -> bool:
+    quest = state.world.quests.get(quest_id)
+    return quest is not None and quest.kind is QuestKind.FAVOUR
 
 
 def _asked_fact(state: GameState, e: QuestAsked) -> str:
     quest = state.world.quests.get(e.ask.quest_id)
     goal = (quest.objective or quest.title) if quest is not None else "a task"
+    asks = "asks the party a favour: " if _is_favour(state, e.ask.quest_id) else "asks the party: "
     return (
-        f"{_giver(state, e)} asks the party: {goal.rstrip('.')}. The players answer it"
+        f"{_giver(state, e)} {asks}{goal.rstrip('.')}. The players answer it"
         " themselves (Accept or Not now); invent no other quest."
     )
 
 
 def _asked_story(state: GameState, e: QuestAsked) -> str:
-    return f"{_giver(state, e)} asks for your help: {_title(state, e.ask.quest_id)}."
+    title = _title(state, e.ask.quest_id)
+    if _is_favour(state, e.ask.quest_id):
+        return f"{_giver(state, e)} asks a favour of you: {title}."
+    return f"{_giver(state, e)} asks for your help: {title}."
 
 
 def _no_line(state: GameState, e: object) -> None:

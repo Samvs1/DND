@@ -2,7 +2,6 @@
 leaving a region (the crossing question, left behind) and old saves. Rules + the settle helper.
 """
 
-import json
 import random
 from pathlib import Path
 
@@ -12,9 +11,6 @@ from aidm.dm.event_text import event_line
 from aidm.dm.narration_templates import template_line
 from aidm.dm.tool_context import ToolContext
 from aidm.dm.tool_exec import execute_tool
-from aidm.models.campaign import CampaignPlan
-from aidm.models.campaign_events import RegionResolved
-from aidm.models.campaign_state import RegionResolution
 from aidm.models.events import AnyEvent, event_adapter
 from aidm.models.quest_events import (
     QuestAskDeclined,
@@ -26,7 +22,6 @@ from aidm.models.quests import StepKind
 from aidm.models.state import GameState
 from aidm.models.world import ClosedReason, Quest, QuestAsk, QuestState
 from aidm.models.world_events import PartyMoved, QuestUpdated
-from aidm.rules.campaign_install import install_campaign
 from aidm.rules.quest_leaving import crossing, crossing_prompt, left_behind_events
 from aidm.rules.quest_offers import QuestOfferRefused, answer_events, ask_events, lead_events
 from aidm.session.reducer import apply, replay
@@ -42,8 +37,8 @@ from tests.session.quest_offer_fixtures import (
     go,
     resolve_region_one,
     settle,
+    slendee_in_act_two,
 )
-from tests.sim.sim_setup import build_party
 
 LEDGER = "missing-ledger"
 CHOIR = "douse-the-choir"
@@ -210,28 +205,8 @@ def test_the_lead_goes_once_the_giver_asks() -> None:
     _replays(start, state, log)
 
 
-def _slendee_in_act_two() -> tuple[GameState, GameState, list[AnyEvent], CampaignPlan]:
-    """An old save: side quests bulk-offered without steps (pre-M23 events), act 1 resolved and
-    the party at the act-2 arrival (the Slendee playtest)."""
-    plan_ = CampaignPlan.model_validate(json.loads(FIXTURE.read_text(encoding="utf-8")))
-    state = GameState(campaign_id="slendee", seed=3)
-    build_party(state, 3)
-    start = state.model_copy(deep=True)
-    log = apply_all(state, install_campaign(state, plan_, 3))
-    old = [
-        Quest(id=q.id, title=q.title, state=QuestState.OFFERED, giver_npc_id=q.giver_npc_id)
-        for q in plan_.quests
-        if q.act <= 2
-    ]
-    first, second = plan_.acts[0].region, plan_.acts[1].region
-    resolved = RegionResolved(region_id=first.id, how=RegionResolution.DEFEAT, final=False)
-    apply_all(state, [*(QuestUpdated(quest=q) for q in old), resolved], log)
-    apply_all(state, [_moved(state, first.gateway.id), _moved(state, second.arrival.id)], log)
-    return start, state, log, plan_
-
-
 def test_v1_slendee_old_save_leaves_act_one_behind_and_asks_again_in_act_two() -> None:
-    start, state, log, plan_ = _slendee_in_act_two()
+    start, state, log, plan_ = slendee_in_act_two()
     out = settle(state, log[-1:], log)
     quests = state.world.quests
     act1 = [q.id for q in plan_.quests if q.act == 1]

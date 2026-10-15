@@ -30,6 +30,7 @@ SPEC_TOOLS = [
     "start_encounter",
     "open_shop",
     "update_quest",
+    "offer_favour",  # M23.5
     "record_fact",
     "take_item",  # M19.3
     "give_keepsake",  # M19.3

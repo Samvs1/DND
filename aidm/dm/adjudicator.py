@@ -66,6 +66,8 @@ PER_ACTION_LIMITS = {
     "update_attitude": 1,
     "reveal_secret": 1,
     "give_keepsake": 2,
+    "update_quest": 2,
+    "offer_favour": 1,
 }
 EMPTY_NOTICE = "You hesitate, and the moment passes quietly. What do you do?"
 FALLBACK_NOTICE = "The world seems to hold its breath for a moment; nothing comes of it yet."

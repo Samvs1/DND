@@ -9,8 +9,8 @@ from aidm.models.dm_tiers import XpTier
 from aidm.models.encounter import EncounterStatus, Side
 from aidm.models.events import AnyEvent, CreatureDied, GoldChanged, XpGained
 from aidm.models.state import GameState
-from aidm.models.world import QuestState
-from aidm.models.world_events import LevelUpReady, RewardGranted
+from aidm.models.world import Quest, QuestState
+from aidm.models.world_events import LevelUpReady, QuestUpdated, RewardGranted
 from aidm.rules.dm_tiers import xp_award
 from aidm.rules.encounter import encounter_outcome, end_encounter
 from aidm.rules.quest_rewards import (
@@ -25,6 +25,7 @@ from tests.session.progression_fixtures import (
     campaign_state,
     move,
     plan,
+    quest_moved,
 )
 
 REGS = tool_registries()
@@ -32,9 +33,7 @@ PCS = ("fighter", "rogue", "wizard", "cleric")
 
 
 def _quest(state: GameState, quest_id: str, new: str, log: list[AnyEvent]) -> list[AnyEvent]:
-    result = run_tool(state, "update_quest", quest_id=quest_id, state=new)
-    assert result.ok, result.error
-    return apply_all(state, list(result.events), log)
+    return apply_all(state, quest_moved(state, quest_id, QuestState(new)), log)
 
 
 def _xp(state: GameState, pc_id: str) -> int:
@@ -59,8 +58,8 @@ def test_lifecycle_rules() -> None:
 
 def test_offered_quest_cannot_be_completed_directly() -> None:
     _, state, _ = campaign_state()
-    refused = run_tool(state, "update_quest", quest_id="missing-ledger", state="completed")
-    assert refused.error is not None and "accepted" in refused.error and not refused.events
+    refused = run_tool(state, "update_quest", quest_id="missing-ledger")
+    assert refused.error is not None and "not accepted" in refused.error and not refused.events
 
 
 def test_completing_a_campaign_quest_pays_its_tier() -> None:
@@ -84,8 +83,9 @@ def test_completing_a_campaign_quest_pays_its_tier() -> None:
     ]
     assert len(holders) == 1
     assert [_xp(state, p) for p in PCS] == [25] * 4
-    again = run_tool(state, "update_quest", quest_id="missing-ledger", state="completed")
-    assert again.error is not None
+    again = run_tool(state, "update_quest", quest_id="missing-ledger")
+    assert again.error is not None and "already completed" in again.error
+    assert quest_moved(state, "missing-ledger", QuestState.COMPLETED)[1:] == []  # paid once
     assert replay(start, log) == state
 
 
@@ -99,8 +99,8 @@ def test_failing_a_quest_pays_nothing() -> None:
 
 def test_an_invented_quest_pays_nothing() -> None:
     _, state, log = campaign_state()
-    made = run_tool(state, "update_quest", quest_id="side-job", title="Side job", state="active")
-    apply_all(state, list(made.events), log)
+    made = Quest(id="side-job", title="Side job", state=QuestState.ACTIVE)  # a pre-M23 save's
+    apply_all(state, [QuestUpdated(quest=made)], log)
     events = _quest(state, "side-job", "completed", log)
     assert not any(isinstance(e, RewardGranted | XpGained | GoldChanged) for e in events)
 

@@ -46,7 +46,8 @@ Public API:
   `lore_names` (world-bible names the guard allows), `scene_turn` (narrated turns in the
   current scene; reset by a move). The derived scene view is `aidm.rules.scene.current_scene`.
   M23: `leads` (quest leads), `quest_ask` (the pending quest offer, at most one);
-  `WorldNpc.keepsakes` holds keepsakes handed to that NPC.
+  `WorldNpc.keepsakes` holds keepsakes handed to that NPC. A closed quest's `closed_reason`:
+  `left_behind` (its region was left) or `withdrawn` (a favour let go, M23.5).
 """
 
 from __future__ import annotations
@@ -144,6 +145,7 @@ class WorldFeature(BaseModel):
 
 class ClosedReason(StrEnum):
     LEFT_BEHIND = "left_behind"
+    WITHDRAWN = "withdrawn"  # M23.5: a favour the party let go (Not now, or its card withdrawn)
 
 
 class RouteProgress(BaseModel):

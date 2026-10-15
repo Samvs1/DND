@@ -2,22 +2,24 @@
 
 Deeds are uncapped and the only way past the ally bar (`aidm.rules.social`). Sources:
 - quests: completing a quest is a moderate deed for its giver and a moderate deed against the
-  NPC it works against; failing it is a minor deed against the giver;
+  NPC it works against; failing it is a minor deed against the giver; a favour (M23.5) done is
+  a minor deed for the NPC who asked, and a favour let go or left behind is no deed at all;
 - combat help: winning a fight where non-hostile NPCs stand by is a minor deed for each of them
   (the party fought for them);
 - gifts: giving an NPC an item the PC carries is a minor deed, a major one for a campaign plot
   item (a quest's reward item).
 Points per tier are data (`dm_tiers.json` `deed_points`).
 
-Public API: `QUEST_DEED_TIER`, `GiftRefused`, `quest_deed_events(state, quest, tiers)`,
-`combat_help_deed_events(state, status, tiers)`, `gift_events(state, pc_id, npc_id, item, tiers)`
-(each `-> list[AnyEvent]`).
+Public API: `QUEST_DEED_TIER`, `FAVOUR_DEED_TIER`, `GiftRefused`,
+`quest_deed_events(state, quest, tiers)`, `combat_help_deed_events(state, status, tiers)`,
+`gift_events(state, pc_id, npc_id, item, tiers)` (each `-> list[AnyEvent]`).
 """
 
 from aidm.data.dm_tiers import DmTiers
 from aidm.models.dm_tiers import XpTier
 from aidm.models.encounter import EncounterStatus
 from aidm.models.events import AnyEvent, InventoryChanged
+from aidm.models.quests import QuestKind
 from aidm.models.state import GameState
 from aidm.models.world import Quest, QuestState, WorldNpc
 from aidm.rules.dm_tiers import deed_points
@@ -26,6 +28,7 @@ from aidm.rules.social import deed_attitude_events, npc_is_hostile
 
 QUEST_DEED_TIER = XpTier.MODERATE
 QUEST_FAILED_TIER = XpTier.MINOR
+FAVOUR_DEED_TIER = XpTier.MINOR
 COMBAT_HELP_TIER = XpTier.MINOR
 GIFT_TIER = XpTier.MINOR
 PLOT_GIFT_TIER = XpTier.MAJOR
@@ -45,6 +48,10 @@ def quest_deed_events(state: GameState, quest: Quest, tiers: DmTiers) -> list[An
     old = state.world.quests.get(quest.id)
     if old is not None and old.state is quest.state:
         return []
+    if quest.kind is QuestKind.FAVOUR:  # M23.5: goodwill only, and letting one go costs nothing
+        done = quest.state is QuestState.COMPLETED
+        points = deed_points(tiers, FAVOUR_DEED_TIER)
+        return _deed(state, quest.giver_npc_id, points, f"did favour {quest.id}") if done else []
     if quest.state is QuestState.COMPLETED:
         points = deed_points(tiers, QUEST_DEED_TIER)
         events = _deed(state, quest.giver_npc_id, points, f"completed quest {quest.id}")

@@ -13,8 +13,9 @@ backfill) and place the act's quest items.
   arrival (the first quest in plan order); none while an encounter offer waits or a fight runs.
 - The answer (`answer_events`): Accept -> `QuestUpdated(active)` (a stored quest without steps,
   an old save's, gets its derived steps and objective in that same event); Not now ->
-  `QuestAskDeclined` (stays offered, asked again on the next arrival). `QuestOfferRefused` when
-  that quest is not being asked.
+  `QuestAskDeclined` (stays offered, asked again on the next arrival); Not now for a favour
+  (M23.5) lets it go (failed + `withdrawn`, no deed: a favour is never asked again).
+  `QuestOfferRefused` when that quest is not being asked.
 
 Public API: `QuestOfferRefused`, `LEAD_TEXT`, `lead_events(state)`, `ask_events(state, batch)`,
 `answer_events(state, quest_id, accept)`.
@@ -26,9 +27,11 @@ from aidm.models.campaign import CampaignPlan, QuestPlan, RegionPlan
 from aidm.models.encounter import EncounterStatus
 from aidm.models.events import AnyEvent
 from aidm.models.quest_events import QuestAskDeclined, QuestAsked, QuestLeadAdded
+from aidm.models.quests import QuestKind
 from aidm.models.state import GameState
 from aidm.models.world import Quest, QuestAsk, QuestLead, QuestState
 from aidm.models.world_events import PartyMoved, QuestUpdated
+from aidm.rules.favours import withdrawn
 from aidm.rules.progression import region_of
 from aidm.rules.quest_plan import quest_steps, side_world_quest
 from aidm.rules.quest_steps import npc_meetable
@@ -116,6 +119,8 @@ def answer_events(state: GameState, quest_id: str, accept: bool) -> list[AnyEven
     quest = state.world.quests.get(quest_id)
     if ask is None or ask.quest_id != quest_id or quest is None:
         raise QuestOfferRefused(quest_id)
+    if not accept and quest.kind is QuestKind.FAVOUR:
+        return [QuestUpdated(quest=withdrawn(quest))]  # no re-ask for a favour: it is let go
     if not accept:
         return [QuestAskDeclined(quest_id=quest_id)]
     return [QuestUpdated(quest=_accepted(state, quest))]

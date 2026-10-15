@@ -12,6 +12,7 @@ from aidm.models.campaign_state import EncounterOffer, OfferChoice
 from aidm.models.encounter import EncounterStatus, Side
 from aidm.models.events import AnyEvent, CreatureDied
 from aidm.models.state import GameState
+from aidm.models.world import QuestState
 from aidm.models.world_events import PartyMoved, QuestUpdated
 from aidm.rules.campaign_install import install_campaign
 from aidm.rules.dice import Rng
@@ -20,6 +21,8 @@ from aidm.rules.encounter_offer import OfferData, arrival_offer_events
 from aidm.rules.offer_answer import answer_offer
 from aidm.rules.progression import region_resolution_events
 from aidm.rules.quest_plan import side_world_quest
+from aidm.rules.quest_rewards import quest_reward_events
+from aidm.rules.social_deeds import quest_deed_events
 from aidm.session.reducer import apply
 from tests.ai.tool_fixtures import tool_call
 from tests.sim.sim_setup import build_party
@@ -63,6 +66,17 @@ def offer_act_quests(state: GameState, act: int, log: list[AnyEvent] | None = No
         QuestUpdated(quest=side_world_quest(plan(), q)) for q in plan().quests if q.act == act
     ]
     apply_all(state, events, log)
+
+
+def quest_moved(state: GameState, quest_id: str, new: QuestState) -> list[AnyEvent]:
+    """A quest moved to `new` the engine way (M23.5: the model cannot do it): the QuestUpdated
+    with its deeds and its reward, as `quest_progress` emits them on completion."""
+    quest = state.world.quests[quest_id].model_copy(update={"state": new})
+    return [
+        QuestUpdated(quest=quest),
+        *quest_deed_events(state, quest, REGS.tiers),
+        *quest_reward_events(state, quest, REGS.tiers, REGS.catalogue),
+    ]
 
 
 def apply_all(

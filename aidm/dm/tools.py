@@ -9,25 +9,28 @@ Public API:
 - One `<Tool>Args` model per tool: `RequestCheckArgs`, `RequestSaveArgs`, `CreativeEffectArgs`,
   `UpdateAttitudeArgs`, `RevealSecretArgs`, `MovePartyArgs`, `IntroduceNpcArgs`,
   `IntroduceFeatureArgs`, `GrantItemArgs`, `GrantXpArgs`, `StartEncounterArgs`, `OpenShopArgs`,
-  `UpdateQuestArgs`, `RecordFactArgs`, `TakeItemArgs`, `GiveKeepsakeArgs` (M19.3),
-  `NoMechanicsArgs`.
+  `UpdateQuestArgs` (M23.5: a free step only), `OfferFavourArgs` + `FavourKind` (M23.5),
+  `RecordFactArgs`, `TakeItemArgs`, `GiveKeepsakeArgs` (M19.3), `NoMechanicsArgs`.
 - `DM_TOOLS`: every `ToolDef` in SPEC order; `dm_tool(name) -> ToolDef`;
   `dm_tools_param(names=None) -> list[dict]` (the OpenAI `tools` parameter).
 """
 
 from collections.abc import Sequence
+from enum import StrEnum
 from typing import Any, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from aidm.dm.llm_types import ToolDef, tool_param
 from aidm.models.abilities import Ability, Skill
+from aidm.models.character import MAX_KEEPSAKE_NAME
 from aidm.models.checks import DcTier
 from aidm.models.damage import DamageType
 from aidm.models.dice import AdvState
-from aidm.models.dm_tiers import DeltaTier, EffectKind, Severity, XpTier
+from aidm.models.dm_tiers import AttitudeBand, DeltaTier, EffectKind, Severity, XpTier
 from aidm.models.encounter import SurpriseKind
-from aidm.models.world import FeatureKind, QuestState
+from aidm.models.quests import MAX_STEP_TEXT, MAX_TAG
+from aidm.models.world import FeatureKind
 
 
 def _id() -> Any:
@@ -176,12 +179,43 @@ class OpenShopArgs(_Args):
 
 
 class UpdateQuestArgs(_Args):
-    """Create or move a quest; a new quest needs a title. Completed and failed are final."""
+    """Mark the CURRENT step of an active quest done when it is a free step (listed in QUESTS as
+    'judged by you') and the party really did it. Every other step is checked by the engine, and
+    this never creates a quest (a present NPC who asks for help: offer_favour)."""
 
     quest_id: str = _id()
-    state: QuestState
-    title: str | None = Field(default=None, max_length=80)
-    giver_npc: str | None = Field(default=None, max_length=64)
+    route_id: str | None = Field(
+        default=None, max_length=40, description="for a main quest: the known way followed"
+    )
+    reason: str = _reason()
+
+
+class FavourKind(StrEnum):
+    VISIT = "visit"
+    CLEAR = "clear"
+    DEFEAT = "defeat"
+    DELIVER = "deliver"
+    MEET = "meet"
+    WIN_OVER = "win_over"
+    LEARN = "learn"
+
+
+class OfferFavourArgs(_Args):
+    """A present NPC asks the party a small favour (only when they really ask for help). One
+    step the engine can check: visit or clear a place (place), defeat, meet or win over an NPC
+    (target_npc; win_over also band), deliver a keepsake a hero carries to an NPC (item,
+    target_npc), or learn something (tag). Ids from this region only. The players accept or not;
+    it earns that NPC's goodwill, never gold or XP."""
+
+    npc: str = _id()
+    title: str = Field(min_length=1, max_length=60)
+    kind: FavourKind
+    text: str = Field(min_length=1, max_length=MAX_STEP_TEXT, description="the step, in words")
+    place: str | None = Field(default=None, max_length=64)
+    target_npc: str | None = Field(default=None, max_length=64)
+    item: str | None = Field(default=None, max_length=MAX_KEEPSAKE_NAME)
+    band: AttitudeBand | None = None
+    tag: str | None = Field(default=None, max_length=MAX_TAG)
 
 
 class RecordFactArgs(_Args):
@@ -229,6 +263,7 @@ DM_TOOLS: tuple[ToolDef, ...] = (
     _def("start_encounter", StartEncounterArgs),
     _def("open_shop", OpenShopArgs),
     _def("update_quest", UpdateQuestArgs),
+    _def("offer_favour", OfferFavourArgs),
     _def("record_fact", RecordFactArgs),
     _def("take_item", TakeItemArgs),
     _def("give_keepsake", GiveKeepsakeArgs),

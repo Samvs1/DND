@@ -2,9 +2,11 @@
 
 `build_context` assembles typed sections in a fixed order:
 1 SYSTEM (DM rules, `aidm.dm.context_text`), 2 MANIFEST (closed world, ends with the
-closed-world statement), 3 PARTY (compact sheets), 4 QUESTS and FACTS (top-k by entity
+closed-world statement), 3 PARTY (compact sheets), 4 QUESTS (`aidm.dm.context_quests`: main
+objective, known routes, current steps, item whereabouts, offers; M23.5) and FACTS (top-k by entity
 overlap), 5 MEMORY (scene summaries, last narration turns), 6 EVENTS (engine events since the
-last narration, authoritative), 7 NPC_PRIVATE (motive and secrets, ONLY for `NPC_VOICE`).
+last narration, authoritative), 7 NPC_PRIVATE (motive, secrets and the route hint the NPC knows,
+ONLY for `NPC_VOICE`).
 
 Token budget (estimate: characters / 4): when the pack is over budget, FACTS lose their lowest
 ranked lines first, then MEMORY its oldest lines, then PARTY switches to short sheets. SYSTEM,
@@ -30,13 +32,13 @@ from dataclasses import dataclass, replace
 from enum import StrEnum
 from typing import Any
 
+from aidm.dm.context_quests import quest_lines, route_hint_lines
 from aidm.dm.context_sections import (
     fact_lines,
     manifest_lines,
     memory_lines,
     npc_private_lines,
     party_lines,
-    quest_lines,
     scene_focus,
 )
 from aidm.dm.context_text import PLAYER_TAG, ContextPurpose, system_text, task_text
@@ -64,7 +66,7 @@ class SectionKey(StrEnum):
 _TITLES = {
     SectionKey.MANIFEST: "SCENE MANIFEST",
     SectionKey.PARTY: "PARTY",
-    SectionKey.QUESTS: "ACTIVE QUESTS",
+    SectionKey.QUESTS: "QUESTS (the only tasks that exist)",
     SectionKey.FACTS: "RELEVANT FACTS",
     SectionKey.MEMORY: "MEMORY",
     SectionKey.EVENTS: "RECENT ENGINE EVENTS (authoritative)",
@@ -168,7 +170,7 @@ def build_context(
         ContextSection(SectionKey.SYSTEM, "SYSTEM", (system_text(purpose),)),
         _section(SectionKey.MANIFEST, manifest_lines(state, scene, show_ids, describe)),
         _section(SectionKey.PARTY, party_lines(state, short=False)),
-        _section(SectionKey.QUESTS, quest_lines(state)),
+        _section(SectionKey.QUESTS, quest_lines(state, show_ids)),
         _section(
             SectionKey.FACTS,
             fact_lines(state, scene_focus(state, scene, actor_id, npc_id), facts_k),
@@ -178,7 +180,8 @@ def build_context(
     ]
     npc = state.world.npcs.get(npc_id or "")
     if purpose is ContextPurpose.NPC_VOICE:
-        sections.append(_section(SectionKey.NPC_PRIVATE, npc_private_lines(state, npc_id)))
+        private = [*npc_private_lines(state, npc_id), *route_hint_lines(state, npc_id)]
+        sections.append(_section(SectionKey.NPC_PRIVATE, private))
     block = None
     if player_text is not None:
         actor = state.creatures.get(actor_id or "")

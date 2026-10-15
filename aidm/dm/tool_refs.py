@@ -19,7 +19,7 @@ from pydantic import BaseModel
 from aidm.models.state import GameState
 
 CREATURE_FIELDS = ("actor", "actors", "target")
-NPC_FIELDS = ("npc", "giver_npc", "against_npcs")
+NPC_FIELDS = ("npc", "target_npc", "against_npcs")
 ENTITY_FIELDS = ("entity_ids",)
 
 type RefKind = Literal["creature", "npc", "entity"]

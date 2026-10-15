@@ -10,8 +10,9 @@ done by a move, a pick-up, a fight or an attitude change moves its quest at once
    alliance resolves the region, and the main quest completes, all in the same batch;
 4. once a pass moved nothing (M23.4, `rules.quest_offers` / `rules.quest_leaving`): the open
    tasks of a region the party left close as left behind (a task whose steps were all done
-   completed in step 3 first), then the giver here asks (only on an arrival in the batch), then
-   the leads of the party's region.
+   completed in step 3 first), an offered favour whose card is gone lapses (M23.5,
+   `rules.favours`), then the giver here asks (only on an arrival in the batch), then the leads
+   of the party's region.
 Every pass reads the applied state, so nothing is paid twice; whatever the pass bound leaves
 is picked up by the next batch.
 
@@ -24,6 +25,7 @@ from collections.abc import Callable, Sequence
 from aidm.dm.tool_context import ToolRegistries
 from aidm.models.events import AnyEvent
 from aidm.models.state import GameState
+from aidm.rules.favours import favour_lapse_events
 from aidm.rules.milestones import milestone_events
 from aidm.rules.quest_leaving import left_behind_events
 from aidm.rules.quest_offers import ask_events, lead_events
@@ -50,6 +52,7 @@ def settle_after(
     else:
         return out  # still moving: the people part waits for the next batch
     out += apply_all(left_behind_events(state))
+    out += apply_all(favour_lapse_events(state))
     out += apply_all(ask_events(state, [*batch, *out]))
     out += apply_all(lead_events(state))
     return out

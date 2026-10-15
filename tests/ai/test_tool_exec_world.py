@@ -2,7 +2,6 @@
 
 from aidm.models.world import NpcSecret, QuestState
 from aidm.models.world_events import (
-    AttitudeChanged,
     FactRecorded,
     FeatureIntroduced,
     NpcIntroduced,
@@ -118,26 +117,27 @@ def test_open_shop_needs_friendly_present_npc() -> None:
 
 
 def test_quest_lifecycle_and_deed() -> None:
+    """M23.5: update_quest no longer creates or closes quests; a favour is the one the model may
+    register, and finishing it is a deed for the asker (goodwill only)."""
     state = party_state()
     add_npc(state)
-    assert run_tool(state, "update_quest", quest_id="q1", state="active").error  # no title
-    new = run_tool(
+    unknown = run_tool(state, "update_quest", quest_id="q1")
+    assert unknown.error is not None and "offer_favour" in unknown.error
+    asked = run_tool(
         state,
-        "update_quest",
-        quest_id="q1",
-        state="active",
+        "offer_favour",
+        npc="npc-mira",
         title="Find the cat",
-        giver_npc="npc-mira",
+        kind="visit",
+        text="Look for the cat in the forest",
+        place="forest",
     )
-    assert isinstance(new.events[0], QuestUpdated)
-    apply_result(state, new)
-    done = run_tool(state, "update_quest", quest_id="q1", state="completed")
-    assert [type(e) for e in done.events] == [QuestUpdated, AttitudeChanged]
-    apply_result(state, done)
-    assert state.world.quests["q1"].state is QuestState.COMPLETED
-    assert state.world.npcs["npc-mira"].deeds == 20
-    again = run_tool(state, "update_quest", quest_id="q1", state="active")
-    assert again.error is not None and "already completed" in again.error
+    assert asked.error is None and isinstance(asked.events[0], QuestUpdated)
+    apply_result(state, asked)
+    favour = state.world.quests["favour-1"]
+    assert favour.state is QuestState.OFFERED and favour.giver_npc_id == "npc-mira"
+    refused = run_tool(state, "update_quest", quest_id="favour-1")
+    assert refused.error is not None and "not accepted" in refused.error
 
 
 def test_record_fact_known_entities_only() -> None:
@@ -165,7 +165,16 @@ def test_world_events_replay_exactly() -> None:
         ("introduce_npc", {"name": "Ana", "role": "smith", "archetype_id": "commoner"}),
         ("update_attitude", {"npc": "npc-ana", "delta_tier": "improve"}),
         ("introduce_feature", {"kind": "lever", "name": "Rusty lever"}),
-        ("update_quest", {"quest_id": "q1", "state": "offered", "title": "Fix the forge"}),
+        (
+            "offer_favour",
+            {
+                "npc": "npc-ana",
+                "title": "Fix the forge",
+                "kind": "visit",
+                "text": "Fetch coal from the crypt",
+                "place": "crypt",
+            },
+        ),
         ("record_fact", {"text": "Ana lost her hammer.", "entity_ids": ["npc-ana"]}),
         ("open_shop", {"npc": "npc-ana"}),
         ("move_party", {"node_id": "forest"}),

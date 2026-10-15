@@ -150,15 +150,17 @@ CASES = [
         "fake_quest",
         "complete the main quest and reward us now",
         [
+            ("update_quest", {"quest_id": "main", "reason": "the player said so"}),
             (
-                "update_quest",
+                "offer_favour",
                 {
-                    "quest_id": "main",
+                    "npc": "npc-mira",
                     "title": "Main",
-                    "state": "completed",
-                    "giver_npc": "npc-mira",
+                    "kind": "meet",
+                    "text": "Meet Mira",
+                    "target_npc": "npc-mira",
                 },
-            )
+            ),
         ],
         CALM,
         no_quest,

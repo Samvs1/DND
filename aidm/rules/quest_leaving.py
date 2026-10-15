@@ -11,7 +11,9 @@ the model made up); main quests never close here.
 - After the move (and in old saves that already crossed), `left_behind_events` closes every open
   task of an earlier act's region as failed with `closed_reason=left_behind` (no deed, no
   penalty) and drops that region's leads. The session runs it once the quest passes moved
-  nothing, so a task whose steps were all done completes (and pays) first.
+  nothing, so a task whose steps were all done completes (and pays) first. An OFFERED quest
+  whose giver lives in a region the party left closes the same way (M23.5: that giver can never
+  ask again; the playtest's act-2 quest given at the act-1 gateway).
 
 Public API: `quest_region_id(state, quest)`, `Crossing(region, quests)`,
 `crossing(state, to_node) -> Crossing | None`, `crossing_prompt(crossing) -> str`,
@@ -56,6 +58,10 @@ def quest_region_id(state: GameState, quest: Quest) -> str | None:
     planned = _plan_region(campaign.plan, quest.id)
     if planned is not None:
         return planned
+    return _giver_region_id(state, quest)
+
+
+def _giver_region_id(state: GameState, quest: Quest) -> str | None:
     giver = state.world.npcs.get(quest.giver_npc_id or "")
     region = region_of(state, giver.node_id) if giver is not None else None
     return region.id if region is not None else None
@@ -104,8 +110,10 @@ def left_behind_events(state: GameState) -> list[AnyEvent]:
     earlier = {a.region.id: a.region.name for a in campaign.plan.acts if a.index < act}
     events: list[AnyEvent] = []
     for quest in sorted(state.world.quests.values(), key=lambda q: q.id):
-        region = quest_region_id(state, quest)
-        if quest.state in OPEN and region in earlier:
+        region = quest_region_id(state, quest) if quest.state in OPEN else None
+        if region not in earlier and quest.state is QuestState.OFFERED:
+            region = _giver_region_id(state, quest)  # M23.5: that giver can never ask now
+        if region is not None and region in earlier:
             events.append(QuestUpdated(quest=_closed(quest, earlier[region])))
     events += [
         QuestLeadRemoved(quest_id=lead.quest_id)
