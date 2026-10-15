@@ -163,7 +163,8 @@ class PublicZone(_View):
     """A battlefield zone for the zone card; `terrain` is the terrain template (art key
     `zone_card.<terrain>`) the zone came from, "" when unknown.
     `difficult` is the base terrain flag; `rough` is the effective one (terrain or a difficult
-    surface) that doubles the cost of entering the zone."""
+    surface) that doubles the cost of entering the zone. `q`, `r` are its axial hex on the battle
+    map (M21: touching hexes are linked zones; `aidm.rules.hex_layout`)."""
 
     id: str
     name: str
@@ -175,6 +176,8 @@ class PublicZone(_View):
     difficult: bool = False
     rough: bool = False
     surfaces: tuple[ZoneSurface, ...] = ()
+    q: int = 0
+    r: int = 0
 
 
 class PublicCombat(_View):

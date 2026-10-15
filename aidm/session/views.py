@@ -47,6 +47,7 @@ from aidm.models.protocol_views import (
 from aidm.models.state import Creature, GameState
 from aidm.models.world import QuestState
 from aidm.models.zones import Zone
+from aidm.rules.hex_layout import Hex, hex_layout
 from aidm.rules.scene import current_scene, node_display_name
 from aidm.rules.scribe import scribe_view
 from aidm.rules.shop import StockEntry
@@ -187,7 +188,7 @@ def _terrain_of(zone_id: str) -> str:
     )
 
 
-def _public_zone(zone: Zone) -> PublicZone:
+def _public_zone(zone: Zone, cell: Hex) -> PublicZone:
     return PublicZone(
         id=zone.id,
         name=zone.name,
@@ -199,6 +200,8 @@ def _public_zone(zone: Zone) -> PublicZone:
         difficult=zone.difficult,
         rough=zone_is_difficult(zone),
         surfaces=tuple(zone.surfaces),
+        q=cell[0],
+        r=cell[1],
     )
 
 
@@ -224,12 +227,13 @@ def public_combat(state: GameState) -> PublicCombat | None:
             )
         )
     active = enc.active_id()
+    layout = hex_layout(enc.zone_map)
     shown = 0 <= enc.active_index < len(enc.initiative)
     last = enc.initiative[enc.active_index].creature_id if shown else None
     return PublicCombat(
         encounter_id=enc.id,
         round=enc.round,
-        zones=tuple(_public_zone(z) for z in enc.zone_map.zones),
+        zones=tuple(_public_zone(z, layout[z.id]) for z in enc.zone_map.zones),
         edges=tuple(enc.zone_map.edges),
         tokens=tuple(tokens),
         initiative=tuple(e.creature_id for e in enc.initiative),

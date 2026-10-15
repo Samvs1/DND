@@ -5047,7 +5047,7 @@
         },
         "PublicZone": {
           "additionalProperties": false,
-          "description": "A battlefield zone for the zone card; `terrain` is the terrain template (art key\n`zone_card.<terrain>`) the zone came from, \"\" when unknown.\n`difficult` is the base terrain flag; `rough` is the effective one (terrain or a difficult\nsurface) that doubles the cost of entering the zone.",
+          "description": "A battlefield zone for the zone card; `terrain` is the terrain template (art key\n`zone_card.<terrain>`) the zone came from, \"\" when unknown.\n`difficult` is the base terrain flag; `rough` is the effective one (terrain or a difficult\nsurface) that doubles the cost of entering the zone. `q`, `r` are its axial hex on the battle\nmap (M21: touching hexes are linked zones; `aidm.rules.hex_layout`).",
           "properties": {
             "cover": {
               "$ref": "#/$defs/CoverLevel",
@@ -5075,6 +5075,16 @@
             "name": {
               "title": "Name",
               "type": "string"
+            },
+            "q": {
+              "default": 0,
+              "title": "Q",
+              "type": "integer"
+            },
+            "r": {
+              "default": 0,
+              "title": "R",
+              "type": "integer"
             },
             "rough": {
               "default": false,

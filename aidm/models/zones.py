@@ -14,13 +14,17 @@ Public API:
   until removed; `source_id` the creature that made it (None for the environment); `dc` the save
   DC it imposes (None = the data default); `upcast` slot levels above the creating spell's level;
   `concentration` True when it ends with its source's concentration.
-- `Zone(id, name, tags, distance_label, cover, high_ground, difficult, surfaces)`: `id` is the
+- `HexCoord(q, r)`: an axial hex position on the battle map (M21: generated maps place every
+  zone on a hex, and two zones are linked exactly when their hexes touch).
+- `Zone(id, name, tags, distance_label, cover, high_ground, difficult, surfaces, hex)`: `id` is the
   stable key tools and the UI use ("ridge"); `name` is the display name ("Mossy Ridge");
   `distance_label` is flavour for the zone card ("about 30 ft across"); `difficult` doubles the
-  feet it costs to ENTER the zone.
+  feet it costs to ENTER the zone; `hex` is its map position (None in saves from before M21:
+  `aidm.rules.hex_layout` then fits one).
 - `ZoneEdge(a, b, feet)`: an undirected adjacency; `feet` is the movement cost of one hop.
 - `ZoneMap(zones, edges)`: validated on construction: 1-6 zones, unique ids, edges between known
-  distinct zones, no duplicate edge, and the graph is connected (every zone is reachable).
+  distinct zones, no duplicate edge, the graph is connected (every zone is reachable), and no two
+  zones share a hex.
   `zone(zone_id)` / `has_zone(zone_id)` are lookups only.
 - Rule results (frozen): `ZonePath(zones, feet)`, `RangeBand(normal_hops, max_hops)`,
   `RangeCheck(hops, in_range, long_range)`.
@@ -52,6 +56,13 @@ class ZoneSurface(BaseModel):
     concentration: bool = False
 
 
+class HexCoord(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    q: int
+    r: int
+
+
 class Zone(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -63,6 +74,7 @@ class Zone(BaseModel):
     high_ground: bool = False
     difficult: bool = False
     surfaces: list[ZoneSurface] = Field(default_factory=list[ZoneSurface])
+    hex: HexCoord | None = None
 
 
 class ZoneEdge(BaseModel):
@@ -112,6 +124,9 @@ class ZoneMap(BaseModel):
                         frontier.append(other)
         if len(reached) != len(ids):
             raise ValueError(f"zone graph is not connected: {sorted(set(ids) - reached)}")
+        placed = [z.hex for z in self.zones if z.hex is not None]
+        if len(set(placed)) != len(placed):
+            raise ValueError("two zones share a hex")
         return self
 
     def has_zone(self, zone_id: str) -> bool:

@@ -7,8 +7,12 @@
    Edges cost the FIRST known terrain's `hop_feet`.
 3. 3 to 6 zones (never more than the candidates) are drawn with a seeded shuffle; each gets one
    of its template names.
-4. A random spanning tree (zone i links to one of zones 0..i-1) guarantees a connected graph;
-   every other pair is then linked with probability 1/4 for loops.
+4. M21 (owner: "hexagonal grids that fit into each other so it's clear which zone is next to
+   which one"): the zones are placed on hexes as a seeded connected cluster (`_cluster`): the
+   first at (0, 0), each next one on a free hex beside the cluster, drawn with weight = the number
+   of placed hexes it touches (compact shapes), within `MAX_HEX_ROWS` rows so it fits the screen.
+   EVERY pair of touching hexes is linked and nothing else, so the map on the screen is exactly
+   the movement graph (`aidm.rules.hex_layout`).
 Same rng seed + same tags + same templates -> the same map (only `rng.randint` is used).
 The terrain registry is an argument (`aidm.data.zone_templates.zone_templates()` by default in
 the callers); rules never load data.
@@ -18,12 +22,13 @@ from collections.abc import Sequence
 
 from aidm.data.registry import Registry
 from aidm.data.zone_templates import FALLBACK_TERRAIN, TerrainTemplate, ZoneTemplate
-from aidm.models.zones import CoverLevel, Zone, ZoneEdge, ZoneMap
+from aidm.models.zones import CoverLevel, HexCoord, Zone, ZoneEdge, ZoneMap
 from aidm.rules.dice import Rng
+from aidm.rules.hex_layout import Hex, hex_neighbours, touching
 
 MIN_GENERATED_ZONES = 3
 MAX_GENERATED_ZONES = 6
-EXTRA_EDGE_ODDS = 4  # each non-tree pair is linked when randint(1, 4) == 1
+MAX_HEX_ROWS = 3
 
 
 def _terrains(tags: Sequence[str], terrains: Registry[TerrainTemplate]) -> list[TerrainTemplate]:
@@ -48,7 +53,7 @@ def _shuffled[T](rng: Rng, items: list[T]) -> list[T]:
     return out
 
 
-def _zone(rng: Rng, template: ZoneTemplate) -> Zone:
+def _zone(rng: Rng, template: ZoneTemplate, cell: Hex) -> Zone:
     return Zone(
         id=template.key,
         name=template.names[rng.randint(0, len(template.names) - 1)],
@@ -57,21 +62,37 @@ def _zone(rng: Rng, template: ZoneTemplate) -> Zone:
         cover=CoverLevel(template.cover),
         high_ground=template.high_ground,
         difficult=template.difficult,
+        hex=HexCoord(q=cell[0], r=cell[1]),
     )
 
 
-def _edges(rng: Rng, ids: list[str], feet: int) -> list[ZoneEdge]:
-    linked: set[frozenset[str]] = set()
+def _frontier(cells: list[Hex]) -> list[Hex]:
+    """Free hexes beside the cluster that keep it within MAX_HEX_ROWS rows, each listed once per
+    placed hex it touches (the weight), in a fixed order."""
+    rows = [r for _, r in cells]
+    out: list[Hex] = []
+    for cell in cells:
+        for near in hex_neighbours(cell):
+            span = max(*rows, near[1]) - min(*rows, near[1]) + 1
+            if near not in cells and span <= MAX_HEX_ROWS:
+                out.append(near)
+    return sorted(out)
+
+
+def _cluster(rng: Rng, count: int) -> list[Hex]:
+    cells: list[Hex] = [(0, 0)]
+    while len(cells) < count:
+        options = _frontier(cells)
+        cells.append(options[rng.randint(0, len(options) - 1)])
+    return cells
+
+
+def _edges(ids: list[str], cells: list[Hex], feet: int) -> list[ZoneEdge]:
     edges: list[ZoneEdge] = []
-    for i in range(1, len(ids)):
-        j = rng.randint(0, i - 1)
-        linked.add(frozenset((ids[j], ids[i])))
-        edges.append(ZoneEdge(a=ids[j], b=ids[i], feet=feet))
-    for i in range(len(ids)):
+    for i, a in enumerate(ids):
         for j in range(i + 1, len(ids)):
-            pair = frozenset((ids[i], ids[j]))
-            if pair not in linked and rng.randint(1, EXTRA_EDGE_ODDS) == 1:
-                edges.append(ZoneEdge(a=ids[i], b=ids[j], feet=feet))
+            if touching(cells[i], cells[j]):
+                edges.append(ZoneEdge(a=a, b=ids[j], feet=feet))
     return edges
 
 
@@ -83,6 +104,7 @@ def generate_zone_map(
     top = min(MAX_GENERATED_ZONES, len(pool))
     count = rng.randint(min(MIN_GENERATED_ZONES, top), top)
     picked = _shuffled(rng, pool)[:count]
-    zones = [_zone(rng, t) for t in picked]
-    edges = _edges(rng, [z.id for z in zones], chosen[0].hop_feet)
+    cells = _cluster(rng, len(picked))
+    zones = [_zone(rng, t, cell) for t, cell in zip(picked, cells, strict=True)]
+    edges = _edges([z.id for z in zones], cells, chosen[0].hop_feet)
     return ZoneMap(zones=zones, edges=edges)

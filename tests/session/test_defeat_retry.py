@@ -76,7 +76,9 @@ async def test_retried_fight_resumes_with_new_dice_and_can_differ(tmp_path: Path
     state = party_of("fighter", hp={"fighter": 1})
     async with running(disabled_llm(tmp_path), state, store=store) as (table, _):
         sam = await join(table, "Sam", "fighter")
-        await start_fight(table, "wolf")
+        # The wolf is surprised, so the fighter's turn always comes first on every retry (the
+        # dice decide the rest; M21 changed how many rolls a fight's map uses).
+        await start_fight(table, "wolf", surprise="hostile")
         marker = table.checkpoints.checkpoints[-1].seq
         await end_turns_until_over(table, [sam])
         assert table.phase is TablePhase.DEFEATED
