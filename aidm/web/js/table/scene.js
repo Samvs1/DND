@@ -1,13 +1,13 @@
-// Scene header: region banner art, campaign title, location name and the active objective.
+// Scene header: region banner art, campaign title, location name and the active main quest's objective.
 import { assetUrl } from '../assets.js';
 import { t } from '../strings.js';
 import { h } from '../ui/dom.js';
 import { clamp } from '../ui/format.js';
 import { publicState } from './lookup.js';
 
-function objective(view) {
-  const active = view.quests.find((q) => q.state === 'active') ?? view.quests.find((q) => q.state === 'offered');
-  return active ? active.title : '';
+/** The objective of the ACTIVE main quest (M23.7): never a side quest title; "" when there is none. */
+export function mainObjective(view) {
+  return view?.quests?.find((q) => q.kind === 'main' && q.state === 'active')?.objective ?? '';
 }
 
 export function mountScene(root, store) {
@@ -25,7 +25,7 @@ export function mountScene(root, store) {
     banner.src = assetUrl(`region_banner.tier${tier}`);
     title.textContent = view.campaign_title;
     place.textContent = view.scene ? view.scene.name : '';
-    const text = objective(view);
+    const text = mainObjective(view);
     goal.textContent = text ? t('table.objective', { text }) : '';
     goal.hidden = !text;
     paused.hidden = !view.paused;

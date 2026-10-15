@@ -138,6 +138,7 @@ def _inventory(pc: PcData, regs: CharacterRegistries) -> list[InventoryLine]:
 def _keepsakes(pc: PcData, quest_titles: Mapping[str, str]) -> list[KeepsakeLine]:
     return [
         KeepsakeLine(
+            id=k.id,
             name=k.name,
             description=k.description,
             quest_title=quest_titles.get(k.quest_id, "a task") if k.quest_id else None,

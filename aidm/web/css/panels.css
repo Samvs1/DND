@@ -124,6 +124,86 @@
   margin: 0.2rem 0 0;
 }
 
+.jr-main {
+  padding: 0.6rem 0.8rem;
+  margin-bottom: 0.4rem;
+  background: var(--stone-2);
+  border: 2px solid var(--gold);
+  border-radius: var(--radius);
+}
+
+.jr-main-label {
+  margin: 0;
+  color: var(--gold);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.jr-main-title {
+  margin: 0.1rem 0 0.2rem;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 400;
+}
+
+.jr-routes {
+  margin-top: 0.4rem;
+}
+
+.jr-route {
+  padding: 0.3rem 0.5rem;
+  background: var(--stone-1);
+  border-left: 4px solid var(--gold-dim);
+}
+
+.jr-route.done {
+  border-left-color: var(--moss-text);
+}
+
+.jr-route-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: baseline;
+}
+
+.jr-steps {
+  margin: 0.2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.jr-step::before {
+  content: "\2713 ";
+  color: var(--moss-text);
+}
+
+.jr-log {
+  margin-top: 0.3rem;
+  font-size: 0.85rem;
+}
+
+.jr-log ul {
+  margin: 0;
+  padding-left: 1rem;
+}
+
+.jr-left {
+  margin-top: 0.6rem;
+  opacity: 0.75;
+}
+
+.jr-left summary {
+  cursor: pointer;
+}
+
+.jr-lead {
+  padding: 0.3rem 0.5rem;
+  border-left: 4px solid var(--gold-dim);
+  background: var(--stone-1);
+}
+
 .jr-plain li {
   padding: 0.3rem 0.5rem;
   border-bottom: 1px solid var(--stone-3);

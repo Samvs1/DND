@@ -6,6 +6,7 @@ from aidm.models.protocol_views import TablePhase
 from aidm.models.state import GameState
 from aidm.models.world import Quest, QuestState
 from aidm.models.world_events import QuestUpdated
+from aidm.rules.quest_plan import main_world_quest
 from aidm.rules.shop import StockEntry
 from aidm.session.reducer import apply
 from aidm.session.views import (
@@ -24,14 +25,11 @@ def _quest(state: GameState, quest_id: str) -> Quest:
     return state.world.quests[quest_id]
 
 
-def test_offered_quest_hides_giver_and_objective_until_taken() -> None:
+def test_offered_quest_shows_giver_and_objective_the_giver_asked_in_person() -> None:
     _start, state, _log = campaign_state()
     offered = {q.id: q for q in public_quests(state)}["missing-ledger"]
-    assert offered.state == "offered" and offered.objective == ""
-    assert offered.giver == "Tobin Marrow"  # the giver stands in the arrival place
-    state.world.current_node = "rotting-boathouse"
-    away = {q.id: q for q in public_quests(state)}["missing-ledger"]
-    assert away.giver == ""
+    assert offered.state == "offered" and "ledger" in offered.objective.lower()
+    assert offered.giver == "Tobin Marrow"
     state.world.current_node = "gullmere-quay-docks"
     quest = _quest(state, "missing-ledger").model_copy(update={"state": QuestState.ACTIVE})
     apply(state, QuestUpdated(quest=quest))
@@ -92,3 +90,19 @@ def test_stock_lines_carry_category_and_camp_supplies() -> None:
     )
     assert (lines[0].category, lines[0].supply) == ("supply", 5)
     assert (lines[1].category, lines[1].supply) == ("weapon", 0)
+
+
+def test_public_quests_send_done_steps_only_and_no_unmet_boss_name() -> None:
+    _start, state, _log = campaign_state()
+    plan = state.campaign.plan if state.campaign else None
+    assert plan is not None
+    apply(state, QuestUpdated(quest=main_world_quest(plan, 1)))
+    main = next(q for q in public_quests(state) if q.kind == "main")
+    assert main.steps_done == () and main.routes
+    blob = " ".join(
+        [r.title for r in main.routes] + [s for r in main.routes for s in r.steps_done]
+    ).lower()
+    boss_names = [n.name.lower() for n in state.world.npcs.values() if n.role == "boss"]
+    assert all(name not in blob for name in boss_names)
+    for route in main.routes:
+        assert route.steps_done == ()

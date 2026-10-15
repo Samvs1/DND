@@ -22,7 +22,7 @@ export function mountQuestOffer(root, { store, client }) {
     box.append(
       h('h3', { 'data-testid': 'quest-offer-title' }, t('table.questOfferTitle', { giver: offer.giver, title: offer.title })),
       offer.objective ? h('p', { class: 'dialog-text', 'data-testid': 'quest-offer-objective' }, offer.objective) : null,
-      h('p', { class: 'hint' }, t('table.questOfferHint')),
+      h('p', { class: 'hint quest-hint' }, t('table.questOfferHint')),
       h(
         'div',
         { class: 'dialog-actions' },

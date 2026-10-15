@@ -11,6 +11,7 @@ import { mountScribeTab } from '../controller/scribe.js';
 import { mountVictoryPanel } from '../controller/victory.js';
 import { mountStrip } from '../controller/strip.js';
 import { mountTabs } from '../controller/tabs.js';
+import { mountQuestToast } from '../controller/quest_toast.js';
 import { mountToast } from '../controller/toast.js';
 import { mountHostGate } from '../host/gate.js';
 import { mountManualPanel } from '../manual/panel.js';
@@ -57,6 +58,7 @@ export function mountController(root, ctx) {
     mountVote(sheetSlot, ctx),
     mountQuestOffer(sheetSlot, ctx),
     mountToast(toastSlot, ctx),
+    mountQuestToast(toastSlot, ctx),
     mountConfirm(dialogs, ctx),
     mountOffer(dialogs, ctx),
     mountShop(dialogs, ctx),

@@ -3809,6 +3809,11 @@
               "title": "Description",
               "type": "string"
             },
+            "id": {
+              "default": "",
+              "title": "Id",
+              "type": "string"
+            },
             "name": {
               "title": "Name",
               "type": "string"
@@ -4735,8 +4740,13 @@
         },
         "PublicQuest": {
           "additionalProperties": false,
-          "description": "A quest line; `giver` and `objective` are empty until the quest was taken on (or, for the\ngiver, until the giver stands in the party's place).",
+          "description": "A quest line (M23.7). Only the texts of DONE steps are sent, never the next one (that is\nthe answer to \"What now?\"). `closed_reason` is \"\", \"left_behind\" or \"withdrawn\"; `routes` are\nthe known routes of a main quest.",
           "properties": {
+            "closed_reason": {
+              "default": "",
+              "title": "Closed Reason",
+              "type": "string"
+            },
             "giver": {
               "default": "",
               "title": "Giver",
@@ -4746,14 +4756,43 @@
               "title": "Id",
               "type": "string"
             },
+            "kind": {
+              "default": "side",
+              "title": "Kind",
+              "type": "string"
+            },
+            "log": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Log",
+              "type": "array"
+            },
             "objective": {
               "default": "",
               "title": "Objective",
               "type": "string"
             },
+            "routes": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/PublicRoute"
+              },
+              "title": "Routes",
+              "type": "array"
+            },
             "state": {
               "title": "State",
               "type": "string"
+            },
+            "steps_done": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Steps Done",
+              "type": "array"
             },
             "title": {
               "title": "Title",
@@ -4795,6 +4834,44 @@
             "title"
           ],
           "title": "PublicQuestOffer",
+          "type": "object"
+        },
+        "PublicRoute": {
+          "additionalProperties": false,
+          "description": "A known way through a main quest (M23.7): only the steps already done are named.",
+          "properties": {
+            "done": {
+              "default": false,
+              "title": "Done",
+              "type": "boolean"
+            },
+            "id": {
+              "title": "Id",
+              "type": "string"
+            },
+            "kind": {
+              "default": "",
+              "title": "Kind",
+              "type": "string"
+            },
+            "steps_done": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Steps Done",
+              "type": "array"
+            },
+            "title": {
+              "title": "Title",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "title"
+          ],
+          "title": "PublicRoute",
           "type": "object"
         },
         "PublicScene": {
@@ -4969,6 +5046,14 @@
                 "seconds_left": null,
                 "typing": []
               }
+            },
+            "leads": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Leads",
+              "type": "array"
             },
             "map": {
               "anyOf": [

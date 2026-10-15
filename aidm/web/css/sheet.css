@@ -426,3 +426,20 @@
     min-width: 6rem;
   }
 }
+
+.inv-give {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.inv-give-list {
+  display: grid;
+  flex-basis: 100%;
+  gap: 0.3rem;
+  margin: 0.3rem 0 0;
+  padding: 0;
+  list-style: none;
+}

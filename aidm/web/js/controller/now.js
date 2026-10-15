@@ -1,9 +1,10 @@
 // The Now card at the top of the Play tab (M18.2): one big line about what is going on for ME, with the place and
-// the first active quest objective under it. Never the story text: that is told on the shared screen.
+// the active main quest's objective under it. Never the story text: that is told on the shared screen.
 // M20.2: outside a fight, a standing hero gets one "Help <name> up" button per downed ally (1 HP, `help_up`), and a
 // downed hero's own line says what can raise them.
 import { combatOf, isLive, myCreatureId, tokenById } from '../combat/model.js';
 import { myHero, playerName, publicState } from '../table/lookup.js';
+import { mainObjective } from '../table/scene.js';
 import { t } from '../strings.js';
 import { h } from '../ui/dom.js';
 import { everySecond } from '../ui/countdown.js';
@@ -92,7 +93,7 @@ export function mountNow(root, { store, story, client }) {
     const fighting = Boolean(combatOf(state));
     place.textContent = fighting ? fightLine(state) : view?.scene?.name ?? '';
     place.hidden = !place.textContent;
-    const objective = view?.quests?.find((q) => q.state === 'active')?.objective ?? '';
+    const objective = mainObjective(view);
     goal.textContent = objective;
     goal.hidden = fighting || !objective;
     renderHelp(help, state, client);

@@ -35,7 +35,6 @@ from aidm.models.protocol_views import (
     PublicFeature,
     PublicMap,
     PublicOffer,
-    PublicQuest,
     PublicQuestOffer,
     PublicScene,
     PublicState,
@@ -47,7 +46,6 @@ from aidm.models.protocol_views import (
     VoteView,
 )
 from aidm.models.state import Creature, GameState
-from aidm.models.world import QuestState
 from aidm.models.zones import Zone
 from aidm.rules.hex_layout import Hex, hex_layout
 from aidm.rules.scene import current_scene, node_display_name
@@ -56,6 +54,7 @@ from aidm.rules.shop import StockEntry
 from aidm.rules.social import public_npc_view
 from aidm.rules.zones import zone_is_difficult
 from aidm.session.public_feed import leaks, private_texts
+from aidm.session.views_quests import public_leads, public_quests
 
 MAX_PUBLIC_FACTS = 12
 MAX_PUBLIC_SUMMARIES = 8
@@ -143,31 +142,6 @@ def public_map(state: GameState) -> PublicMap | None:
         {tuple(sorted((a, b))) for a in seen for b in world.neighbours.get(a, ()) if b in shown}
     )
     return PublicMap(nodes=nodes, edges=tuple((a, b) for a, b in edges))
-
-
-def public_quests(state: GameState) -> tuple[PublicQuest, ...]:
-    """Quest lines. Giver and objective are shown once the quest was taken on; an offered quest
-    shows its giver only while the giver is in the party's place. Text naming private things is
-    left out."""
-    private = private_texts(state)
-    plan = {q.id: q.objective for q in state.campaign.plan.quests} if state.campaign else {}
-    out: list[PublicQuest] = []
-    for q in sorted(state.world.quests.values(), key=lambda q: q.id):
-        npc = state.world.npcs.get(q.giver_npc_id or "")
-        taken = q.state is not QuestState.OFFERED
-        here = npc is not None and npc.node_id == state.world.current_node
-        giver = npc.name if npc is not None and (taken or here) else ""
-        goal = plan.get(q.id, "") if taken else ""
-        out.append(
-            PublicQuest(
-                id=q.id,
-                title=q.title,
-                state=q.state.value,
-                giver=giver,
-                objective="" if leaks(goal, private) else goal,
-            )
-        )
-    return tuple(out)
 
 
 def public_facts(state: GameState) -> tuple[str, ...]:
@@ -337,6 +311,7 @@ def public_state(
         scene=public_scene(state),
         map=public_map(state),
         quests=public_quests(state),
+        leads=public_leads(state),
         facts=public_facts(state),
         summaries=public_summaries(state),
         combat=public_combat(state),

@@ -39,7 +39,7 @@ function line(item, opts) {
   );
 }
 
-export function renderInventory(s, { client, camp, locked, party = [] }) {
+export function renderInventory(s, { client, camp, locked, party = [], npcs = [] }) {
   const others = party.filter((p) => p.id !== s.id);
   const opts = { client, locked, party: [{ id: s.id, name: s.name }, ...others], me: s.id };
   const weight = round(s.inventory.reduce((n, i) => n + i.weight * i.qty, 0));
@@ -49,12 +49,33 @@ export function renderInventory(s, { client, camp, locked, party = [] }) {
     locked ? h('p', { class: 'hint' }, t('sheet.gearLocked')) : null,
     s.inventory.length ? h('ul', { class: 'inv-list', 'data-testid': 'inv-list' }, ...s.inventory.map((i) => line(i, opts))) : h('p', { class: 'hint' }, t('sheet.invEmpty')),
     s.inventory.some((i) => i.category === 'potion') ? h('p', { class: 'hint' }, t('sheet.potionHint')) : null,
-    ...keepsakes(s.keepsakes ?? []),
+    ...keepsakes(s.keepsakes ?? [], { client, locked, npcs }),
   ];
 }
 
-function keepsakes(list) {
+/** Give one keepsake to a person here (M23.7): a generic Give, so the button never hints at what a quest needs. */
+function giveControl(k, { client, locked, npcs }) {
+  const reason = locked ? t('sheet.giveFight') : !npcs.length ? t('sheet.giveNobody') : '';
+  const list = h('ul', { class: 'inv-give-list', hidden: true, 'data-testid': 'give-list', 'aria-label': t('sheet.giveWho', { item: k.name }) });
+  for (const npc of npcs) {
+    const go = () => client.send('give', { npc_id: npc.id, item_id: k.id });
+    list.append(h('li', {}, h('button', { type: 'button', class: 'btn btn-small', 'data-testid': 'give-to', 'data-npc': npc.id, onclick: go }, t('sheet.giveTo', { item: k.name, name: npc.name }))));
+  }
+  const open = h('button', { type: 'button', class: 'btn btn-small', disabled: Boolean(reason), title: reason, 'aria-label': t('sheet.giveWho', { item: k.name }), 'data-testid': 'give-keepsake', onclick: () => (list.hidden = !list.hidden) }, t('sheet.give'));
+  return h('div', { class: 'inv-give' }, open, reason ? h('span', { class: 'hint', 'data-testid': 'give-reason' }, reason) : null, list);
+}
+
+function keepsakeLine(k, opts) {
+  const note = k.quest_title ? t('sheet.questItem', { title: k.quest_title }) : t('sheet.keepsakeOnly');
+  return h(
+    'li',
+    { class: `inv-line keepsake${k.quest_title ? ' quest-item' : ''}`, 'data-testid': 'keepsake', 'data-keepsake': k.id },
+    h('div', { class: 'inv-main' }, h('strong', {}, k.name), h('div', { class: 'hint', 'data-testid': 'keepsake-note' }, note), k.description ? h('div', { class: 'hint inv-meta' }, k.description) : null),
+    giveControl(k, opts),
+  );
+}
+
+function keepsakes(list, opts) {
   if (!list.length) return [];
-  const rows = list.map((k) => h('li', { class: 'inv-line keepsake', 'data-testid': 'keepsake' }, h('div', { class: 'inv-main' }, h('strong', {}, k.name), k.description ? h('div', { class: 'hint inv-meta' }, k.description) : null)));
-  return [h('h3', {}, t('sheet.keepsakes')), h('p', { class: 'hint' }, t('sheet.keepsakesHint')), h('ul', { class: 'inv-list', 'data-testid': 'keepsake-list' }, ...rows)];
+  return [h('h3', {}, t('sheet.keepsakes')), h('p', { class: 'hint' }, t('sheet.keepsakesHint')), h('ul', { class: 'inv-list', 'data-testid': 'keepsake-list' }, ...list.map((k) => keepsakeLine(k, opts)))];
 }

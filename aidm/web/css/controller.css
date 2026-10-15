@@ -481,8 +481,12 @@ body.is-controller #app {
 
 .ct-now-goal {
   margin: 0;
+  display: -webkit-box;
+  overflow: hidden;
   color: var(--parchment-dim);
   font-size: 0.9rem;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .ct-now-goal::before {
@@ -618,4 +622,11 @@ body.is-controller #app {
 .ct-t-need {
   color: var(--muted);
   font-size: 0.8rem;
+}
+
+/* Short phones: the Not now explanation folds away so the action box stays on screen (the manual says it). */
+@media (max-height: 760px) {
+  .quest-card .quest-hint {
+    display: none;
+  }
 }

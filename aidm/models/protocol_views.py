@@ -122,15 +122,31 @@ class PublicMap(_View):
     edges: tuple[tuple[str, str], ...] = ()
 
 
+class PublicRoute(_View):
+    """A known way through a main quest (M23.7): only the steps already done are named."""
+
+    id: str
+    title: str
+    kind: str = ""
+    steps_done: tuple[str, ...] = ()
+    done: bool = False
+
+
 class PublicQuest(_View):
-    """A quest line; `giver` and `objective` are empty until the quest was taken on (or, for the
-    giver, until the giver stands in the party's place)."""
+    """A quest line (M23.7). Only the texts of DONE steps are sent, never the next one (that is
+    the answer to "What now?"). `closed_reason` is "", "left_behind" or "withdrawn"; `routes` are
+    the known routes of a main quest."""
 
     id: str
     title: str
     state: str
+    kind: str = "side"
     giver: str = ""
     objective: str = ""
+    steps_done: tuple[str, ...] = ()
+    routes: tuple[PublicRoute, ...] = ()
+    log: tuple[str, ...] = ()
+    closed_reason: str = ""
 
 
 class PublicSummary(_View):
@@ -263,6 +279,7 @@ class PublicState(_View):
     scene: PublicScene | None = None
     map: PublicMap | None = None
     quests: tuple[PublicQuest, ...] = ()
+    leads: tuple[str, ...] = ()
     facts: tuple[str, ...] = ()
     summaries: tuple[PublicSummary, ...] = ()
     combat: PublicCombat | None = None
