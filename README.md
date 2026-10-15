@@ -78,7 +78,7 @@ button on the phone's More tab, or the page `/manual`. Its reference tables are 
 (`python scripts/gen_manual.py`, checked by the gate).
 
 The game always uses two kinds of surface. **`/screen`** is the shared display on a TV or laptop: scene art,
-the story, the party, the battle board, big dice, who is acting and who is waiting, votes, and the narrator
+the story, the party, the hex battle map, big dice, who is acting and who is waiting, votes, and the narrator
 voice and music. Each player's **phone** is their controller (`/` or `/play`). There is no combined
 single-device view: to play solo, open `/screen` in one window and `/play` in another (or on a second device).
 
@@ -106,7 +106,7 @@ single-device view: to play solo, open `/screen` in one window and `/play` in an
    game itself ("Slendee gains True Strike.") each get their own line, and an NPC's reply shows once as
    `Name: "..."`. A hero who is down outside a fight gets a **Help <name> up** button on every standing ally's
    phone (or type "help her up").
-6. **Combat** (Play tab): the zone board and initiative strip are on the screen. Your phone says the round and how
+6. **Combat** (Play tab): the hex map (touching hexes are neighbouring zones, icons for cover, high ground, rough ground and surfaces) and the initiative strip are on the screen. Your phone says the round and how
    many turns until yours; on your turn it shows the Move list (or type *I move to ...*), "Your turn", target chips (name and health state), and the hotbar with hit chances, spells with slot counts,
    class features, items, move, dash, disengage, hide, flee (after Disengage when a foe shares your zone) and end
    turn. The screen names whose turn it is and holds each monster's turn for a moment; same-named foes get

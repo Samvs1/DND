@@ -30,23 +30,23 @@ PAIRS = """() => {
   })));
   return out;
 }"""
-# Six zones in two rows with every kind of mark; heroes stand in the first, goblins in the third.
+# Six crypt zones in two rows with every kind of mark; heroes in the first, goblins in the third.
 SIX = """() => {
   const c = window.aidm.store.get().snapshot.state.combat;
   const spots = [
-    [0, 0, 'Mossy Ridge', {cover: 'half'}],
-    [1, 0, 'Grassy Hillock', {high_ground: true, rough: true}],
-    [2, 0, 'Burning Hut', {surfaces: [
+    [0, 0, 'sarcophagi', 'Sarcophagus Row', {cover: 'half'}],
+    [1, 0, 'dais', 'Raised Dais', {high_ground: true, rough: true}],
+    [2, 0, 'ossuary', 'Bone-Lined Ossuary', {surfaces: [
       {kind: 'grease', rounds_left: 2},
       {kind: 'fire', rounds_left: 1}
     ]}],
-    [-1, 1, 'Tumbled Stones', {cover: 'three_quarters'}],
-    [0, 1, 'Webbed Hollow', {surfaces: [{kind: 'web', rounds_left: null}]}],
-    [1, 1, 'Dry Gully', {}],
+    [-1, 1, 'collapsed_vault', 'Collapsed Vault', {cover: 'three_quarters'}],
+    [0, 1, 'corridor', 'Burial Corridor', {surfaces: [{kind: 'web', rounds_left: null}]}],
+    [1, 1, 'flooded_cell', 'Flooded Cell', {}],
   ];
   const plain = {cover: 'none', high_ground: false, rough: false, difficult: false, surfaces: []};
-  const zones = spots.map(([q, r, name, extra], i) => ({
-    ...c.zones[0], ...plain, id: `z${i}`, name, q, r, ...extra,
+  const zones = spots.map(([q, r, id, name, extra]) => ({
+    ...c.zones[0], ...plain, id, name, q, r, terrain: 'crypt', ...extra,
     distance_label: 'about 20 ft across',
   }));
   const steps = [[1, 0], [1, -1], [0, -1], [-1, 0], [-1, 1], [0, 1]];
@@ -55,7 +55,8 @@ SIX = """() => {
   zones.forEach((a, i) => zones.slice(i + 1).forEach((b) => {
     if (near(a, b)) edges.push({ a: a.id, b: b.id, feet: 25 });
   }));
-  const tokens = c.tokens.map((tk) => ({ ...tk, zone_id: tk.side === 'party' ? 'z0' : 'z2' }));
+  const zoneOf = (tk) => (tk.side === 'party' ? 'sarcophagi' : 'ossuary');
+  const tokens = c.tokens.map((tk) => ({ ...tk, zone_id: zoneOf(tk) }));
   window.aidm.dispatch({ type: 'combat_state', combat: { ...c, zones, edges, tokens } });
 }"""
 
@@ -99,9 +100,9 @@ def test_six_zones_with_every_mark_fit_and_read(
     screen.evaluate(SIX)
     screen.wait_for_function("document.querySelectorAll('[data-testid=zone]').length === 6")
     _check_map(screen)
-    marks = screen.locator("[data-testid=zone][data-zone=z2] [data-testid=hex-mark]")
+    marks = screen.locator("[data-testid=zone][data-zone=ossuary] [data-testid=hex-mark]")
     assert marks.all_inner_texts() == ["Grease (2)", "Fire (1)"]
-    hill = screen.locator("[data-testid=zone][data-zone=z1] [data-testid=hex-mark]")
+    hill = screen.locator("[data-testid=zone][data-zone=dais] [data-testid=hex-mark]")
     assert hill.all_inner_texts() == ["High ground", "Rough ground"]
     legend = screen.locator("[data-testid=hex-legend] [data-testid=hex-mark]").all_inner_texts()
     assert "Half cover" in legend and "Three-quarters cover" in legend and "Web" in legend
