@@ -9,7 +9,8 @@ from aidm.models.events import AnyEvent
 from aidm.models.state import GameState
 from aidm.models.world import QuestState
 from aidm.models.world_events import AttitudeChanged, PartyMoved
-from aidm.rules.campaign_install import boss_npc_id, install_campaign
+from aidm.rules.campaign_install import install_campaign
+from aidm.rules.plan_ids import boss_npc_id
 from aidm.rules.progression import campaign_complete, region_resolution_events
 from aidm.rules.social import deed_attitude_events
 from aidm.session.reducer import replay

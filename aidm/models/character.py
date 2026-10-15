@@ -8,8 +8,9 @@ replays like any other creature (docs/DECISIONS.md M2.2).
 Public API:
 - `Size`: the SRD size categories (values are the SRD spelling, "Medium").
 - `InventoryItem(item, qty)`: an SRD equipment index and a count.
-- `Keepsake(id, name, description)`: a story object the hero carries (a note, a key, a trinket;
-  M19.3): no gold value, cannot be sold or equipped.
+- `Keepsake(id, name, description, quest_id)`: a story object the hero carries (a note, a key,
+  a trinket; M19.3): no gold value, cannot be sold or equipped. With a `quest_id` it is a quest
+  item placed by the engine (M23); without one it is flavour.
 - `Equipped(armor, shield, main_hand, off_hand, ranged)`: equipment indexes in use (None = empty).
 - `PcData`: race/subrace, `class_index`, `level`, `subclass` (None until the subclass level),
   `background`, `base_abilities` (before racial bonuses), `armor_proficiencies`,
@@ -58,6 +59,7 @@ class Keepsake(BaseModel):
     id: str = Field(min_length=1)
     name: str = Field(min_length=1, max_length=MAX_KEEPSAKE_NAME)
     description: str = Field(default="", max_length=MAX_KEEPSAKE_TEXT)
+    quest_id: str | None = None  # M23: a quest item (engine-placed); None: flavour only
 
 
 class Equipped(BaseModel):

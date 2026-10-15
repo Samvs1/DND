@@ -9,7 +9,8 @@ from aidm.models.events import AnyEvent, event_adapter
 from aidm.models.state import GameState
 from aidm.models.world import QuestState
 from aidm.models.world_events import PartyMoved
-from aidm.rules.campaign_install import boss_npc_id, install_campaign
+from aidm.rules.campaign_install import install_campaign
+from aidm.rules.plan_ids import boss_npc_id
 from aidm.rules.social import attitude_score, band_floor, npc_is_hostile
 from aidm.session.reducer import apply, replay
 from tests.sim.sim_setup import build_party

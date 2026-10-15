@@ -22,8 +22,15 @@ Public API:
 - `WorldFeature(id, kind, name, description, interactable, node_id, hidden, discover_dc,
   discovered)`: a door, lever, cache or trap. Hidden features carry a `discover_dc` and are not
   in the manifest until discovered.
-- `Quest(id, title, state, giver_npc_id, against_npc_id)`; `Fact(id, text, entity_ids, tags)`:
-  the fact ledger.
+- `Quest(id, title, state, giver_npc_id, against_npc_id, kind, objective, steps, steps_done,
+  routes, log, closed_reason)` (M23 fields default, so old `QuestUpdated` events load as side
+  quests): `steps` are a side quest's or favour's own steps (a main quest's routes live in the
+  plan, `aidm.rules.quest_plan`); `steps_done` counts finished steps (sequential); `routes`
+  are the KNOWN routes of a main quest with their progress (`RouteProgress(route_id,
+  steps_done)`); `log` the last `MAX_QUEST_LOG` lines of what happened in it; `closed_reason`
+  `left_behind` marks a failed quest that was left behind on crossing a gateway (no penalty).
+- `QuestLead(quest_id, text)`: a journal line pointing at a side quest's giver (M23).
+- `Fact(id, text, entity_ids, tags)`: the fact ledger.
 - `WorldItem(id, name, catalog_id, qty, node_id, hidden)`: an item lying in a place (dropped,
   found); visible items are part of the manifest.
 - `World(current_node, neighbours, locked_nodes, visited, region_tier, scene_index, npcs,
@@ -34,14 +41,21 @@ Public API:
   description of a node, stored once and never regenerated), `items` (world items by id),
   `lore_names` (world-bible names the guard allows), `scene_turn` (narrated turns in the
   current scene; reset by a move). The derived scene view is `aidm.rules.scene.current_scene`.
+  M23: `leads` (quest leads); `WorldNpc.keepsakes` holds keepsakes handed to that NPC.
 """
+
+from __future__ import annotations
 
 from enum import StrEnum
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from aidm.models.campaign import RevealCondition
+from aidm.models.character import Keepsake
 from aidm.models.dm_tiers import AttitudeBand
+from aidm.models.quests import QuestKind, QuestStep
+
+MAX_QUEST_LOG = 8
 
 
 class FeatureKind(StrEnum):
@@ -90,6 +104,7 @@ class WorldNpc(BaseModel):
     motive: str = ""
     secrets: list[NpcSecret] = Field(default_factory=list[NpcSecret])
     dead: bool = False  # M20.5: their fight creature died; never present, never fought again
+    keepsakes: list[Keepsake] = Field(default_factory=list[Keepsake])  # M23: handed to them
 
 
 class PublicNpcView(BaseModel):
@@ -122,6 +137,17 @@ class WorldFeature(BaseModel):
     discovered: bool = False
 
 
+class ClosedReason(StrEnum):
+    LEFT_BEHIND = "left_behind"
+
+
+class RouteProgress(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    route_id: str = Field(min_length=1)
+    steps_done: int = Field(default=0, ge=0)
+
+
 class Quest(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
@@ -130,6 +156,33 @@ class Quest(BaseModel):
     state: QuestState = QuestState.ACTIVE
     giver_npc_id: str | None = None
     against_npc_id: str | None = None
+    kind: QuestKind = QuestKind.SIDE
+    objective: str = ""
+    steps: tuple[QuestStep, ...] = ()
+    steps_done: int = Field(default=0, ge=0)
+    routes: tuple[RouteProgress, ...] = ()
+    log: tuple[str, ...] = Field(default=(), max_length=MAX_QUEST_LOG)
+    closed_reason: ClosedReason | None = None
+
+    def route(self, route_id: str) -> RouteProgress | None:
+        return next((r for r in self.routes if r.route_id == route_id), None)
+
+    @model_validator(mode="after")
+    def _consistent(self) -> Quest:
+        if self.steps_done > len(self.steps):
+            raise ValueError(f"quest {self.id!r}: more steps done than it has")
+        if len({r.route_id for r in self.routes}) != len(self.routes):
+            raise ValueError(f"quest {self.id!r}: a route is known twice")
+        if self.closed_reason is not None and self.state is not QuestState.FAILED:
+            raise ValueError(f"quest {self.id!r}: only a failed quest has a closed reason")
+        return self
+
+
+class QuestLead(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    quest_id: str = Field(min_length=1)
+    text: str = Field(min_length=1, max_length=160)
 
 
 class Fact(BaseModel):
@@ -171,3 +224,4 @@ class World(BaseModel):
     items: dict[str, WorldItem] = Field(default_factory=dict[str, WorldItem])
     lore_names: list[str] = Field(default_factory=list[str])
     scene_turn: int = Field(default=0, ge=0)
+    leads: list[QuestLead] = Field(default_factory=list[QuestLead])

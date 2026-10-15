@@ -22,7 +22,8 @@ from aidm.models.dm_tiers import AttitudeBand
 from aidm.models.events import AnyEvent
 from aidm.models.state import GameState
 from aidm.models.world import WorldNpc
-from aidm.rules.campaign_install import act_quest_events, boss_npc_id
+from aidm.rules.campaign_install import act_quest_events
+from aidm.rules.plan_ids import boss_npc_id
 from aidm.rules.social import attitude_band, attitude_score
 
 

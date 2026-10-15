@@ -37,6 +37,8 @@ Public API:
   unsummarised turns restarts at zero (its facts arrive as separate `FactRecorded` events).
 - `EquipmentChanged(creature_id, equipped, ac)` (M6.2): the hero's worn/held gear becomes
   `equipped` and its armour class `ac` (computed by `aidm.rules.equipment`).
+- The quest events of `aidm.models.quest_events` (M23: `QuestStepDone`, `RouteDiscovered`,
+  `QuestLeadAdded`, `KeepsakeGiven`).
 - `WorldEvents`: the union of these classes (joins `AnyEvent`).
 """
 
@@ -46,6 +48,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from aidm.models.character import Equipped, Keepsake
 from aidm.models.memory import SceneSummary
+from aidm.models.quest_events import QuestEvents
 from aidm.models.world import Fact, Quest, WorldFeature, WorldItem, WorldNpc
 
 
@@ -210,4 +213,5 @@ WorldEvents = (
     | NarrationRecorded
     | SceneSummarised
     | EquipmentChanged
+    | QuestEvents
 )

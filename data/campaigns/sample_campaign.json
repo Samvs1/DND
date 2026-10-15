@@ -56,8 +56,33 @@
           "monster_id": "bugbear",
           "name": "Gorran Hookhand",
           "lair_node": "sunken-vestry",
-          "ally_path": "Show Gorran the harbour ledger that proves the Choir means to leave his crew to drown on the next tide; he turns on his masters and opens the vestry's hidden stair."
+          "ally_path": "Show Gorran the Choir's tide-orders, which prove the Choir means to leave his crew to drown on the next tide; he turns on his masters and opens the vestry's hidden stair."
         }
+      },
+      "main": {
+        "routes": [
+          {
+            "id": "the-tide-orders",
+            "kind": "peace",
+            "title": "Turn Gorran against the Choir",
+            "hint_npc_id": "dessa-orrin",
+            "steps": [
+              {
+                "kind": "obtain",
+                "text": "Find the Choir's tide-orders in the Saltcellar Tunnels",
+                "item": "Choir tide-orders",
+                "nodes": ["saltcellar-tunnels"],
+                "hidden": true
+              },
+              {
+                "kind": "deliver",
+                "text": "Show Gorran Hookhand the tide-orders",
+                "item": "Choir tide-orders",
+                "npc": "boss-gullmere-quay"
+              }
+            ]
+          }
+        ]
       }
     },
     {
@@ -111,8 +136,52 @@
         "boss": {
           "monster_id": "wight",
           "name": "Cantor Ashmere Voll",
-          "lair_node": "fogwrights-tower"
+          "lair_node": "fogwrights-tower",
+          "ally_path": "Bring the Cantor the drowned hymnal from the Salt Barrow; its last verse reminds him of the warden he was, and he lays the fog-song down."
         }
+      },
+      "main": {
+        "routes": [
+          {
+            "id": "the-drowned-hymnal",
+            "kind": "peace",
+            "title": "Remind the Cantor who he was",
+            "hint_npc_id": "hesper-voss",
+            "steps": [
+              {
+                "kind": "obtain",
+                "text": "Recover the drowned hymnal from the Salt Barrow",
+                "item": "Drowned hymnal",
+                "nodes": ["salt-barrow"]
+              },
+              {
+                "kind": "deliver",
+                "text": "Bring the hymnal to Cantor Ashmere Voll",
+                "item": "Drowned hymnal",
+                "npc": "boss-kelpglass-reach"
+              }
+            ]
+          },
+          {
+            "id": "the-back-stair",
+            "kind": "cunning",
+            "title": "Take the tower unseen",
+            "hint_npc_id": "corvin-tallowby",
+            "effect": "boss_surprised",
+            "steps": [
+              {
+                "kind": "clear",
+                "text": "Scatter the Choir's watch on Harrowmere Bridge",
+                "nodes": ["harrowmere-bridge"]
+              },
+              {
+                "kind": "meet",
+                "text": "Learn the tower's back stair from Old Marek Thistlewood",
+                "npc": "marek-thistlewood"
+              }
+            ]
+          }
+        ]
       }
     },
     {
@@ -166,8 +235,34 @@
         "boss": {
           "monster_id": "mage",
           "name": "Magister Orsolo Venk",
-          "lair_node": "dark-lantern-room"
+          "lair_node": "dark-lantern-room",
+          "ally_path": "Give Venk the salt-stained letter of his drowned daughter from the Cistern of Echoes; grief breaks his pact and he snuffs the dark lantern himself."
         }
+      },
+      "main": {
+        "routes": [
+          {
+            "id": "the-last-letter",
+            "kind": "peace",
+            "title": "Break the Magister's pact",
+            "hint_npc_id": "imre-saltwick",
+            "steps": [
+              {
+                "kind": "obtain",
+                "text": "Find the salt-stained letter in the Cistern of Echoes",
+                "item": "Salt-stained letter",
+                "nodes": ["cistern-of-echoes"],
+                "hidden": true
+              },
+              {
+                "kind": "deliver",
+                "text": "Give the letter to Magister Orsolo Venk",
+                "item": "Salt-stained letter",
+                "npc": "boss-tallow-point"
+              }
+            ]
+          }
+        ]
       }
     }
   ],
@@ -338,15 +433,39 @@
       "objective": "Recover the harbour ledger the smugglers stole from the Gull and Anchor's cellar.",
       "reward_tier": "minor",
       "act": 1,
-      "reward_item": "Harbour ledger"
+      "reward_item": "Harbour ledger",
+      "steps": [
+        {
+          "kind": "clear",
+          "text": "Drive the smugglers out of the Saltcellar Tunnels",
+          "nodes": ["saltcellar-tunnels"]
+        },
+        {
+          "kind": "meet",
+          "text": "Bring word to Tobin Marrow",
+          "npc": "tobin-marrow"
+        }
+      ]
     },
     {
       "id": "douse-the-choir",
       "title": "Break the Smugglers",
       "giver_npc_id": "odalys-prend",
-      "objective": "Defeat or turn Gorran Hookhand in the Sunken Vestry.",
+      "objective": "Break the smugglers' watch on the Heron Marsh Causeway that keeps the quay lamps dark.",
       "reward_tier": "moderate",
-      "act": 1
+      "act": 1,
+      "steps": [
+        {
+          "kind": "clear",
+          "text": "Break the smugglers' watch on the Heron Marsh Causeway",
+          "nodes": ["heron-marsh-causeway"]
+        },
+        {
+          "kind": "meet",
+          "text": "Report to Harbourmaster Odalys Prend",
+          "npc": "odalys-prend"
+        }
+      ]
     },
     {
       "id": "wardens-signet",
@@ -355,27 +474,61 @@
       "objective": "Recover the warden's signet from the Salt Barrow.",
       "reward_tier": "moderate",
       "act": 2,
-      "reward_item": "Warden's signet"
+      "reward_item": "Warden's signet",
+      "steps": [
+        {
+          "kind": "clear",
+          "text": "Clear the Salt Barrow of its restless dead",
+          "nodes": ["salt-barrow"]
+        },
+        {
+          "kind": "meet",
+          "text": "Return to Old Marek Thistlewood",
+          "npc": "marek-thistlewood"
+        }
+      ]
     },
     {
       "id": "kindle-the-stair",
       "title": "Kindle the Stair",
       "giver_npc_id": "alder-quill",
-      "objective": "Relight the four braziers on the beacon stair.",
+      "objective": "Gather the three ember-stones that relight the braziers of the beacon stair.",
       "reward_tier": "major",
-      "act": 3
-    },
-    {
-      "id": "relight-the-beacon",
-      "title": "Relight the Beacon",
-      "giver_npc_id": "odalys-prend",
-      "objective": "Defeat Magister Orsolo Venk and light the beacon of Tallow Point.",
-      "reward_tier": "major",
-      "act": 3
+      "act": 3,
+      "steps": [
+        {
+          "kind": "obtain",
+          "text": "Gather the three ember-stones of the beacon stair",
+          "item": "Ember-stone",
+          "count": 3,
+          "nodes": ["cistern-of-echoes", "keepers-barracks", "wreckers-gallery"]
+        },
+        {
+          "kind": "deliver",
+          "text": "Bring the ember-stones to Warden Alder Quill",
+          "item": "Ember-stone",
+          "npc": "alder-quill"
+        }
+      ]
     }
   ],
   "rival": {
     "npc_id": "fenwick-dray",
     "hook": "Fenwick keeps one step ahead of the party and may be bought, beaten, or befriended."
+  },
+  "finale": {
+    "question": "The beacon is lit and the fog-song falters. Silence the Hollow Choir forever, or let its last verse be sung?",
+    "options": [
+      {
+        "id": "silence-the-song",
+        "title": "Silence the song",
+        "text": "Break the Choir's last hymn; the coast is safe, and the old wardens' memory dies with it."
+      },
+      {
+        "id": "let-it-finish",
+        "title": "Let the last verse be sung",
+        "text": "Let the song end on its own; the drowned are remembered, and the fog may one day return."
+      }
+    ]
   }
 }

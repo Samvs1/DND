@@ -21,10 +21,14 @@ Public API:
   one safe arrival (no encounters), 2 to 3 spokes (each with encounter themes), one gateway;
   `nodes()` lists them in that order.
 - `RivalPlan(npc_id, hook)`; `QuestPlan(id, title, giver_npc_id, objective, reward_tier, act,
-  reward_item, against_npc_id)` (completing it is a deed for the giver and against the
-  target); `Act(index, title, goal, region)`.
-- `CampaignPlan(title, premise, tone, theme, acts, npcs, quests, rival)`: exactly 3 acts, act
-  `i` has region tier `i`; `all_nodes()`, `all_regions()`.
+  reward_item, against_npc_id, kind, steps)` (a side quest; completing it is a deed for the giver
+  and against the target; `steps` empty in old plans); `Act(index, title, goal, region, main)`
+  (`main`: the stored Peace/Cunning routes, M23).
+- `CampaignPlan(title, premise, tone, theme, acts, npcs, quests, rival, finale)`: exactly 3
+  acts, act `i` has region tier `i`; `all_nodes()`, `all_regions()`.
+
+The M23 quest fields (`aidm.models.quests`) are optional so old plans load; read them only
+through `aidm.rules.quest_plan`, which derives what an old plan lacks.
 """
 
 from __future__ import annotations
@@ -35,6 +39,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from aidm.models.dm_tiers import AttitudeBand
+from aidm.models.quests import MAX_STEPS, FinalePlan, MainQuestPlan, QuestStep
 
 ID_PATTERN = r"^[a-z0-9][a-z0-9-]*$"
 ACT_COUNT = 3
@@ -170,6 +175,8 @@ class QuestPlan(_Plan):
     act: int = Field(ge=1, le=ACT_COUNT)
     reward_item: str | None = Field(default=None, max_length=60)
     against_npc_id: str | None = None
+    kind: Literal["side"] = "side"
+    steps: tuple[QuestStep, ...] = Field(default=(), max_length=MAX_STEPS)
 
 
 class Act(_Plan):
@@ -177,6 +184,7 @@ class Act(_Plan):
     title: str = Field(min_length=1, max_length=60)
     goal: str = Field(min_length=1, max_length=200)
     region: RegionPlan
+    main: MainQuestPlan | None = None
 
 
 def _unique(kind: str, ids: list[str]) -> None:
@@ -196,6 +204,7 @@ class CampaignPlan(_Plan):
     npcs: tuple[NpcPlan, ...] = Field(min_length=1)
     quests: tuple[QuestPlan, ...] = ()
     rival: RivalPlan | None = None
+    finale: FinalePlan | None = None
 
     def all_regions(self) -> tuple[RegionPlan, ...]:
         return tuple(a.region for a in self.acts)

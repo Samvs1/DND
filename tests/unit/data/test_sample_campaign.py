@@ -56,7 +56,8 @@ def test_sample_region_shape() -> None:
 def test_sample_cast_secrets_and_quests() -> None:
     kinds = {s.reveal.kind for n in PLAN.npcs for s in n.secrets}
     assert kinds == set(RevealKind)
-    assert sum(1 for r in PLAN.all_regions() if r.boss.ally_path) == 1
+    # M23: every boss has an ally path, so every act has a Peace route (docs/next/GOAL_QUESTS.md)
+    assert sum(1 for r in PLAN.all_regions() if r.boss.ally_path) == 3
     assert PLAN.rival is not None
     assert {q.act for q in PLAN.quests} == {1, 2, 3}
 

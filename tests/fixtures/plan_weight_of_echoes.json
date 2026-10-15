@@ -1,0 +1,497 @@
+{
+ "title": "The Weight of Echoes",
+ "premise": "Deep beneath the Thornveil Marches, the death-song of a slain titan leaks upward through the stone, and everything that hears it remembers a life it never lived. Slendee and El'Skalfidar are drawn toward three sources of that song\u2014each louder than the last\u2014until they must choose whether to silence the last echo or let it finish remembering.",
+ "tone": "Melancholy wonder with teeth; grief made manifest in stone, tide, and fire.",
+ "theme": "What the dead leave behind keeps singing.",
+ "acts": [
+  {
+   "index": 1,
+   "title": "The Hollow Toll",
+   "goal": "Trace the faint death-song to its first source and quiet the Gale Abbey bell that tolls with a voice not its own.",
+   "region": {
+    "id": "thornveil-marches",
+    "name": "Thornveil Marches",
+    "flavour": "A damp expanse of sunken lanes and elder forest where the soil hums faintly at dusk. Villagers bind bells to their wrists to drown out a low, wordless melody that only a few admit to hearing.",
+    "tier": 1,
+    "terrain_tags": [
+     "forest",
+     "village",
+     "wilds"
+    ],
+    "arrival": {
+     "id": "dusk-hollow",
+     "name": "Dusk Hollow",
+     "flavour": "A village of leaning slate roofs and hanging bell-charms that chime against each other without wind.",
+     "terrain_tags": [
+      "village"
+     ],
+     "encounter_themes": [],
+     "shop": false
+    },
+    "spokes": [
+     {
+      "id": "keenmoss-bridge",
+      "name": "Keenmoss Bridge",
+      "flavour": "A stone span over black water; the moss on its keystone pulses like a slow heartbeat.",
+      "terrain_tags": [
+       "bridge",
+       "forest"
+      ],
+      "encounter_themes": [
+       "bandit",
+       "stirge",
+       "goblin"
+      ],
+      "shop": false
+     },
+     {
+      "id": "scabroot-cave",
+      "name": "Scabroot Cave",
+      "flavour": "A low cave mouth exhaling warm air that smells of old pennies and wet hide.",
+      "terrain_tags": [
+       "cave",
+       "forest"
+      ],
+      "encounter_themes": [
+       "giant-rat",
+       "violet-fungus",
+       "swarm-of-bats"
+      ],
+      "shop": false
+     },
+     {
+      "id": "bleakfen-shrine",
+      "name": "Bleakfen Shrine",
+      "flavour": "A slumped stone shrine at the marsh edge, its saint's face weathered smooth and weeping moss.",
+      "terrain_tags": [
+       "ruins",
+       "swamp"
+      ],
+      "encounter_themes": [
+       "cultist",
+       "stirge",
+       "zombie"
+      ],
+      "shop": false
+     }
+    ],
+    "gateway": {
+     "id": "gale-abbey",
+     "name": "Gale Abbey",
+     "flavour": "A roofless abbey whose single bronze bell rings itself at the turning of each hour, though no rope hangs from it.",
+     "terrain_tags": [
+      "ruins",
+      "keep"
+     ],
+     "encounter_themes": [],
+     "shop": false
+    },
+    "boss": {
+     "monster_id": "acolyte",
+     "name": "Brother Molt",
+     "lair_node": "gale-abbey",
+     "ally_path": "Molt is not evil\u2014he insists the bell is a choir, not a wound. If the party proves a second, truer source exists beyond his abbey, he will abandon the bell and aid them, lamenting his years of devotion to an echo.",
+     "defeat_always": true
+    }
+   }
+  },
+  {
+   "index": 2,
+   "title": "The Tide That Remembers",
+   "goal": "Cross the drowned lowlands and still the second source of the song, a thing that sings through every reed and ripple of the Gloomfen.",
+   "region": {
+    "id": "gloomfen-wetlands",
+    "name": "Gloomfen Wetlands",
+    "flavour": "A brackish backwater of drowned orchards and slow channels where reflections lag a half-second behind the thing that casts them.",
+    "tier": 2,
+    "terrain_tags": [
+     "swamp",
+     "bridge",
+     "wilds"
+    ],
+    "arrival": {
+     "id": "rookwade-hollow",
+     "name": "Rookwade Hollow",
+     "flavour": "Stilt huts and fish-racks crouched over still brown water; the ferryman's pole strikes the mud with a sound like a struck tuning fork.",
+     "terrain_tags": [
+      "swamp",
+      "village"
+     ],
+     "encounter_themes": [],
+     "shop": false
+    },
+    "spokes": [
+     {
+      "id": "sorrow-runnel",
+      "name": "Sorrow Runnel",
+      "flavour": "A narrow channel so choked with pale reeds it seems to be combing them with its current.",
+      "terrain_tags": [
+       "swamp",
+       "bridge"
+      ],
+      "encounter_themes": [
+       "ogre-zombie",
+       "ghast",
+       "ochre-jelly"
+      ],
+      "shop": false
+     },
+     {
+      "id": "drenwatch-ruins",
+      "name": "Drenwatch Ruins",
+      "flavour": "Sunken watchtowers whose upper floors still break the surface, doors ajar like open mouths above the marsh.",
+      "terrain_tags": [
+       "ruins",
+       "swamp"
+      ],
+      "encounter_themes": [
+       "ghast",
+       "ogre-zombie",
+       "ochre-jelly"
+      ],
+      "shop": false
+     },
+     {
+      "id": "mirkfall-thicket",
+      "name": "Mirkfall Thicket",
+      "flavour": "A grove of half-drowned trees whose bark is split by the shapes of faces not carved there.",
+      "terrain_tags": [
+       "swamp",
+       "forest"
+      ],
+      "encounter_themes": [
+       "green-dragon-wyrmling",
+       "ochre-jelly",
+       "ogre-zombie"
+      ],
+      "shop": false
+     }
+    ],
+    "gateway": {
+     "id": "the-sunken-choir",
+     "name": "The Sunken Choir",
+     "flavour": "A ring of standing stones nearly swallowed by the fen, humming so low the water trembles in place.",
+     "terrain_tags": [
+      "swamp",
+      "ruins",
+      "cave"
+     ],
+     "encounter_themes": [],
+     "shop": false
+    },
+    "boss": {
+     "monster_id": "black-dragon-wyrmling",
+     "name": "Raveth, the Half-Heard",
+     "lair_node": "the-sunken-choir",
+     "ally_path": "Raveth was hatched in the titan's rib-cage and has only ever known its song as a lullaby. If the party speaks to it instead of striking, and offers a melody of their own in trade, it may relent and lead them to the true source\u2014for it, too, is tired of singing alone.",
+     "defeat_always": true
+    }
+   }
+  },
+  {
+   "index": 3,
+   "title": "The Last Echo",
+   "goal": "Descend to the titan's buried breast and decide whether to end the death-song or let it finish its final verse.",
+   "region": {
+    "id": "the-under-hymn",
+    "name": "The Under-Hymn",
+    "flavour": "A vast subterranean sea-cave where the titan's fossil ribs curve overhead like the beams of a sunken cathedral, and the song is now loud enough to feel as pressure behind the eyes.",
+    "tier": 3,
+    "terrain_tags": [
+     "cave",
+     "crypt",
+     "ruins"
+    ],
+    "arrival": {
+     "id": "voxmere-landing",
+     "name": "Voxmere Landing",
+     "flavour": "A shelf of black limestone above an underground lake; the water's surface is glass-calm and faintly luminous with drifting motes.",
+     "terrain_tags": [
+      "cave"
+     ],
+     "encounter_themes": [],
+     "shop": false
+    },
+    "spokes": [
+     {
+      "id": "the-ribbed-nave",
+      "name": "The Ribbed Nave",
+      "flavour": "A cavern whose ceiling is the titan's own ribcage, each bone broad enough to walk along and humming with stored song.",
+      "terrain_tags": [
+       "cave",
+       "crypt"
+      ],
+      "encounter_themes": [
+       "earth-elemental",
+       "xorn",
+       "vampire-spawn"
+      ],
+      "shop": false
+     },
+     {
+      "id": "ashensilt-crypts",
+      "name": "Ashensilt Crypts",
+      "flavour": "Tombs of an elder people built between the titan's collapsed fingers, their doors all standing open inward.",
+      "terrain_tags": [
+       "crypt",
+       "ruins",
+       "cave"
+      ],
+      "encounter_themes": [
+       "medusa",
+       "vampire-spawn",
+       "barbed-devil"
+      ],
+      "shop": false
+     },
+     {
+      "id": "the-echoing-mere",
+      "name": "The Echoing Mere",
+      "flavour": "A warm black pool that replays the last moments of the titan's death in ripples that do not move at the party's touch.",
+      "terrain_tags": [
+       "swamp",
+       "cave"
+      ],
+      "encounter_themes": [
+       "hydra",
+       "young-black-dragon",
+       "troll"
+      ],
+      "shop": false
+     }
+    ],
+    "gateway": {
+     "id": "the-still-heart",
+     "name": "The Still Heart",
+     "flavour": "The titan's hollow chest, where a single stone heart the size of a chapel hangs suspended and slowly, silently cracks.",
+     "terrain_tags": [
+      "cave",
+      "crypt"
+     ],
+     "encounter_themes": [],
+     "shop": false
+    },
+    "boss": {
+     "monster_id": "stone-giant",
+     "name": "Korvell, the Echo-Bearer",
+     "lair_node": "the-still-heart",
+     "ally_path": "Korvell is the last living giant to have known the titan, and he lingers as its unwilling keeper. He will stand aside only if the party proves they do not seek to steal the song\u2014by returning to him a smooth river-stone lost from his hand, found in the Echoing Mere.",
+     "defeat_always": true
+    }
+   }
+  }
+ ],
+ "npcs": [
+  {
+   "id": "yeva-mossbell",
+   "name": "Yeva Mossbell",
+   "role": "bell-warden of Dusk Hollow",
+   "archetype_id": "acolyte",
+   "demeanor": "Tired, gentle, quick to touch a charm at her wrist.",
+   "motive": "She hears the song in her sleep and wants it to stop without anyone dying.",
+   "secrets": [
+    {
+     "id": "yeva-mossbell-secret-1",
+     "text": "Yeva has begun to hear her own late mother's voice inside the death-song, and part of her does not want it silenced.",
+     "reveal": {
+      "kind": "attitude",
+      "band": "friendly",
+      "quest_id": null,
+      "item": null,
+      "fact_tag": null
+     }
+    }
+   ],
+   "voice_tag": "speaks of song as weather",
+   "home_node": "dusk-hollow"
+  },
+  {
+   "id": "old-carrion-vess",
+   "name": "Old Carrion Vess",
+   "role": "ferryman and grave-digger",
+   "archetype_id": "commoner",
+   "demeanor": "Laconic, patient, fond of rotten jokes.",
+   "motive": "He ferries because the song quiets when he is over deep water.",
+   "secrets": [
+    {
+     "id": "old-carrion-vess-secret-1",
+     "text": "Vess once rowed a drowned man's body to the Sunken Choir as an offering and has been haunted by the man's face ever since.",
+     "reveal": {
+      "kind": "quest_completed",
+      "band": null,
+      "quest_id": "the-man-in-the-runnel",
+      "item": null,
+      "fact_tag": null
+     }
+    }
+   ],
+   "voice_tag": "pauses as if listening between",
+   "home_node": "rookwade-hollow"
+  },
+  {
+   "id": "priest-norven-hale",
+   "name": "Priest Norven Hale",
+   "role": "caretaker of Bleakfen Shrine",
+   "archetype_id": "priest",
+   "demeanor": "Pious, guarded, keeps his hands behind his back.",
+   "motive": "He believes the song is a divine test and that failing to endure it means damnation.",
+   "secrets": [
+    {
+     "id": "priest-norven-hale-secret-1",
+     "text": "Norven has hidden a smooth river-stone carved with a giant's rune beneath the shrine altar, taken long ago from the Still Heart.",
+     "reveal": {
+      "kind": "item_shown",
+      "band": null,
+      "quest_id": null,
+      "item": "Titan's Keepsake",
+      "fact_tag": null
+     }
+    }
+   ],
+   "voice_tag": "speaks in scripture misquoted",
+   "home_node": "bleakfen-shrine"
+  },
+  {
+   "id": "mistress-kree-the-ragged",
+   "name": "Mistress Kree the Ragged",
+   "role": "outcast herbalist of Mirkfall Thicket",
+   "archetype_id": "druid",
+   "demeanor": "Sharp, wary, talks to her own shadow.",
+   "motive": "She wants the song's power for herself to regrow the drowned forest.",
+   "secrets": [
+    {
+     "id": "mistress-kree-the-ragged-secret-1",
+     "text": "Kree once planted a cutting in the titan's own soil and has been slowly turning toward stone from the wrist up.",
+     "reveal": {
+      "kind": "fact_known",
+      "band": null,
+      "quest_id": null,
+      "item": null,
+      "fact_tag": "choir"
+     }
+    }
+   ],
+   "voice_tag": "lists plants by the hum they",
+   "home_node": "mirkfall-thicket"
+  },
+  {
+   "id": "warden-sellen-ost",
+   "name": "Warden Sellen Ost",
+   "role": "knight-at-large of the Marches",
+   "archetype_id": "knight",
+   "demeanor": "Formal, weary, honor-bound to a fault.",
+   "motive": "She swore to silence the song but cannot bring herself to enter the caves alone.",
+   "secrets": [
+    {
+     "id": "warden-sellen-ost-secret-1",
+     "text": "Sellen's company was swallowed by the Echoing Mere, and only she crawled out; she blames herself for their deaths.",
+     "reveal": {
+      "kind": "attitude",
+      "band": "indifferent",
+      "quest_id": null,
+      "item": null,
+      "fact_tag": null
+     }
+    }
+   ],
+   "voice_tag": "ends sentences with oaths",
+   "home_node": "gale-abbey"
+  },
+  {
+   "id": "brindt",
+   "name": "Brindt",
+   "role": "deep-gnome prospector",
+   "archetype_id": "deep-gnome-svirfneblin",
+   "demeanor": "Cheerful, fidgety, always sketching.",
+   "motive": "He seeks the titan's heartstone to settle a debt that would destroy his clan.",
+   "secrets": [
+    {
+     "id": "brindt-secret-1",
+     "text": "Brindt already sold the location of the heart to a rival and now hopes the party destroys it before the buyer arrives.",
+     "reveal": {
+      "kind": "quest_completed",
+      "band": null,
+      "quest_id": "the-weight-of-the-heart",
+      "item": null,
+      "fact_tag": null
+     }
+    }
+   ],
+   "voice_tag": "trails off into measurements",
+   "home_node": "voxmere-landing"
+  }
+ ],
+ "quests": [
+  {
+   "id": "a-bell-s-false-tongue",
+   "title": "A Bell's False Tongue",
+   "giver_npc_id": "yeva-mossbell",
+   "objective": "Climb Gale Abbey and muffle the self-ringing bell so Dusk Hollow can sleep a full night.",
+   "reward_tier": "minor",
+   "act": 1,
+   "reward_item": "Warden's Whetstone",
+   "against_npc_id": null
+  },
+  {
+   "id": "the-ferrystones",
+   "title": "The Ferrystones",
+   "giver_npc_id": "old-carrion-vess",
+   "objective": "Recover three lost keystones from Keenmoss Bridge before the next flood tugs the span into the marsh.",
+   "reward_tier": "minor",
+   "act": 1,
+   "reward_item": null,
+   "against_npc_id": null
+  },
+  {
+   "id": "the-man-in-the-runnel",
+   "title": "The Man in the Runnel",
+   "giver_npc_id": "old-carrion-vess",
+   "objective": "Search Sorrow Runnel for the remains of a drowned man Vess once ferried, and give them proper burial.",
+   "reward_tier": "moderate",
+   "act": 2,
+   "reward_item": "Silver Oar-Pin",
+   "against_npc_id": null
+  },
+  {
+   "id": "a-shrine-s-false-saint",
+   "title": "A Shrine's False Saint",
+   "giver_npc_id": "priest-norven-hale",
+   "objective": "Drive the cult from Bleakfen Shrine and reclaim the altar before they finish their rites.",
+   "reward_tier": "moderate",
+   "act": 1,
+   "reward_item": null,
+   "against_npc_id": "mistress-kree-the-ragged"
+  },
+  {
+   "id": "roots-over-water",
+   "title": "Roots Over Water",
+   "giver_npc_id": "mistress-kree-the-ragged",
+   "objective": "Plant a living cutting at the edge of the Sunken Choir and return without touching the standing stones.",
+   "reward_tier": "moderate",
+   "act": 2,
+   "reward_item": "Titan's Keepsake",
+   "against_npc_id": "priest-norven-hale"
+  },
+  {
+   "id": "the-knight-s-penance",
+   "title": "The Knight's Penance",
+   "giver_npc_id": "warden-sellen-ost",
+   "objective": "Recover her company's standard from Drenwatch Ruins and burn it properly so their oaths are released.",
+   "reward_tier": "moderate",
+   "act": 2,
+   "reward_item": "Sunken Company Standard",
+   "against_npc_id": null
+  },
+  {
+   "id": "the-weight-of-the-heart",
+   "title": "The Weight of the Heart",
+   "giver_npc_id": "brindt",
+   "objective": "Reach the Still Heart and take a single shard of the cracking heartstone\u2014only enough to settle Brindt's debt\u2014without waking the keeper.",
+   "reward_tier": "major",
+   "act": 3,
+   "reward_item": "Heartstone Shard",
+   "against_npc_id": null
+  }
+ ],
+ "rival": null
+}

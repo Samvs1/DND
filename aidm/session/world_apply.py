@@ -5,7 +5,8 @@ Same semantics as the reducer: plain assignment of resolved values, payloads cop
 incremented by the caller.
 
 Public API: `WorldEvent` (the union of the world events), `WORLD_EVENT_TYPES` (its classes, for
-an `isinstance` dispatch), `apply_world_event(state, event)`.
+an `isinstance` dispatch), `apply_world_event(state, event)`. The quest events (M23) are handled
+by `aidm.session.quest_apply`.
 """
 
 from typing import assert_never
@@ -38,6 +39,7 @@ from aidm.models.world_events import (
     ShopOpened,
 )
 from aidm.session.campaign_apply import refresh_travel
+from aidm.session.quest_apply import QUEST_EVENT_TYPES, QuestEvent, apply_quest_event
 from aidm.session.reducer_errors import ReducerError
 
 type WorldEvent = (
@@ -62,6 +64,7 @@ type WorldEvent = (
     | NarrationRecorded
     | SceneSummarised
     | EquipmentChanged
+    | QuestEvent
 )
 
 type SceneEvent = (
@@ -104,6 +107,7 @@ WORLD_EVENT_TYPES = (
     NarrationRecorded,
     SceneSummarised,
     EquipmentChanged,
+    *QUEST_EVENT_TYPES,
 )
 
 
@@ -196,6 +200,9 @@ def _keep(state: GameState, creature_id: str, keepsake: Keepsake) -> None:
 def apply_world_event(state: GameState, event: WorldEvent) -> None:
     if isinstance(event, SCENE_EVENT_TYPES):
         _scene_event(state, event)
+        return
+    if isinstance(event, QUEST_EVENT_TYPES):
+        apply_quest_event(state, event)
         return
     world = state.world
     match event:

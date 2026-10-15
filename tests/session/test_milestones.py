@@ -12,11 +12,11 @@ from aidm.models.encounter import EncounterStatus, Side
 from aidm.models.events import AnyEvent, CampSuppliesChanged, CreatureDied, XpGained
 from aidm.models.state import GameState
 from aidm.models.world_events import LevelUpReady, RewardGranted
-from aidm.rules.campaign_install import boss_npc_id
 from aidm.rules.dm_tiers import xp_award
 from aidm.rules.encounter import end_encounter
 from aidm.rules.leveling import can_level_up
 from aidm.rules.milestones import clear_key, milestone_events, visit_key
+from aidm.rules.plan_ids import boss_npc_id
 from aidm.rules.quest_rewards import resolution_reward_events
 from aidm.rules.rests import STARTING_CAMP_SUPPLIES
 from aidm.session.reducer import replay
