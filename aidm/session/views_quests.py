@@ -34,19 +34,31 @@ def _done_texts(steps: tuple[object, ...], done: int, private: list[str]) -> tup
     return tuple(t for t in (_clean(text, private) for text in texts) if t)
 
 
-def _route_plans(state: GameState, quest: Quest) -> dict[str, RoutePlan]:
+_FALLBACK_TITLE = {
+    "force": "Defeat the master of {region}",
+    "peace": "Another way past the master of {region}",
+    "cunning": "Weaken the master of {region}",
+}
+
+
+def _route_plans(state: GameState, quest: Quest) -> tuple[dict[str, RoutePlan], str]:
     campaign = state.campaign
     if campaign is None or quest.kind is not QuestKind.MAIN:
-        return {}
+        return {}, ""
     plan = campaign.plan
     act = next((a for a in plan.acts if main_quest_id(a.region) == quest.id), None)
     if act is None:
-        return {}
-    return {r.id: r for r in main_quest(plan, act.index).routes}
+        return {}, ""
+    return {r.id: r for r in main_quest(plan, act.index).routes}, act.region.name
+
+
+def _route_title(route: RoutePlan, region: str, private: list[str]) -> str:
+    title = _clean(route.title, private)
+    return title or _FALLBACK_TITLE[route.kind.value].format(region=region)
 
 
 def _routes(state: GameState, quest: Quest, private: list[str]) -> tuple[PublicRoute, ...]:
-    plans = _route_plans(state, quest)
+    plans, region = _route_plans(state, quest)
     out: list[PublicRoute] = []
     for progress in quest.routes:
         route = plans.get(progress.route_id)
@@ -55,7 +67,7 @@ def _routes(state: GameState, quest: Quest, private: list[str]) -> tuple[PublicR
         out.append(
             PublicRoute(
                 id=route.id,
-                title=_clean(route.title, private),
+                title=_route_title(route, region, private),
                 kind=route.kind.value,
                 steps_done=_done_texts(route.steps, progress.steps_done, private),
                 done=progress.steps_done >= len(route.steps),

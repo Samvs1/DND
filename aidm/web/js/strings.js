@@ -281,6 +281,8 @@ export const STRINGS = {
     questOfferTitle: '{giver} asks: {title}',
     questOfferAccept: 'Accept',
     questOfferLater: 'Not now',
+    questStrip: '{giver} asks: {title}',
+    questStripAnswer: 'Answer',
     questOfferHint: 'Not now keeps it open: they will ask again the next time you arrive.',
   },
   combat: {
@@ -525,6 +527,7 @@ export const STRINGS = {
     give: 'Give',
     giveTo: 'Give {item} to {name}',
     giveWho: 'Give {item} to...',
+    giveCancel: 'Cancel',
     giveNobody: 'Nobody here to give it to.',
     giveFight: 'Not during a fight.',
     weight: 'Weight',

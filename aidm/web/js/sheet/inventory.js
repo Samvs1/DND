@@ -61,17 +61,20 @@ function giveControl(k, { client, locked, npcs }) {
     const go = () => client.send('give', { npc_id: npc.id, item_id: k.id });
     list.append(h('li', {}, h('button', { type: 'button', class: 'btn btn-small', 'data-testid': 'give-to', 'data-npc': npc.id, onclick: go }, t('sheet.giveTo', { item: k.name, name: npc.name }))));
   }
+  list.append(h('li', {}, h('button', { type: 'button', class: 'btn btn-small', 'data-testid': 'give-cancel', onclick: () => (list.hidden = true) }, t('sheet.giveCancel'))));
   const open = h('button', { type: 'button', class: 'btn btn-small', disabled: Boolean(reason), title: reason, 'aria-label': t('sheet.giveWho', { item: k.name }), 'data-testid': 'give-keepsake', onclick: () => (list.hidden = !list.hidden) }, t('sheet.give'));
-  return h('div', { class: 'inv-give' }, open, reason ? h('span', { class: 'hint', 'data-testid': 'give-reason' }, reason) : null, list);
+  return { control: h('div', { class: 'inv-give' }, open, reason ? h('span', { class: 'hint', 'data-testid': 'give-reason' }, reason) : null), list };
 }
 
 function keepsakeLine(k, opts) {
   const note = k.quest_title ? t('sheet.questItem', { title: k.quest_title }) : t('sheet.keepsakeOnly');
+  const { control, list } = giveControl(k, opts);
   return h(
     'li',
     { class: `inv-line keepsake${k.quest_title ? ' quest-item' : ''}`, 'data-testid': 'keepsake', 'data-keepsake': k.id },
     h('div', { class: 'inv-main' }, h('strong', {}, k.name), h('div', { class: 'hint', 'data-testid': 'keepsake-note' }, note), k.description ? h('div', { class: 'hint inv-meta' }, k.description) : null),
-    giveControl(k, opts),
+    control,
+    list,
   );
 }
 

@@ -316,6 +316,28 @@ body.is-controller #app {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
 }
 
+.ct-sheet .quest-strip {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.3rem 0.6rem;
+  background: var(--stone-2, var(--stone-3));
+  border-bottom: 1px solid var(--gold-dim);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.ct-sheet .quest-strip[hidden] {
+  display: none;
+}
+
+.quest-strip-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .ct-toasts {
   position: fixed;
   top: 0.5rem;

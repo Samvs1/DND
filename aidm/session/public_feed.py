@@ -28,6 +28,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass, field
 
 from aidm.dm.event_text import event_line
+from aidm.dm.narration_templates import template_line
 from aidm.dm.wording import check_subject
 from aidm.models.checks import CheckKind
 from aidm.models.combat_events import AttackRolled
@@ -36,6 +37,7 @@ from aidm.models.events import AnyEvent, CheckResolved, DeathSaveRolled, DiceRol
 from aidm.models.narration import NarrationTone
 from aidm.models.protocol_server import EventMsg, PlayerActionMsg, StoryHistory
 from aidm.models.protocol_views import DiceView, RollEntry, StoryEntry
+from aidm.models.quest_events import QuestAsked
 from aidm.models.state import GameState
 from aidm.models.world import WorldNpc
 from aidm.models.world_events import ActionDeclared, NarrationRecorded
@@ -87,7 +89,10 @@ def _present(state: GameState, npc_id: str) -> bool:
 def public_line(state: GameState, event: AnyEvent) -> str | None:
     if not all(_present(state, npc_id) for npc_id in _npc_ids(event)):
         return None
-    line = event_line(state, event)
+    # the ask is told to the narrator with instructions; the table sees the plain giver line
+    line = (
+        template_line(state, event) if isinstance(event, QuestAsked) else event_line(state, event)
+    )
     if not line or leaks(line, private_texts(state)):
         return None
     return line

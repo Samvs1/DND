@@ -53,3 +53,23 @@ def test_quest_card_accept_makes_the_quest_active(
         page.wait_for_selector(CARD, state="hidden", timeout=20000)
     host.wait_for_function(f"({QUEST_STATE})('missing-ledger') === 'active'", timeout=20000)
     assert errors == []
+
+
+def test_other_tabs_show_a_slim_strip_not_the_card(
+    browser: Browser, live_server: LiveServer, shots_dir: Path
+) -> None:
+    errors: list[str] = []
+    _screen, host, _guest = start_with_screen(browser, live_server.base, errors)
+    host.wait_for_selector(SHOWN, timeout=20000)
+    host.click("[data-testid=ct-tab-hero]")
+    strip = host.locator("[data-testid=quest-offer-strip]")
+    strip.wait_for(state="visible", timeout=20000)
+    assert "Tobin Marrow asks: The Missing Ledger" in strip.inner_text()
+    assert host.locator(CARD).is_hidden()
+    box = strip.bounding_box()
+    assert box is not None and box["height"] < 60
+    snap(host, shots_dir, "m23_offer_strip", 390)
+    host.click("[data-testid=quest-offer-answer]")
+    host.wait_for_selector(SHOWN, timeout=20000)
+    assert strip.is_hidden()
+    assert errors == []

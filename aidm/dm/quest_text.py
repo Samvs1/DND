@@ -112,10 +112,12 @@ def _favour_story(state: GameState, quest: Quest) -> str | None:
     return None  # offered: the ask line says it
 
 
-def _updated_fact(state: GameState, e: QuestUpdated) -> str:
+def _updated_fact(state: GameState, e: QuestUpdated) -> str | None:
     quest = e.quest
     if _left(e):
         return f"Quest '{quest.title}' was left behind unfinished (no penalty)."
+    if quest.state is QuestState.OFFERED:
+        return None  # the ask line says who asks
     if quest.kind is QuestKind.FAVOUR:
         return _favour_fact(state, quest)
     if quest.state is QuestState.ACTIVE and quest.objective:
@@ -159,7 +161,7 @@ def _asked_story(state: GameState, e: QuestAsked) -> str:
     title = _title(state, e.ask.quest_id)
     if _is_favour(state, e.ask.quest_id):
         return f"{_giver(state, e)} asks a favour of you: {title}."
-    return f"{_giver(state, e)} asks for your help: {title}."
+    return f"{_giver(state, e)} asks for help: {title}."
 
 
 def _no_line(state: GameState, e: object) -> None:

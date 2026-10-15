@@ -60,7 +60,7 @@ def test_install_offers_no_side_quest_and_the_first_giver_asks_on_arrival() -> N
     told = event_line(state, asked[0])  # what the narrator is told
     assert told is not None and told.startswith("Tobin Marrow asks the party: ")
     assert told.endswith("invent no other quest.")
-    assert template_line(state, asked[0]) == "Tobin Marrow asks for your help: The Missing Ledger."
+    assert template_line(state, asked[0]) == "Tobin Marrow asks for help: The Missing Ledger."
     ledger = state.world.quests[LEDGER]
     assert ledger.state is QuestState.OFFERED and ledger.objective
     assert [s.kind for s in ledger.steps] == [StepKind.CLEAR, StepKind.MEET]

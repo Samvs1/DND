@@ -2,7 +2,8 @@
 // Built from the encounter offer card's parts (dialog-text, dialog-actions, buttons) but NOT modal: it sits
 // in the sticky sheet slot like an open vote, so the hero can keep acting (a typed action does not answer it).
 // It comes from the snapshot (`quest_offer`), so a reconnecting phone shows it again; it hides while an
-// encounter offer or a fight is on.
+// encounter offer or a fight is on. Only the Play tab shows the full card; on the other tabs a slim one-line
+// strip (with an Answer button that jumps to Play) keeps it from covering the Hero and Journal content.
 import { mySeat } from '../state.js';
 import { t } from '../strings.js';
 import { clear, h } from '../ui/dom.js';
@@ -10,7 +11,8 @@ import { publicState } from './lookup.js';
 
 export function mountQuestOffer(root, { store, client }) {
   const box = h('section', { class: 'panel quest-card', hidden: true, 'aria-live': 'polite', 'data-testid': 'quest-offer' });
-  root.append(box);
+  const strip = h('div', { class: 'quest-strip', hidden: true, 'data-testid': 'quest-offer-strip' });
+  root.append(box, strip);
   let shownId = null;
 
   function build(offer) {
@@ -40,13 +42,23 @@ export function mountQuestOffer(root, { store, client }) {
     if (!offer || !mine || blocked) {
       shownId = null;
       box.hidden = true;
+      strip.hidden = true;
       return;
     }
     if (shownId !== offer.quest_id) {
       shownId = offer.quest_id;
       build(offer);
     }
-    box.hidden = false;
+    const onPlay = (state.ctab ?? 'play') === 'play';
+    box.hidden = !onPlay;
+    strip.hidden = onPlay;
+    if (!onPlay) {
+      clear(strip);
+      strip.append(
+        h('span', { class: 'quest-strip-text' }, t('table.questStrip', { giver: offer.giver, title: offer.title })),
+        h('button', { type: 'button', class: 'btn btn-small', 'data-testid': 'quest-offer-answer', onclick: () => store.update({ ctab: 'play' }) }, t('table.questStripAnswer')),
+      );
+    }
   }
   render(store.get());
   return store.subscribe(render);

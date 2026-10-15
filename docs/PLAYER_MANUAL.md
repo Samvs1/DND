@@ -237,6 +237,8 @@ The **Journal** tab has three sections: **Journal**, **Map** and **Story** (the 
 - **Accept**: the quest becomes active. Anything you already did for it counts at once.
 - **Not now**: nothing is lost and nobody minds. The quest stays offered, and the card comes back the next time you arrive where that person is.
 
+The full card shows on the **Play** tab. On the other tabs a slim line (*<person> asks: <quest>*) with an **Answer** button stays at the top and takes you back to Play, so it never covers your sheet or journal. **Give** opens its list of people right under the keepsake, with a **Cancel**.
+
 **Favours.** Besides the quests of the story, someone you meet may ask a small favour of you (look in on a place, carry a keepsake to someone, find out something). It comes through the same card, with the same **Accept** and **Not now**. A favour has one step, the game checks it off like any other step, and only one favour can be open at a time (each person asks at most one). Doing it earns that person's goodwill, never gold, experience or items. **Not now** simply lets a favour go (no penalty), walking away while they are still asking lets it go too, and a favour you have not finished lapses when you leave the region.
 
 The card stays while you keep playing (typing something else does not answer it) and goes away if the party walks on; it is not shown while a Trouble ahead warning or a fight is on, and it comes back if you reload the page. When you first arrive in a region, the journal also gets **leads** for people elsewhere in it: *Someone at Thornwood Shrine may need help.* Go there to hear them out; the lead disappears once they ask.
