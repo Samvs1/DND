@@ -316,6 +316,11 @@ body.is-controller #app {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
 }
 
+/* M23.10: no browser top margin above the card heading (the panel padding is enough) */
+.ct-sheet .quest-card h3 {
+  margin-top: 0;
+}
+
 .ct-sheet .quest-strip {
   display: flex;
   gap: 0.5rem;

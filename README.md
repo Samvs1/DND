@@ -118,6 +118,13 @@ single-device view: to play solo, open `/screen` in one window and `/play` in an
    can skip on the screen.
 7. **Hero** tab: stats, inventory (equip, unequip, drop, use), the spellbook, and the level-up dialog when you
    have earned a level (levels 1 to 5; during a fight it waits until the fight is over). The **Journal** tab holds the journal and the map (travel).
+   **Quests**: each region has one pinned main quest that ends by defeating its master or by another way the
+   party discovers (Peace, Cunning). Side quests come from people: when you arrive where someone needs help,
+   every phone shows an **Accept / Not now** card; leads point to people elsewhere. The game checks quest steps
+   off by itself and the journal shows what is done. **What now?** (Play tab, or type "what now") lists the
+   current steps and where to go without taking a turn. Quest items are keepsakes the game placed for a task;
+   the Give button on a keepsake hands it over. Leaving a region asks first and closes unfinished tasks as
+   "left behind". The campaign ends with a finale choice between two endings, which the epilogue tells.
 8. **More** tab: settings, text size, hero file export, the host panel (host only) and the screen's audio
    remote: separate narrator and music volume and mute. Any seated player can change them; the last change
    wins. The screen's gear button has the same sliders for the screen itself. The screen is the

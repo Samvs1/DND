@@ -10,6 +10,7 @@ Public API: `answer_offer`, `fight`.
 """
 
 import asyncio
+import contextlib
 from typing import TYPE_CHECKING
 
 from aidm.models.protocol_views import TablePhase
@@ -21,6 +22,7 @@ if TYPE_CHECKING:
 
 
 MAX_RETRIES = 3
+REPLY_TYPES = frozenset({"snapshot", "error", "event", "notice"})
 
 
 def _combat_off(m: Msg) -> bool:
@@ -50,6 +52,8 @@ async def _play_out(d: "Director", send: Msg, *, fight: bool) -> bool:
     fought = False
     try:
         await conn.send(send)
+        with contextlib.suppress(TimeoutError):  # settle only once the table has the message
+            await conn.wait_for(lambda m: m["type"] in REPLY_TYPES, d.timeout, mark)
         await d.srv.table.settle()
         if fight or d.srv.table.in_combat:
             await conn.wait_idx(_combat_off, d.timeout * 6, mark)

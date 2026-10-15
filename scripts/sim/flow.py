@@ -9,6 +9,7 @@ Public API: `Director`.
 """
 
 import asyncio
+import contextlib
 import random
 
 from scripts.sim.bot import Bot
@@ -168,7 +169,17 @@ class Director:
             return
         self.report.say(f"accept quest {card['quest_id']}")
         send = {"type": "answer_quest_offer", "quest_id": card["quest_id"], "accept": True}
+        mark = self.host.conn.mark()
         await self.host.conn.send(send)
+
+        def answered(m: Msg) -> bool:  # the table settles only once the answer has arrived
+            if m["type"] == "error":
+                return True
+            offer = m["state"].get("quest_offer") if m["type"] == "snapshot" else None
+            return m["type"] == "snapshot" and (offer or {}).get("quest_id") != card["quest_id"]
+
+        with contextlib.suppress(TimeoutError):
+            await self.host.conn.wait_for(answered, self.timeout, mark)
         await self.settle()
         if self.state().get("quest_offer"):
             self.report.fail(f"quest offer {card['quest_id']} still open after accepting")
