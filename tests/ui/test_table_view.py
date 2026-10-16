@@ -245,6 +245,24 @@ def test_dice_advantage_levelup_badge_and_gentle_notice(
     assert errors == []
 
 
+def test_roll_without_outcome_shows_no_null_on_the_phone(
+    browser: Browser, live_server: LiveServer
+) -> None:
+    # A damage roll has no target and no success: the toast and the last roll printed "= 5null".
+    errors: list[str] = []
+    _screen, host, _guest = start_with_screen(browser, live_server.base, errors)
+    damage = """(id) => window.aidm.dispatch({type: 'dice_roll', seq: 9002, dice: {roller_id: id,
+        label: 'Dagger damage', expression: '1d4+1', rolls: [2], adv: 'normal', modifier: 1,
+        total: 3, target: null, success: null, crit: false}})"""
+    host.evaluate(damage, host.evaluate(HERO_ID))
+    host.wait_for_selector("[data-testid=dice-toast]:not([hidden])")
+    host.wait_for_selector("[data-testid=last-roll]:not([hidden])")
+    for testid in ("dice-toast", "last-roll"):
+        text = host.locator(f"[data-testid={testid}]").inner_text()
+        assert "= 3" in text and "null" not in text, (testid, text)
+    assert errors == []
+
+
 def test_reduced_motion_reveals_narration_at_once(
     browser: Browser, live_server: LiveServer
 ) -> None:

@@ -1,4 +1,4 @@
-NEXT: none queued. M25 closed (+ M25.4 icons). Restart the server to load new art. Next playtest: the Hero tab and its inventory with loot and shop items; send logs/session.jsonl with any report. Files in flight: none. Last gate: FULL GATE PASS 12/12 (M25.3); M25.4 asset tests 449 passed.
+NEXT: M26 dice redesign, waiting for the owner's design decisions on the mockups (canvas "AIDM UI Revamp Concepts", page Dice). Files in flight: none. Last gate: FULL GATE PASS 12/12 (M26.1: 3077 passed, 13 skipped).
 
 # PROGRESS
 
@@ -248,6 +248,10 @@ Owner: "I see some duplicate information ... I feel like we can do better on thi
 - [x] M25.2 **M** Inventory: purse line (gold, weight carried, camp supplies); worn gear as labelled slots; the pack as a slot grid with counts; tap a slot for its detail card with its buttons (Use with target, Equip/Unequip, Give to a person here, Drop; button testids kept); keepsakes as now; item icons by item, then category (the crossbow is not a sword). Manual (Hero tab, Giving things). Gate: tests/ui/test_sheet.py + test_quest_journal.py + test_phone_fit.py. Done: inventory.js rewritten (purse line with the coin `--skin-coin`, `inv-worn` / `inv-pack` slot grids, `inv-detail` card for the tapped item with Use / Equip-Unequip / Give / Drop, keepsakes unchanged), Give on items (`give-item*`), 47 generated gear icons in img/icons/gear + `asset_keys._items` reads the folder, manifest rebuilt; tests: tap the item first, new `test_give_an_item_from_the_pack_to_a_person_here`; manual; DECISIONS M25. Gate: sheet, quest journal, phone fit, art rules 16 passed; asset units 445 passed; prod shots judged.
 - [x] M25.3 **ORCH** Prod review of the Hero tab (fighter and wizard, 390x844 and 393x702), FULL gate, commit `M25: Hero tab`. (main session; prod shots of fighter and wizard overview and inventory judged; FULL gate in pieces: pytest without UI 2953 passed + 13 skipped, UI 64 + 59 = 123 passed, the 11 checks clean)
 - [x] M25.4 **M** Loot and shop item icons (owner follow-up 2026-10-16): 140 icons for every gear, tool, weapon, armour and supply item without one (nine 4x4 sheets + two 2x2 fix sheets, each icon judged and mapped by eye; grid lines stripped), installed in img/icons/gear (read by `asset_keys._items`), manifest source `generated:gpt-image-1.5-m25`. 201 of 282 items have their own icon; scrolls, keys and potions share theirs. Gate: unit assets/assetgen + art-rule and placeholder UI tests 449 passed.
+
+## M26 Dice at the table (owner request 2026-10-16: "focus now on the dice rolling, the animation, how it is shown to the player")
+Review of the current dice (screen card, phone toast, Your last roll, 4d6 wizard) shown to the owner as captures; design decisions pending.
+- [x] M26.1 **M** Bug: a roll with no outcome (damage, sneak attack) printed "= 5null" in the phone toast and Your last roll (`rollNodes` returned a trailing null and `Element.append` prints it). Fixed in js/controller/lastroll.js; new `test_roll_without_outcome_shows_no_null_on_the_phone` (red before the fix, green after). Gate: tests/ui/test_table_view.py 10 passed + FULL gate.
 ---
 
 ## Goal acceptance (from the owner's /goal; the final report must prove each with raw output)

@@ -10,7 +10,8 @@ export function rollNodes(roll) {
   const kept = keptIndex(roll);
   const dice = roll.rolls.map((v, i) => h('span', { class: `ct-die${kept < 0 || kept === i ? '' : ' dropped'}` }, String(v)));
   const result = outcome(roll);
-  return [h('strong', {}, roll.label || roll.expression), ' ', ...dice, ` = ${roll.total}`, result ? h('span', { class: 'hint' }, ` ${result}`) : null];
+  // No null in the list: Element.append prints it as the text "null" (a damage roll has no outcome).
+  return [h('strong', {}, roll.label || roll.expression), ' ', ...dice, ` = ${roll.total}`, ...(result ? [h('span', { class: 'hint' }, ` ${result}`)] : [])];
 }
 
 export function mountLastRoll(root, { store, story }) {
