@@ -8,11 +8,12 @@ import time
 from collections.abc import Callable, Iterator
 from dataclasses import dataclass, replace
 from pathlib import Path
+from typing import Any, cast
 
 import pytest
 import uvicorn
 from fastapi import FastAPI
-from playwright.sync_api import Browser, Page, ViewportSize, sync_playwright
+from playwright.sync_api import Browser, BrowserContext, Page, ViewportSize, sync_playwright
 
 from aidm.dm.fake_llm import FakeLLM, FakeStep, FakeStream, default_fake_step, fake_tool_call
 from aidm.dm.llm_backend import CompletionRequest
@@ -233,9 +234,32 @@ def shots_dir() -> Path:
     return SHOTS
 
 
+# M26.5: the presentation queue holds every message behind a roll for the roll's show. UI tests
+# run the shows at 5% so the flows stay fast; a test of the shows sets the scale back itself.
+FAST_SHOWS = "window.__aidmShowScale = 0.05;"
+
+
+class _FastShows:
+    """Wraps a Browser so every new context (and page) starts with FAST_SHOWS."""
+
+    def __init__(self, inner: Browser) -> None:
+        self._inner = inner
+
+    def new_context(self, **kwargs: Any) -> BrowserContext:
+        context = self._inner.new_context(**kwargs)
+        context.add_init_script(FAST_SHOWS)
+        return context
+
+    def new_page(self, **kwargs: Any) -> Page:
+        return self.new_context(**kwargs).new_page()
+
+    def __getattr__(self, name: str) -> object:
+        return getattr(self._inner, name)
+
+
 @pytest.fixture(scope="module")
 def browser() -> Iterator[Browser]:
     with sync_playwright() as pw:
         chromium = pw.chromium.launch()
-        yield chromium
+        yield cast(Browser, _FastShows(chromium))
         chromium.close()

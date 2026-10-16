@@ -8,6 +8,7 @@ import { createDispatch } from './handlers.js';
 import { mountSoundGate } from './screen/sound_gate.js';
 import { createScribeVoice } from './scribe/voice.js';
 import { loadSettings } from './settings/model.js';
+import { createPacer } from './show/pacer.js';
 import { createStore, saved } from './state.js';
 import { createStory } from './story.js';
 import { t } from './strings.js';
@@ -30,11 +31,14 @@ skip.textContent = t('a11y.skip');
 document.body.prepend(skip);
 const store = createStore();
 const dispatch = createDispatch({ store, saved });
-const client = createClient({ store, saved, dispatch, spectator: mode === 'screen' });
+// M26.5: every server message passes the presentation queue, so nothing runs ahead of the dice.
+const pacer = createPacer({ dispatch, store });
+const client = createClient({ store, saved, dispatch: pacer.push, spectator: mode === 'screen' });
+if (mode === 'screen') pacer.bindSend(client.send); // the TV tells the server what it has shown (M26.3)
 const story = createStory(store);
 const makeAudio = (url) => (window.__aidmMakeAudio ? window.__aidmMakeAudio(url) : new Audio(url));
 const audio = createNarrationAudio({ store, mode, makeAudio });
-const ctx = { store, saved, client, mode, story, audio };
+const ctx = { store, saved, client, mode, story, audio, pacer };
 
 mountBanner(document.getElementById('banner'), store, {
   retry: () => client.retry(),
@@ -71,4 +75,4 @@ show(store.get());
 const name = saved.name();
 if (mode === 'screen') client.connect(t('screen.name'));
 else if (name && saved.token()) client.connect(name);
-window.aidm = { store, client, dispatch, audio, music, story }; // handles for tests and the console
+window.aidm = { store, client, dispatch, pacer, audio, music, story }; // handles for tests and the console
