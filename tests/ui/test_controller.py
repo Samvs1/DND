@@ -35,7 +35,8 @@ def test_tab_navigation_shows_one_pane_and_never_scrolls_sideways(
     screen, host, guest = start_with_screen(browser, live_server.base, errors, size=PHONE)
     assert host.locator(PANE.format("play")).is_visible()  # Play is the default tab
     assert host.locator("[data-testid=strip-name]").inner_text() == "Brienne"
-    assert host.locator("[data-testid=strip-ac]").inner_text().startswith("AC ")
+    ac = host.locator("[data-testid=strip-ac]").inner_text()
+    assert re.fullmatch(r"AC\s+\d+", ac.strip()), ac  # "AC" over the number on the shield (M24)
     assert host.locator("[data-testid=status-chip]").inner_text().strip()
     assert host.locator("[data-testid=hp-text]").inner_text() == "10/10"
     # Tab icons come from the manifest: owner art for play, M12.2 art for more (each falls back to

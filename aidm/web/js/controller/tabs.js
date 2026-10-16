@@ -1,4 +1,4 @@
-// Tab bar of the phone controller, right under the hero strip (M18.2; never at the bottom): Play, Hero, Journal, Scribe, More. The current tab is `store.ctab`; each
+// Tab bar of the phone controller, at the very bottom under the hero strip (M24): Play, Hero, Journal, Scribe, More. The current tab is `store.ctab`; each
 // pane is hidden unless it is the current one. Arrow keys move between tabs. Each tab shows its icon
 // `ui_icon.tab-<id>` (owner art or a generated icon; the placeholder until then).
 import { assetUrl } from '../assets.js';

@@ -1,5 +1,6 @@
-/* Phone controller (/play, M11.4; M18.2 redesign): hero strip, the tab bar right under it, then the panes. Nothing
-   important sits at the bottom of the viewport: Brave on Android lays its toolbar over the page. Mobile first. */
+/* Phone controller (/play, M11.4; M24 layout, docs/next/GOAL_UI_REVAMP.md), top to bottom: the tab's ribbon
+   and picture, the panes, the hero strip, the tab bar at the very bottom. body[data-sec] carries the tab colour.
+   The root is as tall as the visible page (ui/fit.js). Mobile first. */
 body.is-controller {
   position: fixed;
   top: 0;
@@ -22,7 +23,7 @@ body.is-controller #app {
 
 .ct {
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
   height: 100%;
   max-width: 48rem;
   margin: 0 auto;
@@ -34,78 +35,109 @@ body.is-controller #app {
   display: none;
 }
 
-.ct-strip {
+/* The ribbon over the framed picture. Without the ribbon art the side blocks show the tab colour. */
+.ct-top {
+  position: relative;
+  padding: 1.3rem 0.6rem 0;
+}
+
+.ct-ribbon {
+  position: absolute;
+  z-index: 2;
+  top: 0.05rem;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(19rem, 84%);
+  height: 2.6rem;
+  border-style: solid;
+  border-width: 0 1.75rem;
+  border-color: var(--sec-m);
+  border-image: var(--sec-ribbon) 0 62 fill / 0 1.75rem stretch;
+  transform: translateX(-50%);
+}
+
+.ct-ribbon span {
+  overflow: hidden;
+  color: var(--sec-ink);
+  font-family: var(--font-display);
+  font-size-adjust: none;
+  font-size: 1.35rem;
+  letter-spacing: 0.12em;
+  text-overflow: ellipsis;
+  text-shadow: 2px 2px 0 #000;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.ct-pic {
+  position: relative;
+  height: clamp(5.75rem, 18vh, 9.25rem);
+  overflow: hidden;
+  background: var(--card);
+  border: 8px solid var(--line-2);
+  border-image: var(--skin-frame) 16 fill / 8px stretch;
+}
+
+.ct-pic-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ct-pic-art[data-fit='hero'] {
+  object-position: 50% 35%;
+}
+
+.ct-pic-art[data-fit='journal'] {
+  object-position: 50% 60%;
+}
+
+.ct-pic-art[data-fit='scribe'] {
+  object-position: 50% 92%;
+}
+
+.ct-pic-art[data-fit='zone'] {
+  filter: brightness(0.85);
+}
+
+.ct-pic-cap {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
   display: flex;
   gap: 0.5rem;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
-  padding: 0.4rem 0.6rem;
-  background: var(--stone-1);
-  border-bottom: 2px solid var(--stone-3);
-}
-
-.ct-strip-body {
-  display: flex;
-  flex: 1;
-  gap: 0.5rem;
-  align-items: center;
-  min-width: 0;
-}
-
-.ct-portrait {
-  flex: none;
-  border: var(--frame);
-  border-radius: var(--radius);
-}
-
-.ct-hero {
-  flex: 1;
-  min-width: 0;
-}
-
-.ct-hero-top {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  align-items: center;
-}
-
-.ct-ac {
-  color: var(--parchment-dim);
-  font-size: 0.9rem;
-}
-
-.ct-res {
   margin: 0;
-  font-size: 0.8rem;
-  overflow-wrap: anywhere;
+  padding: 1.1rem 0.6rem 0.25rem;
+  font-size: 1.1rem;
+  text-shadow: 1px 1px 0 #000;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
 }
 
-.ct-chip-status {
-  flex: none;
-  max-width: 7.5rem;
-  padding: 0.25rem 0.6rem;
-  font-size: 0.85rem;
-  text-align: center;
-  border: 2px solid var(--stone-3);
-  border-radius: 0;
+.ct-pic-clock {
+  color: #f5b3b8;
+  font-family: var(--font-display);
+  font-size-adjust: none;
+  font-size: 1.6rem;
+  line-height: 1;
 }
 
-.ct-chip-status[data-status='mine'] {
-  color: var(--ink-0);
-  background: var(--gold);
-  border-color: var(--gold);
-}
-
-.ct-chip-status[data-status='down'],
-.ct-chip-status[data-status='defeated'] {
-  color: var(--blood-text);
-  border-color: var(--blood-text);
+.ct-pic .ct-fs {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.35rem;
+  background: rgba(10, 10, 12, 0.75);
+  border: 2px solid var(--line-2);
 }
 
 .ct-main {
   min-height: 0;
-  padding: 0.6rem 0.6rem calc(6rem + env(safe-area-inset-bottom)); /* scroll room above a bottom toolbar */
+  padding: 0.6rem 0.6rem 0.9rem;
   overflow-x: hidden;
   overflow-y: auto;
 }
@@ -116,38 +148,163 @@ body.is-controller #app {
   align-content: start;
 }
 
+/* The hero strip, just above the tab bar. */
+.ct-strip {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  padding: 0.4rem 0.7rem;
+  background: #0d0d0f;
+  border-top: 2px solid #26262a;
+}
+
+.ct-strip-body {
+  display: grid;
+  flex: 1;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.ct-hero-top {
+  display: flex;
+  gap: 0.45rem;
+  align-items: baseline;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.ct-hero-top strong {
+  font-family: var(--font-display);
+  font-size-adjust: none;
+  font-size: 1.35rem;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.ct-meta,
+.ct-res {
+  overflow: hidden;
+  color: var(--text-3);
+  font-size: 0.95rem;
+  text-overflow: ellipsis;
+}
+
+.ct-res {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  text-align: right;
+}
+
+.ct-hero-top .ct-chip-status {
+  margin-left: auto;
+  align-self: center;
+}
+
+.ct-res + .ct-chip-status {
+  margin-left: 0;
+}
+
+.ct-strip .hp-text {
+  font-family: var(--font-display);
+  font-size-adjust: none;
+  font-size: 1.15rem;
+  text-align: right;
+}
+
+.ct-chip-status {
+  flex: none;
+  max-width: 7.5rem;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.95rem;
+  text-align: center;
+  border: 2px solid var(--line-2);
+  border-radius: 0;
+}
+
+.ct-chip-status[data-status='mine'] {
+  color: #ffffff;
+  background: var(--accent-fill);
+  border-color: var(--sec-l);
+}
+
+.ct-chip-status[data-status='down'],
+.ct-chip-status[data-status='defeated'] {
+  color: var(--blood-text);
+  border-color: var(--blood-text);
+}
+
+/* AC on the iron shield; without the art a plain bordered box. */
+.ct-ac {
+  display: inline-block;
+  width: 2.6rem;
+  height: 3rem;
+  padding-top: 0.5rem;
+  color: #efebe1;
+  font-family: var(--font-display);
+  font-size-adjust: none;
+  line-height: 0.85;
+  text-align: center;
+  text-shadow: 1px 1px 0 #000;
+  background: var(--skin-shield, none) center / contain no-repeat;
+}
+
+.ct-ac-l,
+.ct-ac-n {
+  display: block;
+}
+
+.ct-ac-l {
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+}
+
+.ct-ac-n {
+  font-size: 1.35rem;
+}
+
+/* The tab bar at the very bottom (owner choice, M24). */
 .ct-tabs {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  background: var(--stone-0);
-  border-bottom: 2px solid var(--stone-3);
+  gap: 0.25rem;
+  padding: 0.35rem 0.45rem calc(0.45rem + env(safe-area-inset-bottom));
+  background: #0d0d0f;
+  border-top: 2px solid #19191c;
 }
 
 .ct-tab {
   position: relative;
-  min-height: 2.9rem;
-  padding: 0.3rem 0.2rem 0.25rem;
-  color: var(--parchment-dim);
-  font: inherit;
-  font-size: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  align-items: center;
+  justify-content: center;
+  min-height: 3.6rem;
+  padding: 0.2rem 0;
+  color: var(--text-3);
+  font-family: var(--font-display);
+  font-size-adjust: none;
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   background: none;
-  border: 0;
-  border-bottom: 3px solid transparent;
+  border: 2px solid transparent;
   cursor: pointer;
 }
 
 .ct-tab[aria-selected='true'] {
-  color: var(--gold);
-  background: var(--stone-1);
-  border-bottom-color: var(--gold);
+  color: #ffffff;
+  text-shadow: 1px 1px 0 #000;
+  background: linear-gradient(var(--sec-m), var(--sec-d));
+  border-color: var(--sec-l);
 }
 
 .ct-tab-icon {
   display: block;
-  width: 1.25rem;
-  height: 1.25rem;
-  margin: 0 auto 0.1rem;
-  opacity: 0.7;
+  width: 1.9rem;
+  height: 1.9rem;
+  opacity: 0.85;
   image-rendering: pixelated;
 }
 
@@ -156,7 +313,9 @@ body.is-controller #app {
 }
 
 .ct-tab .badge {
-  margin-left: 0.3rem;
+  position: absolute;
+  top: 0.15rem;
+  right: 0.3rem;
 }
 
 .ct-pane-play:not([hidden]) {
@@ -441,23 +600,16 @@ body.is-controller #app {
   display: none;
 }
 
-/* M18.2: the Play tab's Now card, idea chips and last roll; the full screen button. */
-.ct-strip-side {
-  display: flex;
-  flex: none;
-  gap: 0.35rem;
-  align-items: center;
-}
-
+/* M18.2: the Play tab's Now card, idea chips and last roll; the full screen button (on the picture, M24). */
 .ct-fs {
   display: grid;
   place-items: center;
   width: 2.25rem;
   height: 2.25rem;
   padding: 0;
-  color: var(--parchment-dim);
-  background: var(--stone-2);
-  border: 1px solid var(--stone-3);
+  color: var(--text-2);
+  background: var(--raised);
+  border: 1px solid var(--line-2);
   border-radius: var(--radius);
 }
 

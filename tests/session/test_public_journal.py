@@ -6,6 +6,7 @@ from aidm.models.protocol_views import TablePhase
 from aidm.models.state import GameState
 from aidm.models.world import Quest, QuestState
 from aidm.models.world_events import QuestUpdated
+from aidm.rules.progression import node_plan
 from aidm.rules.quest_plan import main_world_quest
 from aidm.rules.shop import StockEntry
 from aidm.session.reducer import apply
@@ -81,6 +82,15 @@ def test_scene_lists_shopkeepers_present_and_peaceful() -> None:
     state.world.npcs["npc-mira"].hostile = True
     scene = public_scene(state)
     assert scene is not None and scene.shopkeepers == ()
+
+
+def test_scene_terrain_is_the_first_terrain_tag_of_the_place() -> None:
+    _start, state, _log = campaign_state()
+    scene = public_scene(state)
+    assert scene is not None
+    node = node_plan(state, scene.node_id)
+    assert node is not None and node.terrain_tags
+    assert scene.terrain == node.terrain_tags[0]  # art key region_banner.<terrain> (M24)
 
 
 def test_stock_lines_carry_category_and_camp_supplies() -> None:

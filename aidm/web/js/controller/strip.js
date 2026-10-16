@@ -1,13 +1,12 @@
-// Persistent top strip of the phone: hero portrait and name, HP bar, AC, conditions, a resources summary and
-// the turn/floor status chip (with the turn timer's countdown, M15.1).
-import { assetUrl } from '../assets.js';
-import { conditionIcons, hpBar, portraitKeys } from '../table/party.js';
+// The hero strip of the phone (M24: just above the tab bar at the bottom): name, level and class, resources,
+// conditions, the HP bar, the turn/floor status chip (with the turn timer's countdown, M15.1) and the AC on an
+// iron shield.
+import { conditionIcons, hpBar } from '../table/party.js';
 import { myHero } from '../table/lookup.js';
 import { t } from '../strings.js';
 import { clear, h } from '../ui/dom.js';
 import { titleCase } from '../ui/format.js';
 import { everySecond } from '../ui/countdown.js';
-import { mountFullscreen } from '../ui/fullscreen.js';
 import { statusOf } from './status.js';
 
 function resourceText(state) {
@@ -15,11 +14,15 @@ function resourceText(state) {
   return rows.map((r) => t('sheet.resourceLine', { key: titleCase(r.key), current: r.current, max: r.maximum })).join(' | ');
 }
 
+function acShield(hero) {
+  return h('span', { class: 'ct-ac', 'data-testid': 'strip-ac', title: t('table.ac', { n: hero.ac }) }, h('span', { class: 'ct-ac-l' }, 'AC'), h('span', { class: 'ct-ac-n' }, String(hero.ac)));
+}
+
 export function mountStrip(root, store) {
   const chip = h('span', { class: 'ct-chip-status', role: 'status', 'data-testid': 'status-chip' });
   const body = h('div', { class: 'ct-strip-body' });
-  const side = h('div', { class: 'ct-strip-side' }, chip);
-  root.append(body, side);
+  const shield = h('div', { class: 'ct-strip-ac' });
+  root.append(body, shield);
   let last = '';
 
   function renderChip(state) {
@@ -36,25 +39,28 @@ export function mountStrip(root, store) {
     if (key === last) return;
     last = key;
     clear(body);
-    if (!hero) return void body.append(h('p', { class: 'hint' }, t('ct.noHero')));
+    clear(shield);
+    if (!hero) return void body.append(h('p', { class: 'hint' }, t('ct.noHero')), chip);
+    const meta = t('ct.stripMeta', { n: hero.level ?? 1, cls: titleCase(hero.class_index ?? '') });
     body.append(
-      h('img', { class: 'ct-portrait', src: assetUrl(portraitKeys(hero)), alt: '', width: 40, height: 40 }),
       h(
         'div',
-        { class: 'ct-hero' },
-        h('div', { class: 'ct-hero-top' }, h('strong', { 'data-testid': 'strip-name' }, hero.name), h('span', { class: 'ct-ac', 'data-testid': 'strip-ac' }, t('table.ac', { n: hero.ac })), conditionIcons(hero)),
-        hpBar(hero),
-        resources ? h('p', { class: 'ct-res hint', 'data-testid': 'strip-resources' }, resources) : null,
+        { class: 'ct-hero-top' },
+        h('strong', { 'data-testid': 'strip-name' }, hero.name),
+        h('span', { class: 'ct-meta' }, meta),
+        conditionIcons(hero),
+        h('span', { class: 'ct-res', 'data-testid': 'strip-resources', hidden: !resources }, resources),
+        chip,
       ),
+      hpBar(hero),
     );
+    shield.append(acShield(hero));
   }
   render(store.get());
   const stopTick = everySecond(store, renderChip); // the turn countdown (M15.1)
   const stop = store.subscribe(render);
-  const stopFs = mountFullscreen(side); // M18.2: hides the browser's bars on Android
   return () => {
     stopTick();
     stop();
-    stopFs();
   };
 }

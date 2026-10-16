@@ -99,9 +99,13 @@ class PublicFeature(_View):
 
 
 class PublicScene(_View):
+    """The party's place. `terrain` is its first terrain tag (art key `region_banner.<terrain>`,
+    the phone's Play picture and the screen header, M24), "" when unknown."""
+
     node_id: str
     name: str
     description: str = ""
+    terrain: str = ""
     exits: tuple[PublicExit, ...] = ()
     npcs: tuple[PublicNpcView, ...] = ()
     features: tuple[PublicFeature, ...] = ()

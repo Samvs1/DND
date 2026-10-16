@@ -49,7 +49,7 @@ from aidm.models.state import Creature, GameState
 from aidm.models.zones import Zone
 from aidm.rules.gateway_lock import locked_reason
 from aidm.rules.hex_layout import Hex, hex_layout
-from aidm.rules.progression import campaign_complete
+from aidm.rules.progression import campaign_complete, node_plan
 from aidm.rules.scene import current_scene, node_display_name
 from aidm.rules.scribe import scribe_view
 from aidm.rules.shop import StockEntry
@@ -106,10 +106,12 @@ def public_scene(state: GameState) -> PublicScene | None:
         PublicFeature(id=f.id, kind=f.kind.value, name=f.name, description=f.description)
         for f in (world.features[fid] for fid in scene.feature_ids)
     )
+    node = node_plan(state, scene.node_id)
     return PublicScene(
         node_id=scene.node_id,
         name=scene.node_name,
         description=scene.description,
+        terrain=next(iter(node.terrain_tags), "") if node is not None else "",
         exits=exits,
         npcs=tuple(public_npc_view(world.npcs[nid]) for nid in scene.npc_ids),
         features=features,

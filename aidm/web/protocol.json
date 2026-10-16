@@ -4990,6 +4990,7 @@
         },
         "PublicScene": {
           "additionalProperties": false,
+          "description": "The party's place. `terrain` is its first terrain tag (art key `region_banner.<terrain>`,\nthe phone's Play picture and the screen header, M24), \"\" when unknown.",
           "properties": {
             "description": {
               "default": "",
@@ -5055,6 +5056,11 @@
               },
               "title": "Shopkeepers",
               "type": "array"
+            },
+            "terrain": {
+              "default": "",
+              "title": "Terrain",
+              "type": "string"
             }
           },
           "required": [
