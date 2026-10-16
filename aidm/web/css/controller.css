@@ -73,7 +73,7 @@ body.is-controller #app {
 
 .ct-pic {
   position: relative;
-  height: clamp(5.75rem, 18vh, 9.25rem);
+  height: clamp(4.25rem, calc(42vh - 12.8rem), 9.25rem); /* about 150 px on a tall phone, 90 px on a short one */
   overflow: hidden;
   background: var(--card);
   border: 8px solid var(--line-2);
@@ -88,7 +88,7 @@ body.is-controller #app {
 }
 
 .ct-pic-art[data-fit='hero'] {
-  object-position: 50% 35%;
+  object-position: 50% 60%; /* the portraits stand in the lower half of a square scene */
 }
 
 .ct-pic-art[data-fit='journal'] {
@@ -431,17 +431,24 @@ body.is-controller #app {
 
 .ct-subtab {
   flex: 1;
-  min-height: 2.5rem;
-  color: var(--parchment-dim);
-  font: inherit;
-  background: var(--stone-1);
-  border: 2px solid var(--stone-3);
-  border-radius: var(--radius);
+  min-height: 2.4rem;
+  color: var(--text-3);
+  font-family: var(--font-display);
+  font-size-adjust: none;
+  font-size: 1.05rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--raised);
+  border: 2px solid var(--line-2);
+  border-radius: 0;
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.5);
 }
 
 .ct-subtab[aria-selected='true'] {
-  color: var(--gold);
-  border-color: var(--gold);
+  color: #ffffff;
+  text-shadow: 1px 1px 0 #000;
+  background: var(--accent-fill);
+  border-color: var(--sec-l);
 }
 
 .panel-embed,
@@ -457,11 +464,32 @@ body.is-controller #app {
   margin: 0;
 }
 
+/* M24: the ribbon names the tab, so a pane's own title is for screen readers only. */
+.ct-pane > .ct-h {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.ct-pane h3 {
+  margin: 0.4rem 0 0;
+  color: var(--sec-l);
+  font-size: 0.95rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
 .ct-sheet {
-  position: sticky; /* M18.2: an open vote sits under the tab bar, never at the bottom of the viewport */
+  position: sticky; /* an open vote or quest card stays at the top of the content (M18.2, M24) */
   top: -0.6rem;
   z-index: 20;
   margin: -0.6rem -0.6rem 0.6rem;
+  padding: 0.6rem 0.6rem 0;
+  background: linear-gradient(var(--bg) 85%, transparent);
 }
 
 .ct-sheet:empty {
@@ -471,7 +499,7 @@ body.is-controller #app {
 .ct-sheet .vote,
 .ct-sheet .quest-card {
   margin: 0;
-  border-radius: 0 0 var(--radius) var(--radius);
+  border-radius: 0;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
 }
 
@@ -485,9 +513,9 @@ body.is-controller #app {
   gap: 0.5rem;
   align-items: center;
   justify-content: space-between;
-  padding: 0.3rem 0.6rem;
-  background: var(--stone-2, var(--stone-3));
-  border-bottom: 1px solid var(--gold-dim);
+  padding: 0.3rem 0.3rem 0.3rem 0.6rem;
+  background: var(--raised);
+  border: 2px solid var(--line-2);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
 }
 
@@ -632,43 +660,38 @@ body.is-controller #app {
 .ct-now {
   display: grid;
   gap: 0.2rem;
-  padding: 0.75rem 0.85rem;
-  background: linear-gradient(180deg, var(--stone-2), var(--stone-1));
-  border: 1px solid var(--stone-3);
-  border-left: 6px solid var(--gold-dim);
-  border-radius: var(--radius);
+  padding: 0.4rem 0.7rem 0.6rem;
+  background: var(--card);
+  border: 8px solid var(--line-2);
+  border-image: var(--skin-frame) 16 fill / 8px stretch;
+  border-radius: 0;
 }
 
-.ct-now[data-status='mine'] {
-  border-left-color: var(--gold);
-}
-
-.ct-now[data-status='telling'] {
-  border-left-color: var(--amethyst);
-}
-
-.ct-now[data-status='down'],
-.ct-now[data-status='defeated'] {
-  border-left-color: var(--blood-text);
+/* The place reads as the card's label (M24), above the status line. */
+.ct-now-place {
+  order: -1;
+  margin: 0;
+  color: var(--sec-l);
+  font-family: var(--font-display); font-size-adjust: none;
+  font-size: 0.95rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 .ct-now-line {
   margin: 0;
-  color: var(--parchment);
+  color: var(--text);
   font-size: 1.2rem;
-  line-height: 1.3;
+  line-height: 1.25;
 }
 
-.ct-now[data-status='mine'] .ct-now-line {
-  color: var(--gold);
+.ct-now[data-status='telling'] .ct-now-line {
+  color: var(--purple-l);
 }
 
-.ct-now-place {
-  margin: 0.2rem 0 0;
-  color: var(--gold);
-  font-family: var(--font-display); font-size-adjust: none;
-  font-size: 1.05rem;
-  letter-spacing: 0.03em;
+.ct-now[data-status='down'] .ct-now-line,
+.ct-now[data-status='defeated'] .ct-now-line {
+  color: var(--blood-text);
 }
 
 .ct-now-goal {
@@ -683,7 +706,7 @@ body.is-controller #app {
 
 .ct-now-goal::before {
   content: '\25C6\00A0\00A0';
-  color: var(--gold-dim);
+  color: var(--sec-l);
 }
 
 /* M20.2: help a downed ally up (outside a fight) */
@@ -710,11 +733,11 @@ body.is-controller #app {
 
 .ct-idea-h {
   margin: 0;
-  color: var(--muted);
+  color: var(--sec-l);
   font-family: var(--font-display); font-size-adjust: none;
   font-size: 0.95rem;
   font-weight: normal;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
@@ -730,20 +753,20 @@ body.is-controller #app {
   align-items: center;
   max-width: 100%;
   min-height: 2.5rem;
-  padding: 0.3rem 0.75rem 0.3rem 0.45rem;
-  color: var(--parchment);
+  padding: 0.25rem 0.75rem 0.25rem 0.4rem;
+  color: var(--text);
   font: inherit;
-  font-size: 0.95rem;
+  font-size: 1rem;
   text-align: left;
-  background: var(--stone-1);
-  border: 1px solid var(--stone-3);
+  background: #141416;
+  border: 2px solid #2a2a2e;
   border-radius: 0;
   cursor: pointer;
 }
 
 .ct-chip:hover:not(:disabled),
 .ct-chip:focus-visible {
-  border-color: var(--gold-dim);
+  border-color: var(--sec-l);
 }
 
 .ct-chip:active:not(:disabled) {
@@ -771,19 +794,19 @@ body.is-controller #app {
 .ct-roll {
   display: grid;
   gap: 0.25rem;
-  padding: 0.55rem 0.75rem;
-  background: var(--stone-1);
-  border: 1px solid var(--stone-3);
-  border-left: 4px solid var(--stone-3);
-  border-radius: var(--radius);
+  padding: 0.4rem 0.7rem 0.55rem;
+  background: var(--card);
+  border: 8px solid var(--line-2);
+  border-image: var(--skin-frame) 16 fill / 8px stretch;
+  border-radius: 0;
 }
 
-.ct-roll[data-success='yes'] {
-  border-left-color: var(--moss-text);
+.ct-roll[data-success='yes'] .ct-roll-body {
+  color: var(--moss-text);
 }
 
-.ct-roll[data-success='no'] {
-  border-left-color: var(--blood-text);
+.ct-roll[data-success='no'] .ct-roll-body {
+  color: var(--blood-text);
 }
 
 .ct-roll-body {
@@ -880,4 +903,28 @@ body.is-controller #app {
   margin: 0.3rem 0 0;
   color: var(--parchment-dim);
   font-size: 0.9rem;
+}
+
+/* M24: the action box is its own iron card on the Play tab. */
+.ct-action {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.5rem 0.6rem 0.6rem;
+  background: var(--card);
+  border: 8px solid var(--line-2);
+  border-image: var(--skin-frame) 16 fill / 8px stretch;
+}
+
+.ct-send .btn {
+  min-width: 6.5rem;
+}
+
+/* M24: an embedded panel's title (Journal, Map, Story) repeats its sub-tab: screen readers only. */
+.ct .panel-embed > h2 {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }

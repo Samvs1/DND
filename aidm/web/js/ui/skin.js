@@ -13,6 +13,7 @@ const SKIN = {
   '--skin-slot-selected': 'ui_skin.slot-selected',
   '--skin-slot-far': 'ui_skin.slot-far',
   '--skin-shield': 'ui_icon.ac-shield',
+  '--skin-quill': 'ui_icon.quill',
   ...Object.fromEntries(SKIN_COLOURS.map((c) => [`--skin-ribbon-${c}`, `ui_skin.ribbon-${c}`])),
 };
 

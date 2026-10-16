@@ -289,7 +289,8 @@ The reaction is shown for completeness, but no reaction abilities work in this v
 - If your phone loses its connection, your turn waits **30 seconds** for you to come back (reconnecting gives you your turn and your clock back). After that, or when your turn comes up while you have been away longer, the game plays the same careful turn for you.
 
 ### The hotbar
-- Buttons are numbered. On a keyboard, **keys 1 to 9** use the numbered slots on your turn, and **Esc** cancels an aim.
+- Each button is a slot with its picture and its name under it, in rows by kind (attacks, actions, bonus actions, class features). Buttons are numbered. On a keyboard, **keys 1 to 9** use the numbered slots on your turn, and **Esc** cancels an aim.
+- A slot with a **cyan** frame is the one you picked; an attack slot with a **red** frame says **Out of range** for the target you chose.
 - Pick a **target chip** (name and health: Unhurt, Wounded, Bloodied, Fallen, Fled). Attacks then show your **chance to hit** and the chance of a critical hit against that target's armour class, and whether you have advantage or disadvantage. Spells with an attack roll (Eldritch Blast, Fire Bolt, ...) show their chance too, in the spell list, and the chip shows your best chance; it says **Out of range** only when neither a weapon nor such a spell can reach.
 - Sections: **Attacks**, **Spells**, **Actions**, **Bonus actions**, **Items** and **Class features**.
 

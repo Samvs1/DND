@@ -2,6 +2,7 @@
 // tooltips, spells and items popovers, standard and bonus actions, class feature actions with their uses left,
 // end turn, number-key shortcuts.
 // Non-active players see who is acting and can send suggestions (suggest.js).
+import { realAssetUrl } from '../assets.js';
 import { t } from '../strings.js';
 import { clear, h } from '../ui/dom.js';
 import { attackSlots, bonusSlots, featureSlots, moveSlots } from './hotbar_slots.js';
@@ -40,13 +41,19 @@ function keyBadge(number) {
   return number <= 9 ? h('span', { class: 'hb-key', 'aria-hidden': 'true' }, String(number)) : null;
 }
 
+/** The slot's picture: its own art (a weapon) or the action icon `ui_icon.cmd-<id>` when one exists (M24). */
+function slotArt(id, art) {
+  const src = art || realAssetUrl(`ui_icon.cmd-${id}`);
+  return src ? h('img', { class: 'hb-art', src, alt: '', width: 28, height: 28 }) : null;
+}
+
 function slotButton(desc, number) {
   const adv = desc.adv && desc.adv !== 'normal' ? h('span', { class: `adv-mark ${desc.adv}`, 'data-testid': 'adv-mark' }, t(desc.adv === 'advantage' ? 'hotbar.advUp' : 'hotbar.advDown')) : null;
   return h(
     'button',
-    { type: 'button', class: `hb-slot ${desc.group}`, 'data-testid': `slot-${desc.id}`, 'data-key': number <= 9 ? String(number) : null, 'aria-keyshortcuts': number <= 9 ? String(number) : null, disabled: Boolean(desc.off), 'aria-describedby': `tip-${desc.id}`, onclick: desc.run },
+    { type: 'button', class: `hb-slot ${desc.group}${desc.far ? ' far' : ''}`, 'data-testid': `slot-${desc.id}`, 'data-key': number <= 9 ? String(number) : null, 'aria-keyshortcuts': number <= 9 ? String(number) : null, disabled: Boolean(desc.off), 'aria-describedby': `tip-${desc.id}`, onclick: desc.run },
     keyBadge(number),
-    desc.art ? h('img', { class: 'hb-art', src: desc.art, alt: '', width: 28, height: 28 }) : null,
+    slotArt(desc.id, desc.art),
     h('span', { class: 'hb-label' }, desc.label),
     desc.sub ? h('span', { class: 'hb-sub', 'data-testid': 'slot-sub' }, desc.sub) : null,
     adv,
@@ -59,6 +66,7 @@ function popButton(id, label, tip, open, onclick, number) {
     'button',
     { type: 'button', class: `hb-slot pop${open ? ' open' : ''}`, 'data-testid': `slot-${id}`, 'data-key': number <= 9 ? String(number) : null, 'aria-keyshortcuts': number <= 9 ? String(number) : null, 'aria-expanded': open ? 'true' : 'false', 'aria-describedby': `tip-${id}`, onclick },
     keyBadge(number),
+    slotArt(id, ''),
     h('span', { class: 'hb-label' }, label),
     h('span', { class: 'hb-tip', role: 'tooltip', id: `tip-${id}` }, tip),
   );
@@ -93,7 +101,7 @@ function fillBody(body, pop, c, ctrl) {
   group('moves', slots.filter((s) => s.group === 'moves'));
   group('bonus', slots.filter((s) => s.group === 'bonus'));
   group('features', featureSlots(c));
-  body.append(h('button', { type: 'button', class: 'btn btn-primary hb-end', 'data-testid': 'end-turn', onclick: () => ctrl.send({ type: 'end_turn', actor_id: c.me }) }, t('hotbar.endTurn')));
+  body.append(h('button', { type: 'button', class: 'btn btn-primary hb-end', 'data-testid': 'end-turn', onclick: () => ctrl.send({ type: 'end_turn', actor_id: c.me }) }, slotArt('end-turn', ''), h('span', {}, t('hotbar.endTurn'))));
   if (ctrl.ui.popup === 'spells') pop.append(spellPopover(c));
   if (ctrl.ui.popup === 'items') pop.append(itemPopover(c));
 }

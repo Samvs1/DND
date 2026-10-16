@@ -2,11 +2,16 @@
 .sc-head { display: flex; gap: 0.8rem; align-items: center; }
 .sc-portrait { width: 6rem; height: 6rem; object-fit: cover; border: var(--frame); border-radius: var(--radius); background: var(--stone-2); }
 .sc-flavour { margin: 0; color: var(--parchment-dim); font-style: italic; }
+/* M24: on the phone the tab's picture is the Scribe; his line gets the quill, his name is for screen readers. */
+.ct .sc-portrait { display: none; }
+.ct .sc-head .ct-h { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.ct .sc-flavour { display: flex; gap: 0.6rem; font-size: 1.15rem; font-style: normal; }
+.ct .sc-flavour::before { content: ''; flex: none; width: 1.6rem; height: 1.5rem; background: var(--skin-quill, none) center / contain no-repeat; }
 .sc-reason { margin: 0.8rem 0 0.2rem; font-style: italic; color: var(--parchment); }
 .sc-list { list-style: none; margin: 0.6rem 0; padding: 0; display: grid; gap: 0.6rem; }
-.sc-fallen { display: grid; gap: 0.5rem; padding: 0.7rem; background: var(--stone-2); border: var(--frame); border-radius: var(--radius); }
+.sc-fallen { display: grid; gap: 0.5rem; padding: 0.45rem 0.7rem 0.6rem; background: var(--card); border: 8px solid var(--line-2); border-image: var(--skin-frame) 16 fill / 8px stretch; border-radius: 0; }
 .sc-fallen-head { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: baseline; }
-.sc-price { margin-left: auto; color: var(--gold); font-weight: 700; }
+.sc-price { margin-left: auto; color: var(--text); font-family: var(--font-display); font-size-adjust: none; font-size: 1.3rem; font-weight: 400; }
 .sc-warn { margin: 0; color: var(--blood-text); font-weight: 700; }
 .sc-status { margin: 0.4rem 0; color: var(--blood-text); font-style: italic; }
 .sc-status:empty { display: none; }

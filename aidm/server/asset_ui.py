@@ -58,6 +58,25 @@ _SKIN = (
     ("ui_icon.quill", "img/icons/ui/quill.png", "A dark feather quill", True),
     ("scene.journal", "img/scenes/journal.png", "A map desk by candle and moonlight", False),
     ("scene.more", "img/scenes/more.png", "A stone room corner with a lute and books", False),
+    # The fight hotbar's basic actions (js/combat/hotbar.js reads ui_icon.cmd-<slot id>).
+    *(
+        (f"ui_icon.cmd-{cmd}", f"img/icons/combat/{cmd}.png", f"A pixel action icon: {cmd}", True)
+        for cmd in (
+            "dash",
+            "disengage",
+            "dodge",
+            "hide",
+            "help",
+            "throw",
+            "flee",
+            "shove-prone",
+            "shove-push",
+            "jump",
+            "spells",
+            "items",
+            "end-turn",
+        )
+    ),
 )
 
 UI_ART = (

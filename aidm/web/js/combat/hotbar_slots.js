@@ -37,6 +37,7 @@ export function attackSlots(ctx) {
       label: a.name,
       sub: chance ? (chance.in_range ? percent(chance.probability) : t('hotbar.outOfRange')) : t('hotbar.attackLine', { bonus: a.attack_bonus >= 0 ? `+${a.attack_bonus}` : a.attack_bonus, damage: a.damage }),
       adv: chance && chance.in_range ? chance.adv : 'normal',
+      far: Boolean(chance && !chance.in_range),
       art: assetUrl(['item_icon.' + (a.item || a.hand), `item_icon.${a.range_band === 'ranged' ? 'weapon' : 'weapon'}`]),
       tip: `${t(`hotbar.hand_${a.hand}`)}. ${t('hotbar.attackLine', { bonus: a.attack_bonus >= 0 ? `+${a.attack_bonus}` : a.attack_bonus, damage: a.damage })}. ${chanceText(chance)}`,
       off: can ? null : offhand ? 'no_bonus_action' : 'no_action',

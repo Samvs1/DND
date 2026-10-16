@@ -5386,6 +5386,188 @@
   "reviewed": true,
   "cost_eur": 0.004237
  },
+ "ui_icon.cmd-dash": {
+  "kind": "ui_icon",
+  "file": "img/icons/combat/dash.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M24 fight hotbar action icon sheet, judged by the main session (docs/next/GOAL_UI_REVAMP.md)",
+  "source": "generated:gpt-image-1.5-m24",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "ui_icon.cmd-disengage": {
+  "kind": "ui_icon",
+  "file": "img/icons/combat/disengage.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M24 fight hotbar action icon sheet, judged by the main session (docs/next/GOAL_UI_REVAMP.md)",
+  "source": "generated:gpt-image-1.5-m24",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "ui_icon.cmd-dodge": {
+  "kind": "ui_icon",
+  "file": "img/icons/combat/dodge.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M24 fight hotbar action icon sheet, judged by the main session (docs/next/GOAL_UI_REVAMP.md)",
+  "source": "generated:gpt-image-1.5-m24",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "ui_icon.cmd-end-turn": {
+  "kind": "ui_icon",
+  "file": "img/icons/combat/end-turn.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M24 fight hotbar action icon sheet, judged by the main session (docs/next/GOAL_UI_REVAMP.md)",
+  "source": "generated:gpt-image-1.5-m24",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "ui_icon.cmd-flee": {
+  "kind": "ui_icon",
+  "file": "img/icons/combat/flee.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M24 fight hotbar action icon sheet, judged by the main session (docs/next/GOAL_UI_REVAMP.md)",
+  "source": "generated:gpt-image-1.5-m24",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "ui_icon.cmd-help": {
+  "kind": "ui_icon",
+  "file": "img/icons/combat/help.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M24 fight hotbar action icon sheet, judged by the main session (docs/next/GOAL_UI_REVAMP.md)",
+  "source": "generated:gpt-image-1.5-m24",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "ui_icon.cmd-hide": {
+  "kind": "ui_icon",
+  "file": "img/icons/combat/hide.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M24 fight hotbar action icon sheet, judged by the main session (docs/next/GOAL_UI_REVAMP.md)",
+  "source": "generated:gpt-image-1.5-m24",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "ui_icon.cmd-items": {
+  "kind": "ui_icon",
+  "file": "img/icons/combat/items.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M24 fight hotbar action icon sheet, judged by the main session (docs/next/GOAL_UI_REVAMP.md)",
+  "source": "generated:gpt-image-1.5-m24",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "ui_icon.cmd-jump": {
+  "kind": "ui_icon",
+  "file": "img/icons/combat/jump.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M24 fight hotbar action icon sheet, judged by the main session (docs/next/GOAL_UI_REVAMP.md)",
+  "source": "generated:gpt-image-1.5-m24",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "ui_icon.cmd-shove-prone": {
+  "kind": "ui_icon",
+  "file": "img/icons/combat/shove-prone.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M24 fight hotbar action icon sheet, judged by the main session (docs/next/GOAL_UI_REVAMP.md)",
+  "source": "generated:gpt-image-1.5-m24",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "ui_icon.cmd-shove-push": {
+  "kind": "ui_icon",
+  "file": "img/icons/combat/shove-push.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M24 fight hotbar action icon sheet, judged by the main session (docs/next/GOAL_UI_REVAMP.md)",
+  "source": "generated:gpt-image-1.5-m24",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "ui_icon.cmd-spells": {
+  "kind": "ui_icon",
+  "file": "img/icons/combat/spells.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M24 fight hotbar action icon sheet, judged by the main session (docs/next/GOAL_UI_REVAMP.md)",
+  "source": "generated:gpt-image-1.5-m24",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "ui_icon.cmd-throw": {
+  "kind": "ui_icon",
+  "file": "img/icons/combat/throw.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M24 fight hotbar action icon sheet, judged by the main session (docs/next/GOAL_UI_REVAMP.md)",
+  "source": "generated:gpt-image-1.5-m24",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "ui_icon.hourglass": {
   "kind": "ui_icon",
   "file": "img/icons/ui/hourglass.png",

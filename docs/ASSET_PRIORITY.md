@@ -9,12 +9,12 @@ overwritten. P2 is generated only with `--tier 2` or `--tier all` (P1 + P2), in 
 order listed (P1 first, then P2 by kind visibility); a run whose estimate exceeds
 `--cap` is cut from the end of that order.
 
-P1: 128 entries (item_icon 1, monster_token 30, portrait 59, region_banner 6, scene 3, spell_icon 1, surface_icon 5, ui_icon 12, ui_skin 11).
+P1: 141 entries (item_icon 1, monster_token 30, portrait 59, region_banner 6, scene 3, spell_icon 1, surface_icon 5, ui_icon 25, ui_skin 11).
 P2: 242 entries (condition_icon 21, monster_token 65, portrait 10, region_banner 6, spell_icon 61, surface_icon 11, zone_card 9, zone_hex 55, zone_icon 4).
 
 ## P1
 
-### UI chrome (28)
+### UI chrome (41)
 
 - scene.defeat
 - portrait.scribe.welcome
@@ -44,6 +44,19 @@ P2: 242 entries (condition_icon 21, monster_token 65, portrait 10, region_banner
 - ui_icon.quill
 - scene.journal
 - scene.more
+- ui_icon.cmd-dash
+- ui_icon.cmd-disengage
+- ui_icon.cmd-dodge
+- ui_icon.cmd-hide
+- ui_icon.cmd-help
+- ui_icon.cmd-throw
+- ui_icon.cmd-flee
+- ui_icon.cmd-shove-prone
+- ui_icon.cmd-shove-push
+- ui_icon.cmd-jump
+- ui_icon.cmd-spells
+- ui_icon.cmd-items
+- ui_icon.cmd-end-turn
 
 ### wizard portrait (18)
 
