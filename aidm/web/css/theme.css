@@ -1,37 +1,138 @@
-/* Theme: dark fantasy (stone, parchment, gold). All colours are variables; no art paths here. */
+/* Theme: dark pixel (M24, docs/next/GOAL_UI_REVAMP.md). All colours are variables; the skin art comes
+   from js/ui/skin.js as --skin-* custom properties (CSS never names an art file). */
 @font-face {
   font-family: 'Jersey10';
   src: url('/static/fonts/Jersey10.ttf') format('truetype');
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'VT323';
+  src: url('/static/fonts/VT323-Regular.ttf') format('truetype');
+  font-display: swap;
+}
+
 :root {
-  --ink-0: #090706;
-  --stone-0: #100c0a;
-  --stone-1: #17120f;
-  --stone-2: #211a15;
-  --stone-3: #2e241c;
-  --gold: #d2a94e;
-  --gold-dim: #8f7230;
-  --parchment: #ead9ab;
-  --parchment-dim: #b9a679;
-  --muted: #9b8d73;
-  --blood: #c05449;
-  --blood-text: #e0786c;
-  --moss: #4f8a3b;
-  --moss-text: #6fae52;
-  --sapphire: #4a82c8;
-  --amethyst: #9370c0;
-  --on-accent: #1a1209;
+  --bg: #0b0b0d;
+  --well: #08080a;
+  --card: #111113;
+  --raised: #18181b;
+  --line: #232327;
+  --line-2: #3a3a40;
+  --text: #dedad0;
+  --text-2: #aba79d;
+  --text-3: #85827a;
+  --teal-l: #6fc0ba;
+  --teal-m: #255e60;
+  --teal-d: #163a3c;
+  --crimson-l: #e0767d;
+  --crimson-m: #6a2129;
+  --crimson-d: #3a1015;
+  --blue-l: #86a8e4;
+  --blue-m: #2b4b80;
+  --blue-d: #172a4a;
+  --olive-l: #aebe68;
+  --olive-m: #4a5a22;
+  --olive-d: #283112;
+  --purple-l: #b096ee;
+  --purple-m: #47307c;
+  --purple-d: #24183f;
+  --grey-l: #b4b4bc;
+  --grey-m: #3c3c44;
+  --grey-d: #222226;
+  --hp-hi: #df5d57;
+  --hp-lo: #ad302d;
+  --xp-hi: #6aa2ea;
+  --xp-lo: #3a6fba;
+  /* The current section colour (a phone tab, a fight); [data-sec] below swaps it. */
+  --sec-l: var(--teal-l);
+  --sec-m: var(--teal-m);
+  --sec-d: var(--teal-d);
+  --sec-ink: #e3f5f2;
+  --sec-ribbon: var(--skin-ribbon-teal, none);
+  /* Older names, kept so every view follows the palette. */
+  --ink-0: var(--well);
+  --stone-0: var(--bg);
+  --stone-1: var(--card);
+  --stone-2: var(--raised);
+  --stone-3: var(--line);
+  --gold: var(--sec-l);
+  --gold-dim: var(--line-2);
+  --accent-fill: var(--sec-m);
+  --parchment: var(--text);
+  --parchment-dim: var(--text-2);
+  --muted: var(--text-3);
+  --blood: #c4555c;
+  --blood-text: #e2777e;
+  --moss: #4fb35a;
+  --moss-text: #8fd49a;
+  --sapphire: #6aa2ea;
+  --amethyst: #b096ee;
+  --on-accent: #ffffff;
   --on-blood: #ffffff;
-  --focus: #f4d675;
+  --focus: #8fe3dc;
   --font-display: 'Jersey10', 'Courier New', monospace;
-  --font-body: Georgia, 'Times New Roman', serif;
+  --font-body: 'VT323', 'Courier New', monospace;
   --text-scale: 1;
-  --radius: 4px;
+  --radius: 0;
   --gap: 1rem;
-  --frame: 2px solid var(--gold-dim);
+  --frame: 2px solid var(--line-2);
   --glow: 0 0 0 1px #000, 0 6px 18px rgba(0, 0, 0, 0.55);
+}
+
+/* Section colours (M24): a container with data-sec takes that colour for its ribbon, labels and
+   primary buttons. --gold and --accent-fill are declared again so they follow the swap. */
+[data-sec] {
+  --gold: var(--sec-l);
+  --accent-fill: var(--sec-m);
+}
+
+[data-sec='teal'] {
+  --sec-l: var(--teal-l);
+  --sec-m: var(--teal-m);
+  --sec-d: var(--teal-d);
+  --sec-ink: #e3f5f2;
+  --sec-ribbon: var(--skin-ribbon-teal, none);
+}
+
+[data-sec='crimson'] {
+  --sec-l: var(--crimson-l);
+  --sec-m: var(--crimson-m);
+  --sec-d: var(--crimson-d);
+  --sec-ink: #fde4e6;
+  --sec-ribbon: var(--skin-ribbon-crimson, none);
+}
+
+[data-sec='blue'] {
+  --sec-l: var(--blue-l);
+  --sec-m: var(--blue-m);
+  --sec-d: var(--blue-d);
+  --sec-ink: #e6eefc;
+  --sec-ribbon: var(--skin-ribbon-blue, none);
+}
+
+[data-sec='olive'] {
+  --sec-l: var(--olive-l);
+  --sec-m: var(--olive-m);
+  --sec-d: var(--olive-d);
+  --sec-ink: #eff4d8;
+  --sec-ribbon: var(--skin-ribbon-olive, none);
+}
+
+[data-sec='purple'] {
+  --sec-l: var(--purple-l);
+  --sec-m: var(--purple-m);
+  --sec-d: var(--purple-d);
+  --sec-ink: #efe8fd;
+  --sec-ribbon: var(--skin-ribbon-purple, none);
+}
+
+[data-sec='grey'] {
+  --sec-l: var(--grey-l);
+  --sec-m: var(--grey-m);
+  --sec-d: var(--grey-d);
+  --sec-ink: #ececf0;
+  --sec-ribbon: var(--skin-ribbon-grey, none);
 }
 
 *,
@@ -48,18 +149,20 @@ html {
   font-size: calc(100% * var(--text-scale));
 }
 
+img {
+  image-rendering: pixelated;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
-  color: var(--parchment);
+  color: var(--text);
   font-family: var(--font-body);
-  line-height: 1.5;
+  font-size: 1.05rem;
+  font-size-adjust: 0.5; /* VT323 has a small x-height: read it as large as the old serif */
+  line-height: 1.25;
   font-variant-numeric: lining-nums;
-  background:
-    radial-gradient(ellipse at 50% 0%, rgba(210, 169, 78, 0.1), transparent 55%),
-    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.015) 0 2px, transparent 2px 4px),
-    linear-gradient(180deg, var(--stone-1), var(--ink-0));
-  background-attachment: fixed;
+  background: var(--bg) var(--skin-stone, none) 0 0 / 256px 256px repeat;
 }
 
 h1,
@@ -68,34 +171,36 @@ h3,
 .btn,
 label {
   font-family: var(--font-display);
-  letter-spacing: 0.04em;
+  font-size-adjust: none;
+  letter-spacing: 0.05em;
 }
 
 h1 {
   margin: 0;
   font-size: clamp(2.4rem, 8vw, 3.6rem);
   font-weight: 400;
-  color: var(--gold);
-  text-shadow: 0 2px 0 #000, 0 0 18px rgba(210, 169, 78, 0.35);
+  color: var(--text);
+  text-shadow: 0 3px 0 #000;
 }
 
 h2 {
   margin: 0 0 0.6rem;
   font-size: 1.6rem;
   font-weight: 400;
-  color: var(--gold);
+  color: var(--text);
 }
 
 main {
   outline: none;
 }
 
+/* An iron-framed card; without the frame art it is a plain grey border. */
 .panel {
-  background: linear-gradient(180deg, var(--stone-2), var(--stone-1));
-  border: var(--frame);
-  border-radius: var(--radius);
-  box-shadow: var(--glow), inset 0 0 0 1px rgba(255, 255, 255, 0.04);
-  padding: 1.1rem 1.25rem;
+  background: var(--card);
+  border: 8px solid var(--line-2);
+  border-image: var(--skin-frame) 16 fill / 8px stretch;
+  border-radius: 0;
+  padding: 0.7rem 0.9rem;
 }
 
 .muted,
@@ -110,38 +215,46 @@ main {
 label {
   display: block;
   margin-bottom: 0.25rem;
-  color: var(--parchment-dim);
+  color: var(--text-2);
   font-size: 1.15rem;
+}
+
+input[type='text'],
+textarea,
+select {
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: inherit;
+  background: var(--well);
+  border: 2px solid #2e2e33;
+  border-radius: 0;
 }
 
 input[type='text'] {
   width: 100%;
-  padding: 0.6rem 0.75rem;
-  color: var(--parchment);
-  font: inherit;
-  background: var(--ink-0);
-  border: 2px solid var(--stone-3);
-  border-radius: var(--radius);
+  padding: 0.5rem 0.7rem;
 }
 
-input[type='text']::placeholder {
+input[type='text']::placeholder,
+textarea::placeholder {
   color: var(--muted);
 }
 
 .btn {
   display: inline-block;
   min-height: 2.75rem;
-  padding: 0.45rem 1.25rem;
-  color: var(--parchment);
+  padding: 0.35rem 1.1rem;
+  color: var(--text);
   font-size: 1.3rem;
-  background: var(--stone-3);
-  border: 2px solid var(--gold-dim);
-  border-radius: var(--radius);
+  background: var(--raised);
+  border: 2px solid var(--line-2);
+  border-radius: 0;
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.5);
   cursor: pointer;
 }
 
 .btn:hover {
-  border-color: var(--gold);
+  border-color: var(--text-3);
 }
 
 .btn:disabled {
@@ -150,10 +263,15 @@ input[type='text']::placeholder {
 }
 
 .btn-primary {
-  color: var(--on-accent);
-  background: linear-gradient(180deg, #e2bd63, var(--gold));
-  border-color: #f3dc94;
-  box-shadow: 0 2px 0 #5c4519;
+  color: #ffffff;
+  text-shadow: 1px 1px 0 #000;
+  background: var(--accent-fill);
+  border-color: var(--sec-l);
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.35), inset 0 2px 0 rgba(255, 255, 255, 0.12);
+}
+
+.btn-primary:hover {
+  border-color: #ffffff;
 }
 
 .btn-small {
@@ -173,8 +291,8 @@ input[type='text']::placeholder {
   left: 0;
   z-index: 20;
   padding: 0.6rem 1rem;
-  color: var(--on-accent);
-  background: var(--gold);
+  color: #ffffff;
+  background: var(--accent-fill);
   transform: translateY(-120%);
 }
 
@@ -201,13 +319,9 @@ input[type='text']::placeholder {
   justify-content: center;
   flex-wrap: wrap;
   padding: 0.6rem 1rem;
-  color: var(--on-accent);
-  background: var(--gold);
-  border-bottom: 2px solid #000;
-}
-
-.banner .btn {
-  color: var(--parchment);
+  color: var(--text);
+  background: var(--raised);
+  border-bottom: 2px solid var(--sec-l);
 }
 
 @media (prefers-reduced-motion: reduce) {

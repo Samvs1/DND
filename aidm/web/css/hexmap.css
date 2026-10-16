@@ -45,7 +45,7 @@
 }
 
 .hex-frame {
-  background: linear-gradient(160deg, var(--gold-dim), #3d3222 60%, var(--gold-dim));
+  background: linear-gradient(160deg, #4a4a52, #2c2c32 60%, #4a4a52);
 }
 
 .hex-fill {
@@ -57,7 +57,7 @@
 .hex-fill::after {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at 50% 55%, rgba(9, 7, 6, 0.05), rgba(9, 7, 6, 0.5) 78%);
+  background: radial-gradient(ellipse at 50% 55%, rgba(8, 8, 10, 0.05), rgba(8, 8, 10, 0.5) 78%);
   content: '';
 }
 
@@ -71,7 +71,7 @@
 
 .hex.acting {
   z-index: 2;
-  filter: drop-shadow(0 0 10px rgba(244, 214, 117, 0.55));
+  filter: drop-shadow(0 0 10px rgba(224, 118, 125, 0.55));
 }
 
 .hex.acting .hex-frame {
@@ -118,9 +118,9 @@
   font-size: 4.6cqw;
   line-height: 1.2;
   white-space: nowrap;
-  background: rgba(12, 9, 7, 0.82);
+  background: rgba(10, 10, 12, 0.82);
   border: 1px solid var(--gold-dim);
-  border-radius: 999px;
+  border-radius: 0;
 }
 
 .hm-icon {
@@ -143,7 +143,7 @@
 }
 
 .hmark.rough .hm-dot {
-  background: #8a6f4b;
+  background: #6b6b74;
 }
 
 .hmark.surf .hm-dot {
@@ -151,7 +151,7 @@
 }
 
 .hmark.surf-fire .hm-dot {
-  background: #d9772b;
+  background: #e0943a;
 }
 
 .hmark.surf-ice .hm-dot,
@@ -193,7 +193,7 @@
   max-width: none;
   padding: 0.8cqw 0.6cqw;
   text-align: center;
-  background: rgba(14, 11, 9, 0.84);
+  background: rgba(12, 12, 14, 0.84);
   border-width: 1px;
   border-radius: 2cqw;
 }
@@ -201,12 +201,12 @@
 .tb.sc .hex .tk-art {
   width: 17cqw;
   height: 17cqw;
-  border: 0.7cqw solid #2f5a2c;
+  border: 0.7cqw solid #305c3b;
   border-radius: 50%;
 }
 
 .tb.sc .hex .tk.foe .tk-art {
-  border-color: #8a3a31;
+  border-color: #8a3038;
 }
 
 .tb.sc .hex .tk.active .tk-art {

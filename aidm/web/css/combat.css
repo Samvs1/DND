@@ -36,7 +36,7 @@
 .init-round {
   flex: none;
   color: var(--gold);
-  font-family: var(--font-display);
+  font-family: var(--font-display); font-size-adjust: none;
   font-size: 1.2rem;
 }
 
@@ -45,7 +45,7 @@
   flex: none;
   padding: 0.1rem 0.7rem;
   color: var(--parchment);
-  font-family: var(--font-display);
+  font-family: var(--font-display); font-size-adjust: none;
   font-size: 1.35rem;
   border-left: 4px solid var(--gold);
 }
@@ -71,7 +71,7 @@
   font-size: 0.85rem;
   background: var(--stone-3);
   border: 2px solid var(--stone-3);
-  border-radius: 999px;
+  border-radius: 0;
 }
 
 .init img {
@@ -82,18 +82,18 @@
 }
 
 .init.foe {
-  border-color: #5a2a25;
+  border-color: #5c242a;
 }
 
 .init.ally {
-  border-color: #2b4d2a;
+  border-color: #2d4f37;
 }
 
 .init.current {
   color: var(--on-accent);
-  background: var(--gold);
+  background: var(--accent-fill);
   border-color: var(--focus);
-  box-shadow: 0 0 10px rgba(244, 214, 117, 0.6);
+  box-shadow: 0 0 10px rgba(224, 118, 125, 0.6);
 }
 
 .init.out {
@@ -105,7 +105,7 @@
   margin: 0;
   padding: 0.3rem 0.6rem;
   color: var(--on-accent);
-  background: var(--gold);
+  background: var(--accent-fill);
   border-radius: var(--radius);
 }
 
@@ -118,27 +118,27 @@
   color: var(--parchment);
   font: inherit;
   text-align: left;
-  background: rgba(23, 18, 15, 0.86);
+  background: rgba(17, 17, 19, 0.86);
   border: 2px solid var(--stone-3);
   border-radius: var(--radius);
   cursor: pointer;
 }
 
 .tk.foe {
-  border-color: #6a312b;
+  border-color: #6a2129;
 }
 
 .tk.ally {
-  border-color: #2f5a2c;
+  border-color: #305c3b;
 }
 
 .tk.active {
   border-color: var(--focus);
-  box-shadow: 0 0 10px rgba(244, 214, 117, 0.6);
+  box-shadow: 0 0 10px rgba(224, 118, 125, 0.6);
 }
 
 .tk.targeted {
-  background: rgba(181, 69, 58, 0.28);
+  background: rgba(196, 85, 92, 0.28);
   outline: 2px dashed var(--blood);
   outline-offset: 1px;
 }
@@ -205,12 +205,12 @@
   color: var(--on-blood);
   font-size: 0.7rem;
   background: var(--blood);
-  border-radius: 999px;
+  border-radius: 0;
 }
 
 @keyframes pulse {
   50% {
-    box-shadow: 0 0 10px rgba(244, 214, 117, 0.7);
+    box-shadow: 0 0 10px rgba(224, 118, 125, 0.7);
   }
 }
 
@@ -237,7 +237,7 @@
 
 .hb-turn {
   color: var(--gold);
-  font-family: var(--font-display);
+  font-family: var(--font-display); font-size-adjust: none;
   font-size: 1.2rem;
   font-weight: 400;
 }
@@ -266,7 +266,7 @@
   padding: 0 0.5rem;
   font-size: 0.82rem;
   background: var(--stone-3);
-  border-radius: 999px;
+  border-radius: 0;
 }
 
 .pip-dot {
@@ -286,7 +286,7 @@
 }
 
 .pip-chip:nth-child(2) .pip-dot {
-  background: #d98b2b;
+  background: #e0943a;
 }
 
 .pip-chip:nth-child(2).spent .pip-dot {
@@ -297,7 +297,7 @@
   width: 3rem;
   height: 0.45rem;
   background: var(--ink-0);
-  border-radius: 999px;
+  border-radius: 0;
   overflow: hidden;
 }
 
@@ -327,7 +327,7 @@
   align-items: center;
   padding: 0.25rem 0.5rem;
   color: var(--on-accent);
-  background: var(--gold);
+  background: var(--accent-fill);
   border-radius: var(--radius);
 }
 
@@ -379,7 +379,7 @@
 }
 
 .hb-slot.bonus {
-  border-color: #a8742b;
+  border-color: #8a6a3a;
 }
 
 .hb-key {
@@ -414,7 +414,7 @@
 }
 
 .adv-mark.advantage {
-  color: #7fd06b;
+  color: #8fd49a;
 }
 
 .adv-mark.disadvantage {
@@ -464,7 +464,7 @@
 .hb-pop h5 {
   margin: 0 0 0.2rem;
   color: var(--gold);
-  font-family: var(--font-display);
+  font-family: var(--font-display); font-size-adjust: none;
   font-size: 1.05rem;
   font-weight: 400;
 }

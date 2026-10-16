@@ -11,23 +11,23 @@
 .sc-status { margin: 0.4rem 0; color: var(--blood-text); font-style: italic; }
 .sc-status:empty { display: none; }
 .ct-victory[hidden], .sc-scribe[hidden], .sc-scribe-dim[hidden], .sc-victory[hidden], .sc-victory-banner[hidden], .sc-scribe-portrait[hidden] { display: none; }
-.sc-scribe-dim { position: absolute; inset: 0; background: rgba(6, 4, 3, 0.72); }
+.sc-scribe-dim { position: absolute; inset: 0; background: rgba(5, 5, 7, 0.72); }
 .ct-victory { position: fixed; inset: 0; z-index: 45; display: flex; flex-direction: column; gap: 0.8rem; align-items: center; justify-content: center; padding: 1.5rem 1rem; text-align: center; overflow-y: auto; background: var(--ink-0) center / cover; color: var(--parchment); }
 .ct-victory h2 { margin: 0; font-size: 2.2rem; color: var(--gold); }
 .ct-victory-text { max-width: 28rem; line-height: 1.5; }
-.sc-scribe { position: absolute; left: 50%; bottom: 3rem; transform: translateX(-50%); width: min(60rem, 90vw); display: flex; gap: 1.5rem; align-items: center; padding: 1.2rem 1.6rem; background: rgba(16, 12, 10, 0.95); border: 2px solid var(--gold); border-radius: 0.75rem; color: var(--parchment); }
+.sc-scribe { position: absolute; left: 50%; bottom: 3rem; transform: translateX(-50%); width: min(60rem, 90vw); display: flex; gap: 1.5rem; align-items: center; padding: 1.2rem 1.6rem; background: rgba(14, 14, 16, 0.95); border: 2px solid var(--gold); border-radius: 0; color: var(--parchment); }
 .sc-scribe-portrait { width: 13rem; height: 13rem; flex: none; object-fit: cover; border: var(--frame); border-radius: var(--radius); background: var(--stone-2); }
 .sc-scribe-body h2 { margin: 0 0 0.4rem; color: var(--gold); font-size: 1.6rem; }
 .sc-scribe-text { margin: 0; font-size: 1.3rem; line-height: 1.4; font-style: italic; }
-.sc-victory { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 1rem; padding: 10vh 2rem 2rem; text-align: center; background: #0b0808 center bottom / cover; color: #f2e6d0; }
+.sc-victory { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 1rem; padding: 10vh 2rem 2rem; text-align: center; background: #0b0b0d center bottom / cover; color: var(--text); }
 .sc-victory h2 { margin: 0; font-size: 4rem; color: var(--gold); }
 .sc-victory h3 { margin: 0; font-size: 1.4rem; opacity: 0.85; }
 .sc-victory-text { max-width: 60rem; font-size: 1.6rem; line-height: 1.5; }
-.sc-victory-banner { position: absolute; left: 50%; top: 18%; transform: translateX(-50%); padding: 1rem 3rem; font-size: 3.5rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: #1a140c; background: var(--gold); border-radius: 0.75rem; box-shadow: 0 0 3rem rgba(0, 0, 0, 0.6); }
+.sc-victory-banner { position: absolute; left: 50%; top: 18%; transform: translateX(-50%); padding: 1rem 3rem; font-size: 3.5rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: #ffffff; background: var(--accent-fill); border: 3px solid var(--sec-l); text-shadow: 3px 3px 0 #000; border-radius: 0; box-shadow: 0 0 3rem rgba(0, 0, 0, 0.6); }
 @media (prefers-reduced-motion: no-preference) { .sc-victory-banner { animation: sc-pop-banner 0.4s ease-out; } .sc-scribe { animation: sc-pop-banner 0.3s ease-out; } }
-.sg { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; background: rgba(6, 4, 3, 0.92); color: var(--parchment); text-align: center; }
+.sg { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; background: rgba(5, 5, 7, 0.92); color: var(--parchment); text-align: center; }
 .sg[hidden] { display: none; }
-.sg-card { max-width: 44rem; padding: 2.5rem; border: 2px solid var(--gold); border-radius: 0.75rem; background: var(--stone-1); }
+.sg-card { max-width: 44rem; padding: 2.5rem; border: 2px solid var(--gold); border-radius: 0; background: var(--stone-1); }
 .sg-card h2 { margin: 0 0 1rem; color: var(--gold); font-size: 2.2rem; }
 .sg-card p { margin: 0 0 1.5rem; font-size: 1.4rem; }
 .sg-button { font-size: 1.4rem; padding: 0.7rem 1.6rem; }

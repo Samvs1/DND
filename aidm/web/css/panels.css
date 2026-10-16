@@ -15,7 +15,7 @@
 
 .tool-btn {
   min-height: 2.25rem;
-  background: rgba(33, 26, 21, 0.9);
+  background: rgba(24, 24, 27, 0.9);
 }
 
 .tool-btn.has-shop {
@@ -34,7 +34,7 @@
 
 .btn-danger {
   color: var(--parchment);
-  background: #5b211c;
+  background: #5c1f26;
   border-color: var(--blood-text);
 }
 
@@ -94,7 +94,7 @@
 .jr-group {
   margin: 0.6rem 0 0.3rem;
   color: var(--gold);
-  font-family: var(--font-display);
+  font-family: var(--font-display); font-size-adjust: none;
   font-size: 1.1rem;
   font-weight: 400;
 }
@@ -142,7 +142,7 @@
 
 .jr-main-title {
   margin: 0.1rem 0 0.2rem;
-  font-family: var(--font-display);
+  font-family: var(--font-display); font-size-adjust: none;
   font-size: 1.25rem;
   font-weight: 400;
 }
@@ -230,7 +230,7 @@
   inset: auto 0 0 0;
   margin: 0;
   padding: 0.3rem 0.7rem;
-  background: rgba(9, 7, 6, 0.7);
+  background: rgba(8, 8, 10, 0.7);
 }
 
 .map-wrap {
@@ -257,7 +257,7 @@
 }
 
 .map-node.here rect {
-  fill: #4a3a17;
+  fill: #24414a;
   stroke: var(--focus);
   stroke-width: 3;
 }
@@ -269,7 +269,7 @@
 }
 
 .map-node.locked rect {
-  fill: #3a1b18;
+  fill: #3a1015;
   stroke: var(--blood);
 }
 

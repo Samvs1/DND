@@ -88,7 +88,7 @@ body.is-controller #app {
   font-size: 0.85rem;
   text-align: center;
   border: 2px solid var(--stone-3);
-  border-radius: 999px;
+  border-radius: 0;
 }
 
 .ct-chip-status[data-status='mine'] {
@@ -224,7 +224,7 @@ body.is-controller #app {
 
 .ct-target.targeted {
   border-color: var(--gold);
-  box-shadow: 0 0 8px rgba(210, 169, 78, 0.6);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--sec-l) 60%, transparent);
 }
 
 .ct-target.is-bloodied .ct-t-hp {
@@ -251,7 +251,7 @@ body.is-controller #app {
   font-size: 0.7rem;
   color: var(--parchment);
   border: 1px solid var(--gold-dim);
-  border-radius: 999px;
+  border-radius: 0;
 }
 
 .ct-places-box summary {
@@ -381,7 +381,7 @@ body.is-controller #app {
   min-width: 1.6rem;
   padding: 0 0.3rem;
   border: 1px solid currentcolor;
-  border-radius: 0.3rem;
+  border-radius: 0;
 }
 
 .ct-die.dropped {
@@ -401,7 +401,7 @@ body.is-controller #app {
   padding: 1.5rem 1rem;
   overflow-y: auto;
   text-align: center;
-  background: #0b0808 center / cover;
+  background: #0b0b0d center / cover;
 }
 
 .ct-defeat h2 {
@@ -514,7 +514,7 @@ body.is-controller #app {
 .ct-now-place {
   margin: 0.2rem 0 0;
   color: var(--gold);
-  font-family: var(--font-display);
+  font-family: var(--font-display); font-size-adjust: none;
   font-size: 1.05rem;
   letter-spacing: 0.03em;
 }
@@ -559,7 +559,7 @@ body.is-controller #app {
 .ct-idea-h {
   margin: 0;
   color: var(--muted);
-  font-family: var(--font-display);
+  font-family: var(--font-display); font-size-adjust: none;
   font-size: 0.95rem;
   font-weight: normal;
   letter-spacing: 0.06em;
@@ -585,7 +585,7 @@ body.is-controller #app {
   text-align: left;
   background: var(--stone-1);
   border: 1px solid var(--stone-3);
-  border-radius: 999px;
+  border-radius: 0;
   cursor: pointer;
 }
 
@@ -710,7 +710,7 @@ body.is-controller #app {
 .ct-wn-title {
   margin: 0;
   color: var(--gold);
-  font-family: var(--font-display);
+  font-family: var(--font-display); font-size-adjust: none;
   font-size: 1.05rem;
 }
 
