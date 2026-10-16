@@ -20,9 +20,9 @@
 .ct-victory { position: fixed; inset: 0; z-index: 45; display: flex; flex-direction: column; gap: 0.8rem; align-items: center; justify-content: center; padding: 1.5rem 1rem; text-align: center; overflow-y: auto; background: var(--ink-0) center / cover; color: var(--parchment); }
 .ct-victory h2 { margin: 0; font-size: 2.2rem; color: var(--gold); }
 .ct-victory-text { max-width: 28rem; line-height: 1.5; }
-.sc-scribe { position: absolute; left: 50%; bottom: 3rem; transform: translateX(-50%); width: min(60rem, 90vw); display: flex; gap: 1.5rem; align-items: center; padding: 1.2rem 1.6rem; background: rgba(14, 14, 16, 0.95); border: 2px solid var(--gold); border-radius: 0; color: var(--parchment); }
-.sc-scribe-portrait { width: 13rem; height: 13rem; flex: none; object-fit: cover; border: var(--frame); border-radius: var(--radius); background: var(--stone-2); }
-.sc-scribe-body h2 { margin: 0 0 0.4rem; color: var(--gold); font-size: 1.6rem; }
+.sc-scribe { position: absolute; left: 50%; bottom: 3rem; transform: translateX(-50%); width: min(60rem, 90vw); display: flex; gap: 1.5rem; align-items: center; padding: 0.9rem 1.3rem; background: rgba(14, 14, 16, 0.95); border: 12px solid var(--purple-m); border-image: var(--skin-frame) 16 fill / 12px stretch; border-radius: 0; color: var(--parchment); }
+.sc-scribe-portrait { width: 13rem; height: 13rem; flex: none; object-fit: cover; border: 2px solid var(--line-2); border-radius: 0; background: var(--stone-2); }
+.sc-scribe-body h2 { margin: 0 0 0.4rem; color: var(--purple-l); font-size: 1.6rem; letter-spacing: 0.1em; }
 .sc-scribe-text { margin: 0; font-size: 1.3rem; line-height: 1.4; font-style: italic; }
 .sc-victory { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 1rem; padding: 10vh 2rem 2rem; text-align: center; background: #0b0b0d center bottom / cover; color: var(--text); }
 .sc-victory h2 { margin: 0; font-size: 4rem; color: var(--gold); }

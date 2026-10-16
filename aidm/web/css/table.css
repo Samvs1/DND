@@ -577,11 +577,12 @@ textarea {
 
 .dialog {
   max-width: min(32rem, calc(100% - 2rem));
-  padding: 1.1rem 1.25rem;
+  padding: 0.8rem 1rem 1rem;
   color: var(--parchment);
-  background: linear-gradient(180deg, var(--stone-2), var(--stone-1));
-  border: var(--frame);
-  border-radius: var(--radius);
+  background: var(--card);
+  border: 10px solid var(--line-2);
+  border-image: var(--skin-frame) 16 fill / 10px stretch;
+  border-radius: 0;
   box-shadow: var(--glow);
 }
 
