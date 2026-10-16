@@ -8,16 +8,20 @@ Public API:
   `roll.total - dc` (>= 0 means the total met the DC). `success` can differ from `margin >= 0`
   only through the natural 20 / natural 1 rule for checks (see docs/RULES_DECISIONS.md) and a
   condition that makes a save fail automatically (`aidm.rules.conditions.save_with_conditions`).
+  M26.2 (optional, so old logs replay): `parts` names the bonuses of `roll.modifier` (the
+  ability, PROF or EXPERTISE, one BONUS remainder; they always sum to the modifier); `adv_why`
+  names why the roll had advantage or disadvantage (empty for a straight roll); `tier` is the
+  DC tier the DC came from (None for a DC that is not a tier, such as a spell save DC).
 
 Frozen so a result can be embedded in a `CheckResolved` event.
 """
 
 from enum import StrEnum
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from aidm.models.abilities import Ability, Skill
-from aidm.models.dice import D20Roll
+from aidm.models.dice import D20Roll, RollPart
 
 
 class DcTier(StrEnum):
@@ -45,3 +49,12 @@ class CheckResult(BaseModel):
     dc: int = Field(ge=0)
     success: bool
     margin: int
+    parts: tuple[RollPart, ...] = ()
+    adv_why: tuple[str, ...] = ()
+    tier: DcTier | None = None
+
+    @model_validator(mode="after")
+    def _parts_sum(self) -> "CheckResult":
+        if self.parts and sum(p.value for p in self.parts) != self.roll.modifier:
+            raise ValueError("the parts of a check must sum to its modifier")
+        return self

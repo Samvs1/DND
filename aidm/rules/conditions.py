@@ -10,6 +10,9 @@ Public API:
 - `attack_adv_counts(attacker, target, *, melee) -> (adv, dis)`: sources from the attacker's own
   conditions (`own_attacks`) and the target's (`attacks_against_melee/ranged`). Callers add other
   sources (high ground, Help) and combine with `aidm.rules.d20.combine_adv`.
+- `attack_adv_names` / `save_adv_names` / `check_adv_names` (M26.2): the same sources as the
+  counts, as two lists of condition display names (advantage, disadvantage): the dice show
+  says why a roll had advantage.
 - `attack_adv(attacker, target, *, melee, adv_sources=0, dis_sources=0) -> AdvState`.
 - `melee_hit_auto_crits(target) -> bool`: a melee hit (attacker in the same zone) is a crit.
 - `can_attack_target(attacker, target) -> bool`: False when a condition the target applied
@@ -40,7 +43,9 @@ Public API:
 - `save_with_conditions(rng, creature, ability, dc, *, adv_sources=0, dis_sources=0, bonus=0)
   -> CheckResult`: the saving throw every effect uses. Condition advantage is combined with the
   caller's sources and condition save dice are rolled (before the d20) into the bonus; an
-  auto-failed save still rolls (for the dice tray) but `success` is False.
+  auto-failed save still rolls (for the dice tray) but `success` is False. `source_names`
+  names the caller's sources (Magic Resistance); unnamed caller sources read "the situation".
+  Every result carries `adv_why` (empty for a straight roll).
 - `skill_check_with_conditions(rng, creature, skill, dc, *, adv_sources=0, dis_sources=0,
   bonus=0) -> CheckResult`: the same for a skill check (condition check advantage and dice).
 - `ability_check_with_conditions(...)`: the same for a plain ability check (DM `request_check`).
@@ -55,7 +60,7 @@ from aidm.models.damage import DamageType
 from aidm.models.dice import AdvState, Roll
 from aidm.models.state import ActiveCondition, Creature
 from aidm.rules.checks import ability_check, saving_throw, skill_check
-from aidm.rules.d20 import combine_adv
+from aidm.rules.d20 import SITUATION, adv_reasons, combine_adv
 from aidm.rules.dice import Rng, roll
 
 INCAPACITATED = "incapacitated"
@@ -80,15 +85,24 @@ def _defs(creature: Creature) -> list[ConditionDef]:
     return [condition_def(name) for name in sorted(effective_conditions(creature))]
 
 
-def _count(effects: Sequence[AdvKey | None]) -> tuple[int, int]:
-    return effects.count("advantage"), effects.count("disadvantage")
+AdvNames = tuple[list[str], list[str]]
+
+
+def _named(pairs: Sequence[tuple[str, AdvKey | None]]) -> AdvNames:
+    adv = [name for name, effect in pairs if effect == "advantage"]
+    return adv, [name for name, effect in pairs if effect == "disadvantage"]
+
+
+def attack_adv_names(attacker: Creature, target: Creature, *, melee: bool) -> AdvNames:
+    pairs: list[tuple[str, AdvKey | None]] = [(d.name, d.own_attacks) for d in _defs(attacker)]
+    for d in _defs(target):
+        pairs.append((d.name, d.attacks_against_melee if melee else d.attacks_against_ranged))
+    return _named(pairs)
 
 
 def attack_adv_counts(attacker: Creature, target: Creature, *, melee: bool) -> tuple[int, int]:
-    effects: list[AdvKey | None] = [d.own_attacks for d in _defs(attacker)]
-    for d in _defs(target):
-        effects.append(d.attacks_against_melee if melee else d.attacks_against_ranged)
-    return _count(effects)
+    adv, dis = attack_adv_names(attacker, target, melee=melee)
+    return len(adv), len(dis)
 
 
 def attack_adv(
@@ -118,15 +132,24 @@ def save_auto_fails(creature: Creature, ability: Ability) -> bool:
     return any(ability.value in d.auto_fail_saves for d in _defs(creature))
 
 
-def save_adv_counts(creature: Creature, ability: Ability) -> tuple[int, int]:
+def save_adv_names(creature: Creature, ability: Ability) -> AdvNames:
     defs = _defs(creature)
-    adv = sum(1 for d in defs if ability.value in d.save_advantage)
-    dis = sum(1 for d in defs if ability.value in d.save_disadvantage)
-    return adv, dis
+    adv = [d.name for d in defs if ability.value in d.save_advantage]
+    return adv, [d.name for d in defs if ability.value in d.save_disadvantage]
+
+
+def save_adv_counts(creature: Creature, ability: Ability) -> tuple[int, int]:
+    adv, dis = save_adv_names(creature, ability)
+    return len(adv), len(dis)
+
+
+def check_adv_names(creature: Creature) -> AdvNames:
+    return _named([(d.name, d.own_checks) for d in _defs(creature)])
 
 
 def check_adv_counts(creature: Creature) -> tuple[int, int]:
-    return _count([d.own_checks for d in _defs(creature)])
+    adv, dis = check_adv_names(creature)
+    return len(adv), len(dis)
 
 
 def speed_multiplier(creature: Creature) -> float:
@@ -216,6 +239,25 @@ def attack_consumed_conditions(creature: Creature) -> list[ActiveCondition]:
     return [c for c in creature.conditions if condition_def(c.name).consumed_by_attack]
 
 
+def _situation(
+    rng: Rng,
+    creature: Creature,
+    own: AdvNames,
+    sources: tuple[int, int],
+    names: Sequence[str],
+    *,
+    save: bool,
+) -> tuple[AdvState, int, tuple[str, ...]]:
+    """Combined advantage, the rolled condition bonus dice and the advantage reasons."""
+    caller = list(names) or [SITUATION]
+    for_adv = own[0] + (caller if sources[0] else [])
+    for_dis = own[1] + (caller if sources[1] else [])
+    adv = combine_adv(len(own[0]) + sources[0], len(own[1]) + sources[1])
+    dice = condition_bonus_dice(creature, save=save, check=not save)
+    extra = sum(roll_bonus_dice(d, rng).total for d in dice)
+    return adv, extra, adv_reasons(adv, for_adv, for_dis)
+
+
 def save_with_conditions(
     rng: Rng,
     creature: Creature,
@@ -225,12 +267,13 @@ def save_with_conditions(
     adv_sources: int = 0,
     dis_sources: int = 0,
     bonus: int = 0,
+    source_names: Sequence[str] = (),
 ) -> CheckResult:
-    adv, dis = save_adv_counts(creature, ability)
-    state = combine_adv(adv + adv_sources, dis + dis_sources)
-    dice = condition_bonus_dice(creature, save=True)
-    bonus += sum(roll_bonus_dice(d, rng).total for d in dice)
-    result = saving_throw(rng, creature, ability, dc, adv=state, bonus=bonus)
+    own = save_adv_names(creature, ability)
+    sources = (adv_sources, dis_sources)
+    adv, extra, why = _situation(rng, creature, own, sources, source_names, save=True)
+    result = saving_throw(rng, creature, ability, dc, adv=adv, bonus=bonus + extra)
+    result = result.model_copy(update={"adv_why": why})
     if save_auto_fails(creature, ability) and result.success:
         return result.model_copy(update={"success": False})
     return result
@@ -246,11 +289,10 @@ def skill_check_with_conditions(
     dis_sources: int = 0,
     bonus: int = 0,
 ) -> CheckResult:
-    adv, dis = check_adv_counts(creature)
-    state = combine_adv(adv + adv_sources, dis + dis_sources)
-    dice = condition_bonus_dice(creature, check=True)
-    bonus += sum(roll_bonus_dice(d, rng).total for d in dice)
-    return skill_check(rng, creature, skill, dc, adv=state, bonus=bonus)
+    own, sources = check_adv_names(creature), (adv_sources, dis_sources)
+    adv, extra, why = _situation(rng, creature, own, sources, (), save=False)
+    result = skill_check(rng, creature, skill, dc, adv=adv, bonus=bonus + extra)
+    return result.model_copy(update={"adv_why": why})
 
 
 def ability_check_with_conditions(
@@ -263,8 +305,7 @@ def ability_check_with_conditions(
     dis_sources: int = 0,
     bonus: int = 0,
 ) -> CheckResult:
-    adv, dis = check_adv_counts(creature)
-    state = combine_adv(adv + adv_sources, dis + dis_sources)
-    dice = condition_bonus_dice(creature, check=True)
-    bonus += sum(roll_bonus_dice(d, rng).total for d in dice)
-    return ability_check(rng, creature, ability, dc, adv=state, bonus=bonus)
+    own, sources = check_adv_names(creature), (adv_sources, dis_sources)
+    adv, extra, why = _situation(rng, creature, own, sources, (), save=False)
+    result = ability_check(rng, creature, ability, dc, adv=adv, bonus=bonus + extra)
+    return result.model_copy(update={"adv_why": why})

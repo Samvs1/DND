@@ -24,6 +24,8 @@ Public API:
   Attack once per turn, Colossus Slayer...) + condition riders the attacker applied to the
   target (Hunter's Mark; doubled on a crit) + flat fighting-style bonuses already in the profile.
   `riders_used` names the once-per-turn riders spent (the command records them in the economy).
+  Every damage roll is a `DiceRolled` of kind DAMAGE with the target and a display label
+  (the feature or condition name, never its id; M26.2).
 """
 
 from collections.abc import Sequence
@@ -34,12 +36,13 @@ from aidm.data.registry import Registry
 from aidm.models.combat import AttackProfile
 from aidm.models.combat_events import AttackRolled
 from aidm.models.damage import DamagePacket
-from aidm.models.dice import DieRoll, Roll
+from aidm.models.dice import DieRoll, Roll, RollKind
 from aidm.models.events import AnyEvent, ConditionRemoved, DamageTaken, DiceRolled, TempHpSet
 from aidm.models.state import GameState
 from aidm.rules.concentration import concentration_after_damage
 from aidm.rules.conditions import (
     attack_consumed_conditions,
+    condition_def,
     condition_riders,
     roll_bonus_dice,
 )
@@ -47,7 +50,12 @@ from aidm.rules.d20 import roll_d20
 from aidm.rules.damage import resolve_damage
 from aidm.rules.dice import Rng, roll
 from aidm.rules.difficulty import scale_damage
-from aidm.rules.features import damage_reroll_below, damage_riders, kill_temp_hp
+from aidm.rules.features import (
+    damage_reroll_below,
+    damage_riders,
+    feature_names,
+    kill_temp_hp,
+)
 from aidm.rules.hit_chance import AttackSituation, attack_situation
 from aidm.rules.projection import project_state
 
@@ -94,6 +102,7 @@ def roll_attack(
             target_ac=sit.target_ac,
             hit=hit,
             crit=crit,
+            adv_why=sit.adv_why,
         )
     ]
     for c in attack_consumed_conditions(state.creatures[attacker_id]):
@@ -163,6 +172,12 @@ def deal_damage(
     return events
 
 
+def _damage_roll(rolled: Roll, attacker_id: str, target_id: str, label: str) -> DiceRolled:
+    return DiceRolled(
+        roll=rolled, roller_id=attacker_id, label=label, kind=RollKind.DAMAGE, target_id=target_id
+    )
+
+
 def _weapon_packets(
     rng: Rng,
     state: GameState,
@@ -187,21 +202,20 @@ def _weapon_packets(
     )
     reroll = damage_reroll_below(attacker, feats, ctx)
     main = roll_damage_dice(profile.damage, rng, crit=rolled.crit, reroll_below=reroll)
-    events: list[AnyEvent] = [
-        DiceRolled(roll=main, roller_id=attacker_id, label=f"{profile.name} damage")
-    ]
+    events: list[AnyEvent] = [_damage_roll(main, attacker_id, target_id, f"{profile.name} damage")]
     packets = [DamagePacket(amount=main.total, damage_type=profile.damage_type)]
     for part in profile.extra_damage:
         extra = roll(part.dice, rng, crit=rolled.crit)
         label = f"{profile.name} {part.damage_type.value} damage"
-        events.append(DiceRolled(roll=extra, roller_id=attacker_id, label=label))
+        events.append(_damage_roll(extra, attacker_id, target_id, label))
         packets.append(DamagePacket(amount=extra.total, damage_type=part.damage_type))
     spent: list[str] = []
     for rider in damage_riders(attacker, feats, ctx):
         amount = rider.flat
         if rider.dice:
             extra = roll(rider.dice, rng, crit=rolled.crit and rider.doubles_on_crit)
-            events.append(DiceRolled(roll=extra, roller_id=attacker_id, label=rider.feature))
+            label = feature_names(feats, [rider.feature])[0]
+            events.append(_damage_roll(extra, attacker_id, target_id, label))
             amount += extra.total
         packets.append(
             DamagePacket(amount=amount, damage_type=rider.damage_type or profile.damage_type)
@@ -210,7 +224,8 @@ def _weapon_packets(
             spent.append(rider.feature)
     for name, dice, kind in condition_riders(attacker_id, target):
         extra = roll(dice, rng, crit=rolled.crit)
-        events.append(DiceRolled(roll=extra, roller_id=attacker_id, label=name))
+        label = condition_def(name).name
+        events.append(_damage_roll(extra, attacker_id, target_id, label))
         packets.append(DamagePacket(amount=extra.total, damage_type=kind or profile.damage_type))
     return events, packets, tuple(spent)
 

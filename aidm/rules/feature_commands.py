@@ -26,6 +26,7 @@ from aidm.data.spell_defs import SpellDef
 from aidm.models.abilities import Ability
 from aidm.models.combat_events import FeatureUsed
 from aidm.models.commands import FeatureActionCommand, RefusalCode
+from aidm.models.dice import RollKind
 from aidm.models.events import AnyEvent, DiceRolled
 from aidm.models.state import GameState
 from aidm.rules.abilities import ability_modifier
@@ -94,7 +95,7 @@ def _heal(
         changed(me.id, economy, cmd.feature_id),
         *_paid(actor, hook.resource),
         _used(cmd, name, (me.id,)),
-        DiceRolled(roll=healed, roller_id=me.id, label=name),
+        DiceRolled(roll=healed, roller_id=me.id, label=name, kind=RollKind.HEAL, target_id=me.id),
         *resolve_healing(me, max(0, healed.total)),
     ]
 

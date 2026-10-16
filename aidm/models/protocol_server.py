@@ -6,6 +6,8 @@ player-safe text). `seq` is the event-log position: a `Snapshot` reflects every 
 `seq < snapshot.seq`; `EventMsg`s carry only PUBLIC events (`aidm.session.public_feed`), so their
 seqs have gaps where a private event (campaign setup, an unmet NPC, a hidden feature) was applied.
 `StoryHistory` follows the snapshot on every hello so a reload restores the story feed.
+`EventMsg.subject_id` / `amount` (M26.2): the creature a damage, HP or death event is about and
+the damage taken or HP healed; a `damage_taken` message has no line (the HP line follows).
 
 Public API: `NoticeKind`, `ErrorCode`, `Welcome`, `Snapshot`, `EventMsg`, `LobbyRoster`,
 `AbilityRolls`, `CreationResult`, `QueueState`, `Resolving`, `DiceRoll`, `NarrationChunkMsg`,
@@ -95,6 +97,8 @@ class EventMsg(_Server):
     seq: int = Field(ge=0)
     kind: str
     line: str = ""
+    subject_id: str | None = None
+    amount: int | None = None
 
 
 class LobbyRoster(_Server):

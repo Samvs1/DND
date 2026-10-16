@@ -3163,15 +3163,40 @@
               "$ref": "#/$defs/AdvState",
               "default": "normal"
             },
+            "adv_why": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Adv Why",
+              "type": "array"
+            },
             "crit": {
               "default": false,
               "title": "Crit",
               "type": "boolean"
             },
+            "difficulty": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "the DC tier word",
+              "title": "Difficulty"
+            },
             "expression": {
               "default": "1d20",
               "title": "Expression",
               "type": "string"
+            },
+            "kind": {
+              "$ref": "#/$defs/RollKind",
+              "default": "other"
             },
             "label": {
               "default": "",
@@ -3182,6 +3207,14 @@
               "default": 0,
               "title": "Modifier",
               "type": "integer"
+            },
+            "parts": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/RollPart"
+              },
+              "title": "Parts",
+              "type": "array"
             },
             "roller_id": {
               "anyOf": [
@@ -3202,6 +3235,19 @@
               },
               "title": "Rolls",
               "type": "array"
+            },
+            "source_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "who forced the save",
+              "title": "Source Id"
             },
             "success": {
               "anyOf": [
@@ -3227,6 +3273,18 @@
               "default": null,
               "description": "DC or AC when the roll is a test",
               "title": "Target"
+            },
+            "target_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Target Id"
             },
             "total": {
               "default": 0,
@@ -3369,6 +3427,18 @@
         "EventMsg": {
           "additionalProperties": false,
           "properties": {
+            "amount": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Amount"
+            },
             "kind": {
               "title": "Kind",
               "type": "string"
@@ -3382,6 +3452,18 @@
               "minimum": 0,
               "title": "Seq",
               "type": "integer"
+            },
+            "subject_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Subject Id"
             },
             "type": {
               "const": "event",
@@ -5595,6 +5677,39 @@
             "dice"
           ],
           "title": "RollEntry",
+          "type": "object"
+        },
+        "RollKind": {
+          "enum": [
+            "attack",
+            "check",
+            "save",
+            "death_save",
+            "damage",
+            "heal",
+            "other"
+          ],
+          "title": "RollKind",
+          "type": "string"
+        },
+        "RollPart": {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "minLength": 1,
+              "title": "Name",
+              "type": "string"
+            },
+            "value": {
+              "title": "Value",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "name",
+            "value"
+          ],
+          "title": "RollPart",
           "type": "object"
         },
         "ScribeLineMsg": {

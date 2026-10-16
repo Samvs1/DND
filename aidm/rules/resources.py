@@ -71,7 +71,8 @@ def turn_recharge_events(rng: Rng, creature: Creature) -> list[AnyEvent]:
             continue
         if need > 1:
             rolled = roll(RECHARGE_DIE, rng)
-            events.append(DiceRolled(roll=rolled, roller_id=creature.id, label=f"recharge {key}"))
+            label = "Recharge " + key.removeprefix("recharge-").replace("-", " ")
+            events.append(DiceRolled(roll=rolled, roller_id=creature.id, label=label))
             if rolled.total < need:
                 continue
         full = resource.model_copy(update={"current": resource.maximum})

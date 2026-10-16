@@ -195,7 +195,9 @@ def shove_command(
     attack = skill_check_with_conditions(rng, actor, Skill.ATHLETICS, max(0, defend.roll.total + 1))
     events: list[AnyEvent] = [
         changed(cmd.actor_id, economy, "shove"),
-        CheckResolved(creature_id=target.id, result=defend, reason="resist shove"),
+        CheckResolved(
+            creature_id=target.id, result=defend, reason="resist shove", source_id=actor.id
+        ),
         CheckResolved(creature_id=actor.id, result=attack, reason=f"shove {target.id}"),
     ]
     if not attack.success:

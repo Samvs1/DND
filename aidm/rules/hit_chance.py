@@ -14,7 +14,9 @@
 
 Public API:
 - `AttackSituation(adv, target_ac, bonus_dice, crit_on, auto_crit, range_check, ally_adjacent,
-  lucky)`: `lucky` = the attacker rerolls a natural 1 (halfling Lucky, a feature hook).
+  lucky, adv_why)`: `lucky` = the attacker rerolls a natural 1 (halfling Lucky, a feature hook);
+  `adv_why` names the advantage or disadvantage sources (M26.2: conditions, features, high
+  ground, long range; `rules.d20.adv_reasons`).
 - `attack_situation(state, attacker_id, target_id, profile, feats) -> AttackSituation`
   (both creatures must be combatants of the state's encounter; KeyError otherwise).
 - `natural_chances(adv) -> dict[int, Fraction]`: the chance of each natural d20 result.
@@ -44,16 +46,21 @@ from aidm.models.state import GameState
 from aidm.models.zones import RangeCheck
 from aidm.rules.attack_profiles import attack_options
 from aidm.rules.conditions import (
-    attack_adv_counts,
+    attack_adv_names,
     condition_ac_bonus,
     condition_ac_floor,
     condition_bonus_dice,
     is_incapacitated,
     melee_hit_auto_crits,
 )
-from aidm.rules.d20 import combine_adv
+from aidm.rules.d20 import adv_reasons, combine_adv
 from aidm.rules.dice import parse_dice
-from aidm.rules.features import attack_advantage_sources, crit_threshold, rerolls_natural_ones
+from aidm.rules.features import (
+    attack_advantage_sources,
+    crit_threshold,
+    feature_names,
+    rerolls_natural_ones,
+)
 from aidm.rules.spell_chances import spell_attack_options
 from aidm.rules.zones import (
     MELEE_BAND,
@@ -64,6 +71,8 @@ from aidm.rules.zones import (
 )
 
 D20 = 20
+HIGH_GROUND = "high ground"
+LONG_RANGE = "long range"
 
 
 @dataclass(frozen=True)
@@ -76,6 +85,7 @@ class AttackSituation:
     range_check: RangeCheck
     ally_adjacent: bool
     lucky: bool = False
+    adv_why: tuple[str, ...] = ()
 
 
 def _ally_adjacent(state: GameState, enc: Encounter, attacker_id: str, target_id: str) -> bool:
@@ -105,15 +115,20 @@ def attack_situation(
     zmap, ranged = enc.zone_map, profile.ranged
     band = range_band(profile.range_normal, profile.range_long) if ranged else MELEE_BAND
     check = zone_range_check(zmap, a_zone, t_zone, band)
-    adv, dis = attack_adv_counts(attacker, target, melee=not ranged)
+    for_adv, for_dis = attack_adv_names(attacker, target, melee=not ranged)
     ally = _ally_adjacent(state, enc, attacker_id, target_id)
-    adv += min(1, len(attack_advantage_sources(attacker, feats, ally_adjacent=ally)))
+    feat_adv = feature_names(feats, attack_advantage_sources(attacker, feats, ally_adjacent=ally))
     hg_adv, hg_dis = high_ground_adv_counts(zmap, a_zone, t_zone, ranged=ranged)
     long_dis = 1 if check.long_range else 0
     ac = max(target.ac + condition_ac_bonus(target), condition_ac_floor(target))
     ac += cover_ac_bonus(zmap, a_zone, t_zone, ranged=ranged)
+    adv = combine_adv(
+        len(for_adv) + min(1, len(feat_adv)) + hg_adv, len(for_dis) + hg_dis + long_dis
+    )
+    for_adv += feat_adv + [HIGH_GROUND] * hg_adv
+    for_dis += [HIGH_GROUND] * hg_dis + [LONG_RANGE] * long_dis
     return AttackSituation(
-        adv=combine_adv(adv + hg_adv, dis + hg_dis + long_dis),
+        adv=adv,
         target_ac=ac,
         bonus_dice=condition_bonus_dice(attacker),
         crit_on=crit_threshold(attacker, feats),
@@ -121,6 +136,7 @@ def attack_situation(
         range_check=check,
         ally_adjacent=ally,
         lucky=rerolls_natural_ones(attacker, feats, "attack"),
+        adv_why=adv_reasons(adv, for_adv, for_dis),
     )
 
 

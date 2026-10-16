@@ -17,6 +17,7 @@ Public API:
 from aidm.data.combat_data import CombatRegistries
 from aidm.data.consumable_defs import ConsumableDef
 from aidm.models.commands import RefusalCode, UseItemCommand
+from aidm.models.dice import RollKind
 from aidm.models.events import AnyEvent, DiceRolled, InventoryChanged
 from aidm.models.state import Creature, GameState
 from aidm.rules.command_checks import CommandRefused, acting, changed, combat_target, spend
@@ -63,7 +64,15 @@ def use_item_events(
     events: list[AnyEvent] = [InventoryChanged(creature_id=user_id, item=item, delta=-1, qty=left)]
     if item_def.heal:
         healed = roll(item_def.heal, rng)
-        events.append(DiceRolled(roll=healed, roller_id=user_id, label=item_def.name))
+        events.append(
+            DiceRolled(
+                roll=healed,
+                roller_id=user_id,
+                label=item_def.name,
+                kind=RollKind.HEAL,
+                target_id=target.id,
+            )
+        )
         events.extend(resolve_healing(target, max(0, healed.total)))
     return events
 

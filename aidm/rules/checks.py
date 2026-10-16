@@ -12,6 +12,12 @@ Public API:
   callers (Guidance, Bless, Jack of All Trades); `adv` is the already-combined advantage state.
   Ability and skill checks: a natural 20 always succeeds and a natural 1 always fails (BG3).
   Saving throws: the total against the DC only (SRD 5.1). See docs/RULES_DECISIONS.md.
+- `check_parts(creature, kind, ability, skill, modifier) -> tuple[RollPart, ...]` (M26.2): the
+  named pieces of a test's modifier: the ability ("DEX"), "PROF" (or "EXPERTISE" when doubled)
+  and any remainder (Guidance, Bless, Jack of All Trades) as one "BONUS"; they sum to
+  `modifier`. Every `CheckResult` built here carries them, and `adv_why` = ("the situation",)
+  when the caller passed advantage or disadvantage (the condition-aware callers name sources).
+- `difficulty_word(tier) -> str`: the tier as a player-facing word ("very hard").
 - `passive_score(creature, skill, adv=NORMAL, bonus=0) -> int`: SRD 5.1 "Passive Checks":
   10 + all modifiers that normally apply, +5 with advantage, -5 with disadvantage.
 
@@ -21,10 +27,10 @@ with the result (and emits any consequences as their own events).
 
 from aidm.models.abilities import SKILL_ABILITY, Ability, Skill
 from aidm.models.checks import CheckKind, CheckResult, DcTier
-from aidm.models.dice import AdvState, D20Roll
+from aidm.models.dice import AdvState, D20Roll, RollPart
 from aidm.models.state import Creature
 from aidm.rules.abilities import ability_modifier
-from aidm.rules.d20 import roll_d20
+from aidm.rules.d20 import SITUATION, roll_d20
 from aidm.rules.dice import Rng
 
 DC_BY_TIER: dict[DcTier, int] = {
@@ -38,6 +44,9 @@ DC_BY_TIER: dict[DcTier, int] = {
 
 PASSIVE_BASE = 10
 PASSIVE_ADV_SHIFT = 5
+PROF_PART = "PROF"
+EXPERTISE_PART = "EXPERTISE"
+BONUS_PART = "BONUS"
 
 
 def dc_for_tier(tier: DcTier) -> int:
@@ -64,8 +73,35 @@ def save_bonus(creature: Creature, ability: Ability) -> int:
     return _mod(creature, ability) + prof
 
 
+def difficulty_word(tier: DcTier) -> str:
+    return tier.value.replace("_", " ")
+
+
+def check_parts(
+    creature: Creature, kind: CheckKind, ability: Ability, skill: Skill | None, modifier: int
+) -> tuple[RollPart, ...]:
+    mod = _mod(creature, ability)
+    prof, prof_name = 0, PROF_PART
+    if kind is CheckKind.SKILL and skill is not None:
+        prof = skill_bonus(creature, skill) - mod
+        prof_name = EXPERTISE_PART if skill in creature.skill_expertise else PROF_PART
+    elif kind is CheckKind.SAVE:
+        prof = save_bonus(creature, ability) - mod
+    parts = [RollPart(name=ability.value.upper(), value=mod)]
+    if prof:
+        parts.append(RollPart(name=prof_name, value=prof))
+    if modifier - mod - prof:
+        parts.append(RollPart(name=BONUS_PART, value=modifier - mod - prof))
+    return tuple(parts)
+
+
 def _result(
-    kind: CheckKind, ability: Ability, skill: Skill | None, d20: D20Roll, dc: int
+    creature: Creature,
+    kind: CheckKind,
+    ability: Ability,
+    skill: Skill | None,
+    d20: D20Roll,
+    dc: int,
 ) -> CheckResult:
     if dc < 0:
         raise ValueError("dc must be >= 0")
@@ -82,6 +118,8 @@ def _result(
         dc=dc,
         success=success,
         margin=d20.total - dc,
+        parts=check_parts(creature, kind, ability, skill, d20.modifier),
+        adv_why=() if d20.adv is AdvState.NORMAL else (SITUATION,),
     )
 
 
@@ -95,7 +133,7 @@ def ability_check(
     bonus: int = 0,
 ) -> CheckResult:
     d20 = roll_d20(rng, adv, _mod(creature, ability) + bonus)
-    return _result(CheckKind.ABILITY, ability, None, d20, dc)
+    return _result(creature, CheckKind.ABILITY, ability, None, d20, dc)
 
 
 def skill_check(
@@ -108,7 +146,7 @@ def skill_check(
     bonus: int = 0,
 ) -> CheckResult:
     d20 = roll_d20(rng, adv, skill_bonus(creature, skill) + bonus)
-    return _result(CheckKind.SKILL, SKILL_ABILITY[skill], skill, d20, dc)
+    return _result(creature, CheckKind.SKILL, SKILL_ABILITY[skill], skill, d20, dc)
 
 
 def saving_throw(
@@ -121,7 +159,7 @@ def saving_throw(
     bonus: int = 0,
 ) -> CheckResult:
     d20 = roll_d20(rng, adv, save_bonus(creature, ability) + bonus)
-    return _result(CheckKind.SAVE, ability, None, d20, dc)
+    return _result(creature, CheckKind.SAVE, ability, None, d20, dc)
 
 
 def passive_score(

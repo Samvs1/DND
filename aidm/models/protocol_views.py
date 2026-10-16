@@ -20,6 +20,9 @@ Public API:
 - `QueueEntry`, `VoteKind`, `VoteView`: the exploration queue and the open ready vote.
 - `PublicState`: the full snapshot payload (M13.1: `scribe`, `aidm.models.scribe.ScribeView`).
 - `DiceView`: one visible roll for the dice tray (d20 tests, attacks, death saves, damage dice).
+  M26.2 (all optional): `kind`, `target_id` (an attack's target, the creature damage or healing
+  lands on), `source_id` (who forced a save), `parts` (named bonuses summing to `modifier`),
+  `adv_why` (advantage/disadvantage reasons), `difficulty` (the DC tier word, else None).
 - `StoryEntry`: one narration or public event line of the story history (reconnect, reload).
 - `StockLine`: one shop line (item id, name, price, category, camp supplies it adds).
 - `AudioSettings` (M11.2): the shared screen's narration/music volume and mutes (audio remote).
@@ -33,7 +36,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from aidm.models.campaign_state import OfferChoice
-from aidm.models.dice import AdvState
+from aidm.models.dice import AdvState, RollKind, RollPart
 from aidm.models.encounter import Side, TurnEconomy
 from aidm.models.narration import NarrationTone
 from aidm.models.scribe import ScribeView
@@ -337,6 +340,12 @@ class DiceView(_View):
     target: int | None = Field(default=None, description="DC or AC when the roll is a test")
     success: bool | None = None
     crit: bool = False
+    kind: RollKind = RollKind.OTHER
+    target_id: str | None = None
+    source_id: str | None = Field(default=None, description="who forced the save")
+    parts: tuple[RollPart, ...] = ()
+    adv_why: tuple[str, ...] = ()
+    difficulty: str | None = Field(default=None, description="the DC tier word")
 
 
 class RollEntry(_View):

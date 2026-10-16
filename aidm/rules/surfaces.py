@@ -33,12 +33,18 @@ Public API: `place_surface_events(rng, state, zone_id, surface) -> list[AnyEvent
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 
-from aidm.data.surface_defs import SurfaceHarm, SurfaceInteraction, SurfaceMoment, surface_data
+from aidm.data.surface_defs import (
+    SurfaceHarm,
+    SurfaceInteraction,
+    SurfaceMoment,
+    surface_data,
+    surface_defs,
+)
 from aidm.models.abilities import Ability
 from aidm.models.combat_events import ZoneSurfaceAdded
 from aidm.models.conditions import TurnBoundary
 from aidm.models.damage import DamagePacket, DamageType
-from aidm.models.dice import Roll
+from aidm.models.dice import Roll, RollKind
 from aidm.models.encounter import EncounterStatus
 from aidm.models.events import AnyEvent, CheckResolved, DamageTaken, DiceRolled
 from aidm.models.state import GameState
@@ -103,8 +109,12 @@ def _hurt(batch: _Batch, origin: _Origin, harm: SurfaceHarm, target_id: str, hal
     if rolled is None:
         rolled = roll(str(parse_dice(dice)), batch.rng)
         batch.rolls[id(harm)] = rolled
-        label = f"surface {origin.kind}"
-        batch.emit([DiceRolled(roll=rolled, roller_id=origin.source_id, label=label)])
+        found = surface_defs().find(origin.kind)
+        label = found.name if found is not None else origin.kind
+        rolled_event = DiceRolled(
+            roll=rolled, roller_id=origin.source_id, label=label, kind=RollKind.DAMAGE
+        )
+        batch.emit([rolled_event])
     amount = max(0, rolled.total) // 2 if half else rolled.total
     packet = DamagePacket(amount=amount, damage_type=DamageType(harm.damage_type))
     target = batch.state.creatures[target_id]
@@ -137,7 +147,10 @@ def _apply_harm(batch: _Batch, origin: _Origin, harm: SurfaceHarm, target_id: st
         dc = harm.dc if harm.dc is not None else origin.dc
         result = save_with_conditions(batch.rng, target, Ability(harm.save), dc)
         reason = f"surface {origin.kind}"
-        batch.emit([CheckResolved(creature_id=target_id, result=result, reason=reason)])
+        event = CheckResolved(
+            creature_id=target_id, result=result, reason=reason, source_id=origin.source_id
+        )
+        batch.emit([event])
         if result.success and not harm.half_on_save:
             return
         half = result.success

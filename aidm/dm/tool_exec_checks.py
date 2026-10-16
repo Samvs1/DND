@@ -1,6 +1,7 @@
 """Executors for `request_check` and `request_save` (SPEC 6.3): tier -> DC via `rules.checks`.
 
-Every roll goes through the condition-aware rules functions and is logged as a `CheckResolved`
+Every result carries its DC tier (`CheckResult.tier`, the dice show's difficulty word). Every
+roll goes through the condition-aware rules functions and is logged as a `CheckResolved`
 event; consequences are separate tool calls. A search check (Perception, Investigation, WIS or
 INT) also discovers hidden features (M4.3) and hidden items (M23.3) of the current place whose
 DC the total meets (`aidm.rules.scene.discovery_events`).
@@ -51,6 +52,7 @@ def run_request_check(
             rng, creature, what, dc, adv_sources=adv, dis_sources=dis
         )
         label = f"{what.value.upper()} check"
+    result = result.model_copy(update={"tier": args.dc_tier})
     event = CheckResolved(creature_id=creature.id, result=result, reason=args.reason)
     found = discovery_events(state, creature.id, result)
     summary = _outcome(creature.name, label, result)
@@ -74,6 +76,7 @@ def run_request_save(
     lines: list[str] = []
     for creature in creatures:
         result = save_with_conditions(rng, creature, args.ability, dc)
+        result = result.model_copy(update={"tier": args.dc_tier})
         events.append(CheckResolved(creature_id=creature.id, result=result, reason=args.reason))
         lines.append(_outcome(creature.name, f"{args.ability.value.upper()} save", result))
     return ToolResult(events=tuple(events), summary="; ".join(lines))

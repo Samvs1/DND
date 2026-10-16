@@ -57,7 +57,7 @@ from aidm.models.combat_events import (
 )
 from aidm.models.conditions import Concentration
 from aidm.models.damage import DamagePart, DamageType
-from aidm.models.dice import D20Roll, Roll
+from aidm.models.dice import D20Roll, Roll, RollKind
 from aidm.models.encounter_events import (
     CombatantWithdrew,
     EconomyChanged,
@@ -178,12 +178,14 @@ class CreatureDied(_EventBase):
 
 
 class DiceRolled(_EventBase):
-    """Pure log event (dice tray, audit). Changes nothing but `GameState.event_count`."""
+    """Pure log event (dice tray, audit; M26.2 `kind`, `target_id` = who it lands on)."""
 
     type: Literal["dice_rolled"] = "dice_rolled"
     roll: Roll
     roller_id: str | None = None
     label: str = ""
+    kind: RollKind = RollKind.OTHER
+    target_id: str | None = None
 
 
 class CheckResolved(_EventBase):
@@ -192,12 +194,14 @@ class CheckResolved(_EventBase):
     Rules return a `CheckResult`; whoever asked for the test (tool executor, spell interpreter)
     logs it with this event so the dice tray, narrator and audit see the d20 and the DC. The
     consequences of the test are separate events. Changes nothing but `GameState.event_count`.
+    `source_id` (M26.2) is the creature whose spell or effect forced the test.
     """
 
     type: Literal["check_resolved"] = "check_resolved"
     creature_id: str
     result: CheckResult
     reason: str = ""
+    source_id: str | None = None
 
 
 class DamageTaken(_EventBase):

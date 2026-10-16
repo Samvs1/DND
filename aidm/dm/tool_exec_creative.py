@@ -15,6 +15,7 @@ from aidm.dm.tools import CreativeEffectArgs
 from aidm.models.abilities import Ability
 from aidm.models.combat_events import CombatantMoved
 from aidm.models.damage import DamagePacket
+from aidm.models.dice import RollKind
 from aidm.models.dm_tiers import EffectKind
 from aidm.models.encounter import Encounter, EncounterStatus
 from aidm.models.events import AnyEvent, CheckResolved, DiceRolled
@@ -74,7 +75,15 @@ def _damage(run: _Run, target: Creature) -> ToolResult:
     packet = DamagePacket(amount=rolled.total, damage_type=args.damage_type)
     feats = regs.combat.chars.features
     hurt = deal_damage(rng, state, args.actor, target.id, [packet], crit=False, feats=feats)
-    events: list[AnyEvent] = [DiceRolled(roll=rolled, roller_id=args.actor, label="creative")]
+    events: list[AnyEvent] = [
+        DiceRolled(
+            roll=rolled,
+            roller_id=args.actor,
+            label="Creative action",
+            kind=RollKind.DAMAGE,
+            target_id=target.id,
+        )
+    ]
     summary = f"{target.name} takes {rolled.total} {args.damage_type.value} damage"
     return ToolResult(events=tuple(events + hurt), summary=summary)
 
@@ -83,7 +92,10 @@ def _save(run: _Run, target: Creature, ability: Ability) -> tuple[bool, CheckRes
     state, args, rng, regs = run
     dc = severity_save_dc(regs.tiers, args.severity)
     result = save_with_conditions(rng, target, ability, dc)
-    return result.success, CheckResolved(creature_id=target.id, result=result, reason="creative")
+    event = CheckResolved(
+        creature_id=target.id, result=result, reason="creative", source_id=args.actor
+    )
+    return result.success, event
 
 
 def _condition(run: _Run, target: Creature) -> ToolResult:

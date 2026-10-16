@@ -4,7 +4,8 @@ Public API:
 - `AttackRolled(attacker_id, target_id, attack, roll, bonus_rolls, target_ac, hit, crit)`: one
   resolved attack roll (log only: the damage events follow). `roll` is the d20 test with the
   attack bonus as modifier; `bonus_rolls` are added dice such as Bless; `target_ac` includes
-  cover and AC buffs; `hit` / `crit` are final (natural 1 misses, a crit always hits).
+  cover and AC buffs; `hit` / `crit` are final (natural 1 misses, a crit always hits);
+  `adv_why` (M26.2) names the advantage or disadvantage sources.
 - `CombatantMoved(creature_id, from_zone, to_zone, path, feet, reason)`: the combatant now
   stands in `to_zone` ("move", "jump", "shoved"); `path` lists the zones from start to goal and
   `feet` the movement it cost (0 when pushed). Applied by `aidm.session.encounter_apply`.
@@ -46,6 +47,7 @@ class AttackRolled(_CombatEvent):
     target_ac: int
     hit: bool
     crit: bool = False
+    adv_why: tuple[str, ...] = ()
 
 
 class CombatantMoved(_CombatEvent):

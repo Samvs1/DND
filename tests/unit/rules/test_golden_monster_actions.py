@@ -59,7 +59,7 @@ def test_golden_breath_recharge_rolls_at_turn_start() -> None:
     assert refused.value.code is RefusalCode.ABILITY_SPENT
     advance(state, ScriptedRng())  # t1's turn
     started = advance(state, ScriptedRng(4))  # the dragon's turn: a 4 does not recharge
-    assert [e.label for e in of(started, DiceRolled)] == [f"recharge {BREATH}"]
+    assert [e.label for e in of(started, DiceRolled)] == ["Recharge fire breath"]
     assert resource(state, "dragon", BREATH) == 0
     advance(state, ScriptedRng())
     advance(state, ScriptedRng(5))

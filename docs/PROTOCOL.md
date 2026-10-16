@@ -64,7 +64,7 @@ Machine-readable schema: `aidm/web/protocol.json`.
 | server | `encounter_offer` | `offer`: PublicOffer, `type`: encounter_offer |
 | server | `epilogue` | `text`: string, `type`: epilogue |
 | server | `error` | `code`: ErrorCode, `refusal`: string or null (optional), `text`: string, `type`: error |
-| server | `event` | `kind`: string, `line`: string (optional), `seq`: integer, `type`: event |
+| server | `event` | `amount`: integer or null (optional), `kind`: string, `line`: string (optional), `seq`: integer, `subject_id`: string or null (optional), `type`: event |
 | server | `floor_state` | `floor`: FloorView, `type`: floor_state |
 | server | `hit_chances` | `attacker_id`: string, `chances`: array of HitChance (optional), `target_id`: string, `type`: hit_chances |
 | server | `host_stats` | `calls`: integer (optional), `completion_tokens`: integer (optional), `prompt_tokens`: integer (optional), `type`: host_stats |

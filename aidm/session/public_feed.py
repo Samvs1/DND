@@ -15,12 +15,14 @@ them). `private_texts` + `leaks` also filter the fact lines of the snapshot (`vi
 `PublicFeed` keeps the public `EventMsg`s (live broadcast and seq catch-up), the recent
 narration, the recent typed actions (M22.1: an `ActionDeclared` is projected as a
 `PlayerActionMsg`, a player's own words are always public) and the recent dice rolls
-(`dice_view`: every roll is public; M9.4 restores the dice panel on reconnect), and builds the
+(`aidm.session.dice_view`: every roll is public; M9.4 restores the dice panel on reconnect).
+M26.2: an `EventMsg` names the creature and amount of a damage, HP or death event, and a
+`damage_taken` is sent without a line (it is not a story line). It builds the
 `StoryHistory` a (re)connecting client gets after its snapshot. A restored table rebuilds it by
 replaying the log (`PublicFeed.rebuild`; narration then comes from the logged
 `NarrationRecorded` events).
 
-Public API: `private_texts`, `leaks`, `public_line`, `dice_view`, `action_entry`, `PublicFeed`.
+Public API: `private_texts`, `leaks`, `public_line`, `action_entry`, `PublicFeed`.
 """
 
 from collections import deque
@@ -29,11 +31,7 @@ from dataclasses import dataclass, field
 
 from aidm.dm.event_text import event_line
 from aidm.dm.narration_templates import template_line
-from aidm.dm.wording import check_subject
-from aidm.models.checks import CheckKind
-from aidm.models.combat_events import AttackRolled
-from aidm.models.dice import AdvState, D20Roll
-from aidm.models.events import AnyEvent, CheckResolved, DeathSaveRolled, DiceRolled, LoggedEvent
+from aidm.models.events import AnyEvent, DamageTaken, LoggedEvent
 from aidm.models.narration import NarrationTone
 from aidm.models.protocol_server import EventMsg, PlayerActionMsg, StoryHistory
 from aidm.models.protocol_views import DiceView, RollEntry, StoryEntry
@@ -41,6 +39,7 @@ from aidm.models.quest_events import QuestAsked
 from aidm.models.state import GameState
 from aidm.models.world import WorldNpc
 from aidm.models.world_events import ActionDeclared, NarrationRecorded
+from aidm.session.dice_view import dice_view, event_subject
 from aidm.session.reducer import apply as reduce
 
 MIN_PRIVATE_CHARS = 4
@@ -98,45 +97,6 @@ def public_line(state: GameState, event: AnyEvent) -> str | None:
     return line
 
 
-def _d20(roller: str | None, label: str, roll: D20Roll, target: int | None) -> DiceView:
-    return DiceView(
-        roller_id=roller,
-        label=label,
-        expression="1d20" if roll.adv is AdvState.NORMAL else "2d20",
-        rolls=roll.rolls,
-        adv=roll.adv,
-        modifier=roll.modifier,
-        total=roll.total,
-        target=target,
-        crit=roll.is_crit,
-    )
-
-
-def dice_view(event: AnyEvent) -> DiceView | None:
-    if isinstance(event, AttackRolled):
-        view = _d20(event.attacker_id, event.attack, event.roll, event.target_ac)
-        return view.model_copy(update={"success": event.hit, "crit": event.crit})
-    if isinstance(event, CheckResolved):
-        r = event.result
-        label = check_subject(r) + (" save" if r.kind is CheckKind.SAVE else "")
-        view = _d20(event.creature_id, label, r.roll, r.dc)
-        return view.model_copy(update={"success": r.success})
-    if isinstance(event, DeathSaveRolled):
-        view = _d20(event.creature_id, "death save", event.roll, 10)
-        return view.model_copy(update={"success": event.roll.total >= 10})
-    if isinstance(event, DiceRolled):
-        r = event.roll
-        return DiceView(
-            roller_id=event.roller_id,
-            label=event.label,
-            expression=r.expression,
-            rolls=tuple(d.value for d in r.dice if d.kept),
-            modifier=r.modifier,
-            total=r.total,
-        )
-    return None
-
-
 def action_entry(state: GameState, seq: int, event: ActionDeclared) -> StoryEntry:
     """The story line of a typed action: the player's words, who typed them, for which hero."""
     hero = state.creatures.get(event.creature_id)
@@ -170,9 +130,12 @@ class PublicFeed:
             self.actions.append(entry)
             return PlayerActionMsg(entry=entry)
         line = public_line(state, event)
+        if line is None and isinstance(event, DamageTaken):
+            line = ""  # the dice show needs who took how much; the HP line tells it
         if line is None:
             return None
-        msg = EventMsg(seq=seq, kind=event.type, line=line)
+        subject, amount = event_subject(event)
+        msg = EventMsg(seq=seq, kind=event.type, line=line, subject_id=subject, amount=amount)
         self.events.append(msg)
         return msg
 
@@ -196,6 +159,7 @@ class PublicFeed:
         events = [
             StoryEntry(kind="event", seq=m.seq, text=m.line, event_kind=m.kind)
             for m in self.events[-HISTORY_EVENTS:]
+            if m.line
         ]
         merged = sorted(
             [*self.narrations, *events, *self.actions], key=lambda e: (e.seq, e.kind != "narration")

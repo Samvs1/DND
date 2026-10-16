@@ -12,8 +12,9 @@ Public API:
 - `cast_dice(effect_dice, ctx, *, cantrip_scaling, upcast_dice, add_modifier) -> str`: the dice
   of an effect at this cast (cantrip tiers at character levels 5/11/17, `upcast_dice` once per
   slot level above the spell's level, the spellcasting modifier).
-- `cast_roll(ctx, effect, dice, *, crit, shared) -> Roll`: rolls (and logs) the dice once, or
-  reuses the shared roll of the same effect.
+- `cast_roll(ctx, effect, dice, *, crit, shared, kind=OTHER, target_id=None) -> Roll`: rolls
+  (and logs) the dice once, or reuses the shared roll of the same effect. The logged roll is
+  labelled with the spell's display name and lands on `target_id` unless it is shared.
 - `spell_attack_profile(spell, name, ctx) -> AttackProfile`, `spell_profile(spell, name,
   attack_bonus, key="")` (the same without a cast); `cast_zone_of(ctx, creature_id)
   -> str | None` (None outside a fight).
@@ -27,7 +28,7 @@ from aidm.data.registry import Registry
 from aidm.data.spell_defs import Effect, SpellDef
 from aidm.models.combat import AttackEconomy, AttackProfile
 from aidm.models.conditions import ConditionLink
-from aidm.models.dice import Roll
+from aidm.models.dice import Roll, RollKind
 from aidm.models.events import AnyEvent, DiceRolled
 from aidm.models.state import GameState
 from aidm.rules.dice import Rng, parse_dice, roll
@@ -108,12 +109,26 @@ def spell_profile(spell: SpellDef, name: str, attack_bonus: int, key: str = "") 
     )
 
 
-def cast_roll(ctx: CastContext, effect: Effect, dice: str, *, crit: bool, shared: bool) -> Roll:
+def cast_roll(
+    ctx: CastContext,
+    effect: Effect,
+    dice: str,
+    *,
+    crit: bool,
+    shared: bool,
+    kind: RollKind = RollKind.OTHER,
+    target_id: str | None = None,
+) -> Roll:
     key = id(effect)
     if shared and key in ctx.rolls:
         return ctx.rolls[key]
     rolled = roll(dice, ctx.rng, crit=crit)
-    ctx.emit([DiceRolled(roll=rolled, roller_id=ctx.caster_id, label=ctx.name or ctx.spell.index)])
+    lands_on = None if shared else target_id
+    label = ctx.name or ctx.spell.index.replace("-", " ").capitalize()
+    event = DiceRolled(
+        roll=rolled, roller_id=ctx.caster_id, label=label, kind=kind, target_id=lands_on
+    )
+    ctx.emit([event])
     if shared:
         ctx.rolls[key] = rolled
     return rolled

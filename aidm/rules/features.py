@@ -24,6 +24,7 @@ Public API:
 - `damage_reroll_below(creature, feats, ctx) -> int`: reroll damage dice under this value
   (Great Weapon Fighting), 0 = none. `offhand_adds_ability(creature, feats, ctx) -> bool`.
 - `feature_ac_bonus(creature, feats, *, armored) -> int` (Defense).
+- `feature_names(feats, ids) -> list[str]`: display names of feature ids (the id if unknown).
 - `attack_advantage_sources(creature, feats, *, ally_adjacent) -> list[str]`: feature ids giving
   advantage on this attack roll (Pack Tactics while an ally shares the target's zone).
 - `save_advantage_sources(creature, feats, ability, tags) -> list[str]`: feature ids giving
@@ -221,6 +222,10 @@ def damage_riders(
             if rider.dice is not None or rider.flat:
                 riders.append(rider)
     return riders
+
+
+def feature_names(feats: Registry[FeatureDef], ids: Sequence[str]) -> list[str]:
+    return [(f.name if (f := feats.find(i)) is not None else i) for i in ids]
 
 
 def attack_advantage_sources(

@@ -12,6 +12,10 @@ Public API:
 - `AdvState`: NORMAL / ADVANTAGE / DISADVANTAGE for a d20 test.
 - `D20Roll(rolls, adv, natural, modifier, total, is_crit, is_fumble)`: a d20 test. `rolls` shows
   every d20 thrown (1 for NORMAL, 2 otherwise); `natural` is the chosen die.
+- `RollKind` (M26.2): what a logged roll is for (attack, check, save, death_save, damage, heal,
+  other); the dice show picks its staging from it.
+- `RollPart(name, value)` (M26.2): one named piece of a d20 modifier ("DEX", "PROF",
+  "EXPERTISE", "BONUS"); the parts of a check or save always sum to its modifier.
 
 All models are frozen so they can be embedded in events and shared safely.
 """
@@ -88,6 +92,23 @@ class AdvState(StrEnum):
     NORMAL = "normal"
     ADVANTAGE = "advantage"
     DISADVANTAGE = "disadvantage"
+
+
+class RollKind(StrEnum):
+    ATTACK = "attack"
+    CHECK = "check"
+    SAVE = "save"
+    DEATH_SAVE = "death_save"
+    DAMAGE = "damage"
+    HEAL = "heal"
+    OTHER = "other"
+
+
+class RollPart(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    name: str = Field(min_length=1)
+    value: int
 
 
 class D20Roll(BaseModel):

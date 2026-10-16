@@ -57,6 +57,7 @@ from aidm.data.spell_defs import (
 from aidm.models.abilities import Ability
 from aidm.models.conditions import ConditionLink, SaveEnds
 from aidm.models.damage import DamagePacket, DamageType
+from aidm.models.dice import RollKind
 from aidm.models.events import CheckResolved, TempHpSet
 from aidm.models.zones import ZoneSurface
 from aidm.rules.attacks import deal_damage, roll_attack
@@ -64,7 +65,7 @@ from aidm.rules.concentration import concentration_upkeep
 from aidm.rules.condition_timing import apply_condition, new_condition, remove_condition
 from aidm.rules.conditions import save_with_conditions
 from aidm.rules.damage import resolve_healing
-from aidm.rules.features import healing_bonus, save_advantage_sources
+from aidm.rules.features import feature_names, healing_bonus, save_advantage_sources
 from aidm.rules.spell_context import (
     CastContext,
     cast_dice,
@@ -95,7 +96,10 @@ def _damage(
         upcast_dice=effect.upcast_dice,
         add_modifier=effect.add_modifier,
     )
-    total = cast_roll(ctx, effect, dice, crit=crit, shared=shared).total
+    rolled = cast_roll(
+        ctx, effect, dice, crit=crit, shared=shared, kind=RollKind.DAMAGE, target_id=target_id
+    )
+    total = rolled.total
     amount = max(0, total) // 2 if half else total
     packet = DamagePacket(amount=amount, damage_type=DamageType(effect.damage_type))
     ctx.emit(
@@ -135,7 +139,10 @@ def _heal(
     dice = cast_dice(
         effect.dice, ctx, upcast_dice=effect.upcast_dice, add_modifier=effect.add_modifier
     )
-    amount = cast_roll(ctx, effect, dice, crit=False, shared=shared).total
+    rolled = cast_roll(
+        ctx, effect, dice, crit=False, shared=shared, kind=RollKind.HEAL, target_id=target_id
+    )
+    amount = rolled.total
     target = ctx.state.creatures[target_id]
     if isinstance(effect, TempHpEffect):
         if amount > target.temp_hp and not target.dead:
@@ -187,10 +194,18 @@ def _save(ctx: CastContext, effect: SaveEffect, target_id: str, shared: bool) ->
         target, ctx.feats, ability, _save_tags(effect.on_fail, ctx.magical)
     )
     result = save_with_conditions(
-        ctx.rng, target, ability, ctx.numbers.save_dc, adv_sources=min(1, len(sources))
+        ctx.rng,
+        target,
+        ability,
+        ctx.numbers.save_dc,
+        adv_sources=min(1, len(sources)),
+        source_names=feature_names(ctx.feats, sources),
     )
     reason = f"{ctx.spell.index} save"
-    ctx.emit([CheckResolved(creature_id=target_id, result=result, reason=reason)])
+    event = CheckResolved(
+        creature_id=target_id, result=result, reason=reason, source_id=ctx.caster_id
+    )
+    ctx.emit([event])
     if not result.success:
         run_effects(ctx, effect.on_fail, target_id, shared=shared)
     elif effect.on_success == "half":

@@ -10,10 +10,17 @@ Public API:
   `is_crit` is natural >= `crit_on` (20 by default; lowered by features such as Improved Critical),
   `is_fumble` is natural 1. Whether a crit or fumble matters (attacks, BG3 checks) is decided by the
   caller, not here.
+- `adv_reasons(adv, for_adv, for_dis) -> tuple[str, ...]` (M26.2): why a combined roll has
+  advantage or disadvantage: the named sources of the winning side (deduplicated), or
+  `SITUATION` ("the situation") when none is named; empty for a NORMAL roll.
 """
+
+from collections.abc import Sequence
 
 from aidm.models.dice import AdvState, D20Roll
 from aidm.rules.dice import Rng
+
+SITUATION = "the situation"
 
 
 def combine_adv(adv_sources: int, dis_sources: int) -> AdvState:
@@ -26,6 +33,13 @@ def combine_adv(adv_sources: int, dis_sources: int) -> AdvState:
     if dis_sources:
         return AdvState.DISADVANTAGE
     return AdvState.NORMAL
+
+
+def adv_reasons(adv: AdvState, for_adv: Sequence[str], for_dis: Sequence[str]) -> tuple[str, ...]:
+    if adv is AdvState.NORMAL:
+        return ()
+    names = for_adv if adv is AdvState.ADVANTAGE else for_dis
+    return tuple(dict.fromkeys(names)) or (SITUATION,)
 
 
 def roll_d20(
