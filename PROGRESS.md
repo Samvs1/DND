@@ -1,4 +1,4 @@
-NEXT: M26 dice redesign, waiting for the owner's design decisions on the mockups (canvas "AIDM UI Revamp Concepts", page Dice). Files in flight: none. Last gate: FULL GATE PASS 12/12 (M26.1: 3077 passed, 13 skipped).
+NEXT: M26.0 feel prototype for the owner (scratch); M26.2 delegated to hard-engineer in parallel. Files in flight: docs/next/GOAL_DICE.md, PROGRESS.md. Last gate: FULL GATE PASS 12/12 (M26.1).
 
 # PROGRESS
 
@@ -250,8 +250,17 @@ Owner: "I see some duplicate information ... I feel like we can do better on thi
 - [x] M25.4 **M** Loot and shop item icons (owner follow-up 2026-10-16): 140 icons for every gear, tool, weapon, armour and supply item without one (nine 4x4 sheets + two 2x2 fix sheets, each icon judged and mapped by eye; grid lines stripped), installed in img/icons/gear (read by `asset_keys._items`), manifest source `generated:gpt-image-1.5-m25`. 201 of 282 items have their own icon; scrolls, keys and potions share theirs. Gate: unit assets/assetgen + art-rule and placeholder UI tests 449 passed.
 
 ## M26 Dice at the table (owner request 2026-10-16: "focus now on the dice rolling, the animation, how it is shown to the player")
-Review of the current dice (screen card, phone toast, Your last roll, 4d6 wizard) shown to the owner as captures; design decisions pending.
+Binding: docs/next/GOAL_DICE.md (owner answers to the Dice mockups on the canvas: stage A out of combat, board C in combat, B one-liners as history, sequential reveal, natural 20 always succeeds on checks (already the rule), a dice sound; "really on point and repeatable (such as Baldur's Gate)", "the narrator doesn't spoil the roll").
 - [x] M26.1 **M** Bug: a roll with no outcome (damage, sneak attack) printed "= 5null" in the phone toast and Your last roll (`rollNodes` returned a trailing null and `Element.append` prints it). Fixed in js/controller/lastroll.js; new `test_roll_without_outcome_shows_no_null_on_the_phone` (red before the fix, green after). Gate: tests/ui/test_table_view.py 10 passed + FULL gate.
+- [ ] M26.0 **ORCH** Feel prototype for the owner: the stage roll and a board attack as one playable page with the mockup dice art and synthesised sounds (scratch, not in the tree); owner feedback before wiring. Gate: owner says go.
+- [ ] M26.2 **H** Roll data for the show: DiceView `kind`, `target_id`, `source_id`, `parts` (named check/save bonuses from a pure `rules/checks.py` helper), `adv_why`, `difficulty` (DC tier word), readable labels (no raw feature ids); damage `EventMsg` carries `subject_id` + `amount`; optional fields only (old saves replay). gen_protocol, goldens. Gate: pytest unit + session, gen_protocol --check, pyright.
+- [ ] M26.3 **H** The screen paces AI turns: `presented {seq}` from screen clients; `_ai_turn` waits for it (floor `ai_turn_pause_s`, cap 8 s, no screen = fixed pause). Gate: session tests (waits, cap, no screen) + pytest -q tests/session.
+- [ ] M26.4 **M** Dice art installed: the 12 mockup pieces as UI_ART entries (`img/ui/dice/*.png`, real, source `generated:gpt-image-2.5-m26`), manifest rebuilt. Gate: build_manifest --check + asset tests.
+- [ ] M26.5 **H** The pacer: `js/show/pacer.js` between ws and dispatch on screen and phones; shows hold later messages; hello/story_history clears; backlog speed-up; tap to skip; sends `presented`. Gate: UI tests (narration and HP wait for the verdict, reload, backlog, skip).
+- [ ] M26.6 **H** The roll stage (TV) and the roller's roll card (phone), out of combat: random throws, flicker, landing, bonus tally, verdicts incl. natural 20/1 and advantage/disadvantage. Gate: UI tests + videos judged.
+- [ ] M26.7 **H** Combat on the board: die arc attacker -> target, floating verdict and damage, HP drains on the hit, saves over each saver, death saves; the strip; THIS ROUND one-liners replace the dice card; phone result and incoming cards. Gate: UI tests + videos judged.
+- [ ] M26.8 **M** Dice sound: `scripts/gen_dice_sfx.py` (seeded synthesis, variants, one lossy encode) -> `audio/sfx/*.mp3` manifest keys; screen-only sfx player with no-repeat variants; Effects volume in settings. Manual. Gate: tests + listening check by the owner.
+- [ ] M26.9 **ORCH** Review in the real app (videos of every case in GOAL_DICE.md), timing check, manual, FULL gate, commit `M26: Dice at the table`.
 ---
 
 ## Goal acceptance (from the owner's /goal; the final report must prove each with raw output)
