@@ -10,7 +10,7 @@ order listed (P1 first, then P2 by kind visibility); a run whose estimate exceed
 `--cap` is cut from the end of that order.
 
 P1: 141 entries (item_icon 1, monster_token 30, portrait 59, region_banner 6, scene 3, spell_icon 1, surface_icon 5, ui_icon 25, ui_skin 11).
-P2: 242 entries (condition_icon 21, monster_token 65, portrait 10, region_banner 6, spell_icon 61, surface_icon 11, zone_card 9, zone_hex 55, zone_icon 4).
+P2: 289 entries (condition_icon 21, item_icon 47, monster_token 65, portrait 10, region_banner 6, spell_icon 61, surface_icon 11, zone_card 9, zone_hex 55, zone_icon 4).
 
 ## P1
 
@@ -196,3 +196,4 @@ P2: 242 entries (condition_icon 21, monster_token 65, portrait 10, region_banner
 - condition_icon (21): asleep, barkskin, blurred, chilled, dodging, expeditious-retreat, guidance, guided, helped, hidden, invisibility, invisible, longstrider, nauseated, poison-ward, resistance, shocked, silenced, slowed, surprised, true-strike
 - portrait (10): npc.werebear-bear, npc.werebear-hybrid, npc.wereboar-boar, npc.wereboar-hybrid, npc.wererat-hybrid, npc.wererat-rat, npc.weretiger-hybrid, npc.weretiger-tiger, npc.werewolf-hybrid, npc.werewolf-wolf
 - spell_icon (61): acid-arrow, acid-splash, aid, animal-friendship, bane, barkskin, bless, blindness-deafness, blur, burning-hands, charm-person, chill-touch, color-spray, cure-wounds, darkness, eldritch-blast, expeditious-retreat, false-life, fear, fire-bolt, fireball, fog-cloud, grease, guidance, guiding-bolt, healing-word, hideous-laughter, hold-person, hunters-mark, hypnotic-pattern, inflict-wounds, invisibility, lesser-restoration, lightning-bolt, longstrider, mage-armor, magic-missile, mass-healing-word, misty-step, poison-spray, prayer-of-healing, protection-from-poison, ray-of-frost, resistance, revivify, sacred-flame, scorching-ray, shatter, shield-of-faith, shocking-grasp, silence, sleep, sleet-storm, slow, spare-the-dying, spike-growth, spirit-guardians, stinking-cloud, thunderwave, true-strike, web
+- item_icon (47): amulet, arrow, battleaxe, block-of-incense, book, burglars-pack, clothes-common, clothes-costume, clothes-fine, clothes-travelers, club, component-pouch, crossbow-bolt, crossbow-light, crowbar, crystal, dice-set, disguise-kit, drum, dungeoneers-pack, emblem, explorers-pack, handaxe, hunting-trap, ink-1-ounce-bottle, ink-pen, longbow, lute, orb, playing-card-set, pot-iron, pouch, priests-pack, reliquary, scholars-pack, shovel, signal-whistle, signet-ring, small-knife, smiths-tools, spear, spellbook, staff, thieves-tools, wand, warhammer, waterskin

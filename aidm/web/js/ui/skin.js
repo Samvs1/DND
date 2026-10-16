@@ -15,6 +15,7 @@ const SKIN = {
   '--skin-shield': 'ui_icon.ac-shield',
   '--skin-quill': 'ui_icon.quill',
   '--skin-hourglass': 'ui_icon.hourglass',
+  '--skin-coin': 'item_icon.gold',
   ...Object.fromEntries(SKIN_COLOURS.map((c) => [`--skin-ribbon-${c}`, `ui_skin.ribbon-${c}`])),
 };
 

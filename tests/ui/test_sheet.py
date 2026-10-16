@@ -77,12 +77,15 @@ def test_equip_and_unequip_change_the_armor_class(
     host.wait_for_selector("[data-testid=inv-list]")
     assert "gp" in host.locator("[data-testid=sh-gold]").inner_text()
     assert "lb" in host.locator(".inv-meta").first.inner_text()
+    item = "[data-testid=inv-item][data-item={}]"  # M25: tap an item for its buttons
+    host.click(item.format("shield"))
     host.click("[data-testid=unequip-shield]")
     host.wait_for_function(f"{SHEET}.ac === {before - 2}", timeout=20000)
     host.wait_for_selector("[data-testid=equip-shield]")
     snap(host, shots_dir, "controller_hero_inventory", 390)
     host.click("[data-testid=equip-shield]")
     host.wait_for_function(f"{SHEET}.ac === {before}", timeout=20000)
+    host.click(item.format("dungeoneers-pack"))
     host.click("[data-testid=drop-dungeoneers-pack]")
     host.wait_for_selector("[data-testid=drop-dungeoneers-pack]", state="detached", timeout=20000)
     assert errors == []
@@ -108,6 +111,7 @@ def test_potion_use_outside_combat(browser: Browser, live_server: LiveServer) ->
     live_server.loop.call_soon_threadsafe(table.schedule, wound_and_give)
     host.wait_for_function(f"{SHEET}.hp === 1", timeout=20000)
     host.click("[data-testid=tab-inventory]")
+    host.click(f"[data-testid=inv-item][data-item={POTION}]")  # M25: tap an item for its buttons
     host.wait_for_selector(f"[data-testid=use-{POTION}]")
     assert (
         host.locator(f"[data-testid=use-target-{POTION}] option").first.inner_text() == "yourself"
@@ -195,4 +199,22 @@ def test_keepsakes_show_under_the_inventory(
     row.wait_for()
     assert "Oilcloth Scrap" in row.inner_text() and "charcoal map" in row.inner_text()
     snap(host, shots_dir, "sheet_keepsakes", 390)
+    assert errors == []
+
+
+def test_give_an_item_from_the_pack_to_a_person_here(
+    browser: Browser, live_server: LiveServer, shots_dir: Path
+) -> None:
+    """M25: an item's detail card has Give, the same `give` message as typed giving."""
+    errors: list[str] = []
+    host, _guest = start_table(browser, live_server.base, PHONE, errors)
+    _open(host)
+    host.click("[data-testid=tab-inventory]")
+    whistle = "[data-testid=inv-item][data-item=signal-whistle]"
+    host.click(whistle)
+    assert host.locator("[data-testid=inv-detail-name]").inner_text() == "Signal whistle"
+    host.click("[data-testid=give-item]")
+    snap(host, shots_dir, "m25_give_item", 390)
+    host.locator("[data-testid=give-item-to]").first.click()
+    host.wait_for_selector(whistle, state="detached", timeout=20000)
     assert errors == []

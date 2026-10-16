@@ -574,6 +574,20 @@
   "source": "v1",
   "license": "v1 project asset (owner's own)"
  },
+ "item_icon.amulet": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/amulet.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "item_icon.armor": {
   "kind": "item_icon",
   "file": "img/icons/equipment/armor.png",
@@ -586,6 +600,62 @@
   "prompt": "",
   "source": "v1",
   "license": "v1 project asset (owner's own)"
+ },
+ "item_icon.arrow": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/arrow.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.battleaxe": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/battleaxe.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.block-of-incense": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/block-of-incense.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.book": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/book.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
  },
  "item_icon.breastplate": {
   "kind": "item_icon",
@@ -600,6 +670,20 @@
   "source": "v1",
   "license": "v1 project asset (owner's own)"
  },
+ "item_icon.burglars-pack": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/burglars-pack.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "item_icon.chain-mail": {
   "kind": "item_icon",
   "file": "img/icons/equipment/chain-mail.png",
@@ -613,6 +697,146 @@
   "source": "v1",
   "license": "v1 project asset (owner's own)"
  },
+ "item_icon.clothes-common": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/clothes-common.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.clothes-costume": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/clothes-costume.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.clothes-fine": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/clothes-fine.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.clothes-travelers": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/clothes-travelers.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.club": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/club.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.component-pouch": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/component-pouch.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.crossbow-bolt": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/crossbow-bolt.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.crossbow-light": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/crossbow-light.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.crowbar": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/crowbar.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.crystal": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/crystal.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "item_icon.dagger": {
   "kind": "item_icon",
   "file": "img/icons/equipment/dagger.png",
@@ -625,6 +849,90 @@
   "prompt": "",
   "source": "v1",
   "license": "v1 project asset (owner's own)"
+ },
+ "item_icon.dice-set": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/dice-set.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.disguise-kit": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/disguise-kit.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.drum": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/drum.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.dungeoneers-pack": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/dungeoneers-pack.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.emblem": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/emblem.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.explorers-pack": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/explorers-pack.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
  },
  "item_icon.gear": {
   "kind": "item_icon",
@@ -665,6 +973,62 @@
   "source": "v1",
   "license": "v1 project asset (owner's own)"
  },
+ "item_icon.handaxe": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/handaxe.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.hunting-trap": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/hunting-trap.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.ink-1-ounce-bottle": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/ink-1-ounce-bottle.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.ink-pen": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/ink-pen.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "item_icon.key": {
   "kind": "item_icon",
   "file": "img/icons/items/key.png",
@@ -691,6 +1055,20 @@
   "source": "v1",
   "license": "v1 project asset (owner's own)"
  },
+ "item_icon.longbow": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/longbow.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "item_icon.longsword": {
   "kind": "item_icon",
   "file": "img/icons/equipment/longsword.png",
@@ -703,6 +1081,20 @@
   "prompt": "",
   "source": "v1",
   "license": "v1 project asset (owner's own)"
+ },
+ "item_icon.lute": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/lute.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
  },
  "item_icon.mace": {
   "kind": "item_icon",
@@ -717,6 +1109,48 @@
   "source": "v1",
   "license": "v1 project asset (owner's own)"
  },
+ "item_icon.orb": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/orb.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.playing-card-set": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/playing-card-set.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.pot-iron": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/pot-iron.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "item_icon.potion": {
   "kind": "item_icon",
   "file": "img/icons/items/potion_healing.png",
@@ -729,6 +1163,34 @@
   "prompt": "",
   "source": "v1",
   "license": "v1 project asset (owner's own)"
+ },
+ "item_icon.pouch": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/pouch.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.priests-pack": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/priests-pack.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
  },
  "item_icon.quarterstaff": {
   "kind": "item_icon",
@@ -756,6 +1218,20 @@
   "source": "v1",
   "license": "v1 project asset (owner's own)"
  },
+ "item_icon.reliquary": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/reliquary.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "item_icon.scale-mail": {
   "kind": "item_icon",
   "file": "img/icons/equipment/scale-mail.png",
@@ -768,6 +1244,20 @@
   "prompt": "",
   "source": "v1",
   "license": "v1 project asset (owner's own)"
+ },
+ "item_icon.scholars-pack": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/scholars-pack.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
  },
  "item_icon.scroll": {
   "kind": "item_icon",
@@ -821,6 +1311,104 @@
   "source": "v1",
   "license": "v1 project asset (owner's own)"
  },
+ "item_icon.shovel": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/shovel.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.signal-whistle": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/signal-whistle.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.signet-ring": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/signet-ring.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.small-knife": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/small-knife.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.smiths-tools": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/smiths-tools.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.spear": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/spear.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.spellbook": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/spellbook.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "item_icon.splint-armor": {
   "kind": "item_icon",
   "file": "img/icons/equipment/splint-armor.png",
@@ -833,6 +1421,20 @@
   "prompt": "",
   "source": "v1",
   "license": "v1 project asset (owner's own)"
+ },
+ "item_icon.staff": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/staff.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
  },
  "item_icon.studded-leather-armor": {
   "kind": "item_icon",
@@ -860,6 +1462,20 @@
   "source": "v1",
   "license": "v1 project asset (owner's own)"
  },
+ "item_icon.thieves-tools": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/thieves-tools.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "item_icon.tool": {
   "kind": "item_icon",
   "file": "img/icons/items/tool.png",
@@ -874,6 +1490,48 @@
   "license": "AI generated via OpenAI API, check provider terms before commercial use",
   "reviewed": true,
   "cost_eur": 0.0162
+ },
+ "item_icon.wand": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/wand.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.warhammer": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/warhammer.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.waterskin": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/waterskin.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
  },
  "item_icon.weapon": {
   "kind": "item_icon",

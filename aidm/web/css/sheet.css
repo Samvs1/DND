@@ -777,3 +777,179 @@
   min-height: 0;
   margin: 0;
 }
+
+/* M25 inventory: worn gear as labelled slots, the pack as a slot grid, one detail card for the tapped item. */
+.inv-worn,
+.inv-pack {
+  display: grid;
+  gap: 0.5rem 0.3rem;
+  justify-items: center;
+  margin-top: 0.35rem;
+}
+
+.inv-worn {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.inv-pack {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.inv-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  align-items: center;
+  min-width: 0;
+  max-width: 100%;
+  padding: 0;
+  color: var(--text-2);
+  font: inherit;
+  font-size: 0.9rem;
+  line-height: 1;
+  text-align: center;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.inv-slot {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 3.6rem;
+  height: 3.6rem;
+  background: var(--skin-slot, none) center / 100% 100% no-repeat;
+}
+
+.inv-slot img {
+  width: 2.2rem;
+  height: 2.2rem;
+}
+
+.inv-cell[aria-pressed='true'] .inv-slot {
+  background-image: var(--skin-slot-selected, none);
+}
+
+.inv-cell[aria-pressed='true'] .inv-name {
+  color: var(--text);
+}
+
+.inv-count {
+  position: absolute;
+  right: 0.35rem;
+  bottom: 0.15rem;
+  color: #ece8de;
+  font-family: var(--font-display);
+  font-size-adjust: none;
+  font-size: 0.95rem;
+  text-shadow: 1px 1px 0 #000, -1px -1px 0 #000;
+}
+
+.inv-k {
+  color: var(--text-3);
+  font-family: var(--font-display);
+  font-size-adjust: none;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.inv-name {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inv-detail {
+  display: grid;
+  grid-template-columns: 3.6rem minmax(0, 1fr);
+  gap: 0.35rem 0.75rem;
+  align-items: center;
+  padding: 0.45rem 0.7rem 0.6rem;
+  background: var(--card);
+  border: 8px solid var(--line-2);
+  border-image: var(--skin-frame) 16 fill / 8px stretch;
+}
+
+.inv-detail .inv-slot {
+  background-image: var(--skin-slot-selected, none);
+}
+
+.inv-detail .inv-main strong {
+  font-family: var(--font-display);
+  font-size-adjust: none;
+  font-size: 1.3rem;
+  font-weight: 400;
+}
+
+.inv-detail .inv-actions,
+.inv-detail .inv-give-list {
+  grid-column: 1 / -1;
+}
+
+.inv-detail .inv-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.inv-detail .inv-actions .btn {
+  flex: 1;
+}
+
+.inv-detail .inv-give {
+  display: contents;
+}
+
+/* The purse on one line: coin and gold, weight carried, the shared camp supplies. */
+.inv-purse {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 1rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.inv-purse p {
+  margin: 0;
+}
+
+.inv-purse .sh-gold {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+  color: var(--text-2);
+}
+
+.inv-purse .sh-gold strong {
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: center;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size-adjust: none;
+  font-size: 1.3rem;
+  font-weight: 400;
+}
+
+.inv-purse .sh-gold strong::before {
+  content: '';
+  width: 1.3rem;
+  height: 1.3rem;
+  background: var(--skin-coin, none) center / contain no-repeat;
+}
+
+.inv-purse .sh-supplies {
+  color: var(--text-2);
+}
+
+.inv-name {
+  display: -webkit-box;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}

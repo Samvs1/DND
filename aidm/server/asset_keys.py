@@ -151,8 +151,11 @@ def _items(static_dir: Path) -> list[AssetSpec]:
         )
     for item in item_catalogue().all():
         file = f"{ICON_DIR}/equipment/{item.id}.png"
+        gear = f"{ICON_DIR}/gear/{item.id}.png"  # M25: generated starting-gear icons
         if (static_dir / file).is_file():
             out.append(_spec(f"item_icon.{item.id}", file, transparent=True, v1=True))
+        elif (static_dir / gear).is_file():
+            out.append(_spec(f"item_icon.{item.id}", gear, transparent=True))
     return out
 
 
