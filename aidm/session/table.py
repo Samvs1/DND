@@ -3,7 +3,8 @@
 Two asyncio tasks per table:
 - the INBOX task reads `Inbound` items (client messages, closed connections, fired timers) in
   order and handles them at once when they only read state or touch table bookkeeping
-  (hello, ping, queueing an action, votes, chat, suggestions, hit chances, host routing);
+  (hello, ping, a screen's `presented`, queueing an action, votes, chat, suggestions, hit
+  chances, host routing; M26.3: a job waiting for the screen is woken from here);
   everything that changes the game becomes a job;
 - the WORKER task runs jobs one at a time. It is the only code that mutates `GameState`
   (through `TableCore.apply` -> THE reducer, with a monotonic `seq`), so the long LLM awaits
@@ -53,6 +54,7 @@ from aidm.session import (
     scribe_desk,
     scribe_voice,
     sheet_view,
+    show_pace,
     spectators,
     turn_clock,
     votes,
@@ -242,6 +244,9 @@ class Table(TableCore):
     def _client(self, conn_id: str, msg: AnyClientMsg) -> None:
         if isinstance(msg, c.Ping):
             self.send_conn(conn_id, Pong())
+            return
+        if isinstance(msg, c.Presented):  # M26.3: screens only; anyone else is ignored
+            show_pace.presented(self, conn_id, msg.seq)
             return
         if spectators.wants_screen(msg) and conn_id not in self.conn_player:
             spectators.join(self, conn_id, msg)

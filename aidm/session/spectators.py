@@ -3,7 +3,8 @@
 A `hello` with `role: "screen"` (or the older `spectator: true`; `wants_screen`) registers the
 connection in `core.spectators`. It is NOT seated (no player, no token, no `welcome`), receives
 every public broadcast plus the snapshot, the story history and the missed event lines, and may
-only `ping`; anything else is refused.
+only `ping` and `presented` (M26.3, `show_pace`); anything else is refused. A screen that leaves
+stops pacing the table (`TableCore.shows.drop`).
 `PublicState.screens` is the number of connected spectators, so players' narration audio defaults
 to off while a screen plays it. A change of that count is broadcast as a fresh snapshot.
 
@@ -44,6 +45,7 @@ def leave(core: TableCore, conn_id: str) -> bool:
     if conn_id not in core.spectators:
         return False
     core.spectators.discard(conn_id)
+    core.shows.drop(conn_id)
     core.outboxes.pop(conn_id, None)
     core.broadcast_snapshot()
     return True

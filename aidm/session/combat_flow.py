@@ -16,7 +16,9 @@ is consumed. A fight's end runs loot (`end_encounter_with_loot`), bystander deed
 quest steps and routes, M23.2), tells the last segment, records it and returns to exploration.
 A fight that ends without a defeat leaves dying heroes stable (`rules.downed`, M20.2).
 Every AI turn sends `combat_state` as it begins and with its results, then holds
-`TableConfig.ai_turn_pause_s` so the table sees whose turn it is (M20.3).
+`TableConfig.ai_turn_pause_s` so the table sees whose turn it is (M20.3); M26.3: it also waits
+until every show-capable screen presented the turn (`show_pace`, capped at `show_wait_cap_s`),
+and a hero's turn clock starts only once the screens presented what came before (same cap).
 Every mid-fight segment narration is recorded too (`narration_recorded`, M20.1).
 A lost fight that wiped the party is turned into the DEFEATED phase right after the job by
 `defeat_flow.after_job` (M11.1); the fight start was marked as a retry checkpoint.
@@ -26,7 +28,6 @@ Public API: `MAX_COMBAT_STEPS`, `runner`, `after_resolution`, `begin_combat`, `a
 `finish_fight`, `end_player_turn`.
 """
 
-import asyncio
 from collections.abc import Sequence
 
 from aidm.dm.narrator import narrate_round_segment, record_narration
@@ -42,7 +43,7 @@ from aidm.rules.loot import end_encounter_with_loot, loot_rng
 from aidm.rules.party_ai import safe_default_turn
 from aidm.rules.social_deeds import combat_help_deed_events
 from aidm.rules.turns import begin_turn, next_turn
-from aidm.session import checkpoints, turn_clock, votes
+from aidm.session import checkpoints, show_pace, turn_clock, votes
 from aidm.session.combat_runner import CombatRunner
 from aidm.session.quest_flow import settle_after
 from aidm.session.table_core import Player, TableCore
@@ -125,7 +126,8 @@ async def advance(core: TableCore) -> None:
 
 async def _ai_turn(core: TableCore, run: CombatRunner, active: str) -> None:
     """One AI turn the table can follow (M20.3): the board shows it begin, then its results, and
-    holds `ai_turn_pause_s` (0 in tests and sims) before the next turn."""
+    holds `ai_turn_pause_s` (0 in tests and sims) before the next turn; M26.3: and until the
+    screens presented it (never past `show_wait_cap_s`)."""
     state = core.state
     core.broadcast(CombatState(combat=public_combat(state)))
     if state.creatures[active].pc is not None:
@@ -138,18 +140,25 @@ async def _ai_turn(core: TableCore, run: CombatRunner, active: str) -> None:
         return
     run.legendary()
     core.broadcast(CombatState(combat=public_combat(state)))
-    if core.config.ai_turn_pause_s > 0:
-        await asyncio.sleep(core.config.ai_turn_pause_s)
+    config = core.config
+    seq = show_pace.last_shown_seq(core)
+    await show_pace.wait_presented(core, seq, config.ai_turn_pause_s, config.show_wait_cap_s)
 
 
 async def _prompt(core: TableCore, creature_id: str, owner: Player) -> None:
-    """The hero's turn starts at once (M20.3: the phone flips the moment the turn passes); the
-    story of the turns since the last telling follows the prompt."""
+    """The hero's turn starts as soon as the screens presented the turns before it (M26.3, at
+    most `show_wait_cap_s`; M20.3: no wait without a show-capable screen); the story of the
+    turns since the last telling follows the prompt. The turn is open (`turn_key`) during the
+    wait, so a seat that leaves or is removed meanwhile is handled as in any open turn."""
     enc = core.state.encounter
     if enc is None:
         return
     key = f"{enc.id}:{enc.round}:{enc.active_index}"
     core.turn_key = key
+    seq = show_pace.last_shown_seq(core)
+    await show_pace.wait_presented(core, seq, 0.0, core.config.show_wait_cap_s)
+    if _prompt_player(core, creature_id) is not owner:
+        return  # removed while the screen caught up: its scheduled safe turn plays it
     if owner.connected:
         turn_clock.start(core, key, turn_clock.limit_for(core, owner))
     else:

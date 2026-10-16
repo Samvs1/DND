@@ -13,6 +13,7 @@ Public API: `Player`, `TableConfig`, `TtsHook`, `no_tts`, `Job`, `ClientIn`, `Cl
 `phase_of(state)` (the phase a loaded state starts in: DEFEATED when `state.defeat` is set,
 M11.1). M11.2: `typing` (who is composing), `audio` (the screen's audio settings, saved in
 table.json), `floor_view()`. M13.2: `scribe` (the Scribe's line memory, `scribe_picker`).
+M26.3: `shows` (what each screen has presented, `show_board`; waits cap at `show_wait_cap_s`).
 """
 
 import asyncio
@@ -60,6 +61,7 @@ from aidm.session.public_feed import PublicFeed
 from aidm.session.reducer import apply as reduce
 from aidm.session.scribe_picker import ScribeMemory
 from aidm.session.session_log import SessionLog
+from aidm.session.show_board import ShowBoard
 from aidm.session.table_clock import Clock, LoopClock, TimerHandle
 from aidm.session.table_records import OpenVote, PendingHostile, TurnClock
 from aidm.session.views import public_floor, public_state
@@ -94,6 +96,7 @@ class TableConfig:
     tts_enabled: bool = False
     session_log: SessionLog = field(default_factory=SessionLog)  # M15.3 diagnostics
     ai_turn_pause_s: float = 0.0  # M20.3: how long the screen holds each AI turn
+    show_wait_cap_s: float = 8.0  # M26.3: the longest wait for a screen's show
 
 
 @dataclass
@@ -189,6 +192,7 @@ class TableCore:
         self.audio_limit = RateLimit(limit=20, window=2.0)
         self.what_now_limit = RateLimit(limit=1, window=5.0)  # M23.8: screen copies per player
         self.scribe = ScribeMemory()  # M13.2 line picks (session/scribe_voice.py); not persisted
+        self.shows = ShowBoard()  # M26.3 presented seqs per screen; not persisted
 
     # --- ids, seats, lookups -------------------------------------------------------------
 

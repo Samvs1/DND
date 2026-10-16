@@ -21,7 +21,8 @@ downed party member up to 1 HP, `aidm.rules.downed`); M23.4 `AnswerQuestOffer` (
 on the giver's quest card, `aidm.rules.quest_offers`); M23.8 `AskWhatNow` (the What now? button:
 answered at once from the state, never a turn, `aidm.rules.quest_hints`); M23.9 `ChooseFinale`
 (the finale card: one of the plan's two endings; only `confirm: true`, sent after the phone's
-"Are you sure? This ends the story", makes the choice, `aidm.rules.finale`).
+"Are you sure? This ends the story", makes the choice, `aidm.rules.finale`); M26.3 `Presented`
+(a screen has finished showing every event line and dice roll up to `seq`; AI turns wait for it).
 """
 
 from enum import StrEnum
@@ -268,6 +269,14 @@ class ImportCharacter(_Client):
 
 class Ping(_Client):
     type: Literal["ping"] = "ping"
+
+
+class Presented(_Client):
+    """M26.3: the screen's show queue has shown everything up to `seq` (the highest `seq` of an
+    event line or dice roll it finished). Only screens count; a player's is ignored."""
+
+    type: Literal["presented"] = "presented"
+    seq: int = Field(ge=0)
 
 
 class DefeatRetry(_Client):

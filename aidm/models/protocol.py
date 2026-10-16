@@ -56,6 +56,7 @@ type AnyClientMsg = (
     | c.ExportCharacter
     | c.ImportCharacter
     | c.Ping
+    | c.Presented
     | c.DefeatRetry
     | c.DefeatLoad
     | c.DefeatNew

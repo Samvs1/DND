@@ -85,6 +85,7 @@ CLIENT_TYPES = {
     "use_item",
     "help_up",
     "what_now",  # M23.8
+    "presented",  # M26.3
     "request_sheet",
     "request_hit_chances",
     "chat",

@@ -40,6 +40,7 @@ Machine-readable schema: `aidm/web/protocol.json`.
 | client | `import_character` | `text`: string, `type`: import_character |
 | client | `level_up` | `choices`: LevelUpChoices, `type`: level_up |
 | client | `ping` | `type`: ping |
+| client | `presented` | `seq`: integer, `type`: presented |
 | client | `request_hit_chances` | `target_id`: string, `type`: request_hit_chances |
 | client | `request_sheet` | `type`: request_sheet |
 | client | `roll_abilities` | `type`: roll_abilities |

@@ -6,13 +6,16 @@ lives only inside `LlmSettings` and the Fish key inside `FishSettings` (private,
 `/healthz` reports booleans from here.
 
 `AIDM_AI_TURN_PAUSE` (seconds, 0..5, default 1.5): how long the shared screen holds each monster
-turn so the table can follow it (M20.3, owner choice).
+turn so the table can follow it (M20.3, owner choice). `AIDM_SHOW_WAIT_CAP` (seconds, 0..20,
+default 8): the longest an AI turn or a hero's turn clock waits for the shared screen to finish
+showing the rolls before it (M26.3).
 
 Public API: `ServerSettings`, `load_env`, `server_settings_from_env`, `DEFAULT_HOST`,
-`DEFAULT_PORT`, `DEFAULT_AI_TURN_PAUSE_S`.
+`DEFAULT_PORT`, `DEFAULT_AI_TURN_PAUSE_S`, `DEFAULT_SHOW_WAIT_CAP_S`.
 """
 
 import logging
+import math
 import os
 from collections.abc import Mapping
 from dataclasses import dataclass, field
@@ -29,6 +32,8 @@ DEFAULT_PORT = 8000
 DEFAULT_SAVES = Path("saves")
 DEFAULT_AI_TURN_PAUSE_S = 1.5
 MAX_AI_TURN_PAUSE_S = 5.0
+DEFAULT_SHOW_WAIT_CAP_S = 8.0
+MAX_SHOW_WAIT_CAP_S = 20.0
 _TRUE = {"1", "true", "yes", "on"}
 
 
@@ -46,6 +51,7 @@ class ServerSettings:
     https: bool = False
     web_root: Path | None = None  # AIDM_WEB_ROOT: serve a copy of aidm/web (tests, art-less runs)
     ai_turn_pause_s: float = DEFAULT_AI_TURN_PAUSE_S
+    show_wait_cap_s: float = DEFAULT_SHOW_WAIT_CAP_S
 
     @property
     def fish_ready(self) -> bool:
@@ -60,12 +66,12 @@ def _port(value: str | None) -> int:
     return port if 0 < port < 65536 else DEFAULT_PORT
 
 
-def _pause(value: str | None) -> float:
+def _seconds(value: str | None, default: float, top: float) -> float:
     try:
-        seconds = float(value) if value else DEFAULT_AI_TURN_PAUSE_S
+        seconds = float(value) if value else default
     except ValueError:
-        return DEFAULT_AI_TURN_PAUSE_S
-    return min(max(seconds, 0.0), MAX_AI_TURN_PAUSE_S)
+        return default
+    return default if math.isnan(seconds) else min(max(seconds, 0.0), top)
 
 
 def _web_root(value: str | None) -> Path | None:
@@ -107,5 +113,10 @@ def server_settings_from_env(
         fish=fish_settings_from_env(environ),
         web_root=_web_root(environ.get("AIDM_WEB_ROOT")),
         tts_enabled=(environ.get("TTS_ENABLED") or "").strip().lower() in _TRUE,
-        ai_turn_pause_s=_pause(environ.get("AIDM_AI_TURN_PAUSE")),
+        ai_turn_pause_s=_seconds(
+            environ.get("AIDM_AI_TURN_PAUSE"), DEFAULT_AI_TURN_PAUSE_S, MAX_AI_TURN_PAUSE_S
+        ),
+        show_wait_cap_s=_seconds(
+            environ.get("AIDM_SHOW_WAIT_CAP"), DEFAULT_SHOW_WAIT_CAP_S, MAX_SHOW_WAIT_CAP_S
+        ),
     )
