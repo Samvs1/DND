@@ -574,6 +574,76 @@
   "source": "v1",
   "license": "v1 project asset (owner's own)"
  },
+ "item_icon.abacus": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/abacus.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.acid-vial": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/acid-vial.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.alchemists-fire-flask": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/alchemists-fire-flask.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.alchemists-supplies": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/alchemists-supplies.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.alms-box": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/alms-box.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "item_icon.amulet": {
   "kind": "item_icon",
   "file": "img/icons/gear/amulet.png",
@@ -584,6 +654,20 @@
   "transparent": true,
   "status": "real",
   "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.antitoxin-vial": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/antitoxin-vial.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
   "source": "generated:gpt-image-1.5-m25",
   "license": "AI generated via OpenAI API, check provider terms before commercial use",
   "reviewed": true
@@ -615,6 +699,76 @@
   "license": "AI generated via OpenAI API, check provider terms before commercial use",
   "reviewed": true
  },
+ "item_icon.backpack": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/backpack.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.bagpipes": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/bagpipes.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.ball-bearings-bag-of-1000": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/ball-bearings-bag-of-1000.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.barrel": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/barrel.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.basket": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/basket.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "item_icon.battleaxe": {
   "kind": "item_icon",
   "file": "img/icons/gear/battleaxe.png",
@@ -625,6 +779,62 @@
   "transparent": true,
   "status": "real",
   "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.bedroll": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/bedroll.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.bell": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/bell.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.blanket": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/blanket.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.block-and-tackle": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/block-and-tackle.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
   "source": "generated:gpt-image-1.5-m25",
   "license": "AI generated via OpenAI API, check provider terms before commercial use",
   "reviewed": true
@@ -643,6 +853,34 @@
   "license": "AI generated via OpenAI API, check provider terms before commercial use",
   "reviewed": true
  },
+ "item_icon.blowgun": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/blowgun.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.blowgun-needle": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/blowgun-needle.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "item_icon.book": {
   "kind": "item_icon",
   "file": "img/icons/gear/book.png",
@@ -653,6 +891,20 @@
   "transparent": true,
   "status": "real",
   "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.bottle-glass": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/bottle-glass.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
   "source": "generated:gpt-image-1.5-m25",
   "license": "AI generated via OpenAI API, check provider terms before commercial use",
   "reviewed": true
@@ -670,6 +922,34 @@
   "source": "v1",
   "license": "v1 project asset (owner's own)"
  },
+ "item_icon.brewers-supplies": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/brewers-supplies.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.bucket": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/bucket.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "item_icon.burglars-pack": {
   "kind": "item_icon",
   "file": "img/icons/gear/burglars-pack.png",
@@ -680,6 +960,188 @@
   "transparent": true,
   "status": "real",
   "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.calligraphers-supplies": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/calligraphers-supplies.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.caltrops": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/caltrops.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.camp-feast-hamper": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/camp-feast-hamper.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.camp-meal-basket": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/camp-meal-basket.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.camp-ration": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/camp-ration.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.camp-stew-kit": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/camp-stew-kit.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.candle": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/candle.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.carpenters-tools": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/carpenters-tools.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.cartographers-tools": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/cartographers-tools.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.case-crossbow-bolt": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/case-crossbow-bolt.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.case-map-or-scroll": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/case-map-or-scroll.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.censer": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/censer.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.chain-10-feet": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/chain-10-feet.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
   "source": "generated:gpt-image-1.5-m25",
   "license": "AI generated via OpenAI API, check provider terms before commercial use",
   "reviewed": true
@@ -696,6 +1158,62 @@
   "prompt": "",
   "source": "v1",
   "license": "v1 project asset (owner's own)"
+ },
+ "item_icon.chain-shirt": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/chain-shirt.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.chalk-1-piece": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/chalk-1-piece.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.chest": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/chest.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.climbers-kit": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/climbers-kit.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
  },
  "item_icon.clothes-common": {
   "kind": "item_icon",
@@ -767,6 +1285,20 @@
   "license": "AI generated via OpenAI API, check provider terms before commercial use",
   "reviewed": true
  },
+ "item_icon.cobblers-tools": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/cobblers-tools.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "item_icon.component-pouch": {
   "kind": "item_icon",
   "file": "img/icons/gear/component-pouch.png",
@@ -781,6 +1313,20 @@
   "license": "AI generated via OpenAI API, check provider terms before commercial use",
   "reviewed": true
  },
+ "item_icon.cooks-utensils": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/cooks-utensils.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "item_icon.crossbow-bolt": {
   "kind": "item_icon",
   "file": "img/icons/gear/crossbow-bolt.png",
@@ -791,6 +1337,34 @@
   "transparent": true,
   "status": "real",
   "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.crossbow-hand": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/crossbow-hand.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.crossbow-heavy": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/crossbow-heavy.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
   "source": "generated:gpt-image-1.5-m25",
   "license": "AI generated via OpenAI API, check provider terms before commercial use",
   "reviewed": true
@@ -850,6 +1424,20 @@
   "source": "v1",
   "license": "v1 project asset (owner's own)"
  },
+ "item_icon.dart": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/dart.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "item_icon.dice-set": {
   "kind": "item_icon",
   "file": "img/icons/gear/dice-set.png",
@@ -860,6 +1448,20 @@
   "transparent": true,
   "status": "real",
   "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.diplomats-pack": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/diplomats-pack.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
   "source": "generated:gpt-image-1.5-m25",
   "license": "AI generated via OpenAI API, check provider terms before commercial use",
   "reviewed": true
@@ -892,6 +1494,20 @@
   "license": "AI generated via OpenAI API, check provider terms before commercial use",
   "reviewed": true
  },
+ "item_icon.dulcimer": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/dulcimer.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "item_icon.dungeoneers-pack": {
   "kind": "item_icon",
   "file": "img/icons/gear/dungeoneers-pack.png",
@@ -920,6 +1536,20 @@
   "license": "AI generated via OpenAI API, check provider terms before commercial use",
   "reviewed": true
  },
+ "item_icon.entertainers-pack": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/entertainers-pack.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "item_icon.explorers-pack": {
   "kind": "item_icon",
   "file": "img/icons/gear/explorers-pack.png",
@@ -930,6 +1560,76 @@
   "transparent": true,
   "status": "real",
   "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.fishing-tackle": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/fishing-tackle.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.flail": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/flail.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.flask-or-tankard": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/flask-or-tankard.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.flute": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/flute.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.forgery-kit": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/forgery-kit.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
   "source": "generated:gpt-image-1.5-m25",
   "license": "AI generated via OpenAI API, check provider terms before commercial use",
   "reviewed": true
@@ -960,6 +1660,34 @@
   "source": "v1",
   "license": "v1 project asset (owner's own)"
  },
+ "item_icon.glaive": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/glaive.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.glassblowers-tools": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/glassblowers-tools.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "item_icon.gold": {
   "kind": "item_icon",
   "file": "img/icons/items/gold.png",
@@ -973,6 +1701,118 @@
   "source": "v1",
   "license": "v1 project asset (owner's own)"
  },
+ "item_icon.grappling-hook": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/grappling-hook.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.greataxe": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/greataxe.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.greatclub": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/greatclub.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.greatsword": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/greatsword.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.halberd": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/halberd.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.half-plate-armor": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/half-plate-armor.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.hammer": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/hammer.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.hammer-sledge": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/hammer-sledge.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "item_icon.handaxe": {
   "kind": "item_icon",
   "file": "img/icons/gear/handaxe.png",
@@ -983,6 +1823,90 @@
   "transparent": true,
   "status": "real",
   "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.healers-kit": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/healers-kit.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.herbalism-kit": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/herbalism-kit.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.hide-armor": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/hide-armor.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.holy-water-flask": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/holy-water-flask.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.horn": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/horn.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.hourglass": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/hourglass.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
   "source": "generated:gpt-image-1.5-m25",
   "license": "AI generated via OpenAI API, check provider terms before commercial use",
   "reviewed": true
@@ -1029,6 +1953,48 @@
   "license": "AI generated via OpenAI API, check provider terms before commercial use",
   "reviewed": true
  },
+ "item_icon.javelin": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/javelin.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.jewelers-tools": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/jewelers-tools.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.jug-or-pitcher": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/jug-or-pitcher.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "item_icon.key": {
   "kind": "item_icon",
   "file": "img/icons/items/key.png",
@@ -1042,6 +2008,76 @@
   "source": "v1",
   "license": "v1 project asset (owner's own)"
  },
+ "item_icon.ladder-10-foot": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/ladder-10-foot.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.lamp": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/lamp.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.lance": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/lance.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.lantern-bullseye": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/lantern-bullseye.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.lantern-hooded": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/lantern-hooded.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "item_icon.leather-armor": {
   "kind": "item_icon",
   "file": "img/icons/equipment/leather-armor.png",
@@ -1054,6 +2090,62 @@
   "prompt": "",
   "source": "v1",
   "license": "v1 project asset (owner's own)"
+ },
+ "item_icon.leatherworkers-tools": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/leatherworkers-tools.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.light-hammer": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/light-hammer.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.little-bag-of-sand": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/little-bag-of-sand.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.lock": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/lock.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
  },
  "item_icon.longbow": {
   "kind": "item_icon",
@@ -1096,6 +2188,20 @@
   "license": "AI generated via OpenAI API, check provider terms before commercial use",
   "reviewed": true
  },
+ "item_icon.lyre": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/lyre.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "item_icon.mace": {
   "kind": "item_icon",
   "file": "img/icons/equipment/mace.png",
@@ -1108,6 +2214,146 @@
   "prompt": "",
   "source": "v1",
   "license": "v1 project asset (owner's own)"
+ },
+ "item_icon.magnifying-glass": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/magnifying-glass.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.manacles": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/manacles.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.masons-tools": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/masons-tools.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.maul": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/maul.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.mess-kit": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/mess-kit.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.mirror-steel": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/mirror-steel.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.morningstar": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/morningstar.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.navigators-tools": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/navigators-tools.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.net": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/net.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.oil-flask": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/oil-flask.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
  },
  "item_icon.orb": {
   "kind": "item_icon",
@@ -1123,6 +2369,146 @@
   "license": "AI generated via OpenAI API, check provider terms before commercial use",
   "reviewed": true
  },
+ "item_icon.padded-armor": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/padded-armor.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.painters-supplies": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/painters-supplies.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.pan-flute": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/pan-flute.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.paper-one-sheet": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/paper-one-sheet.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.parchment-one-sheet": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/parchment-one-sheet.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.perfume-vial": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/perfume-vial.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.pick-miners": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/pick-miners.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.pike": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/pike.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.piton": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/piton.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.plate-armor": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/plate-armor.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "item_icon.playing-card-set": {
   "kind": "item_icon",
   "file": "img/icons/gear/playing-card-set.png",
@@ -1133,6 +2519,48 @@
   "transparent": true,
   "status": "real",
   "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.poison-basic-vial": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/poison-basic-vial.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.poisoners-kit": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/poisoners-kit.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.pole-10-foot": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/pole-10-foot.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
   "source": "generated:gpt-image-1.5-m25",
   "license": "AI generated via OpenAI API, check provider terms before commercial use",
   "reviewed": true
@@ -1163,6 +2591,20 @@
   "prompt": "",
   "source": "v1",
   "license": "v1 project asset (owner's own)"
+ },
+ "item_icon.potters-tools": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/potters-tools.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
  },
  "item_icon.pouch": {
   "kind": "item_icon",
@@ -1205,6 +2647,34 @@
   "source": "v1",
   "license": "v1 project asset (owner's own)"
  },
+ "item_icon.quiver": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/quiver.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.ram-portable": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/ram-portable.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "item_icon.rapier": {
   "kind": "item_icon",
   "file": "img/icons/equipment/rapier.png",
@@ -1218,6 +2688,20 @@
   "source": "v1",
   "license": "v1 project asset (owner's own)"
  },
+ "item_icon.rations-1-day": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/rations-1-day.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "item_icon.reliquary": {
   "kind": "item_icon",
   "file": "img/icons/gear/reliquary.png",
@@ -1228,6 +2712,90 @@
   "transparent": true,
   "status": "real",
   "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.ring-mail": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/ring-mail.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.robes": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/robes.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.rod": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/rod.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.rope-hempen-50-feet": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/rope-hempen-50-feet.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.rope-silk-50-feet": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/rope-silk-50-feet.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.sack": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/sack.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
   "source": "generated:gpt-image-1.5-m25",
   "license": "AI generated via OpenAI API, check provider terms before commercial use",
   "reviewed": true
@@ -1245,6 +2813,20 @@
   "source": "v1",
   "license": "v1 project asset (owner's own)"
  },
+ "item_icon.scale-merchants": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/scale-merchants.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "item_icon.scholars-pack": {
   "kind": "item_icon",
   "file": "img/icons/gear/scholars-pack.png",
@@ -1255,6 +2837,20 @@
   "transparent": true,
   "status": "real",
   "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.scimitar": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/scimitar.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
   "source": "generated:gpt-image-1.5-m25",
   "license": "AI generated via OpenAI API, check provider terms before commercial use",
   "reviewed": true
@@ -1271,6 +2867,34 @@
   "prompt": "",
   "source": "v1",
   "license": "v1 project asset (owner's own)"
+ },
+ "item_icon.sealing-wax": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/sealing-wax.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.shawm": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/shawm.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
  },
  "item_icon.shield": {
   "kind": "item_icon",
@@ -1325,6 +2949,20 @@
   "license": "AI generated via OpenAI API, check provider terms before commercial use",
   "reviewed": true
  },
+ "item_icon.sickle": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/sickle.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "item_icon.signal-whistle": {
   "kind": "item_icon",
   "file": "img/icons/gear/signal-whistle.png",
@@ -1349,6 +2987,34 @@
   "transparent": true,
   "status": "real",
   "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.sling": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/sling.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.sling-bullet": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/sling-bullet.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
   "source": "generated:gpt-image-1.5-m25",
   "license": "AI generated via OpenAI API, check provider terms before commercial use",
   "reviewed": true
@@ -1381,6 +3047,20 @@
   "license": "AI generated via OpenAI API, check provider terms before commercial use",
   "reviewed": true
  },
+ "item_icon.soap": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/soap.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "item_icon.spear": {
   "kind": "item_icon",
   "file": "img/icons/gear/spear.png",
@@ -1409,6 +3089,20 @@
   "license": "AI generated via OpenAI API, check provider terms before commercial use",
   "reviewed": true
  },
+ "item_icon.spike-iron": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/spike-iron.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "item_icon.splint-armor": {
   "kind": "item_icon",
   "file": "img/icons/equipment/splint-armor.png",
@@ -1422,6 +3116,34 @@
   "source": "v1",
   "license": "v1 project asset (owner's own)"
  },
+ "item_icon.sprig-of-mistletoe": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/sprig-of-mistletoe.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.spyglass": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/spyglass.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "item_icon.staff": {
   "kind": "item_icon",
   "file": "img/icons/gear/staff.png",
@@ -1432,6 +3154,20 @@
   "transparent": true,
   "status": "real",
   "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.string-10-feet": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/string-10-feet.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
   "source": "generated:gpt-image-1.5-m25",
   "license": "AI generated via OpenAI API, check provider terms before commercial use",
   "reviewed": true
@@ -1462,6 +3198,20 @@
   "source": "v1",
   "license": "v1 project asset (owner's own)"
  },
+ "item_icon.tent-two-person": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/tent-two-person.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "item_icon.thieves-tools": {
   "kind": "item_icon",
   "file": "img/icons/gear/thieves-tools.png",
@@ -1472,6 +3222,34 @@
   "transparent": true,
   "status": "real",
   "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.tinderbox": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/tinderbox.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.tinkers-tools": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/tinkers-tools.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
   "source": "generated:gpt-image-1.5-m25",
   "license": "AI generated via OpenAI API, check provider terms before commercial use",
   "reviewed": true
@@ -1491,6 +3269,90 @@
   "reviewed": true,
   "cost_eur": 0.0162
  },
+ "item_icon.torch": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/torch.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.totem": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/totem.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.trident": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/trident.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.vestments": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/vestments.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.vial": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/vial.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.viol": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/viol.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "item_icon.wand": {
   "kind": "item_icon",
   "file": "img/icons/gear/wand.png",
@@ -1501,6 +3363,20 @@
   "transparent": true,
   "status": "real",
   "prompt": "M25 starting-gear icon sheet, judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.war-pick": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/war-pick.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
   "source": "generated:gpt-image-1.5-m25",
   "license": "AI generated via OpenAI API, check provider terms before commercial use",
   "reviewed": true
@@ -1545,6 +3421,90 @@
   "prompt": "",
   "source": "v1",
   "license": "v1 project asset (owner's own)"
+ },
+ "item_icon.weavers-tools": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/weavers-tools.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.whetstone": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/whetstone.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.whip": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/whip.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.woodcarvers-tools": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/woodcarvers-tools.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.wooden-staff": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/wooden-staff.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "item_icon.yew-wand": {
+  "kind": "item_icon",
+  "file": "img/icons/gear/yew-wand.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M25.4 loot and shop item icon sheets, every icon judged by the main session at slot size",
+  "source": "generated:gpt-image-1.5-m25",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
  },
  "monster_token.acolyte": {
   "kind": "monster_token",
