@@ -14,6 +14,7 @@ const SKIN = {
   '--skin-slot-far': 'ui_skin.slot-far',
   '--skin-shield': 'ui_icon.ac-shield',
   '--skin-quill': 'ui_icon.quill',
+  '--skin-hourglass': 'ui_icon.hourglass',
   ...Object.fromEntries(SKIN_COLOURS.map((c) => [`--skin-ribbon-${c}`, `ui_skin.ribbon-${c}`])),
 };
 

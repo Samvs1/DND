@@ -114,3 +114,336 @@ body.is-screen .sc-wait {
   .tb.sc .hp-text { font-size: 0.95rem; }
   .sc-dice { width: 26rem; }
 }
+
+/* M24 dark pixel screen (docs/next/GOAL_UI_REVAMP.md): the location's ribbon over its picture with the
+   objective as a caption; the fight (data-sec crimson) gets a plain turn-order bar and a bigger map. */
+.tb.sc .tb-scene {
+  display: block;
+  max-height: none;
+  min-height: 0;
+  padding-top: 1.4rem;
+  overflow: visible;
+  background: none;
+  border: 0;
+}
+
+.scene-ribbon {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(26rem, 60%);
+  height: 2.75rem;
+  border-style: solid;
+  border-width: 0 1.9rem;
+  border-color: var(--teal-m);
+  border-image: var(--skin-ribbon-teal, none) 0 62 fill / 0 1.9rem stretch;
+  transform: translateX(-50%);
+}
+
+.tb.sc .scene-ribbon .scene-place {
+  margin: 0;
+  overflow: hidden;
+  color: #e3f5f2;
+  font-size: 1.55rem;
+  letter-spacing: 0.14em;
+  text-overflow: ellipsis;
+  text-shadow: 2px 2px 0 #000;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.scene-pic {
+  position: relative;
+  height: 6.25rem;
+  overflow: hidden;
+  background: var(--card);
+  border: 10px solid var(--line-2);
+  border-image: var(--skin-frame) 16 fill / 10px stretch;
+}
+
+.tb.sc .scene-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  object-fit: cover;
+  object-position: 50% 60%;
+  opacity: 1;
+}
+
+.scene-pic .scene-text {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  gap: 1.2rem;
+  align-items: baseline;
+  justify-content: center;
+  padding: 1.4rem 1rem 0.25rem;
+  text-shadow: 1px 1px 0 #000;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+}
+
+.scene-pic .scene-title {
+  flex: none;
+  color: var(--text-2);
+  font-size: 1rem;
+}
+
+.scene-pic .scene-goal {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text);
+  font-size: 1.1rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.scene-pic .tag {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.6rem;
+}
+
+.tb.sc .tb-combat {
+  flex: 0 0 76%;
+  max-height: 76%;
+}
+
+.tb.sc .init-strip {
+  gap: 0.6rem;
+  padding: 0.1rem 0.25rem 0.45rem;
+  background: none;
+  border-bottom: 2px solid var(--line);
+}
+
+.tb.sc .init-round {
+  color: var(--sec-l);
+  font-size: 1.3rem;
+  letter-spacing: 0.1em;
+}
+
+.tb.sc .init-turn {
+  padding: 0;
+  color: var(--text);
+  font-size: 1.25rem;
+  border-left: 0;
+}
+
+.tb.sc .init {
+  gap: 0.4rem;
+  padding: 0.15rem 0.6rem 0.15rem 0.15rem;
+  color: var(--text-2);
+  font-size: 1rem;
+  background: none;
+  border: 2px solid transparent;
+}
+
+.tb.sc .init img {
+  width: 2.1rem;
+  height: 2.1rem;
+  padding: 3px;
+  border-radius: 0;
+  background: var(--skin-slot, none) center / 100% 100% no-repeat;
+}
+
+.tb.sc .init.foe img {
+  background-image: var(--skin-slot-far, none);
+}
+
+.tb.sc .init.current {
+  color: #ffffff;
+  background: color-mix(in srgb, var(--sec-m) 55%, transparent);
+  border-color: var(--sec-l);
+  box-shadow: none;
+}
+
+/* Hex labels on two lines at the top of the hex (the narrow bottom tip spilled into the next hex). */
+.tb.sc .hex-name {
+  top: 11%;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size-adjust: none;
+  font-size: 7.4cqw;
+  letter-spacing: 0.04em;
+}
+
+.tb.sc .hex-size {
+  top: 20.5%;
+  bottom: auto;
+  right: 18%;
+  left: 18%;
+  color: var(--text-2);
+  font-size: 4.6cqw;
+}
+
+.tb.sc .hex-marks {
+  top: 28%;
+}
+
+.tb.sc .hex-tokens {
+  top: 39%;
+  bottom: 13%;
+}
+
+.tb.sc .hex .tk {
+  border: 2px solid var(--line-2);
+  border-radius: 0;
+}
+
+.tb.sc .hex .tk.foe {
+  border-color: var(--crimson-l);
+}
+
+.tb.sc .hex .tk.active {
+  border-color: #ffffff;
+  box-shadow: 0 0 0 2px var(--sec-l);
+}
+
+.tb.sc .hex-legend {
+  gap: 0.2rem 0.7rem;
+  color: var(--text-3);
+  font-size: 0.8rem;
+}
+
+.tb.sc .hex-legend .hmark {
+  padding: 0 0.45rem 0 0.15rem;
+  font-size: 0.78rem;
+}
+
+.tb.sc .hex-legend .hm-icon {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+@media (min-width: 1700px) {
+  .scene-pic {
+    height: 8rem;
+  }
+
+  .scene-ribbon {
+    width: min(32rem, 50%);
+    height: 3.2rem;
+  }
+
+  .tb.sc .scene-ribbon .scene-place {
+    font-size: 1.9rem;
+  }
+}
+
+/* M24 side column: AC on the iron shield, the acting line with the hourglass, the rolls as an iron card. */
+.pc-ac {
+  display: inline-block;
+  width: 1.9rem;
+  height: 2.2rem;
+  padding-top: 0.35rem;
+  color: #efebe1;
+  font-family: var(--font-display);
+  font-size-adjust: none;
+  line-height: 0.85;
+  text-align: center;
+  text-shadow: 1px 1px 0 #000;
+  background: var(--skin-shield, none) center / contain no-repeat;
+}
+
+.pc-ac small,
+.pc-ac b {
+  display: block;
+  font-weight: 400;
+}
+
+.pc-ac small {
+  font-size: 0.55rem;
+  letter-spacing: 0.08em;
+}
+
+.pc-ac b {
+  font-size: 1rem;
+}
+
+.tb.sc .sc-acting {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  font-family: var(--font-display);
+  font-size-adjust: none;
+  font-size: 1.35rem;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+}
+
+.tb.sc .sc-acting::before {
+  content: '';
+  flex: none;
+  width: 1.3rem;
+  height: 2rem;
+  background: var(--skin-hourglass, none) center / contain no-repeat;
+}
+
+.sc-dice {
+  padding: 0.35rem 0.7rem 0.5rem;
+  background: var(--card);
+  border: 10px solid var(--line-2);
+  border-image: var(--skin-frame) 16 fill / 10px stretch;
+  text-align: left;
+}
+
+.sc-roll + .sc-roll {
+  margin-top: 0;
+  padding-top: 0.35rem;
+  border-top: 2px solid var(--line);
+}
+
+.sc-roll-head {
+  justify-content: flex-start;
+  color: var(--text);
+}
+
+.sc-roll-dice {
+  justify-content: flex-start;
+  gap: 0.5rem;
+}
+
+.sc-die {
+  display: inline-grid;
+  place-items: center;
+  min-width: 2.6rem;
+  height: 2.6rem;
+  padding: 0 0.3rem;
+  font-family: var(--font-display);
+  font-size-adjust: none;
+  border: 0;
+  background: var(--skin-slot, none) center / 100% 100% no-repeat;
+}
+
+.sc-roll-total {
+  font-family: var(--font-display);
+  font-size-adjust: none;
+  font-weight: 400;
+}
+
+.sc-roll-out {
+  color: var(--text-2);
+}
+
+@media (min-width: 1700px) {
+  .pc-ac {
+    width: 2.5rem;
+    height: 2.9rem;
+    padding-top: 0.45rem;
+  }
+
+  .pc-ac small {
+    font-size: 0.7rem;
+  }
+
+  .pc-ac b {
+    font-size: 1.35rem;
+  }
+}

@@ -51,7 +51,7 @@ export function mountScreen(root, ctx) {
   const side = h('aside', { class: 'tb-side' }, party, widgets);
   const initiative = h('div', { class: 'init-strip', 'data-testid': 'initiative' });
   const board = h('div', { class: 'board', 'data-testid': 'board' });
-  const combat = h('section', { class: 'tb-combat panel', 'aria-label': t('combat.heading') }, initiative, board);
+  const combat = h('section', { class: 'tb-combat panel', 'data-sec': 'crimson', 'aria-label': t('combat.heading') }, initiative, board); // M24: the fight is crimson
   const table = h('div', { class: 'tb sc', 'data-testid': 'screen-table' }, scene, h('div', { class: 'sc-main' }, combat, feed), side);
   const overlays = h('div', { class: 'sc-overlays' });
   root.append(waiting, table, overlays);

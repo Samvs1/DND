@@ -80,7 +80,7 @@ function card(c, state, store) {
       h('div', { class: 'pc-name' }, h('strong', {}, c.name), mine ? h('span', { class: 'tag' }, t('lobby.you')) : null),
       h('div', { class: 'pc-sub' }, t('table.classLine', { level: c.level ?? 1, race: titleCase(c.race), cls: titleCase(c.class_index) })),
       hpBar(c),
-      h('div', { class: 'pc-meta' }, h('span', {}, t('table.ac', { n: c.ac })), conditionIcons(c), ...stateBadges(c, level && (c.level ?? 1) < level)),
+      h('div', { class: 'pc-meta' }, h('span', { class: 'pc-ac', title: t('table.ac', { n: c.ac }) }, h('small', {}, 'AC'), h('b', {}, String(c.ac))), conditionIcons(c), ...stateBadges(c, level && (c.level ?? 1) < level)),
       mine ? h('button', { type: 'button', class: 'btn btn-small sheet-open', 'data-testid': 'sheet-open', onclick: () => store.update({ sheetOpen: true }) }, t('sheet.open')) : null,
     ),
   );
