@@ -79,6 +79,37 @@ _SKIN = (
     ),
 )
 
+# M26 dice (docs/next/GOAL_DICE.md): owner-approved generated pieces from the dice mockup review
+# (real). The face number is drawn by CSS on the blank middle face; js/show reads ui_icon.die-*.
+_DIE = "A pixel-art {what} with a blank middle face (no number)"
+_DICE = (
+    *(
+        (f"ui_icon.die-{d}", f"img/icons/dice/{d}.png", _DIE.format(what=f"{d} in hero teal"), True)
+        for d in ("d4", "d6", "d8", "d10", "d12", "d20")
+    ),
+    ("ui_icon.die-d20-foe", "img/icons/dice/d20_foe.png", _DIE.format(what="crimson d20"), True),
+    ("ui_icon.die-d20-crit", "img/icons/dice/d20_crit.png", _DIE.format(what="gold d20"), True),
+    (
+        "ui_icon.die-d20-fumble",
+        "img/icons/dice/d20_fumble.png",
+        _DIE.format(what="cracked d20"),
+        True,
+    ),
+    ("ui_icon.roll-adv", "img/icons/dice/adv.png", "Two gold upward chevrons (advantage)", True),
+    (
+        "ui_icon.roll-dis",
+        "img/icons/dice/dis.png",
+        "Two purple downward chevrons (disadvantage)",
+        True,
+    ),
+    (
+        "ui_icon.roll-burst",
+        "img/icons/dice/burst.png",
+        "A golden starburst of light and sparks",
+        True,
+    ),
+)
+
 UI_ART = (
     UiArt(
         "scene.defeat",
@@ -168,6 +199,7 @@ UI_ART = (
         for kind, what in _ACTS
     ),
     *(UiArt(key, file, subject, transparent=clear) for key, file, subject, clear in _SKIN),
+    *(UiArt(key, file, subject, transparent=clear) for key, file, subject, clear in _DICE),
 )
 
 

@@ -8186,6 +8186,132 @@
   "license": "AI generated via OpenAI API, check provider terms before commercial use",
   "reviewed": true
  },
+ "ui_icon.die-d10": {
+  "kind": "ui_icon",
+  "file": "img/icons/dice/d10.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M26 dice, owner approved in the dice mockup review (docs/next/GOAL_DICE.md)",
+  "source": "generated:gpt-image-2.5-m26",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "ui_icon.die-d12": {
+  "kind": "ui_icon",
+  "file": "img/icons/dice/d12.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M26 dice, owner approved in the dice mockup review (docs/next/GOAL_DICE.md)",
+  "source": "generated:gpt-image-2.5-m26",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "ui_icon.die-d20": {
+  "kind": "ui_icon",
+  "file": "img/icons/dice/d20.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M26 dice, owner approved in the dice mockup review (docs/next/GOAL_DICE.md)",
+  "source": "generated:gpt-image-2.5-m26",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "ui_icon.die-d20-crit": {
+  "kind": "ui_icon",
+  "file": "img/icons/dice/d20_crit.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M26 dice, owner approved in the dice mockup review (docs/next/GOAL_DICE.md)",
+  "source": "generated:gpt-image-2.5-m26",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "ui_icon.die-d20-foe": {
+  "kind": "ui_icon",
+  "file": "img/icons/dice/d20_foe.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M26 dice, owner approved in the dice mockup review (docs/next/GOAL_DICE.md)",
+  "source": "generated:gpt-image-2.5-m26",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "ui_icon.die-d20-fumble": {
+  "kind": "ui_icon",
+  "file": "img/icons/dice/d20_fumble.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M26 dice, owner approved in the dice mockup review (docs/next/GOAL_DICE.md)",
+  "source": "generated:gpt-image-2.5-m26",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "ui_icon.die-d4": {
+  "kind": "ui_icon",
+  "file": "img/icons/dice/d4.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M26 dice, owner approved in the dice mockup review (docs/next/GOAL_DICE.md)",
+  "source": "generated:gpt-image-2.5-m26",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "ui_icon.die-d6": {
+  "kind": "ui_icon",
+  "file": "img/icons/dice/d6.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M26 dice, owner approved in the dice mockup review (docs/next/GOAL_DICE.md)",
+  "source": "generated:gpt-image-2.5-m26",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "ui_icon.die-d8": {
+  "kind": "ui_icon",
+  "file": "img/icons/dice/d8.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M26 dice, owner approved in the dice mockup review (docs/next/GOAL_DICE.md)",
+  "source": "generated:gpt-image-2.5-m26",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "ui_icon.hourglass": {
   "kind": "ui_icon",
   "file": "img/icons/ui/hourglass.png",
@@ -8211,6 +8337,48 @@
   "status": "real",
   "prompt": "M24 dark pixel skin, owner approved in the mockup review (docs/next/GOAL_UI_REVAMP.md)",
   "source": "generated:gpt-image-1.5-m24",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "ui_icon.roll-adv": {
+  "kind": "ui_icon",
+  "file": "img/icons/dice/adv.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M26 dice, owner approved in the dice mockup review (docs/next/GOAL_DICE.md)",
+  "source": "generated:gpt-image-2.5-m26",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "ui_icon.roll-burst": {
+  "kind": "ui_icon",
+  "file": "img/icons/dice/burst.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M26 dice, owner approved in the dice mockup review (docs/next/GOAL_DICE.md)",
+  "source": "generated:gpt-image-2.5-m26",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "ui_icon.roll-dis": {
+  "kind": "ui_icon",
+  "file": "img/icons/dice/dis.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M26 dice, owner approved in the dice mockup review (docs/next/GOAL_DICE.md)",
+  "source": "generated:gpt-image-2.5-m26",
   "license": "AI generated via OpenAI API, check provider terms before commercial use",
   "reviewed": true
  },
