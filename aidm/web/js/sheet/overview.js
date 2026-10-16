@@ -1,8 +1,11 @@
-// Sheet "Overview" tab: vitals, abilities and saves, skills, attacks, features and feature actions (uses left),
-// conditions, death saves, resources, proficiencies. Pure rendering of the derived `CharacterSheet` the server sent.
+// Sheet "Overview" tab (M25: one place for each fact): speed, initiative, proficiency and passive Perception
+// (AC and HP live on the hero strip), abilities and saves, skills, attacks, features with their action and
+// uses (feature actions and resources folded in), conditions only when there are any, death saves, training.
+// Pure rendering of the derived `CharacterSheet` the server sent.
 import { t } from '../strings.js';
 import { h } from '../ui/dom.js';
 import { titleCase } from '../ui/format.js';
+import { itemArt } from './item_art.js';
 
 const signed = (n) => (n >= 0 ? `+${n}` : String(n));
 
@@ -11,16 +14,13 @@ function stat(label, value, testid, note) {
 }
 
 function vitals(s) {
-  const temp = s.temp_hp > 0 ? t('sheet.tempHp', { n: s.temp_hp }) : null;
   return h(
     'div',
     { class: 'sh-vitals' },
-    stat(t('sheet.ac'), String(s.ac), 'sh-ac'),
-    stat(t('sheet.hp'), `${s.hp}/${s.max_hp}`, 'sh-hp', temp),
     stat(t('sheet.speed'), t('sheet.speedFeet', { n: s.speed }), 'sh-speed'),
-    stat(t('sheet.initiative'), signed(s.initiative_bonus), 'sh-init', t('sheet.initiativeNote', { bonus: signed(s.initiative_bonus) })),
+    stat(t('sheet.initiative'), signed(s.initiative_bonus), 'sh-init'),
     stat(t('sheet.proficiency'), signed(s.proficiency_bonus), 'sh-prof'),
-    stat(t('sheet.passive'), String(s.passive_perception), 'sh-passive'),
+    stat(t('sheet.perceptionShort'), String(s.passive_perception), 'sh-passive'),
   );
 }
 
@@ -53,12 +53,23 @@ function skills(s) {
   );
 }
 
+function attackRow(a) {
+  const art = a.item ? itemArt(a.item, { ranged: a.range_band === 'ranged' }) : '';
+  return h(
+    'li',
+    { class: 'sh-row', 'data-attack': a.hand },
+    h('span', { class: 'sh-slot', 'aria-hidden': 'true' }, art ? h('img', { src: art, alt: '', width: 26, height: 26 }) : null),
+    h('span', { class: 'sh-row-main' }, h('strong', {}, a.name), h('span', { class: 'sh-row-sub' }, t(`hotbar.hand_${a.hand}`))),
+    h('span', { class: 'sh-row-val' }, t('sheet.toHit', { bonus: signed(a.attack_bonus) }), h('small', {}, t('sheet.damageLine', { damage: a.damage, type: a.damage_type }))),
+  );
+}
+
 function attacks(s) {
   return h(
     'ul',
-    { class: 'sh-list', 'data-testid': 'sh-attacks' },
-    ...s.attacks.map((a) => h('li', {}, h('strong', {}, a.name), ' ', t('sheet.attackLine', { bonus: signed(a.attack_bonus), damage: a.damage, type: a.damage_type }))),
-    h('li', { class: 'hint' }, t('sheet.attacksPer', { n: s.attacks_per_action }), ' ', t('sheet.hitNote')),
+    { class: 'sh-list sh-rows', 'data-testid': 'sh-attacks' },
+    ...s.attacks.map(attackRow),
+    h('li', { class: 'hint sh-note' }, t('sheet.attacksPer', { n: s.attacks_per_action }), ' ', t('sheet.hitNote')),
   );
 }
 
@@ -73,36 +84,55 @@ function block(title, testid, ...children) {
   return h('section', { class: 'sh-block', 'data-testid': testid }, h('h4', {}, title), ...children);
 }
 
-function features(s) {
-  return h('ul', { class: 'sh-features' }, ...s.features.map((f) => h('li', {}, h('details', {}, h('summary', {}, f.name), h('p', {}, f.summary)))));
+/** Features without the bare choice a named one refines ("Fighting Style" beside "Fighting Style: Archery"). */
+function distinctFeatures(list) {
+  return list.filter((f) => !list.some((o) => o !== f && o.name.startsWith(`${f.name}:`)));
 }
 
-function featureActions(s) {
-  const list = s.feature_actions ?? [];
-  if (!list.length) return null;
-  const rows = list.map((f) =>
-    h('li', { 'data-testid': 'sh-fa-line', 'data-feature': f.feature }, h('strong', {}, f.name), ` (${t(`hotbar.econ_${f.economy}`)})`, f.uses_max != null ? `, ${t('sheet.featureUses', { n: f.uses_left, max: f.uses_max })}` : '', f.heal ? `, ${t('hotbar.tip_heal', { dice: f.heal })}` : ''),
+function usesTag(action, resource) {
+  const uses = action?.uses_max != null ? [action.uses_left, action.uses_max] : resource ? [resource.current, resource.maximum] : null;
+  if (!uses) return null;
+  const count = t('sheet.usesShort', { n: uses[0], max: uses[1] });
+  const text = resource ? t('sheet.usesRecharge', { uses: count, recharge: t(`sheet.recharge_${resource.recharge}`) }) : count;
+  return h('span', { class: 'tag sh-uses' }, text);
+}
+
+function featureRow(f, action, resource) {
+  const tags = [action ? h('span', { class: 'tag' }, t(`hotbar.econ_${action.economy}`)) : null, usesTag(action, resource)];
+  return h(
+    'li',
+    { class: 'sh-feature', 'data-testid': action ? 'sh-fa-line' : 'sh-feature', 'data-feature': f.index },
+    h('div', { class: 'sh-feature-head' }, h('strong', {}, f.name), ...tags),
+    h('p', {}, f.summary), // the summary already says what it heals or does
   );
-  return block(t('sheet.featureActions'), 'sh-fa', h('ul', { class: 'sh-list' }, ...rows));
+}
+
+function features(s) {
+  const actions = s.feature_actions ?? [];
+  const used = new Set();
+  const rows = distinctFeatures(s.features).map((f) => {
+    const action = actions.find((a) => a.feature === f.index);
+    const resource = s.resources.find((r) => r.key === (action?.resource ?? f.index));
+    if (resource) used.add(resource.key);
+    return featureRow(f, action, resource);
+  });
+  // A resource no feature names (rare) still shows, so nothing the server sends is lost.
+  const loose = s.resources.filter((r) => !used.has(r.key)).map((r) => h('li', { class: 'sh-feature' }, h('div', { class: 'sh-feature-head' }, h('strong', {}, titleCase(r.key)), usesTag(null, r))));
+  return block(t('sheet.features'), 'sh-ft', h('ul', { class: 'sh-features' }, ...rows, ...loose));
 }
 
 function conditions(s) {
-  if (!s.conditions.length) return h('p', { class: 'hint' }, t('sheet.noConditions'));
-  return h('ul', { class: 'sh-list' }, ...s.conditions.map((c) => h('li', {}, titleCase(c.name), c.rounds_left ? ` (${t('sheet.rounds', { n: c.rounds_left })})` : '')));
+  if (!s.conditions.length) return null; // the hero strip shows conditions too
+  return block(t('sheet.conditions'), 'sh-cond', h('ul', { class: 'sh-list' }, ...s.conditions.map((c) => h('li', {}, titleCase(c.name), c.rounds_left ? ` (${t('sheet.rounds', { n: c.rounds_left })})` : ''))));
 }
 
-function resources(s) {
-  if (!s.resources.length) return null;
-  const rows = s.resources.map((r) => h('li', {}, t('sheet.resourceLine', { key: titleCase(r.key), current: r.current, max: r.maximum }), ` (${t(`sheet.recharge_${r.recharge}`)})`));
-  return block(t('sheet.resources'), 'sh-res', h('ul', { class: 'sh-list' }, ...rows));
-}
-
-function lists(s) {
+function training(s) {
   const join = (items) => items.map(titleCase).join(', ');
+  const gear = [...s.armor_proficiencies, ...s.weapon_proficiencies];
+  const line = (label, items, testid) => (items.length ? h('li', { 'data-testid': testid }, h('span', { class: 'sh-train-k' }, label), h('span', {}, join(items))) : null);
   return [
     s.resistances.length ? block(t('sheet.resistances'), 'sh-resist', h('p', {}, join(s.resistances))) : null,
-    block(t('sheet.proficiencies'), 'sh-profs', h('p', {}, join([...s.armor_proficiencies, ...s.weapon_proficiencies, ...s.tool_proficiencies]))),
-    block(t('sheet.languages'), 'sh-langs', h('p', {}, join(s.languages))),
+    block(t('sheet.training'), 'sh-train', h('ul', { class: 'sh-train' }, line(t('sheet.trainGear'), gear, 'sh-profs'), line(t('sheet.trainTools'), s.tool_proficiencies, 'sh-tools'), line(t('sheet.languages'), s.languages, 'sh-langs'))),
   ];
 }
 
@@ -111,14 +141,12 @@ export function renderOverview(s, spellName) {
   return [
     vitals(s),
     conc,
+    conditions(s),
+    deathSaves(s),
     block(t('sheet.abilities'), 'sh-ab', abilities(s)),
     block(t('sheet.skills'), 'sh-sk', skills(s)),
     block(t('sheet.attacks'), 'sh-at', attacks(s)),
-    block(t('sheet.features'), 'sh-ft', features(s)),
-    featureActions(s),
-    block(t('sheet.conditions'), 'sh-cond', conditions(s)),
-    deathSaves(s),
-    resources(s),
-    ...lists(s),
+    features(s),
+    ...training(s),
   ];
 }

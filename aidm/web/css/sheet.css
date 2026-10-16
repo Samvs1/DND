@@ -599,3 +599,181 @@
   color: var(--sec-l);
   font-weight: 400;
 }
+
+/* M25 one place for each fact: the XP row, four stat tiles, attack rows, merged features, training. */
+.sheet-embed .sh-classline {
+  display: none;
+}
+
+.sh-xprow {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.sh-lvl {
+  color: var(--sec-l);
+  font-family: var(--font-display);
+  font-size-adjust: none;
+  font-size: 1.05rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.sh-xptext {
+  color: var(--text-2);
+  font-family: var(--font-display);
+  font-size-adjust: none;
+  font-size: 1.05rem;
+}
+
+.sh-xprow .sh-xp {
+  width: auto;
+}
+
+.sh-vitals {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.sh-rows {
+  gap: 0;
+}
+
+.sh-row {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr) auto;
+  gap: 0.6rem;
+  align-items: center;
+  padding: 0.35rem 0;
+  border-top: 2px solid var(--line);
+}
+
+.sh-row:first-child {
+  border-top: 0;
+}
+
+.sh-slot {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: var(--skin-slot, none) center / 100% 100% no-repeat;
+}
+
+.sh-row-main {
+  display: grid;
+  min-width: 0;
+}
+
+.sh-row-main strong,
+.sh-row-val {
+  font-family: var(--font-display);
+  font-size-adjust: none;
+  font-size: 1.15rem;
+  font-weight: 400;
+  line-height: 1.05;
+}
+
+.sh-row-sub,
+.sh-row-val small {
+  color: var(--text-3);
+  font-family: var(--font-body);
+  font-size-adjust: 0.5;
+  font-size: 0.9rem;
+}
+
+.sh-row-val {
+  text-align: right;
+}
+
+.sh-row-val small {
+  display: block;
+}
+
+.sh-note {
+  padding-top: 0.35rem;
+  border-top: 2px solid var(--line);
+}
+
+.sh-features {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sh-feature {
+  padding: 0.4rem 0;
+  border-top: 2px solid var(--line);
+}
+
+.sh-feature:first-child {
+  border-top: 0;
+}
+
+.sh-feature-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.sh-feature-head strong {
+  margin-right: 0.15rem;
+  font-family: var(--font-display);
+  font-size-adjust: none;
+  font-size: 1.15rem;
+  font-weight: 400;
+}
+
+.sh-feature .tag {
+  padding: 0 0.35rem;
+  color: var(--text-2);
+  font-family: var(--font-display);
+  font-size-adjust: none;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: none;
+  border: 2px solid var(--line-2);
+}
+
+.sh-feature .tag.sh-uses {
+  color: var(--sec-l);
+  border-color: var(--sec-l);
+}
+
+.sh-feature p {
+  margin: 0.15rem 0 0;
+  color: var(--text-2);
+  font-size: 0.95rem;
+}
+
+.sh-train {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sh-train li {
+  display: grid;
+  grid-template-columns: 6rem minmax(0, 1fr);
+  gap: 0.5rem;
+}
+
+.sh-train-k {
+  color: var(--text-3);
+  font-family: var(--font-display);
+  font-size-adjust: none;
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* The refusal line takes no room until there is something to say. */
+.sheet-embed .form-error:empty {
+  min-height: 0;
+  margin: 0;
+}

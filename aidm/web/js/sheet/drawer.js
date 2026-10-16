@@ -28,22 +28,28 @@ function spellNameOf(sheet) {
 }
 
 function header(sheet, hero, store) {
-  const xp = sheet.xp_next ? t('sheet.xp', { xp: sheet.xp, next: sheet.xp_next }) : t('sheet.xpMax', { xp: sheet.xp });
+  const xp = sheet.xp_next ? t('sheet.xpShort', { xp: sheet.xp, next: sheet.xp_next }) : t('sheet.xpMaxShort', { xp: sheet.xp });
   const ratio = sheet.xp_next ? Math.min(1, sheet.xp / sheet.xp_next) : 1;
-  const fill = h('span', { class: 'hp-fill good' });
+  const fill = h('span', { class: 'hp-fill' });
   fill.style.width = `${Math.round(ratio * 100)}%`;
   const ready = Boolean(store.get().sheet?.level_up);
   const fighting = Boolean(publicState(store.get())?.combat); // M20.4: level up between fights
+  // M25: one XP row (level, bar, XP, Level up). On the phone the class line is the picture's caption.
   return [
     h('img', { class: 'sh-portrait', src: assetUrl(portraitKeys(hero ?? { class_index: sheet.class_index })), alt: '', width: 56, height: 56 }),
     h(
       'div',
       { class: 'sh-title' },
       h('h2', { id: 'sheet-h' }, sheet.name),
-      h('p', { class: 'muted' }, t('table.classLine', { level: sheet.level, race: titleCase(sheet.race), cls: titleCase(sheet.class_index) }), sheet.subclass ? ` (${titleCase(sheet.subclass)})` : ''),
-      h('div', { class: 'hp sh-xp', 'aria-hidden': 'true' }, fill),
-      h('p', { class: 'hint' }, xp),
-      ready && !fighting ? h('button', { type: 'button', class: 'btn btn-small btn-primary', 'data-testid': 'sheet-levelup', onclick: () => store.update({ levelUpOpen: true }) }, t('sheet.levelButton')) : null,
+      h('p', { class: 'muted sh-classline' }, t('table.classLine', { level: sheet.level, race: titleCase(sheet.race), cls: titleCase(sheet.class_index) }), sheet.subclass ? ` (${titleCase(sheet.subclass)})` : ''),
+      h(
+        'div',
+        { class: 'sh-xprow', 'data-testid': 'sh-xp' },
+        h('span', { class: 'sh-lvl' }, t('sheet.levelShort', { n: sheet.level })),
+        h('div', { class: 'hp sh-xp', 'aria-hidden': 'true' }, fill),
+        h('span', { class: 'sh-xptext' }, xp),
+        ready && !fighting ? h('button', { type: 'button', class: 'btn btn-small btn-primary', 'data-testid': 'sheet-levelup', onclick: () => store.update({ levelUpOpen: true }) }, t('sheet.levelButton')) : null,
+      ),
       ready && fighting ? h('p', { class: 'hint', 'data-testid': 'sheet-levelup-later' }, t('sheet.levelAfterFight')) : null,
     ),
   ];

@@ -10,7 +10,7 @@ import { myHero, publicState } from '../table/lookup.js';
 import { t } from '../strings.js';
 import { clockText, everySecond } from '../ui/countdown.js';
 import { h } from '../ui/dom.js';
-import { clamp } from '../ui/format.js';
+import { clamp, titleCase } from '../ui/format.js';
 import { mountFullscreen } from '../ui/fullscreen.js';
 import { TABS } from './tabs.js';
 
@@ -47,7 +47,15 @@ export function topOf(state) {
   }
   const fixed = FIXED[tab];
   const hero = myHero(state);
-  return { tab, sec: fixed.sec, ribbon: t(fixed.ribbon), art: tab === 'hero' && hero ? portraitKeys(hero) : fixed.art, caption: '' };
+  return { tab, sec: fixed.sec, ribbon: t(fixed.ribbon), art: tab === 'hero' && hero ? portraitKeys(hero) : fixed.art, caption: tab === 'hero' ? heroCaption(state) : '' };
+}
+
+/** "High Elf Wizard - Sage" on the Hero picture (M25): who the hero is, said once on the tab. */
+function heroCaption(state) {
+  const sheet = state.sheet?.sheet;
+  if (!sheet) return '';
+  const who = `${titleCase(sheet.subrace || sheet.race)} ${titleCase(sheet.class_index)}`;
+  return sheet.background ? t('ct.heroCaption', { who, background: titleCase(sheet.background) }) : who;
 }
 
 /** The turn clock shown on the fight picture: only while a hero's turn is timed. */

@@ -21,7 +21,7 @@ def _open(page: Page) -> None:
     page.wait_for_function(f"Boolean({SHEET})", timeout=20000)
     go_tab(page, "hero")
     page.wait_for_selector("[data-testid=sheet]:not([hidden])")
-    page.wait_for_selector("[data-testid=sh-ac]")
+    page.wait_for_selector("[data-testid=sh-abilities]")
 
 
 def _text(page: Page, testid: str) -> str:
@@ -35,8 +35,11 @@ def test_drawer_numbers_match_the_server_sheet(
     host, _guest = start_table(browser, live_server.base, PHONE, errors)
     _open(host)
     sheet = host.evaluate(SHEET)
-    assert _text(host, "sh-ac") == str(sheet["ac"])
-    assert _text(host, "sh-hp") == f"{sheet['hp']}/{sheet['max_hp']}"
+    # M25: AC and HP are on the hero strip only (one place for each fact).
+    assert host.locator("[data-testid=strip-ac]").inner_text().split() == ["AC", str(sheet["ac"])]
+    strip_hp = host.locator("[data-testid=strip] [data-testid=hp-text]").inner_text()
+    assert strip_hp == f"{sheet['hp']}/{sheet['max_hp']}"
+    assert host.locator("[data-testid=sh-ac], [data-testid=sh-hp]").count() == 0
     assert _text(host, "sh-speed") == f"{sheet['speed']} ft"
     assert _text(host, "sh-passive") == str(sheet["passive_perception"])
     scores = host.eval_on_selector_all(
@@ -47,7 +50,8 @@ def test_drawer_numbers_match_the_server_sheet(
     assert host.locator(".sh-skill.prof, .sh-skill.expert").count() >= 2
     assert host.locator("[data-testid=sh-attacks] li").count() >= 2
     wind = host.locator("[data-testid=sh-fa-line][data-feature=second-wind]")
-    assert "Second Wind" in wind.inner_text() and "1 of 1 uses" in wind.inner_text()
+    assert "Second Wind" in wind.inner_text() and "1/1" in wind.inner_text()
+    assert host.locator("[data-testid=sh-res]").count() == 0  # its uses are on the feature row
     # The party card agrees with the sheet (both come from the same server state).
     snapshot_ac = host.evaluate(
         "window.aidm.store.get().snapshot.state.party.find(c => c.name === 'Brienne').ac"
@@ -58,7 +62,7 @@ def test_drawer_numbers_match_the_server_sheet(
     go_tab(host, "play")
     assert host.locator("[data-testid=sheet]").is_hidden()
     go_tab(host, "hero")
-    assert host.locator("[data-testid=sh-ac]").is_visible()
+    assert host.locator("[data-testid=sh-abilities]").is_visible()
     assert errors == []
 
 
