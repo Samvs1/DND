@@ -3788,6 +3788,34 @@
   "reviewed": true,
   "cost_eur": 0.0261
  },
+ "scene.journal": {
+  "kind": "scene",
+  "file": "img/scenes/journal.png",
+  "size": [
+   960,
+   640
+  ],
+  "transparent": false,
+  "status": "real",
+  "prompt": "M24 dark pixel skin, owner approved in the mockup review (docs/next/GOAL_UI_REVAMP.md)",
+  "source": "generated:gpt-image-1.5-m24",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "scene.more": {
+  "kind": "scene",
+  "file": "img/scenes/more.png",
+  "size": [
+   960,
+   640
+  ],
+  "transparent": false,
+  "status": "real",
+  "prompt": "M24 dark pixel skin, owner approved in the mockup review (docs/next/GOAL_UI_REVAMP.md)",
+  "source": "generated:gpt-image-1.5-m24",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "scene.scribe": {
   "kind": "scene",
   "file": "img/scenes/scribe.png",
@@ -5224,6 +5252,20 @@
   "reviewed": true,
   "cost_eur": 0.002119
  },
+ "ui_icon.ac-shield": {
+  "kind": "ui_icon",
+  "file": "img/icons/ui/ac_shield.png",
+  "size": [
+   108,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M24 dark pixel skin, owner approved in the mockup review (docs/next/GOAL_UI_REVAMP.md)",
+  "source": "generated:gpt-image-1.5-m24",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "ui_icon.act-examine": {
   "kind": "ui_icon",
   "file": "img/icons/actions/examine.png",
@@ -5344,6 +5386,34 @@
   "reviewed": true,
   "cost_eur": 0.004237
  },
+ "ui_icon.hourglass": {
+  "kind": "ui_icon",
+  "file": "img/icons/ui/hourglass.png",
+  "size": [
+   62,
+   96
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M24 dark pixel skin, owner approved in the mockup review (docs/next/GOAL_UI_REVAMP.md)",
+  "source": "generated:gpt-image-1.5-m24",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "ui_icon.quill": {
+  "kind": "ui_icon",
+  "file": "img/icons/ui/quill.png",
+  "size": [
+   96,
+   87
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M24 dark pixel skin, owner approved in the mockup review (docs/next/GOAL_UI_REVAMP.md)",
+  "source": "generated:gpt-image-1.5-m24",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
  "ui_icon.tab-hero": {
   "kind": "ui_icon",
   "file": "img/icons/tabs/player.png",
@@ -5410,6 +5480,160 @@
   "prompt": "",
   "source": "v1",
   "license": "v1 project asset (owner's own)"
+ },
+ "ui_skin.frame": {
+  "kind": "ui_skin",
+  "file": "img/ui/skin/frame.png",
+  "size": [
+   438,
+   304
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M24 dark pixel skin, owner approved in the mockup review (docs/next/GOAL_UI_REVAMP.md)",
+  "source": "generated:gpt-image-1.5-m24",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "ui_skin.ribbon-blue": {
+  "kind": "ui_skin",
+  "file": "img/ui/skin/ribbon_blue.png",
+  "size": [
+   640,
+   96
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M24 dark pixel skin, owner approved in the mockup review (docs/next/GOAL_UI_REVAMP.md)",
+  "source": "generated:gpt-image-1.5-m24",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "ui_skin.ribbon-crimson": {
+  "kind": "ui_skin",
+  "file": "img/ui/skin/ribbon_crimson.png",
+  "size": [
+   640,
+   96
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M24 dark pixel skin, owner approved in the mockup review (docs/next/GOAL_UI_REVAMP.md)",
+  "source": "generated:gpt-image-1.5-m24",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "ui_skin.ribbon-grey": {
+  "kind": "ui_skin",
+  "file": "img/ui/skin/ribbon_grey.png",
+  "size": [
+   640,
+   97
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M24 dark pixel skin, owner approved in the mockup review (docs/next/GOAL_UI_REVAMP.md)",
+  "source": "generated:gpt-image-1.5-m24",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "ui_skin.ribbon-olive": {
+  "kind": "ui_skin",
+  "file": "img/ui/skin/ribbon_olive.png",
+  "size": [
+   640,
+   97
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M24 dark pixel skin, owner approved in the mockup review (docs/next/GOAL_UI_REVAMP.md)",
+  "source": "generated:gpt-image-1.5-m24",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "ui_skin.ribbon-purple": {
+  "kind": "ui_skin",
+  "file": "img/ui/skin/ribbon_purple.png",
+  "size": [
+   640,
+   97
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M24 dark pixel skin, owner approved in the mockup review (docs/next/GOAL_UI_REVAMP.md)",
+  "source": "generated:gpt-image-1.5-m24",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "ui_skin.ribbon-teal": {
+  "kind": "ui_skin",
+  "file": "img/ui/skin/ribbon_teal.png",
+  "size": [
+   640,
+   97
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M24 dark pixel skin, owner approved in the mockup review (docs/next/GOAL_UI_REVAMP.md)",
+  "source": "generated:gpt-image-1.5-m24",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "ui_skin.slot": {
+  "kind": "ui_skin",
+  "file": "img/ui/skin/slot.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M24 dark pixel skin, owner approved in the mockup review (docs/next/GOAL_UI_REVAMP.md)",
+  "source": "generated:gpt-image-1.5-m24",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "ui_skin.slot-far": {
+  "kind": "ui_skin",
+  "file": "img/ui/skin/slot_far.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M24 dark pixel skin, owner approved in the mockup review (docs/next/GOAL_UI_REVAMP.md)",
+  "source": "generated:gpt-image-1.5-m24",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "ui_skin.slot-selected": {
+  "kind": "ui_skin",
+  "file": "img/ui/skin/slot_selected.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "real",
+  "prompt": "M24 dark pixel skin, owner approved in the mockup review (docs/next/GOAL_UI_REVAMP.md)",
+  "source": "generated:gpt-image-1.5-m24",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
+ },
+ "ui_skin.stone": {
+  "kind": "ui_skin",
+  "file": "img/ui/skin/stone.png",
+  "size": [
+   256,
+   256
+  ],
+  "transparent": false,
+  "status": "real",
+  "prompt": "M24 dark pixel skin, owner approved in the mockup review (docs/next/GOAL_UI_REVAMP.md)",
+  "source": "generated:gpt-image-1.5-m24",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true
  },
  "zone_card.bridge": {
   "kind": "zone_card",

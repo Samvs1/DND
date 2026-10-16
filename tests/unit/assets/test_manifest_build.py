@@ -33,6 +33,7 @@ KINDS = {
     "sfx",
     "scene",
     "ui_icon",
+    "ui_skin",  # M24 dark pixel skin: frame, ribbons, slots, stone
 }
 
 

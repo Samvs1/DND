@@ -14,6 +14,7 @@ import { t } from './strings.js';
 import { mountBanner } from './ui/banner.js';
 import { clear } from './ui/dom.js';
 import { fitViewport } from './ui/fit.js';
+import { applySkin } from './ui/skin.js';
 import { VIEWS, pickView } from './views/index.js';
 import { createClient } from './ws.js';
 
@@ -55,6 +56,7 @@ function show(state) {
 }
 
 await loadAssets();
+applySkin(); // M24: the skin art as CSS custom properties
 bindRemoteAudio({ store, saved, mode });
 const music = createMusic({ store, mode, makeAudio });
 // The Scribe's voice lives for the whole page (a line can arrive while a view is still mounting). Owner rule

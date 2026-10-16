@@ -1,4 +1,5 @@
-"""Art keys of the UI chrome (M12.1): the defeat scene and the phone controller tab icons.
+"""Art keys of the UI chrome (M12.1): the defeat scene, the phone controller tab icons and the M24
+dark pixel skin (frame, ribbons, slots, small icons and the Journal and More scenes).
 
 Unlike the other keys these do not come from a data registry; they are the few pictures the views
 ask for by name (js/screen/overlays.js and js/controller/defeat.js read `scene.defeat`,
@@ -37,6 +38,26 @@ _ACTS = (
     ("search", "A small lantern casting warm light over scattered leaves and stones (search)"),
     ("rest", "A small campfire of crossed logs beside a rolled bedroll (rest)"),
     ("trade", "A leather coin purse with gold coins spilling out of it (trade)"),
+)
+
+# M24 dark pixel skin (docs/next/GOAL_UI_REVAMP.md): owner-approved generated pieces (real, so the
+# generator never touches them). CSS reads the ui_skin keys as properties set by js/ui/skin.js.
+_SLOT = "An empty square inventory slot with a dark inset and a thin iron border"
+_SKIN = (
+    ("ui_skin.frame", "img/ui/skin/frame.png", "An empty dark iron panel frame (9-slice)", True),
+    ("ui_skin.stone", "img/ui/skin/stone.png", "A barely visible near-black stone tile", False),
+    *(
+        (f"ui_skin.ribbon-{c}", f"img/ui/skin/ribbon_{c}.png", f"A blank {c} title ribbon", True)
+        for c in ("teal", "crimson", "blue", "olive", "purple", "grey")
+    ),
+    ("ui_skin.slot", "img/ui/skin/slot.png", _SLOT, True),
+    ("ui_skin.slot-selected", "img/ui/skin/slot_selected.png", _SLOT + ", pale cyan", True),
+    ("ui_skin.slot-far", "img/ui/skin/slot_far.png", _SLOT + ", dark red", True),
+    ("ui_icon.ac-shield", "img/icons/ui/ac_shield.png", "An empty iron heater shield", True),
+    ("ui_icon.hourglass", "img/icons/ui/hourglass.png", "An iron hourglass", True),
+    ("ui_icon.quill", "img/icons/ui/quill.png", "A dark feather quill", True),
+    ("scene.journal", "img/scenes/journal.png", "A map desk by candle and moonlight", False),
+    ("scene.more", "img/scenes/more.png", "A stone room corner with a lute and books", False),
 )
 
 UI_ART = (
@@ -127,6 +148,7 @@ UI_ART = (
         )
         for kind, what in _ACTS
     ),
+    *(UiArt(key, file, subject, transparent=clear) for key, file, subject, clear in _SKIN),
 )
 
 
