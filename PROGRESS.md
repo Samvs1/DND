@@ -1,4 +1,4 @@
-NEXT: M24.7 ORCH prod review (390x844, 393x702, 1280x720, 1920x1080), manual pass, FULL gate, commit `M24: Dark pixel UI`. Files in flight: docs/PLAYER_MANUAL.md, PROGRESS.md. Last gate: M24.6 UI 49 passed.
+NEXT: M24.7 finish: read the FULL gate log (scratchpad gate_m24.log, started after WIP 189e12b; rerun `.\scripts\gate.ps1` if it is gone), fix anything red, run the prod review harness at 390x844, 393x702, 1280x720, 1920x1080 and judge, then commit `M24: Dark pixel UI`. Manual (Now card, screen header) and README (controller layout) already updated. Files in flight: none. Last gate: M24.6 UI 49 passed.
 
 # PROGRESS
 

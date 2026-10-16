@@ -92,9 +92,10 @@ single-device view: to play solo, open `/screen` in one window and `/play` in an
    ability scores (point buy, standard array or rolled), skills, equipment, spells and a short backstory. You
    can export a hero to a JSON file and import it later.
 4. **Start**: when every player has a hero the host starts the campaign. The AI writes a three-act campaign
-   (or uses the built-in sample). The screen shows the table and each phone opens its controller, with five
-   tabs at the top: **Play**, **Hero**, **Journal** (with the map and the story), **Scribe** and **More**. The full
-   screen button next to the hero hides the browser bars (Android).
+   (or uses the built-in sample). The screen shows the table and each phone opens its controller: a ribbon
+   and picture on top, the tab's content, the hero strip, and five tabs at the bottom: **Play**, **Hero**,
+   **Journal** (with the map and the story), **Scribe** and **More**. The full screen button on the picture
+   hides the browser bars (Android).
 5. **Exploration** (Play tab): type (or dictate) what your hero does. The phone is a controller, not a second
    screen: a Now card (your move, the story is being told, who is acting, your place in line), the action box,
    idea chips from the scene (people, things, ways on, look, search, rest, trade; a tap fills the action box)
