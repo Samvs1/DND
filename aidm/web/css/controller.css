@@ -759,7 +759,7 @@ body.is-controller #app {
   font-size: 1rem;
   text-align: left;
   background: #141416;
-  border: 2px solid #2a2a2e;
+  border: 2px solid var(--line-2);
   border-radius: 0;
   cursor: pointer;
 }

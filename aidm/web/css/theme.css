@@ -13,15 +13,37 @@
 }
 
 :root {
-  --bg: #0b0b0d;
-  --well: #08080a;
-  --card: #111113;
-  --raised: #18181b;
-  --line: #232327;
-  --line-2: #3a3a40;
-  --text: #dedad0;
-  --text-2: #aba79d;
-  --text-3: #85827a;
+  /* Base surfaces and text. The older names carry the values (tests/unit/web/test_contrast.py checks them:
+     body text 4.5:1 and borders 3:1 on every surface); the newer names are aliases. */
+  --ink-0: #08080a;
+  --stone-0: #0b0b0d;
+  --stone-1: #111113;
+  --stone-2: #18181b;
+  --stone-3: #232327;
+  --parchment: #dedad0;
+  --parchment-dim: #aba79d;
+  --muted: #8f8c84;
+  --gold-dim: #6e6e78; /* borders of buttons, inputs and chips */
+  --gold: #6fc0ba; /* the section accent; [data-sec] swaps it */
+  --blood: #b84a52;
+  --blood-text: #e2777e;
+  --moss: #4fb35a;
+  --moss-text: #8fd49a;
+  --sapphire: #6aa2ea;
+  --amethyst: #b096ee;
+  --on-accent: #0b1a1a; /* text on the light accent */
+  --on-fill: #ffffff; /* text on a tab-colour fill (--accent-fill) */
+  --on-blood: #ffffff;
+  --focus: #8fe3dc;
+  --bg: var(--stone-0);
+  --well: var(--ink-0);
+  --card: var(--stone-1);
+  --raised: var(--stone-2);
+  --line: var(--stone-3);
+  --line-2: var(--gold-dim);
+  --text: var(--parchment);
+  --text-2: var(--parchment-dim);
+  --text-3: var(--muted);
   --teal-l: #6fc0ba;
   --teal-m: #255e60;
   --teal-d: #163a3c;
@@ -50,27 +72,7 @@
   --sec-d: var(--teal-d);
   --sec-ink: #e3f5f2;
   --sec-ribbon: var(--skin-ribbon-teal, none);
-  /* Older names, kept so every view follows the palette. */
-  --ink-0: var(--well);
-  --stone-0: var(--bg);
-  --stone-1: var(--card);
-  --stone-2: var(--raised);
-  --stone-3: var(--line);
-  --gold: var(--sec-l);
-  --gold-dim: var(--line-2);
   --accent-fill: var(--sec-m);
-  --parchment: var(--text);
-  --parchment-dim: var(--text-2);
-  --muted: var(--text-3);
-  --blood: #c4555c;
-  --blood-text: #e2777e;
-  --moss: #4fb35a;
-  --moss-text: #8fd49a;
-  --sapphire: #6aa2ea;
-  --amethyst: #b096ee;
-  --on-accent: #ffffff;
-  --on-blood: #ffffff;
-  --focus: #8fe3dc;
   --font-display: 'Jersey10', 'Courier New', monospace;
   --font-body: 'VT323', 'Courier New', monospace;
   --text-scale: 1;
@@ -226,7 +228,7 @@ select {
   font-family: var(--font-body);
   font-size: inherit;
   background: var(--well);
-  border: 2px solid #2e2e33;
+  border: 2px solid var(--line-2);
   border-radius: 0;
 }
 

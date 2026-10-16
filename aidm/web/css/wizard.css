@@ -55,7 +55,7 @@
 }
 
 .wz-step.current button {
-  color: var(--on-accent);
+  color: var(--on-fill);
   background: var(--accent-fill);
   border-color: var(--sec-l);
 }
@@ -205,7 +205,7 @@
 }
 
 .wz-chip.selected {
-  color: var(--on-accent);
+  color: var(--on-fill);
   background: var(--accent-fill);
   border-color: var(--sec-l);
 }
@@ -235,7 +235,7 @@
 }
 
 .btn.selected {
-  color: var(--on-accent);
+  color: var(--on-fill);
   background: var(--accent-fill);
   border-color: var(--sec-l);
 }
