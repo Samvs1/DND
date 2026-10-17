@@ -12,6 +12,9 @@ export const DEFAULTS = {
   musicMuteSet: false,
   narrationVolume: 80,
   musicVolume: 50,
+  effectsMute: false,
+  effectsMuteSet: false,
+  effectsVolume: 80, // M26.8: the dice sounds
   speed: 'normal',
   size: 'normal',
   reduceMotion: false,
@@ -27,10 +30,13 @@ function clean(raw) {
   if (typeof raw?.muteSet === 'boolean') out.muteSet = raw.muteSet;
   if (typeof raw?.musicMute === 'boolean') out.musicMute = raw.musicMute;
   if (typeof raw?.musicMuteSet === 'boolean') out.musicMuteSet = raw.musicMuteSet;
+  if (typeof raw?.effectsMute === 'boolean') out.effectsMute = raw.effectsMute;
+  if (typeof raw?.effectsMuteSet === 'boolean') out.effectsMuteSet = raw.effectsMuteSet;
   // M11.5: the old single `volume` seeds both levels when the new keys are absent (migration).
   const old = raw?.volume === undefined ? NaN : Number(raw.volume);
-  for (const key of ['narrationVolume', 'musicVolume']) {
-    const level = raw?.[key] === undefined ? old : Number(raw[key]);
+  for (const key of ['narrationVolume', 'musicVolume', 'effectsVolume']) {
+    const seed = key === 'effectsVolume' ? NaN : old; // the old single volume never set effects
+    const level = raw?.[key] === undefined ? seed : Number(raw[key]);
     if (Number.isFinite(level)) out[key] = Math.min(100, Math.max(0, Math.round(level)));
   }
   if (SPEEDS.includes(raw?.speed)) out.speed = raw.speed;
@@ -66,6 +72,8 @@ export function audioMuted(settings, state, mode, channel = 'narration') {
   if (mode === 'play') return true; // M16.2 owner rule: only the screen plays sound; phones stay silent
   if (channel === 'music') {
     if (settings.musicMuteSet) return settings.musicMute;
+  } else if (channel === 'effects') {
+    if (settings.effectsMuteSet) return settings.effectsMute;
   } else if (settings.muteSet) return settings.mute;
   return false;
 }

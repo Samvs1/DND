@@ -15,7 +15,7 @@ function prime() {
   }
 }
 
-export function mountSoundGate(root, { store, audio }) {
+export function mountSoundGate(root, { store, audio, sfx }) {
   const button = h('button', { type: 'button', class: 'btn sg-button', 'data-testid': 'sound-gate-button' }, t('gate.button'));
   const card = h('div', { class: 'sg', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'sg-title', 'data-testid': 'sound-gate', hidden: true },
     h('div', { class: 'sg-card' }, h('h2', { id: 'sg-title' }, t('gate.title')), h('p', {}, t('gate.body')), button));
@@ -29,6 +29,7 @@ export function mountSoundGate(root, { store, audio }) {
     if (event.type === 'keydown' && event.key !== 'Enter' && event.key !== 'Escape' && event.key !== ' ') return;
     prime();
     audio.unlock();
+    sfx?.unlock(); // M26.8: the dice sounds' audio context starts inside this click
     card.hidden = true;
     if (store.get().audioBlocked) store.update({ audioBlocked: false });
   };

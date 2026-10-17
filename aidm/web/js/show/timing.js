@@ -5,7 +5,7 @@
 import { reducedMotion } from '../settings/model.js';
 import { keptIndex } from '../table/dice.js';
 
-export const STAGE_MS = 3300; // throw 1.05 s, landing, bonuses, verdict, hold, fade
+export const STAGE_MS = 3800; // 0.7 s to read the stage (owner: +0.5 s), the throw, bonuses, verdict, hold, fade
 export const STAGE_TWO_MS = 300; // advantage / disadvantage: the dropped die steps aside
 export const STAGE_NATURAL_MS = 400; // a natural 20 flares, a natural 1 cracks
 export const STAGE_CRIT_HOLD_MS = 600; // a natural 20 is held a little longer

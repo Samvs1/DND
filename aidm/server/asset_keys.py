@@ -23,6 +23,7 @@ from aidm.data.zone_templates import zone_templates
 from aidm.server.asset_ui import UI_ART
 from aidm.server.asset_zone_art import zone_art_files
 from aidm.server.placeholders import placeholder_size
+from aidm.server.sfxgen.names import DICE_SFX
 
 AUDIO_KINDS = frozenset({"music", "sfx"})
 MAX_ARCHETYPE_CR = 8.0
@@ -60,7 +61,7 @@ SPELL_SCHOOLS = (
 MUSIC_STATES = ("exploration", "combat", "social", "victory", "defeat")
 SFX_NAMES = (
     "ui_click",
-    "dice_roll",
+    *(name for name in DICE_SFX if name not in ("hit", "miss", "crit")),  # M26.8 synthesised dice
     "hit",
     "miss",
     "crit",

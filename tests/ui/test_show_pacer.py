@@ -80,15 +80,15 @@ def test_lines_and_narration_wait_for_the_roll_stage(
         pacer.push(roll(5, { kind: 'check', success: true }));
         pacer.push(ev(6));
         pacer.push({ type: 'narration_chunk', id: 'n1', index: 0, text: 'The guards look away.' });
-        await advance(3339);
+        await advance(3839);
         const early = log.map((e) => e[1]);
         await advance(1);
         return { early, line: at('event', 6), told: at('narration_chunk') };
         """,
     )
     assert result["early"] == ["dice_roll"]  # nothing spoils the roll before its show ends
-    # a roll on an idle table first waits 40 ms for the rest of its burst, then the 3.3 s stage
-    assert result["line"] == 3340 and result["told"] == 3340
+    # a roll on an idle table first waits 40 ms for the rest of its burst, then the 3.8 s stage
+    assert result["line"] == 3840 and result["told"] == 3840
 
 
 def test_a_board_attack_and_its_damage_hold_in_turn(
@@ -177,7 +177,7 @@ def test_the_screen_reports_what_it_has_shown(browser: Browser, live_server: Liv
     assert sent["mid"] == 1  # seq 3 at once; the save is not shown yet
     assert [s[2] for s in sent["sent"]] == [3, 4, 5]
     assert all(s[1] == "presented" for s in sent["sent"])
-    assert sent["sent"][1][0] == 40 + 3300
+    assert sent["sent"][1][0] == 40 + 3800
 
 
 def test_the_director_sets_the_pace_and_can_never_stall_it(
@@ -204,8 +204,8 @@ def test_the_director_sets_the_pace_and_can_never_stall_it(
         """,
     )
     assert result["two"] == 40 + 500  # the TV's show is the truth
-    assert result["four"] == 40 + 500 + 3300 + 2000  # a stuck show is capped
-    assert result["six"] == 40 + 3300  # a broken show falls back to the nominal hold
+    assert result["four"] == 40 + 500 + 3800 + 2000  # a stuck show is capped
+    assert result["six"] == 40 + 3800  # a broken show falls back to the nominal hold
 
 
 def test_skip_ends_the_show_early(browser: Browser, live_server: LiveServer) -> None:

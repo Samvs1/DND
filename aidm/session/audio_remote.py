@@ -1,6 +1,7 @@
 """The audio remote (M11.2): any seated player sets the shared screen's audio.
 
-`audio_settings {narration_volume, music_volume, narration_muted, music_muted}` (volumes 0-100,
+`audio_settings {narration_volume, music_volume, narration_muted, music_muted, effects_volume,
+effects_muted}` (the effects pair, M26.8's dice sounds, is optional; volumes 0-100,
 checked by the protocol model: out of range is an `invalid` error at the socket) from a seated
 player replaces `TableCore.audio` (last write wins), is broadcast as `audio_settings` to every
 connection (the screen applies it) and is written to table.json at once (`write_meta`; it is
@@ -32,6 +33,8 @@ def set_audio(core: TableCore, player: Player, msg: AudioSettingsMsg) -> None:
         music_volume=msg.music_volume,
         narration_muted=msg.narration_muted,
         music_muted=msg.music_muted,
+        effects_volume=msg.effects_volume,
+        effects_muted=msg.effects_muted,
     )
     core.audio = settings
     core.broadcast(AudioSettingsState(settings=settings))

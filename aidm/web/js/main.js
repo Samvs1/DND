@@ -4,6 +4,7 @@ import { loadAssets } from './assets.js';
 import { bindRemoteAudio } from './audio/remote.js';
 import { createMusic } from './audio/music.js';
 import { createNarrationAudio } from './audio/narration.js';
+import { createSfx } from './audio/sfx.js';
 import { createDispatch } from './handlers.js';
 import { mountSoundGate } from './screen/sound_gate.js';
 import { createScribeVoice } from './scribe/voice.js';
@@ -38,7 +39,8 @@ if (mode === 'screen') pacer.bindSend(client.send); // the TV tells the server w
 const story = createStory(store);
 const makeAudio = (url) => (window.__aidmMakeAudio ? window.__aidmMakeAudio(url) : new Audio(url));
 const audio = createNarrationAudio({ store, mode, makeAudio });
-const ctx = { store, saved, client, mode, story, audio, pacer };
+const sfx = createSfx({ store, mode }); // M26.8: the dice sounds (screen only)
+const ctx = { store, saved, client, mode, story, audio, pacer, sfx };
 
 mountBanner(document.getElementById('banner'), store, {
   retry: () => client.retry(),
@@ -61,13 +63,14 @@ function show(state) {
 
 await loadAssets();
 applySkin(); // M24: the skin art as CSS custom properties
+if (mode === 'screen') sfx.loadTiming(); // the impact times the dice bounce on
 bindRemoteAudio({ store, saved, mode });
 const music = createMusic({ store, mode, makeAudio });
 // The Scribe's voice lives for the whole page (a line can arrive while a view is still mounting). Owner rule
 // (M16.2): sound and the Scribe's popup belong to the screen alone; a phone gets neither.
 if (mode === 'screen') {
   createScribeVoice({ store, mode, makeAudio, accept: () => true }); // only the screen speaks or shows the Scribe
-  mountSoundGate(document.body, { store, audio });
+  mountSoundGate(document.body, { store, audio, sfx });
 }
 store.subscribe(show);
 show(store.get());
@@ -75,4 +78,4 @@ show(store.get());
 const name = saved.name();
 if (mode === 'screen') client.connect(t('screen.name'));
 else if (name && saved.token()) client.connect(name);
-window.aidm = { store, client, dispatch, pacer, audio, music, story }; // handles for tests and the console
+window.aidm = { store, client, dispatch, pacer, audio, music, story, sfx }; // handles for tests and the console

@@ -9,7 +9,7 @@ Machine-readable schema: `aidm/web/protocol.json`.
 |---|---|---|
 | client | `answer_offer` | `choice`: OfferChoice, `skill`: Skill or null (optional), `type`: answer_offer |
 | client | `answer_quest_offer` | `accept`: boolean, `quest_id`: string, `type`: answer_quest_offer |
-| client | `audio_settings` | `music_muted`: boolean (optional), `music_volume`: integer, `narration_muted`: boolean (optional), `narration_volume`: integer, `type`: audio_settings |
+| client | `audio_settings` | `effects_muted`: boolean (optional), `effects_volume`: integer (optional), `music_muted`: boolean (optional), `music_volume`: integer, `narration_muted`: boolean (optional), `narration_volume`: integer, `type`: audio_settings |
 | client | `cancel_hostile` | `type`: cancel_hostile |
 | client | `chat` | `text`: string, `type`: chat |
 | client | `choose_finale` | `confirm`: boolean (optional), `option_id`: string, `type`: choose_finale |

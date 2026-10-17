@@ -7,7 +7,7 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 `python scripts/gen_assets_todo.py`. Prompts start with the style bible
 (`docs/STYLE_BIBLE.md`). Never overwrite a real or v1 asset.
 
-11 placeholder entries: music 1, sfx 10
+7 placeholder entries: music 1, sfx 6
 
 ## music (1)
 
@@ -17,25 +17,13 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 - transparent: no
 - prompt: Audio brief (not an image): a warm low-key conversation bed, lute and soft hand drum, loopable, 2 to 3 minutes.
 
-## sfx (10)
+## sfx (6)
 
 ### sfx.coin
 - file: aidm/web/static/audio/sfx/coin.mp3
 - size: n/a (audio)
 - transparent: no
 - prompt: Audio brief (not an image): a few gold coins clinking into a pouch, 0.7 seconds.
-
-### sfx.crit
-- file: aidm/web/static/audio/sfx/crit.mp3
-- size: n/a (audio)
-- transparent: no
-- prompt: Audio brief (not an image): a heavy, resonant weapon strike with a bright ring, 1 second.
-
-### sfx.dice_roll
-- file: aidm/web/static/audio/sfx/dice_roll.mp3
-- size: n/a (audio)
-- transparent: no
-- prompt: Audio brief (not an image): a handful of dice rattling on a wooden table, 1 second.
 
 ### sfx.door
 - file: aidm/web/static/audio/sfx/door.mp3
@@ -49,23 +37,11 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 - transparent: no
 - prompt: Audio brief (not an image): a gentle warm chime with a soft sparkle, 1 second.
 
-### sfx.hit
-- file: aidm/web/static/audio/sfx/hit.mp3
-- size: n/a (audio)
-- transparent: no
-- prompt: Audio brief (not an image): a short weapon hit on leather and flesh, 0.5 seconds.
-
 ### sfx.level_up
 - file: aidm/web/static/audio/sfx/level_up.mp3
 - size: n/a (audio)
 - transparent: no
 - prompt: Audio brief (not an image): a short triumphant rising fanfare of three notes, 2 seconds.
-
-### sfx.miss
-- file: aidm/web/static/audio/sfx/miss.mp3
-- size: n/a (audio)
-- transparent: no
-- prompt: Audio brief (not an image): a sword whooshing through air, 0.5 seconds.
 
 ### sfx.spell_cast
 - file: aidm/web/static/audio/sfx/spell_cast.mp3

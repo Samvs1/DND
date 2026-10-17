@@ -32,12 +32,22 @@ roll beforehand". Rolling stays automatic: nobody taps to roll.
 - Phones: the acting hero gets a result card for their action; a hero who is attacked gets an
   "incoming" card (the die, the total against their AC, the verdict) and the hit comes off the HP
   strip only when the TV shows it. The toast and "Your last roll" follow the same words.
-- Sound (screen only): every throw rattles and lands on the table; the stage verdict has a sting
-  (success, failure, natural 20, natural 1); combat landings are quieter clacks with a hit or miss.
-  An Effects volume joins the audio settings.
+- Sound (screen only): every throw knocks and lands on a wooden table, a meaty low thud with a firm
+  final knock, never high or metallic (owner tuning); the stage verdict has a sting (success,
+  failure, natural 20, natural 1); combat landings are quieter clacks with a hit or miss. An
+  Effects volume joins the audio settings. Success and a natural 20 are built on one real CC0
+  recording ("magicProjectile_impact" by rafaelzimrp, Freesound 570855, data/sfx/SOURCES.md)
+  shaped after the owner's BG3 reference and raised +3 semitones (owner picks 2026-10-17; bells,
+  brass and single high chimes were all rejected). Each is ONE file that never varies: the owner
+  signs off on exact sounds. The natural 20 is one 3.0 s stereo sound (a swell, the ignite hit, a
+  riser, the slam, the recording's own ring, gold dust, a fade from 2.7 s) and its stage show is
+  choreographed to it: the build measures its beats from the audio into dice_timing.json
+  (`natural_20`: flare, slam, chime, fade, end) and the show runs on the sound's clock as heard
+  (output latency included).
 
 ## Repeatable, never boring (the BG3 lessons)
-- Fast: a stage roll is about 3 s from throw to fade (a natural 20 adds a beat); a combat attack
+- Fast: a stage roll is about 3.8 s: it shows for 0.7 s before the throw so the table can read it
+  (owner tuning), then throw to fade about 3 s (a natural 20 adds a beat); a combat attack
   about 2 s, a miss about 1 s. Tapping the TV skips to the verdict.
 - Never the same twice: each throw gets its own path (entry side, spins, bounces, final tilt) from a
   seeded random; the face flickers random numbers and never shows the result before landing; sounds

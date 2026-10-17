@@ -19,6 +19,9 @@ export function bindRemoteAudio({ store, saved, mode }) {
         muteSet: true,
         musicMute: audio.music_muted,
         musicMuteSet: true,
+        effectsVolume: audio.effects_volume ?? 80,
+        effectsMute: Boolean(audio.effects_muted),
+        effectsMuteSet: true,
       },
       saved,
     );

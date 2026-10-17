@@ -130,6 +130,18 @@
           "additionalProperties": false,
           "description": "M11.2: set the shared screen's audio (any seated player, last write wins).",
           "properties": {
+            "effects_muted": {
+              "default": false,
+              "title": "Effects Muted",
+              "type": "boolean"
+            },
+            "effects_volume": {
+              "default": 80,
+              "maximum": 100,
+              "minimum": 0,
+              "title": "Effects Volume",
+              "type": "integer"
+            },
             "music_muted": {
               "default": false,
               "title": "Music Muted",
@@ -2494,6 +2506,18 @@
           "additionalProperties": false,
           "description": "The shared screen's audio (M11.2): set by any seated player, last write wins.",
           "properties": {
+            "effects_muted": {
+              "default": false,
+              "title": "Effects Muted",
+              "type": "boolean"
+            },
+            "effects_volume": {
+              "default": 80,
+              "maximum": 100,
+              "minimum": 0,
+              "title": "Effects Volume",
+              "type": "integer"
+            },
             "music_muted": {
               "default": false,
               "title": "Music Muted",
@@ -5185,6 +5209,8 @@
             "audio": {
               "$ref": "#/$defs/AudioSettings",
               "default": {
+                "effects_muted": false,
+                "effects_volume": 80,
                 "music_muted": false,
                 "music_volume": 50,
                 "narration_muted": false,

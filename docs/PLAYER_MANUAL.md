@@ -28,8 +28,9 @@ Your seat is kept for you. If your phone sleeps, loses Wi-Fi or you close the pa
 You can dictate your actions. The **Dictate** button next to **Act** only appears when the page is served over a secure connection (the host starts the game with the HTTPS option, or you play on the host's own computer) and your browser supports speech input. Your browser will warn once about the certificate: choose Advanced, then continue to the site. Without the button, use the dictation key on your phone keyboard instead.
 
 ### Sound
-- Only the shared screen plays sound: the narrator, the Scribe and the music. Phones are silent. Spoken narration plays only when the host has switched **Spoken narration** on in the Host panel and the host's computer has a Fish Audio key and voice.
-- On the **More** tab, the **Screen sound** section changes narrator volume, music volume and mute on the shared screen from your phone. Any seated player can do this, and the last change wins.
+- Only the shared screen plays sound: the narrator, the Scribe, the music and the dice. Phones are silent. Spoken narration plays only when the host has switched **Spoken narration** on in the Host panel and the host's computer has a Fish Audio key and voice.
+- On the **More** tab, the **Screen sound** section changes the narrator, music and dice sound volume and mute on the shared screen from your phone. Any seated player can do this, and the last change wins.
+- Dice sounds: every throw knocks and lands on a wooden table, and a check's result has its own sound (success, failure, a natural 20, a natural 1). In a fight the dice land with a short clack and a hit or a miss. Throws, landings, hits and misses come in several versions, so the same one never plays twice in a row; a success and a natural 20 always sound the same. Both are built on "magicProjectile_impact" by rafaelzimrp (Freesound, CC0).
 - The **Settings** button on your phone has text speed, text size and a reduce-motion switch. The screen's gear button has the sound settings for the screen.
 - When the screen opens, it asks for one click (**Click anywhere to start the table's sound**) because browsers block sound until a page is clicked. It asks again if the browser blocks a clip. Click once and everything plays.
 

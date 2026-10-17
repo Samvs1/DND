@@ -64,7 +64,6 @@ SCHOOL_LOOKS = {
 SOUND_BRIEFS = {
     "music.social": "a warm conversation bed, lute and soft hand drum, loopable, 2 to 3 minutes",
     "sfx.ui_click": "a soft wooden button click, 0.2 seconds",
-    "sfx.dice_roll": "a handful of dice rattling on a wooden table, 1 second",
     "sfx.hit": "a short weapon hit on leather and flesh, 0.5 seconds",
     "sfx.miss": "a sword whooshing through air, 0.5 seconds",
     "sfx.crit": "a heavy, resonant weapon strike with a bright ring, 1 second",

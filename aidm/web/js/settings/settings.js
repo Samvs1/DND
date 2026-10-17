@@ -36,6 +36,8 @@ export function mountSettings(root, { store, saved, mode }) {
       h('div', { class: 'set-row' }, h('label', { for: 'set-volume' }, t('settings.volume')), slider('set-volume', 'narrationVolume')),
       check('set-music-mute', 'settings.musicMute', audioMuted(s, store.get(), mode, 'music'), (musicMute) => set({ musicMute, musicMuteSet: true })),
       h('div', { class: 'set-row' }, h('label', { for: 'set-music-volume' }, t('settings.musicVolume')), slider('set-music-volume', 'musicVolume')),
+      check('set-effects-mute', 'settings.effectsMute', audioMuted(s, store.get(), mode, 'effects'), (effectsMute) => set({ effectsMute, effectsMuteSet: true })),
+      h('div', { class: 'set-row' }, h('label', { for: 'set-effects-volume' }, t('settings.effectsVolume')), slider('set-effects-volume', 'effectsVolume')),
       h('p', { class: 'hint' }, t('settings.audioHint')),
     ];
     panel.body.append(

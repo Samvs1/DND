@@ -92,3 +92,21 @@ def test_out_of_range_and_screen_audio_are_refused_on_the_socket(tmp_path: Path)
             assert snap["state"]["audio"] == AudioSettings().model_dump()
             screen.send_json({"type": "audio_settings", "narration_volume": 5, "music_volume": 5})
             assert read_until(screen, "error")[-1]["code"] == ErrorCode.REFUSED.value
+
+
+async def test_the_dice_sound_level_rides_with_the_audio_settings(tmp_path: Path) -> None:
+    """M26.8: the effects pair (the dice sounds) is optional: an older phone's message keeps
+    the defaults, a newer one sets them, and the screen gets them like the other levels."""
+    assert (AudioSettings().effects_volume, AudioSettings().effects_muted) == (80, False)
+    async with running(disabled_llm(tmp_path), inn_state()) as (table, _):
+        ann = await join(table, "Ann", "fighter")
+        screen = await screen_seat(table)
+        ann.send(QUIET)
+        await table.settle()
+        old = of_type(screen.drain(), AudioSettingsState)[-1].settings
+        assert (old.effects_volume, old.effects_muted) == (80, False)
+        ann.send(AudioSettingsMsg(narration_volume=35, music_volume=10, effects_volume=25))
+        ann.send(AudioSettingsMsg(narration_volume=35, music_volume=10, effects_muted=True))
+        await table.settle()
+        got = [m.settings for m in of_type(screen.drain(), AudioSettingsState)]
+        assert got[0].effects_volume == 25 and got[-1].effects_muted

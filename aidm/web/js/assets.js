@@ -33,6 +33,9 @@ function isReal(url) {
   return Boolean(url) && !url.startsWith(PLACEHOLDER_PREFIX);
 }
 
+/** The dice sounds' timing table (scripts/gen_dice_sfx.py): throw impacts and the natural 20's beats. */
+export const SFX_TIMING_URL = '/static/audio/sfx/dice_timing.json';
+
 /**
  * assetUrl('monster_token.goblin') -> URL string. Pass an array of keys to prefer the first one
  * that has real art (e.g. ['spell_icon.fire-bolt', 'spell_icon.school.fire']); otherwise the first

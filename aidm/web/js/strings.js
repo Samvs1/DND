@@ -767,6 +767,8 @@ export const STRINGS = {
     volume: 'Narrator volume',
     musicMute: 'Mute music',
     musicVolume: 'Music volume',
+    effectsMute: 'Mute dice sounds',
+    effectsVolume: 'Dice sound volume',
     remoteTitle: 'Screen sound',
     remoteHint: 'These change the sound on the shared screen.',
     screenOnly: 'Sound plays only on the shared screen. Use Screen sound on the More tab to change it.',

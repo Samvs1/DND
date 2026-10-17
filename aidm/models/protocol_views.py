@@ -270,6 +270,8 @@ class AudioSettings(_View):
     music_volume: int = Field(default=50, ge=0, le=100)
     narration_muted: bool = False
     music_muted: bool = False
+    effects_volume: int = Field(default=80, ge=0, le=100)  # M26.8: the dice sounds
+    effects_muted: bool = False
 
 
 class FloorSeat(_View):

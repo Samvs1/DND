@@ -6462,20 +6462,154 @@
   "file": "audio/sfx/crit.mp3",
   "size": null,
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Audio brief (not an image): a heavy, resonant weapon strike with a bright ring, 1 second.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "M26 dice sound, synthesised by scripts/gen_dice_sfx.py (aidm/server/sfxgen)",
+  "source": "generated:sfxgen-m26",
+  "license": "Synthesised in this project (no samples)",
+  "reviewed": false
  },
- "sfx.dice_roll": {
+ "sfx.dice_clack_1": {
   "kind": "sfx",
-  "file": "audio/sfx/dice_roll.mp3",
+  "file": "audio/sfx/dice_clack_1.mp3",
   "size": null,
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Audio brief (not an image): a handful of dice rattling on a wooden table, 1 second.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "M26 dice sound, synthesised by scripts/gen_dice_sfx.py (aidm/server/sfxgen)",
+  "source": "generated:sfxgen-m26",
+  "license": "Synthesised in this project (no samples)",
+  "reviewed": false
+ },
+ "sfx.dice_clack_2": {
+  "kind": "sfx",
+  "file": "audio/sfx/dice_clack_2.mp3",
+  "size": null,
+  "transparent": false,
+  "status": "real",
+  "prompt": "M26 dice sound, synthesised by scripts/gen_dice_sfx.py (aidm/server/sfxgen)",
+  "source": "generated:sfxgen-m26",
+  "license": "Synthesised in this project (no samples)",
+  "reviewed": false
+ },
+ "sfx.dice_clack_3": {
+  "kind": "sfx",
+  "file": "audio/sfx/dice_clack_3.mp3",
+  "size": null,
+  "transparent": false,
+  "status": "real",
+  "prompt": "M26 dice sound, synthesised by scripts/gen_dice_sfx.py (aidm/server/sfxgen)",
+  "source": "generated:sfxgen-m26",
+  "license": "Synthesised in this project (no samples)",
+  "reviewed": false
+ },
+ "sfx.dice_clack_4": {
+  "kind": "sfx",
+  "file": "audio/sfx/dice_clack_4.mp3",
+  "size": null,
+  "transparent": false,
+  "status": "real",
+  "prompt": "M26 dice sound, synthesised by scripts/gen_dice_sfx.py (aidm/server/sfxgen)",
+  "source": "generated:sfxgen-m26",
+  "license": "Synthesised in this project (no samples)",
+  "reviewed": false
+ },
+ "sfx.dice_throw_1": {
+  "kind": "sfx",
+  "file": "audio/sfx/dice_throw_1.mp3",
+  "size": null,
+  "transparent": false,
+  "status": "real",
+  "prompt": "M26 dice sound, synthesised by scripts/gen_dice_sfx.py (aidm/server/sfxgen)",
+  "source": "generated:sfxgen-m26",
+  "license": "Synthesised in this project (no samples)",
+  "reviewed": false
+ },
+ "sfx.dice_throw_2": {
+  "kind": "sfx",
+  "file": "audio/sfx/dice_throw_2.mp3",
+  "size": null,
+  "transparent": false,
+  "status": "real",
+  "prompt": "M26 dice sound, synthesised by scripts/gen_dice_sfx.py (aidm/server/sfxgen)",
+  "source": "generated:sfxgen-m26",
+  "license": "Synthesised in this project (no samples)",
+  "reviewed": false
+ },
+ "sfx.dice_throw_3": {
+  "kind": "sfx",
+  "file": "audio/sfx/dice_throw_3.mp3",
+  "size": null,
+  "transparent": false,
+  "status": "real",
+  "prompt": "M26 dice sound, synthesised by scripts/gen_dice_sfx.py (aidm/server/sfxgen)",
+  "source": "generated:sfxgen-m26",
+  "license": "Synthesised in this project (no samples)",
+  "reviewed": false
+ },
+ "sfx.dice_throw_4": {
+  "kind": "sfx",
+  "file": "audio/sfx/dice_throw_4.mp3",
+  "size": null,
+  "transparent": false,
+  "status": "real",
+  "prompt": "M26 dice sound, synthesised by scripts/gen_dice_sfx.py (aidm/server/sfxgen)",
+  "source": "generated:sfxgen-m26",
+  "license": "Synthesised in this project (no samples)",
+  "reviewed": false
+ },
+ "sfx.dice_throw_5": {
+  "kind": "sfx",
+  "file": "audio/sfx/dice_throw_5.mp3",
+  "size": null,
+  "transparent": false,
+  "status": "real",
+  "prompt": "M26 dice sound, synthesised by scripts/gen_dice_sfx.py (aidm/server/sfxgen)",
+  "source": "generated:sfxgen-m26",
+  "license": "Synthesised in this project (no samples)",
+  "reviewed": false
+ },
+ "sfx.dice_throw_6": {
+  "kind": "sfx",
+  "file": "audio/sfx/dice_throw_6.mp3",
+  "size": null,
+  "transparent": false,
+  "status": "real",
+  "prompt": "M26 dice sound, synthesised by scripts/gen_dice_sfx.py (aidm/server/sfxgen)",
+  "source": "generated:sfxgen-m26",
+  "license": "Synthesised in this project (no samples)",
+  "reviewed": false
+ },
+ "sfx.dice_throw_two_1": {
+  "kind": "sfx",
+  "file": "audio/sfx/dice_throw_two_1.mp3",
+  "size": null,
+  "transparent": false,
+  "status": "real",
+  "prompt": "M26 dice sound, synthesised by scripts/gen_dice_sfx.py (aidm/server/sfxgen)",
+  "source": "generated:sfxgen-m26",
+  "license": "Synthesised in this project (no samples)",
+  "reviewed": false
+ },
+ "sfx.dice_throw_two_2": {
+  "kind": "sfx",
+  "file": "audio/sfx/dice_throw_two_2.mp3",
+  "size": null,
+  "transparent": false,
+  "status": "real",
+  "prompt": "M26 dice sound, synthesised by scripts/gen_dice_sfx.py (aidm/server/sfxgen)",
+  "source": "generated:sfxgen-m26",
+  "license": "Synthesised in this project (no samples)",
+  "reviewed": false
+ },
+ "sfx.dice_throw_two_3": {
+  "kind": "sfx",
+  "file": "audio/sfx/dice_throw_two_3.mp3",
+  "size": null,
+  "transparent": false,
+  "status": "real",
+  "prompt": "M26 dice sound, synthesised by scripts/gen_dice_sfx.py (aidm/server/sfxgen)",
+  "source": "generated:sfxgen-m26",
+  "license": "Synthesised in this project (no samples)",
+  "reviewed": false
  },
  "sfx.door": {
   "kind": "sfx",
@@ -6502,10 +6636,22 @@
   "file": "audio/sfx/hit.mp3",
   "size": null,
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Audio brief (not an image): a short weapon hit on leather and flesh, 0.5 seconds.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "M26 dice sound, synthesised by scripts/gen_dice_sfx.py (aidm/server/sfxgen)",
+  "source": "generated:sfxgen-m26",
+  "license": "Synthesised in this project (no samples)",
+  "reviewed": false
+ },
+ "sfx.hit_2": {
+  "kind": "sfx",
+  "file": "audio/sfx/hit_2.mp3",
+  "size": null,
+  "transparent": false,
+  "status": "real",
+  "prompt": "M26 dice sound, synthesised by scripts/gen_dice_sfx.py (aidm/server/sfxgen)",
+  "source": "generated:sfxgen-m26",
+  "license": "Synthesised in this project (no samples)",
+  "reviewed": false
  },
  "sfx.level_up": {
   "kind": "sfx",
@@ -6522,10 +6668,75 @@
   "file": "audio/sfx/miss.mp3",
   "size": null,
   "transparent": false,
-  "status": "placeholder",
-  "prompt": "Audio brief (not an image): a sword whooshing through air, 0.5 seconds.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "M26 dice sound, synthesised by scripts/gen_dice_sfx.py (aidm/server/sfxgen)",
+  "source": "generated:sfxgen-m26",
+  "license": "Synthesised in this project (no samples)",
+  "reviewed": false
+ },
+ "sfx.miss_2": {
+  "kind": "sfx",
+  "file": "audio/sfx/miss_2.mp3",
+  "size": null,
+  "transparent": false,
+  "status": "real",
+  "prompt": "M26 dice sound, synthesised by scripts/gen_dice_sfx.py (aidm/server/sfxgen)",
+  "source": "generated:sfxgen-m26",
+  "license": "Synthesised in this project (no samples)",
+  "reviewed": false
+ },
+ "sfx.roll_failure_1": {
+  "kind": "sfx",
+  "file": "audio/sfx/roll_failure_1.mp3",
+  "size": null,
+  "transparent": false,
+  "status": "real",
+  "prompt": "M26 dice sound, synthesised by scripts/gen_dice_sfx.py (aidm/server/sfxgen)",
+  "source": "generated:sfxgen-m26",
+  "license": "Synthesised in this project (no samples)",
+  "reviewed": false
+ },
+ "sfx.roll_failure_2": {
+  "kind": "sfx",
+  "file": "audio/sfx/roll_failure_2.mp3",
+  "size": null,
+  "transparent": false,
+  "status": "real",
+  "prompt": "M26 dice sound, synthesised by scripts/gen_dice_sfx.py (aidm/server/sfxgen)",
+  "source": "generated:sfxgen-m26",
+  "license": "Synthesised in this project (no samples)",
+  "reviewed": false
+ },
+ "sfx.roll_natural_1": {
+  "kind": "sfx",
+  "file": "audio/sfx/roll_natural_1.mp3",
+  "size": null,
+  "transparent": false,
+  "status": "real",
+  "prompt": "M26 dice sound, synthesised by scripts/gen_dice_sfx.py (aidm/server/sfxgen)",
+  "source": "generated:sfxgen-m26",
+  "license": "Synthesised in this project (no samples)",
+  "reviewed": false
+ },
+ "sfx.roll_natural_20": {
+  "kind": "sfx",
+  "file": "audio/sfx/roll_natural_20.mp3",
+  "size": null,
+  "transparent": false,
+  "status": "real",
+  "prompt": "M26 dice sound, built by scripts/gen_dice_sfx.py (aidm/server/sfxgen/payoff.py) on a CC0 recording",
+  "source": "freesound:570855 magicProjectile_impact by rafaelzimrp, shaped by sfxgen-m26",
+  "license": "CC0 1.0 recording (data/sfx/SOURCES.md); shaping by this project"
+ },
+ "sfx.roll_success": {
+  "kind": "sfx",
+  "file": "audio/sfx/roll_success.mp3",
+  "size": null,
+  "transparent": false,
+  "status": "real",
+  "prompt": "M26 dice sound, built by scripts/gen_dice_sfx.py (aidm/server/sfxgen/payoff.py) on a CC0 recording",
+  "source": "freesound:570855 magicProjectile_impact by rafaelzimrp, shaped by sfxgen-m26",
+  "license": "CC0 1.0 recording (data/sfx/SOURCES.md); shaping by this project"
  },
  "sfx.scribe_intro": {
   "kind": "sfx",

@@ -1,11 +1,11 @@
-// The phone as a remote for the shared screen's sound (M11.5): narrator and music level plus a mute each.
-// Changes are debounced into one `audio_settings` message carrying all four values (the server allows
+// The phone as a remote for the shared screen's sound (M11.5): narrator, music and (M26.8) dice sounds,
+// a level and a mute each. Changes are debounced into one `audio_settings` message carrying all six values (the server allows
 // 20 per 2 s, so a drag never trips it). The controls follow `state.audio`; the last write wins.
 import { t } from '../strings.js';
 import { h } from '../ui/dom.js';
 
 const DEBOUNCE_MS = 250;
-const FALLBACK = { narration_volume: 80, music_volume: 50, narration_muted: false, music_muted: false };
+const FALLBACK = { narration_volume: 80, music_volume: 50, narration_muted: false, music_muted: false, effects_volume: 80, effects_muted: false };
 
 export function mountAudioRemote(root, { store, client }) {
   let timer = null;
@@ -15,6 +15,8 @@ export function mountAudioRemote(root, { store, client }) {
   const mv = slider('remote-music-volume');
   const nm = box('remote-narration-mute');
   const mm = box('remote-music-mute');
+  const ev = slider('remote-effects-volume');
+  const em = box('remote-effects-mute');
 
   const send = () => {
     timer = null;
@@ -23,13 +25,15 @@ export function mountAudioRemote(root, { store, client }) {
       music_volume: Number(mv.value),
       narration_muted: nm.checked,
       music_muted: mm.checked,
+      effects_volume: Number(ev.value),
+      effects_muted: em.checked,
     });
   };
   const queue = () => {
     clearTimeout(timer);
     timer = setTimeout(send, DEBOUNCE_MS);
   };
-  for (const el of [nv, mv, nm, mm]) el.addEventListener('input', queue);
+  for (const el of [nv, mv, nm, mm, ev, em]) el.addEventListener('input', queue);
 
   const render = (state) => {
     if (timer) return; // the player is mid-change: their value wins until it is sent
@@ -38,6 +42,8 @@ export function mountAudioRemote(root, { store, client }) {
     mv.value = a.music_volume;
     nm.checked = a.narration_muted;
     mm.checked = a.music_muted;
+    ev.value = a.effects_volume ?? 80;
+    em.checked = Boolean(a.effects_muted);
   };
   const row = (labelKey, id, input) => h('div', { class: 'set-row' }, h('label', { for: id }, t(labelKey)), input);
   const check = (labelKey, id, input) => h('div', { class: 'set-row set-check' }, h('label', { for: id }, input, ' ', t(labelKey)));
@@ -50,6 +56,8 @@ export function mountAudioRemote(root, { store, client }) {
       check('settings.mute', 'remote-narration-mute', nm),
       row('settings.musicVolume', 'remote-music-volume', mv),
       check('settings.musicMute', 'remote-music-mute', mm),
+      row('settings.effectsVolume', 'remote-effects-volume', ev),
+      check('settings.effectsMute', 'remote-effects-mute', em),
       h('p', { class: 'hint' }, t('settings.remoteHint')),
     ),
   );
