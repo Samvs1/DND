@@ -1012,3 +1012,71 @@ body.is-controller #app {
   border-color: #ecc764;
   color: #fff3c4;
 }
+
+/* M26.7: my fight rolls and the attacks on me, in time with the TV (js/controller/fightcard.js). */
+.fc {
+  pointer-events: auto;
+  max-width: 22rem;
+  margin: 0.6rem auto 0;
+  padding: 0.5rem 0.7rem;
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  align-items: center;
+  gap: 0.6rem;
+  background: var(--card);
+  border: 6px solid var(--line-2);
+  border-image: var(--skin-frame) 16 fill / 6px stretch;
+}
+
+.fc.at-me {
+  border-color: var(--crimson-m);
+}
+
+.fc-die {
+  position: relative;
+  width: 56px;
+  height: 56px;
+}
+
+.fc-title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  letter-spacing: 0.06em;
+  color: var(--text-2);
+}
+
+.fc-math {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-size-adjust: none;
+  color: var(--text-3);
+}
+
+.fc-math b {
+  font-weight: 400;
+  font-size: 1.5rem;
+  color: #fff;
+}
+
+.fc-verdict {
+  padding: 0.25rem 0.6rem 0.15rem;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-size-adjust: none;
+  letter-spacing: 0.12em;
+  color: #fff;
+  text-shadow: 2px 2px 0 #000;
+  background: var(--teal-d);
+  border: 2px solid var(--teal-l);
+}
+
+.fc-verdict.bad {
+  background: var(--crimson-d);
+  border-color: var(--crimson-l);
+}
+
+.fc-verdict.crit {
+  background: #3a2f12;
+  border-color: #ecc764;
+  color: #fff3c4;
+}

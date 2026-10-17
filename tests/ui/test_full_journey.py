@@ -157,7 +157,8 @@ def _stage_action(journey: Journey, screen: Page, host: Page, guest: Page) -> No
     host.click("[data-testid=action-send]")
     # M26.6: a check out of combat plays the roll stage (tests/ui/test_roll_stage.py covers it)
     screen.wait_for_selector("[data-testid=roll-stage]", state="attached", timeout=20000)
-    host.wait_for_selector("[data-testid=dice-toast]:not([hidden])", timeout=20000)
+    # M26.7: a check shows as the roll card, then stays in Your last roll (no toast)
+    host.wait_for_selector("[data-testid=last-roll]:not([hidden])", timeout=20000)
     screen.wait_for_function(
         f"document.querySelectorAll('{NARRATION}').length > {before}", timeout=20000
     )

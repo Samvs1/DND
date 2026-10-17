@@ -41,6 +41,9 @@ export function boardVerdict(dice, state, name) {
     if (face === 20) return { word: t('show.revived'), tone: 'crit' };
     return dice.success ? { word: t('show.success'), tone: 'good' } : { word: t('show.failure'), tone: 'bad' };
   }
-  if (onPartySide(state, roller)) return dice.success ? { word: t('show.saved'), tone: 'good' } : { word: t('show.failed'), tone: 'bad' };
+  if (onPartySide(state, roller)) {
+    if (dice.kind === 'check') return dice.success ? { word: t('show.success'), tone: 'good' } : { word: t('show.failure'), tone: 'bad' };
+    return dice.success ? { word: t('show.saved'), tone: 'good' } : { word: t('show.failed'), tone: 'bad' };
+  }
   return dice.success ? { word: t('show.resisted'), tone: 'bad' } : { word: t('show.caught'), tone: 'good' };
 }

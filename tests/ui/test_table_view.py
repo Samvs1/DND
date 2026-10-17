@@ -85,10 +85,12 @@ def test_action_shows_dice_and_narration_for_both(
     guest_items = guest.evaluate("window.aidm.story.items.length")
     host.fill("[data-testid=action-input]", "I search the room carefully")
     host.click("[data-testid=action-send]")
-    # The roll stage takes the screen (M26.6); only the roller's own phone shows a small toast.
+    # The roll stage takes the screen (M26.6); only the roller's phone shows the roll: its roll
+    # card, then "Your last roll" keeps it. A check has its card, so no toast (M26.7).
     screen.wait_for_selector("[data-testid=roll-stage]", state="attached", timeout=20000)
-    host.wait_for_selector("[data-testid=dice-toast]:not([hidden])", timeout=20000)
-    assert guest.locator("[data-testid=dice-toast]").is_hidden()
+    host.wait_for_selector("[data-testid=last-roll]:not([hidden])", timeout=20000)
+    assert guest.locator("[data-testid=last-roll]").is_hidden()
+    assert host.locator("[data-testid=dice-toast]").is_hidden()
     screen.wait_for_function(
         f"document.querySelectorAll('[data-testid=narration]').length > {before}", timeout=20000
     )

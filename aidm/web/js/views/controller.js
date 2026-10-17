@@ -17,6 +17,7 @@ import { mountTopper } from '../controller/topper.js';
 import { mountQuestToast } from '../controller/quest_toast.js';
 import { mountToast } from '../controller/toast.js';
 import { mountRollCard } from '../controller/rollcard.js';
+import { mountFightCard } from '../controller/fightcard.js';
 import { mountHostGate } from '../host/gate.js';
 import { mountManualPanel } from '../manual/panel.js';
 import { mountSettings } from '../settings/settings.js';
@@ -67,6 +68,7 @@ export function mountController(root, ctx) {
     mountFinale(sheetSlot, ctx),
     mountToast(toastSlot, ctx),
     mountRollCard(toastSlot, ctx), // M26.6: my stage roll, in time with the TV
+    mountFightCard(toastSlot, ctx), // M26.7: my fight rolls and attacks on me, in time with the TV
     mountQuestToast(toastSlot, ctx),
     mountConfirm(dialogs, ctx),
     mountOffer(dialogs, ctx),

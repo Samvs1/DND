@@ -5,6 +5,7 @@
 // Until the adventure starts it shows the invite panel (LAN address and QR code); never during play.
 import { mountBoard } from '../combat/board.js';
 import { createDirector } from '../show/director.js';
+import { mountRoundLog } from '../show/round_log.js';
 import { mountInitiative } from '../combat/initiative.js';
 import { t } from '../strings.js';
 import { mountGear } from '../screen/gear.js';
@@ -52,12 +53,27 @@ export function mountScreen(root, ctx) {
   const side = h('aside', { class: 'tb-side' }, party, widgets);
   const initiative = h('div', { class: 'init-strip', 'data-testid': 'initiative' });
   const board = h('div', { class: 'board', 'data-testid': 'board' });
-  const combat = h('section', { class: 'tb-combat panel', 'data-sec': 'crimson', 'aria-label': t('combat.heading') }, initiative, board); // M24: the fight is crimson
+  const strip = h('div', { class: 'show-strip', 'data-testid': 'show-strip', 'aria-live': 'polite' }); // M26.7: the action being shown
+  const combat = h('section', { class: 'tb-combat panel', 'data-sec': 'crimson', 'aria-label': t('combat.heading') }, initiative, board, strip); // M24: the fight is crimson
   const table = h('div', { class: 'tb sc', 'data-testid': 'screen-table' }, scene, h('div', { class: 'sc-main' }, combat, feed), side);
   const overlays = h('div', { class: 'sc-overlays' });
   root.append(waiting, table, overlays);
   // M26: the dice shows. The pacer hands the director each roll; a click on the screen skips one.
-  ctx.pacer.setDirector(createDirector({ store, layer: overlays, sfx: ctx.sfx }));
+  const roundBox = h('section', { class: 'panel sc-round', 'data-testid': 'this-round', hidden: true });
+  widgets.append(roundBox);
+  const log = mountRoundLog({ strip, list: roundBox });
+  ctx.pacer.setDirector(createDirector({ store, layer: overlays, sfx: ctx.sfx, onStep: log.step }));
+  let round = null;
+  const keepRound = (state) => { // THIS ROUND shows in a fight only and empties when a new round begins
+    const fight = state.snapshot?.state?.combat;
+    roundBox.hidden = !fight;
+    const now = fight ? `${fight.encounter_id}:${fight.round}` : null;
+    if (now !== round) {
+      round = now;
+      log.clear();
+    }
+  };
+  keepRound(store.get());
   const skip = () => ctx.pacer.skip();
   root.addEventListener('click', skip);
 
@@ -65,6 +81,7 @@ export function mountScreen(root, ctx) {
   render(store.get());
   const stops = [
     store.subscribe(render),
+    store.subscribe(keepRound),
     mountInvite(slot, store),
     mountFloor(widgets, store),
     mountScreenVote(widgets, store),

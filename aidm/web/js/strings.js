@@ -995,6 +995,9 @@ export const STRINGS = {
     falls: '{name} FALLS',
     damage: 'Damage',
     heal: 'Healing',
+    you: 'you',
+    attacksYou: '{name} attacks you ({what})',
+    withAmount: '{word} {n}', // THIS ROUND: HIT 7
   },
   victory: {
     title: 'Victory',
