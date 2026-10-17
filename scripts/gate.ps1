@@ -8,9 +8,33 @@ $py = Join-Path $venv 'python.exe'
 $ruff = Join-Path $venv 'ruff.exe'
 $pyright = Join-Path $venv 'pyright.exe'
 $lint = Join-Path $venv 'lint-imports.exe'
+$uiBatch = 8 # UI test files per pytest process
+
+# pytest runs as one process per test folder and the UI tests in batches of files: one process for
+# the whole suite runs out of memory on this machine. Folders are found, not listed, so a new one
+# is never left out; the step passes only when every batch passes.
+function Get-PytestRuns {
+    $tests = Join-Path $root 'tests'
+    $runs = @()
+    foreach ($dir in Get-ChildItem $tests -Directory | Sort-Object Name) {
+        $files = @(Get-ChildItem $dir.FullName -Recurse -Filter 'test_*.py' | Sort-Object FullName | ForEach-Object { Resolve-Path -Relative $_.FullName })
+        if ($files.Count -eq 0) { continue }
+        if ($dir.Name -ne 'ui') {
+            $runs += '-m pytest -q ' + (Resolve-Path -Relative $dir.FullName)
+            continue
+        }
+        for ($i = 0; $i -lt $files.Count; $i += $uiBatch) {
+            $last = [math]::Min($i + $uiBatch, $files.Count) - 1
+            $runs += '-m pytest -q ' + ($files[$i..$last] -join ' ')
+        }
+    }
+    $loose = @(Get-ChildItem $tests -File -Filter 'test_*.py' | ForEach-Object { Resolve-Path -Relative $_.FullName })
+    if ($loose.Count -gt 0) { $runs += '-m pytest -q ' + ($loose -join ' ') }
+    return $runs
+}
 
 $gates = @(
-    @{ Name = 'pytest';           Exe = $py;      Args = '-m pytest -q' },
+    @{ Name = 'pytest';           Exe = $py;      Runs = @(Get-PytestRuns) },
     @{ Name = 'ruff check';       Exe = $ruff;    Args = 'check .' },
     @{ Name = 'ruff format';      Exe = $ruff;    Args = 'format --check .' },
     @{ Name = 'pyright';          Exe = $pyright; Args = '' },
@@ -27,11 +51,22 @@ $gates = @(
 $failed = @()
 foreach ($g in $gates) {
     Write-Output "== $($g.Name) =="
-    $cmd = "`"$($g.Exe)`" $($g.Args) 2>&1"
-    $lines = @(cmd /c $cmd | ForEach-Object { "$_" })
-    $code = $LASTEXITCODE
-    $lines | Select-Object -Last 8 | ForEach-Object { Write-Output $_ }
-    if ($code -eq 0) {
+    $runs = if ($g.Runs) { $g.Runs } else { @($g.Args) }
+    $ok = $true
+    foreach ($run in $runs) {
+        $cmd = "`"$($g.Exe)`" $run 2>&1"
+        $lines = @(cmd /c $cmd | ForEach-Object { "$_" })
+        $code = $LASTEXITCODE
+        if ($runs.Count -gt 1) {
+            Write-Output "-- $run"
+            $tail = if ($code -eq 0) { 1 } else { 15 }
+        } else {
+            $tail = 8
+        }
+        $lines | Select-Object -Last $tail | ForEach-Object { Write-Output $_ }
+        if ($code -ne 0) { $ok = $false }
+    }
+    if ($ok) {
         Write-Output 'PASS'
     } else {
         Write-Output 'FAIL'

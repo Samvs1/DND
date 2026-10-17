@@ -227,4 +227,6 @@ campaign, the welcome back on a loaded save, the campaign victory and a brief re
 - `tests/live`: opt-in (`RUN_LIVE=1`) real DeepSeek and Fish.
 - Gate (`scripts/gate.ps1`): pytest, ruff check, ruff format, pyright (strict on `rules` and `models`),
   lint-imports, check_structure, check_secrets, gen_protocol `--check`, build_manifest `--check`,
-  gen_assets_todo `--check`. A milestone closes only on a full green gate.
+  gen_assets_todo `--check`, gen_scribe_voice `--check`, gen_manual `--check`. pytest runs as one process
+  per test folder and the UI tests in batches of 8 files (one process for the whole suite runs out of
+  memory); the step passes only when every batch does. A milestone closes only on a full green gate.
