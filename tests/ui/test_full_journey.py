@@ -155,9 +155,8 @@ def _stage_action(journey: Journey, screen: Page, host: Page, guest: Page) -> No
     screen.evaluate("window.__narrLens.length = 0")
     host.fill("[data-testid=action-input]", "I search the room carefully")
     host.click("[data-testid=action-send]")
-    screen.wait_for_selector("[data-testid=screen-roll]", timeout=20000)
-    assert screen.locator("[data-testid=screen-roll] .sc-die").count() >= 1
-    assert screen.locator("[data-testid=screen-roll] .sc-roll-out").first.inner_text().strip()
+    # M26.6: a check out of combat plays the roll stage (tests/ui/test_roll_stage.py covers it)
+    screen.wait_for_selector("[data-testid=roll-stage]", state="attached", timeout=20000)
     host.wait_for_selector("[data-testid=dice-toast]:not([hidden])", timeout=20000)
     screen.wait_for_function(
         f"document.querySelectorAll('{NARRATION}').length > {before}", timeout=20000

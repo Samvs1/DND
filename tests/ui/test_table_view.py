@@ -85,11 +85,8 @@ def test_action_shows_dice_and_narration_for_both(
     guest_items = guest.evaluate("window.aidm.story.items.length")
     host.fill("[data-testid=action-input]", "I search the room carefully")
     host.click("[data-testid=action-send]")
-    # The big dice are on the screen; only the roller's own phone shows a small toast.
-    screen.wait_for_selector("[data-testid=screen-roll]", timeout=20000)
-    assert screen.locator("[data-testid=screen-roll] .sc-die").count() >= 1
-    assert screen.locator("[data-testid=screen-roll] .sc-die.kept").count() >= 1
-    assert screen.locator("[data-testid=screen-roll] .sc-roll-out").first.inner_text().strip()
+    # The roll stage takes the screen (M26.6); only the roller's own phone shows a small toast.
+    screen.wait_for_selector("[data-testid=roll-stage]", state="attached", timeout=20000)
     host.wait_for_selector("[data-testid=dice-toast]:not([hidden])", timeout=20000)
     assert guest.locator("[data-testid=dice-toast]").is_hidden()
     screen.wait_for_function(

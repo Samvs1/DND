@@ -8,6 +8,7 @@ from aidm.models.protocol_server import (
     DiceRoll,
     ErrorCode,
     ErrorMsg,
+    EventMsg,
     NarrationChunkMsg,
     NarrationDone,
     Notice,
@@ -124,6 +125,22 @@ async def test_dice_are_broadcast_before_the_narration(tmp_path: Path) -> None:
             dice = of_type(msgs, DiceRoll)[0]
             assert dice.dice.roller_id == "fighter" and dice.dice.target is not None
         assert_replays(table)
+
+
+async def test_a_rolls_dice_go_out_before_its_result_line(tmp_path: Path) -> None:
+    """M26.6: the screen's pacer holds what arrives after a roll until its show has ended, so the
+    dice lead: a check's "success" line sent first told the result before the die was thrown."""
+    check = {"actor": "fighter", "ability_or_skill": "athletics", "dc_tier": "easy", "reason": "x"}
+    llm, _ = fake_llm(tmp_path, [fake_calls([("request_check", check)])])
+    async with running(llm) as (table, _):
+        seat = await join(table, "Ann", "fighter")
+        seat.send(SubmitAction(text="I climb the chimney"))
+        await table.settle()
+        msgs = seat.drain()
+        dice = of_type(msgs, DiceRoll)[0]
+        lines = [m for m in of_type(msgs, EventMsg) if m.seq == dice.seq]
+        assert lines and lines[0].kind == "check_resolved"
+        assert msgs.index(dice) < msgs.index(lines[0])
 
 
 async def test_a_failing_job_is_answered_in_fiction(tmp_path: Path) -> None:

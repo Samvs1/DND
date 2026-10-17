@@ -161,7 +161,7 @@ When the outcome is uncertain, you roll a d20, add your modifier and compare it 
 - Saving throws compare the total only. Spell save DC is 8 + proficiency bonus + your casting modifier.
 - **Advantage** means you roll two d20 and keep the higher. **Disadvantage** keeps the lower. They cancel each other out.
 - Passive Perception is 10 plus your Perception bonus.
-- The big dice on the screen show what was rolled, what it was against, and whether it was a success, failure or critical.
+- Out of a fight, a check or saving throw takes over the screen as the **roll stage**: the skill and who rolls, the difficulty on the left and the named bonuses on the right. A moment later the d20 is thrown (two with advantage or disadvantage: the dropped one steps aside, struck through, and the reason is named). The bonuses add into the total and the verdict lands: **SUCCESS**, **FAILURE**, **NATURAL 20** or **NATURAL 1**. The story waits for the verdict, so nothing tells the result early. A natural 20 gets its own show in time with its sound: the die flares gold, the bonuses climb, the banner slams in and a gold spark bursts from the die. Clicking the screen skips to the verdict. The roller's phone shows the same roll as a **Your roll** card, and its verdict never appears before the screen's.
 
 ### Trouble ahead
 When the party arrives somewhere dangerous, the game warns you first and nothing starts without a choice. Every phone with a hero shows a **Trouble ahead** box: who you face and how hard the fight looks (trivial to deadly). The first player to press a choice decides for the whole party:

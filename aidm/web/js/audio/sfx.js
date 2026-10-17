@@ -12,6 +12,13 @@ export const VARIANTS = { dice_throw: 6, dice_throw_two: 3, dice_clack: 4, roll_
 const SINGLES = ['roll_success', 'roll_natural_20', 'roll_natural_1', 'crit'];
 const wait = (ms) => new Promise((done) => setTimeout(done, ms));
 
+/** The audio clock's time as it leaves the speakers: the output delay included (larger on Bluetooth). */
+function heardTime(ctx) {
+  const ts = ctx.getOutputTimestamp?.();
+  if (ts && ts.contextTime > 0) return ts.contextTime + (performance.now() - ts.performanceTime) / 1000;
+  return ctx.currentTime - (ctx.baseLatency || 0) - (ctx.outputLatency || 0);
+}
+
 /** The file names of a sound: its variants, or itself. `hit` and `miss` count their plain name as the first. */
 export function variantsOf(name) {
   const count = VARIANTS[name];
@@ -51,6 +58,18 @@ export function createSfx({ store, mode, fetchFn = fetch }) {
     if (ctx && ctx.state === 'suspended') Promise.resolve(ctx.resume?.()).catch(() => {});
   }
 
+  /** Start a loaded buffer now; returns the source, its level and the audio time it started at. */
+  function start(buffer, gain) {
+    const src = ctx.createBufferSource();
+    const level = ctx.createGain();
+    src.buffer = buffer;
+    level.gain.value = gain * volume();
+    src.connect(level).connect(ctx.destination);
+    const t0 = ctx.currentTime;
+    src.start(t0);
+    return { src, level, t0 };
+  }
+
   function pick(name) {
     const all = variantsOf(name);
     const pool = all.length > 1 ? all.filter((f) => f !== last.get(name)) : all;
@@ -87,13 +106,33 @@ export function createSfx({ store, mode, fetchFn = fetch }) {
         load(chosen);
         return chosen;
       }
-      const src = ctx.createBufferSource();
-      const level = ctx.createGain();
-      src.buffer = buffer;
-      level.gain.value = gain * volume();
-      src.connect(level).connect(ctx.destination);
-      src.start();
+      start(buffer, gain);
       return chosen;
+    },
+    /** Play a sound a show follows (the natural 20): `{ now(), stop(ms) }`, where now() is how much of it
+     *  has been HEARD (s), or null when silent or not loaded yet (the show then keeps its own clock). */
+    cue(name, { gain = 1 } = {}) {
+      if (window.__aidmSfxLog) window.__aidmSfxLog.push(name);
+      if (silent() || !ctx) return null;
+      wake();
+      const buffer = buffers.get(name);
+      if (!(buffer instanceof AudioBuffer)) {
+        load(name);
+        return null;
+      }
+      const { src, level, t0 } = start(buffer, gain);
+      let stopped = false;
+      return {
+        now: () => heardTime(ctx) - t0,
+        stop(ms = 80) {
+          if (stopped) return;
+          stopped = true;
+          const at = ctx.currentTime;
+          level.gain.setValueAtTime(level.gain.value, at);
+          level.gain.linearRampToValueAtTime(0, at + ms / 1000);
+          src.stop(at + ms / 1000 + 0.02);
+        },
+      };
     },
     /** Choose a variant without playing it (the show needs its timing first). */
     pick,

@@ -10,9 +10,11 @@
 // - The screen reports `presented {seq}` (the highest event or dice seq it has finished showing) so the
 //   server's AI turns wait for the TV (M26.3, aidm/session/show_pace.py).
 // - `skip()` ends the show in progress (a click on the TV); its verdict is still shown by the director.
+// - `onShow(fn)`: fn(msg, { ms, scale, stage, combat }) when a show starts, on every device (the roller's
+//   phone shows its roll card in time with the TV).
 // - A roll that arrives while the table is idle waits GATHER_MS first: the server sends a turn's events as
 //   a burst, and the backlog speed-up must see the whole burst, not just its first roll.
-import { backlogFactor, inCombat, motionFactor, nominalMs } from './timing.js';
+import { backlogFactor, inCombat, isStageRoll, motionFactor, nominalMs } from './timing.js';
 
 export const BYPASS = new Set([
   'pong',
@@ -39,6 +41,7 @@ export function createPacer({ dispatch, store, timers = { set: (fn, ms) => setTi
   let current = null; // { finish, abort, control }
   let flushing = false;
   let director = null;
+  const listeners = new Set();
   let send = null;
   let shownSeq = -1;
   let reportedSeq = -1;
@@ -57,7 +60,7 @@ export function createPacer({ dispatch, store, timers = { set: (fn, ms) => setTi
     return queue.reduce((n, msg) => n + (nominalMs(msg, combat) > 0 ? 1 : 0), 0);
   }
 
-  function start(msg, nominal) {
+  function start(msg, nominal, combat) {
     const scale = backlogFactor(waitingShows()) * motionFactor();
     const ms = Math.round(nominal * scale);
     const control = new AbortController();
@@ -80,6 +83,14 @@ export function createPacer({ dispatch, store, timers = { set: (fn, ms) => setTi
         timers.set(finish, SKIP_MS);
       },
     };
+    const stage = msg.type === 'dice_roll' && Boolean(msg.dice) && isStageRoll(msg.dice, combat);
+    for (const fn of [...listeners]) {
+      try {
+        fn(msg, { ms, scale, stage, combat });
+      } catch (err) {
+        console.error('show listener failed', err); // a broken listener never stalls the queue
+      }
+    }
     let shown = null;
     try {
       shown = director ? director(msg, { ms, scale, signal: control.signal }) : null;
@@ -110,7 +121,7 @@ export function createPacer({ dispatch, store, timers = { set: (fn, ms) => setTi
       dispatch(msg);
       const nominal = nominalMs(msg, combat);
       if (nominal > 0) {
-        start(msg, nominal);
+        start(msg, nominal, combat);
         return;
       }
       track(msg);
@@ -161,6 +172,11 @@ export function createPacer({ dispatch, store, timers = { set: (fn, ms) => setTi
     },
     skip() {
       if (current) current.abort();
+    },
+    /** fn(msg, { ms, scale, stage, combat }) whenever a show starts; returns an unsubscribe. */
+    onShow(fn) {
+      listeners.add(fn);
+      return () => listeners.delete(fn);
     },
     busy: () => Boolean(current) || queue.length > 0,
     waiting: () => queue.length,

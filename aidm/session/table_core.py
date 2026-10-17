@@ -250,12 +250,12 @@ class TableCore:
             self.segment.append(event)
         if isinstance(event, PartyMoved):
             self.mark_due = True
+        dice = self.public.add_roll(seq, event)  # the dice lead (the screen holds the line)
+        if dice is not None:
+            self.broadcast(DiceRoll(seq=seq, dice=dice))
         public = self.public.add_event(self.state, seq, event)
         if public is not None:
             self.broadcast(public)
-        dice = self.public.add_roll(seq, event)
-        if dice is not None:
-            self.broadcast(DiceRoll(seq=seq, dice=dice))
         if isinstance(event, LevelUpReady):
             owner = self.owner_of(event.creature_id)
             if owner is not None:

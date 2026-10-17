@@ -928,3 +928,87 @@ body.is-controller #app {
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+
+/* M26.6: "Your roll" while the TV plays the roll stage for my hero (js/controller/rollcard.js). */
+.rc {
+  pointer-events: auto;
+  max-width: 22rem;
+  margin: 3.5rem auto 0;
+  padding: 0.6rem 0.9rem 0.9rem;
+  display: grid;
+  justify-items: center;
+  gap: 0.4rem;
+  background: var(--card);
+  border: 8px solid var(--line-2);
+  border-image: var(--skin-frame) 16 fill / 8px stretch;
+  box-shadow: 0 0 0 100vmax rgba(5, 5, 7, 0.55);
+}
+
+.rc-head {
+  justify-self: stretch;
+  display: flex;
+  justify-content: space-between;
+}
+
+.rc-lab {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  letter-spacing: 0.14em;
+  color: var(--sec-l);
+}
+
+.rc-lab.muted {
+  color: var(--text-3);
+}
+
+.rc-title {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-size-adjust: none;
+  letter-spacing: 0.06em;
+}
+
+.rc-die {
+  position: relative;
+  width: 150px;
+  height: 150px;
+}
+
+.rc-total {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-size-adjust: none;
+  color: var(--text-2);
+}
+
+.rc-total b {
+  font-weight: 400;
+  font-size: 1.9rem;
+  color: #fff;
+}
+
+.rc-verdict {
+  min-width: 14rem;
+  padding: 0.35rem 1.4rem 0.25rem;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-size-adjust: none;
+  letter-spacing: 0.18em;
+  color: #fff;
+  text-shadow: 2px 2px 0 #000;
+  background: var(--teal-d);
+  border: 2px solid var(--teal-l);
+}
+
+.rc-verdict.v-failure,
+.rc-verdict.v-nat1 {
+  background: var(--crimson-d);
+  border-color: var(--crimson-l);
+}
+
+.rc-verdict.v-nat20 {
+  background: #3a2f12;
+  border-color: #ecc764;
+  color: #fff3c4;
+}

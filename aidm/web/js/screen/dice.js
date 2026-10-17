@@ -1,5 +1,6 @@
 // Big dice display for the shared screen: the newest roll(s) shown large for a few seconds. Read-only;
 // it reuses the roll model of js/table/dice.js (kept die, advantage label) but has no controls.
+import { isStageRoll } from '../show/timing.js';
 import { keptIndex, outcome } from '../table/dice.js';
 import { creatureName } from '../table/lookup.js';
 import { t } from '../strings.js';
@@ -29,7 +30,8 @@ export function mountScreenDice(root, { store, story }) {
   const stop = story.subscribe((change) => {
     if (change.type !== 'dice') return;
     const now = Date.now();
-    const rolls = story.dice.filter((r) => now - r.at < SHOW_MS).slice(0, MAX_SHOWN);
+    const combat = Boolean(store.get().snapshot?.state?.combat);
+    const rolls = story.dice.filter((r) => now - r.at < SHOW_MS && !isStageRoll(r, combat)).slice(0, MAX_SHOWN); // M26.6
     clear(list);
     list.append(...rolls.map((r) => bigRoll(r, store.get())));
     list.hidden = rolls.length === 0;

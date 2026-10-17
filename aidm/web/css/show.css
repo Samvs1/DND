@@ -1,0 +1,600 @@
+/* M26 dice shows (docs/next/GOAL_DICE.md): the roll stage (js/show/stage.js) and the dice on the board
+   (js/show/board.js). Art comes in through the skin properties and assetUrl; colours from the theme. */
+
+/* --- a die: the pixel sprite with its number drawn on the blank middle face --- */
+.sh-die {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  display: grid;
+  place-items: center;
+  will-change: transform;
+}
+
+.sh-face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+
+.sh-num {
+  position: relative;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size-adjust: none;
+  color: #fff;
+  text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000;
+  transform: translateY(9%);
+}
+
+.sh-die.spin .sh-num {
+  filter: blur(1.2px);
+  opacity: 0.8;
+}
+
+.sh-die.glow,
+.sh-die.win {
+  filter: drop-shadow(0 0 20px rgba(111, 192, 186, 0.8));
+}
+
+.sh-die.gold {
+  filter: drop-shadow(0 0 26px rgba(236, 199, 100, 0.9));
+}
+
+.sh-die.cracked,
+.sh-die.dim {
+  filter: drop-shadow(0 0 14px rgba(224, 118, 125, 0.55)) brightness(0.85);
+}
+
+.sh-die.dropped .sh-num {
+  text-decoration: line-through;
+  text-decoration-thickness: 5px;
+}
+
+.sh-burst {
+  position: absolute;
+  inset: -38%;
+  width: 176%;
+  height: 176%;
+  opacity: 0;
+  image-rendering: pixelated;
+}
+
+/* --- the natural 20 (js/show/natural20.js): rays, motes, a ring of light, gold dust --- */
+.sh-rays {
+  position: absolute;
+  inset: -38%;
+  width: 176%;
+  height: 176%;
+  opacity: 0;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
+.sh-mote,
+.sh-fleck {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  margin: -4px;
+  background: #ffe39a;
+  box-shadow: 0 0 9px 2px rgba(255, 205, 90, 0.85);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sh-fleck {
+  width: 7px;
+  height: 7px;
+  margin: -3px;
+  background: #ffd968;
+}
+
+.sh-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 220px;
+  height: 220px;
+  margin: -110px;
+  border: 6px solid rgba(255, 222, 140, 0.95);
+  border-radius: 50%;
+  box-shadow: 0 0 24px rgba(255, 200, 90, 0.8), inset 0 0 18px rgba(255, 200, 90, 0.6);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* --- the roll stage: a 1280x720 box scaled to the screen --- */
+.show-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.ss-dim {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 60% 68% at 50% 54%, rgba(5, 5, 7, 0.66), rgba(5, 5, 7, 0.95));
+}
+
+.show-stage.flash::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #fff6d8;
+  animation: ss-flash 0.3s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes ss-flash {
+  from { opacity: 0.45; }
+  to { opacity: 0; }
+}
+
+.ss-box {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1280px;
+  height: 720px;
+  transform-origin: 50% 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding-top: 104px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 20px;
+}
+
+.ss-title {
+  width: 460px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-style: solid;
+  border-width: 0 34px;
+  border-color: var(--teal-m);
+  border-image: var(--skin-ribbon-teal) 0 62 fill / 0 34px stretch;
+  background: var(--teal-d);
+  font-family: var(--font-display);
+  font-size: 31px;
+  font-size-adjust: none;
+  letter-spacing: 0.16em;
+  color: #e3f5f2;
+  text-shadow: 2px 2px 0 #000;
+  white-space: nowrap;
+}
+
+.ss-who {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 22px;
+}
+
+.ss-who b {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 26px;
+  letter-spacing: 0.04em;
+}
+
+.ss-portrait {
+  width: 44px;
+  height: 44px;
+  padding: 4px;
+  background: var(--skin-slot, none) center / 100% 100% no-repeat;
+}
+
+.ss-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ss-adv {
+  height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px 0 8px;
+  background: rgba(0, 0, 0, 0.55);
+  border: 2px solid var(--line-2);
+}
+
+.ss-adv img {
+  width: 26px;
+  height: 26px;
+  image-rendering: pixelated;
+}
+
+.ss-adv b {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 22px;
+  letter-spacing: 0.12em;
+}
+
+.ss-adv span {
+  color: var(--text-2);
+}
+
+.ss-adv.up {
+  border-color: #8a7330;
+}
+
+.ss-adv.up b {
+  color: #ecc764;
+}
+
+.ss-adv.down {
+  border-color: #5b4590;
+}
+
+.ss-adv.down b {
+  color: #c4adf5;
+}
+
+.ss-row {
+  display: grid;
+  grid-template-columns: 170px 380px 170px;
+  align-items: center;
+  gap: 24px;
+}
+
+.ss-plaque {
+  height: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: var(--card);
+  border: 10px solid var(--line-2);
+  border-image: var(--skin-frame) 16 fill / 10px stretch;
+}
+
+.ss-pl {
+  font-family: var(--font-display);
+  font-size: 17px;
+  letter-spacing: 0.16em;
+  color: var(--text-2);
+}
+
+.ss-big {
+  font-family: var(--font-display);
+  font-size: 68px;
+  font-size-adjust: none;
+  line-height: 0.9;
+  color: #fff;
+  text-shadow: 3px 3px 0 #000;
+}
+
+.ss-tier {
+  color: var(--text-3);
+}
+
+.ss-bon {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-size-adjust: none;
+  line-height: 1.05;
+  color: var(--text-2);
+  transition: color 0.15s, text-shadow 0.15s, transform 0.15s;
+}
+
+.ss-bon span {
+  font-size: 17px;
+  letter-spacing: 0.12em;
+  color: var(--text-3);
+}
+
+.ss-bon.lit {
+  color: #fff;
+  text-shadow: 0 0 12px rgba(111, 192, 186, 0.9);
+  transform: scale(1.12);
+}
+
+.ss-bon.used {
+  color: #fff;
+}
+
+.ss-zone {
+  position: relative;
+  z-index: 2;
+  width: 380px;
+  height: 250px;
+}
+
+.ss-host {
+  position: absolute;
+  left: 50%;
+  bottom: 118px;
+  width: 0;
+  height: 0;
+}
+
+.ss-shadow {
+  position: absolute;
+  left: -75px;
+  top: 112px;
+  width: 150px;
+  height: 22px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+}
+
+.ss-sum {
+  height: 46px;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-size-adjust: none;
+  color: var(--text-2);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.ss-sum.on {
+  opacity: 1;
+}
+
+.ss-total {
+  font-weight: 400;
+  font-size: 46px;
+  color: #fff;
+  text-shadow: 3px 3px 0 #000;
+}
+
+.ss-total.gold {
+  color: #ffe08a;
+  text-shadow: 0 0 14px rgba(236, 199, 100, 0.8), 3px 3px 0 #000;
+}
+
+.ss-vs {
+  font-size: 28px;
+  color: var(--text-3);
+}
+
+.ss-vslot {
+  height: 76px;
+  display: grid;
+  place-items: center;
+}
+
+.ss-verdict {
+  width: 480px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-style: solid;
+  border-width: 0 38px;
+  border-color: var(--teal-m);
+  border-image: var(--skin-ribbon-teal) 0 62 fill / 0 38px stretch;
+  background: var(--teal-d);
+  font-family: var(--font-display);
+  font-size: 44px;
+  font-size-adjust: none;
+  letter-spacing: 0.18em;
+  color: #fff;
+  text-shadow: 3px 3px 0 #000;
+}
+
+.ss-verdict.v-failure,
+.ss-verdict.v-nat1 {
+  border-color: var(--crimson-m);
+  border-image-source: var(--skin-ribbon-crimson);
+  background: var(--crimson-d);
+}
+
+.ss-verdict.v-nat20 {
+  border-color: #6b5418;
+  border-image-source: var(--skin-ribbon-olive);
+  background: #3a2f12;
+  color: #fff3c4;
+  filter: drop-shadow(0 0 16px rgba(236, 199, 100, 0.6));
+}
+
+/* --- the board shows (M26.7): dice and floats in the fixed overlay layer, at the tokens --- */
+.sb-host {
+  position: absolute;
+  width: 0;
+  height: 0;
+  z-index: 44;
+  pointer-events: none;
+}
+
+.sb-float {
+  position: absolute;
+  z-index: 46;
+  height: 5.2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  transform: translate(-50%, -100%);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.sb-word {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-size-adjust: none;
+  letter-spacing: 0.14em;
+  text-shadow: 2px 2px 0 #000, -1px -1px 0 #000;
+}
+
+.sb-float[data-tone='good'] .sb-word {
+  color: #a6e6e0;
+}
+
+.sb-float[data-tone='bad'] .sb-word {
+  color: #f4a9ae;
+}
+
+.sb-float[data-tone='crit'] .sb-word {
+  color: #ecc764;
+}
+
+.sb-num {
+  font-family: var(--font-display);
+  font-size: 3.6rem;
+  font-size-adjust: none;
+  line-height: 0.85;
+  color: #fff;
+  text-shadow: 3px 3px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000;
+}
+
+.sb-num.hurt {
+  text-shadow: 3px 3px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0 0 16px rgba(224, 118, 125, 0.85);
+}
+
+.tk.show-fallen {
+  opacity: 0.45;
+  filter: grayscale(1);
+  transition: opacity 0.4s, filter 0.4s;
+}
+
+/* the strip under the board: the action being shown, step by step */
+.show-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 2.8rem;
+  padding: 0.2rem 0.7rem;
+  margin-top: 0.4rem;
+  background: rgba(8, 8, 10, 0.75);
+  border: 2px solid var(--line-2);
+  white-space: nowrap;
+  overflow: hidden;
+  color: var(--text-2);
+}
+
+.show-strip:empty {
+  display: none;
+}
+
+.show-strip b {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size-adjust: none;
+  color: #fff;
+}
+
+.show-strip > * {
+  animation: sr-rise 0.25s ease-out both;
+}
+
+.sr-arrow {
+  color: var(--text-3);
+}
+
+.sr-die {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  vertical-align: middle;
+}
+
+.sr-die img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+
+.sr-die b {
+  position: relative;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1rem;
+  font-size-adjust: none;
+  color: #fff;
+  text-shadow: 1px 1px 0 #000, -1px -1px 0 #000;
+  transform: translateY(9%);
+}
+
+.sr-chip {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-size-adjust: none;
+  letter-spacing: 0.1em;
+  padding: 0.15rem 0.45rem 0.05rem;
+  border: 2px solid;
+  white-space: nowrap;
+}
+
+.sr-chip.good {
+  color: #a6e6e0;
+  border-color: #2f6f6c;
+  background: #132e2e;
+}
+
+.sr-chip.bad {
+  color: #f4a9ae;
+  border-color: #7a2d35;
+  background: #2c0f13;
+}
+
+.sr-chip.crit {
+  color: #fff1bf;
+  border-color: #8a7330;
+  background: #3a2f12;
+}
+
+/* THIS ROUND: one line per finished roll, newest on top (the side column) */
+.sr-lines {
+  display: grid;
+}
+
+.sr-line {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.4rem;
+  border-top: 2px solid var(--line);
+  color: var(--text-2);
+  animation: sr-rise 0.3s ease-out both;
+}
+
+.sr-text {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+@keyframes sr-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .show-strip > *,
+  .sr-line {
+    animation: none;
+  }
+}

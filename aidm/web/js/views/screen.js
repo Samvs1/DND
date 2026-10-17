@@ -4,6 +4,7 @@
 // this view plays the narration (js/audio/narration.js) and the music (js/audio/music.js).
 // Until the adventure starts it shows the invite panel (LAN address and QR code); never during play.
 import { mountBoard } from '../combat/board.js';
+import { createDirector } from '../show/director.js';
 import { mountInitiative } from '../combat/initiative.js';
 import { t } from '../strings.js';
 import { mountGear } from '../screen/gear.js';
@@ -55,6 +56,10 @@ export function mountScreen(root, ctx) {
   const table = h('div', { class: 'tb sc', 'data-testid': 'screen-table' }, scene, h('div', { class: 'sc-main' }, combat, feed), side);
   const overlays = h('div', { class: 'sc-overlays' });
   root.append(waiting, table, overlays);
+  // M26: the dice shows. The pacer hands the director each roll; a click on the screen skips one.
+  ctx.pacer.setDirector(createDirector({ store, layer: overlays, sfx: ctx.sfx }));
+  const skip = () => ctx.pacer.skip();
+  root.addEventListener('click', skip);
 
   const render = (state) => applyPhase(state, waiting, table, combat, tagline);
   render(store.get());
@@ -80,6 +85,8 @@ export function mountScreen(root, ctx) {
   ];
   fetchLan(store);
   return () => {
+    ctx.pacer.setDirector(null);
+    root.removeEventListener('click', skip);
     stops.forEach((stop) => stop());
     document.body.classList.remove('is-table', 'is-screen', 'in-combat');
   };
