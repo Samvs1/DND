@@ -14,6 +14,9 @@ const ARC_MS = 430;
 const LAND_MS = 160;
 const FLOAT_LIFE_MS = 1500;
 const UNDER_PX = 64; // a die rests this far under the token's centre
+const FLOAT_GAP = 8; // px between two floats
+
+const overlap = (a, b) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
 
 function tokenOf(id) {
   return id ? document.querySelector(`.board [data-testid=token][data-creature="${CSS.escape(id)}"]`) : null;
@@ -47,18 +50,44 @@ export function createBoardShows({ layer, store, sfx, onStep }) {
     return el;
   }
 
-  /** One float per creature: the verdict, then the number under it; floats over neighbours stack. */
+  /** Where a float's text sits (it hangs from x, y: centred, bottom-aligned). */
+  function box(f) {
+    const w = f.el.offsetWidth;
+    const tall = [...f.el.children].reduce((sum, c) => sum + c.offsetHeight, 0);
+    return { left: f.x - w / 2, right: f.x + w / 2, top: f.y - tall, bottom: f.y };
+  }
+
+  /** A new float goes over its token, else beside the float in the way, else above it: the first spot
+   *  that covers no other float and no zone name. */
+  function place(f, c) {
+    const names = [...document.querySelectorAll('.board .hex-name')].map((n) => n.getBoundingClientRect());
+    const others = [...floats.values()].map(box);
+    const w = f.el.offsetWidth;
+    const y = c.y - c.w * 0.5;
+    const spots = [{ x: c.x, y }];
+    for (const o of others) {
+      const right = { x: o.right + FLOAT_GAP + w / 2, y };
+      const left = { x: o.left - FLOAT_GAP - w / 2, y };
+      spots.push(...(c.x >= (o.left + o.right) / 2 ? [right, left] : [left, right]), { x: c.x, y: o.top - FLOAT_GAP });
+    }
+    const clear = (spot) => {
+      const b = box({ ...f, ...spot });
+      return !others.some((o) => overlap(b, o)) && !names.some((n) => overlap(b, n));
+    };
+    Object.assign(f, spots.find(clear) ?? spots[1] ?? spots[0]);
+    f.el.style.left = `${f.x}px`;
+    f.el.style.top = `${f.y}px`;
+  }
+
+  /** One float per creature: the verdict, then the number under it. */
   function float(id, { word, tone, num, hurt }) {
     const token = tokenOf(id);
     if (!token) return;
     let f = floats.get(id);
-    if (!f) {
-      const c = centre(token);
-      let y = c.y - c.w * 0.5;
-      for (const o of floats.values()) if (Math.abs(o.x - c.x) < 120 && Math.abs(o.y - y) < 80) y = o.y - 82;
-      f = { el: pin(h('div', { class: 'sb-float', 'data-testid': 'show-float' }), c.x, y), x: c.x, y, timer: 0 };
-      floats.set(id, f);
-      f.el.animate?.([{ opacity: 0, transform: 'translate(-50%,-80%) scale(.55)' }, { opacity: 1, transform: 'translate(-50%,-100%) scale(1.08)', offset: 0.6 }, { opacity: 1, transform: 'translate(-50%,-100%)' }], { duration: 200, fill: 'forwards', easing: 'ease-out' });
+    const fresh = !f;
+    if (fresh) {
+      f = { el: h('div', { class: 'sb-float', 'data-testid': 'show-float' }), x: 0, y: 0, timer: 0 };
+      layer.append(f.el);
     }
     if (word) {
       f.el.dataset.tone = tone;
@@ -72,6 +101,11 @@ export function createBoardShows({ layer, store, sfx, onStep }) {
       n.classList.toggle('hurt', Boolean(hurt));
       n.textContent = num;
       n.animate?.([{ transform: 'scale(1.6)', opacity: 0 }, { transform: 'scale(.95)', opacity: 1, offset: 0.6 }, { transform: 'scale(1)' }], { duration: 240, easing: 'ease-out' });
+    }
+    if (fresh) {
+      place(f, centre(token));
+      floats.set(id, f);
+      f.el.animate?.([{ opacity: 0, transform: 'translate(-50%,-80%) scale(.55)' }, { opacity: 1, transform: 'translate(-50%,-100%) scale(1.08)', offset: 0.6 }, { opacity: 1, transform: 'translate(-50%,-100%)' }], { duration: 200, fill: 'forwards', easing: 'ease-out' });
     }
     clearTimeout(f.timer);
     f.timer = setTimeout(() => {

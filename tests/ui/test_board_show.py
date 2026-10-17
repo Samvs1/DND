@@ -3,10 +3,13 @@ target and the verdict floats over it, told from the party's side; the damage fl
 SAVED / RESISTED / CAUGHT; the strip spells out the action and THIS ROUND keeps one line per roll,
 emptied each round; the phone shows its own fight card, whose verdict waits for the TV."""
 
-from playwright.sync_api import Browser, Page
+from pathlib import Path
+
+import pytest
+from playwright.sync_api import Browser, Page, ViewportSize
 
 from tests.ui.conftest import LiveServer
-from tests.ui.table_helpers import split_turn, start_fight
+from tests.ui.table_helpers import WIDE, split_turn, start_fight
 
 FULL_SPEED = "window.__aidmShowScale = 1"
 FLOAT = "[data-testid=show-float]"
@@ -24,10 +27,12 @@ HURT = """([seq, id, amount]) => window.aidm.pacer.push({ type: 'event', seq, ki
 MINE = "async () => (await import('/web/js/combat/model.js')).myCreatureId(window.aidm.store.get())"
 
 
-def _quiet_fight(browser: Browser, base: str, errors: list[str]) -> tuple[Page, Page, Page]:
+def _quiet_fight(
+    browser: Browser, base: str, errors: list[str], size: ViewportSize = WIDE
+) -> tuple[Page, Page, Page]:
     """A fight on a player's turn (the server waits for them: no goblin rolls arrive), the shows
     queued so far played out, then full speed."""
-    screen, host, guest = start_fight(browser, base, errors)
+    screen, host, guest = start_fight(browser, base, errors, screen_size=size)
     split_turn(host, guest)
     screen.wait_for_timeout(1500)
     for page in (screen, host, guest):
@@ -95,6 +100,49 @@ def test_saves_read_from_the_party_side_and_this_round_empties_each_round(
           combat: { ...st.combat, round: st.combat.round + 1 } } } }); }"""
     )
     assert screen.locator(LINES).count() == 0
+    assert errors == []
+
+
+OVERLAPS = """() => {
+  const box = (el) => el.getBoundingClientRect();
+  const hit = (a, b) =>
+    a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+  const words = [...document.querySelectorAll('[data-testid=show-float] .sb-word')].map(box);
+  const names = [...document.querySelectorAll('.board .hex-name')].map(box);
+  const out = [];
+  words.forEach((w, i) => {
+    names.forEach((n) => { if (hit(w, n)) out.push('word over a zone name'); });
+    words.slice(i + 1).forEach((o) => { if (hit(w, o)) out.push('word over a word'); });
+  });
+  return out;
+}"""
+TWO_FOES = """() => {
+  const all = window.aidm.store.get().snapshot.state.combat.tokens;
+  const tokens = all.filter((t) => t.side === 'hostile');
+  const zone = tokens.find((t) => tokens.some((o) => o !== t && o.zone_id === t.zone_id)).zone_id;
+  return tokens.filter((t) => t.zone_id === zone).map((t) => t.creature_id).slice(0, 2);
+}"""
+
+
+@pytest.mark.parametrize("width,height", [(1280, 720), (1920, 1080)])
+def test_stacked_floats_keep_the_zone_name_readable(
+    browser: Browser, combat_server: LiveServer, shots_dir: Path, width: int, height: int
+) -> None:
+    errors: list[str] = []
+    size = ViewportSize(width=width, height=height)
+    screen, _host, _guest = _quiet_fight(browser, combat_server.base, errors, size)
+    first, second = screen.evaluate(TWO_FOES)
+    save = {"kind": "save", "label": "DEX save", "target": 13, "modifier": 2}
+    resisted = {**save, "roller_id": first, "rolls": [14], "total": 16, "success": True}
+    caught = {**save, "roller_id": second, "rolls": [3], "total": 5, "success": False}
+    screen.evaluate(PUSH, [9501, resisted])
+    screen.evaluate(PUSH, [9502, caught])
+    screen.wait_for_function(
+        f"document.querySelectorAll('{FLOAT} .sb-word').length === 2", timeout=6000
+    )
+    screen.wait_for_timeout(250)  # the second float's pop-in is over
+    screen.screenshot(path=str(shots_dir / f"board_stacked_floats_{width}.png"))
+    assert screen.evaluate(OVERLAPS) == []
     assert errors == []
 
 
