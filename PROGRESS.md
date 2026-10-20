@@ -299,6 +299,14 @@ Owner answers: the default targets; agents play against live DeepSeek, scripted 
 - [ ] M29.5 **H** Fix round 1 bugs: each with a named regression test `test_m29_<slug>`, one commit per batch (`WIP M29.5: <slugs>`); repeat this checkpoint until the list is empty or each remaining item has a DECISIONS reason.
 - [ ] M29.6 **H** Tuning: data changes toward the targets (dm_tiers, encounter budget, loot tables, shops, prices; never SRD numbers), Layer 1 re-run until every target passes or a DECISIONS line says why; each change logged with metric before/after; manual tables regenerated.
 - [ ] M29.7 **ORCH** Agent round 2 (changed areas + one full playthrough), docs/playtests/M29_round2.md and the final balance table, FULL gate. Commit `M29: Balanced by playtest`.
+
+## M30 Impossible actions (owner request 2026-10-20; binding: docs/next/GOAL_IMPOSSIBLE.md)
+Owner answers: option 1 only. The model can declare an action impossible; the engine then rolls no dice, so a natural 20 cannot rescue it. No DC cap on nat 20, no prompt-only fix.
+- [x] M30.0 **ORCH** Plan: docs/next/GOAL_IMPOSSIBLE.md, this section.
+- [ ] M30.1 **H** Model and executor: `impossible` option on `request_check` (decide request_save), `ActionImpossible` event (own models module, joins the union), `tool_exec_checks` returns it with no dice, reducer + replay, event text for the narrator, guard rejects success claims. Decide and log: action spent or not. Gate: tests/unit + tests/ai + tests/session, `gen_protocol.py --check`, `test_m30_impossible_ignores_nat20`.
+- [ ] M30.2 **H** Prompt rule in `dm/context_text.py` and the adjudicate context; FakeLLM cases (impossible, hard but possible, magic that allows it); RUN_LIVE probe with three typed actions. Gate: tests/ai + live probe.
+- [ ] M30.3 **M** Player side: in-fiction line without a dice card, manual section, RULES_DECISIONS line. Commit `M30: Impossible actions` after the FULL gate.
+
 ---
 
 ## Goal acceptance (from the owner's /goal; the final report must prove each with raw output)
