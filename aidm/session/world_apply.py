@@ -6,7 +6,7 @@ incremented by the caller.
 
 Public API: `WorldEvent` (the union of the world events), `WORLD_EVENT_TYPES` (its classes, for
 an `isinstance` dispatch), `apply_world_event(state, event)`. The quest events (M23) are handled
-by `aidm.session.quest_apply`.
+by `aidm.session.quest_apply`, the item-use events (M27.3) by `aidm.session.item_apply`.
 """
 
 from typing import assert_never
@@ -41,6 +41,7 @@ from aidm.models.world_events import (
     ShopOpened,
 )
 from aidm.session.campaign_apply import refresh_travel
+from aidm.session.item_apply import ITEM_EVENT_TYPES, ItemEvent, apply_item_event, left_place
 from aidm.session.quest_apply import (
     QUEST_EVENT_TYPES,
     QuestEvent,
@@ -74,6 +75,7 @@ type WorldEvent = (
     | EquipmentChanged
     | PlaceLit
     | QuestEvent
+    | ItemEvent
 )
 
 type SceneEvent = (
@@ -121,6 +123,7 @@ WORLD_EVENT_TYPES = (
     EquipmentChanged,
     PlaceLit,
     *QUEST_EVENT_TYPES,
+    *ITEM_EVENT_TYPES,
 )
 
 
@@ -147,6 +150,7 @@ def _moved(state: GameState, event: PartyMoved) -> None:
     world.scene_turn = 0
     world.quest_ask = None  # leaving the node withdraws the giver's question (M23.4)
     world.lit = None  # a light lights the place it was lit in (M27.2)
+    left_place(state)  # the alert and the place-scoped gear boons stay behind (M27.3)
     if event.to_node not in world.visited:
         world.visited.append(event.to_node)
     refresh_travel(state)
@@ -229,6 +233,9 @@ def apply_world_event(state: GameState, event: WorldEvent) -> None:
         return
     if isinstance(event, QUEST_EVENT_TYPES):
         apply_quest_event(state, event)
+        return
+    if isinstance(event, ITEM_EVENT_TYPES):
+        apply_item_event(state, event)
         return
     world = state.world
     match event:

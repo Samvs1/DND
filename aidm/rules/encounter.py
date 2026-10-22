@@ -16,7 +16,9 @@ Public API:
   in spawn order, "Goblin A", "Goblin B", M20.7), then `EncounterStarted` (combatants, sorted
   initiative, round 1, no turn open), then a "surprised" condition (data-driven: no actions,
   movement or reactions until the end of the creature's first turn) on every creature of the
-  surprised side.
+  surprised side. Foes at a place the party alerted are never surprised (`party_surprise`).
+- `party_surprise(state, surprise) -> SurpriseKind` (M27.3): HOSTILE becomes NONE when the
+  current place is `World.alerted` (a noisy gear use).
 - `roll_initiative(rng, creatures) -> list[InitiativeEntry]`: BG3 1d4 + DEX modifier per
   creature, rolled in the given order, sorted by total, then DEX score, both descending, then
   creature id ascending (deterministic ties).
@@ -160,6 +162,13 @@ def roll_initiative(rng: Rng, creatures: Sequence[Creature]) -> list[InitiativeE
     return sorted(entries, key=lambda e: (-e.total, -e.dex, e.creature_id))
 
 
+def party_surprise(state: GameState, surprise: SurpriseKind) -> SurpriseKind:
+    """Foes met at a place the party alerted (a noisy gear use, M27.3) cannot be surprised."""
+    world = state.world
+    alerted = world.alerted is not None and world.alerted == world.current_node
+    return SurpriseKind.NONE if alerted and surprise is SurpriseKind.HOSTILE else surprise
+
+
 def _surprised(side: Side, surprise: SurpriseKind) -> bool:
     return (surprise is SurpriseKind.PARTY and side is Side.PARTY) or (
         surprise is SurpriseKind.HOSTILE and side is Side.HOSTILE
@@ -185,8 +194,9 @@ def start_encounter(
     everyone = joined + spawned
     combatants: dict[str, Combatant] = {}
     surprise_events: list[AnyEvent] = []
+    surprise = party_surprise(state, setup.surprise)
     for creature, side, zone_id, xp in everyone:
-        surprised = _surprised(side, setup.surprise)
+        surprised = _surprised(side, surprise)
         reaction = not surprised and can_take_reactions(creature)
         combatants[creature.id] = Combatant(
             creature_id=creature.id,

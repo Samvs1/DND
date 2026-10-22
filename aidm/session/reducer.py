@@ -159,7 +159,8 @@ def _set_item(pc: PcData, item: str, qty: int) -> None:
     kept = [row for row in pc.inventory if row.item != item]
     if qty > 0:
         position = next((i for i, row in enumerate(pc.inventory) if row.item == item), len(kept))
-        kept.insert(position, InventoryItem(item=item, qty=qty))
+        charges = next((row.charges for row in pc.inventory if row.item == item), None)
+        kept.insert(position, InventoryItem(item=item, qty=qty, charges=charges))
     pc.inventory = kept
 
 

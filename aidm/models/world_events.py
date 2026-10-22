@@ -43,6 +43,8 @@ Public API:
   `QuestLeadAdded`, `QuestLeadRemoved`, `QuestAsked`, `QuestAskDeclined`, `KeepsakeGiven`).
 - `PlaceLit(node, by, reach)` (M27.2): the hero `by` carries a lit light in the place `node`
   (the current place) until the party leaves it; `reach` as in `aidm.models.world.PlaceLight`.
+- The item-use events of `aidm.models.item_events` (M27.3: `ItemUsed`, `ItemUseRefused`,
+  `BoonGained`, `BoonEnded`, `PlaceAlerted`, `PlacesCharted`).
 - `WorldEvents`: the union of these classes (joins `AnyEvent`).
 """
 
@@ -51,6 +53,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from aidm.models.character import Equipped, Keepsake
+from aidm.models.item_events import ItemEvents
 from aidm.models.memory import SceneSummary
 from aidm.models.quest_events import QuestEvents
 from aidm.models.world import (
@@ -240,4 +243,5 @@ WorldEvents = (
     | EquipmentChanged
     | PlaceLit
     | QuestEvents
+    | ItemEvents
 )

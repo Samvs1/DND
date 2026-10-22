@@ -52,6 +52,11 @@ Public API:
   the light a hero carries in the current place. `reach` (`LightReach`): "touching" lights the
   bearer's zone and the touching zones in a fight (torch, lantern), "zone" only the bearer's
   zone (candle). Darkness itself is derived (`aidm.rules.light`), never stored.
+  M27.3 (gear): `boons` (`ActiveBoon`: advantage a hero's gear gives on listed skills or on
+  saves against listed harms; scope "place" ends on `PartyMoved`, "until_long_rest" on the long
+  rest), `alerted` (the place a noisy use alerted; cleared on `PartyMoved`), `foraged` (places
+  whose once-per-place supplies use is spent), `charted` (places made known by a map use: their
+  names and ways show on the map without a visit). Old saves default to empty.
 """
 
 from __future__ import annotations
@@ -77,6 +82,25 @@ class PlaceLight(BaseModel):
     node: str = Field(min_length=1)
     by: str = Field(min_length=1)
     reach: LightReach = "touching"
+
+
+type BoonScope = Literal["place", "until_long_rest"]  # mirrors aidm.data.item_uses.BoonScope
+
+
+class ActiveBoon(BaseModel):
+    """Gear advantage (M27.3): `name` is the reason shown with the dice; `tool` is the catalogue
+    id of an SRD tool when the boon came from one (a check it covers is made with that tool)."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    creature_id: str = Field(min_length=1)
+    use_id: str = Field(min_length=1)
+    name: str = Field(min_length=1)
+    skills: tuple[str, ...] = ()
+    saves_against: tuple[str, ...] = ()
+    scope: BoonScope = "place"
+    node: str | None = None
+    tool: str | None = None
 
 
 class FeatureKind(StrEnum):
@@ -259,3 +283,7 @@ class World(BaseModel):
     leads: list[QuestLead] = Field(default_factory=list[QuestLead])
     quest_ask: QuestAsk | None = None
     lit: PlaceLight | None = None  # M27.2: cleared on PartyMoved
+    boons: list[ActiveBoon] = Field(default_factory=list[ActiveBoon])  # M27.3
+    alerted: str | None = None  # M27.3: cleared on PartyMoved
+    foraged: list[str] = Field(default_factory=list[str])  # M27.3
+    charted: list[str] = Field(default_factory=list[str])  # M27.3

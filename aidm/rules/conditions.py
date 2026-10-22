@@ -47,8 +47,10 @@ Public API:
   names the caller's sources (Magic Resistance); unnamed caller sources read "the situation".
   Every result carries `adv_why` (empty for a straight roll).
 - `skill_check_with_conditions(rng, creature, skill, dc, *, adv_sources=0, dis_sources=0,
-  bonus=0, dis_names=()) -> CheckResult`: the same for a skill check (condition check advantage
-  and dice); each of `dis_names` is one more named disadvantage source (Darkness, M27.2).
+  bonus=0, adv_names=(), dis_names=(), tool=None) -> CheckResult`: the same for a skill check
+  (condition check advantage and dice); each of `dis_names` is one more named disadvantage
+  source (Darkness, M27.2), each of `adv_names` one more named advantage source (gear boons,
+  M27.3); `tool` is the SRD tool the check is made with (`rules.checks.tool_extra`).
 - `ability_check_with_conditions(...)`: the same for a plain ability check (DM `request_check`).
 """
 
@@ -259,9 +261,9 @@ def _situation(
     return adv, extra, adv_reasons(adv, for_adv, for_dis)
 
 
-def _with_dis(own: AdvNames, dis_names: Sequence[str]) -> AdvNames:
-    """Each named situation (Darkness, M27.2) is one more disadvantage source."""
-    return own[0], own[1] + list(dis_names)
+def _with_named(own: AdvNames, adv_names: Sequence[str], dis_names: Sequence[str]) -> AdvNames:
+    """Each named situation (Darkness M27.2, a gear boon M27.3) is one more source."""
+    return own[0] + list(adv_names), own[1] + list(dis_names)
 
 
 def save_with_conditions(
@@ -294,11 +296,14 @@ def skill_check_with_conditions(
     adv_sources: int = 0,
     dis_sources: int = 0,
     bonus: int = 0,
+    adv_names: Sequence[str] = (),
     dis_names: Sequence[str] = (),
+    tool: str | None = None,
 ) -> CheckResult:
-    own, sources = _with_dis(check_adv_names(creature), dis_names), (adv_sources, dis_sources)
+    own = _with_named(check_adv_names(creature), adv_names, dis_names)
+    sources = (adv_sources, dis_sources)
     adv, extra, why = _situation(rng, creature, own, sources, (), save=False)
-    result = skill_check(rng, creature, skill, dc, adv=adv, bonus=bonus + extra)
+    result = skill_check(rng, creature, skill, dc, adv=adv, bonus=bonus + extra, tool=tool)
     return result.model_copy(update={"adv_why": why})
 
 
@@ -311,9 +316,12 @@ def ability_check_with_conditions(
     adv_sources: int = 0,
     dis_sources: int = 0,
     bonus: int = 0,
+    adv_names: Sequence[str] = (),
     dis_names: Sequence[str] = (),
+    tool: str | None = None,
 ) -> CheckResult:
-    own, sources = _with_dis(check_adv_names(creature), dis_names), (adv_sources, dis_sources)
+    own = _with_named(check_adv_names(creature), adv_names, dis_names)
+    sources = (adv_sources, dis_sources)
     adv, extra, why = _situation(rng, creature, own, sources, (), save=False)
-    result = ability_check(rng, creature, ability, dc, adv=adv, bonus=bonus + extra)
+    result = ability_check(rng, creature, ability, dc, adv=adv, bonus=bonus + extra, tool=tool)
     return result.model_copy(update={"adv_why": why})

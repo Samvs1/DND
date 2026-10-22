@@ -534,7 +534,12 @@
     "amount": 2
    },
    "tags": [
-    "water"
+    "water",
+    "swamp",
+    "bridge",
+    "river",
+    "lake",
+    "coast"
    ]
   },
   {

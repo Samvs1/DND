@@ -61,6 +61,7 @@ from aidm.models.dice import RollKind
 from aidm.models.events import CheckResolved, TempHpSet
 from aidm.models.zones import ZoneSurface
 from aidm.rules.attacks import deal_damage, roll_attack
+from aidm.rules.boons import save_boon_names
 from aidm.rules.concentration import concentration_upkeep
 from aidm.rules.condition_timing import apply_condition, new_condition, remove_condition
 from aidm.rules.conditions import save_with_conditions
@@ -190,16 +191,16 @@ def _save(ctx: CastContext, effect: SaveEffect, target_id: str, shared: bool) ->
     if target.dead:
         return
     ability = Ability(effect.ability)
-    sources = save_advantage_sources(
-        target, ctx.feats, ability, _save_tags(effect.on_fail, ctx.magical)
-    )
+    tags = _save_tags(effect.on_fail, ctx.magical)
+    sources = save_advantage_sources(target, ctx.feats, ability, tags)
+    names = [*feature_names(ctx.feats, sources), *save_boon_names(ctx.state, target_id, tags)]
     result = save_with_conditions(
         ctx.rng,
         target,
         ability,
         ctx.numbers.save_dc,
-        adv_sources=min(1, len(sources)),
-        source_names=feature_names(ctx.feats, sources),
+        adv_sources=min(1, len(names)),
+        source_names=names,
     )
     reason = f"{ctx.spell.index} save"
     event = CheckResolved(

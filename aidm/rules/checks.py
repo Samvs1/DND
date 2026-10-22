@@ -12,11 +12,18 @@ Public API:
   callers (Guidance, Bless, Jack of All Trades); `adv` is the already-combined advantage state.
   Ability and skill checks: a natural 20 always succeeds and a natural 1 always fails (BG3).
   Saving throws: the total against the DC only (SRD 5.1). See docs/RULES_DECISIONS.md.
-- `check_parts(creature, kind, ability, skill, modifier) -> tuple[RollPart, ...]` (M26.2): the
-  named pieces of a test's modifier: the ability ("DEX"), "PROF" (or "EXPERTISE" when doubled)
-  and any remainder (Guidance, Bless, Jack of All Trades) as one "BONUS"; they sum to
-  `modifier`. Every `CheckResult` built here carries them, and `adv_why` = ("the situation",)
-  when the caller passed advantage or disadvantage (the condition-aware callers name sources).
+- `tool_proficient(creature, tool) -> bool`, `tool_extra(creature, skill, tool) -> int`,
+  `tool_and_skill(creature, skill, tool) -> bool` (M27.3, GOAL_ITEMS "proficiency"): a check made
+  with an SRD tool (`tool` = its catalogue id) adds the proficiency bonus ONCE when the hero is
+  proficient with the tool OR the skill (`tool_extra` is the PROF the skill alone does not give);
+  proficient in BOTH -> advantage (house rule; the caller adds the advantage source).
+  `ability_check` / `skill_check` take `tool=None`.
+- `check_parts(creature, kind, ability, skill, modifier, tool=None) -> tuple[RollPart, ...]`
+  (M26.2): the named pieces of a test's modifier: the ability ("DEX"), "PROF" (or
+  "EXPERTISE" when doubled; a tool's PROF joins it) and any remainder (Guidance, Bless, Jack
+  of All Trades) as one "BONUS"; they sum to `modifier`. Every `CheckResult` built here
+  carries them, and `adv_why` = ("the situation",) when the caller passed advantage or
+  disadvantage (the condition-aware callers name sources).
 - `difficulty_word(tier) -> str`: the tier as a player-facing word ("very hard").
 - `passive_score(creature, skill, adv=NORMAL, bonus=0) -> int`: SRD 5.1 "Passive Checks":
   10 + all modifiers that normally apply, +5 with advantage, -5 with disadvantage.
@@ -73,12 +80,37 @@ def save_bonus(creature: Creature, ability: Ability) -> int:
     return _mod(creature, ability) + prof
 
 
+def tool_proficient(creature: Creature, tool: str | None) -> bool:
+    return tool is not None and creature.pc is not None and tool in creature.pc.tool_proficiencies
+
+
+def _skilled(creature: Creature, skill: Skill | None) -> bool:
+    return skill is not None and (
+        skill in creature.skill_proficiencies or skill in creature.skill_expertise
+    )
+
+
+def tool_extra(creature: Creature, skill: Skill | None, tool: str | None) -> int:
+    if not tool_proficient(creature, tool) or _skilled(creature, skill):
+        return 0
+    return creature.proficiency_bonus
+
+
+def tool_and_skill(creature: Creature, skill: Skill | None, tool: str | None) -> bool:
+    return tool_proficient(creature, tool) and _skilled(creature, skill)
+
+
 def difficulty_word(tier: DcTier) -> str:
     return tier.value.replace("_", " ")
 
 
 def check_parts(
-    creature: Creature, kind: CheckKind, ability: Ability, skill: Skill | None, modifier: int
+    creature: Creature,
+    kind: CheckKind,
+    ability: Ability,
+    skill: Skill | None,
+    modifier: int,
+    tool: str | None = None,
 ) -> tuple[RollPart, ...]:
     mod = _mod(creature, ability)
     prof, prof_name = 0, PROF_PART
@@ -87,6 +119,8 @@ def check_parts(
         prof_name = EXPERTISE_PART if skill in creature.skill_expertise else PROF_PART
     elif kind is CheckKind.SAVE:
         prof = save_bonus(creature, ability) - mod
+    if kind is not CheckKind.SAVE:
+        prof += tool_extra(creature, skill, tool)
     parts = [RollPart(name=ability.value.upper(), value=mod)]
     if prof:
         parts.append(RollPart(name=prof_name, value=prof))
@@ -102,6 +136,7 @@ def _result(
     skill: Skill | None,
     d20: D20Roll,
     dc: int,
+    tool: str | None = None,
 ) -> CheckResult:
     if dc < 0:
         raise ValueError("dc must be >= 0")
@@ -118,7 +153,7 @@ def _result(
         dc=dc,
         success=success,
         margin=d20.total - dc,
-        parts=check_parts(creature, kind, ability, skill, d20.modifier),
+        parts=check_parts(creature, kind, ability, skill, d20.modifier, tool),
         adv_why=() if d20.adv is AdvState.NORMAL else (SITUATION,),
     )
 
@@ -131,9 +166,10 @@ def ability_check(
     *,
     adv: AdvState = AdvState.NORMAL,
     bonus: int = 0,
+    tool: str | None = None,
 ) -> CheckResult:
-    d20 = roll_d20(rng, adv, _mod(creature, ability) + bonus)
-    return _result(creature, CheckKind.ABILITY, ability, None, d20, dc)
+    d20 = roll_d20(rng, adv, _mod(creature, ability) + tool_extra(creature, None, tool) + bonus)
+    return _result(creature, CheckKind.ABILITY, ability, None, d20, dc, tool)
 
 
 def skill_check(
@@ -144,9 +180,12 @@ def skill_check(
     *,
     adv: AdvState = AdvState.NORMAL,
     bonus: int = 0,
+    tool: str | None = None,
 ) -> CheckResult:
-    d20 = roll_d20(rng, adv, skill_bonus(creature, skill) + bonus)
-    return _result(creature, CheckKind.SKILL, SKILL_ABILITY[skill], skill, d20, dc)
+    d20 = roll_d20(
+        rng, adv, skill_bonus(creature, skill) + tool_extra(creature, skill, tool) + bonus
+    )
+    return _result(creature, CheckKind.SKILL, SKILL_ABILITY[skill], skill, d20, dc, tool)
 
 
 def saving_throw(

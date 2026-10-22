@@ -129,7 +129,7 @@ def public_map(state: GameState) -> PublicMap | None:
     world = state.world
     if world.current_node is None:
         return None
-    seen = set(world.visited) | {world.current_node}
+    seen = set(world.visited) | set(world.charted) | {world.current_node}  # charted: M27.3
     shown = set(seen)
     for node in seen:
         shown.update(world.neighbours.get(node, ()))

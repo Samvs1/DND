@@ -7,6 +7,8 @@ INT) also discovers hidden features (M4.3) and hidden items (M23.3) of the curre
 DC the total meets (`aidm.rules.scene.discovery_events`). Out of a fight in a dark unlit place a
 search check rolls at disadvantage, whatever the AI asked (`aidm.rules.light.sight_darkness`,
 M27.2: *Darkness* in `adv_why`); darkness never raises a DC, so nothing is hidden outright.
+The hero's gear boons apply by themselves, named in `adv_why` (M27.3,
+`aidm.rules.gear_checks.gear_check`, which also applies the proficiency of a tool in use).
 
 Public API: `run_request_check(state, args, ctx, rng, regs)`,
 `run_request_save(state, args, ctx, rng, regs)` -> `ToolResult`.
@@ -22,13 +24,9 @@ from aidm.models.events import AnyEvent, CheckResolved
 from aidm.models.state import GameState
 from aidm.models.world_events import FeatureDiscovered
 from aidm.rules.checks import dc_for_tier
-from aidm.rules.conditions import (
-    ability_check_with_conditions,
-    save_with_conditions,
-    skill_check_with_conditions,
-)
+from aidm.rules.conditions import save_with_conditions
 from aidm.rules.dice import Rng
-from aidm.rules.light import sight_darkness
+from aidm.rules.gear_checks import gear_check
 from aidm.rules.scene import discovery_events
 
 
@@ -45,17 +43,8 @@ def run_request_check(
     adv = int(args.advantage is AdvState.ADVANTAGE)
     dis = int(args.advantage is AdvState.DISADVANTAGE)
     what = args.ability_or_skill
-    dark = sight_darkness(state, what)
-    if isinstance(what, Skill):
-        result = skill_check_with_conditions(
-            rng, creature, what, dc, adv_sources=adv, dis_sources=dis, dis_names=dark
-        )
-        label = f"{what.value} check"
-    else:
-        result = ability_check_with_conditions(
-            rng, creature, what, dc, adv_sources=adv, dis_sources=dis, dis_names=dark
-        )
-        label = f"{what.value.upper()} check"
+    result = gear_check(rng, state, creature, what, dc, adv_sources=adv, dis_sources=dis)
+    label = f"{what.value} check" if isinstance(what, Skill) else f"{what.value.upper()} check"
     result = result.model_copy(update={"tier": args.dc_tier})
     event = CheckResolved(creature_id=creature.id, result=result, reason=args.reason)
     found = discovery_events(state, creature.id, result)
