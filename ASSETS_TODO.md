@@ -7,15 +7,7 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 `python scripts/gen_assets_todo.py`. Prompts start with the style bible
 (`docs/STYLE_BIBLE.md`). Never overwrite a real or v1 asset.
 
-13 placeholder entries: condition_icon 1, music 1, sfx 6
-
-## condition_icon (1)
-
-### condition_icon.burning
-- file: aidm/web/static/img/icons/conditions/burning.png
-- size: 128x128
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The status condition Burning as a plain symbol. One simple symbolic mark of the status, centred, bold shapes readable at 32 px, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.
+7 placeholder entries: music 1, sfx 6
 
 ## music (1)
 
@@ -62,37 +54,3 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 - size: n/a (audio)
 - transparent: no
 - prompt: Audio brief (not an image): a soft wooden button click, 0.2 seconds.
-
-## surface_icon (0)
-
-### surface_icon.ball-bearings
-- file: aidm/web/static/img/icons/surfaces/ball-bearings.png
-- size: 128x128
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The surface Ball Bearings: ball bearings. One small patch of the substance lying on the ground (or hanging just above it), centred and round in outline, bold saturated colour readable at 24 px, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.
-
-### surface_icon.caltrops
-- file: aidm/web/static/img/icons/surfaces/caltrops.png
-- size: 128x128
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The surface Caltrops: caltrops. One small patch of the substance lying on the ground (or hanging just above it), centred and round in outline, bold saturated colour readable at 24 px, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.
-
-## zone_icon (0)
-
-### zone_icon.dark
-- file: aidm/web/static/img/icons/zones/dark.png
-- size: 128x128
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Dark place: a pool of deep shadow with a few faint violet-edged wisps and no light in it. One small battle-map marker: the object alone, centred, bold shapes readable at 24 px, seen from a slight top-down angle, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.
-
-### zone_icon.darkvision
-- file: aidm/web/static/img/icons/zones/darkvision.png
-- size: 128x128
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Darkvision: a single watchful eye with a pale glowing iris seen in the dark. One small battle-map marker: the object alone, centred, bold shapes readable at 24 px, seen from a slight top-down angle, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.
-
-### zone_icon.lit
-- file: aidm/web/static/img/icons/zones/lit.png
-- size: 128x128
-- transparent: yes
-- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Lit place: a small warm torch flame with a soft orange glow around it. One small battle-map marker: the object alone, centred, bold shapes readable at 24 px, seen from a slight top-down angle, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.

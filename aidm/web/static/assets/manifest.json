@@ -91,10 +91,12 @@
    128
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The status condition Burning as a plain symbol. One simple symbolic mark of the status, centred, bold shapes readable at 32 px, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Dark place: a pool of deep shadow with faint violet-edged wisps and no light in it; 2: The status condition Burning as a plain symbol. Leave cells 3 to 16 empty. One small battle-map marker: the object alone, centred, bold shapes readable at 24 px, seen from a slight top-down angle, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. One simple symbolic mark of the status, centred, bold shapes readable at 32 px, plain transparent background, one cell of a 4x4 icon sheet. Transparent background. Fix from review: Redo as a clear bold silhouette that reads at 32 px on a near-black background: a black orb of shadow with a bright violet and cool blue rim light, a thick luminous edge and a few cool pale sparkles around it, strong edge contrast, not faint smoke. Draw the flame inside a FRAMED BADGE like the other condition icons: a rounded-square dark tile with a thick ornate amber-gold border and a dark warm background, a bright flame centred and filling most of the tile, symmetric glowing frame, fills the whole cell.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.01655
  },
  "condition_icon.charmed": {
   "kind": "condition_icon",
@@ -7862,10 +7864,12 @@
    128
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The surface Ball Bearings: ball bearings. One small patch of the substance lying on the ground (or hanging just above it), centred and round in outline, bold saturated colour readable at 24 px, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: The surface Caltrops: caltrops; 2: Dark place: a pool of deep shadow with faint violet-edged wisps and no light in it; 3: Darkvision: a single watchful eye with a pale glowing iris seen in the dark; 4: Lit place: a small warm torch flame with a soft orange glow around it; 5: The surface Ball Bearings: ball bearings; 6: The status condition Burning as a plain symbol. Leave cells 7 to 16 empty. One small patch of the substance lying on the ground (or hanging just above it), centred and round in outline, bold saturated colour readable at 24 px, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. One small battle-map marker: the object alone, centred, bold shapes readable at 24 px, seen from a slight top-down angle, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. One simple symbolic mark of the status, centred, bold shapes readable at 32 px, plain transparent background, one cell of a 4x4 icon sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.005517
  },
  "surface_icon.caltrops": {
   "kind": "surface_icon",
@@ -7875,10 +7879,12 @@
    128
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The surface Caltrops: caltrops. One small patch of the substance lying on the ground (or hanging just above it), centred and round in outline, bold saturated colour readable at 24 px, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: The surface Caltrops: caltrops; 2: Dark place: a pool of deep shadow with faint violet-edged wisps and no light in it; 3: Darkvision: a single watchful eye with a pale glowing iris seen in the dark; 4: Lit place: a small warm torch flame with a soft orange glow around it; 5: The surface Ball Bearings: ball bearings; 6: The status condition Burning as a plain symbol. Leave cells 7 to 16 empty. One small patch of the substance lying on the ground (or hanging just above it), centred and round in outline, bold saturated colour readable at 24 px, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. One small battle-map marker: the object alone, centred, bold shapes readable at 24 px, seen from a slight top-down angle, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. One simple symbolic mark of the status, centred, bold shapes readable at 32 px, plain transparent background, one cell of a 4x4 icon sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.005517
  },
  "surface_icon.darkness": {
   "kind": "surface_icon",
@@ -9851,10 +9857,12 @@
    128
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Dark place: a pool of deep shadow with a few faint violet-edged wisps and no light in it. One small battle-map marker: the object alone, centred, bold shapes readable at 24 px, seen from a slight top-down angle, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: Dark place: a pool of deep shadow with faint violet-edged wisps and no light in it; 2: The status condition Burning as a plain symbol. Leave cells 3 to 16 empty. One small battle-map marker: the object alone, centred, bold shapes readable at 24 px, seen from a slight top-down angle, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. One simple symbolic mark of the status, centred, bold shapes readable at 32 px, plain transparent background, one cell of a 4x4 icon sheet. Transparent background. Fix from review: Redo as a clear bold silhouette that reads at 32 px on a near-black background: a black orb of shadow with a bright violet and cool blue rim light, a thick luminous edge and a few cool pale sparkles around it, strong edge contrast, not faint smoke. Draw the flame inside a FRAMED BADGE like the other condition icons: a rounded-square dark tile with a thick ornate amber-gold border and a dark warm background, a bright flame centred and filling most of the tile, symmetric glowing frame, fills the whole cell.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.01655
  },
  "zone_icon.darkvision": {
   "kind": "zone_icon",
@@ -9864,10 +9872,12 @@
    128
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Darkvision: a single watchful eye with a pale glowing iris seen in the dark. One small battle-map marker: the object alone, centred, bold shapes readable at 24 px, seen from a slight top-down angle, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: The surface Caltrops: caltrops; 2: Dark place: a pool of deep shadow with faint violet-edged wisps and no light in it; 3: Darkvision: a single watchful eye with a pale glowing iris seen in the dark; 4: Lit place: a small warm torch flame with a soft orange glow around it; 5: The surface Ball Bearings: ball bearings; 6: The status condition Burning as a plain symbol. Leave cells 7 to 16 empty. One small patch of the substance lying on the ground (or hanging just above it), centred and round in outline, bold saturated colour readable at 24 px, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. One small battle-map marker: the object alone, centred, bold shapes readable at 24 px, seen from a slight top-down angle, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. One simple symbolic mark of the status, centred, bold shapes readable at 32 px, plain transparent background, one cell of a 4x4 icon sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.005517
  },
  "zone_icon.high-ground": {
   "kind": "zone_icon",
@@ -9892,10 +9902,12 @@
    128
   ],
   "transparent": true,
-  "status": "placeholder",
-  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Lit place: a small warm torch flame with a soft orange glow around it. One small battle-map marker: the object alone, centred, bold shapes readable at 24 px, seen from a slight top-down angle, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.",
-  "source": "",
-  "license": ""
+  "status": "real",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. A 4x4 sprite sheet: a square image split into an even 4 by 4 grid of 16 equal cells, one separate subject centred in each cell with clear empty space around it, nothing crossing a cell border, no grid lines, no labels. Match the style, palette, outline weight, lighting and finish of the reference sheet exactly. Cells in reading order (left to right, top to bottom): 1: The surface Caltrops: caltrops; 2: Dark place: a pool of deep shadow with faint violet-edged wisps and no light in it; 3: Darkvision: a single watchful eye with a pale glowing iris seen in the dark; 4: Lit place: a small warm torch flame with a soft orange glow around it; 5: The surface Ball Bearings: ball bearings; 6: The status condition Burning as a plain symbol. Leave cells 7 to 16 empty. One small patch of the substance lying on the ground (or hanging just above it), centred and round in outline, bold saturated colour readable at 24 px, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. One small battle-map marker: the object alone, centred, bold shapes readable at 24 px, seen from a slight top-down angle, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. One simple symbolic mark of the status, centred, bold shapes readable at 32 px, plain transparent background, one cell of a 4x4 icon sheet. Transparent background.",
+  "source": "generated:gpt-image-2.5-sunburst-2026-09-08",
+  "license": "AI generated via OpenAI API, check provider terms before commercial use",
+  "reviewed": true,
+  "cost_eur": 0.005517
  },
  "zone_icon.rough": {
   "kind": "zone_icon",
