@@ -369,6 +369,8 @@ Spells, fire, oil and the like leave **surfaces** in a zone. Surfaces act when y
 | Oil | until removed | rough ground (entering costs double movement) |
 | Rubble | until removed | rough ground (entering costs double movement) |
 | Grease | 10 rounds | rough ground (entering costs double movement); when it appears, on entering, at the start of a turn: DEX save DC 12, prone on a failed save |
+| Caltrops | until removed | rough ground (entering costs double movement); on entering: DEX save DC 15, 1 piercing damage on a failed save |
+| Ball Bearings | until removed | rough ground (entering costs double movement); on entering: DEX save DC 10, prone on a failed save |
 | Water | until removed | no effect of its own |
 | Ice | until removed | rough ground (entering costs double movement); on entering, at the start of a turn: DEX save DC 10, prone on a failed save |
 | Poison Cloud | 3 rounds | on entering, at the start of a turn: CON save DC 12, 1d6 poison damage and poisoned for 1 round on a failed save |

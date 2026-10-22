@@ -53,6 +53,7 @@ class TerrainTemplate(BaseModel):
     index: str = Field(min_length=1)
     name: str = Field(min_length=1)
     hop_feet: int = Field(default=30, ge=5)
+    dark: bool = False  # M27.1: every zone of this terrain is dark unless lit
     zones: tuple[ZoneTemplate, ...]
 
     @model_validator(mode="after")

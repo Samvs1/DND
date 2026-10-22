@@ -7841,6 +7841,32 @@
   "reviewed": true,
   "cost_eur": 0.010833
  },
+ "surface_icon.ball-bearings": {
+  "kind": "surface_icon",
+  "file": "img/icons/surfaces/ball-bearings.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The surface Ball Bearings: ball bearings. One small patch of the substance lying on the ground (or hanging just above it), centred and round in outline, bold saturated colour readable at 24 px, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.",
+  "source": "",
+  "license": ""
+ },
+ "surface_icon.caltrops": {
+  "kind": "surface_icon",
+  "file": "img/icons/surfaces/caltrops.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The surface Caltrops: caltrops. One small patch of the substance lying on the ground (or hanging just above it), centred and round in outline, bold saturated colour readable at 24 px, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.",
+  "source": "",
+  "license": ""
+ },
  "surface_icon.darkness": {
   "kind": "surface_icon",
   "file": "img/icons/surfaces/darkness.png",

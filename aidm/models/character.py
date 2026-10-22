@@ -51,6 +51,7 @@ class InventoryItem(BaseModel):
 
     item: str = Field(min_length=1)
     qty: int = Field(default=1, ge=1)
+    charges: int | None = Field(default=None, ge=0)  # M27.1: uses left (healer's kit); None = n/a
 
 
 class Keepsake(BaseModel):

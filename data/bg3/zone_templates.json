@@ -53,7 +53,7 @@
     ]
   },
   {
-    "index": "cave",
+    "index": "cave", "dark": true,
     "name": "Cave",
     "hop_feet": 15,
     "zones": [
@@ -105,7 +105,7 @@
     ]
   },
   {
-    "index": "crypt",
+    "index": "crypt", "dark": true,
     "name": "Crypt",
     "hop_feet": 15,
     "zones": [

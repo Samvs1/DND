@@ -1,0 +1,747 @@
+{
+ "uses": [
+  {
+   "id": "torch-light",
+   "item": "torch",
+   "verbs": [
+    "light",
+    "ignite"
+   ],
+   "when": "dark_place",
+   "label": "Light this dark place",
+   "effect": {
+    "kind": "light_place"
+   },
+   "cost": "bonus",
+   "consumes": true,
+   "noise": true
+  },
+  {
+   "id": "candle-light",
+   "item": "candle",
+   "verbs": [
+    "light"
+   ],
+   "when": "dark_place",
+   "label": "Light this dark place",
+   "effect": {
+    "kind": "light_place"
+   },
+   "cost": "bonus",
+   "consumes": true,
+   "noise": true
+  },
+  {
+   "id": "lantern-hooded-light",
+   "item": "lantern-hooded",
+   "verbs": [
+    "light",
+    "open"
+   ],
+   "when": "dark_place",
+   "label": "Light this dark place",
+   "effect": {
+    "kind": "light_place"
+   },
+   "cost": "bonus",
+   "noise": true
+  },
+  {
+   "id": "lantern-bullseye-light",
+   "item": "lantern-bullseye",
+   "verbs": [
+    "light",
+    "open"
+   ],
+   "when": "dark_place",
+   "label": "Light this dark place and search it closely",
+   "effect": {
+    "kind": "light_place",
+    "skills": [
+     "investigation"
+    ]
+   },
+   "cost": "bonus",
+   "noise": true
+  },
+  {
+   "id": "crowbar-force",
+   "item": "crowbar",
+   "verbs": [
+    "pry",
+    "force",
+    "break"
+   ],
+   "when": "locked",
+   "label": "Force this open with the crowbar",
+   "effect": {
+    "kind": "unlock",
+    "method": "force",
+    "skill": "athletics",
+    "ability": "str",
+    "advantage": true
+   },
+   "noise": true
+  },
+  {
+   "id": "rope-hempen-climb",
+   "item": "rope-hempen-50-feet",
+   "verbs": [
+    "climb",
+    "tie",
+    "cross",
+    "rappel"
+   ],
+   "when": "place",
+   "label": "Climb or cross here",
+   "effect": {
+    "kind": "boon",
+    "skills": [
+     "athletics"
+    ]
+   }
+  },
+  {
+   "id": "rope-silk-climb",
+   "item": "rope-silk-50-feet",
+   "verbs": [
+    "climb",
+    "tie",
+    "cross",
+    "rappel"
+   ],
+   "when": "place",
+   "label": "Climb or cross here",
+   "effect": {
+    "kind": "boon",
+    "skills": [
+     "athletics"
+    ]
+   }
+  },
+  {
+   "id": "grappling-hook-climb",
+   "item": "grappling-hook",
+   "verbs": [
+    "climb",
+    "tie",
+    "cross",
+    "rappel"
+   ],
+   "when": "place",
+   "label": "Climb or cross here",
+   "effect": {
+    "kind": "boon",
+    "skills": [
+     "athletics"
+    ]
+   }
+  },
+  {
+   "id": "climbers-kit-climb",
+   "item": "climbers-kit",
+   "verbs": [
+    "climb",
+    "tie",
+    "cross",
+    "rappel"
+   ],
+   "when": "place",
+   "label": "Climb or cross here",
+   "effect": {
+    "kind": "boon",
+    "skills": [
+     "athletics"
+    ]
+   }
+  },
+  {
+   "id": "piton-climb",
+   "item": "piton",
+   "verbs": [
+    "climb",
+    "tie",
+    "cross",
+    "rappel"
+   ],
+   "when": "place",
+   "label": "Climb or cross here",
+   "effect": {
+    "kind": "boon",
+    "skills": [
+     "athletics"
+    ]
+   }
+  },
+  {
+   "id": "magnifying-glass-inspect",
+   "item": "magnifying-glass",
+   "verbs": [
+    "inspect",
+    "examine"
+   ],
+   "when": "place",
+   "label": "Inspect closely here",
+   "effect": {
+    "kind": "boon",
+    "skills": [
+     "investigation"
+    ]
+   }
+  },
+  {
+   "id": "spyglass-look",
+   "item": "spyglass",
+   "verbs": [
+    "look",
+    "scout"
+   ],
+   "when": "place",
+   "label": "Look far from here",
+   "effect": {
+    "kind": "boon",
+    "skills": [
+     "perception"
+    ]
+   }
+  },
+  {
+   "id": "cartographers-tools-chart",
+   "item": "cartographers-tools",
+   "verbs": [
+    "chart",
+    "map"
+   ],
+   "when": "place",
+   "label": "Chart the way ahead",
+   "effect": {
+    "kind": "reveal_map"
+   },
+   "tool": true
+  },
+  {
+   "id": "navigators-tools-chart",
+   "item": "navigators-tools",
+   "verbs": [
+    "chart",
+    "navigate"
+   ],
+   "when": "place",
+   "label": "Chart the way ahead",
+   "effect": {
+    "kind": "reveal_map"
+   },
+   "tool": true
+  },
+  {
+   "id": "thieves-tools-pick",
+   "item": "thieves-tools",
+   "verbs": [
+    "pick",
+    "unlock"
+   ],
+   "when": "locked",
+   "label": "Pick this lock",
+   "effect": {
+    "kind": "unlock",
+    "method": "pick",
+    "skill": "sleight-of-hand",
+    "ability": "dex"
+   },
+   "tool": true
+  },
+  {
+   "id": "disguise-kit-use",
+   "item": "disguise-kit",
+   "verbs": [
+    "disguise"
+   ],
+   "when": "place",
+   "label": "Put on a disguise",
+   "effect": {
+    "kind": "boon",
+    "skills": [
+     "deception"
+    ]
+   },
+   "tool": true
+  },
+  {
+   "id": "forgery-kit-use",
+   "item": "forgery-kit",
+   "verbs": [
+    "forge"
+   ],
+   "when": "place",
+   "label": "Forge a document",
+   "effect": {
+    "kind": "boon",
+    "skills": [
+     "deception"
+    ]
+   },
+   "tool": true
+  },
+  {
+   "id": "bagpipes-play",
+   "item": "bagpipes",
+   "verbs": [
+    "play",
+    "perform"
+   ],
+   "when": "place",
+   "label": "Perform here",
+   "effect": {
+    "kind": "boon",
+    "skills": [
+     "performance"
+    ]
+   },
+   "tool": true
+  },
+  {
+   "id": "drum-play",
+   "item": "drum",
+   "verbs": [
+    "play",
+    "perform"
+   ],
+   "when": "place",
+   "label": "Perform here",
+   "effect": {
+    "kind": "boon",
+    "skills": [
+     "performance"
+    ]
+   },
+   "tool": true
+  },
+  {
+   "id": "dulcimer-play",
+   "item": "dulcimer",
+   "verbs": [
+    "play",
+    "perform"
+   ],
+   "when": "place",
+   "label": "Perform here",
+   "effect": {
+    "kind": "boon",
+    "skills": [
+     "performance"
+    ]
+   },
+   "tool": true
+  },
+  {
+   "id": "flute-play",
+   "item": "flute",
+   "verbs": [
+    "play",
+    "perform"
+   ],
+   "when": "place",
+   "label": "Perform here",
+   "effect": {
+    "kind": "boon",
+    "skills": [
+     "performance"
+    ]
+   },
+   "tool": true
+  },
+  {
+   "id": "horn-play",
+   "item": "horn",
+   "verbs": [
+    "play",
+    "perform"
+   ],
+   "when": "place",
+   "label": "Perform here",
+   "effect": {
+    "kind": "boon",
+    "skills": [
+     "performance"
+    ]
+   },
+   "tool": true
+  },
+  {
+   "id": "lute-play",
+   "item": "lute",
+   "verbs": [
+    "play",
+    "perform"
+   ],
+   "when": "place",
+   "label": "Perform here",
+   "effect": {
+    "kind": "boon",
+    "skills": [
+     "performance"
+    ]
+   },
+   "tool": true
+  },
+  {
+   "id": "lyre-play",
+   "item": "lyre",
+   "verbs": [
+    "play",
+    "perform"
+   ],
+   "when": "place",
+   "label": "Perform here",
+   "effect": {
+    "kind": "boon",
+    "skills": [
+     "performance"
+    ]
+   },
+   "tool": true
+  },
+  {
+   "id": "pan-flute-play",
+   "item": "pan-flute",
+   "verbs": [
+    "play",
+    "perform"
+   ],
+   "when": "place",
+   "label": "Perform here",
+   "effect": {
+    "kind": "boon",
+    "skills": [
+     "performance"
+    ]
+   },
+   "tool": true
+  },
+  {
+   "id": "shawm-play",
+   "item": "shawm",
+   "verbs": [
+    "play",
+    "perform"
+   ],
+   "when": "place",
+   "label": "Perform here",
+   "effect": {
+    "kind": "boon",
+    "skills": [
+     "performance"
+    ]
+   },
+   "tool": true
+  },
+  {
+   "id": "viol-play",
+   "item": "viol",
+   "verbs": [
+    "play",
+    "perform"
+   ],
+   "when": "place",
+   "label": "Perform here",
+   "effect": {
+    "kind": "boon",
+    "skills": [
+     "performance"
+    ]
+   },
+   "tool": true
+  },
+  {
+   "id": "dice-set-play",
+   "item": "dice-set",
+   "verbs": [
+    "gamble",
+    "play"
+   ],
+   "when": "place",
+   "label": "Gamble here",
+   "effect": {
+    "kind": "boon",
+    "skills": [
+     "performance"
+    ]
+   },
+   "tool": true
+  },
+  {
+   "id": "playing-card-set-play",
+   "item": "playing-card-set",
+   "verbs": [
+    "gamble",
+    "play"
+   ],
+   "when": "place",
+   "label": "Gamble here",
+   "effect": {
+    "kind": "boon",
+    "skills": [
+     "performance"
+    ]
+   },
+   "tool": true
+  },
+  {
+   "id": "healers-kit-stabilize",
+   "item": "healers-kit",
+   "verbs": [
+    "stabilize",
+    "bandage",
+    "tend"
+   ],
+   "when": "ally_down",
+   "label": "Stabilize a fallen ally",
+   "effect": {
+    "kind": "stabilize"
+   },
+   "cost": "action",
+   "charges": 10,
+   "tool": true
+  },
+  {
+   "id": "herbalism-kit-craft",
+   "item": "herbalism-kit",
+   "verbs": [
+    "brew",
+    "craft"
+   ],
+   "when": "long_rest",
+   "label": "Brew a poultice from camp supplies",
+   "effect": {
+    "kind": "craft",
+    "supplies": 2,
+    "output": "herbal-poultice"
+   },
+   "tool": true
+  },
+  {
+   "id": "fishing-tackle-fish",
+   "item": "fishing-tackle",
+   "verbs": [
+    "fish"
+   ],
+   "when": "tagged_place",
+   "label": "Fish here for camp supplies",
+   "effect": {
+    "kind": "supplies",
+    "skill": "survival",
+    "amount": 2
+   },
+   "tags": [
+    "water"
+   ]
+  },
+  {
+   "id": "hunting-trap-set",
+   "item": "hunting-trap",
+   "verbs": [
+    "trap",
+    "hunt"
+   ],
+   "when": "tagged_place",
+   "label": "Set a trap for camp supplies",
+   "effect": {
+    "kind": "supplies",
+    "skill": "survival",
+    "amount": 2
+   },
+   "tags": [
+    "wilds",
+    "forest"
+   ]
+  },
+  {
+   "id": "antitoxin-drink",
+   "item": "antitoxin-vial",
+   "verbs": [
+    "drink"
+   ],
+   "when": "place",
+   "label": "Drink the antitoxin",
+   "effect": {
+    "kind": "boon",
+    "saves_against": [
+     "poison"
+    ],
+    "scope": "until_long_rest"
+   },
+   "cost": "bonus",
+   "consumes": true
+  },
+  {
+   "id": "oil-flask-throw",
+   "item": "oil-flask",
+   "verbs": [
+    "throw",
+    "pour",
+    "spill"
+   ],
+   "when": "fight",
+   "label": "Throw the oil at a zone",
+   "effect": {
+    "kind": "surface",
+    "surface": "oil"
+   },
+   "cost": "action",
+   "consumes": true
+  },
+  {
+   "id": "alchemists-fire-throw",
+   "item": "alchemists-fire-flask",
+   "verbs": [
+    "throw"
+   ],
+   "when": "fight",
+   "label": "Throw the fire",
+   "effect": {
+    "kind": "damage",
+    "roll": "attack",
+    "dice": "1d4",
+    "damage_type": "fire"
+   },
+   "cost": "action",
+   "consumes": true
+  },
+  {
+   "id": "acid-vial-throw",
+   "item": "acid-vial",
+   "verbs": [
+    "throw"
+   ],
+   "when": "fight",
+   "label": "Throw the acid",
+   "effect": {
+    "kind": "damage",
+    "roll": "attack",
+    "dice": "2d6",
+    "damage_type": "acid"
+   },
+   "cost": "action",
+   "consumes": true
+  },
+  {
+   "id": "holy-water-throw",
+   "item": "holy-water-flask",
+   "verbs": [
+    "throw"
+   ],
+   "when": "fight",
+   "label": "Throw the holy water",
+   "effect": {
+    "kind": "damage",
+    "roll": "attack",
+    "dice": "2d6",
+    "damage_type": "radiant",
+    "creature_types": [
+     "undead",
+     "fiend"
+    ]
+   },
+   "cost": "action",
+   "consumes": true
+  },
+  {
+   "id": "caltrops-scatter",
+   "item": "caltrops",
+   "verbs": [
+    "scatter"
+   ],
+   "when": "fight",
+   "label": "Scatter the caltrops in a zone",
+   "effect": {
+    "kind": "surface",
+    "surface": "caltrops"
+   },
+   "cost": "action",
+   "consumes": true
+  },
+  {
+   "id": "ball-bearings-scatter",
+   "item": "ball-bearings-bag-of-1000",
+   "verbs": [
+    "scatter",
+    "spill"
+   ],
+   "when": "fight",
+   "label": "Spill the ball bearings in a zone",
+   "effect": {
+    "kind": "surface",
+    "surface": "ball-bearings"
+   },
+   "cost": "action",
+   "consumes": true
+  },
+  {
+   "id": "scroll-read",
+   "item": "scroll-of-*",
+   "verbs": [
+    "read",
+    "cast"
+   ],
+   "when": "place",
+   "label": "Read the scroll",
+   "effect": {
+    "kind": "cast_spell"
+   },
+   "cost": "action",
+   "consumes": true
+  }
+ ],
+ "scroll_table": [
+  {
+   "level": 0,
+   "save_dc": 13,
+   "attack_bonus": 5
+  },
+  {
+   "level": 1,
+   "save_dc": 13,
+   "attack_bonus": 5
+  },
+  {
+   "level": 2,
+   "save_dc": 13,
+   "attack_bonus": 5
+  },
+  {
+   "level": 3,
+   "save_dc": 15,
+   "attack_bonus": 7
+  },
+  {
+   "level": 4,
+   "save_dc": 15,
+   "attack_bonus": 7
+  },
+  {
+   "level": 5,
+   "save_dc": 17,
+   "attack_bonus": 9
+  },
+  {
+   "level": 6,
+   "save_dc": 17,
+   "attack_bonus": 9
+  },
+  {
+   "level": 7,
+   "save_dc": 18,
+   "attack_bonus": 10
+  },
+  {
+   "level": 8,
+   "save_dc": 18,
+   "attack_bonus": 10
+  },
+  {
+   "level": 9,
+   "save_dc": 19,
+   "attack_bonus": 11
+  }
+ ]
+}
