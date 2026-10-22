@@ -779,8 +779,14 @@ export const STRINGS = {
     tokenLine: '{calls} calls, {prompt} tokens read, {completion} tokens written',
     noTokens: 'No usage reported yet.',
   },
+  tip: {
+    what: 'What is {title}?',
+    close: 'Close this tip',
+  },
   settings: {
     title: 'Settings',
+    tooltips: 'Tooltips',
+    tooltipsHint: 'Show a ? next to things you can look up.',
     audio: 'Sound',
     mute: 'Mute narration',
     volume: 'Narrator volume',

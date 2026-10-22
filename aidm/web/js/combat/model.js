@@ -40,11 +40,15 @@ export function isLive(token) {
 }
 
 /** Monsters show a coarse state, never numbers: healthy, wounded (half or less), bloodied (a quarter or less). */
+// The health word cut-offs. The tip text in aidm/rules/explain_words.py says the same numbers (a unit test checks it).
+export const BLOODIED_AT = 0.25;
+export const WOUNDED_AT = 0.5;
+
 export function healthState(token) {
   if (token.dead) return 'fallen';
   const ratio = token.max_hp > 0 ? token.hp / token.max_hp : 0;
-  if (ratio <= 0.25) return 'bloodied';
-  if (ratio <= 0.5) return 'wounded';
+  if (ratio <= BLOODIED_AT) return 'bloodied';
+  if (ratio <= WOUNDED_AT) return 'wounded';
   return 'healthy';
 }
 

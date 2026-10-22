@@ -34,6 +34,9 @@ You can dictate your actions. The **Dictate** button next to **Act** only appear
 - The **Settings** button on your phone has text speed, text size and a reduce-motion switch. The screen's gear button has the sound settings for the screen.
 - When the screen opens, it asks for one click (**Click anywhere to start the table's sound**) because browsers block sound until a page is clicked. It asks again if the browser blocks a clip. Click once and everything plays.
 
+### Tooltips
+- Tap a small **?** next to a thing to see what it means. The tip opens as a small popup; close it with its **x**, by tapping elsewhere or with Esc. Turn tooltips off with the **Tooltips** switch in **Settings** (on by default, remembered on your device).
+
 ## 2. Your hero
 
 Open the hero wizard from the lobby (**Create my hero**). It has up to ten steps: Race, Class, Background, Abilities, Skills, Equipment, Spells, Portrait, Name and Review. The Spells step appears only for casters and for races that grant a cantrip. You can go back at any step.

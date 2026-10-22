@@ -18,6 +18,7 @@ export const DEFAULTS = {
   speed: 'normal',
   size: 'normal',
   reduceMotion: false,
+  tooltips: true, // M28.2: show the '?' tips
 };
 
 const REVEAL = { instant: 0, fast: 500, normal: 1200, slow: 2400 };
@@ -42,6 +43,7 @@ function clean(raw) {
   if (SPEEDS.includes(raw?.speed)) out.speed = raw.speed;
   if (Object.hasOwn(SIZES, raw?.size)) out.size = raw.size;
   if (typeof raw?.reduceMotion === 'boolean') out.reduceMotion = raw.reduceMotion;
+  if (typeof raw?.tooltips === 'boolean') out.tooltips = raw.tooltips;
   return out;
 }
 

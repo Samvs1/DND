@@ -9,6 +9,7 @@ import { createDispatch } from './handlers.js';
 import { mountSoundGate } from './screen/sound_gate.js';
 import { createScribeVoice } from './scribe/voice.js';
 import { loadSettings } from './settings/model.js';
+import { bindTips } from './ui/tip.js';
 import { createPacer } from './show/pacer.js';
 import { createStore, saved } from './state.js';
 import { createStory } from './story.js';
@@ -31,6 +32,7 @@ skip.href = '#app';
 skip.textContent = t('a11y.skip');
 document.body.prepend(skip);
 const store = createStore();
+bindTips(store);
 const dispatch = createDispatch({ store, saved });
 // M26.5: every server message passes the presentation queue, so nothing runs ahead of the dice.
 const pacer = createPacer({ dispatch, store });

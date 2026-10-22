@@ -3,6 +3,7 @@
 import { t } from '../strings.js';
 import { createPanel } from '../ui/modal.js';
 import { h } from '../ui/dom.js';
+import { tipButton } from '../ui/tip.js';
 import { DEFAULTS, SIZES, SPEEDS, audioMuted, currentSettings, updateSettings } from './model.js';
 
 function choice(id, labelKey, values, prefix, current, onPick) {
@@ -15,6 +16,12 @@ function check(id, labelKey, current, onPick, hintKey) {
   const box = h('input', { type: 'checkbox', id, checked: current, 'data-testid': id });
   box.addEventListener('change', () => onPick(box.checked));
   return h('div', { class: 'set-row set-check' }, h('label', { for: id }, box, ' ', t(labelKey)), hintKey ? h('p', { class: 'hint' }, t(hintKey)) : null);
+}
+
+function tooltipsRow(current, onPick) {
+  const row = check('set-tooltips', 'settings.tooltips', current, onPick, 'settings.tooltipsHint');
+  row.insertBefore(tipButton('word:tooltips'), row.children[1]);
+  return row;
 }
 
 export function mountSettings(root, { store, saved, mode }) {
@@ -46,6 +53,7 @@ export function mountSettings(root, { store, saved, mode }) {
       choice('set-speed', 'settings.speed', SPEEDS, 'speed', s.speed, (speed) => set({ speed })),
       choice('set-size', 'settings.size', Object.keys(SIZES), 'size', s.size, (size) => set({ size })),
       check('set-motion', 'settings.motion', s.reduceMotion, (reduceMotion) => set({ reduceMotion }), 'settings.motionHint'),
+      tooltipsRow(s.tooltips, (tooltips) => set({ tooltips })),
       h('h3', {}, t('a11y.keysTitle')),
       h('ul', { class: 'hint set-keys', 'data-testid': 'set-keys' }, ...['keyTab', 'keyHotbar', 'keyEscape'].map((k) => h('li', {}, t(`a11y.${k}`)))),
       h('button', { type: 'button', class: 'btn btn-small', 'data-testid': 'set-reset', onclick: () => { set({ ...DEFAULTS }); build(); } }, t('settings.reset')),

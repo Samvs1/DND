@@ -49,6 +49,9 @@ def _combat() -> dict[str, Tip]:
             "Heroes without darkvision attack into a dark zone at disadvantage.",
             "Monsters see in the dark. A carried light lights the places it reaches.",
         ),
+        "tooltips": _t(
+            "Tooltips", "Tap a ? to see what a thing means.", "Turn them off in Settings."
+        ),
         "lit": _t("Lit", "A light reaches this zone, so the dark does not hinder attacks here."),
         "healthy": _t("Unhurt", "More than half of its hit points are left."),
         "wounded": _t("Wounded", "Half of its hit points or fewer are left."),

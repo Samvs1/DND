@@ -343,6 +343,7 @@ def test_settings_persist_across_reload(
         "speed": "slow",
         "size": "large",
         "reduceMotion": True,
+        "tooltips": True,
     }
     host.reload()
     host.wait_for_selector("[data-testid=controller]", timeout=20000)
