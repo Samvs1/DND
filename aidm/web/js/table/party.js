@@ -5,6 +5,7 @@ import { mySeat } from '../state.js';
 import { t } from '../strings.js';
 import { clear, h } from '../ui/dom.js';
 import { titleCase } from '../ui/format.js';
+import { tipButton } from '../ui/tip.js';
 import { publicState } from './lookup.js';
 import { eye, lightChip } from './light.js';
 
@@ -35,13 +36,15 @@ export function hpBar(c) {
   );
 }
 
-export function conditionIcons(c) {
+/** Condition icons; with `tips` each one is followed by its '?' (the phone strip). */
+export function conditionIcons(c, tips = false) {
   return h(
     'span',
     { class: 'conditions' },
-    ...c.conditions.map((id) =>
+    ...c.conditions.flatMap((id) => [
       h('img', { class: 'cond', src: assetUrl(`condition_icon.${id}`), alt: titleCase(id), title: titleCase(id), width: 20, height: 20 }),
-    ),
+      tips ? tipButton(`condition:${id}`, titleCase(id)) : null,
+    ]),
   );
 }
 

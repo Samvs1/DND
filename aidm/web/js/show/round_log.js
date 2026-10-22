@@ -9,7 +9,8 @@ import { keptIndex } from '../table/dice.js';
 import { natural } from './timing.js';
 import { diceSides } from './board.js';
 import { spriteKey } from './throw.js';
-import { advTag } from './words.js';
+import { tipButton } from '../ui/tip.js';
+import { advTag, advTip } from './words.js';
 
 const MAX_LINES = 6;
 
@@ -30,7 +31,9 @@ function d20s(kind, dice) {
 
 function tagChip(dice) {
   const text = advTag(dice);
-  return text ? h('span', { class: 'sr-tag', 'data-testid': 'adv-tag' }, text) : null;
+  if (!text) return null;
+  const tip = advTip(dice);
+  return h('span', { class: 'sr-tagrow' }, h('span', { class: 'sr-tag', 'data-testid': 'adv-tag' }, text), tipButton(tip.key, text, tip.why));
 }
 
 function chip(word, tone) {

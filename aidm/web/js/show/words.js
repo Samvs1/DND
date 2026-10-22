@@ -48,6 +48,11 @@ export function boardVerdict(dice, state, name) {
   return dice.success ? { word: t('show.resisted'), tone: 'bad' } : { word: t('show.caught'), tone: 'good' };
 }
 
+/** The tip key and the reason line of an advantage tag: the '?' explains the word and names why. */
+export function advTip(dice) {
+  return { key: `word:${dice.adv}`, why: (dice.adv_why || []).join(', ') };
+}
+
 /** "DIS · Darkness" / "ADV · Hidden" for a roll that had advantage or disadvantage, else ''. */
 export function advTag(dice) {
   if (dice.adv !== 'advantage' && dice.adv !== 'disadvantage') return '';

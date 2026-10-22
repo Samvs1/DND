@@ -7,7 +7,8 @@ import { myCreatureId } from '../combat/model.js';
 import { creatureName } from '../table/lookup.js';
 import { natural } from '../show/timing.js';
 import { makeDie } from '../show/throw.js';
-import { advTag, boardVerdict, onPartySide } from '../show/words.js';
+import { tipButton } from '../ui/tip.js';
+import { advTag, advTip, boardVerdict, onPartySide } from '../show/words.js';
 import { t } from '../strings.js';
 import { h } from '../ui/dom.js';
 
@@ -25,7 +26,7 @@ function cardFor(dice, state, me) {
   const kind = verdict.tone === 'crit' ? 'crit' : ours ? 'hero' : 'foe';
   const title = atMe ? t('show.attacksYou', { name: creatureName(state, dice.roller_id), what: dice.label }) : dice.label;
   const target = dice.kind === 'attack' ? t('show.vsAc', { n: dice.target }) : t('show.vsDc', { n: dice.target });
-  return { title, kind, face: natural(dice), total: dice.total, target, verdict, atMe, tag: advTag(dice) };
+  return { title, kind, face: natural(dice), total: dice.total, target, verdict, atMe, tag: advTag(dice), tip: advTip(dice) };
 }
 
 export function mountFightCard(root, { store, pacer }) {
@@ -52,7 +53,7 @@ export function mountFightCard(root, { store, pacer }) {
       'section',
       { class: `fc${c.atMe ? ' at-me' : ''}`, role: 'status', 'aria-live': 'polite', 'data-testid': 'fight-card' },
       h('div', { class: 'fc-die' }, die),
-      h('div', { class: 'fc-body' }, h('div', { class: 'fc-title' }, c.title), h('div', { class: 'fc-math' }, h('b', {}, String(c.total)), ` ${c.target}`), c.tag ? h('div', { class: 'fc-tag', 'data-testid': 'fight-card-tag' }, c.tag) : null),
+      h('div', { class: 'fc-body' }, h('div', { class: 'fc-title' }, c.title), h('div', { class: 'fc-math' }, h('b', {}, String(c.total)), ` ${c.target}`), c.tag ? h('div', { class: 'fc-tagrow' }, h('span', { class: 'fc-tag', 'data-testid': 'fight-card-tag' }, c.tag), tipButton(c.tip.key, c.tag, c.tip.why)) : null),
       verdict,
     );
     root.append(card);

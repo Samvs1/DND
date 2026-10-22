@@ -1087,3 +1087,11 @@ body.is-controller #app {
   letter-spacing: 0.06em;
   color: #cfcff5;
 }
+
+/* M28.4: the '?' beside an advantage tag. */
+.fc-tagrow,
+.sr-tagrow {
+  display: inline-flex;
+  gap: 0.3rem;
+  align-items: center;
+}

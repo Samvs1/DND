@@ -10,8 +10,15 @@ import { itemArt } from './item_art.js';
 
 const signed = (n) => (n >= 0 ? `+${n}` : String(n));
 
+/** The same corner on every fact tile, so the '?' never wraps with the label. */
+function cornerTip(key, label) {
+  const tip = tipButton(key, label);
+  tip.classList.add('tip-corner');
+  return tip;
+}
+
 function stat(label, value, testid, tip, note) {
-  return h('div', { class: 'sh-stat', 'data-testid': testid }, h('span', { class: 'sh-stat-label' }, label, tipButton(tip, label)), h('strong', { class: 'sh-stat-value' }, value), note ? h('span', { class: 'sh-stat-note' }, note) : null);
+  return h('div', { class: 'sh-stat', 'data-testid': testid }, h('span', { class: 'sh-stat-label' }, label), h('strong', { class: 'sh-stat-value' }, value), note ? h('span', { class: 'sh-stat-note' }, note) : null, cornerTip(tip, label));
 }
 
 function vitals(s) {
@@ -82,7 +89,7 @@ function deathSaves(s) {
 }
 
 // Dense grids (abilities, saves, skills, training) get ONE corner '?' on the block heading, not one per cell.
-const BLOCK_TIPS = { 'sh-ab': [['sheet:abilities'], ['sheet:saves', 'sheet.saves']], 'sh-sk': [['sheet:skills']], 'sh-train': [['sheet:training']] };
+const BLOCK_TIPS = { 'sh-ab': [['sheet:abilities']], 'sh-sk': [['sheet:skills']], 'sh-train': [['sheet:training']] };
 
 function block(title, testid, ...children) {
   const tips = (BLOCK_TIPS[testid] ?? []).map(([key, label]) => tipButton(key, label ? t(label) : title));

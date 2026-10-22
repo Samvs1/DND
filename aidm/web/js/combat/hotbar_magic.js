@@ -4,6 +4,7 @@ import { assetUrl } from '../assets.js';
 import { t } from '../strings.js';
 import { putOutButton } from '../table/light.js';
 import { h } from '../ui/dom.js';
+import { tipButton } from '../ui/tip.js';
 import { percent } from './model.js';
 
 /** Slot levels this hero can still cast with: [{level, current, max}]. */
@@ -57,12 +58,13 @@ function spellRow(ctx, spell, slots) {
   const buttons = levels.map((level, i) =>
     h('button', { type: 'button', class: i === 0 ? 'btn btn-small' : 'btn btn-small alt', disabled: !castable, 'data-testid': `cast-${spell.index}`, 'data-level': level, 'aria-label': spell.level === 0 ? spell.name : `${spell.name}, ${t('hotbar.slotPick')} ${level}`, onclick: () => startCast(ctx, spell, level) }, spell.level === 0 ? t('hotbar.cantrips') : i === 0 ? spell.name : String(level)),
   );
-  if (levels.length > 1) buttons.splice(0, 1, h('span', { class: 'spell-name' }, spell.name), h('span', { class: 'hint' }, t('hotbar.slotPick')), buttons[0]);
+  if (levels.length > 1) buttons.splice(0, 1, h('span', { class: 'spell-name' }, spell.name), tipButton(`spell:${spell.index}`, spell.name), h('span', { class: 'hint' }, t('hotbar.slotPick')), buttons[0]);
   return h(
     'li',
     { class: `spell-row${castable ? '' : ' off'}` },
     h('img', { src: assetUrl([`spell_icon.${spell.index}`, 'spell_icon.school.arcane']), alt: '', width: 28, height: 28 }),
     levels.length > 1 ? null : h('span', { class: 'spell-name' }, spell.name),
+    levels.length > 1 ? null : tipButton(`spell:${spell.index}`, spell.name),
     spell.concentration ? h('span', { class: 'tag', title: t('hotbar.concentration') }, 'C') : null,
     bonus ? h('span', { class: 'tag' }, t('hotbar.spellBonus')) : null,
     chanceTag(ctx, spell),
@@ -110,7 +112,8 @@ function gearRow(ctx, use) {
     h('span', { class: 'item-main' }, h('span', { class: 'spell-name' }, use.name), h('span', { class: 'hint item-what' }, use.label)),
     h('span', { class: 'tag item-cost', 'data-testid': 'gear-cost' }, t(bonus ? 'hotbar.econ_bonus_action' : 'hotbar.econ_action')),
     h('span', { class: 'hint item-count' }, use.qty > 1 ? t('hotbar.itemCount', { n: use.qty }) : ''),
-    h('button', { type: 'button', class: 'btn btn-small', disabled: !ready, title: use.label, 'data-testid': `gear-${use.use_id}`, 'aria-label': use.label, onclick: () => useGear(ctx, use) }, t('hotbar.useShort')));
+    h('button', { type: 'button', class: 'btn btn-small', disabled: !ready, title: use.label, 'data-testid': `gear-${use.use_id}`, 'aria-label': use.label, onclick: () => useGear(ctx, use) }, t('hotbar.useShort')),
+    tipButton(`use:${use.use_id}`, use.name));
 }
 
 export function itemPopover(ctx) {
@@ -122,9 +125,10 @@ export function itemPopover(ctx) {
       h('span', { class: 'item-main' }, h('span', { class: 'spell-name' }, item.name)),
       h('span', { class: 'tag item-cost' }, t('hotbar.econ_bonus_action')),
       h('span', { class: 'hint item-count' }, t('hotbar.itemCount', { n: item.qty })),
-      h('button', { type: 'button', class: 'btn btn-small', disabled: !econ.bonus_action, 'data-testid': `use-${item.item}`, 'aria-label': t('hotbar.useItem', { name: item.name }), title: t('hotbar.useItem', { name: item.name }), onclick: () => ctrl.send({ type: 'use_item', actor_id: me, item: item.item }) }, t('hotbar.useShort'))),
+      h('button', { type: 'button', class: 'btn btn-small', disabled: !econ.bonus_action, 'data-testid': `use-${item.item}`, 'aria-label': t('hotbar.useItem', { name: item.name }), title: t('hotbar.useItem', { name: item.name }), onclick: () => ctrl.send({ type: 'use_item', actor_id: me, item: item.item }) }, t('hotbar.useShort')),
+      tipButton(`item:${item.item}`, item.name)),
   );
   rows.push(...(ctx.sheet?.gear_uses ?? []).map((use) => gearRow(ctx, use)));
-  if (ctx.light && ctx.client) rows.push(h('li', { class: 'spell-row', 'data-testid': 'put-out-row' }, h('span', { class: 'spell-name' }, t('light.litChip', { name: ctx.light })), putOutButton(ctx.client)));
+  if (ctx.light && ctx.client) rows.push(h('li', { class: 'spell-row', 'data-testid': 'put-out-row' }, h('span', { class: 'spell-name' }, t('light.litChip', { name: ctx.light })), putOutButton(ctx.client), tipButton('word:lit', t('light.lit'))));
   return h('div', { class: 'hb-pop', role: 'group', 'aria-label': t('hotbar.items'), 'data-testid': 'item-pop' }, rows.length ? h('ul', { class: 'spell-list' }, ...rows) : h('p', { class: 'hint' }, t('hotbar.itemsEmpty')));
 }

@@ -9,7 +9,7 @@ from tests.ui.table_helpers import go_tab, start_table
 from tests.ui.test_panels import PHONE
 
 OUT = SHOTS / "m28_2"
-BTN = "[data-testid=tip-btn]"
+BTN = "[data-testid=settings] [data-testid=tip-btn]"
 POP = "[data-testid=tip-pop]"
 SETTINGS = "[data-testid=settings][open]"
 ADD = """async () => {
@@ -136,6 +136,6 @@ def test_failed_tips_show_no_question_mark_and_no_error(
         """async () => { const m = await import('/web/js/ui/tip.js');
           const b = m.tipButton('word:tooltips'); document.body.append(b); await m.loadTips(); }"""
     )
-    assert page.locator(f"{BTN}:not([hidden])").count() == 0
+    assert page.locator("[data-testid=tip-btn]:not([hidden])").count() == 0
     assert errors == []
     context.close()

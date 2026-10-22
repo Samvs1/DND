@@ -5,6 +5,7 @@
 import { realAssetUrl } from '../assets.js';
 import { t } from '../strings.js';
 import { clear, h } from '../ui/dom.js';
+import { tipButton } from '../ui/tip.js';
 import { attackSlots, bonusSlots, featureSlots, moveSlots } from './hotbar_slots.js';
 import { itemPopover, spellPopover } from './hotbar_magic.js';
 import { actingToken, combatOf, heroActing, isMyTurn, myCreatureId } from './model.js';
@@ -62,6 +63,13 @@ function slotButton(desc, number) {
   );
 }
 
+/** The slot and its '?' side by side (a button cannot hold a button): the '?' is a corner target of its own. */
+function slotCell(desc, number) {
+  const tip = desc.tipKey ? tipButton(desc.tipKey, desc.label) : null;
+  tip?.classList.add('tip-corner');
+  return h('div', { class: 'hb-cell' }, slotButton(desc, number), tip);
+}
+
 function popButton(id, label, tip, open, onclick, number) {
   return h(
     'button',
@@ -89,7 +97,7 @@ function fillBody(body, pop, c, ctrl) {
   const slots = [...attackSlots(c), ...moveSlots(c), ...bonusSlots(c)];
   let n = 0;
   const group = (name, descs, extras = []) => {
-    const nodes = [...descs.map((d) => slotButton(d, ++n)), ...extras];
+    const nodes = [...descs.map((d) => slotCell(d, ++n)), ...extras];
     if (nodes.length) body.append(h('div', { class: 'hb-group', role: 'group', 'aria-label': t(`hotbar.${name}`) }, ...nodes));
   };
   const attacks = slots.filter((s) => s.group === 'attacks');

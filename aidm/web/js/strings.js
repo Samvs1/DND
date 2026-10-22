@@ -901,6 +901,7 @@ export const STRINGS = {
     micError: 'The microphone did not catch that. Try again, or type your action.',
     targets: 'Targets',
     places: 'Move to',
+    zoneFacts: 'What the zone has',
     placesLeft: 'Move ({feet} ft left)',
     placesPick: 'Pick a zone',
     moveDashFirst: 'Dash first',

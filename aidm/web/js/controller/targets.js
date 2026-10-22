@@ -6,6 +6,7 @@ import { combatOf, healthState, isEnemy, isLive, isMyTurn, moveCost, percent, to
 import { t } from '../strings.js';
 import { clear, h } from '../ui/dom.js';
 import { titleCase } from '../ui/format.js';
+import { tipButton } from '../ui/tip.js';
 import { zoneDimmed } from '../table/light.js';
 
 function distance(combat, mine, token, zone) {
@@ -30,9 +31,9 @@ function chip(token, ctx) {
   const where = distance(combat, mine, token, zones.get(token.zone_id) ?? '');
   const conds = token.conditions.map(titleCase).join(', ');
   const hit = foe ? chanceLabel(ctrl, token) : null;
-  return h(
+  const button = h(
     'button',
-    { type: 'button', class: `ct-target ${foe ? 'foe' : 'ally'} is-${band}${targeted ? ' targeted' : ''}`, 'aria-pressed': targeted ? 'true' : 'false', 'data-testid': 'target-chip', 'data-creature': token.creature_id, 'data-side': token.side, onclick: () => ctrl.pickToken(token) },
+    { type: 'button', class: `ct-target ${foe ? 'foe has-tip' : 'ally'} is-${band}${targeted ? ' targeted' : ''}`, 'aria-pressed': targeted ? 'true' : 'false', 'data-testid': 'target-chip', 'data-creature': token.creature_id, 'data-side': token.side, onclick: () => ctrl.pickToken(token) },
     h('strong', { class: 'ct-t-name' }, token.name),
     h('span', { class: 'ct-t-hp', 'data-testid': 'target-hp' }, hp),
     hit ? h('span', { class: 'ct-t-hit', 'data-testid': 'target-hit' }, hit) : null,
@@ -40,6 +41,10 @@ function chip(token, ctx) {
     foe && zoneDimmed(ctx.zoneOf.get(token.zone_id)) ? h('span', { class: 'ct-zb ct-t-dark', 'data-testid': 'target-dark', title: t('light.darkTarget') }, t('light.dark')) : null,
     h('span', { class: 'ct-t-where hint', 'data-testid': 'target-where' }, where),
   );
+  if (!foe) return button;
+  const tip = tipButton(`word:${band}`, hp);
+  tip.classList.add('tip-corner');
+  return h('div', { class: 'tip-cell' }, button, tip);
 }
 
 export function mountTargets(root, { store }, ctrl) {

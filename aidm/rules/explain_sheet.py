@@ -33,7 +33,9 @@ def _stats() -> dict[str, Tip]:
         "abilities": _t(
             "Abilities",
             "Six scores. Each gives a modifier that is added to the rolls that use it.",
-            "The small number beside a score is your saving throw for it.",
+            "The small number under a score is your saving throw for it: a d20 plus that number,"
+            " to resist spells and hazards.",
+            "A saving throw you are trained in adds your proficiency bonus.",
         ),
         "training": _t(
             "Training",

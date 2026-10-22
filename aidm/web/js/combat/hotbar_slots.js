@@ -44,6 +44,7 @@ export function attackSlots(ctx) {
       tip: `${t(`hotbar.hand_${a.hand}`)}. ${t('hotbar.attackLine', { bonus: a.attack_bonus >= 0 ? `+${a.attack_bonus}` : a.attack_bonus, damage: a.damage })}. ${chanceText(chance)}`,
       off: can ? null : offhand ? 'no_bonus_action' : 'no_action',
       run: () => (target ? ctrl.send(attack(target)) : aimAt(ctrl, [{ need: 'creature', valid: foe, prompt: t('combat.pickTarget') }], (p) => attack(p[0][0]))),
+      tipKey: a.item ? `item:${a.item}` : null,
       kind: ATTACK_KEYS.has(a.hand) ? 'attack' : 'bonus',
     });
   }
@@ -58,6 +59,7 @@ function simple(id, type, ctx, extra = {}) {
     group: bonus ? 'bonus' : 'moves',
     label: bonus ? t('hotbar.cunning', { name: t(`hotbar.${id}`) }) : t(`hotbar.${id}`),
     tip: t(`hotbar.tip_${id}`),
+    tipKey: `word:${id}`,
     off: (bonus ? econ.bonus_action : econ.action) ? null : bonus ? 'no_bonus_action' : 'no_action',
     run: () => ctrl.send({ type, actor_id: me, ...extra }),
   };
@@ -73,7 +75,7 @@ function engaged({ combat, econ, me }) {
 export function moveSlots(ctx) {
   const { ctrl, econ, me } = ctx;
   const needsAction = econ.action ? null : 'no_action';
-  const pick = (id, steps, build, group = 'moves', off = needsAction) => ({ id, group, label: t(`hotbar.${id}`), tip: t(`hotbar.tip_${id}`), off, run: () => aimAt(ctrl, steps, build) });
+  const pick = (id, steps, build, group = 'moves', off = needsAction) => ({ id, group, label: t(`hotbar.${id}`), tip: t(`hotbar.tip_${id}`), tipKey: id === 'help' ? 'word:help' : null, off, run: () => aimAt(ctrl, steps, build) });
   return [
     simple('dash', 'dash', ctx),
     simple('disengage', 'disengage', ctx),
@@ -81,7 +83,7 @@ export function moveSlots(ctx) {
     simple('hide', 'hide', ctx),
     pick('help', [{ need: 'creature', valid: ally(me), prompt: t('combat.pickTarget') }], (p) => ({ type: 'help', actor_id: me, target_id: p[0][0] })),
     pick('throw', [{ need: 'creature', valid: foe, prompt: t('combat.pickTarget') }], (p) => ({ type: 'throw', actor_id: me, target_id: p[0][0] })),
-    { id: 'flee', group: 'moves', label: t('hotbar.flee'), tip: t('hotbar.tip_flee'), sub: engaged(ctx) ? t('hotbar.disengageFirst') : null, off: null, run: () => ctrl.send({ type: 'flee', actor_id: me }) },
+    { id: 'flee', group: 'moves', label: t('hotbar.flee'), tip: t('hotbar.tip_flee'), tipKey: 'word:flee', sub: engaged(ctx) ? t('hotbar.disengageFirst') : null, off: null, run: () => ctrl.send({ type: 'flee', actor_id: me }) },
     ...endSlots(ctx, needsAction),
   ];
 }
@@ -91,7 +93,7 @@ function endSlots({ ctrl, sheet, me }, off) {
   const seen = new Set();
   return (sheet?.conditions ?? [])
     .filter((c) => c.end_label && !seen.has(c.name) && seen.add(c.name))
-    .map((c) => ({ id: `end-${c.name}`, group: 'moves', label: c.end_label, tip: t('hotbar.tip_endCondition'), off, run: () => ctrl.send({ type: 'end_condition', actor_id: me, condition: c.name }) }));
+    .map((c) => ({ id: `end-${c.name}`, group: 'moves', label: c.end_label, tip: t('hotbar.tip_endCondition'), tipKey: `condition:${c.name}`, off, run: () => ctrl.send({ type: 'end_condition', actor_id: me, condition: c.name }) }));
 }
 
 // M27.8: standing in the dark with an unlit light in the pack, lighting it is one tap on the hotbar (the Items
@@ -103,7 +105,7 @@ function lightSlots({ combat, sheet, me, ctrl, econ }, noBonus) {
     .filter((u) => u.effect === 'light_place')
     .map((u) => ({
       id: `light-${u.item}`, group: 'bonus', label: t('light.lightSlot', { name: u.name.toLowerCase() }), sub: t('light.lightSlotBonus'),
-      tip: t('light.lightSlotTip'), off: noBonus, run: () => useGear({ ctrl, me, econ }, u),
+      tip: t('light.lightSlotTip'), tipKey: `use:${u.use_id}`, off: noBonus, run: () => useGear({ ctrl, me, econ }, u),
     }));
 }
 
@@ -165,6 +167,7 @@ export function featureSlots(ctx) {
       label: f.name,
       sub: f.uses_max != null ? t('hotbar.usesLeft', { n: f.uses_left, max: f.uses_max }) : null,
       tip: featureTip(f),
+      tipKey: [`feature:${f.feature}`, `trait:${f.feature}`],
       off: featureOff(f, econ),
       run,
     };

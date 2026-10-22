@@ -33,6 +33,7 @@ function refresh() {
       buttons.delete(b);
       continue;
     }
+    b.dataset.tip = b.tipKeys.find((k) => known[k]) ?? b.tipKeys[0];
     b.hidden = !tipsEnabled() || !known[b.dataset.tip];
     if (b.hidden && open?.button === b) closeTip(false);
   }
@@ -68,7 +69,7 @@ function openTip(button) {
   if (!tip) return;
   const close = h('button', { type: 'button', class: 'tip-close', 'aria-label': t('tip.close'), 'data-testid': 'tip-close' }, '×');
   const pop = h('div', { class: 'tip-pop', role: 'dialog', tabindex: '-1', 'aria-label': tip.title, 'data-testid': 'tip-pop' },
-    close, h('strong', { class: 'tip-title' }, tip.title), ...tip.lines.map((l) => h('p', { class: 'tip-line' }, l)));
+    close, h('strong', { class: 'tip-title' }, tip.title), ...[...tip.lines, button.tipExtra].filter(Boolean).map((l) => h('p', { class: 'tip-line' }, l)));
   (button.closest('dialog') ?? document.body).append(pop);
   place(pop, button);
   button.setAttribute('aria-expanded', 'true');
@@ -95,9 +96,13 @@ function openTip(button) {
   pop.focus();
 }
 
-/** A '?' button for a tip key. It stays hidden while tips are off, still loading or unknown, so it is safe to place. */
-export function tipButton(key, label = '') {
-  const button = h('button', { type: 'button', class: 'tip-btn', hidden: true, 'data-tip': key, 'data-testid': 'tip-btn', 'aria-haspopup': 'dialog', 'aria-expanded': 'false' }, '?');
+/** A '?' button for a tip key (or a list of keys: the first known one is used). It stays hidden while tips are off,
+ * still loading or unknown, so it is safe to place. */
+export function tipButton(key, label = '', extra = '') {
+  const keys = [key].flat();
+  const button = h('button', { type: 'button', class: 'tip-btn', hidden: true, 'data-tip': keys[0], 'data-testid': 'tip-btn', 'aria-haspopup': 'dialog', 'aria-expanded': 'false' }, '?');
+  button.tipKeys = keys;
+  button.tipExtra = extra;
   button.setAttribute('aria-label', t('tip.what', { title: label }));
   button.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -106,7 +111,7 @@ export function tipButton(key, label = '') {
   });
   buttons.add(button);
   loadTips().then(() => {
-    button.setAttribute('aria-label', t('tip.what', { title: label || known[key]?.title || '' }));
+    button.setAttribute('aria-label', t('tip.what', { title: label || known[button.dataset.tip]?.title || '' }));
     refresh();
   });
   return button;

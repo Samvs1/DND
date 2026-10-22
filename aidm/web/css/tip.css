@@ -56,3 +56,78 @@
   background: transparent;
   border: 0;
 }
+
+/* M28.4: a '?' in the corner of a tile, slot or chip. It is its own 24x24 px target and never part of the thing it
+   explains (a button cannot hold a button), so tapping the thing still picks it. */
+.tip-cell,
+.hb-cell {
+  position: relative;
+  display: flex;
+  min-width: 0;
+}
+
+.tip-cell > :first-child,
+.hb-cell > :first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.tip-corner {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  background: color-mix(in srgb, var(--raised) 85%, transparent);
+}
+
+.sh-stat {
+  position: relative;
+}
+
+.ct-t-tips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.5rem;
+  padding: 0;
+  margin: 0.2rem 0 0;
+  font-size: 0.8rem;
+  list-style: none;
+}
+
+.ct-tip-fact {
+  display: inline-flex;
+  gap: 0.2rem;
+  align-items: center;
+}
+
+.ct-place-cell {
+  display: flex;
+  flex-direction: column;
+}
+
+.ct-target.has-tip {
+  padding-right: 1.8rem;
+}
+
+.ct .hb-cell {
+  width: 100%;
+}
+
+/* The phone's slot is a 3.4rem icon in the middle of its cell: the '?' sits on the icon's lower right corner. */
+.ct .hb-cell > .tip-corner {
+  top: 2.3rem;
+  right: calc(50% - 2.3rem);
+}
+
+.ct-strip-ac {
+  position: relative;
+}
+
+.ct-strip-ac > .tip-corner {
+  top: -0.4rem;
+  right: -0.6rem;
+}
+
+.ct-strip .hp-wrap > .tip-btn {
+  margin-left: 0.2rem;
+}

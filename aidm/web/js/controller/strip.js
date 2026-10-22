@@ -9,6 +9,7 @@ import { titleCase } from '../ui/format.js';
 import { everySecond } from '../ui/countdown.js';
 import { statusOf } from './status.js';
 import { eye, lightChip } from '../table/light.js';
+import { tipButton } from '../ui/tip.js';
 
 function resourceText(state) {
   const rows = state.sheet?.sheet?.resources ?? [];
@@ -17,6 +18,12 @@ function resourceText(state) {
 
 function acShield(hero) {
   return h('span', { class: 'ct-ac', 'data-testid': 'strip-ac', title: t('table.ac', { n: hero.ac }) }, h('span', { class: 'ct-ac-l' }, 'AC'), h('span', { class: 'ct-ac-n' }, String(hero.ac)));
+}
+
+function hpWithTip(hero) {
+  const bar = hpBar(hero);
+  bar.append(tipButton('sheet:hp'));
+  return bar;
 }
 
 export function mountStrip(root, store) {
@@ -49,15 +56,15 @@ export function mountStrip(root, store) {
         { class: 'ct-hero-top' },
         h('strong', { 'data-testid': 'strip-name' }, hero.name),
         h('span', { class: 'ct-meta' }, meta),
-        conditionIcons(hero),
+        conditionIcons(hero, true),
         eye(hero),
         lightChip(hero),
         h('span', { class: 'ct-res', 'data-testid': 'strip-resources', hidden: !resources }, resources),
         chip,
       ),
-      hpBar(hero),
+      hpWithTip(hero),
     );
-    shield.append(acShield(hero));
+    shield.append(acShield(hero), tipButton('sheet:ac'));
   }
   render(store.get());
   const stopTick = everySecond(store, renderChip); // the turn countdown (M15.1)
