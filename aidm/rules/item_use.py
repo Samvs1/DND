@@ -8,7 +8,6 @@ The AI proposes (`use_item(actor, item, target?)`, M27.5), the engine disposes. 
 3. a use of that item (`candidate_uses`: data/bg3/item_uses.json, optionally the one `use_id`;
    aimed at a creature of the fight only the uses that take a creature or its zone, then the
    SRD improvised throw, M27.6) fits:
-   - its effect is wired (`item_effects.not_wired`: cast_spell M27.7),
    - the situation (`when`): a use without a fight `cost` is never used in a fight (it takes
      longer than a turn); `fight` needs one; `dark_place` (a light) needs a hero without a lit
      light and is lit anywhere (M27.6, owner: daylight too, it is carried into the next dark
@@ -33,11 +32,14 @@ first that fits wins and the first refusal is reported.
 M27.6: a `from_light` use (a lit torch thrown) is made with the hero's carried LIT light of that
 item (found by `carried_gear` even when no such item is left in the pack) and ends it with
 `LightEnded(reason="thrown")` instead of consuming anything; the effect sees the state with the
-use's action already spent (the attack path's once-per-turn riders build on it); `feats` is the
-feature registry for thrown attacks (None: the shipped one).
+use's action already spent (the attack path's once-per-turn riders build on it); `regs` are the
+registries for thrown attacks and read scrolls (None: the shipped ones). M27.7: a scroll is read
+through THE spell engine (`aidm.rules.scroll_read`); `free=True` skips the fight cost (a scroll
+read as the opening strike of a fight, `rules.opening_strike`).
 
 Public API: `use_item(state, actor_id, item, target=None, *, rng, use_id=None, resting=False,
-prior=(), feats=None) -> list[AnyEvent]`, `refused(actor_id, item, message) -> ItemUseRefused`,
+prior=(), regs=None, free=False) -> list[AnyEvent]`,
+`refused(actor_id, item, message) -> ItemUseRefused`,
 `situation_problem(state, actor, use, target, resting) -> str | None` (step 3's situation),
 `candidate_uses(state, actor_id, item, target, use_id=None) -> list[ItemUse] | str`,
 `carried_gear(state, actor, item) -> InventoryItem | str`, `keepsake_message(item)`,
@@ -50,7 +52,7 @@ A light use that alerts names its cause (`PlaceAlerted(reason="light")`, M27.5).
 from collections.abc import Sequence
 from dataclasses import replace
 
-from aidm.data.feature_defs import FeatureDef
+from aidm.data.combat_data import CombatRegistries
 from aidm.data.item_catalogue import ItemCategory, item_catalogue
 from aidm.data.item_uses import (
     CastSpell,
@@ -65,7 +67,6 @@ from aidm.data.item_uses import (
     improvised_use,
     uses_for_item,
 )
-from aidm.data.registry import Registry
 from aidm.models.character import InventoryItem
 from aidm.models.combat_events import AttackRolled
 from aidm.models.encounter import EncounterStatus
@@ -77,7 +78,7 @@ from aidm.models.world import AlertCause
 from aidm.rules.command_checks import CommandRefused, changed, spend
 from aidm.rules.death import is_dying
 from aidm.rules.dice import Rng
-from aidm.rules.item_effects import UseCtx, effect_events, gear_name, not_wired
+from aidm.rules.item_effects import UseCtx, effect_events, gear_name
 from aidm.rules.light import hero_light, place_dark
 from aidm.rules.locks import key_open, locked_here
 from aidm.rules.progression import node_plan
@@ -201,7 +202,7 @@ def _charges(ctx: UseCtx) -> int | None:
 
 def _fight_cost(ctx: UseCtx) -> list[AnyEvent] | str:
     use = ctx.use
-    if not _in_fight(ctx.state) or use.cost is None:
+    if ctx.free or not _in_fight(ctx.state) or use.cost is None:
         return []
     try:
         economy = spend(
@@ -258,9 +259,7 @@ def _changed_nothing(effects: Sequence[AnyEvent]) -> bool:
 
 
 def _try_use(ctx: UseCtx) -> list[AnyEvent] | str:
-    problem = not_wired(ctx.use) or situation_problem(
-        ctx.state, ctx.actor, ctx.use, ctx.target, ctx.resting
-    )
+    problem = situation_problem(ctx.state, ctx.actor, ctx.use, ctx.target, ctx.resting)
     if problem is not None:
         return problem
     charges = _charges(ctx)
@@ -296,7 +295,8 @@ def use_item(
     use_id: str | None = None,
     resting: bool = False,
     prior: Sequence[AnyEvent] = (),
-    feats: Registry[FeatureDef] | None = None,
+    regs: CombatRegistries | None = None,
+    free: bool = False,
 ) -> list[AnyEvent]:
     actor = state.creatures.get(actor_id)
     if actor is None:
@@ -315,7 +315,7 @@ def use_item(
         return opened
     first: str | None = None
     for use in uses:
-        outcome = _try_use(UseCtx(state, actor, entry, use, target, rng, resting, feats))
+        outcome = _try_use(UseCtx(state, actor, entry, use, target, rng, resting, regs, free))
         if not isinstance(outcome, str):
             return outcome
         first = first or outcome
@@ -371,8 +371,7 @@ def usable_uses(state: GameState, actor_id: str) -> list[tuple[str, ItemUse, str
     items = [e.item for e in actor.pc.inventory]
     for item in [*items, *([light.item] if light is not None and light.item not in items else [])]:
         for use in uses_for_item(item):
-            skip = use.when == "long_rest" or not_wired(use) is not None
-            if skip or (use.when == "ally_down" and not _dying_ally(state)):
+            if use.when == "long_rest" or (use.when == "ally_down" and not _dying_ally(state)):
                 continue
             targets: list[str | None] = [*locks] if use.when == "locked" else [None]
             out += [

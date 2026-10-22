@@ -65,6 +65,7 @@ type AnyClientMsg = (
     | c.ScribeRevive
     | c.ScribeSkip
     | c.HelpUp
+    | c.CopyScroll
     | c.AskWhatNow
 )
 

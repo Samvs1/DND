@@ -5,6 +5,10 @@ style"; M20.5, playtest 3: a hero who cast Eldritch Blast at someone had a dagge
 turn and spends no action:
 - `attack` a spell id the hero has ready with an attack roll (a cantrip, or a leveled spell, which
   pays its slot as usual): that spell is cast at the target (`rules.spells.cast_spell`);
+- `attack` a carried spell scroll (`scroll-of-<spell>`, M27.7): the hero reads it at the target
+  through THE item interpreter with no action spent (`rules.item_use.use_item(free=True)`): the
+  scroll's own numbers, the scroll used up; a read the rules refuse rolls nothing (no weapon is
+  rolled in its place);
 - `attack` a weapon option ("main_hand", "ranged", "unarmed", ...): that attack, if it reaches;
 - otherwise the first option the hotbar would offer that reaches (main hand first, never a
   bonus-action attack).
@@ -16,12 +20,15 @@ Public API: `opening_strike(state, attacker_id, target_id, regs, rng, attack=Non
 from aidm.data.combat_data import CombatRegistries
 from aidm.models.combat import AttackEconomy, AttackProfile
 from aidm.models.events import AnyEvent
+from aidm.models.item_events import ItemUseRefused
 from aidm.models.state import GameState
 from aidm.rules.attack_profiles import attack_options
 from aidm.rules.attacks import resolve_attack
 from aidm.rules.command_checks import CommandRefused
 from aidm.rules.dice import Rng
 from aidm.rules.hit_chance import attack_situation
+from aidm.rules.item_use import use_item
+from aidm.rules.scrolls import SCROLL_PREFIX
 from aidm.rules.spell_chances import SPELL_OPTION_PREFIX, spell_attack_options
 from aidm.rules.spells import cast_spell
 
@@ -56,6 +63,9 @@ def opening_strike(
     rng: Rng,
     attack: str | None = None,
 ) -> list[AnyEvent]:
+    if attack and attack.startswith(SCROLL_PREFIX):
+        read = use_item(state, attacker_id, attack, target_id, rng=rng, regs=regs, free=True)
+        return [] if any(isinstance(e, ItemUseRefused) for e in read) else read
     if attack:
         cast = _spell(
             state, (attacker_id, target_id), attack.removeprefix(SPELL_OPTION_PREFIX), regs, rng

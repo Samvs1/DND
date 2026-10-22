@@ -13,12 +13,16 @@ Public API:
   the creature is not a PC, has no scroll-copy feature, does not carry the scroll, the spell is
   unknown, a cantrip, not on its class list (expanded grants included), above its highest slot
   level, already in the book, or the gold is short.
+- `scroll_copy_lines(wizard, regs) -> list[ScrollCopyLine]` (M27.7, the Spellbook tab): each
+  carried scroll this hero could copy now, with its cost; `affordable` False when only the gold
+  is short. Empty for anyone without the scroll-copy feature.
 """
 
 from enum import StrEnum
 
 from aidm.data.character_data import CharacterRegistries
 from aidm.models.events import AnyEvent, GoldChanged, InventoryChanged, SpellbookChanged
+from aidm.models.sheet import ScrollCopyLine
 from aidm.models.state import Creature
 from aidm.rules.feature_build import scroll_copy_cost
 from aidm.rules.level_spells import learnable_spells
@@ -92,3 +96,35 @@ def copy_scroll_to_spellbook(
     book = [*pc.spellbook, spell.index]
     events.append(SpellbookChanged(creature_id=wizard.id, spellbook=book))
     return events
+
+
+def _copy_line(wizard: Creature, item: str, regs: CharacterRegistries) -> ScrollCopyLine | None:
+    pc = wizard.pc
+    index = scroll_spell_index(item)
+    spell = regs.spells.find(index) if index else None
+    if pc is None or spell is None:
+        return None
+    try:
+        copy_scroll_to_spellbook(wizard, item, regs)
+    except ScrollCopyRefused as refused:
+        if refused.reason is not ScrollCopyRefusal.NOT_ENOUGH_GOLD:
+            return None
+    ids = [*pc.features, *pc.traits]
+    cost = scroll_copy_cost(ids, pc.level, regs.features, spell.level, spell.school.index) or 0
+    return ScrollCopyLine(
+        item=item,
+        spell=spell.index,
+        name=spell.name,
+        level=spell.level,
+        cost=cost,
+        affordable=pc.gold >= cost,
+    )
+
+
+def scroll_copy_lines(wizard: Creature, regs: CharacterRegistries) -> list[ScrollCopyLine]:
+    pc = wizard.pc
+    if pc is None:
+        return []
+    items = dict.fromkeys(e.item for e in pc.inventory if e.item.startswith(SCROLL_PREFIX))
+    lines = (_copy_line(wizard, item, regs) for item in items)
+    return [line for line in lines if line is not None]

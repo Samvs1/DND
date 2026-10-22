@@ -27,13 +27,15 @@ Public API:
 - `GearUseLine(item, use_id, name, label, cost, target, qty)` (M27.6): a use of the hero's gear
   in a fight (data/bg3/item_uses.json) with its cost (action / bonus) and what it is aimed at
   (none / creature / ally / zone); the hotbar Items section lists them;
+  `ScrollCopyLine(item, spell, name, level, cost, affordable)` (M27.7): a carried scroll the
+  wizard may copy into the spellbook out of a fight, for `cost` gold (the Spellbook tab);
   `DeathSaveLine(successes, failures, stable, dead)`.
 - `CharacterSheet`: identity (id, name, race, subrace, class, subclass, level, background, xp,
   xp_next), abilities, skills, passive_perception, proficiency_bonus, ac, hp, temp_hp, max_hp,
   speed, initiative_bonus (+DEX; BG3 rolls 1d4, `initiative_die`), attacks, attacks_per_action,
   spellcasting, features, feature_actions, resources, proficiencies and languages, resistances,
-  inventory, gear_uses, gold, conditions, death_saves, concentrating_on (the spell being
-  concentrated on).
+  inventory, gear_uses, scroll_copies, gold, conditions, death_saves, concentrating_on (the
+  spell being concentrated on).
 """
 
 from typing import Literal
@@ -183,6 +185,15 @@ class GearUseLine(_Line):
     qty: int = 1
 
 
+class ScrollCopyLine(_Line):
+    item: str
+    spell: str
+    name: str
+    level: int
+    cost: int
+    affordable: bool
+
+
 class DeathSaveLine(_Line):
     successes: int
     failures: int
@@ -225,6 +236,7 @@ class CharacterSheet(_Line):
     resistances: list[DamageType]
     inventory: list[InventoryLine]
     gear_uses: list[GearUseLine] = []
+    scroll_copies: list[ScrollCopyLine] = []
     keepsakes: list[KeepsakeLine] = []
     gold: int
     conditions: list[ConditionLine]

@@ -106,8 +106,7 @@ def _in_fight(state: GameState, target_id: str, actor_id: str) -> bool:
 def _thrown(
     state: GameState, args: CreativeEffectArgs, item: str, rng: Rng, regs: ToolRegistries
 ) -> ToolResult:
-    feats = regs.combat.chars.features
-    events = use_item(state, args.actor, item, args.target, rng=rng, feats=feats)
+    events = use_item(state, args.actor, item, args.target, rng=rng, regs=regs.combat)
     refusal = next((e for e in events if isinstance(e, ItemUseRefused)), None)
     if refusal is not None:
         raise ToolRefused(GEAR_REFUSED + refusal.message)

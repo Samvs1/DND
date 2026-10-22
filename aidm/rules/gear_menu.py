@@ -9,10 +9,15 @@ item (`light_item`), and lighting uses are hidden while the hero already carries
 light per hero). Whether a use fits right now is the interpreter's call when it is sent
 (`rules.item_use.use_item`); a refusal is shown then.
 
-Public API: `target_kind(use) -> GearTarget`, `fight_gear_lines(creature, light_item=None)`.
+M27.7: a spell scroll (`cast_spell`) is aimed as its spell is: an area or point spell cast at a
+range takes a zone, a creature spell takes a creature (a foe or a friend), a self spell nothing.
+
+Public API: `target_kind(use, item=None) -> GearTarget`, `fight_gear_lines(creature,
+light_item=None)`.
 """
 
 from aidm.data.item_uses import (
+    CastSpell,
     ConditionUse,
     DamageUse,
     Ignite,
@@ -22,13 +27,26 @@ from aidm.data.item_uses import (
     SurfaceUse,
     uses_for_item,
 )
+from aidm.data.spell_defs import spell_defs
 from aidm.models.sheet import GearTarget, GearUseLine
 from aidm.models.state import Creature
-from aidm.rules.item_effects import gear_name, not_wired
+from aidm.rules.item_effects import gear_name
+from aidm.rules.scrolls import scroll_spell_index
 
 
-def target_kind(use: ItemUse) -> GearTarget:
+def _spell_target(spell_id: str | None) -> GearTarget:
+    spell = spell_defs().find(spell_id) if spell_id else None
+    if spell is None or spell.targeting.kind == "self":
+        return "none"
+    if spell.targeting.kind in ("area", "point"):
+        return "none" if spell.range.kind == "self" else "zone"
+    return "creature"
+
+
+def target_kind(use: ItemUse, item: str | None = None) -> GearTarget:
     match use.effect:
+        case CastSpell(spell=spell):
+            return _spell_target(spell or scroll_spell_index(item or ""))
         case DamageUse() | ConditionUse():
             return "creature"
         case Stabilize():
@@ -40,7 +58,7 @@ def target_kind(use: ItemUse) -> GearTarget:
 
 
 def _listed(use: ItemUse, in_pack: bool, light_item: str | None) -> bool:
-    if use.cost is None or use.when == "long_rest" or not_wired(use) is not None:
+    if use.cost is None or use.when == "long_rest":
         return False
     if use.from_light:
         return light_item == use.item
@@ -67,7 +85,7 @@ def fight_gear_lines(creature: Creature, light_item: str | None = None) -> list[
                     name=gear_name(item),
                     label=use.label,
                     cost=use.cost,
-                    target=target_kind(use),
+                    target=target_kind(use, item),
                     qty=1 if use.from_light else held.get(item, 0),
                 )
             )

@@ -26,6 +26,9 @@ innate per-day uses, at-will innate spells free; a spell outside the kit is not 
 Public API:
 - `cast_spell(state, caster_id, spell, slot_level, target_ids, target_zone, rng, regs) ->
   list[AnyEvent]` (no economy; usable outside a fight for non-attack, non-area spells).
+- `scroll_cast(state, reader_id, spell, numbers, (target_ids, target_zone), rng, regs)` (M27.7):
+  a spell read from a scroll with the scroll's numbers at the spell's own level, no slot
+  (`aidm.rules.scroll_read`).
 - `run_cast(ctx, targets) -> list[AnyEvent]`: the effect half of a cast on a prepared
   `CastContext` (concentration swap, surfaces, every target instance, zone damage,
   concentration start); monster save actions run their pseudo spells through it.
@@ -121,25 +124,19 @@ def run_cast(ctx: CastContext, targets: SpellTargets) -> list[AnyEvent]:
     return ctx.events
 
 
-def cast_spell(
+def _resolve_cast(
     state: GameState,
     caster_id: str,
     spell: SpellDef,
-    slot_level: int | None,
-    target_ids: Sequence[str],
-    target_zone: str | None,
+    plan: tuple[CasterNumbers, int, int, list[AnyEvent]],
+    aim: tuple[Sequence[str], str | None],
     rng: Rng,
     regs: CombatRegistries,
 ) -> list[AnyEvent]:
-    caster = state.creatures.get(caster_id)
-    if caster is None or caster.dead:
-        raise CommandRefused(RefusalCode.CANNOT_ACT, "You cannot cast right now.")
-    _check_casting(state, caster_id, spell, regs)
-    numbers, char_level = _numbers(caster, spell, regs)
-    cast_level, paid = cast_slot(caster, spell, slot_level, numbers.resource)
-    targets = resolve_targets(
-        state, caster_id, spell, cast_level, char_level, target_ids, target_zone
-    )
+    """`plan` = (numbers, cast level, character level, the paying events); `aim` = (target ids,
+    target zone)."""
+    numbers, cast_level, char_level, paid = plan
+    targets = resolve_targets(state, caster_id, spell, cast_level, char_level, aim[0], aim[1])
     srd = regs.chars.spells.find(spell.index)
     ctx = CastContext(
         rng=rng,
@@ -166,6 +163,52 @@ def cast_spell(
         ]
     )
     return run_cast(ctx, targets)
+
+
+def _caster(state: GameState, caster_id: str, spell: SpellDef, regs: CombatRegistries) -> Creature:
+    caster = state.creatures.get(caster_id)
+    if caster is None or caster.dead:
+        raise CommandRefused(RefusalCode.CANNOT_ACT, "You cannot cast right now.")
+    _check_casting(state, caster_id, spell, regs)
+    return caster
+
+
+def cast_spell(
+    state: GameState,
+    caster_id: str,
+    spell: SpellDef,
+    slot_level: int | None,
+    target_ids: Sequence[str],
+    target_zone: str | None,
+    rng: Rng,
+    regs: CombatRegistries,
+) -> list[AnyEvent]:
+    caster = _caster(state, caster_id, spell, regs)
+    numbers, char_level = _numbers(caster, spell, regs)
+    cast_level, paid = cast_slot(caster, spell, slot_level, numbers.resource)
+    plan = (numbers, cast_level, char_level, paid)
+    return _resolve_cast(state, caster_id, spell, plan, (target_ids, target_zone), rng, regs)
+
+
+def scroll_cast(
+    state: GameState,
+    reader_id: str,
+    spell: SpellDef,
+    numbers: CasterNumbers,
+    aim: tuple[Sequence[str], str | None],
+    rng: Rng,
+    regs: CombatRegistries,
+) -> list[AnyEvent]:
+    """A spell read from a scroll (M27.7): the scroll's own numbers, cast at the spell's own
+    level, no slot and no sheet check (anyone may read one, BG3)."""
+    reader = _caster(state, reader_id, spell, regs)
+    plan: tuple[CasterNumbers, int, int, list[AnyEvent]] = (
+        numbers,
+        spell.level,
+        character_level(reader),
+        [],
+    )
+    return _resolve_cast(state, reader_id, spell, plan, aim, rng, regs)
 
 
 def cast_command(

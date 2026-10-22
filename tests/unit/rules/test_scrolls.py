@@ -21,6 +21,7 @@ from aidm.rules.scrolls import (
     ScrollCopyRefusal,
     ScrollCopyRefused,
     copy_scroll_to_spellbook,
+    scroll_copy_lines,
     scroll_item_index,
     scroll_spell_index,
 )
@@ -112,3 +113,25 @@ def test_inventory_and_pc_events_in_reducer() -> None:
     apply(state, CreatureAdded(creature=monster))
     with pytest.raises(ReducerError):
         apply(state, XpGained(creature_id="m", amount=1, xp=1))
+
+
+def test_golden_second_level_copy_costs_100_and_an_evocation_50() -> None:
+    # SRD 5.1 Wizard "Your Spellbook": 50 gp per spell level (2nd level: 100 gp); Evocation
+    # Savant (SRD 5.1 School of Evocation): copying an evocation spell costs half (50 gp).
+    state = _state(level=3, gold=200)
+    apply(state, InventoryChanged(creature_id="w", item="scroll-of-scorching-ray", delta=1, qty=1))
+    misty = copy_scroll_to_spellbook(state.creatures["w"], "scroll-of-misty-step", REGS)
+    assert misty[0] == GoldChanged(creature_id="w", delta=-100, gold=100)  # conjuration
+    _run(state, misty)
+    ray = copy_scroll_to_spellbook(state.creatures["w"], "scroll-of-scorching-ray", REGS)
+    assert ray[0] == GoldChanged(creature_id="w", delta=-50, gold=50)  # evocation
+    wizard = _run(state, ray)
+    assert wizard.pc is not None and {"misty-step", "scorching-ray"} <= set(wizard.pc.spellbook)
+
+
+def test_scroll_copy_lines_list_what_can_be_copied_with_its_cost() -> None:
+    lines = scroll_copy_lines(_state(gold=40).creatures["w"], REGS)
+    assert [(line.spell, line.cost, line.affordable) for line in lines] == [
+        ("magic-missile", 50, False)  # cantrip, too high, not a wizard spell, known: left out
+    ]
+    assert scroll_copy_lines(_state("fighter").creatures["w"], REGS) == []

@@ -1,5 +1,7 @@
 // Sheet "Spellbook" tab: casting numbers, slot trackers (current/max, pact slots), the concentration
 // indicator and spells by level (cantrips first). Re-preparing spells is Tier 2: prepared status is shown only.
+// M27.7: a wizard's "Copy a scroll" list: each carried scroll that can be copied, its cost and a Copy button
+// (`copy_scroll`; out of a fight only, the server's scroll rules decide).
 import { assetUrl } from '../assets.js';
 import { t } from '../strings.js';
 import { h } from '../ui/dom.js';
@@ -50,7 +52,24 @@ function spellSection(title, spells, concentratingOn) {
   return h('section', { class: 'sh-block' }, h('h4', {}, title), h('ul', { class: 'spell-lines' }, ...spells.map((sp) => spellRow(sp, concentratingOn))));
 }
 
-export function renderSpellbook(s) {
+function copyRow(line, { client, locked }) {
+  const label = t('sheet.copyItem', { name: line.name, cost: line.cost });
+  return h(
+    'li',
+    { class: 'spell-line', 'data-testid': 'copy-line', 'data-item': line.item },
+    h('img', { src: assetUrl([`item_icon.${line.item}`, 'item_icon.scroll']), alt: '', width: 28, height: 28 }),
+    h('div', { class: 'spell-main' }, h('strong', {}, line.name), h('div', { class: 'hint' }, t('sheet.copyLine', { level: line.level, cost: line.cost }))),
+    h('button', { type: 'button', class: 'btn btn-small', disabled: locked || !line.affordable, 'data-testid': `copy-${line.item}`, 'aria-label': label, onclick: () => client.send('copy_scroll', { item_id: line.item }) }, t('sheet.copyButton')),
+  );
+}
+
+function copySection(lines, opts) {
+  if (!lines?.length || !opts?.client) return null;
+  const hint = opts.locked ? t('sheet.copyFight') : t('sheet.copyHint');
+  return h('section', { class: 'sh-block', 'data-testid': 'sh-copy' }, h('h4', {}, t('sheet.copyScrolls')), h('p', { class: 'hint' }, hint), h('ul', { class: 'spell-lines' }, ...lines.map((line) => copyRow(line, opts))));
+}
+
+export function renderSpellbook(s, opts = null) {
   const c = s.spellcasting;
   if (!c) return [h('p', { class: 'hint', 'data-testid': 'no-spells' }, t('sheet.noSpells'))];
   const prepared = c.levels.flatMap((g) => g.spells).filter((sp) => sp.prepared && !sp.always_prepared && sp.source === 'class').length;
@@ -63,6 +82,8 @@ export function renderSpellbook(s) {
   for (const group of c.levels) {
     if (group.spells.length) out.push(spellSection(t('sheet.spellLevel', { n: group.level }), group.spells, s.concentrating_on));
   }
+  const copies = copySection(s.scroll_copies, opts);
+  if (copies) out.push(copies);
   out.push(h('p', { class: 'hint' }, t('sheet.reprepare')));
   return out;
 }

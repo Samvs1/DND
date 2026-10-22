@@ -57,7 +57,7 @@ def _events(core: TableCore, intent: UseIntent, rng: Rng | None = None) -> list[
         intent.target,
         rng=rng or core.rng,
         use_id=intent.use_id,
-        feats=core.regs.combat.chars.features,
+        regs=core.regs.combat,
     )
 
 
@@ -87,7 +87,9 @@ def rest_with_crafts(core: TableCore, crafts: tuple[tuple[str, str], ...]) -> Jo
             core.notice(None, NoticeKind.REFUSED, REST_REFUSED)
             return
         for actor_id, item in crafts:
-            made = use_item(core.state, actor_id, item, rng=core.rng, resting=True)
+            made = use_item(
+                core.state, actor_id, item, rng=core.rng, resting=True, regs=core.regs.combat
+            )
             refused = _refusal(made)
             if refused is not None:
                 core.notice(None, NoticeKind.REFUSED, refused)

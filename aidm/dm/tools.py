@@ -176,7 +176,8 @@ class StartEncounterArgs(_Args):
         max_length=64,
         description=(
             "the attack the hero named: a spell id with an attack roll (eldritch-blast,"
-            " fire-bolt) or a weapon slot (main_hand, ranged, unarmed); empty = main weapon"
+            " fire-bolt), a carried scroll id (scroll-of-sleep: the engine reads it) or a"
+            " weapon slot (main_hand, ranged, unarmed); empty = main weapon"
         ),
     )
 

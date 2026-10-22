@@ -34,17 +34,19 @@ is spent per its data and the interpreter marks `ItemUsed.no_effect`).
 - surface / ignite aimed at a creature of the fight land in that creature's zone.
 - ignite (M27.6): damage of a type into a zone in reach (`rules.surfaces.zone_damage_events`:
   a lit torch into oil sets it alight); where nothing reacts the torch just lands there.
-- cast_spell (M27.7): not wired yet (`not_wired`), refused with a plain message.
+- cast_spell (M27.7): the scroll's spell through THE spell engine with the SRD Spell Scroll
+  numbers and no slot (`aidm.rules.scroll_read.read_scroll`).
 
-`UseCtx.feats` is the feature registry for the attack path (None: the shipped one).
+`UseCtx.regs` are the registries of the attack path and the spell engine (None: the shipped
+ones); `UseCtx.free` skips the fight cost (the opening strike of a fight, M27.7).
 
-Public API: `UseCtx`, `gear_name(item_id)`, `FORAGE_DC`, `not_wired(use) -> str | None`,
+Public API: `UseCtx`, `use_regs(ctx)`, `gear_name(item_id)`, `FORAGE_DC`,
 `in_reach(state, actor_id, zone_id) -> bool`, `effect_events(ctx) -> list[AnyEvent] | str`.
 """
 
 from dataclasses import dataclass
 
-from aidm.data.feature_defs import FeatureDef, feature_defs
+from aidm.data.combat_data import CombatRegistries, combat_registries
 from aidm.data.item_catalogue import item_catalogue
 from aidm.data.item_uses import (
     Boon,
@@ -62,7 +64,6 @@ from aidm.data.item_uses import (
     Unlock,
     item_substances,
 )
-from aidm.data.registry import Registry
 from aidm.data.surface_defs import surface_defs
 from aidm.models.abilities import Ability, Skill
 from aidm.models.character import InventoryItem
@@ -81,15 +82,12 @@ from aidm.rules.dice import Rng
 from aidm.rules.gear_checks import gear_check
 from aidm.rules.item_throw import thrown_item_events
 from aidm.rules.locks import LockGear, attempt_lock, key_open, locked_here
+from aidm.rules.scroll_read import read_scroll
 from aidm.rules.surfaces import place_surface_events, zone_damage_events
 from aidm.rules.zones import zone_neighbors
 
 FORAGE_TIER = DcTier.EASY
 FORAGE_DC = dc_for_tier(FORAGE_TIER)
-
-_LATER = {
-    "cast_spell": "Reading scrolls is not wired yet",
-}
 
 
 @dataclass(frozen=True)
@@ -101,7 +99,12 @@ class UseCtx:
     target: str | None
     rng: Rng
     resting: bool
-    feats: Registry[FeatureDef] | None = None
+    regs: CombatRegistries | None = None
+    free: bool = False
+
+
+def use_regs(ctx: UseCtx) -> CombatRegistries:
+    return ctx.regs if ctx.regs is not None else combat_registries()
 
 
 def gear_name(item_id: str) -> str:
@@ -109,13 +112,6 @@ def gear_name(item_id: str) -> str:
     found = item_catalogue().find(item_id)
     name = found.name if found is not None else item_id
     return name.split(" (")[0].split(",")[0].strip()
-
-
-def not_wired(use: ItemUse) -> str | None:
-    later = _LATER.get(use.effect.kind)
-    if later is None:
-        return None
-    return f"{later}: narrate the attempt with the {gear_name(use.item).lower()} as a plain check."
 
 
 def _fight(state: GameState) -> Encounter | None:
@@ -220,7 +216,7 @@ def _ignite(ctx: UseCtx, effect: Ignite) -> list[AnyEvent] | str:
 
 
 def _throw(ctx: UseCtx, effect: DamageUse) -> list[AnyEvent] | str:
-    feats = ctx.feats if ctx.feats is not None else feature_defs()
+    feats = use_regs(ctx).chars.features
     name = gear_name(ctx.use.item).lower()
     stuff = item_substances(ctx.entry.item)
     return thrown_item_events(
@@ -335,4 +331,7 @@ def effect_events(ctx: UseCtx) -> list[AnyEvent] | str:
         case Ignite():
             return _ignite(ctx, effect)
         case CastSpell():
-            return not_wired(ctx.use) or "That use is not wired yet."
+            item, target = ctx.entry.item, ctx.target
+            return read_scroll(
+                ctx.state, ctx.actor.id, item, effect.spell, target, ctx.rng, use_regs(ctx)
+            )

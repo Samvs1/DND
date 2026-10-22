@@ -408,6 +408,28 @@
           "title": "ConfirmHostile",
           "type": "object"
         },
+        "CopyScroll": {
+          "additionalProperties": false,
+          "properties": {
+            "item_id": {
+              "maxLength": 64,
+              "minLength": 1,
+              "title": "Item Id",
+              "type": "string"
+            },
+            "type": {
+              "const": "copy_scroll",
+              "default": "copy_scroll",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "item_id"
+          ],
+          "title": "CopyScroll",
+          "type": "object"
+        },
         "CreateCharacter": {
           "additionalProperties": false,
           "properties": {
@@ -2139,6 +2161,7 @@
           "choose_finale": "#/$defs/ChooseFinale",
           "combat_command": "#/$defs/CombatCommandMsg",
           "confirm_hostile": "#/$defs/ConfirmHostile",
+          "copy_scroll": "#/$defs/CopyScroll",
           "create_character": "#/$defs/CreateCharacter",
           "defeat_load": "#/$defs/DefeatLoad",
           "defeat_new": "#/$defs/DefeatNew",
@@ -2325,6 +2348,9 @@
           "$ref": "#/$defs/HelpUp"
         },
         {
+          "$ref": "#/$defs/CopyScroll"
+        },
+        {
           "$ref": "#/$defs/AskWhatNow"
         }
       ]
@@ -2338,6 +2364,7 @@
       "choose_finale",
       "combat_command",
       "confirm_hostile",
+      "copy_scroll",
       "create_character",
       "defeat_load",
       "defeat_new",
@@ -2827,6 +2854,14 @@
                 "$ref": "#/$defs/ResourceLine"
               },
               "title": "Resources",
+              "type": "array"
+            },
+            "scroll_copies": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/ScrollCopyLine"
+              },
+              "title": "Scroll Copies",
               "type": "array"
             },
             "skills": {
@@ -6012,6 +6047,45 @@
             }
           },
           "title": "ScribeView",
+          "type": "object"
+        },
+        "ScrollCopyLine": {
+          "additionalProperties": false,
+          "properties": {
+            "affordable": {
+              "title": "Affordable",
+              "type": "boolean"
+            },
+            "cost": {
+              "title": "Cost",
+              "type": "integer"
+            },
+            "item": {
+              "title": "Item",
+              "type": "string"
+            },
+            "level": {
+              "title": "Level",
+              "type": "integer"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "spell": {
+              "title": "Spell",
+              "type": "string"
+            }
+          },
+          "required": [
+            "item",
+            "spell",
+            "name",
+            "level",
+            "cost",
+            "affordable"
+          ],
+          "title": "ScrollCopyLine",
           "type": "object"
         },
         "SheetMsg": {

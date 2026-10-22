@@ -22,7 +22,9 @@ on the giver's quest card, `aidm.rules.quest_offers`); M23.8 `AskWhatNow` (the W
 answered at once from the state, never a turn, `aidm.rules.quest_hints`); M23.9 `ChooseFinale`
 (the finale card: one of the plan's two endings; only `confirm: true`, sent after the phone's
 "Are you sure? This ends the story", makes the choice, `aidm.rules.finale`); M26.3 `Presented`
-(a screen has finished showing every event line and dice roll up to `seq`; AI turns wait for it).
+(a screen has finished showing every event line and dice roll up to `seq`; AI turns wait for it);
+M27.7 `CopyScroll` (the Spellbook tab: a wizard copies a carried scroll into the spellbook out of
+a fight, `aidm.rules.scrolls`).
 """
 
 from enum import StrEnum
@@ -176,6 +178,11 @@ class UseItem(_Client):
     type: Literal["use_item"] = "use_item"
     item_id: str
     target_id: str | None = None
+
+
+class CopyScroll(_Client):
+    type: Literal["copy_scroll"] = "copy_scroll"
+    item_id: str = Field(min_length=1, max_length=64)
 
 
 class HelpUp(_Client):

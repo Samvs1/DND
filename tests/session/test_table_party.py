@@ -126,13 +126,14 @@ async def test_use_potion_outside_combat(tmp_path: Path) -> None:
         ann = await join(table, "Ann", "fighter")
         ann.send(UseItem(item_id=POTION, target_id="rogue"))
         await table.settle()
-        refusal = of_type(ann.drain(), ErrorMsg)[0]
-        assert refusal.refusal == "full_hp" and _potions(table.state) == 2
+        # M27.7 owner rule: a potion given at full health is drunk and wasted, and says so.
+        notes = [n.text for n in of_type(ann.drain(), Notice)]
+        assert _potions(table.state) == 1 and any("no special effect" in n for n in notes)
         ann.send(UseItem(item_id=POTION, target_id="nobody"))
         await table.settle()
         assert of_type(ann.drain(), ErrorMsg)[0].refusal == "unknown_target"
         ann.send(UseItem(item_id=POTION))
         await table.settle()
-        assert table.state.creatures["fighter"].hp > 1 and _potions(table.state) == 1
+        assert table.state.creatures["fighter"].hp > 1 and _potions(table.state) == 0
         assert of_type(ann.drain(), Notice)
         assert_replays(table)

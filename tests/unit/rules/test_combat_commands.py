@@ -27,7 +27,8 @@ from aidm.models.commands import (
 )
 from aidm.models.encounter import Side
 from aidm.models.encounter_events import TurnEnded
-from aidm.models.events import AnyEvent
+from aidm.models.events import AnyEvent, InventoryChanged
+from aidm.models.item_events import ItemUsed
 from aidm.models.state import GameState
 from aidm.rules.command_checks import CommandRefused
 from aidm.rules.condition_timing import new_condition
@@ -139,13 +140,21 @@ def test_potion_can_be_given_to_an_adjacent_ally_only() -> None:
     assert state.creatures["b"].hp == 11
 
 
-def test_v1_potion_full_hp_refused_not_consumed() -> None:
+def test_v1_potion_full_hp_drunk_and_wasted() -> None:
+    # Owner rule (2026-10-22, M27.7) supersedes the SPEC 13 refusal: data never forbids an
+    # action. The v1 failure was a potion claimed gone while kept: here it is gone AND said so.
     state = _party()
-    before = state.model_dump()
-    _refused(state, UseItemCommand(actor_id="a", item=POTION), RefusalCode.FULL_HP)
-    assert state.model_dump() == before
-    with pytest.raises(CommandRefused):
-        use_item_events(ScriptedRng(), state, "a", POTION, None, REGS)
+    hp = state.creatures["a"].hp
+    events = do(state, UseItemCommand(actor_id="a", item=POTION), ScriptedRng())
+    used = [e for e in events if isinstance(e, ItemUsed)]
+    assert len(used) == 1 and used[0].no_effect and used[0].use_id == "drink"
+    assert state.creatures["a"].hp == hp
+    pc = state.creatures["a"].pc
+    assert pc is not None and [r.qty for r in pc.inventory if r.item == POTION] == [1]
+    eco = economy(state, "a")
+    assert (eco.action, eco.bonus_action) == (True, False)  # the bonus action is spent
+    out = use_item_events(ScriptedRng(), state, "a", POTION, None, REGS)
+    assert [type(e) for e in out] == [ItemUsed, InventoryChanged]
 
 
 def test_item_refusals() -> None:
@@ -185,7 +194,10 @@ def test_v1_invalid_input_never_consumes_turn() -> None:
         (ShoveCommand(actor_id="a", target_id="c"), RefusalCode.OUT_OF_RANGE),
         (DashCommand(actor_id="a", bonus_action=True), RefusalCode.NO_FEATURE),
         (ThrowCommand(actor_id="a", target_id="gob", item="greataxe"), RefusalCode.ITEM_NOT_OWNED),
-        (UseItemCommand(actor_id="a", item=POTION), RefusalCode.FULL_HP),
+        (
+            UseItemCommand(actor_id="a", item="potion-of-healing-greater"),
+            RefusalCode.ITEM_NOT_OWNED,
+        ),
         (HelpCommand(actor_id="a", target_id="gob"), RefusalCode.INVALID_TARGET),
         (CastCommand(actor_id="a", spell_id="no-such-spell"), RefusalCode.UNKNOWN_SPELL),
     ]

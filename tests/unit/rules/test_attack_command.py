@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 
 from aidm.models.abilities import Ability
+from aidm.models.character import InventoryItem
 from aidm.models.combat_events import AttackRolled
 from aidm.models.commands import AttackCommand, RefusalCode, ThrowCommand
 from aidm.models.conditions import Concentration
@@ -180,3 +181,29 @@ def test_thrown_dagger_uses_finesse_and_proficiency() -> None:
     )
     assert _of(events, AttackRolled)[0].roll.total == 15
     assert _of(events, DamageTaken)[0].total == 5
+
+
+def _carried(state: GameState, item: str) -> int:
+    pc = state.creatures["a"].pc
+    assert pc is not None
+    return sum(row.qty for row in pc.inventory if row.item == item)
+
+
+def test_a_thrown_weapon_leaves_the_pack_and_lands_here() -> None:
+    # M27.7: one of two wielded daggers is thrown: it lies at this place, the other stays in hand.
+    state = _duel("rogue", gob_zone="yard")
+    do(state, ThrowCommand(actor_id="a", target_id="gob", item="dagger"), ScriptedRng(1))
+    pc = state.creatures["a"].pc
+    assert pc is not None and _carried(state, "dagger") == 1
+    assert (pc.equipped.main_hand, pc.equipped.off_hand) == ("dagger", None)
+    assert [i.catalog_id for i in state.world.items.values()] == ["dagger"]
+
+
+def test_a_thrown_object_that_is_not_a_weapon_is_gone() -> None:
+    state = _duel(gob_zone="yard")
+    pc = state.creatures["a"].pc
+    assert pc is not None
+    pc.inventory.append(InventoryItem(item="flask-or-tankard", qty=1))
+    cmd = ThrowCommand(actor_id="a", target_id="gob", item="flask-or-tankard")
+    do(state, cmd, ScriptedRng(1))
+    assert _carried(state, "flask-or-tankard") == 0 and not state.world.items

@@ -6,7 +6,8 @@ hooks); this module only assembles them. Initiative shows the +DEX bonus (BG3 ro
 Public API: `build_sheet(creature, regs, quest_titles, light_item=None) -> CharacterSheet`
 (ValueError for a non-PC); `quest_titles` (quest id -> title) names the quest of each quest item
 (M23.3); `light_item` is the hero's carried lit light (M27.6: the fight gear uses,
-`rules.gear_menu`); each condition line names the action that can end it (`end_label`).
+`rules.gear_menu`); the scrolls a wizard may copy (M27.7, `rules.scrolls`); each condition line
+names the action that can end it (`end_label`).
 """
 
 from collections.abc import Mapping
@@ -34,6 +35,7 @@ from aidm.rules.conditions import condition_def
 from aidm.rules.features import attacks_per_action, feature_actions
 from aidm.rules.gear_menu import fight_gear_lines
 from aidm.rules.leveling import MAX_LEVEL, xp_for_level
+from aidm.rules.scrolls import scroll_copy_lines
 from aidm.rules.sheet_spells import spellcasting_block
 from aidm.rules.spellcasting import parse_slot_key
 from aidm.rules.weapon_attacks import attack_lines
@@ -203,6 +205,7 @@ def build_sheet(
         resistances=list(creature.resistances),
         inventory=_inventory(pc, regs),
         gear_uses=fight_gear_lines(creature, light_item),
+        scroll_copies=scroll_copy_lines(creature, regs),
         keepsakes=_keepsakes(pc, quest_titles or {}),
         gold=pc.gold,
         conditions=_conditions(creature),

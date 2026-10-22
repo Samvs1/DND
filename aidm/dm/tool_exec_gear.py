@@ -110,7 +110,7 @@ def run_use_item(
     if args.put_out:
         events = put_out(state, actor.id)
     else:
-        events = use_item(state, actor.id, args.item, args.target, rng=rng)
+        events = use_item(state, actor.id, args.item, args.target, rng=rng, regs=regs.combat)
     refusal = next((e for e in events if isinstance(e, ItemUseRefused)), None)
     if refusal is not None:
         raise ToolRefused(refusal.message)

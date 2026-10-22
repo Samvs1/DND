@@ -114,11 +114,10 @@ def test_fight_cost_is_spent_through_the_action_economy() -> None:
     assert qty(state, "hero", "caltrops") == 1
 
 
-def test_not_yet_wired_effects_are_refused_plainly() -> None:
-    calm = at(CAVE, hero(gear=["crowbar", "thieves-tools", "scroll-of-sleep"]))
+def test_lock_gear_with_no_lock_here_is_refused_plainly() -> None:
+    calm = at(CAVE, hero(gear=["crowbar", "thieves-tools"]))
     assert "nothing locked" in refusal(use(calm, "crowbar"))
     assert "nothing locked" in refusal(use(calm, "thieves-tools"))
-    assert "scrolls" in refusal(use(calm, "scroll-of-sleep"))
 
 
 def test_a_throw_out_of_reach_is_refused_and_spends_nothing() -> None:

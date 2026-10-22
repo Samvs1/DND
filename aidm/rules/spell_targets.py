@@ -17,6 +17,7 @@ Public API:
   targeting block allows at this cast (count + count_per_slot per level above, or the cantrip
   table by character level).
 - `spell_band(spell) -> RangeBand`: self and touch = the same zone, feet = its range band.
+- `needs_battlefield(spell) -> bool`: the spell cannot resolve outside a fight (below).
 - `area_creatures(state, zone_id, area, exclude) -> tuple[str, ...]`: living, present
   combatants in the zone (and its neighbours for "zone_and_adjacent").
 - `SpellTargets(instances, zone, chosen)`; `resolve_targets(state, caster_id, spell, cast_level,
@@ -151,6 +152,12 @@ def area_creatures(
 
 def _needs_fight(effects: Sequence[Effect]) -> bool:
     return any(isinstance(e, (AttackRollEffect, SaveEffect, DamageEffect)) for e in effects)
+
+
+def needs_battlefield(spell: SpellDef) -> bool:
+    """Outside a fight this spell is refused by `resolve_targets` (an attack, a save, damage, an
+    area or a point: M27.7 reads it as an attack when aimed at someone)."""
+    return spell.targeting.kind in ("area", "point") or _needs_fight(spell.effects)
 
 
 def _check_creature(

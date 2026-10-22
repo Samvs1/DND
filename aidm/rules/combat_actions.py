@@ -6,7 +6,10 @@
   attack is a bonus action (BG3: no prior Attack action needed). Melee needs the same zone,
   ranged the weapon's range band; a charmed attacker cannot attack its charmer.
 - Throw (BG3 action): a thrown weapon or any carried object (improvised 1d4) at a target in
-  throw range. The object is not removed from the inventory (items on the ground are Tier 2).
+  throw range. M27.7: the object leaves the pack, hit or miss, as in the item interpreter (and
+  leaves the hand when the last one was worn); a weapon with the SRD thrown property lands at
+  this place (`ItemPlaced`, picked up after the fight), anything else is gone like an
+  improvised throw (docs/RULES_DECISIONS.md M27.7).
 - Hide (action, or Cunning Action): Stealth against the highest passive Perception of the
   standing opponents; success applies "hidden" (ends when the creature attacks).
 - Help (action): an ally in the same zone gets "helped" (advantage on its next attack or check,
@@ -37,8 +40,8 @@ from aidm.models.commands import (
     ThrowCommand,
 )
 from aidm.models.encounter import TurnEconomy
-from aidm.models.events import AnyEvent, CheckResolved
-from aidm.models.state import GameState
+from aidm.models.events import AnyEvent, CheckResolved, InventoryChanged
+from aidm.models.state import Creature, GameState
 from aidm.rules.attack_profiles import find_option, throw_profile
 from aidm.rules.attacks import resolve_attack
 from aidm.rules.checks import passive_score
@@ -62,8 +65,10 @@ from aidm.rules.conditions import (
 )
 from aidm.rules.damage import resolve_healing
 from aidm.rules.dice import Rng
+from aidm.rules.equipment import drop_events, release_events, unequip_events
 from aidm.rules.features import attacks_per_action
 from aidm.rules.hit_chance import attack_situation
+from aidm.rules.item_grants import carried_qty
 
 HIDDEN = "hidden"
 HELPED = "helped"
@@ -144,7 +149,23 @@ def throw_command(
         raise CommandRefused(RefusalCode.ITEM_NOT_OWNED, "You are not carrying that.")
     weapon = regs.chars.equipment.find(cmd.item) if cmd.item else None
     profile = throw_profile(actor.creature, weapon, regs.chars)
-    return _attack_with(state, actor, cmd.target_id, profile, regs, rng)
+    events = _attack_with(state, actor, cmd.target_id, profile, regs, rng)
+    if cmd.item is None:
+        return events
+    return [*events, *_leaves_pack(state, actor.creature, cmd.item, regs)]
+
+
+def _leaves_pack(
+    state: GameState, creature: Creature, item: str, regs: CombatRegistries
+) -> list[AnyEvent]:
+    weapon = regs.chars.equipment.find(item)
+    carried = carried_qty(creature, item)
+    if carried < 1:  # only in a slot (an old save): it leaves the hand
+        return unequip_events(creature, item, regs.chars)
+    if weapon is not None and any(p.index == "thrown" for p in weapon.properties):
+        return drop_events(state, creature, item, regs.chars)  # it lands here
+    left = InventoryChanged(creature_id=creature.id, item=item, delta=-1, qty=carried - 1)
+    return [*release_events(creature, item, regs.chars), left]
 
 
 def hide_command(

@@ -113,6 +113,7 @@ JOBS: dict[type, JobMaker] = {
     c.Unequip: lambda core, p, m: partial(party_actions.unequip, core, p, m),
     c.Drop: lambda core, p, m: partial(party_actions.drop, core, p, m),
     c.UseItem: lambda core, p, m: partial(party_actions.use_item, core, p, m),
+    c.CopyScroll: lambda core, p, m: partial(party_actions.copy_scroll, core, p, m),
     c.HelpUp: lambda core, p, m: partial(party_actions.help_up, core, p, m),
     c.ScribeRevive: lambda core, p, m: partial(scribe_desk.revive, core, p, m),
 }

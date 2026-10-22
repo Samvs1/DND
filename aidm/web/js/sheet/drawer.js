@@ -99,7 +99,7 @@ export function mountSheet(root, { store, client }, embed = null) {
     const party = (publicState(state)?.party ?? []).filter((p) => !p.dead).map((p) => ({ id: p.id, name: p.name }));
     const npcs = (publicState(state)?.scene?.npcs ?? []).filter((n) => !n.hostile);
     if (tab === 'inventory') return renderInventory(sheet, { client, camp, locked, party, npcs });
-    if (tab === 'spells') return renderSpellbook(sheet);
+    if (tab === 'spells') return renderSpellbook(sheet, { client, locked });
     return renderOverview(sheet, spellNameOf(sheet));
   }
 

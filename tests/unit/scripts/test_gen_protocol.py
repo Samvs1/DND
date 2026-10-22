@@ -84,6 +84,7 @@ CLIENT_TYPES = {
     "drop",
     "use_item",
     "help_up",
+    "copy_scroll",  # M27.7
     "what_now",  # M23.8
     "presented",  # M26.3
     "request_sheet",

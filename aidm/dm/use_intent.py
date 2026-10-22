@@ -11,7 +11,7 @@
   several uses sets `use_id` to the one for the target: "light" vs "throw" the torch, at a
   creature the torch's hit; in a fight "throw my waterskin at Z", gear without a throw use, is
   the SRD improvised throw);
-- "read the scroll of X": a carried scroll that matches;
+- "read the scroll of X" (M27.7: "... at/on Z"): a carried scroll that matches, aimed at Z;
 - "use X", "use X on Y": every use of X, aimed at Y;
 - "brew a poultice", "craft with my herbalism kit": a use with the verb (a long-rest use sets
   `at_rest`: the session proposes the rest and crafts during it).
@@ -31,6 +31,7 @@ import re
 from dataclasses import dataclass
 
 from aidm.data.item_uses import (
+    CastSpell,
     ConditionUse,
     DamageUse,
     Ignite,
@@ -59,7 +60,9 @@ _THROW = re.compile(
     rf"(?P<verb>throw|hurl|toss|lob|scatter|spill|pour|splash) {_THE}{_THING}"
     rf"{_AT}(?P<target>[a-z0-9' -]+))?"
 )
-_READ = re.compile(rf"(?P<verb>read) {_THE}(?P<item>scroll(?: of [a-z0-9' -]+)?)")
+_READ = re.compile(
+    rf"(?P<verb>read) {_THE}(?P<item>scroll(?: of [a-z0-9' -]+?)?){_AT}(?P<target>[a-z0-9' -]+))?"
+)
 _USE = re.compile(rf"use {_THE}{_THING}{_AT}(?P<target>[a-z0-9' -]+))?")
 _CRAFT = re.compile(
     rf"(?P<verb>brew|craft) {_THE}(?P<what>[a-z0-9' -]+?)"
@@ -67,7 +70,7 @@ _CRAFT = re.compile(
 )
 _LIGHT_WORDS = frozenset({"light", "flame", "fire"})
 _THROWS = frozenset({"throw", "hurl", "toss", "lob", "pour", "spill", "splash"})
-_TAKES = (ConditionUse, Stabilize, DamageUse)  # uses that take a creature as their target
+_TAKES = (ConditionUse, Stabilize, DamageUse, CastSpell)  # uses that take a creature
 _SAME_VERB = {
     "ignite": "light",
     "kindle": "light",

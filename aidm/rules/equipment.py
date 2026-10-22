@@ -6,13 +6,16 @@ frees the off hand (SRD two-weapon fighting needs light weapons); a shield frees
 and a two-handed main weapon. The armour class moves by the DIFFERENCE between the old and the
 new gear (armour formula + shield + armour-dependent fighting styles), the same delta rule
 level-up uses, so feature bonuses already in `Creature.ac` are kept. Dropping puts ONE item on
-the ground at the current place (`ItemPlaced`), unequipping the last equipped copy first.
+the ground at the current place (`ItemPlaced`), unequipping the last equipped copy first (M27.7:
+only ONE slot is freed, the off hand first, so dropping one of two wielded daggers keeps the
+other in hand; `release_events` is that step, also used by a throw).
 Taking (M19.3) is the reverse: a visible item lying at the current place leaves it
 (`ItemRemoved`) and joins the hero: a catalogue item into the inventory, anything else (a story
 object with no catalogue entry) as a keepsake; a quest item keeps its `quest_id` (M23.3).
 
 Public API: `EquipRefusal`, `EquipRefused`, `equip_events(creature, item, regs)`,
-`unequip_events(creature, item, regs)`, `drop_events(state, creature, item, regs)`,
+`unequip_events(creature, item, regs)`, `release_events(creature, item, regs)`,
+`drop_events(state, creature, item, regs)`,
 `take_events(state, creature, item_id)`.
 """
 
@@ -123,17 +126,24 @@ def unequip_events(creature: Creature, item: str, regs: CharacterRegistries) -> 
     return [_changed(creature, held, regs)]
 
 
+def release_events(creature: Creature, item: str, regs: CharacterRegistries) -> list[AnyEvent]:
+    """Free ONE slot holding `item` (the off hand first) when every carried copy is worn."""
+    gear = _hero(creature)
+    worn = [slot for slot in _SLOTS if getattr(gear, slot) == item]
+    if not worn or len(worn) < carried_qty(creature, item):
+        return []
+    held = gear.model_copy()
+    setattr(held, "off_hand" if "off_hand" in worn else worn[0], None)
+    return [_changed(creature, held, regs)]
+
+
 def drop_events(
     state: GameState, creature: Creature, item: str, regs: CharacterRegistries
 ) -> list[AnyEvent]:
-    gear = _hero(creature)
     carried = carried_qty(creature, item)
     if carried < 1:
         raise EquipRefused(EquipRefusal.NOT_CARRIED, f"{creature.name} does not carry {item}")
-    events: list[AnyEvent] = []
-    worn = sum(1 for slot in _SLOTS if getattr(gear, slot) == item)
-    if worn >= carried:
-        events.extend(unequip_events(creature, item, regs))
+    events = release_events(creature, item, regs)
     entry = regs.equipment.find(item)
     name = entry.name if entry is not None else item.replace("-", " ")
     placed = WorldItem(

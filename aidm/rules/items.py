@@ -1,15 +1,18 @@
 """Using consumable items (potions): ONE generic path driven by data/bg3/consumables.json.
 
 BG3 (SPEC 7.2): drinking a healing potion, or giving one to an ally in the same zone, is a
-bonus action. A potion is refused (and NOT consumed, no economy spent) when it would do nothing:
-the target is at full HP (v1 regression, SPEC 13) or dead.
+bonus action. A potion is refused (and NOT consumed, no economy spent) only when the target is
+dead. Data adds effects, it never forbids actions (owner 2026-10-22, M27.7, superseding the SPEC
+13 full-HP refusal): a healing potion drunk at full health is drunk and wasted, with an
+`ItemUsed(use_id="drink", no_effect=True)` so every line says it had no effect.
 
 Public API:
 - `check_item_use(state, user_id, item, target_id, regs) -> tuple[ConsumableDef, Creature]`:
-  the item def and the target, or `CommandRefused` (not carried, not usable, bad target, full HP).
+  the item def and the target, or `CommandRefused` (not carried, not usable, bad target, dead).
 - `use_item_events(rng, state, user_id, item, target_id, regs) -> list[AnyEvent]`: validated
   use without economy (exploration and the DM tools use it too): `InventoryChanged` (-1), the
-  `DiceRolled` heal, then `rules.damage.resolve_healing`.
+  `DiceRolled` heal, then `rules.damage.resolve_healing`; at full health `InventoryChanged` and
+  the no-effect `ItemUsed` only (no roll).
 - `use_item_command(state, cmd, regs, rng) -> list[AnyEvent]`: in combat: the target is the
   user or a living ally combatant in the same zone; costs the bonus action. An item that is not
   a consumable but has gear uses (data/bg3/item_uses.json, M27.6: thrown flasks, oil, caltrops,
@@ -24,12 +27,14 @@ from aidm.data.item_uses import uses_for_item
 from aidm.models.commands import RefusalCode, UseItemCommand
 from aidm.models.dice import RollKind
 from aidm.models.events import AnyEvent, DiceRolled, InventoryChanged
-from aidm.models.item_events import ItemUseRefused
+from aidm.models.item_events import ItemUsed, ItemUseRefused
 from aidm.models.state import Creature, GameState
 from aidm.rules.command_checks import CommandRefused, acting, changed, combat_target, spend
 from aidm.rules.damage import resolve_healing
 from aidm.rules.dice import Rng, roll
 from aidm.rules.item_use import use_item
+
+DRINK = "drink"  # ItemUsed.use_id of a potion drunk for nothing (M27.7)
 
 
 def _carried(user: Creature, item: str) -> int:
@@ -53,8 +58,6 @@ def check_item_use(
         raise CommandRefused(RefusalCode.UNKNOWN_TARGET, "There is no one like that here.")
     if target.dead:
         raise CommandRefused(RefusalCode.INVALID_TARGET, f"It is too late to help {target.name}.")
-    if item_def.heal and target.hp >= target.max_hp:
-        raise CommandRefused(RefusalCode.FULL_HP, f"{target.name} is already at full health.")
     return item_def, target
 
 
@@ -69,6 +72,11 @@ def use_item_events(
     item_def, target = check_item_use(state, user_id, item, target_id, regs)
     left = _carried(state.creatures[user_id], item) - 1
     events: list[AnyEvent] = [InventoryChanged(creature_id=user_id, item=item, delta=-1, qty=left)]
+    if item_def.heal and target.hp >= target.max_hp:  # drunk and wasted (owner rule, M27.7)
+        wasted = ItemUsed(
+            creature_id=user_id, item=item, use_id=DRINK, target=target.id, no_effect=True
+        )
+        return [wasted, *events]
     if item_def.heal:
         healed = roll(item_def.heal, rng)
         events.append(
@@ -108,10 +116,7 @@ def _gear_command(
     state: GameState, cmd: UseItemCommand, regs: CombatRegistries, rng: Rng
 ) -> list[AnyEvent]:
     target = cmd.target_zone or cmd.target_id
-    feats = regs.chars.features
-    events = use_item(
-        state, cmd.actor_id, cmd.item, target, rng=rng, use_id=cmd.use_id, feats=feats
-    )
+    events = use_item(state, cmd.actor_id, cmd.item, target, rng=rng, use_id=cmd.use_id, regs=regs)
     refused = next((e for e in events if isinstance(e, ItemUseRefused)), None)
     if refused is not None:
         raise CommandRefused(RefusalCode.GEAR_REFUSED, refused.message)

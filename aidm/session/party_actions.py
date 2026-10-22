@@ -7,14 +7,17 @@ proposer first, `quest_people.hold`, M23.4), `rest_job` (`rules.rests`), `shop_j
 offer, first answer wins), `buy`/`sell` (`rules.shop`), `level` (`rules.leveling.level_up`; not
 in a fight, M20.4), `equip`/`unequip`/`drop` and the equip/drop pre-check intents
 (`rules.equipment`), `use_item` (M7.5b: a potion outside a fight on the hero or another living hero,
-`rules.items.use_item_events`; full HP refuses without consuming),
+`rules.items.use_item_events`; at full HP it is drunk for nothing, M27.7),
+`copy_scroll` (M27.7: the Spellbook tab, a wizard copies a carried scroll into the spellbook out
+of a fight, `rules.scrolls`; refusal codes `scroll_<reason>`),
 `help_up` / `help_up_intent` (M20.2: outside a fight a standing hero helps a downed ally up to
 1 HP, `rules.downed`; the button and the typed sentence). Picking up and giving live in
 `aidm.session.hand_over` (M23.3).
 Refusals are typed and player-safe; nothing is spent on a refusal.
 
 Public API: `travel_job`, `rest_job`, `shop_job`, `item_intent`, `answer`, `buy`, `sell`,
-`level`, `equip`, `unequip`, `drop`, `use_item`, `help_up`, `help_up_intent`, `send_stock`.
+`level`, `equip`, `unequip`, `drop`, `use_item`, `copy_scroll`, `help_up`, `help_up_intent`,
+`send_stock`.
 """
 
 from aidm.dm.arrival import offer_data
@@ -25,9 +28,11 @@ from aidm.dm.tool_context import ToolContext
 from aidm.dm.tool_exec import execute_tool
 from aidm.dm.tools import dm_tool
 from aidm.models.commands import RefusalCode
-from aidm.models.events import AnyEvent
+from aidm.models.events import AnyEvent, GoldChanged
+from aidm.models.item_events import ItemUsed
 from aidm.models.protocol_client import (
     AnswerOffer,
+    CopyScroll,
     Drop,
     Equip,
     HelpUp,
@@ -51,6 +56,7 @@ from aidm.rules.items import use_item_events
 from aidm.rules.leveling import LevelUpInvalid, can_level_up, level_up
 from aidm.rules.offer_answer import OfferRefused, answer_offer
 from aidm.rules.rests import RestRefused, long_rest, short_rest
+from aidm.rules.scrolls import ScrollCopyRefused, copy_scroll_to_spellbook, scroll_spell_index
 from aidm.rules.shop import ShopRefused, buy_events, npc_shop_stock, sell_events
 from aidm.session import combat_flow
 from aidm.session.quest_people import hold
@@ -258,7 +264,29 @@ async def use_item(core: TableCore, player: Player, msg: UseItem) -> None:
         return
     name = msg.item_id.replace("-", " ")
     who = "" if target.id == pc.id else f" to {target.name}"
-    _gear(core, player, events, f"{pc.name} uses the {name}{who}.")
+    wasted = any(isinstance(e, ItemUsed) and e.no_effect for e in events)  # M27.7: full health
+    end = ": no special effect, it is gone." if wasted else "."
+    _gear(core, player, events, f"{pc.name} uses the {name}{who}{end}")
+
+
+async def copy_scroll(core: TableCore, player: Player, msg: CopyScroll) -> None:
+    pc = _hero(core, player)
+    if pc is None:
+        return
+    if core.combat_active():
+        core.error(player.id, ErrorCode.WRONG_PHASE, "Copy scrolls when the fight is over.")
+        return
+    chars = core.regs.combat.chars
+    try:
+        events = copy_scroll_to_spellbook(pc, msg.item_id, chars)
+    except ScrollCopyRefused as refused:
+        code = f"scroll_{refused.reason.value}"
+        core.error(player.id, ErrorCode.REFUSED, "That scroll cannot be copied.", code)
+        return
+    spell = chars.spells.find(scroll_spell_index(msg.item_id) or "")
+    name = spell.name if spell is not None else msg.item_id
+    gold = sum(-e.delta for e in events if isinstance(e, GoldChanged))
+    _gear(core, player, events, f"{pc.name} copies {name} into the spellbook for {gold} gold.")
 
 
 async def item_intent(core: TableCore, player: Player, intent: ItemIntent) -> None:
