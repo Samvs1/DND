@@ -49,7 +49,7 @@ what to narrate instead (pattern: `FreeStepRefused`). A deterministic precheck (
 `give_intent`) answers the common phrasings without the model ("light my torch", "use the rope on the cliff",
 "throw the oil at the goblin", "read the scroll of sleep").
 
-**D: creative actions use the same rules (owner, 2026-10-22, M27.6).** In a fight, a free-form action that names an item goes through the ONE interpreter (`use_item` is a creative-action tool): an item the hero lacks is refused and told as an attempt, a carried one is used up per its data. The fight context lists each foe's special traits (one line each) so the AI knows weaknesses such as a fire elemental's Water Susceptibility; the engine still owns every number.
+**D: creative actions use the same rules (owner, 2026-10-22, M27.6).** In a fight, a free-form action that names an item goes through the ONE interpreter (`use_item` is a creative-action tool): an item the hero lacks is refused and told as an attempt, a carried one is used up per its data. The fight context lists each foe's special traits (one line each) so the AI knows weaknesses such as a fire elemental's Water Susceptibility; the engine still owns every number. **D: substances, not one-off items (owner, 2026-10-22).** Items carry `substances` in data (water, fire, acid, holy, silver, oil); `data/bg3/weaknesses.json` maps monster -> substance -> effect (SRD numbers); ONE rule applies a weakness whenever a hit delivers a matching substance. Resolution order for any item: its own listed use, else a substance weakness, else the SRD improvised weapon (1d4, range 20/60) or a creative effect. Damage-type vulnerabilities and resistances stay in the damage path.
 
 **D: engine-owned advantage from gear.** An active boon applies to every matching check by itself, whatever the AI
 asked, and `adv_why` names it (*Torchlight*, *Crowbar*). Darkness is applied the same way (*Darkness*). Advantage
@@ -127,7 +127,7 @@ cannot be surprised by the party. Nothing else. To sneak, put the light out BEFO
 | Alchemist's fire | throw | ranged attack, 1d4 fire + burning (SRD) |
 | Acid (vial) | throw | ranged attack, 2d6 acid (SRD) |
 | Holy water | throw | ranged attack, 2d6 radiant to undead and fiends (SRD) |
-| Waterskin, Flask of water | throw (owner 2026-10-22) | ranged attack, cold damage only to creatures with a water weakness (SRD fire elemental Water Susceptibility: 1 cold per gallon); a damage-vs-tag field, no per-monster branch |
+| Waterskin, Flask of water | throw (owner 2026-10-22) | SRD improvised weapon (1d4) carrying the substance *water*: creatures weak to water take their weakness (fire elemental: 1 cold per gallon, SRD) through the general substance rule below |
 | Caltrops, Ball bearings | scatter in a zone | new surfaces (data): caltrops = rough + damage on entering, DC 15 DEX save; ball bearings = DC 10 DEX save or prone (SRD) |
 | Spell scrolls | read (action) | the spell through the spell engine, no slot, consumed; save DC / attack from the SRD Spell Scroll table by spell level; a wizard may instead COPY it (wire `rules/scrolls.py`, 50 gp per level) |
 
