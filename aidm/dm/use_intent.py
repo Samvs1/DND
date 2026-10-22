@@ -59,6 +59,13 @@ _CRAFT = re.compile(
     rf"(?: (?:with|using) {_THE}(?P<item>[a-z0-9 ,'-]+))?"
 )
 _LIGHT_WORDS = frozenset({"light", "flame", "fire"})
+_SAME_VERB = {
+    "ignite": "light",
+    "kindle": "light",
+    "hurl": "throw",
+    "toss": "throw",
+    "lob": "throw",
+}
 
 
 @dataclass(frozen=True)
@@ -136,7 +143,8 @@ def _with_verb(
 ) -> UseIntent | None:
     if item is None:
         return None
-    uses = tuple(u for u in uses_for_item(item) if verb is None or verb in u.verbs)
+    said = (verb, _SAME_VERB.get(verb or ""))
+    uses = tuple(u for u in uses_for_item(item) if verb is None or set(said) & set(u.verbs))
     if not uses or (not _fight(state) and all(u.when == "fight" for u in uses)):
         return None  # out of a fight a throw goes to the AI (it may start the fight)
     aimed = _target(state, target, uses)

@@ -28,6 +28,7 @@ not to speak for them (`VOICE_NEXT`), the guard flags spoken words or their repl
 follows, so a narration with nothing to tell stays silent).
 
 Public API: `NUMBERS_ALLOWED`, `VOICE_NEXT`, `TRIED`, `NarrationInput`,
+`unpack_source(source) -> (events, facts, notice)` (what the narrator is told),
 `tone_for(state, events=(), *, social=False)`, `narration_messages(...)`,
 `narrate(state, source, llm, *, actor_id, player_text, tone, allow_numbers, guard,
 budget_tokens, voice_next) -> NarrationStream`, `narrate_round_segment(state, events, llm, *, guard,
@@ -98,7 +99,7 @@ def tone_for(
     return NarrationTone.EXPLORATION
 
 
-def _unpack(source: NarrationInput) -> tuple[list[AnyEvent], list[str], str | None]:
+def unpack_source(source: NarrationInput) -> tuple[list[AnyEvent], list[str], str | None]:
     if not isinstance(source, AdjudicationResult):
         return list(source), [], None
     facts = [r.result.summary for r in source.executed if r.result.summary]
@@ -149,7 +150,7 @@ def narrate(
     budget_tokens: int = DEFAULT_BUDGET_TOKENS,
     voice_next: str | None = None,
 ) -> NarrationStream:
-    events, facts, notice = _unpack(source)
+    events, facts, notice = unpack_source(source)
     weight = (
         NarrationWeight.MINOR
         if isinstance(source, AdjudicationResult) and source.pending
