@@ -11,10 +11,16 @@
   proficiency) is told as a notice and nothing is made.
 - `fight_gear(core, player, entry) -> bool` (a fight): a typed put-out (free, on any turn) or a
   typed light (a bonus action on the hero's own turn, the interpreter spends it) is scheduled
-  here (a refusal is a notice); anything else returns False and keeps the fight's own path.
+  here (a refusal is a notice). M27.6: any other typed gear use on the hero's own turn ("throw
+  the acid at the goblin", "scatter the caltrops", "use my healer's kit on Bryn") runs the
+  interpreter too when it fits (checked first with a throwaway RNG); a use the rules refuse
+  returns False and keeps the fight's own path (the AI meets the same refusal). Anything else
+  returns False.
 
 Public API: `use_intent`, `rest_with_crafts`, `fight_gear`.
 """
+
+import random
 
 from aidm.dm.precheck import gear_intent
 from aidm.dm.use_intent import UseIntent
@@ -22,11 +28,12 @@ from aidm.models.events import AnyEvent
 from aidm.models.item_events import ItemUseRefused
 from aidm.models.protocol_server import CombatState, NoticeKind
 from aidm.models.protocol_views import QueueEntry, VoteKind
+from aidm.rules.dice import Rng
 from aidm.rules.item_effects import gear_name
 from aidm.rules.item_use import use_item
 from aidm.rules.light import put_out
 from aidm.rules.rests import RestRefused, long_rest
-from aidm.session import votes
+from aidm.session import combat_flow, votes
 from aidm.session.declared import declare
 from aidm.session.party_actions import REST_REFUSED
 from aidm.session.table_core import Job, Player, TableCore
@@ -40,10 +47,18 @@ def _refusal(events: list[AnyEvent]) -> str | None:
     return next((e.message for e in events if isinstance(e, ItemUseRefused)), None)
 
 
-def _events(core: TableCore, intent: UseIntent) -> list[AnyEvent]:
+def _events(core: TableCore, intent: UseIntent, rng: Rng | None = None) -> list[AnyEvent]:
     if intent.put_out:
         return put_out(core.state, intent.actor_id)
-    return use_item(core.state, intent.actor_id, intent.item, intent.target, rng=core.rng)
+    return use_item(
+        core.state,
+        intent.actor_id,
+        intent.item,
+        intent.target,
+        rng=rng or core.rng,
+        use_id=intent.use_id,
+        feats=core.regs.combat.chars.features,
+    )
 
 
 async def use_intent(core: TableCore, player: Player, intent: UseIntent) -> bool:
@@ -85,10 +100,13 @@ def rest_with_crafts(core: TableCore, crafts: tuple[tuple[str, str], ...]) -> Jo
 
 def fight_gear(core: TableCore, player: Player, entry: QueueEntry) -> bool:
     intent = gear_intent(core.state, entry.creature_id, entry.text)
-    if intent is None or not (intent.put_out or intent.verb in _LIGHT_VERBS):
+    if intent is None or intent.at_rest:
         return False
     enc = core.state.encounter
     if not intent.put_out and (enc is None or enc.active_id() != entry.creature_id):
+        return False
+    lighting = intent.put_out or intent.verb in _LIGHT_VERBS
+    if not lighting and _refusal(_events(core, intent, random.Random(0))) is not None:
         return False
 
     async def job() -> None:
@@ -99,7 +117,10 @@ def fight_gear(core: TableCore, player: Player, entry: QueueEntry) -> bool:
             return
         declare(core, entry)
         core.apply_all(events)
-        core.broadcast(CombatState(combat=public_combat(core.state)))
+        if intent.put_out or core.state.encounter is None:
+            core.broadcast(CombatState(combat=public_combat(core.state)))
+            return
+        await combat_flow.after_player_step(core, entry.creature_id)  # a throw may end the fight
 
     core.schedule(job)
     return True

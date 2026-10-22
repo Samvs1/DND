@@ -239,6 +239,7 @@ def test_every_shipped_effect_kind_is_dispatched() -> None:
         "cast_spell",
         "reveal_map",
         "condition",
+        "ignite",
     }
     assert not any(
         isinstance(e, PlaceAlerted) for e in use(at(DOCKS, hero(gear=["spyglass"])), "spyglass")

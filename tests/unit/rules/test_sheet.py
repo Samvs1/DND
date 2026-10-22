@@ -51,6 +51,7 @@ def test_golden_sheet_hill_dwarf_fighter_l1() -> None:
     # M9.2: "gold" 0 -> 15 in both sheet goldens: the acolyte background purse (PHB 15 gp,
     # RULES_DECISIONS M9.2); nothing else in the snapshots changed.
     # M19.3: "keepsakes": [] (story objects the hero carries) joined both sheet goldens.
+    # M27.6: "gear_uses": [] (fight uses of carried gear; none in these packs) joined both.
     _snapshot("sheet_fighter_hill_dwarf_l1", sheet)
     # Chain mail 16 + shield 2 (SRD Armor table); HP 10 + 2 + Dwarven Toughness 1.
     assert (sheet.ac, sheet.max_hp, sheet.speed, sheet.initiative_bonus) == (18, 13, 25, 2)

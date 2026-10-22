@@ -9,7 +9,8 @@ Turn flow (events only; the session applies them between calls):
   `TurnEconomy`, then (when a new round begins) the zone surface duration ticks, the creature's
   turn-start recharges (`resources.turn_recharge_events`: Recharge 5-6 rolls, legendary
   points), the start-of-turn condition ticks (`condition_timing.turn_start_events`), the
-  turn-start harms of the surfaces in the creature's zone (`rules.surfaces`), then a death
+  turn-start harms of the surfaces in the creature's zone (`rules.surfaces`), the turn-start
+  damage of its conditions (burning, `rules.condition_harms`, M27.6), then a death
   saving throw when the creature is (still) dying (SRD: at the start of each of its turns).
   The economy reflects those consequences (a natural 20 on the death save wakes the creature
   up with its full economy; a surprised creature gets no action, bonus action, movement or
@@ -38,6 +39,7 @@ from aidm.models.encounter import Combatant, Encounter, TurnEconomy
 from aidm.models.encounter_events import EconomyChanged, TurnEnded, TurnStarted
 from aidm.models.events import AnyEvent
 from aidm.models.state import Creature, GameState
+from aidm.rules.condition_harms import turn_start_condition_damage
 from aidm.rules.condition_timing import turn_end_events, turn_start_events
 from aidm.rules.conditions import (
     can_take_actions,
@@ -123,6 +125,8 @@ def begin_turn(rng: Rng, state: GameState) -> list[AnyEvent]:
     consequences.extend(turn_start_events(state, creature.id))
     after = project_state(state, consequences)
     consequences.extend(turn_start_surface_events(rng, after, creature.id))
+    after = project_state(state, consequences)
+    consequences.extend(turn_start_condition_damage(rng, after, creature.id))
     now = project_creature(creature, consequences)
     if is_dying(creature) and is_dying(now):
         consequences.extend(roll_death_save(rng, now))

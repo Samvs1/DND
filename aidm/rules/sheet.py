@@ -3,8 +3,10 @@
 Every number is computed by the rules that own it (checks, weapon attacks, spellcasting, feature
 hooks); this module only assembles them. Initiative shows the +DEX bonus (BG3 rolls 1d4 + DEX).
 
-Public API: `build_sheet(creature, regs, quest_titles) -> CharacterSheet` (ValueError for a
-non-PC); `quest_titles` (quest id -> title) names the quest of each quest item (M23.3).
+Public API: `build_sheet(creature, regs, quest_titles, light_item=None) -> CharacterSheet`
+(ValueError for a non-PC); `quest_titles` (quest id -> title) names the quest of each quest item
+(M23.3); `light_item` is the hero's carried lit light (M27.6: the fight gear uses,
+`rules.gear_menu`); each condition line names the action that can end it (`end_label`).
 """
 
 from collections.abc import Mapping
@@ -28,7 +30,9 @@ from aidm.models.sheet import (
 from aidm.models.state import Creature
 from aidm.rules.abilities import ability_modifier
 from aidm.rules.checks import passive_score, save_bonus, skill_bonus
+from aidm.rules.conditions import condition_def
 from aidm.rules.features import attacks_per_action, feature_actions
+from aidm.rules.gear_menu import fight_gear_lines
 from aidm.rules.leveling import MAX_LEVEL, xp_for_level
 from aidm.rules.sheet_spells import spellcasting_block
 from aidm.rules.spellcasting import parse_slot_key
@@ -147,8 +151,20 @@ def _keepsakes(pc: PcData, quest_titles: Mapping[str, str]) -> list[KeepsakeLine
     ]
 
 
+def _conditions(creature: Creature) -> list[ConditionLine]:
+    lines: list[ConditionLine] = []
+    for c in creature.conditions:
+        check = condition_def(c.name).end_check
+        label = check.label if check is not None else None
+        lines.append(ConditionLine(name=c.name, rounds_left=c.rounds_left, end_label=label))
+    return lines
+
+
 def build_sheet(
-    creature: Creature, regs: CharacterRegistries, quest_titles: Mapping[str, str] | None = None
+    creature: Creature,
+    regs: CharacterRegistries,
+    quest_titles: Mapping[str, str] | None = None,
+    light_item: str | None = None,
 ) -> CharacterSheet:
     pc = creature.pc
     if pc is None:
@@ -186,11 +202,10 @@ def build_sheet(
         languages=list(pc.languages),
         resistances=list(creature.resistances),
         inventory=_inventory(pc, regs),
+        gear_uses=fight_gear_lines(creature, light_item),
         keepsakes=_keepsakes(pc, quest_titles or {}),
         gold=pc.gold,
-        conditions=[
-            ConditionLine(name=c.name, rounds_left=c.rounds_left) for c in creature.conditions
-        ],
+        conditions=_conditions(creature),
         death_saves=DeathSaveLine(
             successes=creature.death_save_successes,
             failures=creature.death_save_failures,

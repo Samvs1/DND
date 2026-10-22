@@ -51,7 +51,9 @@ def _chest(state: GameState) -> str:
 
 def test_light_my_torch() -> None:
     state = _state(CAVE)
-    assert _intent(state, "I light my torch.") == UseIntent("hero", "torch", verb="light")
+    # M27.6: the torch has two uses (light, throw the lit torch); the verb picks one.
+    lit = UseIntent("hero", "torch", verb="light", use_id="torch-light")
+    assert _intent(state, "I light my torch.") == lit
     assert _intent(state, "ignite the lantern") == UseIntent(
         "hero", "lantern-hooded", verb="ignite"
     )

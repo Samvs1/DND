@@ -11,18 +11,25 @@ Public API:
   use without economy (exploration and the DM tools use it too): `InventoryChanged` (-1), the
   `DiceRolled` heal, then `rules.damage.resolve_healing`.
 - `use_item_command(state, cmd, regs, rng) -> list[AnyEvent]`: in combat: the target is the
-  user or a living ally combatant in the same zone; costs the bonus action.
+  user or a living ally combatant in the same zone; costs the bonus action. An item that is not
+  a consumable but has gear uses (data/bg3/item_uses.json, M27.6: thrown flasks, oil, caltrops,
+  a torch, the healer's kit) goes through THE item interpreter (`rules.item_use.use_item`,
+  aimed at `target_zone` or `target_id`, its own cost); its refusal becomes
+  `CommandRefused(GEAR_REFUSED, message)`.
 """
 
 from aidm.data.combat_data import CombatRegistries
 from aidm.data.consumable_defs import ConsumableDef
+from aidm.data.item_uses import uses_for_item
 from aidm.models.commands import RefusalCode, UseItemCommand
 from aidm.models.dice import RollKind
 from aidm.models.events import AnyEvent, DiceRolled, InventoryChanged
+from aidm.models.item_events import ItemUseRefused
 from aidm.models.state import Creature, GameState
 from aidm.rules.command_checks import CommandRefused, acting, changed, combat_target, spend
 from aidm.rules.damage import resolve_healing
 from aidm.rules.dice import Rng, roll
+from aidm.rules.item_use import use_item
 
 
 def _carried(user: Creature, item: str) -> int:
@@ -81,6 +88,8 @@ def use_item_command(
     state: GameState, cmd: UseItemCommand, regs: CombatRegistries, rng: Rng
 ) -> list[AnyEvent]:
     actor = acting(state, cmd.actor_id)
+    if regs.consumables.find(cmd.item) is None and uses_for_item(cmd.item):
+        return _gear_command(state, cmd, regs, rng)
     target_id = cmd.target_id or cmd.actor_id
     if target_id != cmd.actor_id:
         target = combat_target(state, actor, target_id)
@@ -93,3 +102,17 @@ def use_item_command(
     economy = spend(state, cmd.actor_id, bonus_action=True, reason="use item")
     events = use_item_events(rng, state, cmd.actor_id, cmd.item, target_id, regs)
     return [changed(cmd.actor_id, economy, "use item"), *events]
+
+
+def _gear_command(
+    state: GameState, cmd: UseItemCommand, regs: CombatRegistries, rng: Rng
+) -> list[AnyEvent]:
+    target = cmd.target_zone or cmd.target_id
+    feats = regs.chars.features
+    events = use_item(
+        state, cmd.actor_id, cmd.item, target, rng=rng, use_id=cmd.use_id, feats=feats
+    )
+    refused = next((e for e in events if isinstance(e, ItemUseRefused)), None)
+    if refused is not None:
+        raise CommandRefused(RefusalCode.GEAR_REFUSED, refused.message)
+    return events

@@ -6,7 +6,9 @@
 - "put out my torch", "douse the torch", "extinguish the lantern", "snuff out the candle",
   "put my torch out", "put out my light": `put_out` (the hero's carried light; free);
 - "light my torch", "ignite the lantern", "light a candle": a use with that verb;
-- "throw the oil at Z", "scatter the caltrops at Z": a use with the verb, aimed at Z;
+- "throw the oil at Z", "scatter the caltrops at Z": a use with the verb, aimed at Z (M27.6:
+  "throw my torch at Z" also finds the hero's lit torch; a verb that picks one of an item's
+  several uses sets `use_id`: "light" vs "throw" the torch);
 - "read the scroll of X": a carried scroll that matches;
 - "use X", "use X on Y": every use of X, aimed at Y;
 - "brew a poultice", "craft with my herbalism kit": a use with the verb (a long-rest use sets
@@ -18,7 +20,7 @@ becomes its zone for gear that covers a zone); a target that names nothing known
 None and goes on to the adjudicator. The rules decide (`aidm.rules.item_use.use_item`,
 `aidm.rules.light.put_out`).
 
-Public API: `UseIntent(actor_id, item, target, verb, put_out, at_rest)`,
+Public API: `UseIntent(actor_id, item, target, verb, put_out, at_rest, use_id)`,
 `use_intent(state, actor_id, clean) -> UseIntent | None`.
 """
 
@@ -28,6 +30,7 @@ from dataclasses import dataclass
 from aidm.data.item_uses import (
     ConditionUse,
     DamageUse,
+    Ignite,
     ItemUse,
     Stabilize,
     SurfaceUse,
@@ -76,6 +79,7 @@ class UseIntent:
     verb: str | None = None
     put_out: bool = False
     at_rest: bool = False
+    use_id: str | None = None  # M27.6: the use a verb picks ("throw" the torch, not "light")
 
 
 def _fight(state: GameState) -> bool:
@@ -92,6 +96,15 @@ def _put_out(state: GameState, actor: Creature, phrase: str) -> UseIntent | None
     if item is None and not wanted <= _LIGHT_WORDS:
         return None
     return UseIntent(actor.id, item or "light", put_out=True)
+
+
+def _held(state: GameState, actor: Creature, phrase: str) -> str | None:
+    """A carried item the phrase names, else the hero's lit light when it does (M27.6)."""
+    item = carried_entry(actor, phrase)
+    light = hero_light(state, actor.id)
+    if item is None and light is not None and fits(words(phrase), gear_name(light.item)):
+        return light.item
+    return item
 
 
 def _zone_of(state: GameState, creature_id: str) -> str | None:
@@ -132,7 +145,7 @@ def _target(state: GameState, phrase: str | None, uses: tuple[ItemUse, ...]) -> 
     creature = _best(wanted, people)
     if creature is None:
         return ""
-    if any(isinstance(u.effect, SurfaceUse) for u in uses) and _fight(state):
+    if any(isinstance(u.effect, SurfaceUse | Ignite) for u in uses) and _fight(state):
         return _zone_of(state, creature) or ""
     takes = (ConditionUse, Stabilize, DamageUse)
     return creature if any(isinstance(u.effect, takes) for u in uses) else None
@@ -151,7 +164,9 @@ def _with_verb(
     if target and aimed is None:  # aimed at a creature no use of it takes
         return None
     at_rest = all(u.when == "long_rest" for u in uses)
-    return UseIntent(actor.id, item, aimed or None, verb, at_rest=at_rest)
+    several = len(uses_for_item(item)) > 1
+    one = uses[0].id if verb is not None and several and len(uses) == 1 else None
+    return UseIntent(actor.id, item, aimed or None, verb, at_rest=at_rest, use_id=one)
 
 
 def _crafter(actor: Creature, verb: str) -> str | None:
@@ -172,7 +187,7 @@ def use_intent(state: GameState, actor_id: str, clean: str) -> UseIntent | None:
     for pattern in (_LIGHT, _THROW, _READ):
         if m := pattern.fullmatch(clean):
             target = m["target"] if "target" in pattern.groupindex else None
-            return _with_verb(state, actor, carried_entry(actor, m["item"]), m["verb"], target)
+            return _with_verb(state, actor, _held(state, actor, m["item"]), m["verb"], target)
     if m := _USE.fullmatch(clean):
         return _with_verb(state, actor, carried_entry(actor, m["item"]), None, m["target"])
     if m := _CRAFT.fullmatch(clean):

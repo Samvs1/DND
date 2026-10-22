@@ -12,8 +12,11 @@ catalogue, surfaces, spells and skills.
 - `cost`: the action a use takes in a fight (None = free or out of a fight only).
 - `consumes`: one is used up; `charges`: uses per inventory entry (healer's kit); never both.
 - `tool`: an SRD tool, proficiency applies. `noise`: the place becomes alerted.
-- `effect`: a closed union keyed by `kind`: light_place, boon, surface, damage, condition,
-  unlock, supplies, stabilize, craft, cast_spell, reveal_map.
+- `from_light` (M27.6): the use is made with the hero's carried LIT light of this item (a lit
+  torch thrown); it ends that light instead of consuming an inventory item.
+- `effect`: a closed union keyed by `kind`: light_place, boon, surface, damage (an optional
+  `condition` on a hit), condition, unlock, supplies, stabilize, craft, cast_spell, reveal_map,
+  ignite (damage of a type into a zone, only through the surfaces' damage interactions).
 
 `ScrollPower(level, save_dc, attack_bonus)`: the SRD 5.1 Spell Scroll table, stored as data.
 
@@ -84,6 +87,7 @@ class DamageUse(_Strict):
     damage_type: DamageKey
     save: AbilityKey | None = None
     creature_types: tuple[str, ...] = ()  # empty = any creature
+    condition: str | None = None  # applied on a hit (alchemist's fire: burning, M27.6)
 
     @model_validator(mode="after")
     def _check_damage(self) -> DamageUse:
@@ -131,6 +135,14 @@ class RevealMap(_Strict):
     kind: Literal["reveal_map"]
 
 
+class Ignite(_Strict):
+    """Damage of this type into a zone (M27.6): only what the surfaces' damage interactions
+    make of it (a thrown torch into oil sets it alight); nothing else is harmed."""
+
+    kind: Literal["ignite"]
+    damage_type: DamageKey = "fire"
+
+
 type UseEffect = Annotated[
     LightPlace
     | Boon
@@ -142,7 +154,8 @@ type UseEffect = Annotated[
     | Stabilize
     | Craft
     | CastSpell
-    | RevealMap,
+    | RevealMap
+    | Ignite,
     Field(discriminator="kind"),
 ]
 
@@ -160,11 +173,14 @@ class ItemUse(_Strict):
     charges: int | None = Field(default=None, ge=1)
     tool: bool = False
     noise: bool = False
+    from_light: bool = False  # M27.6: uses the hero's carried LIT light of this item, ending it
 
     @model_validator(mode="after")
     def _check_use(self) -> ItemUse:
         if self.consumes and self.charges is not None:
             raise ValueError("a use consumes the item or has charges, not both")
+        if self.from_light and (self.consumes or self.charges is not None):
+            raise ValueError("a from_light use ends the light; it consumes nothing else")
         if (self.when == "tagged_place") != bool(self.tags):
             raise ValueError("tags go with when=tagged_place and only then")
         return self
@@ -205,8 +221,9 @@ def _effect_problems(effect: UseEffect) -> list[str]:
     problems = [f"unknown skill {n!r}" for n in names if n not in skills]
     if isinstance(effect, SurfaceUse) and effect.surface not in surface_defs():
         problems.append(f"unknown surface {effect.surface!r}")
-    if isinstance(effect, ConditionUse) and effect.condition not in condition_defs():
-        problems.append(f"unknown condition {effect.condition!r}")
+    if isinstance(effect, ConditionUse | DamageUse) and effect.condition is not None:
+        if effect.condition not in condition_defs():
+            problems.append(f"unknown condition {effect.condition!r}")
     if isinstance(effect, CastSpell) and effect.spell and effect.spell not in shipped_spell_ids():
         problems.append(f"unknown spell {effect.spell!r}")
     if isinstance(effect, Craft) and effect.output not in item_catalogue():

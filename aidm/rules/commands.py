@@ -8,7 +8,8 @@ Invalid input raises `CommandRefused(code, reason)` before any event exists, so 
 (`EconomyRefused`, `EncounterRefused`, `ZoneError`) are converted to `CommandRefused` here.
 
 Per-command rules live in `rules.combat_moves` (move, dash, disengage, jump, shove, flee),
-`rules.combat_actions` (attack, throw, hide, help, dodge), `rules.items` (use_item) and
+`rules.combat_actions` (attack, throw, hide, help, dodge, end_condition), `rules.items`
+(use_item: potions, and gear through `rules.item_use`, M27.6) and
 `rules.spells` (cast, the spell effect DSL), `rules.monster_actions` (a monster's stat block
 actions: attacks, save actions, multiattack, its spell kit), `rules.feature_commands` (class and
 race feature actions from the feature hooks). `end_turn` closes the actor's turn via
@@ -27,6 +28,7 @@ from aidm.models.commands import (
     DashCommand,
     DisengageCommand,
     DodgeCommand,
+    EndConditionCommand,
     EndTurnCommand,
     FeatureActionCommand,
     FleeCommand,
@@ -44,6 +46,7 @@ from aidm.models.state import GameState
 from aidm.rules.combat_actions import (
     attack_command,
     dodge_command,
+    end_condition_command,
     help_command,
     hide_command,
     throw_command,
@@ -96,6 +99,8 @@ def _dispatch(
             return throw_command(state, command, regs, rng)
         case UseItemCommand():
             return use_item_command(state, command, regs, rng)
+        case EndConditionCommand():
+            return end_condition_command(state, command, rng)
         case HelpCommand():
             return help_command(state, command, regs)
         case DodgeCommand():

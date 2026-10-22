@@ -20,8 +20,13 @@ refusal message (str) that tells the model what to narrate instead; a refusal co
   roll at the lock's DC with this gear (`attempt_lock`: the tool's proficiency, the crowbar's
   named advantage); `FeatureUnlocked` on success. The `noise` of a force use alerts the place
   either way (`aidm.rules.item_use`); a failed roll can be retried.
-- cast_spell (M27.7), damage (thrown attacks, M27.6): not wired yet (`not_wired`), refused with
-  a plain message.
+- damage (M27.6): a thrown attack through THE attack path (`aidm.rules.item_throw`): improvised
+  weapon, 20/60 ft, the item's dice and type, its `condition` on a hit (burning).
+- ignite (M27.6): damage of a type into a zone in reach (`rules.surfaces.zone_damage_events`:
+  a lit torch into oil sets it alight); refused when nothing there reacts.
+- cast_spell (M27.7): not wired yet (`not_wired`), refused with a plain message.
+
+`UseCtx.feats` is the feature registry for the attack path (None: the shipped one).
 
 Public API: `UseCtx`, `gear_name(item_id)`, `FORAGE_DC`, `not_wired(use) -> str | None`,
 `in_reach(state, actor_id, zone_id) -> bool`, `effect_events(ctx) -> list[AnyEvent] | str`.
@@ -29,6 +34,7 @@ Public API: `UseCtx`, `gear_name(item_id)`, `FORAGE_DC`, `not_wired(use) -> str 
 
 from dataclasses import dataclass
 
+from aidm.data.feature_defs import FeatureDef, feature_defs
 from aidm.data.item_catalogue import item_catalogue
 from aidm.data.item_uses import (
     Boon,
@@ -36,6 +42,7 @@ from aidm.data.item_uses import (
     ConditionUse,
     Craft,
     DamageUse,
+    Ignite,
     ItemUse,
     LightPlace,
     RevealMap,
@@ -44,6 +51,7 @@ from aidm.data.item_uses import (
     SurfaceUse,
     Unlock,
 )
+from aidm.data.registry import Registry
 from aidm.data.surface_defs import surface_defs
 from aidm.models.abilities import Ability, Skill
 from aidm.models.character import InventoryItem
@@ -60,9 +68,10 @@ from aidm.rules.condition_timing import apply_condition, new_condition
 from aidm.rules.death import is_dying, stabilize
 from aidm.rules.dice import Rng
 from aidm.rules.gear_checks import gear_check
+from aidm.rules.item_throw import thrown_item_events
 from aidm.rules.light import light_reach_zones, lit_zones
 from aidm.rules.locks import LockGear, attempt_lock, key_open, locked_here
-from aidm.rules.surfaces import place_surface_events
+from aidm.rules.surfaces import place_surface_events, zone_damage_events
 from aidm.rules.zones import zone_neighbors
 
 FORAGE_TIER = DcTier.EASY
@@ -70,7 +79,6 @@ FORAGE_DC = dc_for_tier(FORAGE_TIER)
 
 _LATER = {
     "cast_spell": "Reading scrolls is not wired yet",
-    "damage": "Throwing gear at a foe is not wired yet",
 }
 
 
@@ -83,6 +91,7 @@ class UseCtx:
     target: str | None
     rng: Rng
     resting: bool
+    feats: Registry[FeatureDef] | None = None
 
 
 def gear_name(item_id: str) -> str:
@@ -175,7 +184,8 @@ def _gain(ctx: UseCtx, effect: Boon) -> list[AnyEvent] | str:
     return [BoonGained(boon=boon)]
 
 
-def _surface(ctx: UseCtx, effect: SurfaceUse) -> list[AnyEvent] | str:
+def _zone_in_reach(ctx: UseCtx) -> str | tuple[str, str]:
+    """(zone id, zone name) of the target zone in reach (own or touching), or a refusal."""
     enc = _fight(ctx.state)
     gear = gear_name(ctx.use.item).lower()
     zones = {z.id: z for z in enc.zone_map.zones} if enc is not None else {}
@@ -184,9 +194,31 @@ def _surface(ctx: UseCtx, effect: SurfaceUse) -> list[AnyEvent] | str:
         return f"Name the zone of this fight to throw the {gear} into."
     if not in_reach(ctx.state, ctx.actor.id, zone.id):
         return f"{zone.name} is too far for the {gear}: your zone or a touching one."
+    return zone.id, zone.name
+
+
+def _surface(ctx: UseCtx, effect: SurfaceUse) -> list[AnyEvent] | str:
+    zone = _zone_in_reach(ctx)
+    if isinstance(zone, str):
+        return zone
     duration = surface_defs().get(effect.surface).duration_rounds
     surface = ZoneSurface(kind=effect.surface, rounds_left=duration, source_id=ctx.actor.id)
-    return place_surface_events(ctx.rng, ctx.state, zone.id, surface)
+    return place_surface_events(ctx.rng, ctx.state, zone[0], surface)
+
+
+def _ignite(ctx: UseCtx, effect: Ignite) -> list[AnyEvent] | str:
+    zone = _zone_in_reach(ctx)
+    if isinstance(zone, str):
+        return zone
+    events = zone_damage_events(ctx.rng, ctx.state, zone[0], effect.damage_type)
+    gear = gear_name(ctx.use.item).lower()
+    return events or f"Nothing in {zone[1]} catches from the {gear}; it changes nothing."
+
+
+def _throw(ctx: UseCtx, effect: DamageUse) -> list[AnyEvent] | str:
+    feats = ctx.feats if ctx.feats is not None else feature_defs()
+    name = gear_name(ctx.use.item).lower()
+    return thrown_item_events(ctx.rng, ctx.state, ctx.actor.id, ctx.target, name, effect, feats)
 
 
 def _condition(ctx: UseCtx, effect: ConditionUse) -> list[AnyEvent] | str:
@@ -297,5 +329,9 @@ def effect_events(ctx: UseCtx) -> list[AnyEvent] | str:
             return _reveal(ctx)
         case Unlock():
             return _unlock(ctx, effect)
-        case CastSpell() | DamageUse():
+        case DamageUse():
+            return _throw(ctx, effect)
+        case Ignite():
+            return _ignite(ctx, effect)
+        case CastSpell():
             return not_wired(ctx.use) or "That use is not wired yet."

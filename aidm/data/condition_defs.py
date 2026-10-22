@@ -25,10 +25,15 @@ Fields of `ConditionDef` (all but index/name/source default to "no effect"):
   condition hits the bearer with a weapon attack (Hunter's Mark; type None = the weapon's).
 - `bonus_actions`: actions the bearer may take as a bonus action ("dash": Expeditious Retreat).
 - `blocks_verbal`: the bearer cannot cast spells with a verbal component (Silence).
+- `turn_start_damage` / `turn_start_damage_type`: dice of damage the bearer takes at the start of
+  each of its turns (burning from alchemist's fire, M27.6).
+- `end_check`: `EndCheck(ability, dc, label)`: a creature in the bearer's zone (the bearer too)
+  may use its action to make this ability check; a success ends every instance (SRD 5.1
+  Alchemist's Fire: an action and a DC 10 Dexterity check put the flames out).
 - `duration`: the default `DefaultDuration(kind, rounds, tick_on)` for a new instance when the
   applying effect does not say otherwise. `srd_condition` is False for the BG3/SRD-action extras.
 
-Public API: `AdvKey`, `DurationKey`, `BoundaryKey`, `DamageKey`, `DefaultDuration`,
+Public API: `AdvKey`, `DurationKey`, `BoundaryKey`, `DamageKey`, `DefaultDuration`, `EndCheck`,
 `ConditionDef`, `load_condition_defs(path=None) -> Registry[ConditionDef]` (validates that every
 implied key exists and that implications have no cycle), `condition_defs()` (default, cached).
 """
@@ -83,6 +88,14 @@ class DefaultDuration(BaseModel):
         return self
 
 
+class EndCheck(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    ability: AbilityKey
+    dc: int = Field(ge=1)
+    label: str = Field(min_length=1)
+
+
 class ConditionDef(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
@@ -118,7 +131,16 @@ class ConditionDef(BaseModel):
     source_rider_type: DamageKey | None = None
     bonus_actions: tuple[Literal["dash", "disengage", "hide"], ...] = ()
     blocks_verbal: bool = False
+    turn_start_damage: str | None = Field(default=None, pattern=r"^\d*d\d+([+-]\d+)?$")
+    turn_start_damage_type: DamageKey | None = None
+    end_check: EndCheck | None = None
     duration: DefaultDuration = DefaultDuration()
+
+    @model_validator(mode="after")
+    def _check_turn_damage(self) -> ConditionDef:
+        if (self.turn_start_damage is None) != (self.turn_start_damage_type is None):
+            raise ValueError("turn_start_damage and turn_start_damage_type go together")
+        return self
 
 
 def _check_implications(registry: Registry[ConditionDef]) -> None:

@@ -116,8 +116,12 @@ def test_not_yet_wired_effects_are_refused_plainly() -> None:
     assert "nothing locked" in refusal(use(calm, "crowbar"))
     assert "nothing locked" in refusal(use(calm, "thieves-tools"))
     assert "scrolls" in refusal(use(calm, "scroll-of-sleep"))
+
+
+def test_a_throw_out_of_reach_is_refused_and_spends_nothing() -> None:
+    # M27.6 wired the throw; a foe two zones away is beyond the 20 ft throw (one hop).
     state = gear_fight(CAVE, hero(gear=["alchemists-fire-flask", "acid-vial"]))
-    assert "Throwing" in refusal(use(state, "alchemists-fire-flask", "gob"))
+    assert "too far" in refusal(use(state, "alchemists-fire-flask", "gob"))
     assert qty(state, "hero", "alchemists-fire-flask") == 1
     assert economy(state, "hero").action
 

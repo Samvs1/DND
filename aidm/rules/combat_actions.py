@@ -12,20 +12,25 @@
 - Help (action): an ally in the same zone gets "helped" (advantage on its next attack or check,
   until the helper's next turn). BG3: helping a downed ally (0 HP) brings it back to 1 HP.
 - Dodge (action): "dodging" until the start of the creature's next turn.
+- End a condition (M27.6, action): a condition with an `end_check` in data (burning: DC 10 DEX)
+  on the actor or a creature in its zone; the actor's ability check (with its conditions,
+  `CheckResolved`), a success removes every instance.
 
 Public API: `attack_command`, `throw_command`, `hide_command`, `help_command`,
-`dodge_command`; each `(state, command, regs[, rng]) -> list[AnyEvent]` or `CommandRefused`.
+`dodge_command`; each `(state, command, regs[, rng]) -> list[AnyEvent]` or `CommandRefused`;
+`end_condition_command(state, cmd, rng)`.
 `check_attack_target(state, actor, target_id, profile, regs)`: the target checks of an attack
 (a living combatant, not the attacker's charmer, in the profile's range band); monster actions
 (M3.8) use it too. The free attack that starts a fight lives in `rules.opening_strike` (M20.5).
 """
 
 from aidm.data.combat_data import CombatRegistries
-from aidm.models.abilities import Skill
+from aidm.models.abilities import Ability, Skill
 from aidm.models.combat import AttackEconomy, AttackProfile
 from aidm.models.commands import (
     AttackCommand,
     DodgeCommand,
+    EndConditionCommand,
     HelpCommand,
     HideCommand,
     RefusalCode,
@@ -47,10 +52,12 @@ from aidm.rules.command_checks import (
     spend,
     spend_action_or_feature,
 )
-from aidm.rules.condition_timing import apply_condition, new_condition
+from aidm.rules.condition_timing import apply_condition, new_condition, remove_condition
 from aidm.rules.conditions import (
+    ability_check_with_conditions,
     can_attack_target,
     can_take_actions,
+    condition_def,
     skill_check_with_conditions,
 )
 from aidm.rules.damage import resolve_healing
@@ -182,3 +189,24 @@ def dodge_command(state: GameState, cmd: DodgeCommand, regs: CombatRegistries) -
     economy = spend(state, cmd.actor_id, action=True, reason="dodge")
     dodging = new_condition(DODGING, source_id=cmd.actor_id)
     return [changed(cmd.actor_id, economy, "dodge"), *apply_condition(actor.creature, dodging)]
+
+
+def end_condition_command(state: GameState, cmd: EndConditionCommand, rng: Rng) -> list[AnyEvent]:
+    actor = acting(state, cmd.actor_id)
+    target_id = cmd.target_id or cmd.actor_id
+    target = combat_target(state, actor, target_id, allow_self=True)
+    held = any(c.name == cmd.condition for c in target.conditions)
+    check = condition_def(cmd.condition).end_check if held else None
+    if check is None:
+        raise CommandRefused(RefusalCode.INVALID_TARGET, f"{target.name} has nothing to end.")
+    if actor.enc.combatant(target_id).zone_id != actor.combatant.zone_id:
+        raise CommandRefused(RefusalCode.OUT_OF_RANGE, f"{target.name} is not close enough.")
+    economy = spend(state, cmd.actor_id, action=True, reason=check.label)
+    result = ability_check_with_conditions(rng, actor.creature, Ability(check.ability), check.dc)
+    events: list[AnyEvent] = [
+        changed(cmd.actor_id, economy, check.label),
+        CheckResolved(creature_id=cmd.actor_id, result=result, reason=check.label),
+    ]
+    if result.success:
+        events.extend(remove_condition(target, cmd.condition))
+    return events

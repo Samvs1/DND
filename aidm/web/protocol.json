@@ -312,6 +312,7 @@
                   "dash": "#/$defs/DashCommand",
                   "disengage": "#/$defs/DisengageCommand",
                   "dodge": "#/$defs/DodgeCommand",
+                  "end_condition": "#/$defs/EndConditionCommand",
                   "end_turn": "#/$defs/EndTurnCommand",
                   "feature_action": "#/$defs/FeatureActionCommand",
                   "flee": "#/$defs/FleeCommand",
@@ -356,6 +357,9 @@
                 },
                 {
                   "$ref": "#/$defs/UseItemCommand"
+                },
+                {
+                  "$ref": "#/$defs/EndConditionCommand"
                 },
                 {
                   "$ref": "#/$defs/HelpCommand"
@@ -763,6 +767,45 @@
             "item_id"
           ],
           "title": "Drop",
+          "type": "object"
+        },
+        "EndConditionCommand": {
+          "additionalProperties": false,
+          "properties": {
+            "actor_id": {
+              "minLength": 1,
+              "title": "Actor Id",
+              "type": "string"
+            },
+            "condition": {
+              "minLength": 1,
+              "title": "Condition",
+              "type": "string"
+            },
+            "target_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Target Id"
+            },
+            "type": {
+              "const": "end_condition",
+              "default": "end_condition",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "actor_id",
+            "condition"
+          ],
+          "title": "EndConditionCommand",
           "type": "object"
         },
         "EndTurnCommand": {
@@ -2022,11 +2065,35 @@
               "default": null,
               "title": "Target Id"
             },
+            "target_zone": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Target Zone"
+            },
             "type": {
               "const": "use_item",
               "default": "use_item",
               "title": "Type",
               "type": "string"
+            },
+            "use_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Use Id"
             }
           },
           "required": [
@@ -2673,6 +2740,14 @@
               "title": "Features",
               "type": "array"
             },
+            "gear_uses": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/GearUseLine"
+              },
+              "title": "Gear Uses",
+              "type": "array"
+            },
             "gold": {
               "title": "Gold",
               "type": "integer"
@@ -3007,6 +3082,18 @@
         "ConditionLine": {
           "additionalProperties": false,
           "properties": {
+            "end_label": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "End Label"
+            },
             "name": {
               "title": "Name",
               "type": "string"
@@ -3806,6 +3893,62 @@
             }
           },
           "title": "FloorView",
+          "type": "object"
+        },
+        "GearTarget": {
+          "enum": [
+            "none",
+            "creature",
+            "ally",
+            "zone"
+          ],
+          "type": "string"
+        },
+        "GearUseLine": {
+          "additionalProperties": false,
+          "properties": {
+            "cost": {
+              "enum": [
+                "action",
+                "bonus"
+              ],
+              "title": "Cost",
+              "type": "string"
+            },
+            "item": {
+              "title": "Item",
+              "type": "string"
+            },
+            "label": {
+              "title": "Label",
+              "type": "string"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "qty": {
+              "default": 1,
+              "title": "Qty",
+              "type": "integer"
+            },
+            "target": {
+              "$ref": "#/$defs/GearTarget",
+              "default": "none"
+            },
+            "use_id": {
+              "title": "Use Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "item",
+            "use_id",
+            "name",
+            "label",
+            "cost"
+          ],
+          "title": "GearUseLine",
           "type": "object"
         },
         "HitChance": {

@@ -80,7 +80,16 @@ export function moveSlots(ctx) {
     pick('help', [{ need: 'creature', valid: ally(me), prompt: t('combat.pickTarget') }], (p) => ({ type: 'help', actor_id: me, target_id: p[0][0] })),
     pick('throw', [{ need: 'creature', valid: foe, prompt: t('combat.pickTarget') }], (p) => ({ type: 'throw', actor_id: me, target_id: p[0][0] })),
     { id: 'flee', group: 'moves', label: t('hotbar.flee'), tip: t('hotbar.tip_flee'), sub: engaged(ctx) ? t('hotbar.disengageFirst') : null, off: null, run: () => ctrl.send({ type: 'flee', actor_id: me }) },
+    ...endSlots(ctx, needsAction),
   ];
+}
+
+// M27.6: a condition that an action can end (burning: "Put out the flames", a DC 10 DEX check).
+function endSlots({ ctrl, sheet, me }, off) {
+  const seen = new Set();
+  return (sheet?.conditions ?? [])
+    .filter((c) => c.end_label && !seen.has(c.name) && seen.add(c.name))
+    .map((c) => ({ id: `end-${c.name}`, group: 'moves', label: c.end_label, tip: t('hotbar.tip_endCondition'), off, run: () => ctrl.send({ type: 'end_condition', actor_id: me, condition: c.name }) }));
 }
 
 export function bonusSlots(ctx) {

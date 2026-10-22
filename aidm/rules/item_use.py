@@ -27,8 +27,14 @@ Otherwise the ONLY event is `ItemUseRefused(message)`, telling the model what to
 instead (an attempt, never a result); nothing is consumed. When several uses could apply, the
 first that fits wins and the first refusal is reported.
 
+M27.6: a `from_light` use (a lit torch thrown) is made with the hero's carried LIT light of that
+item (found by `_carried` even when no such item is left in the pack) and ends it with
+`LightEnded(reason="thrown")` instead of consuming anything; the effect sees the state with the
+use's action already spent (the attack path's once-per-turn riders build on it); `feats` is the
+feature registry for thrown attacks (None: the shipped one).
+
 Public API: `use_item(state, actor_id, item, target=None, *, rng, use_id=None, resting=False,
-prior=()) -> list[AnyEvent]`, `refused(actor_id, item, message) -> ItemUseRefused`,
+prior=(), feats=None) -> list[AnyEvent]`, `refused(actor_id, item, message) -> ItemUseRefused`,
 `situation_problem(state, actor, use, target, resting) -> str | None` (step 3's situation),
 `usable_uses(state, actor_id) -> list[(item, use, target)]` (the uses of the hero's gear that
 fit here now: the adjudicator's usable-gear line, M27.5; long-rest uses are left out).
@@ -36,13 +42,16 @@ A light use that alerts names its cause (`PlaceAlerted(reason="light")`, M27.5).
 """
 
 from collections.abc import Sequence
+from dataclasses import replace
 
+from aidm.data.feature_defs import FeatureDef
 from aidm.data.item_catalogue import item_catalogue
 from aidm.data.item_uses import ItemUse, LightPlace, Supplies, uses_for_item
+from aidm.data.registry import Registry
 from aidm.models.character import InventoryItem
 from aidm.models.encounter import EncounterStatus
 from aidm.models.events import AnyEvent, InventoryChanged
-from aidm.models.item_events import ItemUsed, ItemUseRefused, PlaceAlerted
+from aidm.models.item_events import ItemUsed, ItemUseRefused, LightEnded, PlaceAlerted
 from aidm.models.state import Creature, GameState
 from aidm.models.world import AlertCause
 from aidm.rules.command_checks import CommandRefused, changed, spend
@@ -52,22 +61,31 @@ from aidm.rules.item_effects import UseCtx, effect_events, gear_name, not_wired
 from aidm.rules.light import hero_light, place_dark, place_light
 from aidm.rules.locks import key_open, locked_here
 from aidm.rules.progression import node_plan
+from aidm.rules.projection import project_state
+
+THROWN = "thrown"  # LightEnded.reason when a lit light is thrown (M27.6)
 
 
 def refused(actor_id: str, item: str, message: str) -> ItemUseRefused:
     return ItemUseRefused(creature_id=actor_id or "?", item=item or "?", message=message)
 
 
-def _carried(actor: Creature, item: str) -> InventoryItem | str:
+def _named(item_id: str, key: str) -> bool:
+    found = item_catalogue().find(item_id)
+    return key in {item_id.lower(), found.name.lower() if found is not None else ""}
+
+
+def _carried(state: GameState, actor: Creature, item: str) -> InventoryItem | str:
     key = item.strip().lower()
     pc = actor.pc
     if pc is None:
         return "Only a hero carries gear to use."
-    catalogue = item_catalogue()
     for entry in pc.inventory:
-        found = catalogue.find(entry.item)
-        if key in {entry.item.lower(), found.name.lower() if found is not None else ""}:
+        if _named(entry.item, key):
             return entry
+    light = hero_light(state, actor.id)
+    if light is not None and _named(light.item, key):  # M27.6: the lit light in hand
+        return InventoryItem(item=light.item, qty=1)
     if any(key in {k.id.lower(), k.name.lower()} for k in pc.keepsakes):
         return (
             f"{item} is a keepsake, not gear: it has no use here. "
@@ -115,11 +133,21 @@ def _not_a_key(state: GameState, use: ItemUse, target: str | None, gear: str) ->
     )
 
 
+def _light_problem(state: GameState, actor: Creature, use: ItemUse, gear: str) -> str | None:
+    light = hero_light(state, actor.id)
+    if use.from_light and (light is None or light.item != use.item):
+        return f"{actor.name} carries no lit {gear}; light one first."
+    return None
+
+
 def situation_problem(
     state: GameState, actor: Creature, use: ItemUse, target: str | None, resting: bool
 ) -> str | None:
     gear = gear_name(use.item).lower()
     fight = _in_fight(state)
+    lit = _light_problem(state, actor, use, gear)
+    if lit is not None:
+        return lit
     if fight and use.cost is None:
         return f"The {gear} cannot be used during a fight."
     if use.when == "fight" and not fight:
@@ -178,7 +206,9 @@ def _bookkeeping(ctx: UseCtx, charges: int | None) -> tuple[ItemUsed, list[AnyEv
         forage=isinstance(use.effect, Supplies),
     )
     after: list[AnyEvent] = []
-    if used_up:
+    if use.from_light:
+        after.append(LightEnded(creature_id=ctx.actor.id, reason=THROWN, item=use.item))
+    elif used_up:
         after.append(
             InventoryChanged(creature_id=ctx.actor.id, item=entry.item, delta=-1, qty=entry.qty - 1)
         )
@@ -202,7 +232,8 @@ def _try_use(ctx: UseCtx) -> list[AnyEvent] | str:
     economy = _fight_cost(ctx)
     if isinstance(economy, str):
         return economy
-    effects = effect_events(ctx)
+    spent = replace(ctx, state=project_state(ctx.state, economy)) if economy else ctx
+    effects = effect_events(spent)
     if isinstance(effects, str):
         return effects
     used, after = _bookkeeping(ctx, charges)
@@ -228,11 +259,12 @@ def use_item(
     use_id: str | None = None,
     resting: bool = False,
     prior: Sequence[AnyEvent] = (),
+    feats: Registry[FeatureDef] | None = None,
 ) -> list[AnyEvent]:
     actor = state.creatures.get(actor_id)
     if actor is None:
         return [refused(actor_id, item, "Only a hero carries gear to use.")]
-    entry = _carried(actor, item)
+    entry = _carried(state, actor, item)
     if isinstance(entry, str):
         return [refused(actor_id, item, entry)]
     if any(isinstance(e, ItemUsed) and e.creature_id == actor_id for e in prior):
@@ -248,7 +280,7 @@ def use_item(
         return opened
     first: str | None = None
     for use in uses:
-        outcome = _try_use(UseCtx(state, actor, entry, use, target, rng, resting))
+        outcome = _try_use(UseCtx(state, actor, entry, use, target, rng, resting, feats))
         if not isinstance(outcome, str):
             return outcome
         first = first or outcome
@@ -266,14 +298,16 @@ def usable_uses(state: GameState, actor_id: str) -> list[tuple[str, ItemUse, str
         return []
     locks = [f for f in state.world.features if not isinstance(locked_here(state, f), str)]
     out: list[tuple[str, ItemUse, str | None]] = []
-    for entry in actor.pc.inventory:
-        for use in uses_for_item(entry.item):
+    light = hero_light(state, actor_id)
+    items = [e.item for e in actor.pc.inventory]
+    for item in [*items, *([light.item] if light is not None and light.item not in items else [])]:
+        for use in uses_for_item(item):
             skip = use.when == "long_rest" or not_wired(use) is not None
             if skip or (use.when == "ally_down" and not _dying_ally(state)):
                 continue
             targets: list[str | None] = [*locks] if use.when == "locked" else [None]
             out += [
-                (entry.item, use, target)
+                (item, use, target)
                 for target in targets
                 if situation_problem(state, actor, use, target, False) is None
             ]

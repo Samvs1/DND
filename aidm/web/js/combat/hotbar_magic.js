@@ -1,5 +1,5 @@
 // The spell and item popovers of the hotbar: spells by level with slot pickers (upcasting), then targeting by
-// the spell's kind; potions and other usable items.
+// the spell's kind; potions and the hero's gear uses in a fight with their cost (M27.6).
 import { assetUrl } from '../assets.js';
 import { t } from '../strings.js';
 import { h } from '../ui/dom.js';
@@ -84,6 +84,34 @@ export function spellPopover(ctx) {
   return h('div', { class: 'hb-pop', role: 'group', 'aria-label': t('hotbar.magic'), 'data-testid': 'spell-pop' }, ...(groups.length ? groups : [h('p', { class: 'hint' }, t('hotbar.spellsEmpty'))]));
 }
 
+// M27.6: a gear use is aimed by what it takes (a foe, a fallen ally, a zone) and sent as the
+// `use_item` combat command; the server's item rules decide (a refusal comes back as a typed code).
+const GEAR_STEPS = {
+  creature: () => [{ need: 'creature', valid: (tk) => !tk.dead && !tk.withdrawn, prompt: t('combat.pickTarget') }],
+  ally: (me) => [{ need: 'creature', valid: (tk) => tk.side === 'party' && !tk.dead && tk.creature_id !== me, prompt: t('hotbar.pickFallen') }],
+  zone: () => [{ need: 'zone', prompt: t('combat.pickZone') }],
+};
+
+function useGear(ctx, use) {
+  const { ctrl, me } = ctx;
+  const cmd = (extra) => ({ type: 'use_item', actor_id: me, item: use.item, use_id: use.use_id, ...extra });
+  const steps = GEAR_STEPS[use.target];
+  if (!steps) return ctrl.send(cmd({}));
+  const aim = use.target === 'zone' ? (p) => cmd({ target_zone: p[0][0] }) : (p) => cmd({ target_id: p[0][0] });
+  ctrl.arm({ steps: steps(me), build: aim });
+}
+
+function gearRow(ctx, use) {
+  const bonus = use.cost === 'bonus';
+  const ready = bonus ? ctx.econ.bonus_action : ctx.econ.action;
+  return h('li', { class: `spell-row${ready ? '' : ' off'}`, 'data-testid': 'gear-row', 'data-use': use.use_id },
+    h('img', { src: assetUrl([`item_icon.${use.item}`, 'item_icon.gear']), alt: '', width: 28, height: 28 }),
+    h('span', { class: 'spell-name' }, use.name),
+    h('span', { class: 'tag', 'data-testid': 'gear-cost' }, t(bonus ? 'hotbar.econ_bonus_action' : 'hotbar.econ_action')),
+    use.qty > 1 ? h('span', { class: 'hint' }, t('hotbar.itemCount', { n: use.qty })) : null,
+    h('button', { type: 'button', class: 'btn btn-small', disabled: !ready, 'data-testid': `gear-${use.use_id}`, 'aria-label': use.label, onclick: () => useGear(ctx, use) }, use.label));
+}
+
 export function itemPopover(ctx) {
   const { ctrl, me, econ } = ctx;
   const usable = (ctx.sheet?.inventory ?? []).filter((i) => i.category === 'potion');
@@ -91,9 +119,10 @@ export function itemPopover(ctx) {
     h('li', { class: 'spell-row' },
       h('img', { src: assetUrl([`item_icon.${item.item}`, 'item_icon.potion']), alt: '', width: 28, height: 28 }),
       h('span', { class: 'spell-name' }, item.name),
+      h('span', { class: 'tag' }, t('hotbar.econ_bonus_action')),
       h('span', { class: 'hint' }, t('hotbar.itemCount', { n: item.qty })),
       h('button', { type: 'button', class: 'btn btn-small', disabled: !econ.bonus_action, 'data-testid': `use-${item.item}`, 'aria-label': t('hotbar.useItem', { name: item.name }), onclick: () => ctrl.send({ type: 'use_item', actor_id: me, item: item.item }) }, t('hotbar.useItem', { name: item.name }))),
   );
+  rows.push(...(ctx.sheet?.gear_uses ?? []).map((use) => gearRow(ctx, use)));
   return h('div', { class: 'hb-pop', role: 'group', 'aria-label': t('hotbar.items'), 'data-testid': 'item-pop' }, rows.length ? h('ul', { class: 'spell-list' }, ...rows) : h('p', { class: 'hint' }, t('hotbar.itemsEmpty')));
 }
-

@@ -1,11 +1,14 @@
 """Typed gear use at the table (M27.5): a long-rest craft proposes the rest and crafts during it,
-a refused typed use goes on to the adjudicator, and a typed use applies through the rules."""
+a refused typed use goes on to the adjudicator, and a typed use applies through the rules.
+M27.6: gear in a fight, typed or from the hotbar's combat command."""
 
 from pathlib import Path
 
 from aidm.models.character import InventoryItem
+from aidm.models.combat_events import AttackRolled, ZoneSurfaceAdded
+from aidm.models.commands import UseItemCommand
 from aidm.models.item_events import ItemUsed, LightEnded, LightLit
-from aidm.models.protocol_client import SubmitAction
+from aidm.models.protocol_client import CombatCommandMsg, SubmitAction
 from aidm.models.protocol_server import ErrorMsg, NarrationDone, Notice, VoteClosed, VoteOpen
 from aidm.models.protocol_views import VoteKind
 from aidm.models.state import GameState
@@ -97,4 +100,43 @@ async def test_putting_a_light_out_in_a_fight_is_free_on_any_turn(tmp_path: Path
         ended = [e.event for e in table.log if isinstance(e.event, LightEnded)]
         assert ended == [LightEnded(creature_id="fighter", reason="doused", item="lantern-hooded")]
         assert not any(isinstance(m, ErrorMsg) for m in seat.drain())
+        assert_replays(table)
+
+
+async def test_typed_throw_in_a_fight_runs_the_item_rules(tmp_path: Path) -> None:
+    # M27.6: "I throw the acid at the goblin" on the hero's own turn is THE interpreter's
+    # thrown attack (no AI involved); the vial is used up, hit or miss.
+    state = _carrying("acid-vial")
+    async with running(disabled_llm(tmp_path), state) as (table, _):
+        seat = await join(table, "Ann", "fighter")
+        await start_fight(table, "goblin")
+        enc = table.state.encounter
+        assert enc is not None and enc.active_id() == "fighter"
+        seat.send(SubmitAction(text="I throw the acid at the goblin"))
+        await table.settle()
+        used = [e.event for e in table.log if isinstance(e.event, ItemUsed)]
+        assert [u.use_id for u in used] == ["acid-vial-throw"]
+        assert any(isinstance(e.event, AttackRolled) for e in table.log)
+        pc = table.state.creatures["fighter"].pc
+        assert pc is not None and all(e.item != "acid-vial" for e in pc.inventory)
+        assert not any(isinstance(m, ErrorMsg) for m in seat.drain())
+        assert_replays(table)
+
+
+async def test_hotbar_gear_use_goes_through_the_combat_command(tmp_path: Path) -> None:
+    state = _carrying("oil-flask", "holy-water-flask")
+    async with running(disabled_llm(tmp_path), state) as (table, _):
+        seat = await join(table, "Ann", "fighter")
+        await start_fight(table, "goblin")
+        holy = UseItemCommand(actor_id="fighter", item="holy-water-flask", target_id="goblin-1")
+        seat.send(CombatCommandMsg(command=holy))
+        await table.settle()
+        errors = of_type(seat.drain(), ErrorMsg)
+        assert [e.refusal for e in errors] == ["gear_refused"]  # a goblin is no undead or fiend
+        oil = UseItemCommand(actor_id="fighter", item="oil-flask", target_zone="gully")
+        seat.send(CombatCommandMsg(command=oil))
+        await table.settle()
+        added = [e.event for e in table.log if isinstance(e.event, ZoneSurfaceAdded)]
+        assert [(a.zone_id, a.surface.kind) for a in added] == [("gully", "oil")]
+        assert not of_type(seat.drain(), ErrorMsg)
         assert_replays(table)

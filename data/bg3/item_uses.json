@@ -17,6 +17,23 @@
    "noise": true
   },
   {
+   "id": "torch-throw",
+   "item": "torch",
+   "verbs": [
+    "throw",
+    "hurl",
+    "toss"
+   ],
+   "when": "fight",
+   "label": "Throw the lit torch into a zone",
+   "effect": {
+    "kind": "ignite",
+    "damage_type": "fire"
+   },
+   "cost": "action",
+   "from_light": true
+  },
+  {
    "id": "candle-light",
    "item": "candle",
    "verbs": [
@@ -608,7 +625,8 @@
     "kind": "damage",
     "roll": "attack",
     "dice": "1d4",
-    "damage_type": "fire"
+    "damage_type": "fire",
+    "condition": "burning"
    },
    "cost": "action",
    "consumes": true

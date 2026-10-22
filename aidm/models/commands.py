@@ -16,7 +16,11 @@ Public API:
   action such as Cunning Action), `ShoveCommand(actor_id, target_id, mode, to_zone)` (mode
   "push" needs `to_zone`, "prone" knocks the target down), `JumpCommand(actor_id, zone_id)`,
   `ThrowCommand(actor_id, target_id, item)` (`item` None = an improvised object),
-  `UseItemCommand(actor_id, item, target_id)` (`target_id` None = the actor),
+  `UseItemCommand(actor_id, item, target_id, target_zone, use_id)` (`target_id` None = the
+  actor; a potion, or M27.6 gear through the item interpreter `aidm.rules.item_use`, aimed at a
+  creature or a zone, `use_id` picks one of the item's uses),
+  `EndConditionCommand(actor_id, condition, target_id)` (M27.6: an action on a condition's
+  `end_check`, e.g. putting out burning; `target_id` None = the actor),
   `HelpCommand(actor_id, target_id)`, `DodgeCommand(actor_id)`, `EndTurnCommand(actor_id)`,
   `FleeCommand(actor_id)` (M3.10, BG3 Flee: leave the fight from a zone without enemies),
   `MonsterActionCommand(actor_id, action, target_ids, target_zone, option, slot_level)` (M3.8: a
@@ -67,6 +71,7 @@ class RefusalCode(StrEnum):
     NO_LEGENDARY = "no_legendary_action"
     ENGAGED = "engaged"
     ACTION_UNUSED = "action_unused"
+    GEAR_REFUSED = "gear_refused"
 
 
 class _Command(BaseModel):
@@ -131,6 +136,14 @@ class UseItemCommand(_Command):
     type: Literal["use_item"] = "use_item"
     item: str = Field(min_length=1)
     target_id: str | None = None
+    target_zone: str | None = None
+    use_id: str | None = None
+
+
+class EndConditionCommand(_Command):
+    type: Literal["end_condition"] = "end_condition"
+    condition: str = Field(min_length=1)
+    target_id: str | None = None
 
 
 class HelpCommand(_Command):
@@ -177,6 +190,7 @@ type AnyCommand = (
     | JumpCommand
     | ThrowCommand
     | UseItemCommand
+    | EndConditionCommand
     | HelpCommand
     | DodgeCommand
     | EndTurnCommand

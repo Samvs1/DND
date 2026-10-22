@@ -22,13 +22,18 @@ Public API:
   runs (Second Wind, Action Surge, Breath Weapon, Turn Undead); `economy` action /
   bonus_action / extra_action; the target fields aim it like a spell.
 - `InventoryLine(item, name, qty, equipped_slot, category, weight, value_gp)` (category, weight
-  per item and value per item come from the item catalogue); `ConditionLine(name, rounds_left)`;
+  per item and value per item come from the item catalogue); `ConditionLine(name, rounds_left,
+  end_label)` (`end_label`: the action that can end it, e.g. "Put out the flames", M27.6);
+- `GearUseLine(item, use_id, name, label, cost, target, qty)` (M27.6): a use of the hero's gear
+  in a fight (data/bg3/item_uses.json) with its cost (action / bonus) and what it is aimed at
+  (none / creature / ally / zone); the hotbar Items section lists them;
   `DeathSaveLine(successes, failures, stable, dead)`.
 - `CharacterSheet`: identity (id, name, race, subrace, class, subclass, level, background, xp,
   xp_next), abilities, skills, passive_perception, proficiency_bonus, ac, hp, temp_hp, max_hp,
   speed, initiative_bonus (+DEX; BG3 rolls 1d4, `initiative_die`), attacks, attacks_per_action,
   spellcasting, features, feature_actions, resources, proficiencies and languages, resistances,
-  inventory, gold, conditions, death_saves, concentrating_on (the spell being concentrated on).
+  inventory, gear_uses, gold, conditions, death_saves, concentrating_on (the spell being
+  concentrated on).
 """
 
 from typing import Literal
@@ -162,6 +167,20 @@ class KeepsakeLine(_Line):
 class ConditionLine(_Line):
     name: str
     rounds_left: int | None = None
+    end_label: str | None = None
+
+
+type GearTarget = Literal["none", "creature", "ally", "zone"]
+
+
+class GearUseLine(_Line):
+    item: str
+    use_id: str
+    name: str
+    label: str
+    cost: Literal["action", "bonus"]
+    target: GearTarget = "none"
+    qty: int = 1
 
 
 class DeathSaveLine(_Line):
@@ -205,6 +224,7 @@ class CharacterSheet(_Line):
     languages: list[str]
     resistances: list[DamageType]
     inventory: list[InventoryLine]
+    gear_uses: list[GearUseLine] = []
     keepsakes: list[KeepsakeLine] = []
     gold: int
     conditions: list[ConditionLine]
