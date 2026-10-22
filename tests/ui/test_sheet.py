@@ -85,9 +85,9 @@ def test_equip_and_unequip_change_the_armor_class(
     snap(host, shots_dir, "controller_hero_inventory", 390)
     host.click("[data-testid=equip-shield]")
     host.wait_for_function(f"{SHEET}.ac === {before}", timeout=20000)
-    host.click(item.format("dungeoneers-pack"))
-    host.click("[data-testid=drop-dungeoneers-pack]")
-    host.wait_for_selector("[data-testid=drop-dungeoneers-pack]", state="detached", timeout=20000)
+    host.click(item.format("backpack"))
+    host.click("[data-testid=drop-backpack]")
+    host.wait_for_selector("[data-testid=drop-backpack]", state="detached", timeout=20000)
     assert errors == []
 
 

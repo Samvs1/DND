@@ -27,6 +27,10 @@ class Plan:
     rng: random.Random
     cantrip: str | None = None
     refused: set[str] = field(default_factory=set[str])
+    # M27.10 gear: used once per fight, refused in this fight, kit chances (an ally lay dying).
+    fight_used: set[str] = field(default_factory=set[str])
+    fight_refused: set[str] = field(default_factory=set[str])
+    kit_chances: int = 0
 
 
 def token_of(combat: Msg, creature_id: str) -> Msg | None:

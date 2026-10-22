@@ -1,10 +1,10 @@
 """Run the real aidm server in-process on a free port (uvicorn as a task in the caller's loop).
 
 The server shares the event loop with the bots, so reading or scheduling on the table between
-awaits is race-free. `SimServer` starts one app (fake LLM by default, the real model with
-`live_ai`) over a fresh saves folder, seeded with `new_game_state(seed)`, and captures every
-ERROR-level log record (and any record that carries an exception) so the run can fail on
-unhandled server errors.
+awaits is race-free. `SimServer` starts one app (fake LLM by default, answering through
+`scripts.sim.fake_dm`; the real model with `live_ai`) over a fresh saves folder, seeded with
+`new_game_state(seed)`, and captures every ERROR-level log record (and any record that carries
+an exception) so the run can fail on unhandled server errors.
 
 Public API: `SimServer`, `ErrorCapture`, `free_port`.
 """
@@ -18,11 +18,16 @@ from pathlib import Path
 
 import uvicorn
 
+from aidm.dm.fake_llm import FakeLLM
+from aidm.dm.llm_client import LlmClient
+from aidm.dm.llm_log import LlmCallLog
+from aidm.dm.llm_types import LlmMode
 from aidm.models.state import GameState
 from aidm.server.app import create_app
 from aidm.server.settings import load_env, server_settings_from_env
 from aidm.session.persistence import new_game_state
 from aidm.session.table import Table
+from scripts.sim.fake_dm import sim_responder
 
 
 def free_port() -> int:
@@ -72,9 +77,12 @@ class SimServer:
         env = load_env() if self.live_ai else {"AIDM_FAKE_LLM": "1"}
         settings = server_settings_from_env(env, port=self.port, saves_dir=self.saves_dir)
         settings = replace(settings, tts_enabled=False)
+        llm: LlmClient | None = None
         if not self.live_ai:
             settings = replace(settings, llm=replace(settings.llm, log_path=None))
-        app = create_app(settings, state=self.state)
+            fake = FakeLLM(responder=sim_responder(self._hero_id))
+            llm = LlmClient(fake, settings.llm, LlmMode.FAKE, LlmCallLog(None))
+        app = create_app(settings, llm=llm, state=self.state)
         self._table = app.state.registry.table
         config = uvicorn.Config(app, host="127.0.0.1", port=self.port, log_level="warning")
         self._server = uvicorn.Server(config)
@@ -85,6 +93,13 @@ class SimServer:
                 return
             await asyncio.sleep(0.1)
         raise RuntimeError("the simulation server did not start")
+
+    def _hero_id(self, name: str) -> str | None:
+        """The id of the hero called `name` (the fake DM's search, `scripts.sim.fake_dm`)."""
+        if self._table is None:
+            return None
+        found = (c.id for c in self._table.state.creatures.values() if c.pc and c.name == name)
+        return next(found, None)
 
     async def stop(self) -> None:
         """Stop the server (the table autosaves on shutdown)."""

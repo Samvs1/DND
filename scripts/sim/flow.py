@@ -14,7 +14,7 @@ import random
 
 from scripts.sim.bot import Bot
 from scripts.sim.chaos import run_probes
-from scripts.sim.checks import engine_invariants
+from scripts.sim.checks import engine_invariants, hero_up
 from scripts.sim.client import Msg
 from scripts.sim.explore import explore_text, scene_of
 from scripts.sim.levelup import level_up_bot
@@ -189,14 +189,11 @@ class Director:
     # --- rest, level-up, region boundary ---------------------------------------------------
 
     def proposer(self, preferred: Bot) -> Bot:
-        """`preferred` if its hero lives, else the first bot whose hero does."""
+        """`preferred` if its hero is up, else the first bot whose hero is (M27.10: a hero
+        lying unconscious at 0 HP cannot act, so it cannot propose either)."""
         game = self.srv.table.state
-
-        def alive(bot: Bot) -> bool:
-            hero = game.creatures.get(bot.hero_id)
-            return hero is not None and not hero.dead
-
-        return next((b for b in [preferred, *self.party.bots] if alive(b)), preferred)
+        bots = [preferred, *self.party.bots]
+        return next((b for b in bots if hero_up(game, b.hero_id)), preferred)
 
     async def short_rest(self) -> None:
         self.step("short rest")
@@ -208,7 +205,9 @@ class Director:
 
     async def level_ups(self) -> None:
         self.step("level up")
-        pending = [b for b in self.party.bots if _wants_level(b)]
+        game = self.srv.table.state
+        living = [b for b in self.party.bots if not game.creatures[b.hero_id].dead]
+        pending = [b for b in living if _wants_level(b)]  # the dead do not level up
         for bot in pending:
             result = await level_up_bot(bot)
             self.report.say(f"{bot.name} level up -> {result}")

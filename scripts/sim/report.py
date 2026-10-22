@@ -3,6 +3,7 @@
 Public API: `Report`.
 """
 
+from collections import Counter
 from dataclasses import dataclass, field
 
 
@@ -18,6 +19,7 @@ class Report:
     step: str = "start"
     level: int = 1  # the highest hero level reached by play
     rests: tuple[int, int] = (0, 0)  # short and long rests taken by play
+    gear: Counter[str] = field(default_factory=Counter[str])  # M27.10: gear uses by the bots
 
     def fail(self, message: str) -> None:
         text = f"seed={self.seed} step={self.step}: {message}"
@@ -35,7 +37,8 @@ class Report:
     def summary(self) -> str:
         status = "ok" if self.ok else f"FAILED({len(self.failures)})"
         short, long = self.rests
+        gear = ",".join(f"{k}:{n}" for k, n in sorted(self.gear.items()))
         return (
             f"seed {self.seed}: {status} turns={self.turns} combats={self.combats} "
-            f"level={self.level} rests={short}s/{long}l"
+            f"level={self.level} rests={short}s/{long}l gear={gear or '-'}"
         )

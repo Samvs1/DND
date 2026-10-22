@@ -15,6 +15,13 @@ class WeaponRange(SrdModel):
     long: int | None = None
 
 
+class PackContent(SrdModel):
+    """One entry of an equipment pack's contents (SRD 5.1 Equipment Packs)."""
+
+    item: ApiRef
+    quantity: int = 1
+
+
 class ArmorClass(SrdModel):
     base: int
     dex_bonus: bool
@@ -41,3 +48,4 @@ class SrdEquipment(SrdModel):
     weight: float | None = None
     gear_category: ApiRef | None = None
     desc: list[str] = []
+    contents: list[PackContent] = []  # M27.10: an equipment pack's items (SRD 5.1)

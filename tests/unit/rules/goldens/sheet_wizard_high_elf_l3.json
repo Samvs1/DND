@@ -617,13 +617,73 @@
    "uses": []
   },
   {
-   "item": "scholars-pack",
-   "name": "Scholar's Pack",
+   "item": "backpack",
+   "name": "Backpack",
+   "qty": 1,
+   "equipped_slot": null,
+   "category": "gear",
+   "weight": 5.0,
+   "value_gp": 2.0,
+   "uses": []
+  },
+  {
+   "item": "book",
+   "name": "Book",
+   "qty": 1,
+   "equipped_slot": null,
+   "category": "gear",
+   "weight": 5.0,
+   "value_gp": 25.0,
+   "uses": []
+  },
+  {
+   "item": "ink-1-ounce-bottle",
+   "name": "Ink (1 ounce bottle)",
    "qty": 1,
    "equipped_slot": null,
    "category": "gear",
    "weight": 0.0,
-   "value_gp": 40.0,
+   "value_gp": 10.0,
+   "uses": []
+  },
+  {
+   "item": "ink-pen",
+   "name": "Ink pen",
+   "qty": 1,
+   "equipped_slot": null,
+   "category": "gear",
+   "weight": 0.0,
+   "value_gp": 0.02,
+   "uses": []
+  },
+  {
+   "item": "parchment-one-sheet",
+   "name": "Parchment (one sheet)",
+   "qty": 10,
+   "equipped_slot": null,
+   "category": "gear",
+   "weight": 0.0,
+   "value_gp": 0.1,
+   "uses": []
+  },
+  {
+   "item": "little-bag-of-sand",
+   "name": "Little bag of sand",
+   "qty": 1,
+   "equipped_slot": null,
+   "category": "gear",
+   "weight": 0.0,
+   "value_gp": 0.0,
+   "uses": []
+  },
+  {
+   "item": "small-knife",
+   "name": "Small knife",
+   "qty": 1,
+   "equipped_slot": null,
+   "category": "gear",
+   "weight": 0.0,
+   "value_gp": 0.0,
    "uses": []
   },
   {

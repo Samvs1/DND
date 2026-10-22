@@ -13,6 +13,7 @@ from typing import Any
 
 from scripts.sim.client import Conn, Msg
 from scripts.sim.combat import MAX_STEPS, Plan, choose_command, foes_of, pick_target
+from scripts.sim.gear_fight import gear_command, gear_key
 from scripts.sim.report import Report
 
 # What a player sees as "my action was handled".
@@ -148,9 +149,22 @@ class Bot:
         got = await self.conn.wait_for(answer, timeout, mark)
         return [] if got["type"] == "error" else list(got["chances"])
 
+    async def gear_uses(self, timeout: float = 10.0) -> list[Msg]:
+        """My sheet's `gear_uses` (M27.10; the hotbar's Items), [] when no sheet comes back."""
+        mark = self.conn.mark()
+        await self.conn.send({"type": "request_sheet"})
+        try:
+            got = await self.conn.wait_for(
+                lambda m: m["type"] in ("sheet", "error"), timeout * self.patience, mark
+            )
+        except TimeoutError:
+            return []
+        return list(got["sheet"].get("gear_uses", [])) if got["type"] == "sheet" else []
+
     async def play_turn(self) -> None:
-        """One hero turn: up to MAX_STEPS safe commands, then end_turn."""
+        """One hero turn: up to MAX_STEPS safe commands (gear first, M27.10), then end_turn."""
         self.plan.refused = set()
+        gear = await self.gear_uses()
         for _ in range(MAX_STEPS):
             combat = self.conn.state.get("combat")
             if not combat or combat["active_id"] != self.hero_id:
@@ -159,19 +173,36 @@ class Bot:
             if not foes:
                 return
             target = pick_target(self.plan, combat, foes)
-            chances = await self._chances(target["creature_id"])
-            cmd = choose_command(self.plan, combat, chances, target)
+            party = list(self.conn.state.get("party", []))
+            cmd = gear_command(self.plan, combat, party, gear, target)
+            if cmd is None:
+                chances = await self._chances(target["creature_id"])
+                cmd = choose_command(self.plan, combat, chances, target)
             outcome = await self._command(cmd)
             self.report.say(f"{self.name} {cmd['type']} {cmd.get('target_id', '')} -> {outcome}")
             if outcome.startswith("refused"):
-                self.plan.refused.add(cmd["type"])
+                self._refused(cmd)
+            elif cmd["type"] == "use_item":
+                self.report.gear[cmd["use_id"]] += 1
+                gear = await self.gear_uses()
             if cmd["type"] == "end_turn":
                 return
         await self._command({"type": "end_turn", "actor_id": self.hero_id})
 
+    def _refused(self, cmd: Msg) -> None:
+        key = gear_key(cmd)
+        self.plan.refused.add(key)
+        if not key.startswith("gear:"):
+            return
+        self.report.gear["refused"] += 1
+        if key in self.plan.fight_refused:
+            self.report.fail(f"refused gear loop: {self.name} {key} refused twice in one fight")
+        self.plan.fight_refused.add(key)
+
     async def fight(self, stop: asyncio.Event) -> None:
         """Answer every `turn_prompt` for my hero until `stop` is set (a background task)."""
         index = 0
+        self.plan.fight_used, self.plan.fight_refused = set(), set()
         while not stop.is_set() and not self.conn.closed:
             try:
                 index = await self.conn.wait_idx(self._my_prompt, 1.0, index) + 1

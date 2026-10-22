@@ -25,7 +25,8 @@
       "always": [
         "camp-ration",
         "camp-meal-basket",
-        "potion-of-healing"
+        "potion-of-healing",
+        "healers-kit"
       ],
       "size": 14
     },

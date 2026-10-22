@@ -386,14 +386,122 @@
    "uses": []
   },
   {
-   "item": "dungeoneers-pack",
-   "name": "Dungeoneer's Pack",
+   "item": "backpack",
+   "name": "Backpack",
    "qty": 1,
    "equipped_slot": null,
    "category": "gear",
-   "weight": 0.0,
-   "value_gp": 12.0,
+   "weight": 5.0,
+   "value_gp": 2.0,
    "uses": []
+  },
+  {
+   "item": "crowbar",
+   "name": "Crowbar",
+   "qty": 1,
+   "equipped_slot": null,
+   "category": "gear",
+   "weight": 5.0,
+   "value_gp": 2.0,
+   "uses": [
+    {
+     "use_id": "crowbar-force",
+     "label": "Force this open with the crowbar",
+     "when": "locked",
+     "verb": "pry"
+    }
+   ]
+  },
+  {
+   "item": "hammer",
+   "name": "Hammer",
+   "qty": 1,
+   "equipped_slot": null,
+   "category": "gear",
+   "weight": 3.0,
+   "value_gp": 1.0,
+   "uses": []
+  },
+  {
+   "item": "piton",
+   "name": "Piton",
+   "qty": 10,
+   "equipped_slot": null,
+   "category": "gear",
+   "weight": 0.25,
+   "value_gp": 0.05,
+   "uses": [
+    {
+     "use_id": "piton-climb",
+     "label": "Climb or cross here",
+     "when": "place",
+     "verb": "climb"
+    }
+   ]
+  },
+  {
+   "item": "torch",
+   "name": "Torch",
+   "qty": 10,
+   "equipped_slot": null,
+   "category": "gear",
+   "weight": 1.0,
+   "value_gp": 0.01,
+   "uses": [
+    {
+     "use_id": "torch-light",
+     "label": "Light the torch",
+     "when": "dark_place",
+     "verb": "light"
+    }
+   ]
+  },
+  {
+   "item": "tinderbox",
+   "name": "Tinderbox",
+   "qty": 1,
+   "equipped_slot": null,
+   "category": "gear",
+   "weight": 1.0,
+   "value_gp": 0.5,
+   "uses": []
+  },
+  {
+   "item": "rations-1-day",
+   "name": "Rations (1 day)",
+   "qty": 10,
+   "equipped_slot": null,
+   "category": "gear",
+   "weight": 2.0,
+   "value_gp": 0.5,
+   "uses": []
+  },
+  {
+   "item": "waterskin",
+   "name": "Waterskin",
+   "qty": 1,
+   "equipped_slot": null,
+   "category": "gear",
+   "weight": 5.0,
+   "value_gp": 0.2,
+   "uses": []
+  },
+  {
+   "item": "rope-hempen-50-feet",
+   "name": "Rope, hempen (50 feet)",
+   "qty": 1,
+   "equipped_slot": null,
+   "category": "gear",
+   "weight": 10.0,
+   "value_gp": 1.0,
+   "uses": [
+    {
+     "use_id": "rope-hempen-climb",
+     "label": "Climb or cross here",
+     "when": "place",
+     "verb": "climb"
+    }
+   ]
   },
   {
    "item": "clothes-common",
@@ -436,7 +544,18 @@
    "uses": []
   }
  ],
- "gear_uses": [],
+ "gear_uses": [
+  {
+   "item": "torch",
+   "use_id": "torch-light",
+   "name": "Torch",
+   "label": "Light the torch",
+   "cost": "bonus",
+   "target": "none",
+   "qty": 10,
+   "effect": "light_place"
+  }
+ ],
  "scroll_copies": [],
  "keepsakes": [],
  "gold": 15,

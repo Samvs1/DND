@@ -198,14 +198,21 @@ def validate_creation(choices: CreationChoices, regs: CharacterRegistries) -> li
     return errors
 
 
-def _inventory(choices: CreationChoices, refs: CreationRefs) -> list[InventoryItem]:
+def _inventory(
+    choices: CreationChoices, refs: CreationRefs, equipment: Registry[SrdEquipment]
+) -> list[InventoryItem]:
+    """The class package, the picked options and the background gear; an equipment pack is
+    opened into its SRD contents (M27.10), so its torches, rope and crowbar are usable gear."""
     counts: dict[str, int] = {}
     entries = list(refs.cls.equipment.fixed)
     for choice in refs.cls.equipment.choices:
         entries.extend(choice.options[choices.equipment_picks[choice.id]])
     entries.extend(refs.background.gear)
     for entry in entries:
-        counts[entry.item] = counts.get(entry.item, 0) + entry.qty
+        found = equipment.find(entry.item)
+        opened = [(c.item.index, c.quantity) for c in found.contents] if found else []
+        for item, qty in opened or [(entry.item, 1)]:
+            counts[item] = counts.get(item, 0) + qty * entry.qty
     return [InventoryItem(item=item, qty=qty) for item, qty in counts.items()]
 
 
@@ -271,7 +278,7 @@ def _pc_data(
     abilities: Mapping[Ability, int],
     regs: CharacterRegistries,
 ) -> PcData:
-    inventory = _inventory(choices, refs)
+    inventory = _inventory(choices, refs, regs.equipment)
     features, traits, subclass = _features(choices, refs, regs)
     effects = feature_effects(features + traits, CREATION_LEVEL, regs.features)
     sub = refs.subrace

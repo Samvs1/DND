@@ -97,7 +97,7 @@ Your race bonuses are added after that. Each ability has a modifier (the score m
 There are 18 skills, each tied to an ability. Your background gives you two. Your class lets you pick more from its own list, and some races add a pick. You cannot pick a skill you already have. A skill check adds your ability modifier, plus your proficiency bonus if you are proficient. A rogue's Expertise doubles the proficiency bonus on two skills.
 
 ### Equipment
-You get the gear your background lists and your class's starting kit, and your class lets you choose between a few packages. The wizard shows what each choice contains. You can change your equipment later on the Hero tab (outside fights).
+You get the gear your background lists and your class's starting kit, and your class lets you choose between a few packages. The wizard shows what each choice contains. You can change your equipment later on the Hero tab (outside fights). An equipment pack (a dungeoneer's, explorer's, burglar's or priest's pack...) comes opened: its torches, rope, oil, candles and the rest are in your inventory one by one, ready to use.
 
 ### Spells
 Casters pick their cantrips and first spells in the wizard. Only spells the game can run are offered (the full list is in the Reference part).
@@ -277,6 +277,7 @@ Rests also need a vote and happen between fights.
 When the table agrees to browse a shop, your phone opens the shop. Every player trades for themselves with their own gold.
 - **For sale** lists what the trader sells. **Your pack** lists what you can sell.
 - A trader sells different things depending on their trade.
+- A general store always has camp food, a Potion of Healing and a Healer's Kit.
 - You cannot sell what you are wearing or wielding: take it off first.
 
 <!-- generated:shop_rules -->

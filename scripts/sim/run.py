@@ -23,6 +23,7 @@ from scripts.sim.checks import (
 )
 from scripts.sim.fight import answer_offer, fight
 from scripts.sim.flow import Director
+from scripts.sim.gear import dark_place, gear_failures, stock_up
 from scripts.sim.recovery import camp, recover
 from scripts.sim.report import Report
 from scripts.sim.server import SimServer
@@ -57,6 +58,7 @@ async def _play(srv: SimServer, report: Report, party: Party, opts: SimOptions) 
         bot.patience = max(1.0, opts.wait / FAKE_TIMEOUT_S)
     await d.start_campaign()
     await d.probes()
+    await stock_up(d)
     await d.explore_round("opening")
     visited: list[str] = []
     while (name := d.spoke_to_visit()) is not None and len(visited) < 3:
@@ -68,6 +70,7 @@ async def _play(srv: SimServer, report: Report, party: Party, opts: SimOptions) 
             break
         await recover(d)
         await d.explore_round(f"at {name}")
+        await dark_place(d)
         if d.short_rests == 0 and d.srv.table.state.short_rests_used < MAX_SHORT_RESTS:
             await d.short_rest()
         await d.return_to_hub()
@@ -81,6 +84,9 @@ async def _play(srv: SimServer, report: Report, party: Party, opts: SimOptions) 
     report.rests = (d.short_rests, d.long_rests)
     if d.short_rests == 0 or d.long_rests == 0:
         d.report.fail(f"rests by play: short={d.short_rests} long={d.long_rests}")
+    report.step = "gear"
+    for problem in gear_failures(d):
+        report.fail(problem)
 
 
 def _post_checks(srv: SimServer, report: Report, party: Party | None) -> None:

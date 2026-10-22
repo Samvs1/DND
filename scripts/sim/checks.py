@@ -7,8 +7,11 @@
   campaign plan appears in any message a client received (exact or whitespace-folded match).
 - `replay_problems(saves_dir, campaign_id, live)`: the saved `events.jsonl` replayed from
   `initial.json` equals the live final state (and the loader did not have to recover).
+- `hero_up(game, hero_id)`: the hero lives and stands (M27.10: a hero lying unconscious at
+  0 HP cannot act, so its bot cannot propose, search or light anything).
 
-Public API: `public_invariants`, `engine_invariants`, `privacy_leaks`, `replay_problems`.
+Public API: `public_invariants`, `engine_invariants`, `privacy_leaks`, `replay_problems`,
+`hero_up`.
 """
 
 import json
@@ -32,6 +35,11 @@ def public_invariants(state: Msg) -> list[str]:
         if not 0 <= t["hp"] <= t["max_hp"]:
             bad.append(f"token {t['creature_id']} hp {t['hp']} outside 0..{t['max_hp']}")
     return bad
+
+
+def hero_up(game: GameState, hero_id: str) -> bool:
+    hero = game.creatures.get(hero_id)
+    return hero is not None and not hero.dead and hero.hp > 0
 
 
 def engine_invariants(game: GameState) -> list[str]:
