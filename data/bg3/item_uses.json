@@ -25,7 +25,8 @@
    "when": "dark_place",
    "label": "Light this dark place",
    "effect": {
-    "kind": "light_place"
+    "kind": "light_place",
+    "reach": "zone"
    },
    "cost": "bonus",
    "consumes": true,

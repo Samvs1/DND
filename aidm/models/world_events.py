@@ -41,6 +41,8 @@ Public API:
   `equipped` and its armour class `ac` (computed by `aidm.rules.equipment`).
 - The quest events of `aidm.models.quest_events` (M23: `QuestStepDone`, `RouteDiscovered`,
   `QuestLeadAdded`, `QuestLeadRemoved`, `QuestAsked`, `QuestAskDeclined`, `KeepsakeGiven`).
+- `PlaceLit(node, by, reach)` (M27.2): the hero `by` carries a lit light in the place `node`
+  (the current place) until the party leaves it; `reach` as in `aidm.models.world.PlaceLight`.
 - `WorldEvents`: the union of these classes (joins `AnyEvent`).
 """
 
@@ -51,7 +53,14 @@ from pydantic import BaseModel, ConfigDict, Field
 from aidm.models.character import Equipped, Keepsake
 from aidm.models.memory import SceneSummary
 from aidm.models.quest_events import QuestEvents
-from aidm.models.world import Fact, Quest, WorldFeature, WorldItem, WorldNpc
+from aidm.models.world import (
+    Fact,
+    LightReach,
+    Quest,
+    WorldFeature,
+    WorldItem,
+    WorldNpc,
+)
 
 
 class _WorldEvent(BaseModel):
@@ -88,6 +97,13 @@ class PartyMoved(_WorldEvent):
     from_node: str | None
     to_node: str
     scene_index: int = Field(ge=0)
+
+
+class PlaceLit(_WorldEvent):
+    type: Literal["place_lit"] = "place_lit"
+    node: str = Field(min_length=1)
+    by: str = Field(min_length=1)
+    reach: LightReach = "touching"
 
 
 class QuestUpdated(_WorldEvent):
@@ -222,5 +238,6 @@ WorldEvents = (
     | NarrationRecorded
     | SceneSummarised
     | EquipmentChanged
+    | PlaceLit
     | QuestEvents
 )

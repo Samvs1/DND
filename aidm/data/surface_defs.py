@@ -12,6 +12,7 @@ A surface (fire, oil, water, ice, a poison cloud, a spell's web or fog) lies in 
 - `affects`: "all" or "hostile_to_source" (only creatures on another side than the surface's
   source, e.g. a guardian aura).
 - `follows_source`: the surface moves with its source creature (an aura).
+- `lights` (M27.2): the surface lights its zone in a dark place (fire).
 - `harms`: `SurfaceHarm` entries applied to a creature at the listed moments.
 
 `SurfaceHarm(when, save, dc, half_on_save, damage, damage_type, upcast_dice, condition,
@@ -91,6 +92,7 @@ class SurfaceDef(_Strict):
     difficult: bool = False
     affects: Literal["all", "hostile_to_source"] = "all"
     follows_source: bool = False
+    lights: bool = False
     harms: tuple[SurfaceHarm, ...] = ()
 
 

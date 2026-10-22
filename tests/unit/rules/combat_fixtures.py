@@ -54,9 +54,14 @@ def monster(cid: str = "gob", *, hp: int = 10, ac: int = 15, **abilities: int) -
 type Placement = tuple[Creature, Side, str]
 
 
-def fight(placements: Sequence[Placement], zone_map: ZoneMap | None = None) -> GameState:
-    """A started fight where the FIRST placement's turn is open (initiative in given order)."""
-    state = GameState(campaign_id="cmd", seed=1)
+def fight(
+    placements: Sequence[Placement],
+    zone_map: ZoneMap | None = None,
+    base: GameState | None = None,
+) -> GameState:
+    """A started fight where the FIRST placement's turn is open (initiative in given order);
+    `base` (default an empty state) is the state the fight starts in."""
+    state = base if base is not None else GameState(campaign_id="cmd", seed=1)
     for creature, _, _ in placements:
         state.creatures[creature.id] = creature
     encounter = Encounter(

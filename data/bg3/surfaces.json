@@ -1,6 +1,6 @@
 {
   "surfaces": [
-    {"index": "fire", "name": "Fire", "duration_rounds": 3,
+    {"index": "fire", "name": "Fire", "duration_rounds": 3, "lights": true,
      "harms": [{"damage": "1d4", "damage_type": "fire"}]},
     {"index": "oil", "name": "Oil", "difficult": true},
     {"index": "rubble", "name": "Rubble", "difficult": true},

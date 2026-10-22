@@ -45,6 +45,7 @@ type UseWhen = Literal[
     "dark_place", "locked", "place", "fight", "ally_down", "long_rest", "tagged_place"
 ]
 type UseCost = Literal["action", "bonus"]
+type LightReachKey = Literal["zone", "touching"]  # mirrors aidm.models.world.LightReach
 type BoonScope = Literal["place", "until_long_rest"]
 
 
@@ -55,6 +56,7 @@ class _Strict(BaseModel):
 class LightPlace(_Strict):
     kind: Literal["light_place"]
     skills: tuple[str, ...] = ()  # advantage on these skills while the place is lit by it
+    reach: LightReachKey = "touching"  # M27.2: own zone + touching zones; "zone" = own only
 
 
 class Boon(_Strict):

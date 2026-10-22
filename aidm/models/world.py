@@ -48,11 +48,16 @@ Public API:
   M23: `leads` (quest leads), `quest_ask` (the pending quest offer, at most one);
   `WorldNpc.keepsakes` holds keepsakes handed to that NPC. A closed quest's `closed_reason`:
   `left_behind` (its region was left) or `withdrawn` (a favour let go, M23.5).
+  M27.2: `lit` (`PlaceLight(node, by, reach)`, set by `PlaceLit`, cleared by `PartyMoved`):
+  the light a hero carries in the current place. `reach` (`LightReach`): "touching" lights the
+  bearer's zone and the touching zones in a fight (torch, lantern), "zone" only the bearer's
+  zone (candle). Darkness itself is derived (`aidm.rules.light`), never stored.
 """
 
 from __future__ import annotations
 
 from enum import StrEnum
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -62,6 +67,16 @@ from aidm.models.dm_tiers import AttitudeBand
 from aidm.models.quests import QuestKind, QuestStep
 
 MAX_QUEST_LOG = 8
+
+type LightReach = Literal["zone", "touching"]
+
+
+class PlaceLight(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    node: str = Field(min_length=1)
+    by: str = Field(min_length=1)
+    reach: LightReach = "touching"
 
 
 class FeatureKind(StrEnum):
@@ -243,3 +258,4 @@ class World(BaseModel):
     scene_turn: int = Field(default=0, ge=0)
     leads: list[QuestLead] = Field(default_factory=list[QuestLead])
     quest_ask: QuestAsk | None = None
+    lit: PlaceLight | None = None  # M27.2: cleared on PartyMoved

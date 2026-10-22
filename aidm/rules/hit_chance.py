@@ -4,7 +4,8 @@
 (`aidm.rules.attacks`) and the hotbar preview can never disagree:
 - advantage sources (combined with `combine_adv`): the attacker's and target's conditions
   (`attacks_against_melee/ranged`, hidden, helped, dodging, prone...), feature attack
-  advantage (Pack Tactics, M3.8), high ground (BG3), and long range (one disadvantage source);
+  advantage (Pack Tactics, M3.8), high ground (BG3), long range (one disadvantage source) and
+  darkness (M27.2: a hero without darkvision attacking into a dark unlit zone, `rules.light`);
 - target AC: the creature's AC + condition AC bonuses (Shield of Faith), at least the condition
   AC floor (Barkskin), + cover for a ranged attack from another zone (SRD 5.1 Cover);
 - crit threshold from features (Improved Critical), auto-crit for a melee hit on a paralyzed or
@@ -16,7 +17,7 @@ Public API:
 - `AttackSituation(adv, target_ac, bonus_dice, crit_on, auto_crit, range_check, ally_adjacent,
   lucky, adv_why)`: `lucky` = the attacker rerolls a natural 1 (halfling Lucky, a feature hook);
   `adv_why` names the advantage or disadvantage sources (M26.2: conditions, features, high
-  ground, long range; `rules.d20.adv_reasons`).
+  ground, long range, darkness; `rules.d20.adv_reasons`).
 - `attack_situation(state, attacker_id, target_id, profile, feats) -> AttackSituation`
   (both creatures must be combatants of the state's encounter; KeyError otherwise).
 - `natural_chances(adv) -> dict[int, Fraction]`: the chance of each natural d20 result.
@@ -61,6 +62,7 @@ from aidm.rules.features import (
     feature_names,
     rerolls_natural_ones,
 )
+from aidm.rules.light import DARKNESS, attack_darkness
 from aidm.rules.spell_chances import spell_attack_options
 from aidm.rules.zones import (
     MELEE_BAND,
@@ -120,13 +122,15 @@ def attack_situation(
     feat_adv = feature_names(feats, attack_advantage_sources(attacker, feats, ally_adjacent=ally))
     hg_adv, hg_dis = high_ground_adv_counts(zmap, a_zone, t_zone, ranged=ranged)
     long_dis = 1 if check.long_range else 0
+    dark_dis = attack_darkness(state, attacker_id, t_zone)
     ac = max(target.ac + condition_ac_bonus(target), condition_ac_floor(target))
     ac += cover_ac_bonus(zmap, a_zone, t_zone, ranged=ranged)
     adv = combine_adv(
-        len(for_adv) + min(1, len(feat_adv)) + hg_adv, len(for_dis) + hg_dis + long_dis
+        len(for_adv) + min(1, len(feat_adv)) + hg_adv,
+        len(for_dis) + hg_dis + long_dis + dark_dis,
     )
     for_adv += feat_adv + [HIGH_GROUND] * hg_adv
-    for_dis += [HIGH_GROUND] * hg_dis + [LONG_RANGE] * long_dis
+    for_dis += [HIGH_GROUND] * hg_dis + [LONG_RANGE] * long_dis + [DARKNESS] * dark_dis
     return AttackSituation(
         adv=adv,
         target_ac=ac,

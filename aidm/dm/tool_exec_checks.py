@@ -4,7 +4,9 @@ Every result carries its DC tier (`CheckResult.tier`, the dice show's difficulty
 roll goes through the condition-aware rules functions and is logged as a `CheckResolved`
 event; consequences are separate tool calls. A search check (Perception, Investigation, WIS or
 INT) also discovers hidden features (M4.3) and hidden items (M23.3) of the current place whose
-DC the total meets (`aidm.rules.scene.discovery_events`).
+DC the total meets (`aidm.rules.scene.discovery_events`). Out of a fight in a dark unlit place a
+search check rolls at disadvantage, whatever the AI asked (`aidm.rules.light.sight_darkness`,
+M27.2: *Darkness* in `adv_why`); darkness never raises a DC, so nothing is hidden outright.
 
 Public API: `run_request_check(state, args, ctx, rng, regs)`,
 `run_request_save(state, args, ctx, rng, regs)` -> `ToolResult`.
@@ -26,6 +28,7 @@ from aidm.rules.conditions import (
     skill_check_with_conditions,
 )
 from aidm.rules.dice import Rng
+from aidm.rules.light import sight_darkness
 from aidm.rules.scene import discovery_events
 
 
@@ -42,14 +45,15 @@ def run_request_check(
     adv = int(args.advantage is AdvState.ADVANTAGE)
     dis = int(args.advantage is AdvState.DISADVANTAGE)
     what = args.ability_or_skill
+    dark = sight_darkness(state, what)
     if isinstance(what, Skill):
         result = skill_check_with_conditions(
-            rng, creature, what, dc, adv_sources=adv, dis_sources=dis
+            rng, creature, what, dc, adv_sources=adv, dis_sources=dis, dis_names=dark
         )
         label = f"{what.value} check"
     else:
         result = ability_check_with_conditions(
-            rng, creature, what, dc, adv_sources=adv, dis_sources=dis
+            rng, creature, what, dc, adv_sources=adv, dis_sources=dis, dis_names=dark
         )
         label = f"{what.value.upper()} check"
     result = result.model_copy(update={"tier": args.dc_tier})

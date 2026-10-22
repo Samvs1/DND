@@ -14,7 +14,7 @@ from typing import assert_never
 from aidm.models.character import Equipped, Keepsake
 from aidm.models.memory import MAX_NARRATION_LOG
 from aidm.models.state import GameState
-from aidm.models.world import WorldNpc
+from aidm.models.world import PlaceLight, WorldNpc
 from aidm.models.world_events import (
     ActionDeclared,
     AttitudeChanged,
@@ -33,6 +33,7 @@ from aidm.models.world_events import (
     NodeDescribed,
     NpcIntroduced,
     PartyMoved,
+    PlaceLit,
     QuestUpdated,
     RewardGranted,
     SceneSummarised,
@@ -71,6 +72,7 @@ type WorldEvent = (
     | NarrationRecorded
     | SceneSummarised
     | EquipmentChanged
+    | PlaceLit
     | QuestEvent
 )
 
@@ -117,6 +119,7 @@ WORLD_EVENT_TYPES = (
     NarrationRecorded,
     SceneSummarised,
     EquipmentChanged,
+    PlaceLit,
     *QUEST_EVENT_TYPES,
 )
 
@@ -143,6 +146,7 @@ def _moved(state: GameState, event: PartyMoved) -> None:
     world.shop_npc_id = None
     world.scene_turn = 0
     world.quest_ask = None  # leaving the node withdraws the giver's question (M23.4)
+    world.lit = None  # a light lights the place it was lit in (M27.2)
     if event.to_node not in world.visited:
         world.visited.append(event.to_node)
     refresh_travel(state)
@@ -213,6 +217,12 @@ def _keep(state: GameState, creature_id: str, keepsake: Keepsake) -> None:
     creature.pc.keepsakes.append(keepsake.model_copy())
 
 
+def _lit(state: GameState, event: PlaceLit) -> None:
+    if event.by not in state.creatures:
+        raise ReducerError(f"no bearer {event.by!r} for the light")
+    state.world.lit = PlaceLight(node=event.node, by=event.by, reach=event.reach)
+
+
 def apply_world_event(state: GameState, event: WorldEvent) -> None:
     if isinstance(event, SCENE_EVENT_TYPES):
         _scene_event(state, event)
@@ -248,6 +258,8 @@ def apply_world_event(state: GameState, event: WorldEvent) -> None:
             _equip(state, creature_id, equipped, ac)
         case KeepsakeGained(creature_id=creature_id, keepsake=keepsake):
             _keep(state, creature_id, keepsake)
+        case PlaceLit():
+            _lit(state, event)
         case RewardGranted(kind=kind, source=source):
             _rewarded(state, kind, source)
         case HostileActPending() | ItemsTraded() | LevelUpReady() | ActionDeclared():

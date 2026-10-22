@@ -14,6 +14,8 @@
    EVERY pair of touching hexes is linked and nothing else, so the map on the screen is exactly
    the movement graph (`aidm.rules.hex_layout`).
 Same rng seed + same tags + same templates -> the same map (only `rng.randint` is used).
+`known_terrains(tags, terrains) -> list[TerrainTemplate]`: step 1 (also read by
+`aidm.rules.light`, M27.2: a place is dark when one of its known terrains is).
 The terrain registry is an argument (`aidm.data.zone_templates.zone_templates()` by default in
 the callers); rules never load data.
 """
@@ -31,7 +33,9 @@ MAX_GENERATED_ZONES = 6
 MAX_HEX_ROWS = 2  # the screen shows hexes big enough to read on a TV (M21.2)
 
 
-def _terrains(tags: Sequence[str], terrains: Registry[TerrainTemplate]) -> list[TerrainTemplate]:
+def known_terrains(
+    tags: Sequence[str], terrains: Registry[TerrainTemplate]
+) -> list[TerrainTemplate]:
     wanted = dict.fromkeys(t.strip().lower() for t in tags)
     known = [terrains.get(t) for t in wanted if t in terrains]
     return known or [terrains.get(FALLBACK_TERRAIN)]
@@ -99,7 +103,7 @@ def _edges(ids: list[str], cells: list[Hex], feet: int) -> list[ZoneEdge]:
 def generate_zone_map(
     rng: Rng, tags: Sequence[str], terrains: Registry[TerrainTemplate]
 ) -> ZoneMap:
-    chosen = _terrains(tags, terrains)
+    chosen = known_terrains(tags, terrains)
     pool = _pool(chosen)
     top = min(MAX_GENERATED_ZONES, len(pool))
     count = rng.randint(min(MIN_GENERATED_ZONES, top), top)

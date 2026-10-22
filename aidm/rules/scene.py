@@ -11,6 +11,8 @@ Public API:
   feature_ids, item_ids, exits, locked_exits, turn)`: ids in deterministic (sorted) order.
 - `current_scene(state) -> SceneView`.
 - `node_display_name(state, node_id) -> str`: `World.node_names` or the humanised id.
+- `is_search_check(what) -> bool` (M27.2): Perception, Investigation or a WIS/INT ability check
+  (the search checks; darkness puts them at disadvantage, `aidm.rules.light`).
 - `discovery_events(state, creature_id, result) -> list[FeatureDiscovered | ItemDiscovered]`: a
   Perception or Investigation check (or a WIS/INT ability check) finds every hidden, undiscovered
   feature in the current place whose `discover_dc` is at most the roll total
@@ -100,9 +102,13 @@ def current_scene(state: GameState) -> SceneView:
     )
 
 
+def is_search_check(what: Skill | Ability) -> bool:
+    return what in _SEARCH_SKILLS if isinstance(what, Skill) else what in _SEARCH_ABILITIES
+
+
 def _is_search(result: CheckResult) -> bool:
     if result.kind is CheckKind.SKILL:
-        return result.skill in _SEARCH_SKILLS
+        return result.skill is not None and is_search_check(result.skill)
     return result.kind is CheckKind.ABILITY and result.ability in _SEARCH_ABILITIES
 
 

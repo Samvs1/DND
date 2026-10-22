@@ -47,7 +47,8 @@ Public API:
   names the caller's sources (Magic Resistance); unnamed caller sources read "the situation".
   Every result carries `adv_why` (empty for a straight roll).
 - `skill_check_with_conditions(rng, creature, skill, dc, *, adv_sources=0, dis_sources=0,
-  bonus=0) -> CheckResult`: the same for a skill check (condition check advantage and dice).
+  bonus=0, dis_names=()) -> CheckResult`: the same for a skill check (condition check advantage
+  and dice); each of `dis_names` is one more named disadvantage source (Darkness, M27.2).
 - `ability_check_with_conditions(...)`: the same for a plain ability check (DM `request_check`).
 """
 
@@ -258,6 +259,11 @@ def _situation(
     return adv, extra, adv_reasons(adv, for_adv, for_dis)
 
 
+def _with_dis(own: AdvNames, dis_names: Sequence[str]) -> AdvNames:
+    """Each named situation (Darkness, M27.2) is one more disadvantage source."""
+    return own[0], own[1] + list(dis_names)
+
+
 def save_with_conditions(
     rng: Rng,
     creature: Creature,
@@ -288,8 +294,9 @@ def skill_check_with_conditions(
     adv_sources: int = 0,
     dis_sources: int = 0,
     bonus: int = 0,
+    dis_names: Sequence[str] = (),
 ) -> CheckResult:
-    own, sources = check_adv_names(creature), (adv_sources, dis_sources)
+    own, sources = _with_dis(check_adv_names(creature), dis_names), (adv_sources, dis_sources)
     adv, extra, why = _situation(rng, creature, own, sources, (), save=False)
     result = skill_check(rng, creature, skill, dc, adv=adv, bonus=bonus + extra)
     return result.model_copy(update={"adv_why": why})
@@ -304,8 +311,9 @@ def ability_check_with_conditions(
     adv_sources: int = 0,
     dis_sources: int = 0,
     bonus: int = 0,
+    dis_names: Sequence[str] = (),
 ) -> CheckResult:
-    own, sources = check_adv_names(creature), (adv_sources, dis_sources)
+    own, sources = _with_dis(check_adv_names(creature), dis_names), (adv_sources, dis_sources)
     adv, extra, why = _situation(rng, creature, own, sources, (), save=False)
     result = ability_check(rng, creature, ability, dc, adv=adv, bonus=bonus + extra)
     return result.model_copy(update={"adv_why": why})
