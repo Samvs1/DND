@@ -1,9 +1,10 @@
 """ONE pure builder of every tooltip text, keyed `<kind>:<id>` (M28.1, docs/next/GOAL_TOOLTIPS.md).
 
 Kinds: `spell`, `item`, `use` (an item use), `condition`, `feature`, `surface`, `word`, `dc`,
-`sheet`, `journal`. All text is built from the game data and the rules constants, never typed
-twice: conditions and surfaces reuse the player manual's builders (`aidm.data.manual_rules`), item
-uses reuse `aidm.data.manual_uses`, so the manual and the tips cannot drift. Pure: no I/O.
+`sheet`, `journal`, `trait` (race traits). All text is built from the game data and the rules
+constants, never typed twice: conditions and surfaces reuse the player manual's builders
+(`aidm.data.manual_rules`), item uses reuse `aidm.data.manual_uses`, so the manual and the tips
+cannot drift. Pure: no I/O.
 
 Public API: `build_tips() -> dict[str, Tip]` (fresh), `all_tips()` (cached), `tips_payload()`
 (the JSON-able form served by `GET /api/tips`).
@@ -16,6 +17,7 @@ from aidm.data.feature_defs import feature_defs
 from aidm.data.item_catalogue import item_catalogue
 from aidm.data.item_uses import item_use_data
 from aidm.data.manual_rules import condition_summary, surface_summary
+from aidm.data.race_defs import race_defs
 from aidm.data.spell_defs import spell_defs
 from aidm.data.surface_defs import surface_data
 from aidm.models.tips import Tip
@@ -38,6 +40,26 @@ def _features() -> dict[str, Tip]:
     }
 
 
+def _traits() -> dict[str, Tip]:
+    """`trait:<id>` for every race and subrace trait: the feature's summary plus who has it."""
+    owners: dict[str, list[str]] = {}
+    for race in race_defs().all():
+        for trait in race.traits:
+            owners.setdefault(trait, []).append(race.name)
+        for sub in race.subraces:
+            for trait in sub.traits:
+                owners.setdefault(trait, []).append(sub.name)
+    features = {f.index: f for f in feature_defs().all()}
+    return {
+        f"trait:{trait}": Tip(
+            title=features[trait].name,
+            lines=(features[trait].summary, "A racial trait of the " + ", ".join(who) + "."),
+        )
+        for trait, who in owners.items()
+        if trait in features
+    }
+
+
 def _surfaces() -> dict[str, Tip]:
     out: dict[str, Tip] = {}
     for s in surface_data().surfaces:
@@ -53,6 +75,7 @@ def build_tips() -> dict[str, Tip]:
     tips.update({f"use:{u.id}": use_tip(u) for u in item_use_data().uses})
     tips.update(_conditions())
     tips.update(_features())
+    tips.update(_traits())
     tips.update(_surfaces())
     tips.update(word_tips())
     tips.update(sheet_tips())

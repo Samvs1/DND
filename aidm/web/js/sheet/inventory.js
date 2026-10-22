@@ -6,6 +6,7 @@
 import { t } from '../strings.js';
 import { clear, h } from '../ui/dom.js';
 import { putOutButton } from '../table/light.js';
+import { tipButton } from '../ui/tip.js';
 import { itemArt } from './item_art.js';
 import { useControls as hereControls } from './item_uses.js';
 
@@ -56,7 +57,7 @@ function detail(item, opts) {
   const { control, list } = giveControl({ id: item.item, name: item.name }, opts, ITEM_GIVE);
   return [
     h('span', { class: 'inv-slot', 'aria-hidden': 'true' }, h('img', { src: itemArt(item.item, { category: item.category }), alt: '', width: 32, height: 32 })),
-    h('div', { class: 'inv-main' }, h('strong', { 'data-testid': 'inv-detail-name' }, item.name), h('div', { class: 'hint inv-meta' }, meta)),
+    h('div', { class: 'inv-main' }, h('strong', { 'data-testid': 'inv-detail-name' }, item.name), tipButton(`item:${item.item}`, item.name), ...(item.uses ?? []).map((u) => tipButton(`use:${u.use_id}`, u.label)), h('div', { class: 'hint inv-meta' }, meta)),
     h('div', { class: 'inv-actions' }, ...(item.category === 'potion' ? useControls(item, opts) : []), WEARABLE.has(item.category) ? wear : null, control, act('drop', t('sheet.drop'), 'sheet.dropItem')),
     ...hereControls(item, opts),
     list,
@@ -117,7 +118,7 @@ function keepsakeLine(k, opts) {
   return h(
     'li',
     { class: `inv-line keepsake${k.quest_title ? ' quest-item' : ''}`, 'data-testid': 'keepsake', 'data-keepsake': k.id },
-    h('div', { class: 'inv-main' }, h('strong', {}, k.name), h('div', { class: 'hint', 'data-testid': 'keepsake-note' }, note), k.description ? h('div', { class: 'hint inv-meta' }, k.description) : null),
+    h('div', { class: 'inv-main' }, h('strong', {}, k.name), tipButton(k.quest_title ? 'sheet:quest-item' : 'sheet:keepsake', k.name), h('div', { class: 'hint', 'data-testid': 'keepsake-note' }, note), k.description ? h('div', { class: 'hint inv-meta' }, k.description) : null),
     control,
     list,
   );

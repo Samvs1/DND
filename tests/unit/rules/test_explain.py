@@ -121,3 +121,22 @@ def test_payload_is_json_shaped() -> None:
         "title": "Dash",
         "lines": ["Adds your speed again to your movement this turn."],
     }
+
+
+def test_every_race_trait_has_a_tip() -> None:
+    from aidm.data.race_defs import race_defs
+
+    ids: set[str] = set()
+    for race in race_defs().all():
+        ids.update(race.traits)
+        for sub in race.subraces:
+            ids.update(sub.traits)
+    assert len(ids) >= 28
+    missing = [i for i in sorted(ids) if f"trait:{i}" not in all_tips()]
+    assert missing == []
+
+
+def test_golden_trait_darkvision() -> None:
+    # SRD 5.1 Darkvision: dim light within 60 feet as if bright (dwarf, elf, ...).
+    text = _text("trait:darkvision")
+    assert "60 feet" in text and "A racial trait of the" in text and "Dwarf" in text

@@ -35,7 +35,7 @@ You can dictate your actions. The **Dictate** button next to **Act** only appear
 - When the screen opens, it asks for one click (**Click anywhere to start the table's sound**) because browsers block sound until a page is clicked. It asks again if the browser blocks a clip. Click once and everything plays.
 
 ### Tooltips
-- Tap a small **?** next to a thing to see what it means. The tip opens as a small popup; close it with its **x**, by tapping elsewhere or with Esc. Turn tooltips off with the **Tooltips** switch in **Settings** (on by default, remembered on your device).
+- Tap a small **?** next to a thing to see what it means. The tip opens as a small popup; close it with its **x**, by tapping elsewhere or with Esc. Turn tooltips off with the **Tooltips** switch in **Settings** (on by default, remembered on your device). The **?** marks are on the Hero tab (stats, features, race traits, conditions, training, spells, spell slots and your gear) and in the shop. In the big grids (abilities, saves, skills) there is one **?** on the heading, and in the pack the **?** is on the item you have picked.
 
 ## 2. Your hero
 

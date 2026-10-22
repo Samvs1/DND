@@ -5,22 +5,23 @@
 import { t } from '../strings.js';
 import { h } from '../ui/dom.js';
 import { titleCase } from '../ui/format.js';
+import { tipButton } from '../ui/tip.js';
 import { itemArt } from './item_art.js';
 
 const signed = (n) => (n >= 0 ? `+${n}` : String(n));
 
-function stat(label, value, testid, note) {
-  return h('div', { class: 'sh-stat', 'data-testid': testid }, h('span', { class: 'sh-stat-label' }, label), h('strong', { class: 'sh-stat-value' }, value), note ? h('span', { class: 'sh-stat-note' }, note) : null);
+function stat(label, value, testid, tip, note) {
+  return h('div', { class: 'sh-stat', 'data-testid': testid }, h('span', { class: 'sh-stat-label' }, label, tipButton(tip, label)), h('strong', { class: 'sh-stat-value' }, value), note ? h('span', { class: 'sh-stat-note' }, note) : null);
 }
 
 function vitals(s) {
   return h(
     'div',
     { class: 'sh-vitals' },
-    stat(t('sheet.speed'), t('sheet.speedFeet', { n: s.speed }), 'sh-speed'),
-    stat(t('sheet.initiative'), signed(s.initiative_bonus), 'sh-init'),
-    stat(t('sheet.proficiency'), signed(s.proficiency_bonus), 'sh-prof'),
-    stat(t('sheet.perceptionShort'), String(s.passive_perception), 'sh-passive'),
+    stat(t('sheet.speed'), t('sheet.speedFeet', { n: s.speed }), 'sh-speed', 'sheet:speed'),
+    stat(t('sheet.initiative'), signed(s.initiative_bonus), 'sh-init', 'sheet:initiative'),
+    stat(t('sheet.proficiency'), signed(s.proficiency_bonus), 'sh-prof', 'sheet:proficiency'),
+    stat(t('sheet.perceptionShort'), String(s.passive_perception), 'sh-passive', 'sheet:passive-perception'),
   );
 }
 
@@ -80,8 +81,12 @@ function deathSaves(s) {
   return block(t('sheet.deathSaves'), 'sh-deathsaves', row(d.successes, 'ok'), row(d.failures, 'fail'), h('span', { class: 'sr-only' }, `${t('sheet.deathOk', { n: d.successes })}. ${t('sheet.deathFail', { n: d.failures })}`), d.stable ? h('span', { class: 'badge stable' }, t('sheet.stable')) : null);
 }
 
+// Dense grids (abilities, saves, skills, training) get ONE corner '?' on the block heading, not one per cell.
+const BLOCK_TIPS = { 'sh-ab': [['sheet:abilities'], ['sheet:saves', 'sheet.saves']], 'sh-sk': [['sheet:skills']], 'sh-train': [['sheet:training']] };
+
 function block(title, testid, ...children) {
-  return h('section', { class: 'sh-block', 'data-testid': testid }, h('h4', {}, title), ...children);
+  const tips = (BLOCK_TIPS[testid] ?? []).map(([key, label]) => tipButton(key, label ? t(label) : title));
+  return h('section', { class: 'sh-block', 'data-testid': testid }, h('h4', {}, title, ...tips), ...children);
 }
 
 /** Features without the bare choice a named one refines ("Fighting Style" beside "Fighting Style: Archery"). */
@@ -102,7 +107,7 @@ function featureRow(f, action, resource) {
   return h(
     'li',
     { class: 'sh-feature', 'data-testid': action ? 'sh-fa-line' : 'sh-feature', 'data-feature': f.index },
-    h('div', { class: 'sh-feature-head' }, h('strong', {}, f.name), ...tags),
+    h('div', { class: 'sh-feature-head' }, h('strong', {}, f.name), ...tags, tipButton(`${f.source === 'race' ? 'trait' : 'feature'}:${f.index}`, f.name)),
     h('p', {}, f.summary), // the summary already says what it heals or does
   );
 }
@@ -123,7 +128,7 @@ function features(s) {
 
 function conditions(s) {
   if (!s.conditions.length) return null; // the hero strip shows conditions too
-  return block(t('sheet.conditions'), 'sh-cond', h('ul', { class: 'sh-list' }, ...s.conditions.map((c) => h('li', {}, titleCase(c.name), c.rounds_left ? ` (${t('sheet.rounds', { n: c.rounds_left })})` : ''))));
+  return block(t('sheet.conditions'), 'sh-cond', h('ul', { class: 'sh-list' }, ...s.conditions.map((c) => h('li', {}, titleCase(c.name), c.rounds_left ? ` (${t('sheet.rounds', { n: c.rounds_left })})` : '', tipButton(`condition:${c.name}`, titleCase(c.name))))));
 }
 
 function training(s) {

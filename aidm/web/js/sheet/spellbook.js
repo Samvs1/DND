@@ -5,6 +5,7 @@
 import { assetUrl } from '../assets.js';
 import { t } from '../strings.js';
 import { h } from '../ui/dom.js';
+import { tipButton } from '../ui/tip.js';
 
 const signed = (n) => (n >= 0 ? `+${n}` : String(n));
 
@@ -40,6 +41,7 @@ function spellRow(spell, concentratingOn) {
       'div',
       { class: 'spell-main' },
       h('strong', {}, spell.name),
+      tipButton(`spell:${spell.index}`, spell.name),
       spell.concentration ? h('span', { class: 'tag' }, t('sheet.concentration')) : null,
       concentratingOn === spell.index ? h('span', { class: 'tag active-conc', 'data-testid': 'conc-active' }, t('sheet.concentrating', { spell: spell.name })) : null,
       h('div', { class: 'hint' }, meta),
@@ -77,7 +79,7 @@ export function renderSpellbook(s, opts = null) {
   const limit = c.prepared_limit ? ` ${t('sheet.preparedLine', { n: prepared, max: c.prepared_limit })}` : '';
   const out = [
     h('p', { class: 'sh-gold', 'data-testid': 'sh-casting' }, t('sheet.castingLine', { attack: signed(c.attack_bonus), dc: c.save_dc }), limit),
-    h('section', { class: 'sh-block', 'data-testid': 'sh-slots' }, h('h4', {}, t('sheet.slots')), ...c.levels.flatMap(slotTracker)),
+    h('section', { class: 'sh-block', 'data-testid': 'sh-slots' }, h('h4', {}, t('sheet.slots'), tipButton('sheet:slots', t('sheet.slots'))), ...c.levels.flatMap(slotTracker)),
   ];
   if (c.cantrips.length) out.push(spellSection(t('sheet.cantrips'), c.cantrips, s.concentrating_on));
   for (const group of c.levels) {

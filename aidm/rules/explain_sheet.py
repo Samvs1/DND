@@ -30,6 +30,16 @@ def _stats() -> dict[str, Tip]:
     trained = "A d20 plus the ability modifier, plus proficiency if trained."
     cost = f"{CAMP_SUPPLY_PER_MEMBER} camp supplies for each living hero"
     return {
+        "abilities": _t(
+            "Abilities",
+            "Six scores. Each gives a modifier that is added to the rolls that use it.",
+            "The small number beside a score is your saving throw for it.",
+        ),
+        "training": _t(
+            "Training",
+            "Armour, weapons, tools and languages you know.",
+            "Trained gear adds your proficiency bonus; untrained armour or weapons do not.",
+        ),
         "saves": _t("Saving throws", trained, "Used to resist spells and hazards."),
         "skills": _t(
             "Skills", trained, "The Dungeon Master asks for one when the outcome is uncertain."

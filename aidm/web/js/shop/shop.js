@@ -7,6 +7,7 @@ import { t } from '../strings.js';
 import { createPanel } from '../ui/modal.js';
 import { clear, h } from '../ui/dom.js';
 import { myHero, publicState } from '../table/lookup.js';
+import { tipButton } from '../ui/tip.js';
 import { sellPrice, sellable } from './pricing.js';
 
 function stockRow(line, ctx) {
@@ -17,7 +18,7 @@ function stockRow(line, ctx) {
     'li',
     { class: 'shop-line', 'data-testid': 'shop-line', 'data-item': line.item_id },
     h('img', { src: assetUrl([`item_icon.${line.item_id}`, `item_icon.${line.category || 'gear'}`]), alt: '', width: 32, height: 32 }),
-    h('div', { class: 'shop-main' }, h('strong', {}, line.name), line.supply ? h('span', { class: 'hint' }, ` ${t('shop.supplyLine', { n: line.supply })}`) : null),
+    h('div', { class: 'shop-main' }, h('strong', {}, line.name), tipButton(`item:${line.item_id}`, line.name), line.supply ? h('span', { class: 'hint' }, ` ${t('shop.supplyLine', { n: line.supply })}`) : null),
     h('span', { class: 'shop-price' }, t('shop.price', { n: price })),
     buy,
   );
@@ -30,7 +31,7 @@ function packRow(item, ctx) {
     'li',
     { class: 'shop-line', 'data-testid': 'shop-pack-line', 'data-item': item.item },
     h('img', { src: assetUrl([`item_icon.${item.item}`, `item_icon.${item.category || 'gear'}`]), alt: '', width: 32, height: 32 }),
-    h('div', { class: 'shop-main' }, h('strong', {}, item.name), item.qty > 1 ? h('span', { class: 'hint' }, ` x${item.qty}`) : null),
+    h('div', { class: 'shop-main' }, h('strong', {}, item.name), tipButton(`item:${item.item}`, item.name), item.qty > 1 ? h('span', { class: 'hint' }, ` x${item.qty}`) : null),
     h('span', { class: 'shop-price' }, t('shop.sellFor', { n: each })),
     sell,
   );
