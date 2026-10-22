@@ -23,6 +23,7 @@ from aidm.dm.context_text import CLOSED_WORLD
 from aidm.dm.entities import display_name
 from aidm.models.state import Creature, GameState
 from aidm.models.world import Fact, QuestState, WorldNpc
+from aidm.rules.checks import difficulty_word
 from aidm.rules.gateway_lock import short_reason
 from aidm.rules.scene import SceneView, node_display_name
 from aidm.rules.social import attitude_band, attitude_score
@@ -94,7 +95,8 @@ def manifest_lines(
     for fid in scene.feature_ids:
         f = world.features[fid]
         desc = f": {f.description}" if f.description else ""
-        feats.append(f"{f.name}{_tag(show_ids, fid)} ({f.kind.value}){desc}")
+        lock = f", locked: {difficulty_word(f.lock.dc_tier)}" if f.lock is not None else ""
+        feats.append(f"{f.name}{_tag(show_ids, fid)} ({f.kind.value}{lock}){desc}")
     lines.append(f"Features: {_joined(feats)}")
     items = [
         f"{world.items[i].name}{_tag(show_ids, i)} x{world.items[i].qty}" for i in scene.item_ids

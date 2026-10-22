@@ -7,7 +7,8 @@ grouped so a stack that is granted twice in the same unapplied batch gets the ri
 
 Public API:
 - `carried_qty(creature, item) -> int`: how many of `item` the PC carries.
-- `key_fits(catalogue, item, feature) -> bool`: a key item whose `opens` lists the feature's kind.
+- `key_fits(catalogue, item, feature) -> bool`: a key item whose `opens` lists the kind the
+  feature's lock opens to (`LockInfo.opens`, M27.4; the feature's own kind without a lock).
 - `party_key_for(state, feature, catalogue) -> str | None`: the first key a living PC carries that
   fits the feature (keys are generic items bound to feature kinds).
 - `gain_item_events(state, grants, catalogue, extra_supplies=0) -> list[AnyEvent]`: `grants` are
@@ -56,7 +57,8 @@ def gain_item_events(
 
 def key_fits(catalogue: Registry[CatalogueItem], item: str, feature: WorldFeature) -> bool:
     entry = catalogue.find(item)
-    return entry is not None and feature.kind.value in entry.opens
+    kind = feature.lock.opens if feature.lock is not None else feature.kind
+    return entry is not None and kind.value in entry.opens
 
 
 def party_key_for(

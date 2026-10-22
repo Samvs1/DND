@@ -16,8 +16,12 @@ refusal message (str) that tells the model what to narrate instead; a refusal co
 - craft: needs the tool proficiency (SRD herbalism) and the camp supplies ->
   `CampSuppliesChanged(-n)` + `InventoryChanged(output +1)`.
 - reveal_map: `PlacesCharted` (the unknown neighbours of the current place).
-- unlock (M27.4), cast_spell (M27.7), damage (thrown attacks, M27.6): not wired yet
-  (`not_wired`), refused with a plain message.
+- unlock (M27.4): the target is a locked feature here (`aidm.rules.locks`); one pick or force
+  roll at the lock's DC with this gear (`attempt_lock`: the tool's proficiency, the crowbar's
+  named advantage); `FeatureUnlocked` on success. The `noise` of a force use alerts the place
+  either way (`aidm.rules.item_use`); a failed roll can be retried.
+- cast_spell (M27.7), damage (thrown attacks, M27.6): not wired yet (`not_wired`), refused with
+  a plain message.
 
 Public API: `UseCtx`, `gear_name(item_id)`, `FORAGE_DC`, `not_wired(use) -> str | None`,
 `in_reach(state, actor_id, zone_id) -> bool`, `effect_events(ctx) -> list[AnyEvent] | str`.
@@ -41,7 +45,7 @@ from aidm.data.item_uses import (
     Unlock,
 )
 from aidm.data.surface_defs import surface_defs
-from aidm.models.abilities import Skill
+from aidm.models.abilities import Ability, Skill
 from aidm.models.character import InventoryItem
 from aidm.models.checks import DcTier
 from aidm.models.encounter import Encounter, EncounterStatus
@@ -57,6 +61,7 @@ from aidm.rules.death import is_dying, stabilize
 from aidm.rules.dice import Rng
 from aidm.rules.gear_checks import gear_check
 from aidm.rules.light import light_reach_zones, lit_zones
+from aidm.rules.locks import LockGear, attempt_lock, key_open, locked_here
 from aidm.rules.surfaces import place_surface_events
 from aidm.rules.zones import zone_neighbors
 
@@ -64,7 +69,6 @@ FORAGE_TIER = DcTier.EASY
 FORAGE_DC = dc_for_tier(FORAGE_TIER)
 
 _LATER = {
-    "unlock": "Locks do not answer to gear yet",
     "cast_spell": "Reading scrolls is not wired yet",
     "damage": "Throwing gear at a foe is not wired yet",
 }
@@ -256,6 +260,22 @@ def _reveal(ctx: UseCtx) -> list[AnyEvent] | str:
     return [PlacesCharted(nodes=fresh)]
 
 
+def _unlock(ctx: UseCtx, effect: Unlock) -> list[AnyEvent] | str:
+    feature = locked_here(ctx.state, ctx.target)
+    if isinstance(feature, str):
+        return feature
+    if effect.method == "key":
+        return key_open(ctx.state, ctx.actor.id, feature) or "No key the party carries fits."
+    default = Ability.DEX if effect.method == "pick" else Ability.STR
+    what = Skill(effect.skill) if effect.skill else Ability(effect.ability or default)
+    use = ctx.use
+    aid = gear_name(use.item) if effect.advantage else None
+    gear = LockGear(ctx.entry.item, use.item if use.tool else None, aid)
+    return attempt_lock(
+        ctx.rng, ctx.state, ctx.actor, feature, effect.method, what, gear, use.label
+    )
+
+
 def effect_events(ctx: UseCtx) -> list[AnyEvent] | str:
     effect = ctx.use.effect
     match effect:
@@ -275,5 +295,7 @@ def effect_events(ctx: UseCtx) -> list[AnyEvent] | str:
             return _craft(ctx, effect)
         case RevealMap():
             return _reveal(ctx)
-        case Unlock() | CastSpell() | DamageUse():
+        case Unlock():
+            return _unlock(ctx, effect)
+        case CastSpell() | DamageUse():
             return not_wired(ctx.use) or "That use is not wired yet."

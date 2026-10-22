@@ -2,6 +2,8 @@
 
 Plain assignment of resolved values; `ReducerError` for an event that does not fit the state.
 
+`FeatureUnlocked` clears the feature's lock (M27.4).
+
 Public API: `ItemEvent` (the union), `ITEM_EVENT_TYPES`, `apply_item_event(state, event)`,
 `left_place(state)` (what a `PartyMoved` clears: the alert and the place-scoped boons; a
 carried light travels on, M27.12).
@@ -12,6 +14,7 @@ from typing import assert_never
 from aidm.models.item_events import (
     BoonEnded,
     BoonGained,
+    FeatureUnlocked,
     ItemUsed,
     ItemUseRefused,
     LightEnded,
@@ -32,6 +35,7 @@ type ItemEvent = (
     | PlacesCharted
     | LightLit
     | LightEnded
+    | FeatureUnlocked
 )
 
 ITEM_EVENT_TYPES = (
@@ -43,6 +47,7 @@ ITEM_EVENT_TYPES = (
     PlacesCharted,
     LightLit,
     LightEnded,
+    FeatureUnlocked,
 )
 
 
@@ -92,6 +97,11 @@ def apply_item_event(state: GameState, event: ItemEvent) -> None:
             world.lights = [light for light in world.lights if light.creature_id != cid]
         case PlacesCharted(nodes=nodes):
             world.charted = [*world.charted, *(n for n in nodes if n not in world.charted)]
+        case FeatureUnlocked(feature_id=fid):
+            feature = world.features.get(fid)
+            if feature is None:
+                raise ReducerError(f"no feature {fid!r} to unlock")
+            feature.lock = None
         case ItemUseRefused():
             pass
         case _:

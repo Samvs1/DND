@@ -6,18 +6,21 @@ The AI proposes (`use_item(actor, item, target?)`, M27.5), the engine disposes. 
 2. one item use per action: an `ItemUsed` by the same hero among `prior` (the events already
    produced for this action) refuses the next;
 3. a use of that item (data/bg3/item_uses.json, optionally the one `use_id`) fits:
-   - its effect is wired (`item_effects.not_wired`: unlock M27.4, cast_spell M27.7, damage M27.6),
+   - its effect is wired (`item_effects.not_wired`: cast_spell M27.7, damage M27.6),
    - the situation (`when`): a use without a fight `cost` is never used in a fight; `fight` needs
      one; `dark_place` needs a dark place and a hero without a lit light, and out of a fight a
      place no carried light lights yet (in a fight the light must reach a new zone,
      `item_effects`); `tagged_place` a place with one of its terrain
-     tags; `long_rest` the caller's `resting`; `place` and `ally_down` anywhere,
+     tags; `long_rest` the caller's `resting`; `locked` a target that is a locked feature here
+     (M27.4, `aidm.rules.locks.locked_here`); `place` and `ally_down` anywhere,
    - charges left (an entry without `charges` is full),
    - in a fight its cost (action / bonus) through the action economy (`command_checks.spend`),
    - the target, and the effect changes something (`item_effects.effect_events`);
 4. events: `EconomyChanged` (in a fight), `ItemUsed`, the effect's events, `InventoryChanged`
    (-1 when the use consumes the item or spends its last charge), `PlaceAlerted` (a `noise` use,
    once per place).
+A fitting key the party carries opens a locked target before any `locked` use is tried
+(`aidm.rules.locks.key_open`: automatic, no check, nothing used or alerted).
 Otherwise the ONLY event is `ItemUseRefused(message)`, telling the model what to narrate
 instead (an attempt, never a result); nothing is consumed. When several uses could apply, the
 first that fits wins and the first refusal is reported.
@@ -39,6 +42,7 @@ from aidm.rules.command_checks import CommandRefused, changed, spend
 from aidm.rules.dice import Rng
 from aidm.rules.item_effects import UseCtx, effect_events, gear_name, not_wired
 from aidm.rules.light import hero_light, place_dark, place_light
+from aidm.rules.locks import key_open, locked_here
 from aidm.rules.progression import node_plan
 
 
@@ -108,7 +112,8 @@ def _situation_problem(ctx: UseCtx) -> str | None:
     if use.when == "long_rest" and not ctx.resting:
         return f"The {gear} is used at a long rest; it happens when the party rests."
     if use.when == "locked":
-        return f"There is nothing locked here for the {gear}."
+        feature = locked_here(state, ctx.target)
+        return feature if isinstance(feature, str) else None
     return None
 
 
@@ -176,6 +181,15 @@ def _try_use(ctx: UseCtx) -> list[AnyEvent] | str:
     return [*economy, used, *effects, *after]
 
 
+def _key_first(
+    state: GameState, actor_id: str, uses: Sequence[ItemUse], target: str | None
+) -> list[AnyEvent]:
+    if not any(u.when == "locked" for u in uses):
+        return []
+    feature = locked_here(state, target)
+    return [] if isinstance(feature, str) else key_open(state, actor_id, feature)
+
+
 def use_item(
     state: GameState,
     actor_id: str,
@@ -201,6 +215,9 @@ def use_item(
         gear = gear_name(entry.item).lower()
         message = f"The {gear} has no use here: narrate it as flavour or a plain check."
         return [refused(actor_id, entry.item, message)]
+    opened = _key_first(state, actor_id, uses, target)
+    if opened:
+        return opened
     first: str | None = None
     for use in uses:
         outcome = _try_use(UseCtx(state, actor, entry, use, target, rng, resting))

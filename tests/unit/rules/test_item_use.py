@@ -113,8 +113,8 @@ def test_fight_cost_is_spent_through_the_action_economy() -> None:
 
 def test_not_yet_wired_effects_are_refused_plainly() -> None:
     calm = at(CAVE, hero(gear=["crowbar", "thieves-tools", "scroll-of-sleep"]))
-    assert "Locks" in refusal(use(calm, "crowbar"))
-    assert "Locks" in refusal(use(calm, "thieves-tools"))
+    assert "nothing locked" in refusal(use(calm, "crowbar"))
+    assert "nothing locked" in refusal(use(calm, "thieves-tools"))
     assert "scrolls" in refusal(use(calm, "scroll-of-sleep"))
     state = gear_fight(CAVE, hero(gear=["alchemists-fire-flask", "acid-vial"]))
     assert "Throwing" in refusal(use(state, "alchemists-fire-flask", "gob"))

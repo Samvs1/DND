@@ -23,6 +23,9 @@ Public API:
   replacing that hero's); it travels with them from place to place.
 - `LightEnded(creature_id, reason)` (M27.12): that hero's light ends (the long rest, from
   `aidm.rules.rests`; a dead bearer's light when the party moves on, `aidm.rules.light`).
+- `FeatureUnlocked(feature_id, creature_id, method, item)` (M27.4): the feature's lock is gone
+  (`WorldFeature.lock` becomes None): opened with the party's fitting key, picked or forced
+  (`aidm.rules.locks`); `item` is the key or the gear that did it, if any.
 - `ItemEvents`: the union of these classes.
 """
 
@@ -91,6 +94,14 @@ class LightEnded(_ItemEvent):
     reason: str = ""
 
 
+class FeatureUnlocked(_ItemEvent):
+    type: Literal["feature_unlocked"] = "feature_unlocked"
+    feature_id: str = Field(min_length=1)
+    creature_id: str = Field(min_length=1)
+    method: Literal["key", "pick", "force"]
+    item: str | None = None
+
+
 ItemEvents = (
     ItemUsed
     | ItemUseRefused
@@ -100,4 +111,5 @@ ItemEvents = (
     | PlacesCharted
     | LightLit
     | LightEnded
+    | FeatureUnlocked
 )

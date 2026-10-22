@@ -9,9 +9,14 @@ Used by the DM `request_check` (`aidm.dm.tool_exec_checks`) and by gear uses tha
   PROF once for tool OR skill proficiency (`aidm.rules.checks.tool_extra`), and advantage
   (*Tool and skill*) when proficient in both (house rule, docs/RULES_DECISIONS.md).
 
+A lock check (M27.4, `aidm.rules.locks`) passes `use_boons=False` (a climbing rope's Athletics
+boon does not force a lock) and names its own gear advantage in `adv_names` (*Crowbar*).
+
 Public API: `TOOL_AND_SKILL`, `gear_check(rng, state, creature, what, dc, *, adv_sources=0,
-dis_sources=0, tool=None) -> CheckResult`.
+dis_sources=0, tool=None, adv_names=(), use_boons=True) -> CheckResult`.
 """
+
+from collections.abc import Sequence
 
 from aidm.models.abilities import Ability, Skill
 from aidm.models.checks import CheckResult
@@ -35,11 +40,13 @@ def gear_check(
     adv_sources: int = 0,
     dis_sources: int = 0,
     tool: str | None = None,
+    adv_names: Sequence[str] = (),
+    use_boons: bool = True,
 ) -> CheckResult:
     skill = what if isinstance(what, Skill) else None
-    boons = skill_boons(state, creature.id, skill)
+    boons = skill_boons(state, creature.id, skill) if use_boons else []
     used_tool = tool or next((b.tool for b in boons if b.tool is not None), None)
-    names = [b.name for b in boons]
+    names = [*adv_names, *(b.name for b in boons)]
     if tool_and_skill(creature, skill, used_tool):
         names.append(TOOL_AND_SKILL)
     dark = sight_darkness(state, what)

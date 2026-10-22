@@ -53,6 +53,14 @@ class RequestCheckArgs(_Args):
     dc_tier: DcTier
     reason: str = _reason()
     advantage: AdvState = AdvState.NORMAL
+    feature: str | None = Field(
+        default=None,
+        max_length=60,
+        description=(
+            "a LOCKED feature id the check is made on: Athletics forces it (loud), Sleight of"
+            " Hand picks it with thieves' tools, a fitting key opens it; the engine sets the DC"
+        ),
+    )
 
 
 class RequestSaveArgs(_Args):
@@ -117,6 +125,9 @@ class IntroduceFeatureArgs(_Args):
     interactable: bool = True
     hidden: bool = False
     discover_dc_tier: DcTier | None = None
+    lock_tier: DcTier | None = Field(
+        default=None, description="a lock on a cache, container or side door (never the main path)"
+    )
 
     @model_validator(mode="after")
     def _hidden_needs_dc(self) -> Self:

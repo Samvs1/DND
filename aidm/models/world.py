@@ -20,8 +20,10 @@ Public API:
   client projection of an NPC (built by `aidm.rules.social.public_npc_view`; no motive, no
   unrevealed secret, no raw scores).
 - `WorldFeature(id, kind, name, description, interactable, node_id, hidden, discover_dc,
-  discovered)`: a door, lever, cache or trap. Hidden features carry a `discover_dc` and are not
-  in the manifest until discovered.
+  discovered, lock)`: a door, lever, cache or trap. Hidden features carry a `discover_dc` and are
+  not in the manifest until discovered. `lock` (M27.4; None = unlocked, so old saves load unlocked)
+  is a `LockInfo(dc_tier, opens)`: the engine's DC tier word and the feature kind a key must
+  open (`aidm.rules.locks`).
 - `Quest(id, title, state, giver_npc_id, against_npc_id, kind, objective, steps, steps_done,
   routes, log, closed_reason)` (M23 fields default, so old `QuestUpdated` events load as side
   quests): `steps` are a side quest's or favour's own steps (a main quest's routes live in the
@@ -70,6 +72,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from aidm.models.campaign import RevealCondition
 from aidm.models.character import Keepsake
+from aidm.models.checks import DcTier
 from aidm.models.dm_tiers import AttitudeBand
 from aidm.models.quests import QuestKind, QuestStep
 
@@ -171,6 +174,13 @@ class PublicNpcView(BaseModel):
     revealed_secrets: tuple[str, ...] = ()
 
 
+class LockInfo(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    dc_tier: DcTier = DcTier.MEDIUM
+    opens: FeatureKind
+
+
 class WorldFeature(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -184,6 +194,7 @@ class WorldFeature(BaseModel):
     hidden: bool = False
     discover_dc: int | None = Field(default=None, ge=0)
     discovered: bool = False
+    lock: LockInfo | None = None
 
 
 class ClosedReason(StrEnum):

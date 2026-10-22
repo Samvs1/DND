@@ -1,7 +1,9 @@
 """Executors for the world tools (SPEC 2.2 closed world, 6.3, 9).
 
 `introduce_npc` / `introduce_feature` are the only ways new people and features exist (capped
-per scene, NPC stat blocks from the SRD catalogue). `move_party` only follows `legal_neighbours`
+per scene, NPC stat blocks from the SRD catalogue). A feature's lock (M27.4) is repaired, never
+refused: `aidm.rules.locks.placed_lock` strips a lock that may not stay and caps its tier.
+`move_party` only follows `legal_neighbours`
 (the campaign graph minus the derived locks) and never moves while an encounter offer waits;
 leaving a region with open tasks first asks (M23.4, `rules.quest_leaving.crossing`): the same
 point-of-no-return `pending` as a hostile act, executed again with `confirm_hostile` on yes.
@@ -31,7 +33,7 @@ from aidm.dm.tools import (
 )
 from aidm.models.encounter import EncounterStatus
 from aidm.models.state import GameState
-from aidm.models.world import WorldFeature, WorldNpc
+from aidm.models.world import LockInfo, WorldFeature, WorldNpc
 from aidm.models.world_events import (
     FeatureIntroduced,
     NpcIntroduced,
@@ -39,10 +41,11 @@ from aidm.models.world_events import (
     SecretRevealed,
     ShopOpened,
 )
-from aidm.rules.checks import dc_for_tier
+from aidm.rules.checks import dc_for_tier, difficulty_word
 from aidm.rules.dice import Rng
 from aidm.rules.gateway_lock import locked_reason
 from aidm.rules.light import arrival_events
+from aidm.rules.locks import lock_problem, placed_lock
 from aidm.rules.projection import project_state
 from aidm.rules.quest_leaving import crossing, crossing_prompt
 from aidm.rules.secrets import reveal_refusal
@@ -159,10 +162,17 @@ def run_introduce_feature(
         scene_index=world.scene_index,
         hidden=args.hidden,
         discover_dc=dc if args.hidden else None,
+        lock=LockInfo(dc_tier=args.lock_tier, opens=args.kind) if args.lock_tier else None,
     )
+    placed = placed_lock(state, feature)
     summary = f"{feature.kind.value} {feature.name} id={feature.id}"
     if args.hidden:
         summary += f" (hidden, DC {dc})"
+    if placed.lock is not None:
+        summary += f" (locked, {difficulty_word(placed.lock.dc_tier)})"
+    elif feature.lock is not None:
+        summary += f" (no lock: {lock_problem(state, feature)})"
+    feature = placed
     return ToolResult(events=(FeatureIntroduced(feature=feature),), summary=summary)
 
 
