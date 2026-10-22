@@ -7,7 +7,7 @@ from aidm.data.scribe_defs import scribe_table
 from aidm.data.shop_defs import shop_table
 from aidm.data.spell_defs import SpellDef, spell_defs
 from aidm.data.srd import srd
-from aidm.data.surface_defs import SurfaceHarm, surface_data
+from aidm.data.surface_defs import SurfaceDef, SurfaceHarm, surface_data
 
 _SAYS_NOTHING = "No numbers of its own: the Dungeon Master plays it out."
 _CASTERS = ("wizard", "cleric", "ranger", "warlock")
@@ -131,19 +131,23 @@ def _harm_text(harm: SurfaceHarm, dc: int) -> str:
     return f"{_moment(harm)}: {effect}"
 
 
+def surface_summary(s: SurfaceDef) -> str:
+    notes = []
+    if s.difficult:
+        notes.append("rough ground (entering costs double movement)")
+    if s.affects == "hostile_to_source":
+        notes.append("only hurts the caster's enemies")
+    if s.follows_source:
+        notes.append("moves with the caster")
+    notes += [_harm_text(h, s.dc) for h in s.harms]
+    return "; ".join(notes) or "no effect of its own"
+
+
 def surfaces_table() -> str:
     rows = []
     for s in surface_data().surfaces:
         lasts = f"{s.duration_rounds} rounds" if s.duration_rounds else "until removed"
-        notes = []
-        if s.difficult:
-            notes.append("rough ground (entering costs double movement)")
-        if s.affects == "hostile_to_source":
-            notes.append("only hurts the caster's enemies")
-        if s.follows_source:
-            notes.append("moves with the caster")
-        notes += [_harm_text(h, s.dc) for h in s.harms]
-        rows.append([s.name, lasts, "; ".join(notes) or "no effect of its own"])
+        rows.append([s.name, lasts, surface_summary(s)])
     return table(["Surface", "Lasts", "Effect"], rows)
 
 

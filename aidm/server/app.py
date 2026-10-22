@@ -34,6 +34,7 @@ from aidm.server.manual_routes import add_manual_routes
 from aidm.server.registry import TableRegistry
 from aidm.server.scribe_routes import add_scribe_routes
 from aidm.server.settings import ServerSettings
+from aidm.server.tip_routes import add_tip_routes
 from aidm.server.tts_routes import add_tts_routes
 from aidm.server.ws import serve_socket
 from aidm.session.table_core import TableConfig
@@ -73,6 +74,7 @@ def create_app(
     add_tts_routes(app, settings.fish.cache_dir)
     add_scribe_routes(app, web_dir / "static")
     add_manual_routes(app, web_dir)
+    add_tip_routes(app)
     return app
 
 

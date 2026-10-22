@@ -33,14 +33,18 @@ _PLAIN = {
 }
 
 
-def _item_name(item: str) -> str:
+def item_name(item: str) -> str:
     if item == SCROLL_FAMILY:
         return "Spell scroll (any)"
     found = item_catalogue().find(item)
     return found.name if found is not None else words(item)
 
 
-def _effect(use: ItemUse) -> str:
+def when_text(use: ItemUse) -> str:
+    return _WHEN.get(use.when, use.when)
+
+
+def effect_text(use: ItemUse) -> str:
     e = use.effect
     if isinstance(e, LightPlace):
         return "lights the place; shows you to anything waiting"
@@ -63,11 +67,11 @@ def _effect(use: ItemUse) -> str:
 def item_uses_table() -> str:
     rows = [
         [
-            _item_name(u.item),
+            item_name(u.item),
             u.label,
-            _WHEN.get(u.when, u.when),
+            when_text(u),
             {"action": "Action", "bonus": "Bonus action"}.get(u.cost or "", "-"),
-            _effect(u),
+            effect_text(u),
         ]
         for u in item_use_data().uses
     ]
