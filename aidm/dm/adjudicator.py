@@ -68,6 +68,7 @@ PER_ACTION_LIMITS = {
     "give_keepsake": 2,
     "update_quest": 2,
     "offer_favour": 1,
+    "use_item": 1,  # M27.5: one item use per action
 }
 EMPTY_NOTICE = "You hesitate, and the moment passes quietly. What do you do?"
 FALLBACK_NOTICE = "The world seems to hold its breath for a moment; nothing comes of it yet."
@@ -237,7 +238,7 @@ async def adjudicate(
         budget_tokens=ctx.budget_tokens,
     )
     messages = to_messages(pack)
-    tool_ctx = ToolContext(actor_id=actor_id, confirm_hostile=ctx.confirm_hostile)
+    tool_ctx = ToolContext(actor_id=actor_id, confirm_hostile=ctx.confirm_hostile, player_text=text)
     while run.rounds < MAX_ROUNDS:
         run.rounds += 1
         reply = await llm.call_tools(messages, tools, run.role, player_text=text)

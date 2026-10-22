@@ -6,7 +6,9 @@ ASCII, name creatures by their display name and NEVER leak private data: an intr
 feature, an NPC motive or an unrevealed secret is never rendered, and an introduced NPC is named
 only when in the party's current place (the campaign cast is introduced up front). Pure
 bookkeeping events (turn economy, resources, dice already shown in a check) render as None.
-Conditions read by display name in plain words (`aidm.dm.condition_text`, M20.7).
+Conditions read by display name in plain words (`aidm.dm.condition_text`, M20.7). Gear lines
+(light lit/put out, a gear use, a lock opened, the fight start a light gave away) come from
+`aidm.dm.item_text` (M27.5).
 
 Public API: `event_line(state, event) -> str | None`, `event_lines(state, events) -> list[str]`.
 """
@@ -17,12 +19,13 @@ from typing import Any
 from aidm.dm.campaign_text import CAMPAIGN_EVENT_LINES
 from aidm.dm.condition_text import applied_line, removed_line
 from aidm.dm.entities import display_name
+from aidm.dm.item_text import ITEM_EVENT_LINES
 from aidm.dm.quest_text import QUEST_EVENT_LINES
 from aidm.dm.wording import check_subject, with_article
 from aidm.models import events as ev
 from aidm.models import world_events as we
 from aidm.models.combat_events import AttackRolled, CombatantMoved, FeatureUsed, SpellCast
-from aidm.models.encounter_events import CombatantWithdrew, EncounterEnded, EncounterStarted
+from aidm.models.encounter_events import CombatantWithdrew, EncounterEnded
 from aidm.models.scribe import CharacterRewritten
 from aidm.models.state import GameState
 from aidm.rules.scene import node_display_name
@@ -110,7 +113,6 @@ _LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     ),
     ev.ShortRestTaken: lambda s, e: "The party took a short rest.",
     ev.LongRestTaken: lambda s, e: "The party took a long rest and is refreshed.",
-    EncounterStarted: lambda s, e: "A fight breaks out.",
     EncounterEnded: _encounter_ended,
     CombatantWithdrew: lambda s, e: f"{_who(s, e.creature_id)} {e.reason.value}.",
     AttackRolled: _attack,
@@ -140,6 +142,7 @@ _LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     CharacterRewritten: lambda s, e: f"The Scribe rewrites {_who(s, e.target_id)} into the story.",
     **CAMPAIGN_EVENT_LINES,
     **QUEST_EVENT_LINES,
+    **ITEM_EVENT_LINES,
 }
 
 

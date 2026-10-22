@@ -13,11 +13,17 @@ A check naming a LOCKED feature here (`feature`, M27.4) is a lock check
 (`aidm.rules.locks.lock_check`): a fitting key opens it with no roll, Athletics/STR forces it
 (noisy), Sleight of Hand/DEX picks it with the hero's thieves' tools, at the lock's own tier
 (the AI's tier and advantage do not apply); any other check is refused until it is open.
+The scoped rope rule (M27.5, `aidm.rules.gear_fit`): when the player's words
+(`ToolContext.player_text`) name gear the hero carries (`aidm.dm.gear_words.named_gear`, a
+keepsake too) and the check is in a situation the item table covers (a lock, a dark place,
+climbing, searching...) where none of that gear has a fitting use, the AI's advantage is
+dropped (the plain check still rolls); elsewhere the AI's call stands.
 
 Public API: `run_request_check(state, args, ctx, rng, regs)`,
 `run_request_save(state, args, ctx, rng, regs)` -> `ToolResult`.
 """
 
+from aidm.dm.gear_words import aims_at_lock, named_gear
 from aidm.dm.tool_context import ToolContext, ToolRefused, ToolRegistries, ToolResult
 from aidm.dm.tool_exec_common import require_creature
 from aidm.dm.tools import RequestCheckArgs, RequestSaveArgs
@@ -32,6 +38,7 @@ from aidm.rules.checks import dc_for_tier
 from aidm.rules.conditions import save_with_conditions
 from aidm.rules.dice import Rng
 from aidm.rules.gear_checks import gear_check
+from aidm.rules.gear_fit import misfit
 from aidm.rules.locks import lock_check, locked_here
 from aidm.rules.scene import discovery_events
 
@@ -52,7 +59,20 @@ def _lock_summary(state: GameState, creature: Creature, events: list[AnyEvent]) 
             parts.append(f"unlocked {state.world.features[event.feature_id].name} {how}")
         elif isinstance(event, PlaceAlerted):
             parts.append("the noise alerted this place")
+    if not any(isinstance(e, FeatureUnlocked) for e in events):
+        parts.append("the lock holds: tell it as an attempt, it is still locked")
     return "; ".join(parts)
+
+
+def _gear_misfit(
+    state: GameState, args: RequestCheckArgs, creature: Creature, ctx: ToolContext
+) -> bool:
+    """The rope rule: the gear the player names has no use that fits this covered check."""
+    named = named_gear(state, creature.id, ctx.player_text) if ctx.player_text else []
+    if not named:
+        return False
+    locked = aims_at_lock(state, ctx.player_text, args.feature)
+    return all(misfit(state, item, args.ability_or_skill, locked) for item in named)
 
 
 def _on_lock(
@@ -76,6 +96,8 @@ def run_request_check(
         return on_lock
     dc = dc_for_tier(args.dc_tier)
     adv = int(args.advantage is AdvState.ADVANTAGE)
+    dropped = bool(adv) and _gear_misfit(state, args, creature, ctx)
+    adv = 0 if dropped else adv
     dis = int(args.advantage is AdvState.DISADVANTAGE)
     what = args.ability_or_skill
     result = gear_check(rng, state, creature, what, dc, adv_sources=adv, dis_sources=dis)
@@ -84,6 +106,8 @@ def run_request_check(
     event = CheckResolved(creature_id=creature.id, result=result, reason=args.reason)
     found = discovery_events(state, creature.id, result)
     summary = _outcome(creature.name, label, result)
+    if dropped:
+        summary += "; the gear named gives no help here (no advantage)"
     names = [
         state.world.features[e.feature_id].name
         if isinstance(e, FeatureDiscovered)

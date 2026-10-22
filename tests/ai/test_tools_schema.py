@@ -34,6 +34,7 @@ SPEC_TOOLS = [
     "record_fact",
     "take_item",  # M19.3
     "give_keepsake",  # M19.3
+    "use_item",  # M27.5
     "no_mechanics",
 ]
 

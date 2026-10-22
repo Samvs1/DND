@@ -36,6 +36,7 @@ class ViolationKind(StrEnum):
     DOWNED_RISING = "downed_rising"
     OFFER_BLOW = "offer_blow"
     SPOKE_FOR_NPC = "spoke_for_npc"
+    LOCK_OPENED = "lock_opened"
 
 
 SCRUBBED_KINDS = frozenset({ViolationKind.UNKNOWN_NAME, ViolationKind.ABSENT_NPC})

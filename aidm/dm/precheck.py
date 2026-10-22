@@ -16,8 +16,11 @@ Public API:
   `HelpUpIntent(actor_id, target_id)` (M20.2: "help her up", "wake <a downed hero>";
   `aidm.dm.help_intent`), `GiveIntent(actor_id, npc_id, thing)` (M23.3: "give the <thing> to
   <name>"; `aidm.dm.give_intent`), `BarredIntent(text)` (M23.8: "go to <a locked exit>"; the
-  world reason, `aidm.rules.gateway_lock`).
+  world reason, `aidm.rules.gateway_lock`), `UseIntent` (M27.5: "light my torch", "use X on
+  Y", "put out my torch"...; `aidm.dm.use_intent`, after the item commands).
 - `Intent` (the union), `precheck(state, actor_id, text) -> Intent | None`.
+- `gear_intent(state, actor_id, text) -> UseIntent | None`: the gear precheck alone, for the
+  typed actions of a fight (M27.5: putting a light out is free, lighting one a bonus action).
 - `asks_what_now(state, actor_id, text) -> bool` (M23.8: "what now", "what should we do", "where
   to", "i'm lost", "help me"...; never "help <a downed hero> up", the help-up pre-check wins).
   It is answered before the queue, also in a fight: What now? is not a turn.
@@ -32,6 +35,7 @@ from enum import StrEnum
 from aidm.dm.entities import display_name
 from aidm.dm.give_intent import GiveIntent, give_intent
 from aidm.dm.help_intent import HelpUpIntent, help_up_intent
+from aidm.dm.use_intent import UseIntent, use_intent
 from aidm.models.encounter import EncounterStatus
 from aidm.models.state import Creature, GameState
 from aidm.models.world import WorldNpc
@@ -105,6 +109,7 @@ type Intent = (
     | HelpUpIntent
     | GiveIntent
     | BarredIntent
+    | UseIntent
 )
 
 SHOP_ROLES = (
@@ -307,10 +312,16 @@ def precheck(state: GameState, actor_id: str, text: str) -> Intent | None:
     if travel:
         return _travel(state, scene, travel["dest"])
     item = _item_command(state, actor_id, clean)
+    used = use_intent(state, actor_id, clean) if item is None else None
     take = _TAKE.fullmatch(clean)
-    if item is None and take:
+    if used is None and item is None and take:
         return _take(state, scene, actor_id, take["item"] or take["item2"])
-    return item
+    return item or used
+
+
+def gear_intent(state: GameState, actor_id: str, text: str) -> UseIntent | None:
+    clean = _normalise(text)
+    return use_intent(state, actor_id, clean) if clean else None
 
 
 def _listing(names: list[str]) -> str:

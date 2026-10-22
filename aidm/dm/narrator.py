@@ -7,6 +7,8 @@ beat (`narration_weight`, M19.1: 1-2, 2-3 or 3-5 sentences, the stream bounded t
 reusing what was already narrated; second person plural or character names, no mechanics
 numbers unless the player asked for them (`allow_numbers`). When nothing changed, or a fight has
 only just begun, the facts say so, so the model cannot tell an outcome the engine did not produce.
+A refused gear use (`use_item` tool error, M27.5) is a fact told as an attempt (`TRIED`), never
+as a result.
 Every sentence passes THE guard (`aidm.dm.guard`, default `prose_checker(state, events)`)
 before it is yielded: one regeneration with a correction and scrubbed names, then the template.
 Without a model (no key, outage, timeout, empty answer) the stream falls back to the
@@ -25,7 +27,7 @@ not to speak for them (`VOICE_NEXT`), the guard flags spoken words or their repl
 (`aidm.dm.guard_claims.spoken_for`), and the template drops its stock `QUIET_LINE` (the reply
 follows, so a narration with nothing to tell stays silent).
 
-Public API: `NUMBERS_ALLOWED`, `VOICE_NEXT`, `NarrationInput`,
+Public API: `NUMBERS_ALLOWED`, `VOICE_NEXT`, `TRIED`, `NarrationInput`,
 `tone_for(state, events=(), *, social=False)`, `narration_messages(...)`,
 `narrate(state, source, llm, *, actor_id, player_text, tone, allow_numbers, guard,
 budget_tokens, voice_next) -> NarrationStream`, `narrate_round_segment(state, events, llm, *, guard,
@@ -70,6 +72,7 @@ VOICE_NEXT = (
     " silence or decision, and never say they keep quiet; tell only the action and what the"
     " engine resolved, and stop with their answer still to come."
 )
+TRIED = "Tried, and nothing changed: {why} Tell it only as an attempt, never as done."
 _SOCIAL_EVENTS = (AttitudeChanged, SecretRevealed, ShopOpened, NpcIntroduced)
 
 type NarrationInput = AdjudicationResult | Sequence[AnyEvent]
@@ -99,6 +102,11 @@ def _unpack(source: NarrationInput) -> tuple[list[AnyEvent], list[str], str | No
     if not isinstance(source, AdjudicationResult):
         return list(source), [], None
     facts = [r.result.summary for r in source.executed if r.result.summary]
+    facts += [
+        TRIED.format(why=r.result.error)
+        for r in source.calls
+        if r.call.name == "use_item" and r.result.error
+    ]
     if source.pending is not None:
         facts.append(f"Awaiting the player's confirmation: {source.pending.prompt}")
         facts.append("Nothing has happened yet: do not tell the act as done.")

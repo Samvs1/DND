@@ -58,7 +58,8 @@ Public API:
   stored. A snapshot from M27.2-M27.3 holds the place-bound `lit` key; it is dropped on load.
   M27.3 (gear): `boons` (`ActiveBoon`: advantage a hero's gear gives on listed skills or on
   saves against listed harms; scope "place" ends on `PartyMoved`, "until_long_rest" on the long
-  rest), `alerted` (the place a noisy use alerted; cleared on `PartyMoved`), `foraged` (places
+  rest), `alerted` (the place a noisy use alerted; cleared on `PartyMoved`; M27.5 `alerted_by`
+  "noise" or "light", a light gave the party away), `foraged` (places
   whose once-per-place supplies use is spent), `charted` (places made known by a map use: their
   names and ways show on the map without a visit). Old saves default to empty.
 """
@@ -79,6 +80,7 @@ from aidm.models.quests import QuestKind, QuestStep
 MAX_QUEST_LOG = 8
 
 type LightReach = Literal["zone", "touching"]
+type AlertCause = Literal["noise", "light"]  # M27.5: what alerted a place
 
 
 class CarriedLight(BaseModel):
@@ -300,6 +302,7 @@ class World(BaseModel):
     lights: list[CarriedLight] = Field(default_factory=list[CarriedLight])  # M27.12
     boons: list[ActiveBoon] = Field(default_factory=list[ActiveBoon])  # M27.3
     alerted: str | None = None  # M27.3: cleared on PartyMoved
+    alerted_by: AlertCause | None = None  # M27.5: why `alerted` (old saves: None = noise)
     foraged: list[str] = Field(default_factory=list[str])  # M27.3
     charted: list[str] = Field(default_factory=list[str])  # M27.3
 

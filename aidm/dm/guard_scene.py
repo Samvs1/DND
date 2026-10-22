@@ -5,7 +5,8 @@ registry, `aidm.dm.entities`), who is present, who is dead, which absent NPCs ex
 names and classes, the nouns of items the party may not see destroyed, and the words of the features
 and description of the current place, and the keys of every unrevealed NPC secret
 (`aidm.dm.guard_secrets`), the names of the living (`aidm.dm.guard_alive`) and whether the events
-granted a reward (`aidm.dm.guard_rewards`). Recent `events` (already applied to `state`) mark items
+granted a reward (`aidm.dm.guard_rewards`), and the words of the features still locked here
+(M27.5, `aidm.dm.guard_world.opened_locks`). Recent `events` (already applied to `state`) mark items
 that really were lost (`InventoryChanged` with a negative delta, a removed world item is no longer
 in the scene), so describing those as gone is allowed.
 
@@ -67,6 +68,7 @@ class GuardScene:
     voice_next: str = ""
     rewarded: bool = False
     other_places: dict[str, str] = field(default_factory=dict[str, str])
+    locked: dict[str, str] = field(default_factory=dict[str, str])  # M27.5: word -> feature
 
 
 def _lost_items(events: Sequence[ev.AnyEvent]) -> set[str]:
@@ -176,7 +178,23 @@ def guard_scene(state: GameState, events: Sequence[ev.AnyEvent] = ()) -> GuardSc
         offer_pending=_offer_pending(state),
         rewarded=rewarded(events),
         other_places=_other_places(state),
+        locked=_locked_terms(state, scene, lex),
     )
+
+
+def _locked_terms(state: GameState, scene: SceneView, lex: GuardLexicon) -> dict[str, str]:
+    """Words of the features still locked here (and "lock") -> the feature's name (M27.5)."""
+    terms: dict[str, str] = {}
+    for fid in scene.feature_ids:
+        feature = state.world.features[fid]
+        if feature.lock is None:
+            continue
+        for word in words_of(feature.name):
+            if len(word) >= 3 and word not in lex.item_stop_words:
+                terms.setdefault(word, feature.name)
+        for word in ("lock", "padlock", "lid"):
+            terms.setdefault(word, feature.name)
+    return terms
 
 
 def _offer_pending(state: GameState) -> bool:

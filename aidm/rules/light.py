@@ -17,6 +17,10 @@ PURE and derived. Nothing is stored per zone and darkness is never stored at all
   zone, a bearer who left the fight takes it along.
 - Arriving in a dark place while a living hero carries a light gives the party away
   (`PlaceAlerted`), and a dead bearer's light ends when the party moves on (`arrival_events`).
+- Putting a light out (M27.5, owner 2026-10-22) is free, in or out of a fight: `LightEnded`
+  (reason "doused", with the item) and the end of the light's own boon (bullseye). A torch or
+  candle was used up when lit, so it is gone; a lantern stays in the pack and can be lit again.
+  The place stays alerted (nothing un-alerts it but leaving).
 - Darkness only ever adds disadvantage. It never hides a quest item or a passage.
 
 Public API:
@@ -37,14 +41,17 @@ Public API:
   without darkvision attacks a target standing in a dark unlit zone; monsters see (0).
 - `arrival_events(state, to_node) -> list[AnyEvent]`: what carried light does when the party
   arrives at `to_node` (emit right AFTER its `PartyMoved`, which clears the old alert).
+- `DOUSED`; `put_out(state, creature_id) -> list[AnyEvent]`: the hero puts their light out, or
+  ONLY an `ItemUseRefused` when they carry none.
 """
 
+from aidm.data.item_uses import LightPlace, uses_for_item
 from aidm.data.surface_defs import surface_defs
 from aidm.data.zone_templates import zone_templates
 from aidm.models.abilities import Ability, Skill
 from aidm.models.encounter import Encounter, EncounterStatus
 from aidm.models.events import AnyEvent
-from aidm.models.item_events import LightEnded, PlaceAlerted
+from aidm.models.item_events import BoonEnded, ItemUseRefused, LightEnded, PlaceAlerted
 from aidm.models.state import GameState
 from aidm.models.world import CarriedLight, LightReach
 from aidm.rules.progression import node_plan
@@ -53,6 +60,7 @@ from aidm.rules.zone_gen import known_terrains
 from aidm.rules.zones import zone_neighbors
 
 DARKNESS = "Darkness"
+DOUSED = "doused"
 
 
 def _active(state: GameState) -> Encounter | None:
@@ -150,5 +158,22 @@ def arrival_events(state: GameState, to_node: str) -> list[AnyEvent]:
         else:
             living = True
     if living and node_dark(state, to_node):
-        events.append(PlaceAlerted(node=to_node))
+        events.append(PlaceAlerted(node=to_node, reason="light"))
+    return events
+
+
+def put_out(state: GameState, creature_id: str) -> list[AnyEvent]:
+    light = hero_light(state, creature_id)
+    if light is None:
+        hero = state.creatures.get(creature_id)
+        name = hero.name if hero is not None else "That hero"
+        message = f"{name} carries no lit light to put out."
+        return [ItemUseRefused(creature_id=creature_id or "?", item="light", message=message)]
+    events: list[AnyEvent] = [LightEnded(creature_id=creature_id, reason=DOUSED, item=light.item)]
+    own = {u.id for u in uses_for_item(light.item) if isinstance(u.effect, LightPlace)}
+    events += [
+        BoonEnded(creature_id=creature_id, use_id=b.use_id, reason=DOUSED)
+        for b in state.world.boons
+        if b.creature_id == creature_id and b.use_id in own
+    ]
     return events

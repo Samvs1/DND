@@ -12,8 +12,12 @@ Each check reads ONE sentence against the frozen `GuardScene`:
 - `unlisted_features`: interactive feature nouns (lever, trapdoor, pressure plate, chest...)
   and hidden ones (a door/passage/seam with "secret", "hidden", "concealed"... or a reveal verb)
   that are neither listed features of this place nor words of its established description.
+- `opened_locks` (M27.5): a feature still locked here (its name word, "lock" or "lid") within a
+  few words of an opening claim ("swings open", "unlocks", "gives way") that is not negated, not
+  an intent ("to open") and not in a sentence that says it held ("holds", "in vain"). Only a
+  `FeatureUnlocked` event opens a lock, and it clears the lock before the narration.
 
-Public API: `dead_acting`, `destroyed_items`, `unlisted_features`.
+Public API: `dead_acting`, `destroyed_items`, `unlisted_features`, `opened_locks`.
 """
 
 import re
@@ -24,6 +28,7 @@ from aidm.dm.guard_types import Violation, ViolationKind
 
 _ACTION_REACH = 50
 _ITEM_REACH = 5
+_LOCK_REACH = 6
 
 
 def _token_at(tokens: list[Token], start: int) -> int | None:
@@ -109,3 +114,29 @@ def unlisted_features(sentence: str, tokens: list[Token], scene: GuardScene) -> 
             detail = f"no {m.group(0).lower()} is listed here"
             out.append(Violation(ViolationKind.UNLISTED_FEATURE, m.group(0), detail))
     return out
+
+
+def _claims(sentence: str, tokens: list[Token], scene: GuardScene) -> list[int]:
+    lex = scene.lexicon
+    found: list[int] = []
+    for m in find_phrases(sentence, lex.open_claims):
+        index = _token_at(tokens, m.start())
+        if index is None or is_negated(tokens, index, lex.negations):
+            continue
+        if index > 0 and tokens[index - 1].lower == "to":  # "tries to open": an intent
+            continue
+        found.append(index)
+    return found
+
+
+def opened_locks(sentence: str, tokens: list[Token], scene: GuardScene) -> list[Violation]:
+    if not scene.locked or find_phrases(sentence, scene.lexicon.lock_failures):
+        return []
+    claims = _claims(sentence, tokens, scene)
+    for i, token in enumerate(tokens):
+        forms = singular_forms(token.lower)
+        name = next((scene.locked[f] for f in forms if f in scene.locked), None)
+        if name is not None and any(abs(i - c) <= _LOCK_REACH for c in claims):
+            detail = f"the {name} is still locked; nothing opened it"
+            return [Violation(ViolationKind.LOCK_OPENED, token.text, detail)]
+    return []

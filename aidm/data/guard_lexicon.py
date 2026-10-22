@@ -57,6 +57,8 @@ class GuardLexicon(BaseModel):
     reward_nouns: frozenset[str] = frozenset()
     promise_words: frozenset[str] = frozenset()
     speech_verbs: frozenset[str] = frozenset()
+    open_claims: frozenset[str] = frozenset()  # M27.5: a lock opened in prose
+    lock_failures: frozenset[str] = frozenset()  # M27.5: ...unless the sentence says it held
 
     @model_validator(mode="after")
     def _check(self) -> GuardLexicon:

@@ -21,6 +21,7 @@ from aidm.dm.llm_types import ToolCall
 from aidm.dm.tool_context import ToolContext, ToolRefused, ToolRegistries, ToolResult
 from aidm.dm.tool_exec_checks import run_request_check, run_request_save
 from aidm.dm.tool_exec_creative import run_creative_effect
+from aidm.dm.tool_exec_gear import run_use_item
 from aidm.dm.tool_exec_items import run_give_keepsake, run_take_item
 from aidm.dm.tool_exec_ledger import run_record_fact
 from aidm.dm.tool_exec_quests import run_offer_favour, run_update_quest
@@ -65,6 +66,7 @@ _RUNNERS: dict[str, Executor] = {
     "record_fact": run_record_fact,
     "take_item": run_take_item,
     "give_keepsake": run_give_keepsake,
+    "use_item": run_use_item,
     "no_mechanics": _no_mechanics,
 }
 

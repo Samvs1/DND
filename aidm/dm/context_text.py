@@ -40,6 +40,9 @@ _ROLE = {
     ContextPurpose.ADJUDICATE: (
         "Your job now: decide which rules apply to the player action by calling tools."
         " Use only ids from the manifest. Call no_mechanics when nothing needs the rules."
+        " When a hero uses gear they carry (a torch, rope, crowbar, thieves' tools, a kit),"
+        " call use_item: gear advantage comes only from use_item, never from the advantage"
+        " flag of request_check. Usable gear here is listed under the manifest."
     ),
     ContextPurpose.NARRATE: (
         "Your job now: narrate what happened, as briefly as the STYLE below asks, second person"

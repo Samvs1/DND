@@ -15,7 +15,8 @@ and the current scene (`aidm.dm.guard_scene`):
 - gold or items handed over in prose when no event granted any (`aidm.dm.guard_rewards`, M4.8);
 - arrival at another map node without travel, and an invented stranger walking in
   (`aidm.dm.guard_claims`, QA-10); with `prose_checker(..., voice_next=name)`, spoken words or
-  that NPC's reply in the narration told right before their own voice (`spoken_for`, M20.7).
+  that NPC's reply in the narration told right before their own voice (`spoken_for`, M20.7);
+- a lock opened in prose when no `FeatureUnlocked` event opened it (`opened_locks`, M27.5).
 Vocabulary is data (data/bg3/guard_lexicon.json); matching uses word boundaries and negation
 windows, so "unbroken" and "no hidden door" are not flagged.
 
@@ -44,7 +45,7 @@ from aidm.dm.guard_scene import GuardScene, guard_scene
 from aidm.dm.guard_secrets import leaked_secrets
 from aidm.dm.guard_text import plain, tokenize
 from aidm.dm.guard_types import GuardReport, ProseCheck, Violation
-from aidm.dm.guard_world import dead_acting, destroyed_items, unlisted_features
+from aidm.dm.guard_world import dead_acting, destroyed_items, opened_locks, unlisted_features
 from aidm.dm.llm_backend import Message
 from aidm.dm.llm_client import LlmClient, TextStream
 from aidm.dm.llm_types import LlmRole
@@ -82,6 +83,7 @@ def _sentence_violations(
         *invented_strangers(sentence, scene),
         *offer_blows(sentence, scene),
         *spoken_for(sentence, scene),
+        *opened_locks(sentence, tokens, scene),
     ]
 
 

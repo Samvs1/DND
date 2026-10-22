@@ -20,6 +20,8 @@ fight started by a weapon attack on an NPC rolls that attack before the narratio
 (`opening.strike_if_opening`, M19.2). Every entry ends in narration or a typed notice: never silent.
 M23.8: a typed "what now" is answered before the queue (`what_now.answer`, not a turn), and a typed
 move to a locked exit is told why it is shut (`BarredIntent`, `rules.gateway_lock`).
+M27.5: typed gear use (`UseIntent`) runs through `gear_actions` (a refused use goes on to the
+adjudicator); in a fight a typed put-out or light is `gear_actions.fight_gear`.
 
 Public API: `submit_action`, `kick_resolver`, `resolve_next`, `resolve_action`,
 `adjudicated`, `confirm_hostile`, `cancel_hostile`, `inventory_text`.
@@ -45,6 +47,7 @@ from aidm.dm.precheck import (
 )
 from aidm.dm.tool_context import ToolContext
 from aidm.dm.tool_exec import execute_tool
+from aidm.dm.use_intent import UseIntent
 from aidm.models.commands import DashCommand, MoveCommand
 from aidm.models.protocol_client import SubmitAction
 from aidm.models.protocol_server import (
@@ -56,7 +59,7 @@ from aidm.models.protocol_views import QueueEntry, TablePhase, VoteKind
 from aidm.models.state import Creature
 from aidm.rules.scene import node_display_name
 from aidm.rules.turns import EconomyRefused, spend_action
-from aidm.session import combat_flow, hand_over, party_actions, votes, what_now
+from aidm.session import combat_flow, gear_actions, hand_over, party_actions, votes, what_now
 from aidm.session.declared import declare
 from aidm.session.opening import strike_if_opening
 from aidm.session.quest_people import CROSS_STAY, hold
@@ -100,11 +103,13 @@ def submit_action(core: TableCore, player: Player, msg: SubmitAction) -> None:
 
 
 def _combat_text(core: TableCore, player: Player, pc: Creature, text: str) -> None:
+    entry = QueueEntry(player_id=player.id, creature_id=pc.id, text=text)
+    if gear_actions.fight_gear(core, player, entry):  # M27.5: put out (free) or light (bonus)
+        return
     enc = core.state.encounter
     if enc is None or enc.active_id() != pc.id or core.turn_key is None:
         core.error(player.id, ErrorCode.NOT_YOUR_TURN, "It is not your turn.")
         return
-    entry = QueueEntry(player_id=player.id, creature_id=pc.id, text=text)
     moves = combat_move(core.state, pc.id, text)
     if moves is not None:  # M19.4: "I move to the ravine" moves (no action spent)
         core.schedule(lambda: _typed_move(core, player, entry, moves))
@@ -208,6 +213,9 @@ async def resolve_action(core: TableCore, entry: QueueEntry) -> None:
         await party_actions.help_up_intent(core, player, intent)
     elif isinstance(intent, GiveIntent):
         await hand_over.give_intent(core, player, intent)
+    elif isinstance(intent, UseIntent):
+        if not await gear_actions.use_intent(core, player, intent):
+            await adjudicated(core, entry)
     elif isinstance(intent, TravelIntent):
         detail = f"travel to {node_display_name(core.state, intent.node_id)}"
         job = party_actions.travel_job(core, entry.creature_id, intent.node_id)

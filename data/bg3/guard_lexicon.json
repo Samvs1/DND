@@ -224,5 +224,16 @@
     "snaps", "snapped", "tells you", "told you", "warns", "warned", "insists", "insisted", "explains",
     "explained", "admits", "admitted", "calls out", "agrees", "agreed", "chuckles", "laughs",
     "sighs"
+  ],
+  "open_claims": [
+    "open", "opens", "opened", "swings open", "springs open", "pops open", "clicks open",
+    "creaks open", "falls open", "unlock", "unlocks", "unlocked", "gives way", "gave way",
+    "give way", "comes free", "came free", "comes loose", "pried open", "prised open",
+    "forced open", "breaks open", "yields", "yielded", "lid lifts", "lid rises"
+  ],
+  "lock_failures": [
+    "holds", "held", "refuses", "refused", "won't", "will not", "cannot", "can't", "fails",
+    "failed", "still locked", "stays shut", "stays locked", "remains locked", "remains shut",
+    "in vain", "no luck", "resists", "resisted", "unyielding", "stuck"
   ]
 }

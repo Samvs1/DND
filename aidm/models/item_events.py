@@ -15,14 +15,15 @@ Public API:
   was consumed; `message` tells the model what to narrate instead (an attempt, never a result).
 - `BoonGained(boon)`: the hero's `ActiveBoon` joins `World.boons` (replacing the same use's).
 - `BoonEnded(creature_id, use_id, reason)`: that boon leaves `World.boons`.
-- `PlaceAlerted(node)`: a noisy use, or arriving in a dark place with a lit light (M27.12),
-  alerted the place; foes met there cannot be surprised by
-  the party until it leaves (`World.alerted`, cleared on `PartyMoved`).
+- `PlaceAlerted(node, reason)`: a noisy use (`reason` "noise"), or a light lit in or carried
+  into a dark place ("light", M27.5), alerted the place; foes met there cannot be surprised by
+  the party until it leaves (`World.alerted` + `World.alerted_by`, cleared on `PartyMoved`).
 - `PlacesCharted(nodes)`: these places become known on the map without a visit (`World.charted`).
 - `LightLit(creature_id, item, reach)` (M27.12): the hero carries a lit light (`World.lights`,
   replacing that hero's); it travels with them from place to place.
-- `LightEnded(creature_id, reason)` (M27.12): that hero's light ends (the long rest, from
-  `aidm.rules.rests`; a dead bearer's light when the party moves on, `aidm.rules.light`).
+- `LightEnded(creature_id, reason, item)` (M27.12): that hero's light ends (the long rest, from
+  `aidm.rules.rests`; a dead bearer's light when the party moves on, `aidm.rules.light`; put
+  out, reason "doused" with the light's `item`, M27.5 `aidm.rules.light.put_out`).
 - `FeatureUnlocked(feature_id, creature_id, method, item)` (M27.4): the feature's lock is gone
   (`WorldFeature.lock` becomes None): opened with the party's fitting key, picked or forced
   (`aidm.rules.locks`); `item` is the key or the gear that did it, if any.
@@ -33,7 +34,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from aidm.models.world import ActiveBoon, LightReach
+from aidm.models.world import ActiveBoon, AlertCause, LightReach
 
 
 class _ItemEvent(BaseModel):
@@ -74,6 +75,7 @@ class BoonEnded(_ItemEvent):
 class PlaceAlerted(_ItemEvent):
     type: Literal["place_alerted"] = "place_alerted"
     node: str = Field(min_length=1)
+    reason: AlertCause = "noise"  # M27.5: old logs default to noise
 
 
 class PlacesCharted(_ItemEvent):
@@ -92,6 +94,7 @@ class LightEnded(_ItemEvent):
     type: Literal["light_ended"] = "light_ended"
     creature_id: str = Field(min_length=1)
     reason: str = ""
+    item: str | None = None  # M27.5: the light put out (a doused light names it)
 
 
 class FeatureUnlocked(_ItemEvent):

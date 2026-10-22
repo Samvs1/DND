@@ -54,6 +54,7 @@ ITEM_EVENT_TYPES = (
 def left_place(state: GameState) -> None:
     world = state.world
     world.alerted = None
+    world.alerted_by = None
     world.boons = [b for b in world.boons if b.scope != "place"]
 
 
@@ -86,8 +87,9 @@ def apply_item_event(state: GameState, event: ItemEvent) -> None:
             world.boons = [*kept, boon]
         case BoonEnded(creature_id=cid, use_id=use_id):
             world.boons = [b for b in world.boons if (b.creature_id, b.use_id) != (cid, use_id)]
-        case PlaceAlerted(node=node):
+        case PlaceAlerted(node=node, reason=reason):
             world.alerted = node
+            world.alerted_by = reason
         case LightLit(creature_id=cid, item=item, reach=reach):
             if cid not in state.creatures:
                 raise ReducerError(f"no bearer {cid!r} for the light")

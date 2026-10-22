@@ -19,26 +19,34 @@ The AI proposes (`use_item(actor, item, target?)`, M27.5), the engine disposes. 
 4. events: `EconomyChanged` (in a fight), `ItemUsed`, the effect's events, `InventoryChanged`
    (-1 when the use consumes the item or spends its last charge), `PlaceAlerted` (a `noise` use,
    once per place).
-A fitting key the party carries opens a locked target before any `locked` use is tried
+A use that is not a `locked` one, aimed at a locked feature here, is refused (M27.5: a rope
+never forces a lock). A fitting key the party carries opens a locked target before any
+`locked` use is tried
 (`aidm.rules.locks.key_open`: automatic, no check, nothing used or alerted).
 Otherwise the ONLY event is `ItemUseRefused(message)`, telling the model what to narrate
 instead (an attempt, never a result); nothing is consumed. When several uses could apply, the
 first that fits wins and the first refusal is reported.
 
 Public API: `use_item(state, actor_id, item, target=None, *, rng, use_id=None, resting=False,
-prior=()) -> list[AnyEvent]`, `refused(actor_id, item, message) -> ItemUseRefused`.
+prior=()) -> list[AnyEvent]`, `refused(actor_id, item, message) -> ItemUseRefused`,
+`situation_problem(state, actor, use, target, resting) -> str | None` (step 3's situation),
+`usable_uses(state, actor_id) -> list[(item, use, target)]` (the uses of the hero's gear that
+fit here now: the adjudicator's usable-gear line, M27.5; long-rest uses are left out).
+A light use that alerts names its cause (`PlaceAlerted(reason="light")`, M27.5).
 """
 
 from collections.abc import Sequence
 
 from aidm.data.item_catalogue import item_catalogue
-from aidm.data.item_uses import ItemUse, Supplies, uses_for_item
+from aidm.data.item_uses import ItemUse, LightPlace, Supplies, uses_for_item
 from aidm.models.character import InventoryItem
 from aidm.models.encounter import EncounterStatus
 from aidm.models.events import AnyEvent, InventoryChanged
 from aidm.models.item_events import ItemUsed, ItemUseRefused, PlaceAlerted
 from aidm.models.state import Creature, GameState
+from aidm.models.world import AlertCause
 from aidm.rules.command_checks import CommandRefused, changed, spend
+from aidm.rules.death import is_dying
 from aidm.rules.dice import Rng
 from aidm.rules.item_effects import UseCtx, effect_events, gear_name, not_wired
 from aidm.rules.light import hero_light, place_dark, place_light
@@ -73,8 +81,7 @@ def _in_fight(state: GameState) -> bool:
     return enc is not None and enc.status is EncounterStatus.ACTIVE
 
 
-def _dark_problem(ctx: UseCtx, gear: str) -> str | None:
-    state, actor = ctx.state, ctx.actor
+def _dark_problem(state: GameState, actor: Creature, gear: str) -> str | None:
     own = hero_light(state, actor.id)
     if own is not None:
         carried = gear_name(own.item).lower()
@@ -97,22 +104,38 @@ def _tag_problem(state: GameState, use: ItemUse, gear: str) -> str | None:
     return f"The {gear} needs a place with {' or '.join(use.tags)}; this is not one."
 
 
-def _situation_problem(ctx: UseCtx) -> str | None:
-    use, state = ctx.use, ctx.state
+def _not_a_key(state: GameState, use: ItemUse, target: str | None, gear: str) -> str | None:
+    """A use that is not a `locked` one never opens a lock it is aimed at (the rope rule)."""
+    feature = locked_here(state, target) if target in state.world.features else None
+    if feature is None or isinstance(feature, str):
+        return None
+    return (
+        f"The {gear} cannot open the {feature.name}; narrate the attempt as a plain check"
+        " without its help."
+    )
+
+
+def situation_problem(
+    state: GameState, actor: Creature, use: ItemUse, target: str | None, resting: bool
+) -> str | None:
     gear = gear_name(use.item).lower()
     fight = _in_fight(state)
     if fight and use.cost is None:
         return f"The {gear} cannot be used during a fight."
     if use.when == "fight" and not fight:
         return f"The {gear} is for a fight, and there is none now."
+    if use.when != "locked":
+        problem = _not_a_key(state, use, target, gear)
+        if problem is not None:
+            return problem
     if use.when == "dark_place":
-        return _dark_problem(ctx, gear)
+        return _dark_problem(state, actor, gear)
     if use.when == "tagged_place":
         return _tag_problem(state, use, gear)
-    if use.when == "long_rest" and not ctx.resting:
+    if use.when == "long_rest" and not resting:
         return f"The {gear} is used at a long rest; it happens when the party rests."
     if use.when == "locked":
-        feature = locked_here(state, ctx.target)
+        feature = locked_here(state, target)
         return feature if isinstance(feature, str) else None
     return None
 
@@ -159,13 +182,18 @@ def _bookkeeping(ctx: UseCtx, charges: int | None) -> tuple[ItemUsed, list[AnyEv
         after.append(
             InventoryChanged(creature_id=ctx.actor.id, item=entry.item, delta=-1, qty=entry.qty - 1)
         )
-    if use.noise and node is not None and ctx.state.world.alerted != node:
-        after.append(PlaceAlerted(node=node))
+    world = ctx.state.world
+    cause: AlertCause = "light" if isinstance(use.effect, LightPlace) else "noise"
+    fresh = world.alerted != node or (cause == "light" and world.alerted_by != "light")
+    if use.noise and node is not None and fresh:
+        after.append(PlaceAlerted(node=node, reason=cause))
     return used, after
 
 
 def _try_use(ctx: UseCtx) -> list[AnyEvent] | str:
-    problem = not_wired(ctx.use) or _situation_problem(ctx)
+    problem = not_wired(ctx.use) or situation_problem(
+        ctx.state, ctx.actor, ctx.use, ctx.target, ctx.resting
+    )
     if problem is not None:
         return problem
     charges = _charges(ctx)
@@ -225,3 +253,28 @@ def use_item(
             return outcome
         first = first or outcome
     return [refused(actor_id, entry.item, first or "That use does not fit here.")]
+
+
+def _dying_ally(state: GameState) -> bool:
+    return any(c.pc is not None and is_dying(c) for c in state.creatures.values())
+
+
+def usable_uses(state: GameState, actor_id: str) -> list[tuple[str, ItemUse, str | None]]:
+    """(item, use, target) for each use of the hero's carried gear that fits here now."""
+    actor = state.creatures.get(actor_id)
+    if actor is None or actor.pc is None:
+        return []
+    locks = [f for f in state.world.features if not isinstance(locked_here(state, f), str)]
+    out: list[tuple[str, ItemUse, str | None]] = []
+    for entry in actor.pc.inventory:
+        for use in uses_for_item(entry.item):
+            skip = use.when == "long_rest" or not_wired(use) is not None
+            if skip or (use.when == "ally_down" and not _dying_ally(state)):
+                continue
+            targets: list[str | None] = [*locks] if use.when == "locked" else [None]
+            out += [
+                (entry.item, use, target)
+                for target in targets
+                if situation_problem(state, actor, use, target, False) is None
+            ]
+    return out

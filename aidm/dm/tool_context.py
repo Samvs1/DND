@@ -4,9 +4,10 @@ Public API:
 - `ToolRegistries(combat, tiers, encounter_monsters, encounter_tables, terrains, catalogue, shops,
   loot)`: the data the
   executors read, passed in (`tool_registries()` builds the default bundle once).
-- `ToolContext(actor_id, confirm_hostile)`: who is acting, and whether that player explicitly
-  confirmed a hostile act against non-hostile NPCs (the point of no return; the session sets
-  it after the confirm dialog).
+- `ToolContext(actor_id, confirm_hostile, player_text)`: who is acting, and whether that player
+  explicitly confirmed a hostile act against non-hostile NPCs (the point of no return; the
+  session sets it after the confirm dialog); `player_text` is the action's words (M27.5: the
+  scoped rope rule of `request_check` reads the gear they name).
 - `PendingConfirmation(actor_id, npc_ids, tool, prompt)`: a hostile act that waits for the
   player's confirmation; nothing was executed.
 - `ToolResult(events, summary, error, pending)`: what one tool call produced. `summary` is the
@@ -61,6 +62,7 @@ def tool_registries() -> ToolRegistries:
 class ToolContext:
     actor_id: str | None = None
     confirm_hostile: bool = False
+    player_text: str = ""
 
 
 @dataclass(frozen=True)

@@ -15,7 +15,7 @@ def test_grant_item_catalogue_within_cap() -> None:
     assert isinstance(event, InventoryChanged)
     assert (event.creature_id, event.delta, event.qty) == ("fighter", 1, 2)
     torches = run_tool(state, "grant_item", catalog_id="torch", qty=10)
-    assert torches.ok
+    assert torches.error is not None and "usable gear" in torches.error  # M27.5
 
 
 def test_injection_grant_10000_gold_refused() -> None:

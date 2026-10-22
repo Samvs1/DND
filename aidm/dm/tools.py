@@ -10,7 +10,8 @@ Public API:
   `UpdateAttitudeArgs`, `RevealSecretArgs`, `MovePartyArgs`, `IntroduceNpcArgs`,
   `IntroduceFeatureArgs`, `GrantItemArgs`, `GrantXpArgs`, `StartEncounterArgs`, `OpenShopArgs`,
   `UpdateQuestArgs` (M23.5: a free step only), `OfferFavourArgs` + `FavourKind` (M23.5),
-  `RecordFactArgs`, `TakeItemArgs`, `GiveKeepsakeArgs` (M19.3), `NoMechanicsArgs`.
+  `RecordFactArgs`, `TakeItemArgs`, `GiveKeepsakeArgs` (M19.3), `UseItemArgs` (M27.5),
+  `NoMechanicsArgs`.
 - `DM_TOOLS`: every `ToolDef` in SPEC order; `dm_tool(name) -> ToolDef`;
   `dm_tools_param(names=None) -> list[dict]` (the OpenAI `tools` parameter).
 """
@@ -252,6 +253,22 @@ class GiveKeepsakeArgs(_Args):
     description: str = Field(default="", max_length=200)
 
 
+class UseItemArgs(_Args):
+    """A hero uses gear they carry (torch, lantern, rope, crowbar, thieves' tools, a kit, a
+    flask, a scroll): the engine checks the gear, the place and the cost, rolls what needs a
+    roll and applies the effect. Gear advantage comes ONLY from this tool, never from the
+    advantage flag of request_check. put_out=true puts out the hero's carried light (free)."""
+
+    actor: str = _id()
+    item: str = Field(min_length=1, max_length=64, description="catalogue id or gear name")
+    target: str | None = Field(
+        default=None,
+        max_length=64,
+        description="the feature id (a lock), creature id or fight zone id it is used on",
+    )
+    put_out: bool = False
+
+
 class NoMechanicsArgs(_Args):
     """Pure narration: nothing changes."""
 
@@ -278,6 +295,7 @@ DM_TOOLS: tuple[ToolDef, ...] = (
     _def("record_fact", RecordFactArgs),
     _def("take_item", TakeItemArgs),
     _def("give_keepsake", GiveKeepsakeArgs),
+    _def("use_item", UseItemArgs),
     _def("no_mechanics", NoMechanicsArgs),
 )
 _BY_NAME = {d.name: d for d in DM_TOOLS}

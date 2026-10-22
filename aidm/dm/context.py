@@ -2,11 +2,12 @@
 
 `build_context` assembles typed sections in a fixed order:
 1 SYSTEM (DM rules, `aidm.dm.context_text`), 2 MANIFEST (closed world, ends with the
-closed-world statement), 3 PARTY (compact sheets), 4 QUESTS (`aidm.dm.context_quests`: main
-objective, known routes, current steps, item whereabouts, offers; M23.5) and FACTS (top-k by entity
-overlap), 5 MEMORY (scene summaries, last narration turns), 6 EVENTS (engine events since the
-last narration, authoritative), 7 NPC_PRIVATE (motive, secrets and the route hint the NPC knows,
-ONLY for `NPC_VOICE`).
+closed-world statement; M27.5: the light of the place and, for ADJUDICATE, the usable gear here
+from `aidm.dm.context_gear` come right before it), 3 PARTY (compact sheets), 4 QUESTS
+(`aidm.dm.context_quests`: main objective, known routes, current steps, item whereabouts,
+offers; M23.5) and FACTS (top-k by entity overlap), 5 MEMORY (scene summaries, last narration
+turns), 6 EVENTS (engine events since the last narration, authoritative), 7 NPC_PRIVATE (motive,
+secrets and the route hint the NPC knows, ONLY for `NPC_VOICE`).
 
 Token budget (estimate: characters / 4): when the pack is over budget, FACTS lose their lowest
 ranked lines first, then MEMORY its oldest lines, then PARTY switches to short sheets. SYSTEM,
@@ -32,6 +33,7 @@ from dataclasses import dataclass, replace
 from enum import StrEnum
 from typing import Any
 
+from aidm.dm.context_gear import gear_lines, light_lines
 from aidm.dm.context_quests import quest_lines, route_hint_lines
 from aidm.dm.context_sections import (
     fact_lines,
@@ -166,9 +168,12 @@ def build_context(
     show_ids = purpose in (ContextPurpose.ADJUDICATE, ContextPurpose.SUMMARIZE)
     arriving = state.world.scene_turn == 0 or any(e.type == "party_moved" for e in events)
     describe = purpose is not ContextPurpose.NARRATE or arriving
+    manifest = manifest_lines(state, scene, show_ids, describe)
+    gear = gear_lines(state, scene, show_ids) if purpose is ContextPurpose.ADJUDICATE else []
+    manifest[-1:-1] = [*light_lines(state), *gear]
     sections = [
         ContextSection(SectionKey.SYSTEM, "SYSTEM", (system_text(purpose),)),
-        _section(SectionKey.MANIFEST, manifest_lines(state, scene, show_ids, describe)),
+        _section(SectionKey.MANIFEST, manifest),
         _section(SectionKey.PARTY, party_lines(state, short=False)),
         _section(SectionKey.QUESTS, quest_lines(state, show_ids)),
         _section(

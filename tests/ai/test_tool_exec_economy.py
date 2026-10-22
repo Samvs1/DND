@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from aidm.data.item_catalogue import item_catalogue
+from aidm.data.item_uses import uses_for_item
 from aidm.models.events import CampSuppliesChanged, InventoryChanged, XpGained
 from aidm.models.world import FeatureKind, WorldFeature
 from aidm.models.world_events import LevelUpReady
@@ -14,19 +15,25 @@ CAT = item_catalogue()
 
 
 def test_every_catalogue_entry_resolves_through_grant_item() -> None:
+    """M27.5: every entry without a use is granted; usable gear never is (shops, loot, packs)."""
     state = party_state(1)
     state.world.region_tier = 3
     for item in CAT.all():
         result = run_tool(state, "grant_item", catalog_id=item.id, qty=1)
+        if uses_for_item(item.id):
+            assert result.error is not None and "usable gear" in result.error, item.id
+            continue
         assert result.ok, (item.id, result.error)
         assert result.events
 
 
-def test_grant_item_scroll_uses_the_scroll_key() -> None:
+def test_grant_item_refuses_a_scroll_it_is_usable_gear() -> None:
     state = party_state(1)
     result = run_tool(state, "grant_item", catalog_id="scroll-of-fire-bolt", qty=1)
-    event = result.events[0]
-    assert isinstance(event, InventoryChanged) and event.item == "scroll-of-fire-bolt"
+    assert result.error is not None and result.events == ()
+    potion = run_tool(state, "grant_item", catalog_id="potion-of-healing", qty=1)
+    event = potion.events[0]
+    assert isinstance(event, InventoryChanged) and event.item == "potion-of-healing"
 
 
 def test_grant_item_camp_supplies_feed_the_pool() -> None:

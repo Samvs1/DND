@@ -5,12 +5,15 @@ Rewards come only from capped tiers: items from the item catalogue
 the region tier's cap (camp supplies go to the party pool), XP from the party-level table.
 Fights use encounter-ready catalogue monsters within the region tier and the CR budget
 (`rules.encounter_budget.check_encounter_budget`: never above deadly). Fighting a non-hostile
-NPC stops at the point of no return until the player confirms.
+NPC stops at the point of no return until the player confirms. M27.5: an item that has uses
+(data/bg3/item_uses.json: a torch, a rope, a scroll...) is never granted; such gear comes from
+shops, loot and starting packs only (closes "I find a rope").
 
 Public API: `run_grant_item`, `run_grant_xp`, `run_start_encounter` -> `ToolResult`;
 `catalog_value_gp(regs, catalog_id) -> float | None` (None: not a grantable catalogue item).
 """
 
+from aidm.data.item_uses import uses_for_item
 from aidm.dm.tool_context import ToolContext, ToolRefused, ToolRegistries, ToolResult
 from aidm.dm.tool_exec_common import (
     hostile_pending,
@@ -47,6 +50,12 @@ def run_grant_item(
     unit = catalog_value_gp(regs, args.catalog_id)
     if unit is None:
         raise ToolRefused(f"{args.catalog_id!r} is not a catalogue item")
+    found = regs.catalogue.find(args.catalog_id)
+    if found is not None and uses_for_item(found.id):
+        raise ToolRefused(
+            f"{found.name} is usable gear: it comes only from shops, loot and starting packs;"
+            " narrate that nothing of the kind turns up"
+        )
     if args.qty > regs.tiers.max_item_qty:
         raise ToolRefused(f"at most {regs.tiers.max_item_qty} items per grant")
     cap = item_value_cap(regs.tiers, state.world.region_tier)
