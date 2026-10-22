@@ -8,6 +8,7 @@ Public API: `word_tips() -> dict[str, Tip]`.
 
 from aidm.models.tips import Tip
 from aidm.models.zones import CoverLevel
+from aidm.rules.attack_profiles import IMPROVISED_THROW
 from aidm.rules.checks import DC_BY_TIER
 from aidm.rules.zones import COVER_AC, MELEE_RANGE_FEET, NEAR_RANGE_FEET
 
@@ -64,6 +65,39 @@ def _combat() -> dict[str, Tip]:
     }
 
 
+def _moves() -> dict[str, Tip]:
+    return {
+        "attack": _t(
+            "Attack",
+            "Pick a foe in reach: melee needs the same zone, ranged needs the weapon's range.",
+            "With no weapon in hand you strike unarmed.",
+        ),
+        "throw": _t(
+            "Throw",
+            "An action: hurl a carried object at a foe in throw range.",
+            f"A thrown weapon uses its own numbers; else {IMPROVISED_THROW} improvised.",
+            "The object leaves your pack, hit or miss.",
+        ),
+        "shove-prone": _t(
+            "Shove prone",
+            "A bonus action on a foe in your zone, at most one size larger.",
+            "It rolls Athletics or Acrobatics, you roll Athletics, and you must beat its total.",
+            "On a win it falls prone.",
+        ),
+        "shove-push": _t(
+            "Shove away",
+            "A bonus action on a foe in your zone, at most one size larger.",
+            "It rolls Athletics or Acrobatics, you roll Athletics, and you must beat its total.",
+            "On a win it is pushed into a neighbouring zone you pick.",
+        ),
+        "jump": _t(
+            "Jump",
+            "A bonus action: leap to a neighbouring zone, paying the edge's distance.",
+            "Rough ground does not slow a jump. You cannot jump while prone.",
+        ),
+    }
+
+
 def _actions() -> dict[str, Tip]:
     return {
         "action": _t(
@@ -113,6 +147,39 @@ def _actions() -> dict[str, Tip]:
     }
 
 
+def _play() -> dict[str, Tip]:
+    """Words of the Play tab: the Now card, the quest offer and finale cards, roll results."""
+    return {
+        "boon": _t(
+            "Gear boon",
+            "Something you carry helps you with the skills or saves listed.",
+            "It gives advantage on them until it ends: leaving the place or a long rest.",
+        ),
+        "light-note": _t(
+            "Light and noise",
+            "A light in a dark place shows you to anything waiting, so it cannot be surprised.",
+            "Noise can wake a place too. The note fades after a little while.",
+        ),
+        "quest-offer": _t(
+            "A quest offer",
+            "Someone asks for help. Accept to take the task on, or Not now to decide later.",
+            "The offer stays and returns when you are next where they are.",
+        ),
+        "finale": _t(
+            "The ending",
+            "The last region is done. The party picks how the story closes.",
+            "You are asked to confirm, because the choice ends the story.",
+        ),
+        "nat20": _t(
+            "Natural 20",
+            "The d20 showed 20. A check always succeeds and an attack always hits, and hits hard.",
+        ),
+        "nat1": _t(
+            "Natural 1", "The d20 showed 1. A check always fails and an attack always misses."
+        ),
+    }
+
+
 def _dc() -> dict[str, Tip]:
     return {
         f"dc:{tier.value}": _t(
@@ -123,6 +190,6 @@ def _dc() -> dict[str, Tip]:
 
 
 def word_tips() -> dict[str, Tip]:
-    out = {f"word:{k}": v for k, v in {**_combat(), **_actions()}.items()}
+    out = {f"word:{k}": v for k, v in {**_combat(), **_actions(), **_moves(), **_play()}.items()}
     out.update(_dc())
     return out

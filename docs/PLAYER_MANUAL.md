@@ -37,6 +37,13 @@ You can dictate your actions. The **Dictate** button next to **Act** only appear
 ### Tooltips
 - Tap a small **?** next to a thing to see what it means. The tip opens as a small popup; close it with its **x**, by tapping elsewhere or with Esc. Turn tooltips off with the **Tooltips** switch in **Settings** (on by default, remembered on your device). The **?** marks are on the Hero tab (stats, features, race traits, conditions, training, spells, spell slots and your gear) and in the shop. In the big grids (abilities and saves together, skills) there is one **?** on the heading, armour class and hit points have one on the hero strip, and in the pack the **?** is on the item you have picked. In a fight there is a **?** on every action slot, on the foes' health words, on the advantage tag, on the Move list's zone facts (dark, cover, rough ground, surfaces) and on your conditions; it is a small target of its own, so tapping the slot still picks it.
 
+Where the **?** marks are:
+- **Hero tab and shop**: stats, features, race traits, conditions, training, spells, spell slots and your gear; buy and sell prices.
+- **In a fight**: every action slot (attack, Throw, Shove prone, Shove away, Jump, Dash, Dodge and the rest; the Spells and Items buttons open lists whose rows have their own), foe health words, the advantage tag, the Move list's zone facts and your conditions.
+- **Play tab**: the Now card (the dark or lit line, the torch chip, gear boons and the light note), the quest offer, the finale and the terms on your roll card (the difficulty, advantage or disadvantage, natural 20 and natural 1).
+- **Journal tab**: the main quest, its ways, leads, tasks left behind and favours.
+- **Scribe tab and More tab**: the Scribe and his price, and Settings (where the Tooltips switch is).
+
 ## 2. Your hero
 
 Open the hero wizard from the lobby (**Create my hero**). It has up to ten steps: Race, Class, Background, Abilities, Skills, Equipment, Spells, Portrait, Name and Review. The Spells step appears only for casters and for races that grant a cantrip. You can go back at any step.

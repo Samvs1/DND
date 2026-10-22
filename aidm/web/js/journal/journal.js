@@ -5,6 +5,7 @@ import { t } from '../strings.js';
 import { createPanel } from '../ui/modal.js';
 import { clear, h } from '../ui/dom.js';
 import { publicState } from '../table/lookup.js';
+import { tipButton } from '../ui/tip.js';
 
 const LOG_SHOWN = 3;
 
@@ -36,7 +37,7 @@ function questCard(quest) {
   return h(
     'li',
     { class: `jr-quest state-${quest.state}`, 'data-testid': 'journal-quest', 'data-state': quest.state, 'data-quest': quest.id },
-    h('div', { class: 'jr-quest-head' }, h('strong', {}, quest.title), h('span', { class: `tag jr-state ${quest.state}` }, tag)),
+    h('div', { class: 'jr-quest-head' }, h('strong', {}, quest.title), h('span', { class: `tag jr-state ${quest.state}` }, tag), quest.kind === 'favour' ? tipButton('journal:favours', t('journal.kind_favour')) : null),
     quest.giver ? h('p', { class: 'jr-giver hint' }, t('journal.giver', { name: quest.giver })) : null,
     quest.objective ? h('p', { class: 'jr-objective' }, t('journal.objective', { text: quest.objective })) : null,
     ticks(quest.steps_done, 'journal-steps'),
@@ -57,20 +58,22 @@ function mainCard(quest) {
   return h(
     'section',
     { class: 'jr-main', 'data-testid': 'journal-main', 'data-quest': quest.id },
-    h('p', { class: 'jr-main-label' }, t('journal.mainLabel')),
+    h('p', { class: 'jr-main-label' }, t('journal.mainLabel'), tipButton('journal:main-quest', t('journal.mainLabel'))),
     h('h4', { class: 'jr-main-title' }, quest.title),
     quest.objective ? h('p', { class: 'jr-objective' }, t('journal.objective', { text: quest.objective })) : null,
+    quest.routes.length ? h('p', { class: 'jr-ways-label hint' }, t('journal.ways'), tipButton('journal:ways', t('journal.ways'))) : null,
     quest.routes.length ? h('ul', { class: 'jr-list jr-routes' }, ...quest.routes.map(routeCard)) : null,
     logLines(quest.log),
   );
 }
 
 function group(key, items, testid) {
-  return [h('h4', { class: 'jr-group' }, t(`journal.group_${key}`), ` (${items.length})`), h('ul', { class: 'jr-list', 'data-testid': testid }, ...items)];
+  const tip = key === 'leads' ? tipButton('journal:leads', t('journal.group_leads')) : null;
+  return [h('h4', { class: 'jr-group' }, t(`journal.group_${key}`), ` (${items.length})`, tip), h('ul', { class: 'jr-list', 'data-testid': testid }, ...items)];
 }
 
 function leftGroup(quests, ui) {
-  const box = h('details', { class: 'jr-left', 'data-testid': 'journal-left', open: ui.leftOpen }, h('summary', { class: 'jr-group' }, t('journal.group_left'), ` (${quests.length})`), h('ul', { class: 'jr-list' }, ...quests.map(questCard)));
+  const box = h('details', { class: 'jr-left', 'data-testid': 'journal-left', open: ui.leftOpen }, h('summary', { class: 'jr-group' }, t('journal.group_left'), ` (${quests.length})`, tipButton('journal:left-behind', t('journal.group_left'))), h('ul', { class: 'jr-list' }, ...quests.map(questCard)));
   box.addEventListener('toggle', () => (ui.leftOpen = box.open));
   return [box];
 }

@@ -70,7 +70,9 @@ def test_journal_pins_the_main_quest_and_groups_the_rest(
     go_tab(host, "journal")
     host.wait_for_selector("[data-testid=journal-main]")
     assert (
-        host.locator("[data-testid=journal-main] .jr-main-label").inner_text().lower()
+        host.locator("[data-testid=journal-main] .jr-main-label")
+        .evaluate("(n) => n.firstChild.textContent")
+        .lower()
         == "main quest"
     )
     host.wait_for_selector("[data-testid=journal-route-steps]", timeout=20000)

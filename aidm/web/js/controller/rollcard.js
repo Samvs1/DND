@@ -8,6 +8,7 @@ import { stageModel } from '../show/stage.js';
 import { makeDie } from '../show/throw.js';
 import { t } from '../strings.js';
 import { h } from '../ui/dom.js';
+import { tipButton } from '../ui/tip.js';
 
 const LAND_MS = 1550; // the stage's fade-in (200), its reading pause (500) and the throw (850)
 const VERDICT_MS = 2250; // landing, settle, bonuses, then the verdict
@@ -35,6 +36,11 @@ export function mountRollCard(root, { store, pacer }) {
     die.classList.add('spin');
     const total = h('div', { class: 'rc-total', hidden: true }, `${m.face} ${m.parts.map((p) => `${p.value >= 0 ? '+' : '-'} ${Math.abs(p.value)}`).join(' ')} = `, h('b', {}, String(m.total)), ` ${t('show.vsDc', { n: m.dc })}`);
     const verdict = h('div', { class: `rc-verdict v-${m.verdict}`, hidden: true, 'data-testid': 'roll-card-verdict' }, t(`show.${m.verdict}`));
+    const term = (label, key) => h('span', { class: 'rc-term' }, label, tipButton(key, label));
+    const terms = h('div', { class: 'rc-terms', hidden: true, 'data-testid': 'roll-card-terms' },
+      m.tier ? term(t('show.dcTier', { tier: m.tier.replace(/_/g, ' ') }), `dc:${m.tier}`) : null,
+      m.adv && m.adv !== 'normal' ? term(t(`show.${m.adv}`), `word:${m.adv}`) : null,
+      m.verdict === 'nat20' || m.verdict === 'nat1' ? term(t(`show.${m.verdict}`), `word:${m.verdict}`) : null);
     const card = h(
       'section',
       { class: 'rc', role: 'status', 'aria-live': 'polite', 'data-testid': 'roll-card' },
@@ -43,6 +49,7 @@ export function mountRollCard(root, { store, pacer }) {
       h('div', { class: 'rc-die' }, die),
       total,
       verdict,
+      terms,
     );
     root.append(card);
     const two = m.rolls.length === 2 ? TWO_MS : 0;
@@ -58,6 +65,7 @@ export function mountRollCard(root, { store, pacer }) {
       setTimeout(() => {
         total.hidden = false;
         verdict.hidden = false;
+        terms.hidden = !terms.childElementCount;
       }, verdictAt),
       setTimeout(close, ms),
     ];

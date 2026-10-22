@@ -140,3 +140,15 @@ def test_golden_trait_darkvision() -> None:
     # SRD 5.1 Darkvision: dim light within 60 feet as if bright (dwarf, elf, ...).
     text = _text("trait:darkvision")
     assert "60 feet" in text and "A racial trait of the" in text and "Dwarf" in text
+
+
+def test_every_hotbar_action_slot_has_a_word_tip() -> None:
+    # Slot ids of aidm/web/js/combat/hotbar_slots.js; the Spells and Items openers have none.
+    slots = [
+        "attack", "throw", "shove-prone", "shove-push", "jump", "dash", "disengage", "dodge",
+        "hide", "help", "flee",
+    ]  # fmt: skip
+    tips = tips_payload()
+    for slot in slots:
+        assert f"word:{slot}" in tips, slot
+    assert "1d4" in str(tips["word:throw"]["lines"])

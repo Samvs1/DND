@@ -7,6 +7,7 @@
 import { mySeat } from '../state.js';
 import { t } from '../strings.js';
 import { clear, h } from '../ui/dom.js';
+import { tipButton } from '../ui/tip.js';
 import { publicState } from './lookup.js';
 
 export function mountFinale(root, { store, client }) {
@@ -18,7 +19,7 @@ export function mountFinale(root, { store, client }) {
   function choices(finale) {
     clear(box);
     box.append(
-      h('h3', {}, t('table.finaleTitle')),
+      h('h3', {}, t('table.finaleTitle'), tipButton('word:finale', t('table.finaleTitle'))),
       h('p', { class: 'dialog-text', 'data-testid': 'finale-question' }, finale.question),
       h(
         'div',

@@ -7,6 +7,7 @@ import { portraitSrc } from '../scribe/portrait.js';
 import { myHero, publicState } from '../table/lookup.js';
 import { t } from '../strings.js';
 import { clear, h } from '../ui/dom.js';
+import { tipButton } from '../ui/tip.js';
 
 const TOAST_MS = 6000;
 const REASON_TEXT = { scribe_defeated: 'scribe.defeated', scribe_paused: 'scribe.paused' };
@@ -24,7 +25,7 @@ function fallenCard(f, { gold, locked, onRevive }) {
   return h(
     'li',
     { class: 'sc-fallen', 'data-testid': 'scribe-fallen', 'data-id': f.creature_id },
-    h('div', { class: 'sc-fallen-head' }, h('strong', { 'data-testid': 'scribe-fallen-name' }, f.name), h('span', { class: 'hint' }, t('scribe.fallenLevel', { n: f.level })), h('span', { class: 'sc-price', 'data-testid': 'scribe-price' }, t('scribe.price', { n: f.price_gp }))),
+    h('div', { class: 'sc-fallen-head' }, h('strong', { 'data-testid': 'scribe-fallen-name' }, f.name), h('span', { class: 'hint' }, t('scribe.fallenLevel', { n: f.level })), h('span', { class: 'sc-price', 'data-testid': 'scribe-price' }, t('scribe.price', { n: f.price_gp })), tipButton('journal:scribe', t('scribe.name'))),
     locked ? h('button', { type: 'button', class: 'btn', disabled: true, 'data-testid': 'scribe-revive-off' }, t('scribe.revive')) : confirmButton({ label: t('scribe.revive'), ask, yes: t('scribe.confirmYes'), testid: 'scribe-revive', onYes: () => onRevive(f.creature_id) }),
     purse > 0 ? h('p', { class: 'hint', 'data-testid': 'scribe-purse' }, t('scribe.fromPurse', { n: purse, name: f.name, due })) : null,
     short && !locked ? h('p', { class: 'sc-warn', role: 'status', 'data-testid': 'scribe-gold-warn' }, t('scribe.youHave', { n: gold })) : null,
@@ -40,7 +41,7 @@ export function mountScribeTab(root, { store, client }, toastSlot) {
   const toast = h('div', { class: 'ct-toast', hidden: true, role: 'status', 'data-testid': 'scribe-toast' });
   toastSlot.append(toast);
   root.append(
-    h('header', { class: 'sc-head' }, portrait, h('div', {}, h('h2', { class: 'ct-h' }, t('scribe.name')), h('p', { class: 'sc-flavour', 'data-testid': 'scribe-flavour' }, t('scribe.flavour')))),
+    h('header', { class: 'sc-head' }, portrait, h('div', {}, h('h2', { class: 'ct-h' }, t('scribe.name'), tipButton('journal:scribe', t('scribe.name'))), h('p', { class: 'sc-flavour', 'data-testid': 'scribe-flavour' }, t('scribe.flavour')))),
     reason,
     hint,
     list,

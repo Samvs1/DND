@@ -131,3 +131,29 @@
 .ct-strip .hp-wrap > .tip-btn {
   margin-left: 0.2rem;
 }
+
+.ct-now-darkrow,
+.ct-now-noterow {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.ct-now-darkrow[hidden],
+.ct-now-noterow[hidden] {
+  display: none;
+}
+
+.rc-terms {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+}
+
+.rc-term {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+}

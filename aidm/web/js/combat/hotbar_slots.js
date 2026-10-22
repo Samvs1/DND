@@ -44,7 +44,7 @@ export function attackSlots(ctx) {
       tip: `${t(`hotbar.hand_${a.hand}`)}. ${t('hotbar.attackLine', { bonus: a.attack_bonus >= 0 ? `+${a.attack_bonus}` : a.attack_bonus, damage: a.damage })}. ${chanceText(chance)}`,
       off: can ? null : offhand ? 'no_bonus_action' : 'no_action',
       run: () => (target ? ctrl.send(attack(target)) : aimAt(ctrl, [{ need: 'creature', valid: foe, prompt: t('combat.pickTarget') }], (p) => attack(p[0][0]))),
-      tipKey: a.item ? `item:${a.item}` : null,
+      tipKey: a.item ? `item:${a.item}` : 'word:attack',
       kind: ATTACK_KEYS.has(a.hand) ? 'attack' : 'bonus',
     });
   }
@@ -75,7 +75,7 @@ function engaged({ combat, econ, me }) {
 export function moveSlots(ctx) {
   const { ctrl, econ, me } = ctx;
   const needsAction = econ.action ? null : 'no_action';
-  const pick = (id, steps, build, group = 'moves', off = needsAction) => ({ id, group, label: t(`hotbar.${id}`), tip: t(`hotbar.tip_${id}`), tipKey: id === 'help' ? 'word:help' : null, off, run: () => aimAt(ctrl, steps, build) });
+  const pick = (id, steps, build, group = 'moves', off = needsAction) => ({ id, group, label: t(`hotbar.${id}`), tip: t(`hotbar.tip_${id}`), tipKey: `word:${id}`, off, run: () => aimAt(ctrl, steps, build) });
   return [
     simple('dash', 'dash', ctx),
     simple('disengage', 'disengage', ctx),
@@ -114,15 +114,15 @@ export function bonusSlots(ctx) {
   const noBonus = econ.bonus_action ? null : 'no_bonus_action';
   const out = [
     {
-      id: 'shove-prone', group: 'bonus', label: t('hotbar.shoveProne'), tip: t('hotbar.tip_shove'), off: noBonus,
+      id: 'shove-prone', tipKey: 'word:shove-prone', group: 'bonus', label: t('hotbar.shoveProne'), tip: t('hotbar.tip_shove'), off: noBonus,
       run: () => aimAt(ctrl, [{ need: 'creature', valid: foe, prompt: t('combat.pickTarget') }], (p) => ({ type: 'shove', actor_id: me, target_id: p[0][0], mode: 'prone' })),
     },
     {
-      id: 'shove-push', group: 'bonus', label: t('hotbar.shovePush'), tip: t('hotbar.tip_shove_push'), off: noBonus,
+      id: 'shove-push', tipKey: 'word:shove-push', group: 'bonus', label: t('hotbar.shovePush'), tip: t('hotbar.tip_shove_push'), off: noBonus,
       run: () => aimAt(ctrl, [{ need: 'creature', valid: foe, prompt: t('combat.pickTarget') }, { need: 'zone', prompt: t('combat.pickPush') }], (p) => ({ type: 'shove', actor_id: me, target_id: p[0][0], mode: 'push', to_zone: p[1][0] })),
     },
     {
-      id: 'jump', group: 'bonus', label: t('hotbar.jump'), tip: t('hotbar.tip_jump'), off: noBonus,
+      id: 'jump', tipKey: 'word:jump', group: 'bonus', label: t('hotbar.jump'), tip: t('hotbar.tip_jump'), off: noBonus,
       run: () => aimAt(ctrl, [{ need: 'zone', prompt: t('combat.pickZone') }], (p) => ({ type: 'jump', actor_id: me, zone_id: p[0][0] })),
     },
   ];
