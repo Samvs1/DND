@@ -41,8 +41,11 @@ export function mountScene(root, store) {
     goal.textContent = text ? t('table.objective', { text }) : '';
     goal.hidden = !text;
     paused.hidden = !view.paused;
+    const lit = Boolean(view.scene?.lit);
     badge.hidden = !view.scene?.dark;
-    picture.classList.toggle('is-dark', Boolean(view.scene?.dark));
+    badge.textContent = lit ? t('light.litBadge') : t('light.dark');
+    badge.classList.toggle('is-lit', lit);
+    picture.classList.toggle('is-dark', Boolean(view.scene?.dark) && !lit);
   }
   render(store.get());
   return store.subscribe(render);

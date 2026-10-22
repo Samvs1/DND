@@ -46,13 +46,7 @@ from aidm.models.protocol_server import (
     QueueState,
     Snapshot,
 )
-from aidm.models.protocol_views import (
-    AudioSettings,
-    FloorView,
-    PlayerInfo,
-    QueueEntry,
-    TablePhase,
-)
+from aidm.models.protocol_views import AudioSettings, FloorView, PlayerInfo, QueueEntry, TablePhase
 from aidm.models.state import Creature, GameState
 from aidm.models.world_events import LevelUpReady, PartyMoved
 from aidm.session.persistence import CampaignStore, SeatRecord, TableMeta, new_game_state
@@ -250,12 +244,15 @@ class TableCore:
             self.segment.append(event)
         if isinstance(event, PartyMoved):
             self.mark_due = True
+        if (done := self.public.spell_before(self.state, event)) is not None:  # M27.11
+            self.broadcast(done)
         dice = self.public.add_roll(seq, event)  # the dice lead (the screen holds the line)
         if dice is not None:
             self.broadcast(DiceRoll(seq=seq, dice=dice))
         public = self.public.add_event(self.state, seq, event)
         if public is not None:
             self.broadcast(public)
+        self.public.spell_after(self.state, seq, event)
         if isinstance(event, LevelUpReady):
             owner = self.owner_of(event.creature_id)
             if owner is not None:
@@ -286,6 +283,8 @@ class TableCore:
         `saves/<campaign_id>/`. Called after every job and seat change. A failing disk never stops
         the game: the events stay buffered for the next try and the host gets one notice. Returns
         True when written (`force` also saves a table that has no events yet)."""
+        if (last := self.public.spell_flush(self.state)) is not None:  # a cast ended the job
+            self.broadcast(last)
         store = self.config.store
         cid = self.save_id or self.state.campaign_id
         if store is None or (not force and not self.log and not store.exists(cid)):

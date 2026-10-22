@@ -45,7 +45,7 @@ export function topOf(state) {
     const view = publicState(state);
     const tier = `region_banner.tier${clamp(view?.region_tier || 1, 1, 3)}`;
     const terrain = view?.scene?.terrain;
-    return { tab, sec: 'teal', ribbon: view?.scene?.name || t('ct.tab_play'), art: terrain ? [`region_banner.${terrain}`, tier] : tier, caption: '', dark: Boolean(view?.scene?.dark) };
+    return { tab, sec: 'teal', ribbon: view?.scene?.name || t('ct.tab_play'), art: terrain ? [`region_banner.${terrain}`, tier] : tier, caption: '', dark: Boolean(view?.scene?.dark), lit: Boolean(view?.scene?.lit) };
   }
   const fixed = FIXED[tab];
   const hero = myHero(state);
@@ -96,7 +96,9 @@ export function mountTopper(root, store) {
       img.dataset.fit = top.tab === 'play' && top.sec === 'crimson' ? 'zone' : top.tab;
       place.textContent = top.caption;
       badge.hidden = !top.dark;
-      pic.classList.toggle('is-dark', Boolean(top.dark));
+      badge.textContent = top.lit ? t('light.litBadge') : t('light.dark');
+      badge.classList.toggle('is-lit', Boolean(top.lit));
+      pic.classList.toggle('is-dark', Boolean(top.dark) && !top.lit);
     }
     tick(state);
   }

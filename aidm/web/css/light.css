@@ -172,3 +172,9 @@
   font-size: 0.75rem;
   white-space: nowrap;
 }
+
+.dark-badge.is-lit {
+  color: #3a2200;
+  background: #f0b64a;
+  border-color: #ffd98a;
+}

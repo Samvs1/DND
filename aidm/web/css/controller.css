@@ -1080,3 +1080,10 @@ body.is-controller #app {
   border-color: #ecc764;
   color: #fff3c4;
 }
+
+.fc-tag {
+  margin-top: 0.15rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  color: #cfcff5;
+}

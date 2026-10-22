@@ -112,3 +112,18 @@ def test_darkvision_comes_from_the_race() -> None:
     human = build_character(default_choices("fighter", "human", None), regs, "human")
     assert public_creature(elf, _at(CAVE)).darkvision == 60
     assert public_creature(human, _at(CAVE)).darkvision == 0
+
+
+def test_a_dark_place_with_a_carried_light_says_lit() -> None:
+    cave = _at(CAVE)
+    cave.creatures["hero"] = make_pc("hero")
+    scene = public_scene(cave)
+    assert scene is not None and scene.dark and scene.lit == ""  # unlit: still just dark
+    apply(cave, LightLit(creature_id="hero", item="torch"))
+    lit = public_scene(cave)
+    assert lit is not None and lit.dark and lit.lit == "Torch"
+    docks = _at(DOCKS)
+    docks.creatures["hero"] = make_pc("hero")
+    apply(docks, LightLit(creature_id="hero", item="torch"))
+    day = public_scene(docks)
+    assert day is not None and not day.dark and day.lit == ""  # a light in daylight is not news

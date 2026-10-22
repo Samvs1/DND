@@ -5,14 +5,32 @@
 import { assetUrl } from '../assets.js';
 import { t } from '../strings.js';
 import { clear, h } from '../ui/dom.js';
+import { keptIndex } from '../table/dice.js';
 import { natural } from './timing.js';
 import { diceSides } from './board.js';
 import { spriteKey } from './throw.js';
+import { advTag } from './words.js';
 
 const MAX_LINES = 6;
 
 function miniDie(kind, value) {
   return h('span', { class: 'sr-die' }, h('img', { src: assetUrl(spriteKey(kind)), alt: '' }), h('b', {}, String(value)));
+}
+
+/** One mini d20, or two when the roll had advantage or disadvantage (the dropped one dimmed). */
+function d20s(kind, dice) {
+  const kept = keptIndex(dice);
+  if (kept < 0) return [miniDie(kind, natural(dice))];
+  return dice.rolls.map((v, i) => {
+    const die = miniDie(kind, v);
+    if (i !== kept) die.classList.add('dropped');
+    return die;
+  });
+}
+
+function tagChip(dice) {
+  const text = advTag(dice);
+  return text ? h('span', { class: 'sr-tag', 'data-testid': 'adv-tag' }, text) : null;
 }
 
 function chip(word, tone) {
@@ -33,8 +51,8 @@ export function mountRoundLog({ strip, list }) {
     strip.append(...nodes);
   }
 
-  function addLine(kind, value, text, word, tone) {
-    const row = h('div', { class: 'sr-line', 'data-testid': 'round-line' }, miniDie(kind, value), h('span', { class: 'sr-text' }, text), chip(word, tone));
+  function addLine(kind, dice, text, word, tone) {
+    const row = h('div', { class: 'sr-line', 'data-testid': 'round-line' }, h('span', { class: 'sr-dice' }, ...d20s(kind, dice)), h('span', { class: 'sr-text' }, text, tagChip(dice)), chip(word, tone));
     lines.prepend(row);
     while (lines.children.length > MAX_LINES) lines.lastChild.remove();
     lastLine = row;
@@ -47,11 +65,12 @@ export function mountRoundLog({ strip, list }) {
     stripStart(
       h('span', {}, h('b', {}, who), ` ${t('show.at', { name: at })}`),
       h('span', { class: 'sr-arrow' }, '>'),
-      miniDie(kind, natural(dice)),
+      ...d20s(kind, dice),
       h('span', {}, `${signed(dice.modifier)} = `, h('b', {}, String(dice.total)), ` ${t('show.vsAc', { n: dice.target })}`),
+      tagChip(dice),
       chip(verdict.word, verdict.tone),
     );
-    addLine(kind, natural(dice), `${who} ${t('show.at', { name: at })}`, verdict.word, verdict.tone);
+    addLine(kind, dice, `${who} ${t('show.at', { name: at })}`, verdict.word, verdict.tone);
   }
 
   function onRolled({ dice, type }) {
@@ -61,8 +80,16 @@ export function mountRoundLog({ strip, list }) {
   }
 
   function onSave({ dice, verdict, name, ours }) {
-    stripStart(h('span', {}, h('b', {}, name(dice.roller_id)), ` ${dice.label}`), h('span', { class: 'sr-arrow' }, '>'), miniDie(ours ? 'hero' : 'foe', natural(dice)), h('span', {}, `= `, h('b', {}, String(dice.total)), ` ${t('show.vsDc', { n: dice.target })}`), chip(verdict.word, verdict.tone));
-    addLine(ours ? 'hero' : 'foe', natural(dice), `${name(dice.roller_id)} ${dice.label}`, verdict.word, verdict.tone);
+    stripStart(h('span', {}, h('b', {}, name(dice.roller_id)), ` ${dice.label}`), h('span', { class: 'sr-arrow' }, '>'), ...d20s(ours ? 'hero' : 'foe', dice), h('span', {}, `= `, h('b', {}, String(dice.total)), ` ${t('show.vsDc', { n: dice.target })}`), tagChip(dice), chip(verdict.word, verdict.tone));
+    addLine(ours ? 'hero' : 'foe', dice, `${name(dice.roller_id)} ${dice.label}`, verdict.word, verdict.tone);
+  }
+
+  function onSpell({ line }) {
+    stripStart(h('span', { 'data-testid': 'spell-line' }, line));
+    const row = h('div', { class: 'sr-line sr-spell', 'data-testid': 'round-line' }, h('span', { class: 'sr-text' }, line));
+    lines.prepend(row);
+    while (lines.children.length > MAX_LINES) lines.lastChild.remove();
+    lastLine = null;
   }
 
   function onTaken({ amount }) {
@@ -82,6 +109,7 @@ export function mountRoundLog({ strip, list }) {
       if (step.type === 'attack') onAttack(step);
       else if (step.type === 'damage' || step.type === 'heal') onRolled(step);
       else if (step.type === 'save' || step.type === 'check' || step.type === 'death_save') onSave(step);
+      else if (step.type === 'spell') onSpell(step);
       else if (step.type === 'taken') onTaken(step);
       else if (step.type === 'fell') onFell(step);
     },

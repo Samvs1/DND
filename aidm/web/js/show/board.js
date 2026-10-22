@@ -6,7 +6,7 @@
 import { creatureName } from '../table/lookup.js';
 import { h } from '../ui/dom.js';
 import { showClock } from './clock.js';
-import { natural } from './timing.js';
+import { natural, SPELL_LINE_MS } from './timing.js';
 import { flicker, makeDie } from './throw.js';
 import { boardVerdict, onPartySide } from './words.js';
 
@@ -214,7 +214,9 @@ export function createBoardShows({ layer, store, sfx, onStep }) {
   /** Damage taken on a creature: the number floats up and its HP bars drain (until the state arrives). */
   function onBody(msg) {
     const id = msg.subject_id;
-    if (msg.kind === 'damage_taken' && msg.amount) {
+    if (msg.kind === 'spell_cast') {
+      onStep?.({ type: 'spell', line: msg.line });
+    } else if (msg.kind === 'damage_taken' && msg.amount) {
       float(id, { num: `-${msg.amount}`, hurt: true });
       drain(id, -msg.amount);
       onStep?.({ type: 'taken', id, amount: msg.amount, name });
@@ -239,7 +241,7 @@ export function createBoardShows({ layer, store, sfx, onStep }) {
       const clock = showClock(scale, signal);
       if (msg.type === 'event') {
         onBody(msg);
-        return clock.wait(500);
+        return clock.wait(msg.kind === 'spell_cast' ? SPELL_LINE_MS : 500);
       }
       const dice = msg.dice;
       if (dice.kind === 'attack') return attack(dice, clock);

@@ -58,7 +58,7 @@ from aidm.rules.shop import StockEntry
 from aidm.rules.social import public_npc_view
 from aidm.rules.zones import zone_is_difficult
 from aidm.session.public_feed import leaks, private_texts
-from aidm.session.views_light import hero_extras, lock_tier, zone_extras
+from aidm.session.views_light import hero_extras, lock_tier, place_lit_name, zone_extras
 from aidm.session.views_quests import public_finale, public_leads, public_quests
 
 MAX_PUBLIC_FACTS = 12
@@ -124,6 +124,7 @@ def public_scene(state: GameState) -> PublicScene | None:
         features=features,
         items=tuple(world.items[iid].name for iid in scene.item_ids),
         dark=node_dark(state, scene.node_id),
+        lit=place_lit_name(state, scene.node_id),
         shop_npc_id=world.shop_npc_id,
         shopkeepers=tuple(
             n.id

@@ -17,6 +17,7 @@ export const SAVE_MS = 900; // a die drops under the saver, its verdict floats
 export const DEATH_SAVE_MS = 1300;
 export const HEAL_MS = 700;
 export const OTHER_ROLL_MS = 400;
+export const SPELL_LINE_MS = 1400; // a spell with no roll: its one line on the strip
 export const FLOAT_MS = 500; // damage taken or a creature falling, on the board
 const STAGE_KINDS = new Set(['check', 'save', 'death_save']);
 
@@ -66,6 +67,7 @@ function boardMs(dice) {
 /** The full-speed hold of one message, in ms (0 = no show). */
 export function nominalMs(msg, combat) {
   if (msg.type === 'dice_roll' && msg.dice) return isStageRoll(msg.dice, combat) ? stageMs(msg.dice) : boardMs(msg.dice);
+  if (combat && msg.type === 'event' && msg.kind === 'spell_cast') return SPELL_LINE_MS;
   if (combat && msg.type === 'event' && msg.subject_id && (msg.kind === 'damage_taken' || msg.kind === 'creature_died')) return FLOAT_MS;
   return 0;
 }

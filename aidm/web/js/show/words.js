@@ -47,3 +47,11 @@ export function boardVerdict(dice, state, name) {
   }
   return dice.success ? { word: t('show.resisted'), tone: 'bad' } : { word: t('show.caught'), tone: 'good' };
 }
+
+/** "DIS · Darkness" / "ADV · Hidden" for a roll that had advantage or disadvantage, else ''. */
+export function advTag(dice) {
+  if (dice.adv !== 'advantage' && dice.adv !== 'disadvantage') return '';
+  const tag = t(dice.adv === 'advantage' ? 'show.advShort' : 'show.disShort');
+  const why = (dice.adv_why || []).join(', ');
+  return why ? t('show.advTag', { tag, why }) : tag;
+}

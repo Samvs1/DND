@@ -13,7 +13,14 @@ from aidm.models.state import Creature, GameState
 from aidm.models.world import ActiveBoon, WorldFeature
 from aidm.rules.boons import hero_boons
 from aidm.rules.item_effects import gear_name
-from aidm.rules.light import hero_light, light_reach_zones, lit_zones, place_dark
+from aidm.rules.light import (
+    hero_light,
+    light_reach_zones,
+    lit_zones,
+    node_dark,
+    place_dark,
+    place_light,
+)
 
 
 def _boon(boon: ActiveBoon) -> PublicBoon:
@@ -43,6 +50,14 @@ def zone_extras(state: GameState, zone_id: str) -> dict[str, Any]:
         if zone_id in light_reach_zones(state, light.creature_id, light.reach)
     )
     return {"dark": True, "lit": zone_id in lit_zones(state), "lit_by": bearers}
+
+
+def place_lit_name(state: GameState, node_id: str) -> str:
+    """M27.11: "Torch" when the place is dark and a hero carries a light here, else ""."""
+    light = place_light(state)
+    if light is None or not node_dark(state, node_id):
+        return ""
+    return gear_name(light.item)
 
 
 def lock_tier(feature: WorldFeature) -> str:

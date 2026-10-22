@@ -570,7 +570,7 @@
 
 .sr-line {
   display: grid;
-  grid-template-columns: 2rem minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.5rem;
   min-height: 2.4rem;
@@ -597,4 +597,43 @@
   .sr-line {
     animation: none;
   }
+}
+
+.sr-dice {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.sr-die.dropped {
+  opacity: 0.4;
+}
+
+.sr-tag {
+  margin-left: 0.4rem;
+  padding: 0 0.35rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: #dcdcff;
+  border: 1px solid #6c6cc0;
+  white-space: nowrap;
+}
+
+.sr-line .sr-text:has(.sr-tag) {
+  white-space: normal;
+}
+
+.sr-line .sr-tag {
+  display: block;
+  width: fit-content;
+  margin: 0.1rem 0 0;
+}
+
+.sr-spell {
+  grid-template-columns: minmax(0, 1fr);
+  padding: 0.3rem 0;
+}
+
+.sr-spell .sr-text {
+  font-style: italic;
+  white-space: normal;
 }

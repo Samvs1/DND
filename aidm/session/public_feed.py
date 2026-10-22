@@ -41,6 +41,7 @@ from aidm.models.world import WorldNpc
 from aidm.models.world_events import ActionDeclared, NarrationRecorded
 from aidm.session.dice_view import dice_view, event_subject
 from aidm.session.reducer import apply as reduce
+from aidm.session.spell_line import SpellLine
 
 MIN_PRIVATE_CHARS = 4
 MAX_NARRATIONS = 24
@@ -120,6 +121,22 @@ class PublicFeed:
     actions: deque[StoryEntry] = field(
         default_factory=lambda: deque[StoryEntry](maxlen=MAX_ACTIONS)
     )
+    spell: SpellLine = field(default_factory=SpellLine)
+
+    def spell_before(self, state: GameState, event: AnyEvent) -> EventMsg | None:
+        """M27.11: the summary of a roll-less spell, once `event` shows the cast is over."""
+        return self._keep(self.spell.before(state, event))
+
+    def spell_flush(self, state: GameState) -> EventMsg | None:
+        return self._keep(self.spell.finish(state))
+
+    def spell_after(self, state: GameState, seq: int, event: AnyEvent) -> None:
+        self.spell.after(state, seq, event)
+
+    def _keep(self, msg: EventMsg | None) -> EventMsg | None:
+        if msg is not None:
+            self.events.append(msg)
+        return msg
 
     def add_event(
         self, state: GameState, seq: int, event: AnyEvent
@@ -173,9 +190,12 @@ class PublicFeed:
         state = initial.model_copy(deep=True)
         for entry in log:
             reduce(state, entry.event)
+            feed.spell_before(state, entry.event)
             feed.add_roll(entry.seq, entry.event)
             if isinstance(entry.event, NarrationRecorded):
                 feed.add_narration(f"h{entry.seq}", entry.event.text, None, entry.seq)
             else:
                 feed.add_event(state, entry.seq, entry.event)
+            feed.spell_after(state, entry.seq, entry.event)
+        feed.spell_flush(state)
         return feed

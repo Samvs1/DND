@@ -127,6 +127,7 @@ class PublicScene(_View):
     shop_npc_id: str | None = None
     shopkeepers: tuple[str, ...] = ()
     dark: bool = False  # M27.8: the place is dark by terrain (`rules.light.node_dark`)
+    lit: str = ""  # M27.11: short name of the light a hero carries here (dark place only)
 
 
 class MapNode(_View):

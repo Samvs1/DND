@@ -5426,6 +5426,11 @@
               "title": "Items",
               "type": "array"
             },
+            "lit": {
+              "default": "",
+              "title": "Lit",
+              "type": "string"
+            },
             "name": {
               "title": "Name",
               "type": "string"

@@ -7,7 +7,7 @@ import { lightChip, putOutButton } from '../table/light.js';
 import { t } from '../strings.js';
 import { h } from '../ui/dom.js';
 
-const NOTE_KINDS = new Set(['light_lit', 'light_ended', 'encounter_started']);
+const NOTE_KINDS = new Set(['light_lit', 'light_ended', 'encounter_started', 'place_alerted']);
 const NOTE_MS = 15000;
 
 export function mountLightCard(root, { store, story, client }) {
@@ -21,6 +21,8 @@ export function mountLightCard(root, { store, story, client }) {
   function render(state) {
     const view = publicState(state);
     const hero = myHero(state);
+    const lit = view?.scene?.lit;
+    dark.textContent = lit ? t('light.litHere', { name: lit.toLowerCase() }) : t('light.darkHere');
     dark.hidden = !(view?.scene?.dark && !view.combat);
     const key = JSON.stringify([hero?.light, hero?.boons]);
     if (key === last) return;
