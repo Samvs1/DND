@@ -119,7 +119,14 @@ def _condition_ctx(state: GameState, actor: Creature, target: str) -> UseCtx:
     return UseCtx(state, actor, pc.inventory[0], use_def, target, random.Random(1), False)
 
 
-def test_condition_effect_applies_and_refuses_when_nothing_changes() -> None:
+def _no_effect(events: list[AnyEvent]) -> ItemUsed:
+    """The use happened and changed nothing (data adds effects, never forbids: owner 2026-10-22)."""
+    used = next(e for e in events if isinstance(e, ItemUsed))
+    assert used.no_effect, used
+    return used
+
+
+def test_condition_effect_applies_and_does_nothing_when_already_held() -> None:
     me = hero(gear=["net"])
     state = gear_fight(CAVE, me, (monster("gob"), Side.HOSTILE, "b"))
     events = effect_events(_condition_ctx(state, me, "gob"))
@@ -127,7 +134,7 @@ def test_condition_effect_applies_and_refuses_when_nothing_changes() -> None:
     applied = [e for e in events if isinstance(e, ConditionApplied)]
     assert applied[0].condition.name == "restrained"
     run(state, events)
-    assert "already restrained" in str(effect_events(_condition_ctx(state, me, "gob")))
+    assert effect_events(_condition_ctx(state, me, "gob")) == []  # happens, changes nothing
     far = gear_fight(CAVE, me, (monster("gob"), Side.HOSTILE, "c"))
     assert "out of reach" in str(effect_events(_condition_ctx(far, me, "gob")))
     assert "Name a living creature" in str(effect_events(_condition_ctx(far, me, "nobody")))
@@ -144,7 +151,9 @@ def test_fishing_at_water_gives_supplies_once_per_place() -> None:
     assert next(e for e in events if isinstance(e, ItemUsed)).forage
     run(state, events)
     assert state.world.foraged == [DOCKS]
-    assert "already given" in refusal(use(state, "fishing-tackle"))
+    again = use(state, "fishing-tackle")  # owner 2026-10-22: it happens and finds nothing
+    assert _no_effect(again).forage
+    assert not any(isinstance(e, CheckResolved | CampSuppliesChanged) for e in again)
 
 
 def test_a_failed_hunt_gives_nothing_but_spends_the_place() -> None:
@@ -164,7 +173,8 @@ def test_healers_kit_stabilizes_a_dying_ally_without_a_check() -> None:
     assert any(isinstance(e, Stabilized) for e in events)
     assert not any(isinstance(e, CheckResolved) for e in events)
     healthy = at(DOCKS, hero(gear=["healers-kit"]), hero("ally"))
-    assert "not a dying ally" in refusal(use(healthy, "healers-kit", "ally"))
+    spent = _no_effect(use(healthy, "healers-kit", "ally"))  # a charge spent for nothing
+    assert spent.spends_charge
 
 
 def test_healers_kit_in_a_fight_needs_the_ally_in_your_zone() -> None:
@@ -175,7 +185,7 @@ def test_healers_kit_in_a_fight_needs_the_ally_in_your_zone() -> None:
     foe = monster("gob")
     foe.hp = 0
     state = gear_fight(CAVE, hero(gear=["healers-kit"]), (foe, Side.HOSTILE, "a"))
-    assert "not a dying ally" in refusal(use(state, "healers-kit", "gob"))
+    assert _no_effect(use(state, "healers-kit", "gob")).spends_charge
 
 
 def test_herbalism_crafts_a_poultice_at_a_long_rest_with_the_proficiency() -> None:
@@ -204,7 +214,8 @@ def test_cartographers_tools_chart_the_ways_out() -> None:
     assert shown is not None
     names = {n.id: n.name for n in shown.nodes}
     assert all(names[n] != "Unexplored" for n in unknown)
-    assert "already known" in refusal(use(state, "cartographers-tools"))
+    assert not any(isinstance(e, PlacesCharted) for e in use(state, "cartographers-tools"))
+    assert _no_effect(use(state, "cartographers-tools")).use_id == "cartographers-tools-chart"
 
 
 def test_alerted_place_blocks_the_party_s_surprise() -> None:

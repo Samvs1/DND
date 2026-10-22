@@ -8,17 +8,28 @@ with the item's own damage (dice and type from data, no ability modifier: the ge
 the liquid's, not the throw's). `rules.attacks.resolve_attack` rolls it: darkness, cover,
 conditions, crits and the one damage path (resistances, immunities, temp HP) all apply.
 
-Order on a hit (the one place to extend; part B of M27.6 adds the substance weakness here):
+`DamageUse.ability_mod` adds the thrower's STR modifier to the damage (the SRD improvised throw
+of an item without a listed use, `item_uses.improvised_use`: 1d4 + STR bludgeoning). A flat
+`dice` ("1") is a flat amount (a lit torch: SRD 5.1 Torch, 1 fire damage).
+
+Order on a hit:
 1. the item's own damage (the attack path above);
 2. the effect's `condition` (alchemist's fire: burning; `apply_condition`, immunities apply);
-3. `_on_hit_extras` (empty today): the hook for further per-hit consequences.
-A target whose creature type is not in `creature_types` (holy water: undead, fiend) is refused
-before anything is spent: the use would change nothing.
+3. `_on_hit_extras`: the substance weakness (`rules.weaknesses`, the item's `substances`).
+Data adds effects, it never forbids the throw (owner, 2026-10-22): a target whose creature type
+is not in `creature_types` (holy water: undead, fiend) is still attacked; the attack roll is made
+and the flask is spent, but a hit deals none of the item's damage nor its condition (SRD 5.1 Holy
+Water: only a fiend or undead takes the 2d6 radiant); the substance weakness still applies.
+Refused (a str, nothing spent) only when impossible: no fight, no creature of this fight named,
+a target the thrower may not attack, or out of range.
 
 Public API: `throw_profile_for(creature, name, effect) -> AttackProfile`,
-`thrown_item_events(rng, state, actor_id, target_id, name, effect, feats) -> list[AnyEvent] | str`
-(`state` already includes the use's spent action; a str is the refusal message).
+`effect_applies(target, effect) -> bool`, `thrown_item_events(rng, state, actor_id, target_id,
+name, effect, feats, substances=()) -> list[AnyEvent] | str` (`state` already includes the
+use's spent action; a str is the refusal message).
 """
+
+from collections.abc import Sequence
 
 from aidm.data.feature_defs import FeatureDef
 from aidm.data.item_uses import DamageUse
@@ -31,8 +42,8 @@ from aidm.models.events import AnyEvent
 from aidm.models.features import AttackContext
 from aidm.models.state import Creature, GameState
 from aidm.rules.abilities import ability_modifier
-from aidm.rules.attack_profiles import IMPROVISED_RANGE, THROW_KEY, weapon_die
-from aidm.rules.attacks import AttackResult, resolve_attack
+from aidm.rules.attack_profiles import IMPROVISED_RANGE, THROW_KEY, weapon_die, with_mod
+from aidm.rules.attacks import AttackResult, resolve_attack, roll_attack
 from aidm.rules.command_checks import changed
 from aidm.rules.condition_timing import apply_condition, new_condition
 from aidm.rules.conditions import can_attack_target
@@ -40,15 +51,17 @@ from aidm.rules.dice import Rng
 from aidm.rules.hit_chance import attack_situation
 from aidm.rules.monster_stats import creature_type_of
 from aidm.rules.projection import project_state
+from aidm.rules.weaknesses import substance_weakness_events
 
 
 def throw_profile_for(creature: Creature, name: str, effect: DamageUse) -> AttackProfile:
     normal, long = IMPROVISED_RANGE
+    mod = ability_modifier(creature.abilities[Ability.STR])
     return AttackProfile(
         key=THROW_KEY,
         name=f"Throw {name}",
-        attack_bonus=ability_modifier(creature.abilities[Ability.STR]),
-        damage=effect.dice,
+        attack_bonus=mod,
+        damage=with_mod(effect.dice, mod) if effect.ability_mod else effect.dice,
         damage_type=DamageType(effect.damage_type),
         ranged=True,
         range_normal=normal,
@@ -70,11 +83,12 @@ def _target_problem(
         return f"Name a creature in this fight to throw the {name} at."
     if target.id == actor_id or not can_attack_target(state.creatures[actor_id], target):
         return f"{state.creatures[actor_id].name} cannot throw the {name} at {target.name}."
-    kind = creature_type_of(target)
-    if effect.creature_types and kind not in effect.creature_types:
-        harms = " and ".join(f"{t}s" for t in effect.creature_types)
-        return f"The {name} only harms {harms}; {target.name} is neither, it changes nothing."
     return target
+
+
+def effect_applies(target: Creature, effect: DamageUse) -> bool:
+    """The item's own damage and condition reach this creature (`creature_types`, empty: any)."""
+    return not effect.creature_types or creature_type_of(target) in effect.creature_types
 
 
 def _riders(state: GameState, actor_id: str, result: AttackResult, label: str) -> list[AnyEvent]:
@@ -87,11 +101,15 @@ def _riders(state: GameState, actor_id: str, result: AttackResult, label: str) -
 
 
 def _on_hit_extras(
-    state: GameState, actor_id: str, target_id: str, effect: DamageUse
+    rng: Rng,
+    state: GameState,
+    hit: tuple[str, str],
+    substances: Sequence[str],
+    feats: Registry[FeatureDef],
 ) -> list[AnyEvent]:
-    """Further consequences of a hit (M27.6 part B: the substance weakness goes here)."""
-    del state, actor_id, target_id, effect
-    return []
+    """Further consequences of a hit: the substance weakness (`rules.weaknesses`)."""
+    actor_id, target_id = hit
+    return substance_weakness_events(rng, state, actor_id, target_id, substances, feats)
 
 
 def thrown_item_events(
@@ -102,6 +120,7 @@ def thrown_item_events(
     name: str,
     effect: DamageUse,
     feats: Registry[FeatureDef],
+    substances: Sequence[str] = (),
 ) -> list[AnyEvent] | str:
     target = _target_problem(state, actor_id, target_id, effect, name)
     if isinstance(target, str):
@@ -111,13 +130,19 @@ def thrown_item_events(
     situation = attack_situation(state, actor_id, target.id, profile, feats)
     if not situation.range_check.in_range:
         return f"{target.name} is too far for the {name}: your zone or a touching one."
-    result = resolve_attack(rng, state, actor_id, target.id, profile, feats)
+    applies = effect_applies(target, effect)
+    if applies:
+        result = resolve_attack(rng, state, actor_id, target.id, profile, feats)
+    else:  # the throw happens; the item's own damage does not reach this creature
+        rolled = roll_attack(rng, state, actor_id, target.id, profile, feats)
+        result = AttackResult(events=rolled.events, hit=rolled.hit, crit=rolled.crit)
     events = [*_riders(state, actor_id, result, profile.name), *result.events]
     if not result.hit:
         return events
     after = project_state(state, events)
-    if effect.condition is not None:
+    if effect.condition is not None and applies and not after.creatures[target.id].dead:
         mark = new_condition(effect.condition, source_id=actor_id)
         events.extend(apply_condition(after.creatures[target.id], mark))
-    events.extend(_on_hit_extras(project_state(state, events), actor_id, target.id, effect))
+    hit = (actor_id, target.id)
+    events.extend(_on_hit_extras(rng, project_state(state, events), hit, substances, feats))
     return events

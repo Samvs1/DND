@@ -1,0 +1,10 @@
+{
+ "fire-elemental": {
+  "water": {
+   "trait": "Water Susceptibility",
+   "amount": 1,
+   "damage_type": "cold",
+   "source": "SRD 5.1 Fire Elemental, Water Susceptibility: for every gallon of water splashed on it, it takes 1 cold damage (one thrown or poured container counts as one gallon, docs/RULES_DECISIONS.md M27.6)"
+  }
+ }
+}

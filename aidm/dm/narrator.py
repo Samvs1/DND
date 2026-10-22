@@ -7,8 +7,8 @@ beat (`narration_weight`, M19.1: 1-2, 2-3 or 3-5 sentences, the stream bounded t
 reusing what was already narrated; second person plural or character names, no mechanics
 numbers unless the player asked for them (`allow_numbers`). When nothing changed, or a fight has
 only just begun, the facts say so, so the model cannot tell an outcome the engine did not produce.
-A refused gear use (`use_item` tool error, M27.5) is a fact told as an attempt (`TRIED`), never
-as a result.
+A refused gear use (`use_item` tool error, M27.5; a creative effect's `GEAR_REFUSED`, M27.6) is
+a fact told as an attempt (`TRIED`), never as a result.
 Every sentence passes THE guard (`aidm.dm.guard`, default `prose_checker(state, events)`)
 before it is yielded: one regeneration with a correction and scrubbed names, then the template.
 Without a model (no key, outage, timeout, empty answer) the stream falls back to the
@@ -41,6 +41,7 @@ from typing import Any
 from aidm.dm.adjudicator import AdjudicationResult
 from aidm.dm.context import DEFAULT_BUDGET_TOKENS, build_context, to_messages
 from aidm.dm.context_text import ContextPurpose
+from aidm.dm.creative_gear import GEAR_REFUSED
 from aidm.dm.guard import guarded_narration, prose_checker
 from aidm.dm.guard_types import ProseCheck
 from aidm.dm.llm_client import LlmClient
@@ -106,7 +107,7 @@ def unpack_source(source: NarrationInput) -> tuple[list[AnyEvent], list[str], st
     facts += [
         TRIED.format(why=r.result.error)
         for r in source.calls
-        if r.call.name == "use_item" and r.result.error
+        if r.result.error and (r.call.name == "use_item" or r.result.error.startswith(GEAR_REFUSED))
     ]
     if source.pending is not None:
         facts.append(f"Awaiting the player's confirmation: {source.pending.prompt}")

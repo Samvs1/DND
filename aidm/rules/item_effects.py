@@ -3,27 +3,37 @@
 ONE `match` on the closed effect vocabulary of data/bg3/item_uses.json; never a per-item
 branch. Each handler returns the effect's events (EXISTING events wherever one exists) or a
 refusal message (str) that tells the model what to narrate instead; a refusal consumes nothing.
+Data adds effects, it never forbids actions (owner, 2026-10-22): a handler refuses only what is
+impossible (no such target, out of reach, a lock that is not there, no key, missing supplies or
+the know-how to craft); a use that would change nothing HAPPENS with no events (`[]`: the item
+is spent per its data and the interpreter marks `ItemUsed.no_effect`).
 
 - light_place: `LightLit(creature_id, item, reach)`: the hero carries the lit light from place to
-  place until the next long rest (M27.12); in a fight it must light a zone no light reaches yet.
+  place until the next long rest (M27.12), lit anywhere (daylight too: it matters in the next
+  dark place); in a fight it may light no new zone (the bonus action is spent all the same).
   Its `skills` give a boon that lasts as long as the light (until the long rest; bullseye).
 - boon: `BoonGained` (refused when the hero's boons already cover it: advantage never stacks).
 - surface: the surface interpreter in the target zone (own or touching zone: a 20 ft throw).
-- condition: `apply_condition` on a target creature in reach (refused when nothing changes).
+- condition: `apply_condition` on a target creature in reach (none when it already has it or is
+  immune).
 - supplies: a Survival-style `gear_check` at DC 10 (easy) -> `CampSuppliesChanged(+amount)` on
-  success; the place's once-per-place use is spent either way (`ItemUsed.forage`).
-- stabilize: `Stabilized` on a dying ally in reach, no check (SRD healer's kit).
+  success; the place's once-per-place use is spent either way (`ItemUsed.forage`); a place
+  already foraged gives nothing (no check).
+- stabilize: `Stabilized` on a dying ally in touch reach, no check (SRD healer's kit); on anyone
+  else the charge is spent for nothing.
 - craft: needs the tool proficiency (SRD herbalism) and the camp supplies ->
   `CampSuppliesChanged(-n)` + `InventoryChanged(output +1)`.
-- reveal_map: `PlacesCharted` (the unknown neighbours of the current place).
+- reveal_map: `PlacesCharted` (the unknown neighbours of the current place; none when all known).
 - unlock (M27.4): the target is a locked feature here (`aidm.rules.locks`); one pick or force
   roll at the lock's DC with this gear (`attempt_lock`: the tool's proficiency, the crowbar's
   named advantage); `FeatureUnlocked` on success. The `noise` of a force use alerts the place
   either way (`aidm.rules.item_use`); a failed roll can be retried.
 - damage (M27.6): a thrown attack through THE attack path (`aidm.rules.item_throw`): improvised
-  weapon, 20/60 ft, the item's dice and type, its `condition` on a hit (burning).
+  weapon, 20/60 ft, the item's dice and type, its `condition` on a hit (burning), then the
+  substance weakness of the item's `substances`.
+- surface / ignite aimed at a creature of the fight land in that creature's zone.
 - ignite (M27.6): damage of a type into a zone in reach (`rules.surfaces.zone_damage_events`:
-  a lit torch into oil sets it alight); refused when nothing there reacts.
+  a lit torch into oil sets it alight); where nothing reacts the torch just lands there.
 - cast_spell (M27.7): not wired yet (`not_wired`), refused with a plain message.
 
 `UseCtx.feats` is the feature registry for the attack path (None: the shipped one).
@@ -50,6 +60,7 @@ from aidm.data.item_uses import (
     Supplies,
     SurfaceUse,
     Unlock,
+    item_substances,
 )
 from aidm.data.registry import Registry
 from aidm.data.surface_defs import surface_defs
@@ -69,7 +80,6 @@ from aidm.rules.death import is_dying, stabilize
 from aidm.rules.dice import Rng
 from aidm.rules.gear_checks import gear_check
 from aidm.rules.item_throw import thrown_item_events
-from aidm.rules.light import light_reach_zones, lit_zones
 from aidm.rules.locks import LockGear, attempt_lock, key_open, locked_here
 from aidm.rules.surfaces import place_surface_events, zone_damage_events
 from aidm.rules.zones import zone_neighbors
@@ -163,12 +173,7 @@ def _boon(
 
 
 def _light(ctx: UseCtx, effect: LightPlace) -> list[AnyEvent] | str:
-    state, actor = ctx.state, ctx.actor
-    if _fight(state) is not None:
-        new = light_reach_zones(state, actor.id, effect.reach) - lit_zones(state)
-        if not new:
-            gear = gear_name(ctx.use.item).lower()
-            return f"Every zone the {gear} would reach is already lit; it changes nothing."
+    actor = ctx.actor
     events: list[AnyEvent] = [
         LightLit(creature_id=actor.id, item=ctx.entry.item, reach=effect.reach)
     ]
@@ -189,7 +194,8 @@ def _zone_in_reach(ctx: UseCtx) -> str | tuple[str, str]:
     enc = _fight(ctx.state)
     gear = gear_name(ctx.use.item).lower()
     zones = {z.id: z for z in enc.zone_map.zones} if enc is not None else {}
-    zone = zones.get(ctx.target or "")
+    there = enc.combatants.get(ctx.target or "") if enc is not None else None
+    zone = zones.get(there.zone_id if there is not None else ctx.target or "")
     if zone is None:
         return f"Name the zone of this fight to throw the {gear} into."
     if not in_reach(ctx.state, ctx.actor.id, zone.id):
@@ -210,37 +216,36 @@ def _ignite(ctx: UseCtx, effect: Ignite) -> list[AnyEvent] | str:
     zone = _zone_in_reach(ctx)
     if isinstance(zone, str):
         return zone
-    events = zone_damage_events(ctx.rng, ctx.state, zone[0], effect.damage_type)
-    gear = gear_name(ctx.use.item).lower()
-    return events or f"Nothing in {zone[1]} catches from the {gear}; it changes nothing."
+    return zone_damage_events(ctx.rng, ctx.state, zone[0], effect.damage_type)
 
 
 def _throw(ctx: UseCtx, effect: DamageUse) -> list[AnyEvent] | str:
     feats = ctx.feats if ctx.feats is not None else feature_defs()
     name = gear_name(ctx.use.item).lower()
-    return thrown_item_events(ctx.rng, ctx.state, ctx.actor.id, ctx.target, name, effect, feats)
+    stuff = item_substances(ctx.entry.item)
+    return thrown_item_events(
+        ctx.rng, ctx.state, ctx.actor.id, ctx.target, name, effect, feats, stuff
+    )
 
 
 def _condition(ctx: UseCtx, effect: ConditionUse) -> list[AnyEvent] | str:
     target = _creature_in_reach(ctx, touch=False)
     if isinstance(target, str):
         return target
-    gear = gear_name(ctx.use.item).lower()
     if any(c.name == effect.condition for c in target.conditions):
-        return f"{target.name} is already {effect.condition}; the {gear} changes nothing."
+        return []
     rounds = effect.rounds
     tick = ctx.actor.id if rounds is not None else None
     mark = new_condition(
         effect.condition, source_id=ctx.actor.id, rounds=rounds, tick_creature_id=tick
     )
-    events = apply_condition(target, mark)
-    return events or f"{target.name} shrugs it off; the {gear} changes nothing."
+    return apply_condition(target, mark)
 
 
 def _supplies(ctx: UseCtx, effect: Supplies) -> list[AnyEvent] | str:
     state = ctx.state
     if state.world.current_node in state.world.foraged:
-        return "This place has already given what it can; trying again finds nothing."
+        return []  # this place already gave what it can
     tool = ctx.use.item if ctx.use.tool else None
     result = gear_check(ctx.rng, state, ctx.actor, Skill(effect.skill), FORAGE_DC, tool=tool)
     result = result.model_copy(update={"tier": FORAGE_TIER})
@@ -262,9 +267,7 @@ def _stabilize(ctx: UseCtx) -> list[AnyEvent] | str:
         ally = enc.combatants[target.id].side is enc.combatants[ctx.actor.id].side
     else:
         ally = target.kind is not CreatureKind.MONSTER
-    if not ally or not is_dying(target):
-        return f"{target.name} is not a dying ally; the {gear_name(ctx.use.item).lower()} waits."
-    return stabilize(target)
+    return stabilize(target) if ally and is_dying(target) else []
 
 
 def _craft(ctx: UseCtx, effect: Craft) -> list[AnyEvent] | str:
@@ -287,9 +290,7 @@ def _reveal(ctx: UseCtx) -> list[AnyEvent] | str:
     node = world.current_node
     known = {*world.visited, *world.charted, node}
     fresh = tuple(n for n in world.neighbours.get(node or "", ()) if n not in known)
-    if not fresh:
-        return "Every way from here is already known; charting changes nothing."
-    return [PlacesCharted(nodes=fresh)]
+    return [PlacesCharted(nodes=fresh)] if fresh else []
 
 
 def _unlock(ctx: UseCtx, effect: Unlock) -> list[AnyEvent] | str:

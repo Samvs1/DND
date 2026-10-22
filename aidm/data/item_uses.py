@@ -14,6 +14,10 @@ catalogue, surfaces, spells and skills.
 - `tool`: an SRD tool, proficiency applies. `noise`: the place becomes alerted.
 - `from_light` (M27.6): the use is made with the hero's carried LIT light of this item (a lit
   torch thrown); it ends that light instead of consuming an inventory item.
+- `improvised` (M27.6): the one use of a carried item with no listed use: an SRD improvised
+  weapon throw (`DamageUse.ability_mod`: the thrower's STR modifier is added); `item` is "*".
+- `substances` (M27.6): catalogue id -> what the item delivers on a hit (water, fire, acid,
+  holy, silver, oil); `aidm.rules.weaknesses` applies a target's weakness to it.
 - `effect`: a closed union keyed by `kind`: light_place, boon, surface, damage (an optional
   `condition` on a hit), condition, unlock, supplies, stabilize, craft, cast_spell, reveal_map,
   ignite (damage of a type into a zone, only through the surfaces' damage interactions).
@@ -21,7 +25,8 @@ catalogue, surfaces, spells and skills.
 `ScrollPower(level, save_dc, attack_bonus)`: the SRD 5.1 Spell Scroll table, stored as data.
 
 Public API: the models above, `ItemUseData(uses, scroll_table)`, `ItemUseError` (names the bad
-entry), `load_item_use_data(path=None)`, `item_use_data()` (cached), `uses_for_item(item)`.
+entry), `load_item_use_data(path=None)`, `item_use_data()` (cached), `uses_for_item(item)`,
+`improvised_use(item)`, `item_substances(item)`, `Substance`, `SUBSTANCES` (its names).
 """
 
 from __future__ import annotations
@@ -29,7 +34,7 @@ from __future__ import annotations
 import functools
 import json
 from pathlib import Path
-from typing import Annotated, Literal
+from typing import Annotated, Literal, get_args
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
@@ -42,7 +47,8 @@ from aidm.data.surface_defs import surface_defs
 
 DEFAULT_ITEM_USES = Path(__file__).resolve().parents[2] / "data" / "bg3" / "item_uses.json"
 SCROLL_FAMILY = SCROLL_PREFIX + "*"
-DICE_PATTERN = r"^[1-9][0-9]*d[0-9]+([+-][0-9]+)?$"
+DICE_PATTERN = r"^[1-9][0-9]*(d[0-9]+([+-][0-9]+)?)?$"  # dice, or a flat amount ("1")
+IMPROVISED_ITEM = "*"  # the improvised use stands for any item (M27.6)
 
 type UseWhen = Literal[
     "dark_place", "locked", "place", "fight", "ally_down", "long_rest", "tagged_place"
@@ -50,6 +56,8 @@ type UseWhen = Literal[
 type UseCost = Literal["action", "bonus"]
 type LightReachKey = Literal["zone", "touching"]  # mirrors aidm.models.world.LightReach
 type BoonScope = Literal["place", "until_long_rest"]
+type Substance = Literal["water", "fire", "acid", "holy", "silver", "oil"]
+SUBSTANCES: frozenset[str] = frozenset(get_args(Substance.__value__))
 
 
 class _Strict(BaseModel):
@@ -88,6 +96,7 @@ class DamageUse(_Strict):
     save: AbilityKey | None = None
     creature_types: tuple[str, ...] = ()  # empty = any creature
     condition: str | None = None  # applied on a hit (alchemist's fire: burning, M27.6)
+    ability_mod: bool = False  # adds the thrower's STR modifier (SRD improvised weapon, M27.6)
 
     @model_validator(mode="after")
     def _check_damage(self) -> DamageUse:
@@ -195,6 +204,10 @@ class ScrollPower(_Strict):
 class ItemUseData(_Strict):
     uses: tuple[ItemUse, ...]
     scroll_table: tuple[ScrollPower, ...]
+    improvised: ItemUse  # M27.6: any carried item without a listed use, thrown (item "*")
+    substances: dict[str, tuple[Substance, ...]] = Field(
+        default_factory=dict[str, tuple[Substance, ...]]
+    )  # M27.6: what an item delivers on a hit (catalogue id -> substances)
 
     def scroll_power(self, level: int) -> ScrollPower:
         return next(row for row in self.scroll_table if row.level == level)
@@ -247,6 +260,11 @@ def _check(data: ItemUseData) -> None:
         problems = _use_problems(use)
         if problems:
             raise ItemUseError(use.id, "; ".join(problems))
+    if data.improvised.item != IMPROVISED_ITEM:
+        raise ItemUseError(data.improvised.id, f"the improvised use's item is {IMPROVISED_ITEM!r}")
+    for item in data.substances:
+        if item not in item_catalogue():
+            raise ItemUseError("substances", f"unknown item {item!r}")
     if sorted(r.level for r in data.scroll_table) != list(range(10)):
         raise ItemUseError("scroll_table", "needs exactly one row per spell level 0 to 9")
 
@@ -280,3 +298,12 @@ def uses_for_item(item: str) -> tuple[ItemUse, ...]:
     """Uses of a catalogue item id; every `scroll-of-*` item gets the scroll family's uses."""
     key = SCROLL_FAMILY if item.startswith(SCROLL_PREFIX) else item
     return tuple(u for u in item_use_data().uses if u.item == key)
+
+
+def improvised_use(item: str) -> ItemUse:
+    """The SRD improvised throw (1d4 + STR, 20/60 ft) of a carried item without a listed use."""
+    return item_use_data().improvised.model_copy(update={"item": item})
+
+
+def item_substances(item: str) -> tuple[Substance, ...]:
+    return item_use_data().substances.get(item, ())

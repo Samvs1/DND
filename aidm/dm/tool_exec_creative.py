@@ -5,10 +5,15 @@ the save DC, the duration cap, the condition's saving throw and the surface, all
 data/bg3/dm_tiers.json. Damage goes through the one damage path (`rules.attacks.deal_damage`).
 A damaging, condition or push effect aimed at a non-hostile NPC stops at the point of no return;
 one aimed at another player's hero is refused (a push is allowed in a fight).
+M27.6: an effect that leans on gear (`item`, or the gear the player's words name) goes through
+`aidm.dm.creative_gear`: gear the hero lacks (or a keepsake) is refused and told as an attempt;
+carried gear thrown at a creature of the fight is THE item interpreter's use, a substance the
+target is weak to is THE weakness rule; otherwise the creative effect runs and the gear is kept.
 
 Public API: `run_creative_effect(state, args, ctx, rng, regs) -> ToolResult`.
 """
 
+from aidm.dm.creative_gear import gear_outcome, leaned_gear
 from aidm.dm.tool_context import ToolContext, ToolRefused, ToolRegistries, ToolResult
 from aidm.dm.tool_exec_common import hostile_pending, require_creature
 from aidm.dm.tools import CreativeEffectArgs
@@ -162,6 +167,10 @@ def run_creative_effect(
     state: GameState, args: CreativeEffectArgs, ctx: ToolContext, rng: Rng, regs: ToolRegistries
 ) -> ToolResult:
     require_creature(state, args.actor)
+    gear = leaned_gear(state, args.actor, args.item, ctx.player_text)  # M27.6: carried or refused
+    outcome = gear_outcome(state, args, gear, rng, regs) if gear is not None else None
+    if outcome is not None:
+        return outcome
     run: _Run = (state, args, rng, regs)
     kind = args.effect_kind
     if kind in _ZONE:

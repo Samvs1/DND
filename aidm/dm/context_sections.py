@@ -6,7 +6,8 @@ the other builders never read it.
 
 Public API:
 - `manifest_lines(state, scene, show_ids, describe_place=True) -> list[str]` (ends with
-  `CLOSED_WORLD`).
+  `CLOSED_WORLD`; in a fight the foes' traits follow the hostile creatures, M27.6
+  `aidm.dm.context_traits`).
 - `party_lines(state, short) -> list[str]`: one compact sheet line per living PC.
 - `relevant_facts(facts, focus, k) -> list[Fact]` (THE fact
   retrieval: top-k by entity overlap with `focus`, ties broken by recency; deterministic);
@@ -20,6 +21,7 @@ The QUESTS section lives in `aidm.dm.context_quests` (M23.5).
 from collections.abc import Iterable, Sequence
 
 from aidm.dm.context_text import CLOSED_WORLD
+from aidm.dm.context_traits import foe_trait_lines
 from aidm.dm.entities import display_name
 from aidm.models.state import Creature, GameState
 from aidm.models.world import Fact, QuestState, WorldNpc
@@ -88,6 +90,7 @@ def manifest_lines(
     lines.append(f"NPCs present ({len(npcs)}): {_joined(npcs)}")
     foes = [_creature_line(state, cid, show_ids) for cid in scene.monster_ids]
     lines.append(f"Hostile creatures: {_joined(foes)}")
+    lines.extend(foe_trait_lines(state, scene.monster_ids))  # M27.6: only in a fight
     if scene.fallen_ids:
         fallen = [state.creatures[cid].name + _tag(show_ids, cid) for cid in scene.fallen_ids]
         lines.append(f"Dead (they cannot act): {_joined(fallen)}")

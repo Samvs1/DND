@@ -11,6 +11,7 @@ import random
 
 import pytest
 
+from aidm.models.combat_events import AttackRolled
 from aidm.models.commands import (
     EndConditionCommand,
     EndTurnCommand,
@@ -132,14 +133,20 @@ def test_golden_acid_through_the_one_damage_path() -> None:
     assert resisted.creatures["gob"].hp == 7
 
 
-def test_golden_holy_water_harms_undead_and_is_refused_on_a_beast() -> None:
+def test_golden_holy_water_harms_undead() -> None:
     state = _throwing(HOLY, foe=_foe(kind="undead"))
     _throw(state, HOLY, ScriptedRng(10, 5, 6), target_id="gob")  # 2d6 radiant = 11
     assert state.creatures["gob"].hp == 0
+
+
+def test_holy_water_on_a_beast_is_thrown_and_spent() -> None:
+    # owner 2026-10-22: data adds effects, it never forbids the throw. SRD 5.1 Holy Water: only
+    # a fiend or undead takes the 2d6 radiant; the attack is made and the flask is spent.
     beast = _throwing(HOLY, foe=_foe(kind="beast"))
-    reason = _refused(beast, UseItemCommand(actor_id="hero", item=HOLY, target_id="gob"))
-    assert "undead" in reason and "fiend" in reason
-    assert qty(beast, "hero", HOLY) == 1 and economy(beast, "hero").action
+    events = _throw(beast, HOLY, ScriptedRng(10), target_id="gob")  # 10 + 3 = 13 hits AC 12
+    assert [e.hit for e in events if isinstance(e, AttackRolled)] == [True]
+    assert next(e for e in events if isinstance(e, ItemUsed)).no_effect
+    assert qty(beast, "hero", HOLY) == 0 and not economy(beast, "hero").action
     assert beast.creatures["gob"].hp == 10
 
 
@@ -160,15 +167,27 @@ def test_oil_then_a_thrown_torch_ignites_it_and_ends_the_light() -> None:
     assert state.creatures["gob"].hp < 10  # the burst (2d6 fire, DEX save for half)
 
 
-def test_a_torch_thrown_where_nothing_burns_is_refused_and_stays_lit() -> None:
+def test_a_torch_thrown_where_nothing_burns_lands_and_ends_the_light() -> None:
     state = _throwing()
     apply(state, LightLit(creature_id="hero", item="torch"))
-    reason = _refused(state, UseItemCommand(actor_id="hero", item="torch", target_zone="b"))
-    assert "changes nothing" in reason
-    assert [x.item for x in state.world.lights] == ["torch"]
-    no_light = _throwing("torch")
+    events = _throw(state, "torch", ScriptedRng(), target_zone="b")  # owner 2026-10-22
+    assert next(e for e in events if isinstance(e, ItemUsed)).no_effect
+    assert LightEnded(creature_id="hero", reason="thrown", item="torch") in events
+    assert state.world.lights == [] and _surfaces(state, "b") == []
+    no_light = _throwing("torch")  # an unlit torch cannot be thrown alight: impossible
     reason = _refused(no_light, UseItemCommand(actor_id="hero", item="torch", target_zone="b"))
-    assert "no lit torch" in reason or "not dark" in reason
+    assert "no lit torch" in reason
+
+
+def test_torch_thrown_at_a_goblin_deals_one_fire_and_ends_the_light() -> None:
+    state = _throwing()
+    apply(state, LightLit(creature_id="hero", item="torch"))
+    # d20 10 + STR 3 = 13 hits AC 12; SRD 5.1 Torch: 1 fire damage (a flat amount, no roll)
+    events = _throw(state, "torch", ScriptedRng(10), target_id="gob")
+    assert [e.use_id for e in events if isinstance(e, ItemUsed)] == ["torch-hit"]
+    assert state.creatures["gob"].hp == 10 - 1
+    assert LightEnded(creature_id="hero", reason="thrown", item="torch") in events
+    assert state.world.lights == []
 
 
 def _scatter_then_enter(item: str, save: int) -> GameState:

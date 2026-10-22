@@ -93,8 +93,8 @@ def test_throw_the_oil_at_z() -> None:
     goblin = monster("goblin")
     fight = gear_fight(CAVE, hero(gear=GEAR), (goblin, Side.HOSTILE, "b"))
     assert gear_intent(fight, "hero", "I throw the oil at the goblin") == UseIntent(
-        "hero", "oil-flask", target="b", verb="throw"
-    )
+        "hero", "oil-flask", target=goblin.id, verb="throw"
+    )  # M27.6: the creature stays the target; the interpreter splashes its zone
     assert _intent(_state(), "throw the oil at the goblin") is None  # no fight: the AI decides
 
 

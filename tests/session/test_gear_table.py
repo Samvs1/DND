@@ -128,15 +128,15 @@ async def test_hotbar_gear_use_goes_through_the_combat_command(tmp_path: Path) -
     async with running(disabled_llm(tmp_path), state) as (table, _):
         seat = await join(table, "Ann", "fighter")
         await start_fight(table, "goblin")
-        holy = UseItemCommand(actor_id="fighter", item="holy-water-flask", target_id="goblin-1")
-        seat.send(CombatCommandMsg(command=holy))
-        await table.settle()
-        errors = of_type(seat.drain(), ErrorMsg)
-        assert [e.refusal for e in errors] == ["gear_refused"]  # a goblin is no undead or fiend
         oil = UseItemCommand(actor_id="fighter", item="oil-flask", target_zone="gully")
         seat.send(CombatCommandMsg(command=oil))
         await table.settle()
         added = [e.event for e in table.log if isinstance(e.event, ZoneSurfaceAdded)]
         assert [(a.zone_id, a.surface.kind) for a in added] == [("gully", "oil")]
         assert not of_type(seat.drain(), ErrorMsg)
+        holy = UseItemCommand(actor_id="fighter", item="holy-water-flask", target_id="goblin-1")
+        seat.send(CombatCommandMsg(command=holy))
+        await table.settle()
+        errors = of_type(seat.drain(), ErrorMsg)
+        assert [e.refusal for e in errors] == ["gear_refused"]  # the action is already spent
         assert_replays(table)

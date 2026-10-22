@@ -7,8 +7,10 @@
   "put my torch out", "put out my light": `put_out` (the hero's carried light; free);
 - "light my torch", "ignite the lantern", "light a candle": a use with that verb;
 - "throw the oil at Z", "scatter the caltrops at Z": a use with the verb, aimed at Z (M27.6:
-  "throw my torch at Z" also finds the hero's lit torch; a verb that picks one of an item's
-  several uses sets `use_id`: "light" vs "throw" the torch);
+  "throw my torch at Z" also finds the hero's lit torch; a verb that picks some of an item's
+  several uses sets `use_id` to the one for the target: "light" vs "throw" the torch, at a
+  creature the torch's hit; in a fight "throw my waterskin at Z", gear without a throw use, is
+  the SRD improvised throw);
 - "read the scroll of X": a carried scroll that matches;
 - "use X", "use X on Y": every use of X, aimed at Y;
 - "brew a poultice", "craft with my herbalism kit": a use with the verb (a long-rest use sets
@@ -21,7 +23,8 @@ None and goes on to the adjudicator. The rules decide (`aidm.rules.item_use.use_
 `aidm.rules.light.put_out`).
 
 Public API: `UseIntent(actor_id, item, target, verb, put_out, at_rest, use_id)`,
-`use_intent(state, actor_id, clean) -> UseIntent | None`.
+`use_intent(state, actor_id, clean) -> UseIntent | None`,
+`item_phrase(clean) -> (phrase, mine) | None`.
 """
 
 import re
@@ -34,6 +37,7 @@ from aidm.data.item_uses import (
     ItemUse,
     Stabilize,
     SurfaceUse,
+    improvised_use,
     uses_for_item,
 )
 from aidm.dm.gear_words import carried_entry, fits, words
@@ -52,7 +56,7 @@ _PUT_OUT = re.compile(
 )
 _LIGHT = re.compile(rf"(?P<verb>light|ignite|kindle) (?:up )?{_THE}{_THING}(?: up)?")
 _THROW = re.compile(
-    rf"(?P<verb>throw|hurl|toss|lob|scatter|spill|pour) {_THE}{_THING}"
+    rf"(?P<verb>throw|hurl|toss|lob|scatter|spill|pour|splash) {_THE}{_THING}"
     rf"{_AT}(?P<target>[a-z0-9' -]+))?"
 )
 _READ = re.compile(rf"(?P<verb>read) {_THE}(?P<item>scroll(?: of [a-z0-9' -]+)?)")
@@ -62,6 +66,8 @@ _CRAFT = re.compile(
     rf"(?: (?:with|using) {_THE}(?P<item>[a-z0-9 ,'-]+))?"
 )
 _LIGHT_WORDS = frozenset({"light", "flame", "fire"})
+_THROWS = frozenset({"throw", "hurl", "toss", "lob", "pour", "spill", "splash"})
+_TAKES = (ConditionUse, Stabilize, DamageUse)  # uses that take a creature as their target
 _SAME_VERB = {
     "ignite": "light",
     "kindle": "light",
@@ -132,9 +138,13 @@ def _named(state: GameState) -> tuple[list[tuple[str, str]], list[tuple[str, str
     return places, people
 
 
-def _target(state: GameState, phrase: str | None, uses: tuple[ItemUse, ...]) -> str | None:
+def _target(
+    state: GameState, phrase: str | None, uses: tuple[ItemUse, ...], throwing: bool
+) -> str | None:
     """A known id for the phrase, '' when it names nothing known (dropped), None when absent
-    or when it names a creature that no use of the gear takes."""
+    or when it names a creature that no use of the gear takes. A creature stays the target
+    when a use takes one or the gear is thrown in a fight (the interpreter puts a zone effect
+    in its zone), else gear that covers a zone takes the creature's zone."""
     if not phrase:
         return None
     wanted = words(phrase)
@@ -145,10 +155,30 @@ def _target(state: GameState, phrase: str | None, uses: tuple[ItemUse, ...]) -> 
     creature = _best(wanted, people)
     if creature is None:
         return ""
+    if any(isinstance(u.effect, _TAKES) for u in uses) or (throwing and _fight(state)):
+        return creature
     if any(isinstance(u.effect, SurfaceUse | Ignite) for u in uses) and _fight(state):
         return _zone_of(state, creature) or ""
-    takes = (ConditionUse, Stabilize, DamageUse)
-    return creature if any(isinstance(u.effect, takes) for u in uses) else None
+    return None
+
+
+def _pick(state: GameState, uses: tuple[ItemUse, ...], aimed: str | None) -> str:
+    """Of the uses a verb picks, the one for the target: at a creature one that takes it."""
+    at_creature = aimed in state.creatures
+    found = (u.id for u in uses if isinstance(u.effect, _TAKES) == at_creature)
+    return next(found, uses[0].id)
+
+
+def _verb_uses(state: GameState, item: str, verb: str | None) -> tuple[ItemUse, ...]:
+    """The item's uses the verb names; a throw in a fight of gear without a throw use is the
+    SRD improvised throw (M27.6)."""
+    said = {verb, _SAME_VERB.get(verb or "")}
+    listed = uses_for_item(item)
+    uses = tuple(u for u in listed if verb is None or said & set(u.verbs))
+    improvised = improvised_use(item)
+    if not uses and verb is not None and _fight(state) and said & set(improvised.verbs):
+        return (improvised,)
+    return uses
 
 
 def _with_verb(
@@ -156,16 +186,16 @@ def _with_verb(
 ) -> UseIntent | None:
     if item is None:
         return None
-    said = (verb, _SAME_VERB.get(verb or ""))
-    uses = tuple(u for u in uses_for_item(item) if verb is None or set(said) & set(u.verbs))
+    uses = _verb_uses(state, item, verb)
     if not uses or (not _fight(state) and all(u.when == "fight" for u in uses)):
         return None  # out of a fight a throw goes to the AI (it may start the fight)
-    aimed = _target(state, target, uses)
+    aimed = _target(state, target, uses, verb in _THROWS)
     if target and aimed is None:  # aimed at a creature no use of it takes
         return None
     at_rest = all(u.when == "long_rest" for u in uses)
-    several = len(uses_for_item(item)) > 1
-    one = uses[0].id if verb is not None and several and len(uses) == 1 else None
+    every = uses_for_item(item)
+    narrowed = verb is not None and len(every) > 1 and len(uses) < len(every)
+    one = _pick(state, uses, aimed or None) if narrowed else None
     return UseIntent(actor.id, item, aimed or None, verb, at_rest=at_rest, use_id=one)
 
 
@@ -193,4 +223,15 @@ def use_intent(state: GameState, actor_id: str, clean: str) -> UseIntent | None:
     if m := _CRAFT.fullmatch(clean):
         item = carried_entry(actor, m["item"]) if m["item"] else _crafter(actor, m["verb"])
         return _with_verb(state, actor, item, m["verb"], None)
+    return None
+
+
+def item_phrase(clean: str) -> tuple[str, bool] | None:
+    """(the gear phrase, said as the hero's own: "my"/"our") of a throw or use sentence (M27.6:
+    the gear a creative effect leans on), else None."""
+    for pattern in (_THROW, _USE):
+        if m := pattern.fullmatch(clean):
+            phrase = m["item"].strip()
+            mine = re.search(rf"\b(?:my|our) {re.escape(phrase)}\b", clean) is not None
+            return phrase, mine
     return None

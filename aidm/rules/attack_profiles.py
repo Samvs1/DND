@@ -8,6 +8,7 @@ Public API:
 - `IMPROVISED_THROW` (1d4 bludgeoning, 20/60 ft; SRD 5.1 "Improvised Weapons"),
   `UNARMED_KEY` ("unarmed"), `THROW_KEY` ("throw").
 - `weapon_die(dice) -> int`: the die size of the first dice term ("1d8+3" -> 8; 0 for flat).
+- `with_mod(dice, mod) -> str`: "1d4" with +2 -> "1d4+2" (no term for 0).
 - `attack_options(creature, regs) -> list[AttackProfile]`: main hand, off hand (a bonus-action
   attack, BG3), ranged weapon and unarmed strike; keyed by hand. Empty without `pc`.
 - `find_option(creature, regs, key) -> AttackProfile | None`.
@@ -47,7 +48,7 @@ def weapon_die(dice: str) -> int:
     return terms[0].sides if terms else 0
 
 
-def _with_mod(dice: str, mod: int) -> str:
+def with_mod(dice: str, mod: int) -> str:
     if mod > 0:
         return f"{dice}+{mod}"
     return f"{dice}-{-mod}" if mod < 0 else dice
@@ -94,7 +95,7 @@ def _improvised(creature: Creature, name: str) -> AttackProfile:
         key=THROW_KEY,
         name=f"Throw {name}",
         attack_bonus=mod,
-        damage=_with_mod(IMPROVISED_THROW, mod),
+        damage=with_mod(IMPROVISED_THROW, mod),
         damage_type=DamageType.BLUDGEONING,
         ranged=True,
         range_normal=normal,
@@ -122,7 +123,7 @@ def throw_profile(
         key=THROW_KEY,
         name=f"Throw {item.name}",
         attack_bonus=mod + prof + attack_bonus_mods(creature, regs.features, ctx),
-        damage=_with_mod(dice, mod + damage_bonus_mods(creature, regs.features, ctx)),
+        damage=with_mod(dice, mod + damage_bonus_mods(creature, regs.features, ctx)),
         damage_type=DamageType(item.damage.damage_type.index),
         ranged=True,
         range_normal=reach.normal if reach else IMPROVISED_RANGE[0],

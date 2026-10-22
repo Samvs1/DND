@@ -21,6 +21,7 @@ Public API:
 - `Intent` (the union), `precheck(state, actor_id, text) -> Intent | None`.
 - `gear_intent(state, actor_id, text) -> UseIntent | None`: the gear precheck alone, for the
   typed actions of a fight (M27.5: putting a light out is free, lighting one a bonus action).
+- `gear_phrase(text) -> (phrase, mine) | None`: the gear a throw or use sentence names (M27.6).
 - `asks_what_now(state, actor_id, text) -> bool` (M23.8: "what now", "what should we do", "where
   to", "i'm lost", "help me"...; never "help <a downed hero> up", the help-up pre-check wins).
   It is answered before the queue, also in a fight: What now? is not a turn.
@@ -35,7 +36,7 @@ from enum import StrEnum
 from aidm.dm.entities import display_name
 from aidm.dm.give_intent import GiveIntent, give_intent
 from aidm.dm.help_intent import HelpUpIntent, help_up_intent
-from aidm.dm.use_intent import UseIntent, use_intent
+from aidm.dm.use_intent import UseIntent, item_phrase, use_intent
 from aidm.models.encounter import EncounterStatus
 from aidm.models.state import Creature, GameState
 from aidm.models.world import WorldNpc
@@ -322,6 +323,12 @@ def precheck(state: GameState, actor_id: str, text: str) -> Intent | None:
 def gear_intent(state: GameState, actor_id: str, text: str) -> UseIntent | None:
     clean = _normalise(text)
     return use_intent(state, actor_id, clean) if clean else None
+
+
+def gear_phrase(text: str) -> tuple[str, bool] | None:
+    """The gear a throw or use sentence names, and whether it is said as the hero's own."""
+    clean = _normalise(text)
+    return item_phrase(clean) if clean else None
 
 
 def _listing(names: list[str]) -> str:

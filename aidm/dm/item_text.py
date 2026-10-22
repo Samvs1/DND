@@ -4,7 +4,8 @@ the narrator's event list and the template narration all read the same words).
 - `LightLit` in a dark place: who lit what, then the light-versus-stealth warning
   (`LIGHT_WARNING`), once per lighting (arriving with a light already lit adds no line).
 - `LightEnded` put out ("doused"): who put out which light; other ends have no line.
-- `ItemUsed`: who used which gear (a light's own line says it for a light).
+- `ItemUsed`: who used which gear (a light's own line says it for a light; M27.6: a use that
+  changed nothing says "no special effect").
 - `FeatureUnlocked`: the lock is open, and how; no line ever opens a lock without this event.
 - `encounter_line(state)`: the fight-start line, plus `SEEN_LIGHT` when the alert of this place
   came from a light (`World.alerted_by`).
@@ -49,7 +50,8 @@ def _used(state: GameState, e: ItemUsed) -> str | None:
     use = next((u for u in uses_for_item(e.item) if u.id == e.use_id), None)
     if use is not None and isinstance(use.effect, LightPlace):
         return None
-    return f"{_who(state, e.creature_id)} uses the {gear_name(e.item).lower()}."
+    used = f"{_who(state, e.creature_id)} uses the {gear_name(e.item).lower()}"
+    return f"{used}: no special effect." if e.no_effect else f"{used}."
 
 
 def _unlocked(state: GameState, e: FeatureUnlocked) -> str:

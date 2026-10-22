@@ -56,7 +56,13 @@ from aidm.rules.scene import current_scene
 MAX_ROUNDS = 3
 MAX_CALLS_PER_ROUND = 5
 MAX_ERROR_CHARS = 200
-CREATIVE_ACTION_TOOLS = ("request_check", "request_save", "creative_effect", "no_mechanics")
+CREATIVE_ACTION_TOOLS = (  # M27.6: use_item, so a creative action's gear goes through the rules
+    "request_check",
+    "request_save",
+    "creative_effect",
+    "use_item",
+    "no_mechanics",
+)
 FOLLOW_UP_TOOLS = frozenset({"request_check", "request_save"})
 PER_ACTION_LIMITS = {
     "grant_xp": 1,

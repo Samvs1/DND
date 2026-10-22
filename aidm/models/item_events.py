@@ -7,10 +7,12 @@ only assigns. The effects of a use travel in the EXISTING events (`ZoneSurfaceAd
 `EconomyChanged`...); these events add only what is new.
 
 Public API:
-- `ItemUsed(creature_id, item, use_id, target, node, spends_charge, charges_left, forage)`: the
+- `ItemUsed(creature_id, item, use_id, target, node, spends_charge, charges_left, forage,
+  no_effect)`: the
   hero used the catalogue item `item` by the use `use_id`. With `spends_charge` the inventory
   entry's charges become `charges_left` (None = a fresh, full entry); with `forage` the place
-  `node` joins `World.foraged` (its once-per-place supplies use is spent).
+  `node` joins `World.foraged` (its once-per-place supplies use is spent). `no_effect` (M27.6):
+  the use happened and changed nothing (holy water on a beast, a torch where nothing burns).
 - `ItemUseRefused(creature_id, item, message)`: pure log event: the use was refused and nothing
   was consumed; `message` tells the model what to narrate instead (an attempt, never a result).
 - `BoonGained(boon)`: the hero's `ActiveBoon` joins `World.boons` (replacing the same use's).
@@ -51,6 +53,7 @@ class ItemUsed(_ItemEvent):
     spends_charge: bool = False
     charges_left: int | None = Field(default=None, ge=0)
     forage: bool = False
+    no_effect: bool = False  # M27.6: the use happened and changed nothing (data adds effects)
 
 
 class ItemUseRefused(_ItemEvent):

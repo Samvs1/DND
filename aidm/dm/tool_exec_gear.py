@@ -8,7 +8,9 @@ a tool error whose message tells the model what to narrate instead (an attempt, 
 result; pattern `FreeStepRefused`), and nothing is consumed. The summary states what the engine
 resolved; a failed roll is told as an attempt ("the lock holds").
 
-Public API: `run_use_item(state, args, ctx, rng, regs) -> ToolResult`,
+A use that happened and changed nothing (`ItemUsed.no_effect`, M27.6) says so plainly.
+
+Public API: `NO_EFFECT`, `run_use_item(state, args, ctx, rng, regs) -> ToolResult`,
 `gear_summary(state, events) -> str`.
 """
 
@@ -35,6 +37,7 @@ from aidm.rules.item_use import use_item
 from aidm.rules.light import put_out
 
 ATTEMPT = "an attempt that changed nothing: tell it as tried, never as done"
+NO_EFFECT = "it happens, with no special effect"  # M27.6: data adds effects, never forbids
 
 
 def _who(state: GameState, creature_id: str) -> str:
@@ -53,7 +56,8 @@ def _check(state: GameState, event: CheckResolved) -> str:
 def _line(state: GameState, event: AnyEvent) -> str | None:
     match event:
         case ItemUsed():
-            return f"{_who(state, event.creature_id)} uses the {gear_name(event.item).lower()}"
+            used = f"{_who(state, event.creature_id)} uses the {gear_name(event.item).lower()}"
+            return f"{used} ({NO_EFFECT})" if event.no_effect else used
         case CheckResolved():
             return _check(state, event)
         case FeatureUnlocked():

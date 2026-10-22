@@ -52,17 +52,20 @@ def test_bullseye_lantern_lights_and_gives_investigation_as_long_as_its_light() 
     ]
 
 
-def test_torch_in_daylight_is_refused_and_consumes_nothing() -> None:
-    state = at(DOCKS, hero(gear=["torch"]))
-    assert "not dark" in refusal(use(state, "torch"))
-    assert qty(state, "hero", "torch") == 1
+def test_torch_in_daylight_is_lit_and_carried() -> None:
+    state = at(DOCKS, hero(gear=["torch"]))  # owner 2026-10-22: lights are carried
+    run(state, use(state, "torch"))
+    assert qty(state, "hero", "torch") == 0
+    assert state.world.alerted is None  # a light only gives a dark place away
 
 
-def test_torch_in_a_lit_place_is_refused() -> None:
+def test_torch_in_a_lit_place_is_lit_too_but_never_twice() -> None:
     state = at(CAVE, hero(gear=[("torch", 2)]), hero("ally", gear=["torch"]))
     run(state, use(state, "torch"))
-    assert "already lit by Hero" in refusal(use(state, "torch", actor="ally"))
-    assert qty(state, "ally", "torch") == 1
+    run(state, use(state, "torch", actor="ally"))  # a second bearer may light their own
+    assert qty(state, "ally", "torch") == 0
+    assert "already carries a lit torch" in refusal(use(state, "torch"))  # relighting: no
+    assert qty(state, "hero", "torch") == 1
 
 
 def test_gear_not_carried_is_refused() -> None:

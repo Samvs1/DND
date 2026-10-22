@@ -137,13 +137,14 @@ async def test_real_rope_climbs_through_use_item_with_its_boon(tmp_path: Path) -
 
 async def test_refused_use_is_told_to_the_narrator_as_an_attempt(tmp_path: Path) -> None:
     state = at(DOCKS, hero(gear=["torch"]))
+    run(state, use(state, "torch"))  # lit: relighting it is the impossible case
     script: list[FakeStep] = [fake_tool_call("use_item", {"actor": "hero", "item": "torch"})]
     result = await _adjudicate(tmp_path, state, "I light my torch", script)
     error = result.calls[0].result.error
-    assert error is not None and "not dark" in error
+    assert error is not None and "already carries a lit torch" in error
     _, facts, _ = unpack_source(result)
     assert TRIED.format(why=error) in facts
-    assert qty(state, "hero", "torch") == 1  # a refusal consumes nothing
+    assert not result.events  # a refusal changes nothing
 
 
 def test_narration_never_opens_a_lock_without_unlock() -> None:
@@ -236,7 +237,7 @@ def test_adjudicator_sees_usable_gear_here_and_the_gear_rule() -> None:
     manifest = pack.section(SectionKey.MANIFEST)
     assert manifest is not None
     gear = [line for line in manifest.lines if line.startswith("Usable gear of Hero")]
-    assert gear and "Torch [torch]: light this dark place" in gear[0]
+    assert gear and "Torch [torch]: light the torch" in gear[0]
     assert "Rope [rope-hempen-50-feet]: climb or cross here" in gear[0]
     assert any("this place is dark, unlit" in line for line in manifest.lines)
     assert manifest.lines[-1] == CLOSED_WORLD

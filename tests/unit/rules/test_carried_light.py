@@ -13,7 +13,7 @@ from aidm.models.world_events import PartyMoved
 from aidm.models.zones import Zone, ZoneEdge, ZoneMap
 from aidm.rules.boons import long_rest_light_events
 from aidm.rules.encounter import party_surprise, start_encounter
-from aidm.rules.light import DARKNESS, arrival_events, lit_zones, sight_darkness
+from aidm.rules.light import DARKNESS, arrival_events, hero_light, lit_zones, sight_darkness
 from aidm.rules.rests import long_rest
 from tests.unit.rules.combat_fixtures import fight, monster
 from tests.unit.rules.encounter_fixtures import setup_for
@@ -58,11 +58,27 @@ def test_relighting_is_refused_and_consumes_nothing() -> None:
     assert qty(state, "hero", "torch") == 1
 
 
-def test_lighting_in_a_daylit_place_is_refused_even_in_a_fight() -> None:
-    assert "not dark" in refusal(use(at(DOCKS, hero(gear=["torch"])), "torch"))
+def test_lighting_in_a_daylit_place_is_allowed_even_in_a_fight() -> None:
+    # owner 2026-10-22: a light is carried, so lighting it in daylight is never refused
+    calm = at(DOCKS, hero(gear=["torch"]))
+    events = use(calm, "torch")
+    assert any(isinstance(e, LightLit) for e in events)
+    assert not any(isinstance(e, PlaceAlerted) for e in events)  # daylight gives nothing away
     state = gear_fight(DOCKS, hero(gear=["torch"]))
-    assert "not dark" in refusal(use(state, "torch"))
-    assert qty(state, "hero", "torch") == 1
+    run(state, use(state, "torch"))
+    assert qty(state, "hero", "torch") == 0
+    assert state.encounter is not None
+    assert state.encounter.combatant("hero").economy.bonus_action is False
+
+
+def test_torch_lit_in_daylight_is_carried_into_the_cave() -> None:
+    state = at(DOCKS, hero(gear=["torch"]))
+    run(state, use(state, "torch"))
+    assert state.world.alerted is None
+    events = _travel(state, CAVE)
+    assert any(isinstance(e, PlaceAlerted) and e.reason == "light" for e in events)
+    assert hero_light(state, "hero") is not None
+    assert state.world.alerted == CAVE
 
 
 def test_two_bearers_in_a_fight_light_two_zones() -> None:
@@ -77,11 +93,12 @@ def test_two_bearers_in_a_fight_light_two_zones() -> None:
     assert lit_zones(state) == frozenset("ad")
 
 
-def test_in_a_fight_a_second_light_must_reach_a_new_zone() -> None:
+def test_in_a_fight_a_second_light_may_light_no_new_zone() -> None:
     near = gear_fight(CAVE, hero(gear=["torch"]), (hero("ally"), Side.PARTY, "a"))
     run(near, [LightLit(creature_id="ally", item="torch")])  # lights a and b already
-    assert "already lit" in refusal(use(near, "torch"))
-    assert qty(near, "hero", "torch") == 1
+    run(near, use(near, "torch"))  # owner 2026-10-22: allowed, the bonus action is spent
+    assert qty(near, "hero", "torch") == 0
+    assert lit_zones(near) == frozenset("ab")
     candle = gear_fight(CAVE, hero(gear=["torch"]), (hero("ally"), Side.PARTY, "a"))
     run(candle, [LightLit(creature_id="ally", item="candle", reach="zone")])  # lights a only
     run(candle, use(candle, "torch"))

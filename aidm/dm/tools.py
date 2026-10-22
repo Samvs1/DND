@@ -83,6 +83,11 @@ class CreativeEffectArgs(_Args):
     duration_rounds: int = Field(default=1, ge=0, le=10)
     condition: str | None = Field(default=None, max_length=32)
     damage_type: DamageType = DamageType.BLUDGEONING
+    item: str | None = Field(
+        default=None,
+        max_length=64,
+        description="the hero's own gear the effect uses, if any (it must be carried)",
+    )
     reason: str = _reason()  # M20.1: the model sends one; it was refused as an extra input
 
 

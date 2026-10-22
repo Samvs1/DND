@@ -8,13 +8,32 @@
     "ignite"
    ],
    "when": "dark_place",
-   "label": "Light this dark place",
+   "label": "Light the torch",
    "effect": {
     "kind": "light_place"
    },
    "cost": "bonus",
    "consumes": true,
    "noise": true
+  },
+  {
+   "id": "torch-hit",
+   "item": "torch",
+   "verbs": [
+    "throw",
+    "hurl",
+    "toss"
+   ],
+   "when": "fight",
+   "label": "Throw the lit torch at a creature",
+   "effect": {
+    "kind": "damage",
+    "roll": "attack",
+    "dice": "1",
+    "damage_type": "fire"
+   },
+   "cost": "action",
+   "from_light": true
   },
   {
    "id": "torch-throw",
@@ -40,7 +59,7 @@
     "light"
    ],
    "when": "dark_place",
-   "label": "Light this dark place",
+   "label": "Light the candle",
    "effect": {
     "kind": "light_place",
     "reach": "zone"
@@ -57,7 +76,7 @@
     "open"
    ],
    "when": "dark_place",
-   "label": "Light this dark place",
+   "label": "Light the lantern",
    "effect": {
     "kind": "light_place"
    },
@@ -72,7 +91,7 @@
     "open"
    ],
    "when": "dark_place",
-   "label": "Light this dark place and search it closely",
+   "label": "Light the lantern and search closely",
    "effect": {
     "kind": "light_place",
     "skills": [
@@ -767,5 +786,45 @@
    "save_dc": 19,
    "attack_bonus": 11
   }
- ]
+ ],
+ "improvised": {
+  "id": "improvised-throw",
+  "item": "*",
+  "verbs": [
+   "throw",
+   "hurl",
+   "toss",
+   "lob",
+   "pour",
+   "splash"
+  ],
+  "when": "fight",
+  "label": "Throw it (improvised weapon)",
+  "effect": {
+   "kind": "damage",
+   "roll": "attack",
+   "dice": "1d4",
+   "damage_type": "bludgeoning",
+   "ability_mod": true
+  },
+  "cost": "action",
+  "consumes": true
+ },
+ "substances": {
+  "waterskin": [
+   "water"
+  ],
+  "oil-flask": [
+   "oil"
+  ],
+  "alchemists-fire-flask": [
+   "fire"
+  ],
+  "acid-vial": [
+   "acid"
+  ],
+  "holy-water-flask": [
+   "holy"
+  ]
+ }
 }
