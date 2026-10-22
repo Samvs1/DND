@@ -5,6 +5,7 @@ per scene, NPC stat blocks from the SRD catalogue). `move_party` only follows `l
 (the campaign graph minus the derived locks) and never moves while an encounter offer waits;
 leaving a region with open tasks first asks (M23.4, `rules.quest_leaving.crossing`): the same
 point-of-no-return `pending` as a hostile act, executed again with `confirm_hostile` on yes.
+After `PartyMoved` come `aidm.rules.light.arrival_events` (a carried light alerts a dark place).
 Attitude goes through `aidm.rules.social` (bounded). Quests and facts: `aidm.dm.tool_exec_ledger`.
 
 Public API: `run_update_attitude`, `run_reveal_secret`, `run_move_party`, `run_introduce_npc`,
@@ -41,6 +42,7 @@ from aidm.models.world_events import (
 from aidm.rules.checks import dc_for_tier
 from aidm.rules.dice import Rng
 from aidm.rules.gateway_lock import locked_reason
+from aidm.rules.light import arrival_events
 from aidm.rules.projection import project_state
 from aidm.rules.quest_leaving import crossing, crossing_prompt
 from aidm.rules.secrets import reveal_refusal
@@ -106,7 +108,8 @@ def run_move_party(
     event = PartyMoved(
         from_node=world.current_node, to_node=args.node_id, scene_index=world.scene_index + 1
     )
-    return ToolResult(events=(event,), summary=f"the party travels to {args.node_id}")
+    arrival = arrival_events(state, args.node_id)  # a carried light gives a dark place away
+    return ToolResult(events=(event, *arrival), summary=f"the party travels to {args.node_id}")
 
 
 def _scene_count(entities: list[WorldNpc] | list[WorldFeature], scene: int) -> int:

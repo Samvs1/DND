@@ -55,7 +55,7 @@ class _Strict(BaseModel):
 
 class LightPlace(_Strict):
     kind: Literal["light_place"]
-    skills: tuple[str, ...] = ()  # advantage on these skills while the place is lit by it
+    skills: tuple[str, ...] = ()  # advantage on these skills while its light lasts (M27.12)
     reach: LightReachKey = "touching"  # M27.2: own zone + touching zones; "zone" = own only
 
 

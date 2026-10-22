@@ -1,4 +1,4 @@
-"""Light and darkness (M27.2, docs/next/GOAL_ITEMS.md "Light and darkness"): aidm/rules/light.py."""
+"""Light and darkness (M27.2, carried M27.12; GOAL_ITEMS "Light and darkness"): rules/light.py."""
 
 from __future__ import annotations
 
@@ -13,9 +13,10 @@ from aidm.models.combat_events import CombatantMoved
 from aidm.models.dice import AdvState
 from aidm.models.encounter import Side
 from aidm.models.events import AnyEvent
+from aidm.models.item_events import LightEnded, LightLit
 from aidm.models.state import Creature, GameState
 from aidm.models.world import LightReach
-from aidm.models.world_events import PartyMoved, PlaceLit
+from aidm.models.world_events import PartyMoved
 from aidm.models.zones import Zone, ZoneEdge, ZoneMap, ZoneSurface
 from aidm.rules.attack_profiles import find_option
 from aidm.rules.campaign_install import install_campaign
@@ -136,22 +137,23 @@ def test_ai_advantage_cancels_darkness() -> None:
     assert result.roll.adv is AdvState.NORMAL and result.adv_why == ()
 
 
-def test_a_lit_place_is_not_dark_until_the_party_leaves() -> None:
+def test_a_carried_light_lights_every_dark_place_until_it_ends() -> None:
+    # M27.12: the light travels with its bearer; PartyMoved keeps it, LightEnded ends it.
     state = _at(CAVE)
     state.creatures["hero"] = make_pc("hero")
-    apply(state, PlaceLit(node=CAVE, by="hero"))
+    apply(state, LightLit(creature_id="hero", item="torch"))
     assert sight_darkness(state, Skill.PERCEPTION) == () and zone_lit(state, "any")
     apply(state, PartyMoved(from_node=CAVE, to_node=CRYPT, scene_index=2))
-    assert state.world.lit is None
-    assert sight_darkness(state, Skill.PERCEPTION) == (DARKNESS,)
-    apply(state, PartyMoved(from_node=CRYPT, to_node=CAVE, scene_index=3))
+    assert sight_darkness(state, Skill.PERCEPTION) == () and zone_lit(state, "any")
+    apply(state, LightEnded(creature_id="hero", reason="long rest"))
     assert sight_darkness(state, Skill.PERCEPTION) == (DARKNESS,) and not zone_lit(state, "any")
 
 
-def test_a_light_for_another_place_does_not_count() -> None:
+def test_a_light_whose_bearer_is_gone_does_not_count() -> None:
     state = _at(CAVE)
     state.creatures["hero"] = make_pc("hero")
-    apply(state, PlaceLit(node=CRYPT, by="hero"))
+    apply(state, LightLit(creature_id="hero", item="torch"))
+    del state.creatures["hero"]
     assert sight_darkness(state, Skill.PERCEPTION) == (DARKNESS,)
 
 
@@ -186,7 +188,7 @@ def test_advantage_cancels_darkness_in_a_fight() -> None:
 def test_the_light_moves_with_its_bearer() -> None:
     # A torch: 20 ft bright light covers the bearer's zone and the next 15 ft hop (SRD 5.1).
     state = _crypt_fight(make_pc("hero"), "c")
-    apply(state, PlaceLit(node=CRYPT, by="hero"))
+    apply(state, LightLit(creature_id="hero", item="torch"))
     assert lit_zones(state) == frozenset("ab")
     assert _situation(state).adv is AdvState.DISADVANTAGE
     apply(state, CombatantMoved(creature_id="hero", from_zone="a", to_zone="b", feet=15))
@@ -199,7 +201,7 @@ def test_the_light_moves_with_its_bearer() -> None:
 
 def test_a_candle_lights_only_its_own_zone() -> None:
     state = _crypt_fight(make_pc("hero"), "b")
-    apply(state, PlaceLit(node=CRYPT, by="hero", reach="zone"))
+    apply(state, LightLit(creature_id="hero", item="candle", reach="zone"))
     assert lit_zones(state) == frozenset("a")
     assert _situation(state).adv is AdvState.DISADVANTAGE
 

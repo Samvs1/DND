@@ -22,7 +22,8 @@ Public API:
   short-rest counter), then per living member: HP to max (death-save state reset), temporary HP
   cleared, every resource restored, ROUNDS and UNTIL_LONG_REST conditions ended, concentration
   ended. The dead are not revived and do not count toward the cost. Gear boons that last until
-  the long rest end (`BoonEnded`, M27.3, `aidm.rules.boons.long_rest_boon_events`).
+  the long rest end (`BoonEnded`, M27.3, `aidm.rules.boons.long_rest_boon_events`), and so
+  does every carried light (`LightEnded`, M27.12, `long_rest_light_events`).
 """
 
 from enum import StrEnum
@@ -37,7 +38,7 @@ from aidm.models.events import (
     TempHpSet,
 )
 from aidm.models.state import Creature, CreatureKind, GameState, RechargeKind
-from aidm.rules.boons import long_rest_boon_events
+from aidm.rules.boons import long_rest_boon_events, long_rest_light_events
 from aidm.rules.concentration import end_concentration
 from aidm.rules.condition_timing import long_rest_condition_events
 from aidm.rules.damage import resolve_healing
@@ -130,4 +131,4 @@ def long_rest(state: GameState) -> list[AnyEvent]:
     ]
     for member in party:
         events.extend(_long_rest_member(state, member))
-    return [*events, *long_rest_boon_events(state)]
+    return [*events, *long_rest_boon_events(state), *long_rest_light_events(state)]

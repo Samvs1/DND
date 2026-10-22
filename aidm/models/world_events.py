@@ -41,10 +41,9 @@ Public API:
   `equipped` and its armour class `ac` (computed by `aidm.rules.equipment`).
 - The quest events of `aidm.models.quest_events` (M23: `QuestStepDone`, `RouteDiscovered`,
   `QuestLeadAdded`, `QuestLeadRemoved`, `QuestAsked`, `QuestAskDeclined`, `KeepsakeGiven`).
-- `PlaceLit(node, by, reach)` (M27.2): the hero `by` carries a lit light in the place `node`
-  (the current place) until the party leaves it; `reach` as in `aidm.models.world.PlaceLight`.
 - The item-use events of `aidm.models.item_events` (M27.3: `ItemUsed`, `ItemUseRefused`,
-  `BoonGained`, `BoonEnded`, `PlaceAlerted`, `PlacesCharted`).
+  `BoonGained`, `BoonEnded`, `PlaceAlerted`, `PlacesCharted`; M27.12: the carried light,
+  `LightLit` and `LightEnded`, which replace M27.2's place-bound `PlaceLit`).
 - `WorldEvents`: the union of these classes (joins `AnyEvent`).
 """
 
@@ -58,7 +57,6 @@ from aidm.models.memory import SceneSummary
 from aidm.models.quest_events import QuestEvents
 from aidm.models.world import (
     Fact,
-    LightReach,
     Quest,
     WorldFeature,
     WorldItem,
@@ -100,13 +98,6 @@ class PartyMoved(_WorldEvent):
     from_node: str | None
     to_node: str
     scene_index: int = Field(ge=0)
-
-
-class PlaceLit(_WorldEvent):
-    type: Literal["place_lit"] = "place_lit"
-    node: str = Field(min_length=1)
-    by: str = Field(min_length=1)
-    reach: LightReach = "touching"
 
 
 class QuestUpdated(_WorldEvent):
@@ -241,7 +232,6 @@ WorldEvents = (
     | NarrationRecorded
     | SceneSummarised
     | EquipmentChanged
-    | PlaceLit
     | QuestEvents
     | ItemEvents
 )

@@ -4,7 +4,9 @@ ONE `match` on the closed effect vocabulary of data/bg3/item_uses.json; never a 
 branch. Each handler returns the effect's events (EXISTING events wherever one exists) or a
 refusal message (str) that tells the model what to narrate instead; a refusal consumes nothing.
 
-- light_place: `PlaceLit(node, by, reach)` (+ a place boon on its `skills`, bullseye lantern).
+- light_place: `LightLit(creature_id, item, reach)`: the hero carries the lit light from place to
+  place until the next long rest (M27.12); in a fight it must light a zone no light reaches yet.
+  Its `skills` give a boon that lasts as long as the light (until the long rest; bullseye).
 - boon: `BoonGained` (refused when the hero's boons already cover it: advantage never stacks).
 - surface: the surface interpreter in the target zone (own or touching zone: a 20 ft throw).
 - condition: `apply_condition` on a target creature in reach (refused when nothing changes).
@@ -44,10 +46,9 @@ from aidm.models.character import InventoryItem
 from aidm.models.checks import DcTier
 from aidm.models.encounter import Encounter, EncounterStatus
 from aidm.models.events import AnyEvent, CampSuppliesChanged, CheckResolved, InventoryChanged
-from aidm.models.item_events import BoonGained, PlacesCharted
+from aidm.models.item_events import BoonGained, LightLit, PlacesCharted
 from aidm.models.state import Creature, CreatureKind, GameState
 from aidm.models.world import ActiveBoon, BoonScope
-from aidm.models.world_events import PlaceLit
 from aidm.models.zones import ZoneSurface
 from aidm.rules.boons import boon_adds_nothing
 from aidm.rules.checks import dc_for_tier, tool_proficient
@@ -55,6 +56,7 @@ from aidm.rules.condition_timing import apply_condition, new_condition
 from aidm.rules.death import is_dying, stabilize
 from aidm.rules.dice import Rng
 from aidm.rules.gear_checks import gear_check
+from aidm.rules.light import light_reach_zones, lit_zones
 from aidm.rules.surfaces import place_surface_events
 from aidm.rules.zones import zone_neighbors
 
@@ -148,12 +150,17 @@ def _boon(
 
 
 def _light(ctx: UseCtx, effect: LightPlace) -> list[AnyEvent] | str:
-    node = ctx.state.world.current_node
-    if node is None:
-        return "There is no place here to light."
-    events: list[AnyEvent] = [PlaceLit(node=node, by=ctx.actor.id, reach=effect.reach)]
-    if effect.skills:
-        events.append(BoonGained(boon=_boon(ctx, effect.skills, (), "place")))
+    state, actor = ctx.state, ctx.actor
+    if _fight(state) is not None:
+        new = light_reach_zones(state, actor.id, effect.reach) - lit_zones(state)
+        if not new:
+            gear = gear_name(ctx.use.item).lower()
+            return f"Every zone the {gear} would reach is already lit; it changes nothing."
+    events: list[AnyEvent] = [
+        LightLit(creature_id=actor.id, item=ctx.entry.item, reach=effect.reach)
+    ]
+    if effect.skills:  # the light lasts until the long rest, and so does its boon
+        events.append(BoonGained(boon=_boon(ctx, effect.skills, (), "until_long_rest")))
     return events
 
 

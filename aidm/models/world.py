@@ -48,10 +48,12 @@ Public API:
   M23: `leads` (quest leads), `quest_ask` (the pending quest offer, at most one);
   `WorldNpc.keepsakes` holds keepsakes handed to that NPC. A closed quest's `closed_reason`:
   `left_behind` (its region was left) or `withdrawn` (a favour let go, M23.5).
-  M27.2: `lit` (`PlaceLight(node, by, reach)`, set by `PlaceLit`, cleared by `PartyMoved`):
-  the light a hero carries in the current place. `reach` (`LightReach`): "touching" lights the
-  bearer's zone and the touching zones in a fight (torch, lantern), "zone" only the bearer's
-  zone (candle). Darkness itself is derived (`aidm.rules.light`), never stored.
+  M27.12: `lights` (`CarriedLight(creature_id, item, reach)`, one per hero, set by `LightLit`,
+  ended by `LightEnded`): the lit lights the heroes carry. A light travels with its bearer from
+  place to place until the next long rest (`PartyMoved` keeps it). `reach` (`LightReach`):
+  "touching" lights the bearer's zone and the touching zones in a fight (torch, lantern), "zone"
+  only the bearer's zone (candle). Darkness itself is derived (`aidm.rules.light`), never
+  stored. A snapshot from M27.2-M27.3 holds the place-bound `lit` key; it is dropped on load.
   M27.3 (gear): `boons` (`ActiveBoon`: advantage a hero's gear gives on listed skills or on
   saves against listed harms; scope "place" ends on `PartyMoved`, "until_long_rest" on the long
   rest), `alerted` (the place a noisy use alerted; cleared on `PartyMoved`), `foraged` (places
@@ -62,7 +64,7 @@ Public API:
 from __future__ import annotations
 
 from enum import StrEnum
-from typing import Literal
+from typing import Literal, cast
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -76,11 +78,13 @@ MAX_QUEST_LOG = 8
 type LightReach = Literal["zone", "touching"]
 
 
-class PlaceLight(BaseModel):
+class CarriedLight(BaseModel):
+    """A lit light a hero carries (M27.12); `item` is the catalogue id (torch, lantern...)."""
+
     model_config = ConfigDict(frozen=True, extra="forbid")
 
-    node: str = Field(min_length=1)
-    by: str = Field(min_length=1)
+    creature_id: str = Field(min_length=1)
+    item: str = Field(min_length=1)
     reach: LightReach = "touching"
 
 
@@ -282,8 +286,17 @@ class World(BaseModel):
     scene_turn: int = Field(default=0, ge=0)
     leads: list[QuestLead] = Field(default_factory=list[QuestLead])
     quest_ask: QuestAsk | None = None
-    lit: PlaceLight | None = None  # M27.2: cleared on PartyMoved
+    lights: list[CarriedLight] = Field(default_factory=list[CarriedLight])  # M27.12
     boons: list[ActiveBoon] = Field(default_factory=list[ActiveBoon])  # M27.3
     alerted: str | None = None  # M27.3: cleared on PartyMoved
     foraged: list[str] = Field(default_factory=list[str])  # M27.3
     charted: list[str] = Field(default_factory=list[str])  # M27.3
+
+    @model_validator(mode="before")
+    @classmethod
+    def _drop_place_light(cls, data: object) -> object:
+        """M27.2-M27.3 snapshots hold the place-bound `lit` (always null in play): drop it."""
+        if not isinstance(data, dict):
+            return data
+        raw = cast(dict[str, object], data)
+        return {k: v for k, v in raw.items() if k != "lit"} if "lit" in raw else raw

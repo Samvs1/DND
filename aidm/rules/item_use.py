@@ -8,7 +8,9 @@ The AI proposes (`use_item(actor, item, target?)`, M27.5), the engine disposes. 
 3. a use of that item (data/bg3/item_uses.json, optionally the one `use_id`) fits:
    - its effect is wired (`item_effects.not_wired`: unlock M27.4, cast_spell M27.7, damage M27.6),
    - the situation (`when`): a use without a fight `cost` is never used in a fight; `fight` needs
-     one; `dark_place` needs a dark, unlit place; `tagged_place` a place with one of its terrain
+     one; `dark_place` needs a dark place and a hero without a lit light, and out of a fight a
+     place no carried light lights yet (in a fight the light must reach a new zone,
+     `item_effects`); `tagged_place` a place with one of its terrain
      tags; `long_rest` the caller's `resting`; `place` and `ally_down` anywhere,
    - charges left (an entry without `charges` is full),
    - in a fight its cost (action / bonus) through the action economy (`command_checks.spend`),
@@ -36,7 +38,7 @@ from aidm.models.state import Creature, GameState
 from aidm.rules.command_checks import CommandRefused, changed, spend
 from aidm.rules.dice import Rng
 from aidm.rules.item_effects import UseCtx, effect_events, gear_name, not_wired
-from aidm.rules.light import place_dark, place_light
+from aidm.rules.light import hero_light, place_dark, place_light
 from aidm.rules.progression import node_plan
 
 
@@ -67,12 +69,17 @@ def _in_fight(state: GameState) -> bool:
     return enc is not None and enc.status is EncounterStatus.ACTIVE
 
 
-def _dark_problem(state: GameState, gear: str) -> str | None:
+def _dark_problem(ctx: UseCtx, gear: str) -> str | None:
+    state, actor = ctx.state, ctx.actor
+    own = hero_light(state, actor.id)
+    if own is not None:
+        carried = gear_name(own.item).lower()
+        return f"{actor.name} already carries a lit {carried}; the {gear} changes nothing."
     if not place_dark(state):
         return f"It is not dark here; the {gear} changes nothing."
     lit = place_light(state)
-    if lit is not None:
-        bearer = state.creatures.get(lit.by)
+    if lit is not None and not _in_fight(state):
+        bearer = state.creatures.get(lit.creature_id)
         who = bearer.name if bearer is not None else "a hero"
         return f"This place is already lit by {who}; the {gear} changes nothing."
     return None
@@ -95,7 +102,7 @@ def _situation_problem(ctx: UseCtx) -> str | None:
     if use.when == "fight" and not fight:
         return f"The {gear} is for a fight, and there is none now."
     if use.when == "dark_place":
-        return _dark_problem(state, gear)
+        return _dark_problem(ctx, gear)
     if use.when == "tagged_place":
         return _tag_problem(state, use, gear)
     if use.when == "long_rest" and not ctx.resting:

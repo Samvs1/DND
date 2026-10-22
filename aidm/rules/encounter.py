@@ -18,7 +18,7 @@ Public API:
   movement or reactions until the end of the creature's first turn) on every creature of the
   surprised side. Foes at a place the party alerted are never surprised (`party_surprise`).
 - `party_surprise(state, surprise) -> SurpriseKind` (M27.3): HOSTILE becomes NONE when the
-  current place is `World.alerted` (a noisy gear use).
+  current place is `World.alerted` (a noisy gear use, or arriving there with a carried light).
 - `roll_initiative(rng, creatures) -> list[InitiativeEntry]`: BG3 1d4 + DEX modifier per
   creature, rolled in the given order, sorted by total, then DEX score, both descending, then
   creature id ascending (deterministic ties).
@@ -163,7 +163,7 @@ def roll_initiative(rng: Rng, creatures: Sequence[Creature]) -> list[InitiativeE
 
 
 def party_surprise(state: GameState, surprise: SurpriseKind) -> SurpriseKind:
-    """Foes met at a place the party alerted (a noisy gear use, M27.3) cannot be surprised."""
+    """Foes met at a place the party alerted (noisy gear, a carried light) cannot be surprised."""
     world = state.world
     alerted = world.alerted is not None and world.alerted == world.current_node
     return SurpriseKind.NONE if alerted and surprise is SurpriseKind.HOSTILE else surprise

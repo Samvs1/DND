@@ -2,7 +2,7 @@
 
 Emitted by the item-use interpreter (`aidm.rules.item_use`) and the long rest
 (`aidm.rules.rests`), applied by `aidm.session.item_apply`. Payloads are resolved; the reducer
-only assigns. The effects of a use travel in the EXISTING events (`PlaceLit`, `ZoneSurfaceAdded`,
+only assigns. The effects of a use travel in the EXISTING events (`ZoneSurfaceAdded`,
 `ConditionApplied`, `Stabilized`, `InventoryChanged`, `CampSuppliesChanged`, `CheckResolved`,
 `EconomyChanged`...); these events add only what is new.
 
@@ -15,9 +15,14 @@ Public API:
   was consumed; `message` tells the model what to narrate instead (an attempt, never a result).
 - `BoonGained(boon)`: the hero's `ActiveBoon` joins `World.boons` (replacing the same use's).
 - `BoonEnded(creature_id, use_id, reason)`: that boon leaves `World.boons`.
-- `PlaceAlerted(node)`: a noisy use alerted the place; foes met there cannot be surprised by
+- `PlaceAlerted(node)`: a noisy use, or arriving in a dark place with a lit light (M27.12),
+  alerted the place; foes met there cannot be surprised by
   the party until it leaves (`World.alerted`, cleared on `PartyMoved`).
 - `PlacesCharted(nodes)`: these places become known on the map without a visit (`World.charted`).
+- `LightLit(creature_id, item, reach)` (M27.12): the hero carries a lit light (`World.lights`,
+  replacing that hero's); it travels with them from place to place.
+- `LightEnded(creature_id, reason)` (M27.12): that hero's light ends (the long rest, from
+  `aidm.rules.rests`; a dead bearer's light when the party moves on, `aidm.rules.light`).
 - `ItemEvents`: the union of these classes.
 """
 
@@ -25,7 +30,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from aidm.models.world import ActiveBoon
+from aidm.models.world import ActiveBoon, LightReach
 
 
 class _ItemEvent(BaseModel):
@@ -73,4 +78,26 @@ class PlacesCharted(_ItemEvent):
     nodes: tuple[str, ...] = Field(min_length=1)
 
 
-ItemEvents = ItemUsed | ItemUseRefused | BoonGained | BoonEnded | PlaceAlerted | PlacesCharted
+class LightLit(_ItemEvent):
+    type: Literal["light_lit"] = "light_lit"
+    creature_id: str = Field(min_length=1)
+    item: str = Field(min_length=1)
+    reach: LightReach = "touching"
+
+
+class LightEnded(_ItemEvent):
+    type: Literal["light_ended"] = "light_ended"
+    creature_id: str = Field(min_length=1)
+    reason: str = ""
+
+
+ItemEvents = (
+    ItemUsed
+    | ItemUseRefused
+    | BoonGained
+    | BoonEnded
+    | PlaceAlerted
+    | PlacesCharted
+    | LightLit
+    | LightEnded
+)

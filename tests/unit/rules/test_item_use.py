@@ -4,10 +4,9 @@ the situation, one use per action, the fight cost, consume vs charges, every ref
 from aidm.models.encounter import Side
 from aidm.models.encounter_events import EconomyChanged
 from aidm.models.events import InventoryChanged, Stabilized
-from aidm.models.item_events import BoonGained, ItemUsed, PlaceAlerted
+from aidm.models.item_events import BoonGained, ItemUsed, LightEnded, LightLit, PlaceAlerted
 from aidm.models.state import GameState
-from aidm.models.world import PlaceLight
-from aidm.models.world_events import PlaceLit
+from aidm.models.world import CarriedLight
 from tests.unit.rules.combat_fixtures import economy
 from tests.unit.rules.item_fixtures import (
     CAVE,
@@ -27,16 +26,16 @@ HEALERS_KIT_USES = 10  # SRD 5.1 Adventuring Gear, Healer's Kit: "This kit ... h
 def test_torch_lights_a_dark_place_is_consumed_and_alerts_it() -> None:
     state = at(CAVE, hero(gear=[("torch", 2)]))
     events = use(state, "torch")
-    assert [type(e) for e in events] == [ItemUsed, PlaceLit, InventoryChanged, PlaceAlerted]
+    assert [type(e) for e in events] == [ItemUsed, LightLit, InventoryChanged, PlaceAlerted]
     run(state, events)
-    assert state.world.lit == PlaceLight(node=CAVE, by="hero", reach="touching")
+    assert state.world.lights == [CarriedLight(creature_id="hero", item="torch", reach="touching")]
     assert qty(state, "hero", "torch") == 1
     assert state.world.alerted == CAVE
 
 
 def test_candle_lights_its_own_zone_only_and_a_lantern_is_kept() -> None:
     state = at(CAVE, hero(gear=["candle", "lantern-hooded"]))
-    lit = [e for e in use(state, "candle") if isinstance(e, PlaceLit)]
+    lit = [e for e in use(state, "candle") if isinstance(e, LightLit)]
     assert lit[0].reach == "zone"
     events = use(state, "Lantern, hooded")  # by catalogue name
     assert not any(isinstance(e, InventoryChanged) for e in events)
@@ -44,11 +43,12 @@ def test_candle_lights_its_own_zone_only_and_a_lantern_is_kept() -> None:
     assert qty(state, "hero", "lantern-hooded") == 1
 
 
-def test_bullseye_lantern_lights_and_gives_investigation_here() -> None:
+def test_bullseye_lantern_lights_and_gives_investigation_as_long_as_its_light() -> None:
+    # M27.12: the light lasts until the long rest, and so does its Investigation boon.
     state = at(CAVE, hero(gear=["lantern-bullseye"]))
     boons = [e.boon for e in use(state, "lantern-bullseye") if isinstance(e, BoonGained)]
     assert [(b.name, b.skills, b.scope, b.node) for b in boons] == [
-        ("Lantern", ("investigation",), "place", CAVE)
+        ("Lantern", ("investigation",), "until_long_rest", None)
     ]
 
 
@@ -165,7 +165,7 @@ def test_out_of_charges_is_refused() -> None:
 def test_noise_alerts_a_place_once() -> None:
     state = at(CAVE, hero(gear=["torch"]), hero("ally", gear=["lantern-hooded"]))
     run(state, use(state, "torch"))
-    state.world.lit = None  # the torch burned out (test shortcut)
+    run(state, [LightEnded(creature_id="hero", reason="long rest")])
     assert not any(isinstance(e, PlaceAlerted) for e in use(state, "lantern-hooded", actor="ally"))
 
 

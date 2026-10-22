@@ -1,18 +1,21 @@
-"""request_check in a dark place (M27.2): the engine adds Darkness, never hides a quest item."""
+"""request_check in a dark place (M27.2): the engine adds Darkness, never hides a quest item;
+move_party with a carried light gives the dark place away (M27.12)."""
 
 from aidm.dm.campaign_sample import load_sample_campaign
 from aidm.models.dice import AdvState
 from aidm.models.events import CheckResolved
+from aidm.models.item_events import LightLit, PlaceAlerted
 from aidm.models.state import GameState
 from aidm.models.world import WorldItem
-from aidm.models.world_events import ItemDiscovered, ItemPlaced, PartyMoved, PlaceLit
+from aidm.models.world_events import ItemDiscovered, ItemPlaced, PartyMoved
 from aidm.rules.campaign_install import install_campaign
 from aidm.rules.light import DARKNESS
 from aidm.session.reducer import apply
-from tests.ai.tool_fixtures import run_tool
+from tests.ai.tool_fixtures import apply_result, run_tool
 from tests.sim.sim_setup import build_party
 
 CAVE = "saltcellar-tunnels"  # sample campaign: cave, crypt
+CRYPT = "sunken-vestry"  # ruins, crypt: dark, next to CAVE
 
 
 def _cave() -> GameState:
@@ -51,7 +54,7 @@ def test_search_in_a_dark_place_is_at_disadvantage_whatever_the_ai_asked() -> No
 
 def test_a_lit_cave_searches_normally() -> None:
     state = _cave()
-    apply(state, PlaceLit(node=CAVE, by="rogue"))
+    apply(state, LightLit(creature_id="rogue", item="torch"))
     assert _check(state, "perception").result.roll.adv is AdvState.NORMAL
 
 
@@ -79,3 +82,15 @@ def test_darkness_never_hides_a_quest_item() -> None:
             found = True
             break
     assert found
+
+
+def test_move_party_with_a_carried_light_alerts_the_dark_place() -> None:
+    state = _cave()
+    apply(state, LightLit(creature_id="rogue", item="torch"))
+    apply(state, PartyMoved(from_node=CAVE, to_node=CRYPT, scene_index=2))
+    result = run_tool(state, "move_party", node_id=CAVE)
+    assert result.ok
+    assert [type(e) for e in result.events] == [PartyMoved, PlaceAlerted]
+    apply_result(state, result)
+    assert state.world.alerted == CAVE and len(state.world.lights) == 1
+    assert _check(state, "perception").result.roll.adv is AdvState.NORMAL

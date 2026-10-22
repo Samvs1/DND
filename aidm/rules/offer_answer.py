@@ -4,7 +4,8 @@ The checks use the DCs the offer carries (set from the region tier by data, neve
 - fight: the fight starts.
 - surprise: a group Stealth check; success -> the foes are surprised; either way the fight starts.
 - escape: a group check, each PC rolling the better of Stealth and Athletics; success -> the
-  party slips back to where it came from (no fight); failure -> the fight starts.
+  party slips back to where it came from (no fight; a carried light still gives a dark place
+  away, `aidm.rules.light.arrival_events`); failure -> the fight starts.
 - parley: one PC (the actor, else the first living PC) rolls Persuasion (or Intimidation);
   success -> no fight (with a boss: Persuasion improves its attitude, social contribution only,
   capped and floored); failure -> the fight starts.
@@ -29,6 +30,7 @@ from aidm.rules.checks import skill_bonus
 from aidm.rules.conditions import skill_check_with_conditions
 from aidm.rules.dice import Rng
 from aidm.rules.encounter_offer import OfferData, offer_fight_events
+from aidm.rules.light import arrival_events
 from aidm.rules.social import social_attitude_events
 
 PARLEY_SKILLS = (Skill.PERSUASION, Skill.INTIMIDATION)
@@ -136,4 +138,5 @@ def answer_offer(
                 scene_index=world.scene_index + 1,
             )
         )
+        events.extend(arrival_events(state, offer.retreat_node))
     return events
