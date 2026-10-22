@@ -41,7 +41,7 @@ from aidm.data.item_uses import (
     improvised_use,
     uses_for_item,
 )
-from aidm.dm.gear_words import carried_entry, fits, words
+from aidm.dm.gear_words import carried_entry, fits, held_gear, lock_named, words
 from aidm.models.encounter import EncounterStatus
 from aidm.models.state import Creature, GameState
 from aidm.rules.item_effects import gear_name
@@ -107,15 +107,6 @@ def _put_out(state: GameState, actor: Creature, phrase: str) -> UseIntent | None
     return UseIntent(actor.id, item or "light", put_out=True)
 
 
-def _held(state: GameState, actor: Creature, phrase: str) -> str | None:
-    """A carried item the phrase names, else the hero's lit light when it does (M27.6)."""
-    item = carried_entry(actor, phrase)
-    light = hero_light(state, actor.id)
-    if item is None and light is not None and fits(words(phrase), gear_name(light.item)):
-        return light.item
-    return item
-
-
 def _zone_of(state: GameState, creature_id: str) -> str | None:
     enc = state.encounter
     there = enc.combatants.get(creature_id) if enc is not None else None
@@ -150,6 +141,9 @@ def _target(
     in its zone), else gear that covers a zone takes the creature's zone."""
     if not phrase:
         return None
+    lock = lock_named(state, phrase)  # M27.10: "... to force open the lock" aims at the lock
+    if lock is not None:
+        return lock
     wanted = words(phrase)
     places, people = _named(state)
     place = _best(wanted, places)
@@ -220,7 +214,7 @@ def use_intent(state: GameState, actor_id: str, clean: str) -> UseIntent | None:
     for pattern in (_LIGHT, _THROW, _READ):
         if m := pattern.fullmatch(clean):
             target = m["target"] if "target" in pattern.groupindex else None
-            return _with_verb(state, actor, _held(state, actor, m["item"]), m["verb"], target)
+            return _with_verb(state, actor, held_gear(state, actor, m["item"]), m["verb"], target)
     if m := _USE.fullmatch(clean):
         return _with_verb(state, actor, carried_entry(actor, m["item"]), None, m["target"])
     if m := _CRAFT.fullmatch(clean):

@@ -22,8 +22,8 @@ Public API: `GEAR_REFUSED`, `leaned_gear(state, actor_id, item, text) -> str | N
 """
 
 from aidm.data.item_catalogue import ItemCategory, item_catalogue
-from aidm.data.item_uses import SUBSTANCES, item_substances
-from aidm.dm.gear_words import carried_entry, fits, words
+from aidm.data.item_uses import item_substances
+from aidm.dm.gear_words import fits, held_gear, words
 from aidm.dm.precheck import gear_phrase
 from aidm.dm.tool_context import ToolRefused, ToolRegistries, ToolResult
 from aidm.dm.tool_exec_gear import gear_summary
@@ -36,7 +36,6 @@ from aidm.models.state import Creature, GameState
 from aidm.rules.dice import Rng
 from aidm.rules.item_effects import gear_name
 from aidm.rules.item_use import keepsake_message, lacks_message, use_item
-from aidm.rules.light import hero_light
 from aidm.rules.scene import current_scene
 from aidm.rules.weaknesses import substance_weakness_events, weak_to
 
@@ -45,16 +44,9 @@ _NOT_THROWN = (ItemCategory.WEAPON, ItemCategory.ARMOR)
 
 
 def _carried(state: GameState, actor: Creature, phrase: str) -> str | None:
-    found = carried_entry(actor, phrase)
+    found = held_gear(state, actor, phrase)
     if found is not None or actor.pc is None:
         return found
-    said = words(phrase) & SUBSTANCES
-    for entry in actor.pc.inventory:
-        if said & set(item_substances(entry.item)):
-            return entry.item
-    light = hero_light(state, actor.id)
-    if light is not None and fits(words(phrase), gear_name(light.item)):
-        return light.item
     worn = [w for w in actor.pc.equipped.model_dump().values() if isinstance(w, str)]
     return next((w for w in worn if fits(words(phrase), gear_name(w))), None)  # "my shield"
 

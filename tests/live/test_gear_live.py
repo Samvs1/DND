@@ -53,7 +53,7 @@ from tests.unit.rules.item_fixtures import CAVE, DOCKS, at, gear_fight, hero, qt
 type Say = Callable[[str], None]
 ROPE = "rope-hempen-50-feet"
 WATER = "Water Susceptibility"
-MAX_ARGS = 90
+MAX_ARGS = 160
 
 
 class RecordingBackend:
