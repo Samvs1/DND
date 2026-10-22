@@ -72,6 +72,10 @@ Herbalism crafting alone requires the tool proficiency (SRD).
   lit light that stays lit and moves with them from place to place until the next long rest (one torch covers a
   whole trip; SRD: a torch burns 1 hour). A torch or candle is used up when lit, a lantern is not. A dark place is
   lit while a hero carrying a light is there. One light per hero; several heroes may carry one.
+- **D: putting a light out (owner, 2026-10-22).** Free, in or out of a fight ("put out my torch", "douse the
+  torch", the **Put out light** button). A torch or candle is spent once lit, so putting it out uses it up; a
+  lantern can be put out and relit as often as you like (the light for a party that wants to sneak). Putting a
+  light out does not un-alert a place that already saw it.
 - Out of a fight, in a dark unlit place: sight checks (Perception, Investigation, and every search check) roll at
   disadvantage for everyone (darkvision sees darkness as dim light, which still gives disadvantage on Perception: SRD).
 - **D: in a fight, light is per zone** (owner answer 7). In a dark place every zone is dark unless lit. ONE derived
@@ -95,7 +99,8 @@ Herbalism crafting alone requires the tool proficiency (SRD).
 **D: one flag.** A `noise` use (lighting a dark place, forcing a lock, a failed force) marks the place `alerted`
 until the party leaves. Arriving in a dark place while carrying a lit light also marks it (the light gives the
 party away; this keeps the choice between light and surprise now that a light lasts). Foes met at an alerted place
-cannot be surprised by the party. Nothing else.
+cannot be surprised by the party. Nothing else. To sneak, put the light out BEFORE walking into the next dark place.
+**The party must always be able to see this rule** (owner, 2026-10-22; see "What players see").
 
 ## Items (first batch, ~25; SRD 5.1 numbers in the goldens)
 | Item | Use | Effect |
@@ -145,6 +150,15 @@ Everything else stays flavour you can sell. Magic items stay out of scope.
   - **Out of a fight:** the screen's scene picture is dimmed with a **Dark** badge on the ribbon, and so is the phone
     topper; the Now card says *It is dark here.*; an idea chip **Light a torch** shows when the party carries one.
   - **Who sees:** heroes with darkvision show an eye icon on their strip and in the turn order.
+- **Light versus stealth is never hidden** (owner, 2026-10-22):
+  - **Who carries a light:** a flame on the bearer's token and a **Torch lit** / **Lantern lit** chip on that hero
+    in the party strip and on their phone.
+  - **When a light is lit in a dark place:** one engine line in the story and on the phone: *Your light shows you
+    the way, and shows you to anything waiting here.* The same sentence is in the Light and Put out tooltips (M28).
+  - **Put out light:** a button on the bearer's phone (Now card and Items) whenever they carry a light; free.
+  - **When it costs you:** a fight that starts at a place a light gave away says so in its start line: *They saw your
+    light coming. No surprise.*
+  - Manual: a short "Light and stealth" part in "Using your gear".
   - New pixel-art icons (dark zone, flame/lit, darkvision eye) go through the M10 pipeline; placeholders until then.
 - Active boons show as chips on the phone.
 - The dice show the reason (*Darkness*, *Torchlight*, *Crowbar*, *Tool + skill*).
