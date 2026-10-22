@@ -53,9 +53,12 @@ what to narrate instead (pattern: `FreeStepRefused`). A deterministic precheck (
 asked, and `adv_why` names it (*Torchlight*, *Crowbar*). Darkness is applied the same way (*Darkness*). Advantage
 never stacks (SRD).
 
-**D: the rope rule (anti-trick).** When the acting text names an item the hero carries and that item has no use
-fitting the target, the engine drops the AI's advantage on that action's check (the attempt itself may still be a
-fair plain check, e.g. Strength to force a door). The parser already finds item names; this is one check.
+**D: the rope rule (anti-trick), scoped (owner, 2026-10-22).** It applies only to situations the item table covers
+(a lock, a dark place, climbing or crossing, searching, and the other `when`/skill pairs in item_uses.json): when
+the acting text names an item the hero carries and that item has no use fitting the target there, the engine drops
+the AI's advantage on that action's check (the attempt itself may still be a fair plain check, e.g. Strength to
+force a door). Outside those situations the AI's judgment stands ("I tie up the goblin with my rope" gets a fair
+call). The parser already finds item names; this is one check.
 
 **D: proficiency.** Anyone may use any tool. A check made with a `tool` item adds the proficiency bonus when the hero
 is proficient with the tool OR the skill (once, SRD); proficient in BOTH -> advantage (house rule, RULES_DECISIONS).
@@ -65,14 +68,17 @@ Herbalism crafting alone requires the tool proficiency (SRD).
 - A place is dark when its zone template says so: `"dark": true` on `cave` and `crypt` in `zone_templates.json`
   (data; derived, never stored, so old saves need nothing). Magical Darkness surfaces stay as they are and mundane
   light does not dispel them (SRD).
-- `PlaceLit(node, by)` lights the current place until the party leaves it (the reducer clears it on `PartyMoved`).
+- **D: a light is carried, not placed (owner, 2026-10-22).** Lighting a torch, candle or lantern gives that hero a
+  lit light that stays lit and moves with them from place to place until the next long rest (one torch covers a
+  whole trip; SRD: a torch burns 1 hour). A torch or candle is used up when lit, a lantern is not. A dark place is
+  lit while a hero carrying a light is there. One light per hero; several heroes may carry one.
 - Out of a fight, in a dark unlit place: sight checks (Perception, Investigation, and every search check) roll at
   disadvantage for everyone (darkvision sees darkness as dim light, which still gives disadvantage on Perception: SRD).
 - **D: in a fight, light is per zone** (owner answer 7). In a dark place every zone is dark unless lit. ONE derived
   function `zone_lit(state, zone)`, nothing stored per zone: a zone is lit when a hero carrying a lit light stands
   in it or in a touching zone (torch and lantern: 20 ft of bright light covers the next 15 ft hop, SRD; a candle
-  lights its own zone only), or a fire surface burns in it. The light moves with its bearer. The hero who lit the
-  place before the fight is its bearer.
+  lights its own zone only), or a fire surface burns in it. The light moves with its bearer. Every hero carrying a
+  light when the fight starts is a bearer.
 - A hero WITHOUT darkvision attacks a target standing in a dark zone at disadvantage; monsters see (one more source
   in the existing attack advantage helper, next to high ground). Lighting a torch in a fight costs a bonus action.
   This makes the torchbearer's position matter, the way it does in BG3.
@@ -87,13 +93,15 @@ Herbalism crafting alone requires the tool proficiency (SRD).
 
 ## Risk (kept simple)
 **D: one flag.** A `noise` use (lighting a dark place, forcing a lock, a failed force) marks the place `alerted`
-until the party leaves. Foes met at an alerted place cannot be surprised by the party. Nothing else.
+until the party leaves. Arriving in a dark place while carrying a lit light also marks it (the light gives the
+party away; this keeps the choice between light and surprise now that a light lasts). Foes met at an alerted place
+cannot be surprised by the party. Nothing else.
 
 ## Items (first batch, ~25; SRD 5.1 numbers in the goldens)
 | Item | Use | Effect |
 |---|---|---|
-| Torch, Candle | light a dark place (fight: bonus action) | `light_place`, consumed, noise; a torch thrown at an oil zone ignites it |
-| Lantern, hooded | light a dark place | `light_place`, not consumed, noise |
+| Torch, Candle | light a dark place (fight: bonus action) | `light_place`, consumed when lit, stays lit until the next long rest, noise; a torch thrown at an oil zone ignites it (and ends the thrower's light) |
+| Lantern, hooded | light a dark place | `light_place`, not consumed, stays lit until the next long rest, noise |
 | Lantern, bullseye | light + search | `light_place` + advantage on Investigation here |
 | Crowbar | force a lock / stuck door | advantage on the Strength (Athletics) check (SRD), noise |
 | Rope (hempen, silk), Grappling hook, Climber's kit, Piton | climb or cross here | advantage on Athletics here, out of a fight |
