@@ -33,6 +33,9 @@ ZONE_MARKS = {
         "High ground: a steep rocky crag with a small pennant flag planted on its summit"
     ),
     "rough": "Rough ground: a tangle of thorny brambles, loose stones and sticky mud",
+    "dark": "Dark place: a pool of deep shadow with faint violet-edged wisps and no light in it",
+    "lit": "Lit place: a small warm torch flame with a soft orange glow around it",
+    "darkvision": "Darkvision: a single watchful eye with a pale glowing iris seen in the dark",
 }
 SURFACE_LOOKS = {
     "fire": "a burning patch of ground with bright orange flames",

@@ -10,12 +10,15 @@ import { titleCase } from '../ui/format.js';
 import { hexLayout } from './hexmap.js';
 import { combatOf } from './model.js';
 import { tokenChip } from './tokens.js';
+import { zoneDimmed, zoneGlows } from '../table/light.js';
 
 const COVER_ICON = { half: 'zone_icon.cover-half', three_quarters: 'zone_icon.cover-three-quarters' };
 
-/** The marks of a zone: [{key, kind, label}] in a fixed order (cover, high ground, rough, surfaces). */
+/** The marks of a zone: [{key, kind, label}] in a fixed order (dark or lit, cover, high ground, rough, surfaces). */
 export function zoneMarks(zone) {
   const out = [];
+  if (zoneDimmed(zone)) out.push({ key: 'zone_icon.dark', kind: 'dark', label: t('light.dark') });
+  if (zoneGlows(zone)) out.push({ key: 'zone_icon.lit', kind: 'lit', label: t('light.lit') });
   if (zone.cover !== 'none') out.push({ key: COVER_ICON[zone.cover], kind: `cover-${zone.cover}`, label: t(`combat.cover_${zone.cover}`) });
   if (zone.high_ground) out.push({ key: 'zone_icon.high-ground', kind: 'high', label: t('combat.highGround') });
   if (zone.rough) out.push({ key: 'zone_icon.rough', kind: 'rough', label: t('combat.difficult') });
@@ -42,13 +45,13 @@ function hexNode(state, combat, zone, box) {
   const acting = combat.active_id ?? combat.turn_of;
   const tokens = combat.tokens.filter((tk) => tk.zone_id === zone.id);
   const chips = tokens.map((tk) =>
-    tokenChip(tk, { hero: party.find((c) => c.id === tk.creature_id), zoneName: zone.name, flags: { active: tk.creature_id === acting }, onPick: () => {} }),
+    tokenChip(tk, { hero: party.find((c) => c.id === tk.creature_id), zoneName: zone.name, flags: { active: tk.creature_id === acting, flame: (zone.lit_by ?? []).includes(tk.creature_id) }, onPick: () => {} }),
   );
   const here = tokens.some((tk) => tk.creature_id === acting);
   const marks = zoneMarks(zone);
   const node = h(
     'section',
-    { class: here ? 'hex acting' : 'hex', 'data-testid': 'zone', 'data-zone': zone.id, 'data-q': zone.q, 'data-r': zone.r, 'aria-label': zone.name },
+    { class: ['hex', here ? 'acting' : '', zoneDimmed(zone) ? 'dark' : '', zoneGlows(zone) ? 'glow' : ''].filter(Boolean).join(' '), 'data-testid': 'zone', 'data-zone': zone.id, 'data-q': zone.q, 'data-r': zone.r, 'aria-label': zone.name },
     h('div', { class: 'hex-frame', 'aria-hidden': 'true' }),
     h('div', { class: 'hex-fill', 'aria-hidden': 'true' }, h('img', { class: 'hex-art', src: assetUrl([`zone_hex.${zone.id}`, `zone_card.${zone.terrain || 'wilds'}`]), alt: '' })),
     h('h4', { class: 'hex-name' }, zone.name),
@@ -69,6 +72,7 @@ function legend(combat) {
     { class: 'hex-legend', 'data-testid': 'hex-legend' },
     feet ? h('span', { class: 'hl-hop' }, t('combat.hexHop', { feet })) : null,
     h('ul', { class: 'hl-marks' }, ...[...seen.values()].map(markNode)),
+    combat.zones.some((z) => z.dark) ? h('p', { class: 'hl-dark', 'data-testid': 'hex-legend-dark' }, t('light.legend')) : null,
   );
 }
 

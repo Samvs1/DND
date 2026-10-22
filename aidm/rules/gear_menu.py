@@ -28,7 +28,7 @@ from aidm.data.item_uses import (
     uses_for_item,
 )
 from aidm.data.spell_defs import spell_defs
-from aidm.models.sheet import GearTarget, GearUseLine
+from aidm.models.sheet import GearTarget, GearUseLine, ItemUseHint
 from aidm.models.state import Creature
 from aidm.rules.item_effects import gear_name
 from aidm.rules.scrolls import scroll_spell_index
@@ -87,6 +87,19 @@ def fight_gear_lines(creature: Creature, light_item: str | None = None) -> list[
                     cost=use.cost,
                     target=target_kind(use, item),
                     qty=1 if use.from_light else held.get(item, 0),
+                    effect=use.effect.kind,
                 )
             )
     return lines
+
+
+HERE_WHEN = frozenset({"dark_place", "place", "locked", "tagged_place"})
+
+
+def item_use_hints(item: str) -> list[ItemUseHint]:
+    """The uses the item card offers (M27.8): the ones made out of a fight, in the place."""
+    return [
+        ItemUseHint(use_id=u.id, label=u.label, when=u.when, verb=u.verbs[0] if u.verbs else "use")
+        for u in uses_for_item(item)
+        if u.when in HERE_WHEN
+    ]

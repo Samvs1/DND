@@ -3950,6 +3950,11 @@
               "title": "Cost",
               "type": "string"
             },
+            "effect": {
+              "default": "",
+              "title": "Effect",
+              "type": "string"
+            },
             "item": {
               "title": "Item",
               "type": "string"
@@ -4142,6 +4147,14 @@
               "title": "Qty",
               "type": "integer"
             },
+            "uses": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/ItemUseHint"
+              },
+              "title": "Uses",
+              "type": "array"
+            },
             "value_gp": {
               "default": 0.0,
               "title": "Value Gp",
@@ -4159,6 +4172,36 @@
             "qty"
           ],
           "title": "InventoryLine",
+          "type": "object"
+        },
+        "ItemUseHint": {
+          "additionalProperties": false,
+          "description": "One use of a carried item outside a fight (M27.8): `when` is the use's place rule\n(dark_place, place, locked, tagged_place), `verb` the word the typed sentence starts with.",
+          "properties": {
+            "label": {
+              "title": "Label",
+              "type": "string"
+            },
+            "use_id": {
+              "title": "Use Id",
+              "type": "string"
+            },
+            "verb": {
+              "title": "Verb",
+              "type": "string"
+            },
+            "when": {
+              "title": "When",
+              "type": "string"
+            }
+          },
+          "required": [
+            "use_id",
+            "label",
+            "when",
+            "verb"
+          ],
+          "title": "ItemUseHint",
           "type": "object"
         },
         "KeepsakeLine": {
@@ -4665,6 +4708,29 @@
           "title": "Pong",
           "type": "object"
         },
+        "PublicBoon": {
+          "additionalProperties": false,
+          "description": "A gear boon on a hero (M27.8): the item's name and what it helps (skills, saves).",
+          "properties": {
+            "helps": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Helps",
+              "type": "array"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "title": "PublicBoon",
+          "type": "object"
+        },
         "PublicCombat": {
           "additionalProperties": false,
           "properties": {
@@ -4759,6 +4825,14 @@
               "title": "Ac",
               "type": "integer"
             },
+            "boons": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/PublicBoon"
+              },
+              "title": "Boons",
+              "type": "array"
+            },
             "class_index": {
               "anyOf": [
                 {
@@ -4778,6 +4852,11 @@
               },
               "title": "Conditions",
               "type": "array"
+            },
+            "darkvision": {
+              "default": 0,
+              "title": "Darkvision",
+              "type": "integer"
             },
             "dead": {
               "default": false,
@@ -4838,6 +4917,11 @@
               ],
               "default": null,
               "title": "Level"
+            },
+            "light": {
+              "default": "",
+              "title": "Light",
+              "type": "string"
             },
             "max_hp": {
               "title": "Max Hp",
@@ -4945,6 +5029,11 @@
             },
             "kind": {
               "title": "Kind",
+              "type": "string"
+            },
+            "locked": {
+              "default": "",
+              "title": "Locked",
               "type": "string"
             },
             "name": {
@@ -5303,6 +5392,11 @@
           "additionalProperties": false,
           "description": "The party's place. `terrain` is its first terrain tag (art key `region_banner.<terrain>`,\nthe phone's Play picture and the screen header, M24), \"\" when unknown.",
           "properties": {
+            "dark": {
+              "default": false,
+              "title": "Dark",
+              "type": "boolean"
+            },
             "description": {
               "default": "",
               "title": "Description",
@@ -5687,6 +5781,11 @@
               "$ref": "#/$defs/CoverLevel",
               "default": "none"
             },
+            "dark": {
+              "default": false,
+              "title": "Dark",
+              "type": "boolean"
+            },
             "difficult": {
               "default": false,
               "title": "Difficult",
@@ -5705,6 +5804,19 @@
             "id": {
               "title": "Id",
               "type": "string"
+            },
+            "lit": {
+              "default": true,
+              "title": "Lit",
+              "type": "boolean"
+            },
+            "lit_by": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Lit By",
+              "type": "array"
             },
             "name": {
               "title": "Name",

@@ -9,6 +9,7 @@ import { attackSlots, bonusSlots, featureSlots, moveSlots } from './hotbar_slots
 import { itemPopover, spellPopover } from './hotbar_magic.js';
 import { actingToken, combatOf, heroActing, isMyTurn, myCreatureId } from './model.js';
 import { mountSuggest } from './suggest.js';
+import { myHero } from '../table/lookup.js';
 
 const NO_ECON = { action: false, bonus_action: false, movement_left: 0, reaction: false, attacks_left: 0 };
 
@@ -124,7 +125,7 @@ export function mountHotbar(root, ctx, ctrl) {
     if (root.hidden) return;
     const mine = isMyTurn(state);
     const a = ctrl.ui.arming;
-    const key = JSON.stringify([mine, combat.economy, combat.active_id, state.sheet, ctrl.ui.target, ctrl.ui.chances, a?.step, a?.picks, ctrl.ui.popup, ctrl.ui.message]);
+    const key = JSON.stringify([myHero(state)?.light, mine, combat.economy, combat.active_id, state.sheet, ctrl.ui.target, ctrl.ui.chances, a?.step, a?.picks, ctrl.ui.popup, ctrl.ui.message]);
     if (key === last) return;
     last = key;
     clear(head);
@@ -144,7 +145,7 @@ export function mountHotbar(root, ctx, ctrl) {
     head.append(h('strong', { class: 'hb-turn' }, t('combat.yourTurn')), pips(econ, sheet?.speed), h('span', { class: 'hb-keys', 'data-testid': 'hotbar-keys' }, t('hotbar.keysHint')));
     const bar = aimBar(ctrl);
     if (bar) aim.append(...bar.filter(Boolean));
-    fillBody(body, pop, { ctrl, sheet, econ, me: myCreatureId(state), combat }, ctrl);
+    fillBody(body, pop, { ctrl, sheet, econ, me: myCreatureId(state), combat, light: myHero(state)?.light ?? '', client: ctx.client }, ctrl);
   }
 
   function keys(event) {

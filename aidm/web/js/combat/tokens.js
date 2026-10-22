@@ -7,6 +7,10 @@ import { h } from '../ui/dom.js';
 import { titleCase } from '../ui/format.js';
 import { healthState, isEnemy } from './model.js';
 
+function flame(flags) {
+  return flags.flame ? h('img', { class: 'tk-flame', 'data-testid': 'token-flame', src: assetUrl('zone_icon.lit'), alt: t('light.lit'), title: t('light.lit'), width: 16, height: 16 }) : null;
+}
+
 export function tokenArt(token, hero) {
   if (hero) return assetUrl(portraitKeys(hero));
   const index = token.monster_index || token.creature_id.replace(/-?\d+$/, '');
@@ -61,6 +65,7 @@ export function tokenChip(token, { hero, zoneName, flags, onPick }) {
       hero || !enemy ? hpBar(token) : h('span', { class: `tk-state state-${state}`, 'data-testid': 'enemy-state' }, t(`combat.${state}`)),
       conditions(token),
     ),
+    flame(flags),
     flags.targeted ? h('span', { class: 'tk-flag' }, t('combat.targeted')) : null,
   );
 }

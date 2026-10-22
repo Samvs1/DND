@@ -9843,6 +9843,32 @@
   "reviewed": true,
   "cost_eur": 0.002119
  },
+ "zone_icon.dark": {
+  "kind": "zone_icon",
+  "file": "img/icons/zones/dark.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Dark place: a pool of deep shadow with a few faint violet-edged wisps and no light in it. One small battle-map marker: the object alone, centred, bold shapes readable at 24 px, seen from a slight top-down angle, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.",
+  "source": "",
+  "license": ""
+ },
+ "zone_icon.darkvision": {
+  "kind": "zone_icon",
+  "file": "img/icons/zones/darkvision.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Darkvision: a single watchful eye with a pale glowing iris seen in the dark. One small battle-map marker: the object alone, centred, bold shapes readable at 24 px, seen from a slight top-down angle, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.",
+  "source": "",
+  "license": ""
+ },
  "zone_icon.high-ground": {
   "kind": "zone_icon",
   "file": "img/icons/zones/high-ground.png",
@@ -9857,6 +9883,19 @@
   "license": "AI generated via OpenAI API, check provider terms before commercial use",
   "reviewed": true,
   "cost_eur": 0.002119
+ },
+ "zone_icon.lit": {
+  "kind": "zone_icon",
+  "file": "img/icons/zones/lit.png",
+  "size": [
+   128,
+   128
+  ],
+  "transparent": true,
+  "status": "placeholder",
+  "prompt": "Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: Lit place: a small warm torch flame with a soft orange glow around it. One small battle-map marker: the object alone, centred, bold shapes readable at 24 px, seen from a slight top-down angle, thick dark outline, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.",
+  "source": "",
+  "license": ""
  },
  "zone_icon.rough": {
   "kind": "zone_icon",

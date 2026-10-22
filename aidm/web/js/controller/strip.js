@@ -8,6 +8,7 @@ import { clear, h } from '../ui/dom.js';
 import { titleCase } from '../ui/format.js';
 import { everySecond } from '../ui/countdown.js';
 import { statusOf } from './status.js';
+import { eye, lightChip } from '../table/light.js';
 
 function resourceText(state) {
   const rows = state.sheet?.sheet?.resources ?? [];
@@ -49,6 +50,8 @@ export function mountStrip(root, store) {
         h('strong', { 'data-testid': 'strip-name' }, hero.name),
         h('span', { class: 'ct-meta' }, meta),
         conditionIcons(hero),
+        eye(hero),
+        lightChip(hero),
         h('span', { class: 'ct-res', 'data-testid': 'strip-resources', hidden: !resources }, resources),
         chip,
       ),

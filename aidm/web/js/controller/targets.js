@@ -6,6 +6,7 @@ import { combatOf, healthState, isEnemy, isLive, isMyTurn, moveCost, percent, to
 import { t } from '../strings.js';
 import { clear, h } from '../ui/dom.js';
 import { titleCase } from '../ui/format.js';
+import { zoneDimmed } from '../table/light.js';
 
 function distance(combat, mine, token, zone) {
   if (!mine || mine.zone_id === token.zone_id) return t('ct.zoneHere', { zone });
@@ -36,6 +37,7 @@ function chip(token, ctx) {
     h('span', { class: 'ct-t-hp', 'data-testid': 'target-hp' }, hp),
     hit ? h('span', { class: 'ct-t-hit', 'data-testid': 'target-hit' }, hit) : null,
     conds ? h('span', { class: 'ct-t-cond' }, conds) : null,
+    foe && zoneDimmed(ctx.zoneOf.get(token.zone_id)) ? h('span', { class: 'ct-zb ct-t-dark', 'data-testid': 'target-dark', title: t('light.darkTarget') }, t('light.dark')) : null,
     h('span', { class: 'ct-t-where hint', 'data-testid': 'target-where' }, where),
   );
 }
@@ -58,9 +60,10 @@ export function mountTargets(root, { store }, ctrl) {
     last = key;
     const mine = tokenById(combat, ctrl.actor());
     const zones = new Map(combat.zones.map((z) => [z.id, z.name]));
+    const zoneOf = new Map(combat.zones.map((z) => [z.id, z]));
     clear(box);
     const live = combat.tokens.filter((tk) => isLive(tk) && tk.creature_id !== ctrl.actor());
-    box.append(h('h3', { class: 'side-h' }, t('ct.targets')), h('div', { class: 'ct-target-list' }, ...live.map((tk) => chip(tk, { combat, mine, ctrl, zones }))));
+    box.append(h('h3', { class: 'side-h' }, t('ct.targets')), h('div', { class: 'ct-target-list' }, ...live.map((tk) => chip(tk, { combat, mine, ctrl, zones, zoneOf }))));
   }
   render(store.get());
   const stopStore = store.subscribe(render);

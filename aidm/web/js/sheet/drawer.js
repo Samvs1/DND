@@ -9,6 +9,7 @@ import { t } from '../strings.js';
 import { clear, h } from '../ui/dom.js';
 import { titleCase } from '../ui/format.js';
 import { renderInventory } from './inventory.js';
+import { blockedReason } from '../controller/action.js';
 import { renderOverview } from './overview.js';
 import { renderSpellbook } from './spellbook.js';
 
@@ -98,7 +99,9 @@ export function mountSheet(root, { store, client }, embed = null) {
     const locked = Boolean(publicState(state)?.combat);
     const party = (publicState(state)?.party ?? []).filter((p) => !p.dead).map((p) => ({ id: p.id, name: p.name }));
     const npcs = (publicState(state)?.scene?.npcs ?? []).filter((n) => !n.hostile);
-    if (tab === 'inventory') return renderInventory(sheet, { client, camp, locked, party, npcs });
+    const view = publicState(state);
+    const here = { scene: view?.scene, light: myHero(state)?.light ?? '', blocked: blockedReason(state) !== null };
+    if (tab === 'inventory') return renderInventory(sheet, { client, camp, locked, party, npcs, here });
     if (tab === 'spells') return renderSpellbook(sheet, { client, locked });
     return renderOverview(sheet, spellNameOf(sheet));
   }

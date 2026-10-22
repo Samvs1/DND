@@ -13,7 +13,7 @@ from aidm.dm.event_text import event_lines
 from aidm.dm.fake_llm import FakeStep, fake_tool_call
 from aidm.dm.guard import check_prose
 from aidm.dm.guard_types import ViolationKind
-from aidm.dm.item_text import LIGHT_WARNING, SEEN_LIGHT
+from aidm.dm.item_text import DARK_FIGHT, LIGHT_WARNING, SEEN_LIGHT
 from aidm.dm.narrator import TRIED, unpack_source
 from aidm.dm.tool_context import ToolContext
 from aidm.models.dice import AdvState
@@ -213,13 +213,13 @@ def test_fight_start_says_light_gave_you_away() -> None:
     assert fought.encounter is not None
     started = EncounterStarted(encounter=fought.encounter)
     state = at(CAVE, hero(gear=["torch"]))
-    assert event_lines(state, [started]) == ["A fight breaks out."]
+    assert event_lines(state, [started]) == [f"A fight breaks out. {DARK_FIGHT}"]
     run(state, use(state, "torch"))
     assert state.world.alerted_by == "light"
-    assert event_lines(state, [started]) == [f"A fight breaks out. {SEEN_LIGHT}"]
+    assert event_lines(state, [started]) == [f"A fight breaks out. {DARK_FIGHT} {SEEN_LIGHT}"]
     noisy = at(CAVE, hero())
     apply(noisy, PlaceAlerted(node=CAVE))  # a forced lock: noise, not a light
-    assert event_lines(noisy, [started]) == ["A fight breaks out."]
+    assert event_lines(noisy, [started]) == [f"A fight breaks out. {DARK_FIGHT}"]
 
 
 def test_old_place_alerted_events_default_to_noise() -> None:

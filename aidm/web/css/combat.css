@@ -687,3 +687,35 @@
   height: 1.6rem;
   transform: none;
 }
+
+/* Items list (M27.8): one row per use, cost chips in one column, the button on the right. */
+.item-row {
+  display: grid;
+  grid-template-columns: 1.75rem minmax(0, 1fr) 5.6rem 1.8rem auto;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.item-row .item-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.item-row .spell-name {
+  min-width: 0;
+}
+
+.item-row .item-what {
+  font-size: 0.75rem;
+}
+
+.item-row .item-cost {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.item-row .btn {
+  min-width: 24px;
+  min-height: 24px;
+}

@@ -5,7 +5,9 @@
 // through the hotbar). Keepsakes (M19.3: story objects with no price) are listed under the pack.
 import { t } from '../strings.js';
 import { clear, h } from '../ui/dom.js';
+import { putOutButton } from '../table/light.js';
 import { itemArt } from './item_art.js';
+import { useControls as hereControls } from './item_uses.js';
 
 const round = (n) => Math.round(n * 100) / 100;
 const WEARABLE = new Set(['weapon', 'armor']);
@@ -56,6 +58,7 @@ function detail(item, opts) {
     h('span', { class: 'inv-slot', 'aria-hidden': 'true' }, h('img', { src: itemArt(item.item, { category: item.category }), alt: '', width: 32, height: 32 })),
     h('div', { class: 'inv-main' }, h('strong', { 'data-testid': 'inv-detail-name' }, item.name), h('div', { class: 'hint inv-meta' }, meta)),
     h('div', { class: 'inv-actions' }, ...(item.category === 'potion' ? useControls(item, opts) : []), WEARABLE.has(item.category) ? wear : null, control, act('drop', t('sheet.drop'), 'sheet.dropItem')),
+    ...hereControls(item, opts),
     list,
   ];
 }
@@ -65,9 +68,9 @@ function slotOrder(item) {
   return at < 0 ? WORN_ORDER.length : at;
 }
 
-export function renderInventory(s, { client, camp, locked, party = [], npcs = [] }) {
+export function renderInventory(s, { client, camp, locked, party = [], npcs = [], here = {} }) {
   const others = party.filter((p) => p.id !== s.id);
-  const opts = { client, locked, party: [{ id: s.id, name: s.name }, ...others], me: s.id, npcs };
+  const opts = { client, locked, party: [{ id: s.id, name: s.name }, ...others], me: s.id, npcs, ...here };
   const weight = round(s.inventory.reduce((n, i) => n + i.weight * i.qty, 0));
   const worn = s.inventory.filter((i) => i.equipped_slot).sort((a, b) => slotOrder(a) - slotOrder(b));
   const pack = s.inventory.filter((i) => !i.equipped_slot);
@@ -92,6 +95,7 @@ export function renderInventory(s, { client, camp, locked, party = [], npcs = []
       h('p', { class: 'sh-gold', 'data-testid': 'sh-gold' }, h('strong', {}, t('sheet.goldShort', { n: s.gold })), h('span', {}, t('sheet.carriedShort', { n: weight }))),
       h('p', { class: 'sh-supplies', 'data-testid': 'sh-supplies' }, t('sheet.suppliesShort', { n: camp })),
     ),
+    here.light ? h('p', { class: 'inv-light', 'data-testid': 'inv-light' }, t('light.litChip', { name: here.light }), ' ', putOutButton(client)) : null,
     locked ? h('p', { class: 'hint' }, t('sheet.gearLocked')) : null,
     s.inventory.length
       ? h(

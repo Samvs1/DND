@@ -54,12 +54,13 @@ function spellSection(title, spells, concentratingOn) {
 
 function copyRow(line, { client, locked }) {
   const label = t('sheet.copyItem', { name: line.name, cost: line.cost });
+  const why = locked ? t('sheet.copyWhyFight') : line.affordable ? '' : t('sheet.copyWhyGold', { cost: line.cost });
   return h(
     'li',
     { class: 'spell-line', 'data-testid': 'copy-line', 'data-item': line.item },
     h('img', { src: assetUrl([`item_icon.${line.item}`, 'item_icon.scroll']), alt: '', width: 28, height: 28 }),
     h('div', { class: 'spell-main' }, h('strong', {}, line.name), h('div', { class: 'hint' }, t('sheet.copyLine', { level: line.level, cost: line.cost }))),
-    h('button', { type: 'button', class: 'btn btn-small', disabled: locked || !line.affordable, 'data-testid': `copy-${line.item}`, 'aria-label': label, onclick: () => client.send('copy_scroll', { item_id: line.item }) }, t('sheet.copyButton')),
+    h('div', { class: 'copy-act' }, h('button', { type: 'button', class: 'btn btn-small', disabled: Boolean(why), 'data-testid': `copy-${line.item}`, 'aria-label': label, onclick: () => client.send('copy_scroll', { item_id: line.item }) }, t('sheet.copyButton')), why ? h('span', { class: 'hint copy-why', 'data-testid': 'copy-why' }, why) : null),
   );
 }
 

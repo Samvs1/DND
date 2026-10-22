@@ -2,7 +2,9 @@
 // A descriptor is {id, label, sub, art, tip, flags, off (disabled reason), run}; hotbar.js renders them.
 import { assetUrl } from '../assets.js';
 import { t } from '../strings.js';
+import { useGear } from './hotbar_magic.js';
 import { isEnemy, isLive, percent, tokenById } from './model.js';
+import { zoneDimmed } from '../table/light.js';
 
 const ATTACK_KEYS = new Set(['main_hand', 'ranged', 'unarmed']);
 
@@ -92,6 +94,19 @@ function endSlots({ ctrl, sheet, me }, off) {
     .map((c) => ({ id: `end-${c.name}`, group: 'moves', label: c.end_label, tip: t('hotbar.tip_endCondition'), off, run: () => ctrl.send({ type: 'end_condition', actor_id: me, condition: c.name }) }));
 }
 
+// M27.8: standing in the dark with an unlit light in the pack, lighting it is one tap on the hotbar (the Items
+// list has it too). The server hides lighting uses while the hero already carries a lit light.
+function lightSlots({ combat, sheet, me, ctrl, econ }, noBonus) {
+  const zoneId = combat ? tokenById(combat, me)?.zone_id : null;
+  if (!zoneDimmed(combat?.zones.find((z) => z.id === zoneId))) return [];
+  return (sheet?.gear_uses ?? [])
+    .filter((u) => u.effect === 'light_place')
+    .map((u) => ({
+      id: `light-${u.item}`, group: 'bonus', label: t('light.lightSlot', { name: u.name.toLowerCase() }), sub: t('light.lightSlotBonus'),
+      tip: t('light.lightSlotTip'), off: noBonus, run: () => useGear({ ctrl, me, econ }, u),
+    }));
+}
+
 export function bonusSlots(ctx) {
   const { ctrl, sheet, econ, me } = ctx;
   const noBonus = econ.bonus_action ? null : 'no_bonus_action';
@@ -109,6 +124,7 @@ export function bonusSlots(ctx) {
       run: () => aimAt(ctrl, [{ need: 'zone', prompt: t('combat.pickZone') }], (p) => ({ type: 'jump', actor_id: me, zone_id: p[0][0] })),
     },
   ];
+  out.push(...lightSlots(ctx, noBonus));
   if ((sheet?.features ?? []).some((f) => f.index === 'cunning-action')) {
     for (const id of ['dash', 'disengage', 'hide']) out.push(simple(id, id, ctx, { bonus_action: true }));
   }

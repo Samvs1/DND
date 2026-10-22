@@ -33,7 +33,7 @@ from aidm.rules.abilities import ability_modifier
 from aidm.rules.checks import passive_score, save_bonus, skill_bonus
 from aidm.rules.conditions import condition_def
 from aidm.rules.features import attacks_per_action, feature_actions
-from aidm.rules.gear_menu import fight_gear_lines
+from aidm.rules.gear_menu import fight_gear_lines, item_use_hints
 from aidm.rules.leveling import MAX_LEVEL, xp_for_level
 from aidm.rules.scrolls import scroll_copy_lines
 from aidm.rules.sheet_spells import spellcasting_block
@@ -136,6 +136,7 @@ def _inventory(pc: PcData, regs: CharacterRegistries) -> list[InventoryLine]:
                 category=entry.category.value if entry is not None else "",
                 weight=entry.weight if entry is not None else 0.0,
                 value_gp=entry.value_gp if entry is not None else 0.0,
+                uses=item_use_hints(row.item),
             )
         )
     return lines

@@ -2,6 +2,7 @@
 // the spell's kind; potions and the hero's gear uses in a fight with their cost (M27.6).
 import { assetUrl } from '../assets.js';
 import { t } from '../strings.js';
+import { putOutButton } from '../table/light.js';
 import { h } from '../ui/dom.js';
 import { percent } from './model.js';
 
@@ -92,7 +93,7 @@ const GEAR_STEPS = {
   zone: () => [{ need: 'zone', prompt: t('combat.pickZone') }],
 };
 
-function useGear(ctx, use) {
+export function useGear(ctx, use) {
   const { ctrl, me } = ctx;
   const cmd = (extra) => ({ type: 'use_item', actor_id: me, item: use.item, use_id: use.use_id, ...extra });
   const steps = GEAR_STEPS[use.target];
@@ -104,25 +105,26 @@ function useGear(ctx, use) {
 function gearRow(ctx, use) {
   const bonus = use.cost === 'bonus';
   const ready = bonus ? ctx.econ.bonus_action : ctx.econ.action;
-  return h('li', { class: `spell-row${ready ? '' : ' off'}`, 'data-testid': 'gear-row', 'data-use': use.use_id },
+  return h('li', { class: `spell-row item-row${ready ? '' : ' off'}`, 'data-testid': 'gear-row', 'data-use': use.use_id },
     h('img', { src: assetUrl([`item_icon.${use.item}`, 'item_icon.gear']), alt: '', width: 28, height: 28 }),
-    h('span', { class: 'spell-name' }, use.name),
-    h('span', { class: 'tag', 'data-testid': 'gear-cost' }, t(bonus ? 'hotbar.econ_bonus_action' : 'hotbar.econ_action')),
-    use.qty > 1 ? h('span', { class: 'hint' }, t('hotbar.itemCount', { n: use.qty })) : null,
-    h('button', { type: 'button', class: 'btn btn-small', disabled: !ready, 'data-testid': `gear-${use.use_id}`, 'aria-label': use.label, onclick: () => useGear(ctx, use) }, use.label));
+    h('span', { class: 'item-main' }, h('span', { class: 'spell-name' }, use.name), h('span', { class: 'hint item-what' }, use.label)),
+    h('span', { class: 'tag item-cost', 'data-testid': 'gear-cost' }, t(bonus ? 'hotbar.econ_bonus_action' : 'hotbar.econ_action')),
+    h('span', { class: 'hint item-count' }, use.qty > 1 ? t('hotbar.itemCount', { n: use.qty }) : ''),
+    h('button', { type: 'button', class: 'btn btn-small', disabled: !ready, title: use.label, 'data-testid': `gear-${use.use_id}`, 'aria-label': use.label, onclick: () => useGear(ctx, use) }, t('hotbar.useShort')));
 }
 
 export function itemPopover(ctx) {
   const { ctrl, me, econ } = ctx;
   const usable = (ctx.sheet?.inventory ?? []).filter((i) => i.category === 'potion');
   const rows = usable.map((item) =>
-    h('li', { class: 'spell-row' },
+    h('li', { class: 'spell-row item-row' },
       h('img', { src: assetUrl([`item_icon.${item.item}`, 'item_icon.potion']), alt: '', width: 28, height: 28 }),
-      h('span', { class: 'spell-name' }, item.name),
-      h('span', { class: 'tag' }, t('hotbar.econ_bonus_action')),
-      h('span', { class: 'hint' }, t('hotbar.itemCount', { n: item.qty })),
-      h('button', { type: 'button', class: 'btn btn-small', disabled: !econ.bonus_action, 'data-testid': `use-${item.item}`, 'aria-label': t('hotbar.useItem', { name: item.name }), onclick: () => ctrl.send({ type: 'use_item', actor_id: me, item: item.item }) }, t('hotbar.useItem', { name: item.name }))),
+      h('span', { class: 'item-main' }, h('span', { class: 'spell-name' }, item.name)),
+      h('span', { class: 'tag item-cost' }, t('hotbar.econ_bonus_action')),
+      h('span', { class: 'hint item-count' }, t('hotbar.itemCount', { n: item.qty })),
+      h('button', { type: 'button', class: 'btn btn-small', disabled: !econ.bonus_action, 'data-testid': `use-${item.item}`, 'aria-label': t('hotbar.useItem', { name: item.name }), title: t('hotbar.useItem', { name: item.name }), onclick: () => ctrl.send({ type: 'use_item', actor_id: me, item: item.item }) }, t('hotbar.useShort'))),
   );
   rows.push(...(ctx.sheet?.gear_uses ?? []).map((use) => gearRow(ctx, use)));
+  if (ctx.light && ctx.client) rows.push(h('li', { class: 'spell-row', 'data-testid': 'put-out-row' }, h('span', { class: 'spell-name' }, t('light.litChip', { name: ctx.light })), putOutButton(ctx.client)));
   return h('div', { class: 'hb-pop', role: 'group', 'aria-label': t('hotbar.items'), 'data-testid': 'item-pop' }, rows.length ? h('ul', { class: 'spell-list' }, ...rows) : h('p', { class: 'hint' }, t('hotbar.itemsEmpty')));
 }

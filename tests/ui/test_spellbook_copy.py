@@ -53,3 +53,4 @@ def test_spellbook_tab_copies_a_scroll(browser: Browser, live_server: LiveServer
     assert out["sent"] == [{"type": "copy_scroll", "item_id": "scroll-of-color-spray"}]
     assert out["offInFight"] and "fight" in out["hint"]
     assert out["emptyHasNoSection"]
+    assert page.locator("[data-testid=copy-why]").all_inner_texts() == ["Need 100 gold"]

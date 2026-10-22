@@ -64,6 +64,13 @@ class PlayerInfo(_View):
     creature_id: str | None = None
 
 
+class PublicBoon(_View):
+    """A gear boon on a hero (M27.8): the item's name and what it helps (skills, saves)."""
+
+    name: str
+    helps: tuple[str, ...] = ()
+
+
 class PublicCreature(_View):
     id: str
     name: str
@@ -84,6 +91,9 @@ class PublicCreature(_View):
     portrait_id: str = ""
     gold: int | None = None
     xp: int | None = None
+    darkvision: int = 0  # M27.8: feet, 0 = none (the eye icon)
+    light: str = ""  # M27.8: short name of the lit light carried ("Torch"), else ""
+    boons: tuple[PublicBoon, ...] = ()  # M27.8: the active gear boons
 
 
 class PublicExit(_View):
@@ -99,6 +109,7 @@ class PublicFeature(_View):
     kind: str
     name: str
     description: str = ""
+    locked: str = ""  # M27.8: the lock's tier (easy, medium, hard...) while shut, else ""
 
 
 class PublicScene(_View):
@@ -115,6 +126,7 @@ class PublicScene(_View):
     items: tuple[str, ...] = ()
     shop_npc_id: str | None = None
     shopkeepers: tuple[str, ...] = ()
+    dark: bool = False  # M27.8: the place is dark by terrain (`rules.light.node_dark`)
 
 
 class MapNode(_View):
@@ -225,6 +237,9 @@ class PublicZone(_View):
     surfaces: tuple[ZoneSurface, ...] = ()
     q: int = 0
     r: int = 0
+    dark: bool = False  # M27.8: the place is dark (a zone is dimmed unless `lit`)
+    lit: bool = True  # M27.8: light reaches the zone (`rules.light.lit_zones`)
+    lit_by: tuple[str, ...] = ()  # M27.8: bearers whose light covers the zone
 
 
 class PublicCombat(_View):

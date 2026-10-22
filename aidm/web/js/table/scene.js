@@ -25,7 +25,8 @@ export function mountScene(root, store) {
   const place = h('h2', { class: 'scene-place', 'data-testid': 'scene-name' });
   const goal = h('p', { class: 'scene-goal', 'data-testid': 'objective' });
   const paused = h('span', { class: 'tag tag-host', hidden: true, role: 'status' }, t('table.paused'));
-  const ribbon = h('div', { class: 'scene-ribbon' }, place);
+  const badge = h('span', { class: 'dark-badge', hidden: true, 'data-testid': 'dark-badge' }, t('light.dark'));
+  const ribbon = h('div', { class: 'scene-ribbon' }, place, badge);
   const picture = h('div', { class: 'scene-pic' }, banner, h('div', { class: 'scene-text' }, title, goal), paused);
   root.append(ribbon, picture);
 
@@ -40,6 +41,8 @@ export function mountScene(root, store) {
     goal.textContent = text ? t('table.objective', { text }) : '';
     goal.hidden = !text;
     paused.hidden = !view.paused;
+    badge.hidden = !view.scene?.dark;
+    picture.classList.toggle('is-dark', Boolean(view.scene?.dark));
   }
   render(store.get());
   return store.subscribe(render);

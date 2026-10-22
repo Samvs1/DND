@@ -593,7 +593,8 @@
    "equipped_slot": null,
    "category": "gear",
    "weight": 3.0,
-   "value_gp": 50.0
+   "value_gp": 50.0,
+   "uses": []
   },
   {
    "item": "quarterstaff",
@@ -602,7 +603,8 @@
    "equipped_slot": "main_hand",
    "category": "weapon",
    "weight": 4.0,
-   "value_gp": 0.2
+   "value_gp": 0.2,
+   "uses": []
   },
   {
    "item": "component-pouch",
@@ -611,7 +613,8 @@
    "equipped_slot": null,
    "category": "gear",
    "weight": 2.0,
-   "value_gp": 25.0
+   "value_gp": 25.0,
+   "uses": []
   },
   {
    "item": "scholars-pack",
@@ -620,7 +623,8 @@
    "equipped_slot": null,
    "category": "gear",
    "weight": 0.0,
-   "value_gp": 40.0
+   "value_gp": 40.0,
+   "uses": []
   },
   {
    "item": "clothes-common",
@@ -629,7 +633,8 @@
    "equipped_slot": null,
    "category": "gear",
    "weight": 3.0,
-   "value_gp": 0.5
+   "value_gp": 0.5,
+   "uses": []
   },
   {
    "item": "pouch",
@@ -638,7 +643,8 @@
    "equipped_slot": null,
    "category": "gear",
    "weight": 1.0,
-   "value_gp": 0.5
+   "value_gp": 0.5,
+   "uses": []
   },
   {
    "item": "amulet",
@@ -647,7 +653,8 @@
    "equipped_slot": null,
    "category": "gear",
    "weight": 1.0,
-   "value_gp": 5.0
+   "value_gp": 5.0,
+   "uses": []
   },
   {
    "item": "block-of-incense",
@@ -656,7 +663,8 @@
    "equipped_slot": null,
    "category": "gear",
    "weight": 0.0,
-   "value_gp": 0.0
+   "value_gp": 0.0,
+   "uses": []
   }
  ],
  "gear_uses": [],

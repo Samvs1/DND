@@ -13,6 +13,7 @@ function zoneBadges(zone) {
   if (zone.cover !== 'none') out.push(t(`combat.cover_${zone.cover}`));
   if (zone.high_ground) out.push(t('combat.highGround'));
   if (isRough(zone)) out.push(t('combat.difficult'));
+  if (zone.dark) out.push(zone.lit ? t('light.lit') : t('light.dark'));
   for (const s of zone.surfaces) out.push(s.rounds_left ? t('combat.surfaceRounds', { name: titleCase(s.kind), n: s.rounds_left }) : t('combat.surfaceLasting', { name: titleCase(s.kind) }));
   return out;
 }

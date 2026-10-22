@@ -67,6 +67,10 @@ const FEED_EVENTS = new Set([
   'secret_revealed',
   'encounter_started',
   'encounter_ended',
+  'light_lit', // M27.8: the light warning and the put-out line
+  'light_ended',
+  'item_used',
+  'feature_unlocked',
 ]);
 
 function actionItem(entry) {

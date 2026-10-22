@@ -6,6 +6,7 @@ import { t } from '../strings.js';
 import { clear, h } from '../ui/dom.js';
 import { combatOf, tokenById } from './model.js';
 import { tokenArt } from './tokens.js';
+import { eye } from '../table/light.js';
 
 export function mountInitiative(root, store) {
   const round = h('span', { class: 'init-round', 'data-testid': 'round' });
@@ -19,7 +20,7 @@ export function mountInitiative(root, store) {
     root.hidden = !combat;
     if (!combat) return;
     const current = combat.active_id ?? combat.turn_of ?? null;
-    const key = JSON.stringify([combat.round, current, combat.initiative, combat.tokens.map((tk) => [tk.creature_id, tk.dead, tk.withdrawn])]);
+    const key = JSON.stringify([combat.round, current, combat.initiative, combat.tokens.map((tk) => [tk.creature_id, tk.dead, tk.withdrawn]), state.snapshot.state.party.map((c) => c.darkvision)]);
     if (key === last) return;
     last = key;
     round.textContent = t('combat.round', { n: combat.round });
@@ -38,7 +39,8 @@ export function mountInitiative(root, store) {
       list.append(
         h('li', { class: classes, 'data-testid': 'init-entry', 'aria-current': id === current ? 'step' : null },
           h('img', { src: art, alt: '', width: 28, height: 28 }),
-          h('span', { class: 'init-name' }, token.name)),
+          h('span', { class: 'init-name' }, token.name),
+          eye(hero, 'eye init-eye')),
       );
     }
   }

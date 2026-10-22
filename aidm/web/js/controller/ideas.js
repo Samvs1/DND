@@ -4,16 +4,16 @@
 // M23.8: a locked way says why when tapped (`exit.locked_reason`, a world fact from the server).
 import { assetUrl } from '../assets.js';
 import { combatOf } from '../combat/model.js';
-import { publicState } from '../table/lookup.js';
+import { myHero, publicState } from '../table/lookup.js';
 import { t } from '../strings.js';
 import { clear, h } from '../ui/dom.js';
 import { blockedReason } from './action.js';
 
 /** The chip groups for a scene: [{group, chips: [{kind, label, text?, locked?, shop?}]}], empty groups dropped. */
-export function ideaGroups(scene) {
+export function ideaGroups(scene, light = null) {
   const people = (scene?.npcs ?? []).map((npc) => ({ kind: 'talk', label: npc.name, text: t('ct.say_talk', { name: npc.name }) }));
   const things = [
-    ...(scene?.features ?? []).map((f) => ({ kind: 'examine', label: f.name, text: t('ct.say_examine', { name: f.name }) })),
+    ...(scene?.features ?? []).map((f) => ({ kind: 'examine', label: f.name, text: t('ct.say_examine', { name: f.name }), lock: f.locked || '' })),
     ...(scene?.items ?? []).map((item) => ({ kind: 'take', label: item, text: t('ct.say_take', { name: item }) })),
   ];
   const ways = (scene?.exits ?? []).map((exit) => ({ kind: 'travel', label: exit.name, text: t('ct.say_travel', { name: exit.name }), locked: exit.locked, why: exit.locked_reason || '' }));
@@ -22,6 +22,7 @@ export function ideaGroups(scene) {
     { kind: 'search', label: t('ct.idea_search'), text: t('ct.say_search') },
     { kind: 'rest', label: t('ct.idea_rest'), text: t('ct.say_rest') },
   ];
+  if (light) always.push({ kind: 'light', label: t('light.ideaLight', { name: light.toLowerCase() }), text: t('light.sayLight', { name: light.toLowerCase() }) });
   if (scene?.shop_npc_id || scene?.shopkeepers?.length) always.push({ kind: 'trade', label: t('ct.trade'), shop: true });
   return [
     { group: 'people', chips: people },
@@ -47,7 +48,15 @@ function chip(item, store, showWhy) {
     },
   };
   const icon = h('img', { class: 'ct-chip-icon', src: assetUrl(`ui_icon.act-${item.kind}`), alt: '', width: 20, height: 20 });
-  return h('button', props, icon, h('span', {}, item.label), item.locked ? h('span', { class: 'ct-chip-lock' }, t('ct.lockedShort')) : null);
+  const lock = item.lock ? h('span', { class: 'ct-chip-lock', 'data-testid': 'lock-badge', title: t('light.lockedTier', { tier: item.lock }) }, t('light.locked')) : null;
+  return h('button', props, icon, h('span', {}, item.label), lock, item.locked ? h('span', { class: 'ct-chip-lock' }, t('ct.lockedShort')) : null);
+}
+
+/** The name of an unlit light the hero carries ("Torch") while the place is dark and no light is lit, else null. */
+export function lightToLight(state, scene) {
+  if (!scene?.dark || myHero(state)?.light) return null;
+  const item = state.sheet?.sheet?.inventory?.find((i) => i.uses?.some((u) => u.when === 'dark_place'));
+  return item ? item.name.split(/[ ,(]/)[0] : null;
 }
 
 export function mountIdeas(root, { store }) {
@@ -64,7 +73,7 @@ export function mountIdeas(root, { store }) {
     const scene = publicState(state)?.scene ?? null;
     const shown = !combatOf(state) && blockedReason(state) === null;
     box.hidden = !shown;
-    const groups = shown ? ideaGroups(scene) : [];
+    const groups = shown ? ideaGroups(scene, lightToLight(state, scene)) : [];
     const key = JSON.stringify(groups);
     if (key === last) return;
     last = key;

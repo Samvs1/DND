@@ -146,6 +146,16 @@ class ResourceLine(_Line):
     recharge: str
 
 
+class ItemUseHint(_Line):
+    """One use of a carried item outside a fight (M27.8): `when` is the use's place rule
+    (dark_place, place, locked, tagged_place), `verb` the word the typed sentence starts with."""
+
+    use_id: str
+    label: str
+    when: str
+    verb: str
+
+
 class InventoryLine(_Line):
     item: str
     name: str
@@ -154,6 +164,7 @@ class InventoryLine(_Line):
     category: str = ""
     weight: float = 0.0
     value_gp: float = 0.0
+    uses: list[ItemUseHint] = []  # M27.8: what the item card's Use button can do
 
 
 class KeepsakeLine(_Line):
@@ -183,6 +194,7 @@ class GearUseLine(_Line):
     cost: Literal["action", "bonus"]
     target: GearTarget = "none"
     qty: int = 1
+    effect: str = ""  # M27.8: the effect kind (light_place...), so the hotbar finds the light
 
 
 class ScrollCopyLine(_Line):

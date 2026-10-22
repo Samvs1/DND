@@ -11,6 +11,7 @@ import { h } from '../ui/dom.js';
 import { everySecond } from '../ui/countdown.js';
 import { statusOf } from './status.js';
 import { whatNowButton } from './what_now.js';
+import { mountLightCard } from './light_card.js';
 
 /** True while a narration is still arriving (the screen is telling it). */
 export function telling(story) {
@@ -85,8 +86,10 @@ export function mountNow(root, { store, story, client }) {
   const goal = h('p', { class: 'ct-now-goal', 'data-testid': 'now-goal' });
   const help = h('div', { class: 'ct-help', hidden: true, 'data-testid': 'help-up-list' });
   const row = h('div', { class: 'ct-now-row' }, goal, whatNowButton(client));
-  const card = h('section', { class: 'ct-now', 'data-testid': 'now-card' }, line, place, row, help);
+  const lightBox = h('div', { class: 'ct-now-light' });
+  const card = h('section', { class: 'ct-now', 'data-testid': 'now-card' }, line, place, lightBox, row, help);
   root.append(card);
+  const stopLight = mountLightCard(lightBox, { store, story, client });
 
   function render(state) {
     const now = nowLine(state, story);
@@ -103,5 +106,5 @@ export function mountNow(root, { store, story, client }) {
   }
   render(store.get());
   const stops = [store.subscribe(render), story.subscribe(() => render(store.get())), everySecond(store, render)];
-  return () => stops.forEach((stop) => stop());
+  return () => [...stops, stopLight].forEach((stop) => stop());
 }

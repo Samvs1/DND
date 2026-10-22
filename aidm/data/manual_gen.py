@@ -10,7 +10,7 @@ import re
 from collections.abc import Callable
 from pathlib import Path
 
-from aidm.data import manual_ref, manual_rules
+from aidm.data import manual_ref, manual_rules, manual_uses
 
 MANUAL_PATH = Path(__file__).resolve().parents[2] / "docs" / "PLAYER_MANUAL.md"
 
@@ -27,6 +27,7 @@ SECTIONS: dict[str, Callable[[], str]] = {
     "consumables": manual_rules.consumables_table,
     "shop_rules": manual_rules.shop_rules,
     "scribe_prices": manual_rules.scribe_prices,
+    "item_uses": manual_uses.item_uses_table,
 }
 
 

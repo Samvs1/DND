@@ -173,6 +173,64 @@ Say what you do with an item in plain words, and the game uses it for real: "I l
 - **Lights**: a lit torch, candle or lantern stays lit and travels with you until the next long rest. You can light it anywhere, daylight too: it lights the next dark place you walk into. Putting it out is free, in or out of a fight ("put out my torch", "douse the lantern"). A torch or candle is then used up; a lantern can be lit again later.
 - **Light and stealth**: a light in a dark place gives the party away. When you light one there you hear: *Your light shows you the way, and shows you to anything waiting here.* Foes in that place cannot be surprised, and a fight there starts with *They saw your light coming. No surprise.* Putting the light out does not undo it. To sneak, put your light out BEFORE you walk into the next dark place.
 - **At a long rest**: crafting gear (the herbalism kit: a poultice for 2 camp supplies, proficiency needed) is used while the party rests. Say "I brew a poultice" and the party votes on a long rest; the poultice is made after the rest, from the supplies left.
+- **What the screens show**: darkness and light are never hidden.
+  - *Dark places.* The scene picture and the top of your phone dim and carry a **Dark** badge, and your Now card says *It is dark here.* On the hex map a dark zone is dimmed with a **Dark** mark; zones a light reaches glow warm and carry **Lit**, and the hero carrying the light has a small flame on their token. The legend says it: *Dark: heroes without darkvision attack into it at disadvantage.* A fight in the dark starts with *It is dark here. Heroes without darkvision attack into dark zones at disadvantage.*
+  - *On your phone in a fight.* Foe chips carry a **Dark** badge when the zone they stand in is dark, the **Move** list says **Dark** or **Lit** for every zone, and while you stand in the dark with an unlit light in your pack the hotbar has a **Light torch** slot (a bonus action).
+  - *Who sees in the dark.* A hero with darkvision has an eye icon on the party list and in the turn order.
+  - *Who carries a light.* The bearer has a **Torch lit** or **Lantern lit** chip (party list, hero strip and Now card) and a **Put out light** button (Now card, **Items** and the Inventory tab). Putting it out is free. When you light a light in a dark place the phone shows the warning line too. A fight that a light gave away starts with *They saw your light coming. No surprise.*
+  - *Idea chips.* **Light a torch** shows in a dark place when you carry a light that is not lit. A locked thing carries a **Locked** badge in the list of things here.
+  - *Gear boons.* Gear that gives you advantage (a rope, a magnifying glass) shows as a chip on your Now card while it lasts.
+  - *Item card.* Tap an item in the Inventory tab: **Use** says what it does here (*Light this dark place*) and why it is off when it is (*Only works in a dark place.*); a use aimed at a locked thing has a picker of the locked things here. It does the same as typing the words. In a fight use gear from the hotbar.
+
+**Every use of gear, from the game's data:**
+
+<!-- generated:item_uses -->
+| Item | Use | Where | Cost in a fight | What it does |
+| --- | --- | --- | --- | --- |
+| Torch | Light the torch | in a dark place | Bonus action | lights the place; shows you to anything waiting |
+| Torch | Throw the lit torch at a creature | in a fight | Action | 1 fire damage |
+| Torch | Throw the lit torch into a zone | in a fight | Action | fire into a zone (sets oil alight) |
+| Candle | Light the candle | in a dark place | Bonus action | lights the place; shows you to anything waiting |
+| Lantern, hooded | Light the lantern | in a dark place | Bonus action | lights the place; shows you to anything waiting |
+| Lantern, bullseye | Light the lantern and search closely | in a dark place | Bonus action | lights the place; shows you to anything waiting |
+| Crowbar | Force this open with the crowbar | at a locked thing | - | forces the lock |
+| Rope, hempen (50 feet) | Climb or cross here | anywhere | - | advantage on athletics |
+| Rope, silk (50 feet) | Climb or cross here | anywhere | - | advantage on athletics |
+| Grappling hook | Climb or cross here | anywhere | - | advantage on athletics |
+| Climber's Kit | Climb or cross here | anywhere | - | advantage on athletics |
+| Piton | Climb or cross here | anywhere | - | advantage on athletics |
+| Magnifying glass | Inspect closely here | anywhere | - | advantage on investigation |
+| Spyglass | Look far from here | anywhere | - | advantage on perception |
+| Cartographer's Tools | Chart the way ahead | anywhere | - | charts the way ahead |
+| Navigator's Tools | Chart the way ahead | anywhere | - | charts the way ahead |
+| Thieves' Tools | Pick this lock | at a locked thing | - | picks the lock |
+| Disguise Kit | Put on a disguise | anywhere | - | advantage on deception |
+| Forgery Kit | Forge a document | anywhere | - | advantage on deception |
+| Bagpipes | Perform here | anywhere | - | advantage on performance |
+| Drum | Perform here | anywhere | - | advantage on performance |
+| Dulcimer | Perform here | anywhere | - | advantage on performance |
+| Flute | Perform here | anywhere | - | advantage on performance |
+| Horn | Perform here | anywhere | - | advantage on performance |
+| Lute | Perform here | anywhere | - | advantage on performance |
+| Lyre | Perform here | anywhere | - | advantage on performance |
+| Pan flute | Perform here | anywhere | - | advantage on performance |
+| Shawm | Perform here | anywhere | - | advantage on performance |
+| Viol | Perform here | anywhere | - | advantage on performance |
+| Dice Set | Gamble here | anywhere | - | advantage on performance |
+| Playing Card Set | Gamble here | anywhere | - | advantage on performance |
+| Healer's Kit | Stabilize a fallen ally | on a fallen ally | Action | stabilizes a dying ally |
+| Herbalism Kit | Brew a poultice from camp supplies | at a long rest | - | makes herbal poultice from 2 camp supplies |
+| Fishing tackle | Fish here for camp supplies | at a fitting place | - | adds camp supplies |
+| Hunting trap | Set a trap for camp supplies | at a fitting place | - | adds camp supplies |
+| Antitoxin (vial) | Drink the antitoxin | anywhere | Bonus action | advantage on poison |
+| Oil (flask) | Throw the oil at a zone | in a fight | Action | leaves oil in a zone |
+| Alchemist's fire (flask) | Throw the fire | in a fight | Action | 1d4 fire damage |
+| Acid (vial) | Throw the acid | in a fight | Action | 2d6 acid damage |
+| Holy water (flask) | Throw the holy water | in a fight | Action | 2d6 radiant damage |
+| Caltrops | Scatter the caltrops in a zone | in a fight | Action | leaves caltrops in a zone |
+| Ball bearings (bag of 1,000) | Spill the ball bearings in a zone | in a fight | Action | leaves ball bearings in a zone |
+| Spell scroll (any) | Read the scroll | anywhere | Action | casts the scroll's spell |
+<!-- end generated:item_uses -->
 
 **Gear in a fight.** On your turn open **Items** on the hotbar: it lists your potions and each fight use of your gear with its cost (**Action** or **Bonus action**). Tap the use, then pick its target (a creature, a fallen ally or a zone). You can also type it: "I throw the acid at the goblin", "I scatter the caltrops in the gate". A throw reaches your zone or a touching one. A use that has no special effect still happens and is spent.
 - **You can only use what you carry.** Whatever you try in a fight, typed or as a free action ("I throw my waterskin at it"), the game checks your pack: an item you do not carry, or a keepsake, is only an attempt and nothing happens.

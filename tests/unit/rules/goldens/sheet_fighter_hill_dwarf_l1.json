@@ -342,7 +342,8 @@
    "equipped_slot": "armor",
    "category": "armor",
    "weight": 55.0,
-   "value_gp": 75.0
+   "value_gp": 75.0,
+   "uses": []
   },
   {
    "item": "longsword",
@@ -351,7 +352,8 @@
    "equipped_slot": "main_hand",
    "category": "weapon",
    "weight": 3.0,
-   "value_gp": 15.0
+   "value_gp": 15.0,
+   "uses": []
   },
   {
    "item": "shield",
@@ -360,7 +362,8 @@
    "equipped_slot": "shield",
    "category": "armor",
    "weight": 6.0,
-   "value_gp": 10.0
+   "value_gp": 10.0,
+   "uses": []
   },
   {
    "item": "crossbow-light",
@@ -369,7 +372,8 @@
    "equipped_slot": "ranged",
    "category": "weapon",
    "weight": 5.0,
-   "value_gp": 25.0
+   "value_gp": 25.0,
+   "uses": []
   },
   {
    "item": "crossbow-bolt",
@@ -378,7 +382,8 @@
    "equipped_slot": null,
    "category": "gear",
    "weight": 1.5,
-   "value_gp": 1.0
+   "value_gp": 1.0,
+   "uses": []
   },
   {
    "item": "dungeoneers-pack",
@@ -387,7 +392,8 @@
    "equipped_slot": null,
    "category": "gear",
    "weight": 0.0,
-   "value_gp": 12.0
+   "value_gp": 12.0,
+   "uses": []
   },
   {
    "item": "clothes-common",
@@ -396,7 +402,8 @@
    "equipped_slot": null,
    "category": "gear",
    "weight": 3.0,
-   "value_gp": 0.5
+   "value_gp": 0.5,
+   "uses": []
   },
   {
    "item": "pouch",
@@ -405,7 +412,8 @@
    "equipped_slot": null,
    "category": "gear",
    "weight": 1.0,
-   "value_gp": 0.5
+   "value_gp": 0.5,
+   "uses": []
   },
   {
    "item": "amulet",
@@ -414,7 +422,8 @@
    "equipped_slot": null,
    "category": "gear",
    "weight": 1.0,
-   "value_gp": 5.0
+   "value_gp": 5.0,
+   "uses": []
   },
   {
    "item": "block-of-incense",
@@ -423,7 +432,8 @@
    "equipped_slot": null,
    "category": "gear",
    "weight": 0.0,
-   "value_gp": 0.0
+   "value_gp": 0.0,
+   "uses": []
   }
  ],
  "gear_uses": [],

@@ -7,11 +7,13 @@ the narrator's event list and the template narration all read the same words).
 - `ItemUsed`: who used which gear (a light's own line says it for a light; M27.6: a use that
   changed nothing says "no special effect").
 - `FeatureUnlocked`: the lock is open, and how; no line ever opens a lock without this event.
-- `encounter_line(state)`: the fight-start line, plus `SEEN_LIGHT` when the alert of this place
+- `encounter_line(state)`: the fight-start line, plus `DARK_FIGHT` in a dark place (M27.8), plus
+  `SEEN_LIGHT` when the alert of this place
   came from a light (`World.alerted_by`).
 Refusals, boons, alerts and charting have no line (the refusal is for the model only).
 
-Public API: `LIGHT_WARNING`, `SEEN_LIGHT`, `ITEM_EVENT_LINES`, `encounter_line(state, event)`.
+Public API: `LIGHT_WARNING`, `SEEN_LIGHT`, `DARK_FIGHT`, `ITEM_EVENT_LINES`,
+`encounter_line(state, event)`.
 """
 
 from collections.abc import Callable
@@ -27,6 +29,7 @@ from aidm.rules.light import DOUSED, place_dark
 LIGHT_WARNING = "Your light shows you the way, and shows you to anything waiting here."
 SEEN_LIGHT = "They saw your light coming. No surprise."
 FIGHT_STARTS = "A fight breaks out."
+DARK_FIGHT = "It is dark here. Heroes without darkvision attack into dark zones at disadvantage."
 
 
 def _who(state: GameState, creature_id: str) -> str:
@@ -64,7 +67,12 @@ def _unlocked(state: GameState, e: FeatureUnlocked) -> str:
 def encounter_line(state: GameState, event: EncounterStarted) -> str:
     world = state.world
     seen = world.alerted_by == "light" and world.alerted == world.current_node
-    return f"{FIGHT_STARTS} {SEEN_LIGHT}" if seen else FIGHT_STARTS
+    parts = [FIGHT_STARTS]
+    if place_dark(state):
+        parts.append(DARK_FIGHT)  # M27.8: darkness is never hidden
+    if seen:
+        parts.append(SEEN_LIGHT)
+    return " ".join(parts)
 
 
 ITEM_EVENT_LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {

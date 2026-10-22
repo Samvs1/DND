@@ -10,7 +10,7 @@ order listed (P1 first, then P2 by kind visibility); a run whose estimate exceed
 `--cap` is cut from the end of that order.
 
 P1: 153 entries (item_icon 1, monster_token 30, portrait 59, region_banner 6, scene 3, spell_icon 1, surface_icon 5, ui_icon 37, ui_skin 11).
-P2: 432 entries (condition_icon 22, item_icon 187, monster_token 65, portrait 10, region_banner 6, spell_icon 61, surface_icon 13, zone_card 9, zone_hex 55, zone_icon 4).
+P2: 435 entries (condition_icon 22, item_icon 187, monster_token 65, portrait 10, region_banner 6, spell_icon 61, surface_icon 13, zone_card 9, zone_hex 55, zone_icon 7).
 
 ## P1
 
@@ -202,7 +202,7 @@ P2: 432 entries (condition_icon 22, item_icon 187, monster_token 65, portrait 10
 - region_banner (6): bridge, crypt, forest, keep, swamp, village
 - zone_card (9): bridge, cave, crypt, forest, keep, ruins, swamp, village, wilds
 - zone_hex (55): alley, archway, bailey, barracks, battlements, boardwalk, boulders, bridge_span, cavern, clearing, collapsed_vault, colonnade, corridor, courtyard, creek, dais, dead_trees, deep_trees, fallen_oak, far_bank, flooded_cell, gallery, game_trail, garden, gatehouse, great_hall, gully, hillock, hummock, ledge, lone_tree, mire, near_bank, open_ground, ossuary, pool, pylon, reeds, ridge, rockfall, rooftop, rubble, sarcophagi, scrub, shallows, smithy, square, stairwell, stalagmites, stilt_hut, sunken_hall, thicket, tower_stump, tunnel, well
-- zone_icon (4): cover-half, cover-three-quarters, high-ground, rough
+- zone_icon (7): cover-half, cover-three-quarters, dark, darkvision, high-ground, lit, rough
 - surface_icon (13): ball-bearings, darkness, fog, ice, poison-cloud, silence, sleet-storm, spike-growth, spirit-guardians, steam, stinking-cloud, water, web
 - monster_token (65): ankheg, assassin, barbed-devil, basilisk, bearded-devil, blue-dragon-wyrmling, centaur, chimera, crocodile, death-dog, dire-wolf, duergar, earth-elemental, ettin, fire-elemental, flying-sword, frost-giant, gelatinous-cube, ghast, giant-crocodile, giant-scorpion, gladiator, green-dragon-wyrmling, grick, griffon, grimlock, half-red-dragon-veteran, hell-hound, hezrou, hill-giant, hydra, ice-mephit, knight, lizardfolk, manticore, medusa, minotaur, noble, ochre-jelly, ogre-zombie, owlbear, priest, red-dragon-wyrmling, sahuagin, satyr, scout, shield-guardian, steam-mephit, stirge, stone-giant, swarm-of-bats, tyrannosaurus-rex, vampire-spawn, veteran, water-elemental, white-dragon-wyrmling, wight, winter-wolf, wolf, worg, wyvern, xorn, young-black-dragon, young-green-dragon, young-white-dragon
 - condition_icon (22): asleep, barkskin, blurred, burning, chilled, dodging, expeditious-retreat, guidance, guided, helped, hidden, invisibility, invisible, longstrider, nauseated, poison-ward, resistance, shocked, silenced, slowed, surprised, true-strike

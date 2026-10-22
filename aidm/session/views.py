@@ -15,6 +15,7 @@ name), `public_state`, `stock_lines` (dice views live in `session.public_feed`).
 """
 
 from collections.abc import Sequence
+from typing import Any
 
 from aidm.data.item_catalogue import CatalogueItem
 from aidm.data.registry import Registry
@@ -49,6 +50,7 @@ from aidm.models.state import Creature, GameState
 from aidm.models.zones import Zone
 from aidm.rules.gateway_lock import locked_reason
 from aidm.rules.hex_layout import Hex, hex_layout
+from aidm.rules.light import node_dark
 from aidm.rules.progression import campaign_complete, node_plan
 from aidm.rules.scene import current_scene, node_display_name
 from aidm.rules.scribe import scribe_view
@@ -56,14 +58,16 @@ from aidm.rules.shop import StockEntry
 from aidm.rules.social import public_npc_view
 from aidm.rules.zones import zone_is_difficult
 from aidm.session.public_feed import leaks, private_texts
+from aidm.session.views_light import hero_extras, lock_tier, zone_extras
 from aidm.session.views_quests import public_finale, public_leads, public_quests
 
 MAX_PUBLIC_FACTS = 12
 MAX_PUBLIC_SUMMARIES = 8
 
 
-def public_creature(creature: Creature) -> PublicCreature:
+def public_creature(creature: Creature, state: GameState | None = None) -> PublicCreature:
     pc = creature.pc
+    extra = hero_extras(state, creature) if state is not None else {}
     return PublicCreature(
         id=creature.id,
         name=creature.name,
@@ -84,6 +88,7 @@ def public_creature(creature: Creature) -> PublicCreature:
         portrait_id=pc.portrait_id if pc is not None else "",
         gold=pc.gold if pc is not None else None,
         xp=pc.xp if pc is not None else None,
+        **extra,
     )
 
 
@@ -103,7 +108,9 @@ def public_scene(state: GameState) -> PublicScene | None:
         for node in scene.exits
     )
     features = tuple(
-        PublicFeature(id=f.id, kind=f.kind.value, name=f.name, description=f.description)
+        PublicFeature(
+            id=f.id, kind=f.kind.value, name=f.name, description=f.description, locked=lock_tier(f)
+        )
         for f in (world.features[fid] for fid in scene.feature_ids)
     )
     node = node_plan(state, scene.node_id)
@@ -116,6 +123,7 @@ def public_scene(state: GameState) -> PublicScene | None:
         npcs=tuple(public_npc_view(world.npcs[nid]) for nid in scene.npc_ids),
         features=features,
         items=tuple(world.items[iid].name for iid in scene.item_ids),
+        dark=node_dark(state, scene.node_id),
         shop_npc_id=world.shop_npc_id,
         shopkeepers=tuple(
             n.id
@@ -169,7 +177,7 @@ def _terrain_of(zone_id: str) -> str:
     )
 
 
-def _public_zone(zone: Zone, cell: Hex) -> PublicZone:
+def _public_zone(zone: Zone, cell: Hex, light: dict[str, Any] | None = None) -> PublicZone:
     return PublicZone(
         id=zone.id,
         name=zone.name,
@@ -183,6 +191,7 @@ def _public_zone(zone: Zone, cell: Hex) -> PublicZone:
         surfaces=tuple(zone.surfaces),
         q=cell[0],
         r=cell[1],
+        **(light or {}),
     )
 
 
@@ -214,7 +223,9 @@ def public_combat(state: GameState) -> PublicCombat | None:
     return PublicCombat(
         encounter_id=enc.id,
         round=enc.round,
-        zones=tuple(_public_zone(z, layout[z.id]) for z in enc.zone_map.zones),
+        zones=tuple(
+            _public_zone(z, layout[z.id], zone_extras(state, z.id)) for z in enc.zone_map.zones
+        ),
         edges=tuple(enc.zone_map.edges),
         tokens=tuple(tokens),
         initiative=tuple(e.creature_id for e in enc.initiative),
@@ -312,7 +323,7 @@ def public_state(
         phase=phase,
         paused=paused,
         players=tuple(players),
-        party=tuple(public_creature(c) for c in party),
+        party=tuple(public_creature(c, state) for c in party),
         scene=public_scene(state),
         map=public_map(state),
         quests=public_quests(state),
