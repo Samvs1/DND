@@ -100,6 +100,8 @@ def test_out_of_a_fight_dark_scene_chip_and_card(browser: Browser, live_server: 
     darken(host, light=True, boons=("Rope=Athletics",))
     host.wait_for_selector("[data-testid=put-out-light]")
     assert host.locator("[data-kind=light]").count() == 0
+    assert host.inner_text("[data-testid=now-dark]") == "Your torch lights the way."
+    assert host.inner_text("[data-testid=dark-badge]").lower() == "lit"
     assert host.locator("[data-testid=boon-chip]").count() == 1
     host.click("[data-testid=put-out-light]")
     assert host.evaluate("window.__sent.at(-1)")["text"] == "put out my light"

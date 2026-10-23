@@ -19,7 +19,7 @@ from tests.ui.test_scribe import _end_welcome, _kill, _set_gold
 
 OUT = SHOTS / "m28_5"
 POP = "[data-testid=tip-pop]"
-LIVE = "[data-testid=tip-btn]:not([hidden])"
+LIVE = "[data-testid=tip-btn]:not([hidden]):visible"
 
 
 def _title(page: Page, scope: str, nth: int = 0) -> str:
@@ -42,7 +42,8 @@ def test_now_card_chips_have_question_marks(browser: Browser, live_server: LiveS
     host, _guest = start_table(browser, live_server.base, PHONE, errors)
     darken(host, light=True, boons=("Rope=Athletics",))
     host.wait_for_selector(f"[data-testid=now-card] {LIVE}")
-    assert _title(host, ".ct-now-darkrow") == "Dark"
+    assert host.inner_text("[data-testid=now-dark]") == "Your torch lights the way."
+    assert _title(host, ".ct-now-darkrow") == "Lit"
     assert _title(host, "[data-testid=now-gear]", 0) == "Lit"
     assert _title(host, "[data-testid=now-gear]", 1) == "Gear boon"
     _shot(host, "01_now_card_phone390")
@@ -53,6 +54,16 @@ def test_now_card_chips_have_question_marks(browser: Browser, live_server: LiveS
     go_tab(host, "play")
     host.wait_for_selector("[data-testid=now-card] [data-testid=tip-btn]", state="hidden")
     assert host.locator(f"[data-testid=now-card] {LIVE}").count() == 0
+    assert errors == []
+
+
+def test_unlit_dark_place_tip_says_dark(browser: Browser, live_server: LiveServer) -> None:
+    errors: list[str] = []
+    host, _guest = start_table(browser, live_server.base, PHONE, errors)
+    darken(host, light=False)
+    host.wait_for_selector(f"[data-testid=now-card] {LIVE}")
+    assert host.inner_text("[data-testid=now-dark]") == "It is dark here."
+    assert _title(host, ".ct-now-darkrow") == "Dark"
     assert errors == []
 
 

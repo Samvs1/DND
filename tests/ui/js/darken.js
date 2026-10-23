@@ -24,7 +24,7 @@ async (cfg) => {
     });
     combat = { ...combat, zones, tokens };
   }
-  const scene = st.scene ? { ...st.scene, dark: true, features: cfg.features ?? st.scene.features } : st.scene;
+  const scene = st.scene ? { ...st.scene, dark: true, lit: cfg.light ? 'Torch' : '', features: cfg.features ?? st.scene.features } : st.scene;
   let sheet = s.sheet ?? { creature_id: me, sheet: { inventory: [] } };
   if (cfg.gear) {
     const torch = { item: 'torch', name: 'Torch', qty: 1, category: 'gear', uses: [{ use_id: 'torch-light', label: 'Light the torch', when: 'dark_place', verb: 'light' }] };
