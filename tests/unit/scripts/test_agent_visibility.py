@@ -92,11 +92,11 @@ def test_vote_is_shown_and_a_wrong_answer_says_what_waits() -> None:
 def test_parley_lists_the_engine_skills_and_refuses_others() -> None:
     offer = {"id": "o1", "foes": ["Wolf"], "difficulty": "easy", "options": ["fight", "parley"]}
     text = look_text(_state(offer=offer), 1, "pc-1")
-    assert "answer parley [persuasion|intimidation]" in text
+    assert "answer parley [persuasion|intimidation|deception]" in text  # M29.7a: + deception
     got = answer_message(_state(offer=offer), ["parley", "intimidation"])
     assert got == [{"type": "answer_offer", "choice": "parley", "skill": "intimidation"}]
-    with pytest.raises(UsageError, match="persuasion or intimidation"):
-        answer_message(_state(offer=offer), ["parley", "deception"])
+    with pytest.raises(UsageError, match="persuasion or intimidation or deception"):
+        answer_message(_state(offer=offer), ["parley", "athletics"])
     with pytest.raises(UsageError, match="only parley takes a skill"):
         answer_message(_state(offer=offer), ["fight", "persuasion"])
 

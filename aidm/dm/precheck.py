@@ -18,12 +18,16 @@ Public API:
   <name>"; `aidm.dm.give_intent`), `HeroHandIntent` (M29.7a R7/R8: "hand the poultice to Elowen",
   "give Elowen 30 gold": to another hero, before healing; `aidm.dm.hand_intent`),
   `LiftIntent` (M29.7a R18: "lift the link back out of his pouch": a keepsake an NPC here holds;
-  `aidm.dm.lift_intent`, before a give), `BarredIntent(text)` (M23.8: "go to <a locked exit>"; the
-  world reason, `aidm.rules.gateway_lock`), `UseIntent` (M27.5: "light my torch", "use X on
-  Y", "put out my torch"...; `aidm.dm.use_intent`, after the item commands), `HealIntent`
-  (M29.5b: "drink my potion", "pour my potion into Rook", "cast cure wounds on Tamsin";
-  `aidm.dm.heal_intent`, after a give to an NPC); a rest named inside a longer sentence is a
-  `RestIntent` too (M29.5b, `aidm.dm.rest_words`, after healing).
+  `aidm.dm.lift_intent`, before a give), `ParleyIntent` (M29.7a R4: talking to the foes while an
+  encounter offer waits answers it as parley, `aidm.dm.parley_intent`), `BarredIntent(text)`
+  (M23.8: "go to <a locked exit>"; the world reason, `aidm.rules.gateway_lock`), `UseIntent`
+  (M27.5: "light my torch", "use X on Y", "put out my torch"...; `aidm.dm.use_intent`, after
+  the item commands), `HealIntent` (M29.5b: "drink my potion", "pour my potion into Rook",
+  "cast cure wounds on Tamsin"; `aidm.dm.heal_intent`, after a give to an NPC); a rest named
+  inside a longer sentence is a `RestIntent` too (M29.5b, `aidm.dm.rest_words`, after healing).
+  M29.7a: the hero's own name with a third-person verb reads as the hero's command
+  (`aidm.dm.sentence.own_reading`), and a compound sentence that lights or puts out a light
+  first is that `UseIntent` with `rest`, the other act (`use_intent.light_first`, R17).
 - `Intent` (the union), `precheck(state, actor_id, text) -> Intent | None`.
 - `gear_intent(state, actor_id, text) -> UseIntent | None`: the gear precheck alone, for the
   typed actions of a fight (M27.5: putting a light out is free, lighting one a bonus action).
@@ -45,6 +49,7 @@ from aidm.dm.hand_intent import HeroHandIntent, hand_intent
 from aidm.dm.heal_intent import HealIntent, heal_intent
 from aidm.dm.help_intent import HelpUpIntent, help_up_intent
 from aidm.dm.lift_intent import LiftIntent, lift_intent
+from aidm.dm.parley_intent import ParleyIntent, parley_intent
 from aidm.dm.rest_words import wordy_rest
 from aidm.dm.sentence import normalise, own_reading
 from aidm.dm.use_intent import UseIntent, item_phrase, light_first, use_intent
@@ -109,6 +114,7 @@ type Intent = (
     | GiveIntent
     | HeroHandIntent
     | LiftIntent
+    | ParleyIntent
     | BarredIntent
     | UseIntent
     | HealIntent
@@ -243,7 +249,7 @@ def precheck(state: GameState, actor_id: str, text: str) -> Intent | None:
     clean = own_reading(actor.name, clean) if actor is not None else clean
     if not clean:
         return None
-    helped = help_up_intent(state, actor_id, clean)
+    helped = help_up_intent(state, actor_id, clean) or parley_intent(state, actor_id, clean)
     if helped is not None:
         return helped
     if _SHORT.fullmatch(clean):

@@ -6,7 +6,8 @@ The checks use the DCs the offer carries (set from the region tier by data, neve
 - escape: a group check, each PC rolling the better of Stealth and Athletics; success -> the
   party slips back to where it came from (no fight; a carried light still gives a dark place
   away, `aidm.rules.light.arrival_events`); failure -> the fight starts.
-- parley: one PC (the actor, else the first living PC) rolls Persuasion (or Intimidation);
+- parley: one PC (the actor, else the first living PC) rolls Persuasion (or Intimidation, or
+  Deception, M29.7a);
   success -> no fight (with a boss: Persuasion improves its attitude, social contribution only,
   capped and floored); failure -> the fight starts.
 Group checks follow SRD 5.1 "Group Checks": the group succeeds when at least half succeed.
@@ -36,7 +37,7 @@ from aidm.rules.light import arrival_events
 from aidm.rules.progression import peaceful_close, settled_offer
 from aidm.rules.social import social_attitude_events
 
-PARLEY_SKILLS = (Skill.PERSUASION, Skill.INTIMIDATION)
+PARLEY_SKILLS = (Skill.PERSUASION, Skill.INTIMIDATION, Skill.DECEPTION)
 ESCAPE_SKILLS = (Skill.STEALTH, Skill.ATHLETICS)
 
 

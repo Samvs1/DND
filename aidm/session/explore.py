@@ -40,6 +40,7 @@ from aidm.dm.heal_intent import HealIntent
 from aidm.dm.help_intent import HelpUpIntent
 from aidm.dm.lift_intent import LiftIntent
 from aidm.dm.llm_types import ToolCall
+from aidm.dm.parley_intent import ParleyIntent
 from aidm.dm.precheck import (
     BarredIntent,
     InventoryIntent,
@@ -55,9 +56,10 @@ from aidm.dm.precheck import (
 from aidm.dm.tool_context import ToolContext
 from aidm.dm.tool_exec import execute_tool
 from aidm.dm.use_intent import UseIntent
+from aidm.models.campaign_state import OfferChoice
 from aidm.models.commands import DashCommand, MoveCommand
 from aidm.models.events import AnyEvent
-from aidm.models.protocol_client import SubmitAction
+from aidm.models.protocol_client import AnswerOffer, SubmitAction
 from aidm.models.protocol_server import (
     ErrorCode,
     NoticeKind,
@@ -245,6 +247,10 @@ async def resolve_action(core: TableCore, entry: QueueEntry) -> None:
         await hand_over.hand_intent(core, player, intent)
     elif isinstance(intent, LiftIntent):
         await hand_over.lift_intent(core, player, intent)
+    elif isinstance(intent, ParleyIntent):  # M29.7a R4: one roll answers the waiting offer
+        await party_actions.answer(
+            core, player, AnswerOffer(choice=OfferChoice.PARLEY, skill=intent.skill)
+        )
     elif isinstance(intent, UseIntent):
         await _gear_use(core, player, entry, intent)
     elif isinstance(intent, HealIntent):

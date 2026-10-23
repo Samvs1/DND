@@ -4,6 +4,11 @@ live save: the typed words become the engine's own command, never a storyteller 
 from pathlib import Path
 
 from aidm.dm.fight_intent import fight_command
+from aidm.dm.parley_intent import ParleyIntent
+from aidm.dm.precheck import precheck
+from aidm.models.abilities import Skill
+from aidm.models.campaign_events import OfferResolved
+from aidm.models.campaign_state import OfferChoice
 from aidm.models.combat_events import AttackRolled
 from aidm.models.commands import AttackCommand
 from aidm.models.events import CheckResolved, DiceRolled
@@ -61,3 +66,39 @@ async def test_m29_typed_weapon_attack_rolls_against_ac(tmp_path: Path) -> None:
     assert attacks and attacks[0].attack == "Longsword" and attacks[0].target_ac > 0
     assert not any(isinstance(e, CheckResolved) for e in events)
     assert not any(isinstance(e, DiceRolled) and e.label == "Creative action" for e in events)
+
+
+R4_TEXT = (
+    "Before I decide anything, I call out to Hearthkeeper Veles and ask what he guards and"
+    " whether he will let us pass."
+)
+
+
+def test_m29_talk_while_an_offer_waits_is_the_parley() -> None:
+    state = replay_until("r2-p5", 536)
+    assert precheck(state, "pc-p2", R4_TEXT) == ParleyIntent("pc-p2", Skill.PERSUASION)
+    threat = precheck(state, "pc-p2", "I threaten Veles with my blade")
+    assert threat == ParleyIntent("pc-p2", Skill.INTIMIDATION)
+    assert precheck(state, "pc-p2", "I lie to Veles about who sent us") == ParleyIntent(
+        "pc-p2", Skill.DECEPTION
+    )
+    for other in ("I lie low in the reeds", "I swing my longsword at Veles"):
+        assert not isinstance(precheck(state, "pc-p2", other), ParleyIntent)
+    assert precheck(replay_until("r2-p5", 520), "pc-p2", R4_TEXT) is None  # no offer waits
+
+
+async def test_m29_typed_parley_rolls_once_for_the_offer(tmp_path: Path) -> None:
+    """p5 536-540: a storyteller Persuasion check passed (20 vs 20), then the parley rolled
+    again and failed: one act, two rolls, the first counting for nothing."""
+    state = replay_until("r2-p5", 536)
+    async with running(disabled_llm(tmp_path), state) as (table, _):
+        seat = await join(table, "Ann", "pc-p2")
+        start = table.state.event_count
+        seat.send(SubmitAction(text=R4_TEXT))
+        await table.settle()
+        assert_replays(table)
+        events = [e.event for e in table.log if e.seq >= start]
+    resolved = [e for e in events if isinstance(e, OfferResolved)]
+    assert [r.choice for r in resolved] == [OfferChoice.PARLEY]
+    checks = [e for e in events if isinstance(e, CheckResolved)]
+    assert [(c.reason, c.result.skill) for c in checks] == [("parley", "persuasion")]
