@@ -11,6 +11,7 @@ from typing import Any
 
 from aidm.rules.leveling import MAX_LEVEL, level_for_xp
 from aidm.rules.offer_answer import PARLEY_SKILLS
+from scripts.agent.hero_view import roll_why, zone_lines
 from scripts.agent.spells import spell_lines
 
 Msg = dict[str, Any]
@@ -45,6 +46,8 @@ def _hp(c: Msg) -> str:
         bits.append("DYING")
     if c.get("conditions"):
         bits.append("[" + ",".join(c["conditions"]) + "]")
+    if c.get("light"):
+        bits.append(f"(carries a lit {c['light']})")
     return " ".join(bits)
 
 
@@ -74,7 +77,9 @@ def _feature_lines(sheet: Msg | None, eco: Msg) -> tuple[list[str], list[str]]:
         left = f"{f['uses_left']}/{f['uses_max']} left" if f.get("uses_max") is not None else ""
         label = ", ".join(x for x in (f["economy"].replace("_", " "), left) if x)
         if f["economy"] == "extra_action":
-            usable = f["available"] and not eco.get("action")
+            usable = f["available"]  # M29.7e H9: shown until spent; it works once the action is
+            if usable and eco.get("action"):
+                label += ", works once your action is used"
         else:
             usable = f["available"] and bool(eco.get(slot))
         if usable:
@@ -146,7 +151,8 @@ def _scene(scene: Msg) -> list[str]:
 def _combat(combat: Msg, hero_id: str) -> list[str]:
     zones = {z["id"]: z["name"] for z in combat.get("zones", [])}
     turn = combat.get("turn_of") or combat.get("active_id")
-    out = [f"FIGHT round {combat['round']}; turn of {turn}"]
+    who = f"turn of {turn}" if turn else "no turn started yet"
+    out = [f"FIGHT round {combat['round']}; {who}"]
     number = {t["creature_id"]: n for n, t in enumerate(foe_list(combat, hero_id), 1)}
     for t in combat["tokens"]:
         state = "dead" if t["dead"] else f"{t['hp']}/{t['max_hp']}hp"
@@ -158,9 +164,11 @@ def _combat(combat: Msg, hero_id: str) -> list[str]:
         out.append(f"  {tag}{t['creature_id']} {t['name']} ({t['side']}) {state} in {where}")
     eco = combat.get("economy") or {}
     if combat.get("active_id") == hero_id and eco:
+        more = eco.get("attacks_left") or 0
+        extra = f" more_attacks={more}" if more > 0 else ""
         out.append(
-            f"Your turn: action={eco.get('action')} bonus={eco.get('bonus_action')} "
-            f"attacks_left={eco.get('attacks_left')} move={eco.get('movement_left')}ft"
+            f"Your turn: action={eco.get('action')} bonus={eco.get('bonus_action')}"
+            f"{extra} move={eco.get('movement_left')}ft"
         )
     return out
 
@@ -250,6 +258,7 @@ def look_text(
     sheet: Msg | None = None,
     level_up: bool = False,
     pending: str | None = None,
+    extra: list[str] | None = None,
 ) -> str:
     """The whole short view: place, party, fight, what waits for an answer, options, footer."""
     title = state.get("campaign_title") or "campaign"
@@ -261,11 +270,14 @@ def look_text(
     combat = state.get("combat")
     if combat:
         lines += _combat(combat, hero_id)
+        lines += zone_lines(combat)
     lines += _waiting(state, pending)
     if state.get("resolving"):
         lines.append(f"The table is busy with: {state['resolving']['text'][:80]}")
     if state.get("complete") or state.get("epilogue"):
         lines.append("THE CAMPAIGN IS COMPLETE.")
+        if state.get("epilogue"):
+            lines.append("Ending: " + str(state["epilogue"]).strip())
     if state.get("defeat"):
         lines.append("DEFEAT: " + str(state["defeat"])[:160])
         choices = ["load <save id>", "new"]
@@ -275,6 +287,7 @@ def look_text(
     ready = level_up_names(state, hero_id if level_up else None)
     if ready:
         lines.append(f"LEVEL UP available for {', '.join(ready)}: run `levelup --as <name>`.")
+    lines += extra or []
     options = option_lines(combat, hero_id, sheet)
     if options:
         lines.append("Options:")
@@ -287,10 +300,9 @@ def look_text(
 
 def _roll_line(m: Msg) -> str:
     d = m.get("dice") or m
-    label, total = d.get("label", ""), d.get("total")
-    if d.get("target") is None:
-        return f"Roll: {label} {total}"
-    return f"Roll: {label} {total} vs {d['target']} success={d.get('success')}"
+    return roll_why(d).replace("Last roll:", "Roll:") + (
+        "" if d.get("target") is None else f" success={d.get('success')}"
+    )
 
 
 def digest(messages: list[Msg]) -> str:
@@ -314,11 +326,12 @@ def digest(messages: list[Msg]) -> str:
             extra = f" ({m['refusal']})" if m.get("refusal") else ""
             out.append(f"ERROR {m['code']}: {m['text']}{extra}")
         elif kind == "event" and m.get("line"):
-            out.append(f"* {m['line']}")
+            tag = "XP award (milestone or reward): " if m.get("kind") == "xp_gained" else ""
+            out.append(f"* {tag}{m['line']}")
         elif kind == "level_up_available":
             out.append(f"LEVEL UP available for {m['creature_id']} (level {m['level']}): levelup")
         elif kind == "epilogue":
-            out.append("EPILOGUE reached.")
+            out.append("EPILOGUE reached: " + str(m.get("text", "")).strip())
     if chunks:
         out.append("DM: " + " ".join(chunks).strip()[:700])
     return "\n".join(out)

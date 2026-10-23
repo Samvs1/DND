@@ -12,12 +12,15 @@ import asyncio
 import time
 from typing import Any
 
+from scripts.agent.damage import pick_option
 from scripts.agent.session import Session
 from scripts.sim.client import Conn
 
 Msg = dict[str, Any]
 QUIET_FAKE_S = 0.8
 QUIET_LIVE_S = 2.0
+GRACE_FAKE_S = 1.5
+GRACE_LIVE_S = 15.0
 FAKE_WAIT_S = 90.0
 LIVE_WAIT_S = 300.0
 
@@ -28,6 +31,7 @@ class Link:
         self.conn = Conn(name, session.url)
         self.quiet = QUIET_LIVE_S if session.live else QUIET_FAKE_S
         self.wait = LIVE_WAIT_S if session.live else FAKE_WAIT_S
+        self.grace = GRACE_LIVE_S if session.live else GRACE_FAKE_S
 
     async def open(self, token: str | None = None) -> None:
         await self.conn.open()
@@ -57,15 +61,26 @@ class Link:
             return True
         return bool(self.state.get("resolving"))
 
+    def _told(self, mark: int) -> bool:
+        """The narration for the acted turn arrived (or nothing was acted, so none is due)."""
+        new = self.conn.log[mark:]
+        if not any(m["type"] in ("event", "dice_roll") for m in new):
+            return True
+        return any(m["type"] in ("narration_done", "epilogue", "error") for m in new)
+
     async def settle(self, mark: int) -> list[Msg]:
-        """Wait until nothing is resolving and the log stopped growing; return the new messages."""
+        """Wait until nothing is resolving, the log stopped growing and the acted turn's narration
+        arrived (M29.7e H12: the live model is silent for a while after the result); a bounded
+        quiet period after the last message ends the wait when no narration is coming."""
         deadline = time.monotonic() + self.wait
         last, changed = len(self.conn.log), time.monotonic()
         while time.monotonic() < deadline and not self.conn.closed:
             await asyncio.sleep(0.15)
             if len(self.conn.log) != last:
                 last, changed = len(self.conn.log), time.monotonic()
-            if not self._busy() and time.monotonic() - changed >= self.quiet:
+            idle = time.monotonic() - changed
+            told = self._told(mark) or idle >= self.grace
+            if not self._busy() and idle >= self.quiet and told:
                 break
         return self.conn.log[mark:]
 
@@ -75,6 +90,15 @@ class Link:
         await self.conn.send(msg)
         await asyncio.sleep(0.4)  # let a queued turn show as resolving before we test for idle
         return await self.settle(mark)
+
+    def last_roll(self) -> Msg | None:
+        """The newest dice roll this link heard (live, or the recent ones sent on connect)."""
+        for m in reversed(self.conn.log):
+            if m["type"] == "dice_roll":
+                return m["dice"]
+            if m["type"] == "story_history" and m.get("dice"):
+                return m["dice"][-1]["dice"]
+        return None
 
     async def sheet(self) -> Msg | None:
         got = await self.sheet_msg()
@@ -90,7 +114,7 @@ class Link:
         return got if got["type"] == "sheet" else None
 
     async def best_option(self, target_id: str) -> str:
-        """The strike with the best hit chance in range (what the Strike button would pick)."""
+        """The strike with the best expected damage in range (M29.7e H8: hit chance x damage)."""
         mark = self.conn.mark()
         await self.conn.send({"type": "request_hit_chances", "target_id": target_id})
 
@@ -103,10 +127,9 @@ class Link:
             got = await self.conn.wait_for(done, 10.0, mark)
         except TimeoutError:
             return "main_hand"
-        weapons = [c for c in got.get("chances", []) if not str(c["option"]).startswith("spell:")]
-        usable = [c for c in weapons if c.get("in_range", True)]
-        pool = usable or weapons
-        return str(max(pool, key=lambda c: c["probability"])["option"]) if pool else "main_hand"
+        sheet = await self.sheet()
+        attacks = list((sheet or {}).get("attacks", []))
+        return pick_option(list(got.get("chances", [])), attacks)
 
     async def command(self, cmd: Msg) -> list[Msg]:
         if cmd["type"] == "attack" and not cmd.get("option"):

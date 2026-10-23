@@ -9,6 +9,7 @@
     python scripts/agent_play.py move <place or zone>
     python scripts/agent_play.py answer <fight|surprise|escape|parley|yes|no|confirm|cancel|id>
     python scripts/agent_play.py trade list | buy <item> [qty] | sell <item> [qty]
+    python scripts/agent_play.py equip <item> | unequip <item>
     python scripts/agent_play.py levelup
     python scripts/agent_play.py stop
 
@@ -19,6 +20,8 @@ $AIDM_AGENT_RUN). `--as NAME` picks the hero (in a
 fight the hero whose turn it is acts). `--live` uses the real DeepSeek model through the one
 LLM client and the key in .env (never printed); without it the deterministic fake storyteller
 answers. Every output ends with `[save <campaign id> | event <n>]` for bug reports.
+A vote answered without `--as` is answered by one driver for every hero (by design, not a game
+bug); pass `--as NAME` to vote as one hero. `look` shows slots, supplies, spells, light, cover.
 """
 
 import argparse
@@ -59,7 +62,7 @@ def build_parser() -> argparse.ArgumentParser:
     for name in ("look", "stop", "levelup", "serve"):
         sub.add_parser(name, parents=hidden)
     sub.add_parser("act", parents=hidden).add_argument("text", nargs="+")
-    for name in ("do", "answer", "trade"):
+    for name in ("do", "answer", "trade", "equip", "unequip"):
         sub.add_parser(name, parents=hidden).add_argument("words", nargs="+")
     sub.add_parser("move", parents=hidden).add_argument("where", nargs="+")
     return parser
@@ -84,6 +87,8 @@ async def dispatch(args: argparse.Namespace) -> str:
             return await ops.cmd_answer(root, run, who, args.words)
         case "trade":
             return await ops.cmd_trade(root, run, who, args.words)
+        case "equip" | "unequip":
+            return await ops.cmd_equip(root, run, who, args.words, args.command == "equip")
         case "levelup":
             return await ops.cmd_levelup(root, run, who)
         case _:

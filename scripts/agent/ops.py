@@ -13,7 +13,9 @@ import time
 from pathlib import Path
 
 from scripts.agent.commands import UsageError, answer_message, build_command
+from scripts.agent.hero_view import learned, roll_why
 from scripts.agent.link import Link, Msg, open_link
+from scripts.agent.party import heroes_block
 from scripts.agent.session import (
     Session,
     alive,
@@ -25,6 +27,7 @@ from scripts.agent.session import (
 )
 from scripts.agent.text import digest, foe_list, footer, look_text, no_fight_text
 from scripts.agent.trade import (
+    keepsake_text,
     match_line,
     open_stock,
     parse_trade,
@@ -107,9 +110,16 @@ def _pending(link: Link) -> str | None:
     return None
 
 
-def _view(link: Link, player: Msg, sheet: Msg | None, level_up: bool = False) -> str:
+def _view(
+    link: Link,
+    player: Msg,
+    sheet: Msg | None,
+    level_up: bool = False,
+    extra: list[str] | None = None,
+) -> str:
     state = link.state
-    return look_text(state, link.seq, player["hero_id"], sheet, level_up, _pending(link))
+    pending = _pending(link)
+    return look_text(state, link.seq, player["hero_id"], sheet, level_up, pending, extra)
 
 
 def _player(session: Session, name: str | None, state: Msg) -> Msg:
@@ -152,7 +162,11 @@ async def _report(link: Link, player: Msg, said: list[Msg], note: str = "") -> s
         got = await fresh.sheet_msg()
         mine = bool(combat and combat.get("active_id") == player["hero_id"])
         sheet = got["sheet"] if got and mine else None
-        parts = [note, digest(said), _view(fresh, player, sheet, bool(got and got.get("level_up")))]
+        extra = await heroes_block(link.session, fresh.state)
+        if roll := roll_why(fresh.last_roll()):
+            extra.append(roll)
+        up = bool(got and got.get("level_up"))
+        parts = [note, digest(said), _view(fresh, player, sheet, up, extra)]
         return "\n".join(p for p in parts if p).strip()
     finally:
         await fresh.close()
@@ -265,8 +279,11 @@ async def cmd_levelup(root: Path, run: str | None, as_name: str | None) -> str:
         if sheet_msg is None:
             return f"No level-up is available.\n{await _report(link, player, [])}"
         picks = build_choices(sheet_msg, True, main_ability(player["class"]))
+        before = await link.sheet()
         said = await link.send({"type": "level_up", "choices": picks})
-        return await _report(link, player, said, f"{player['name']} levels up")
+        after = await link.sheet()
+        note = f"{player['name']} levels up\n{learned(before, after)}".strip()
+        return await _report(link, player, said, note)
     finally:
         await link.close()
 
@@ -294,7 +311,8 @@ async def cmd_trade(root: Path, run: str | None, as_name: str | None, words: lis
             keeper = shopkeeper_of(link.state)
             stock = await open_stock(session, link, keeper)
             if stock is None:
-                return f"The shop did not open (no vote?).\n{await _report(link, player, [])}"
+                late = "The shop stock has not arrived yet (the storyteller is slow): run it again."
+                return f"{late}\n{await _report(link, player, [])}"
             said, note = await _trade_step(link, stock, verb, item, qty)
         except UsageError as err:
             return f"{err}\n{await _report(link, player, [])}"
@@ -310,7 +328,8 @@ async def _trade_step(
     gold = (sheet or {}).get("gold")
     if verb == "list":
         pack = ", ".join(f"{i['item']} x{i['qty']}" for i in (sheet or {}).get("inventory", []))
-        return [], f"{stock_text(stock, gold)}\nYour pack: {pack or 'empty'}"
+        shown = f"{stock_text(stock, gold)}\nYour pack: {pack or 'empty'}"
+        return [], f"{shown}\n{keepsake_text(sheet)}"
     npc = stock["npc_id"]
     if verb == "buy":
         line = match_line(stock["stock"], item, "item_id", "name")
@@ -319,3 +338,23 @@ async def _trade_step(
         line = match_line((sheet or {}).get("inventory", []), item, "item", "name")
         msg = {"type": "shop_sell", "npc_id": npc, "item_id": line["item"], "qty": qty}
     return await link.send(msg), f"Trade {verb} {qty} x {item}"
+
+
+async def cmd_equip(
+    root: Path, run: str | None, as_name: str | None, words: list[str], put_on: bool
+) -> str:
+    """`equip <item>` / `unequip <item>`: the protocol's `equip` and `unequip` messages."""
+    link, player = await _actor(_session(root, run), as_name)
+    try:
+        sheet = await link.sheet()
+        try:
+            if not words:
+                raise UsageError("equip <item> | unequip <item> (an item of your pack)")
+            line = match_line((sheet or {}).get("inventory", []), " ".join(words), "item", "name")
+        except UsageError as err:
+            return f"{err}\n{await _report(link, player, [])}"
+        kind = "equip" if put_on else "unequip"
+        said = await link.send({"type": kind, "item_id": line["item"]})
+        return await _report(link, player, said, f"{player['name']} {kind}s {line['item']}")
+    finally:
+        await link.close()
