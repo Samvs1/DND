@@ -209,4 +209,5 @@ def test_a_lair_without_themes_still_gives_the_boss_company() -> None:
     move(state, R1.gateway.id, log)
     offer = pending(state)
     assert offer.boss_npc_id == boss_npc_id(R1) and offer.monster_ids
-    assert offer.difficulty in ("medium", "hard")
+    # Never trivial; M29.6b boss_budget_scale 0.8 makes the act-1 master's fight easy-to-medium.
+    assert offer.difficulty in ("easy", "medium", "hard")
