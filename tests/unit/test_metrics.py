@@ -72,3 +72,15 @@ def test_balance_report_pass_and_miss_on_fixture_folder() -> None:
     assert got[("balanced", "boss_heroes_down_avg")] == "PASS"  # 1 down <= 1
     assert got[("balanced", "boss_level_act2")] == "N/A"
     assert json.dumps(rows)
+
+
+def test_golden_master_levels_and_xp_sources() -> None:
+    # M29.6b: the party's lowest level when each act's master is first offered (fight or talk),
+    # and one hero's XP split into milestone / quest rewards (their xp_each) and the rest.
+    synth, slendee = _m("synth-balanced"), _m("real-slendee")
+    assert synth["master_levels"] == {"1": 1} and slendee["master_levels"] == {"1": 2}
+    assert synth["xp_each_by_source"] == {"milestone": 0, "quest": 0, "other": 75}
+    assert slendee["xp_each_by_source"]["milestone"] == 1200
+    rows = evaluate(load_runs(SAVES), load_balance_targets())
+    got = {(r["style"], r["target"]): (r["verdict"], r["value"]) for r in rows}
+    assert got[("balanced", "master_level_act1")] == ("MISS", 1)  # level 1 < planned 2

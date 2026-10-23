@@ -240,6 +240,8 @@ def apply_world_event(state: GameState, event: WorldEvent) -> None:
         case AttitudeChanged(npc_id=npc_id, social=social, deeds=deeds, hostile=hostile):
             npc = _npc(state, npc_id)
             npc.social, npc.deeds, npc.hostile = social, deeds, hostile
+            if event.gift:
+                npc.gifts.append(event.gift)
         case SecretRevealed(npc_id=npc_id, secret_id=secret_id):
             _reveal(_npc(state, npc_id), secret_id)
         case PartyMoved():

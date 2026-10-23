@@ -9,6 +9,7 @@ from tests.ai.tool_fixtures import party_state, run_tool
 
 def test_request_check_carries_the_tier_word_and_the_situation() -> None:
     state = party_state()
+    state.world.region_tier = 3  # M29.6b: very hard is allowed from act 3 on
     result = run_tool(
         state,
         "request_check",

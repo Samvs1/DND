@@ -17,6 +17,10 @@
   that multiple of the party size (None: only the budget and `max_monsters`); a boss whose own
   adjusted XP is over the boss cap (a small party) spawns with its hit points scaled by
   cap / adjusted XP, never below `boss_hp_scale_floor` (None: never scaled).
+- M29.6b area danger (`aidm.rules.encounter_danger`): `area_damage_rating[difficulty]` is the
+  share of the heroes' average hit point maximum one area blast (a breath weapon) must reach to
+  rate the fight at least that difficulty (empty: off); `area_reference_hp[region tier]` is a
+  hero's average maximum at the tier's planned level, which the plan check uses for masters.
 
 Public API: `EncounterTables`, `MultiplierStep`, `load_encounter_tables(path=None)`,
 `encounter_tables()` (default file, cached). The arithmetic is `aidm.rules.encounter_budget`.
@@ -65,6 +69,10 @@ class EncounterTables(BaseModel):
     spoke_budget_scale: dict[int, float] = Field(default_factory=dict[int, float])
     boss_company_max_per_pc: int | None = Field(default=None, ge=0)
     boss_hp_scale_floor: float | None = Field(default=None, gt=0, le=1.0)
+    area_damage_rating: dict[DifficultyKey, float] = Field(
+        default_factory=dict[DifficultyKey, float]
+    )
+    area_reference_hp: dict[int, float] = Field(default_factory=dict[int, float])
 
     @model_validator(mode="after")
     def _check(self) -> EncounterTables:

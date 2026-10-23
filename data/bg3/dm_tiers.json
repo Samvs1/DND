@@ -36,8 +36,12 @@
     "2": {"minor": 60, "moderate": 150, "major": 300},
     "3": {"minor": 150, "moderate": 400, "major": 800}
   },
-  "region_milestone_xp_tier": {"1": "moderate", "2": "major", "3": "major"},
-  "final_milestone_xp_tier": "major",
-  "spoke_visit_xp_tier": "moderate",
-  "spoke_clear_xp_tier": "moderate"
+  "milestone_xp": {
+    "1": {"visit": 50, "clear": 100, "region": 150},
+    "2": {"visit": 100, "clear": 200, "region": 600},
+    "3": {"visit": 400, "clear": 800, "region": 1000}
+  },
+  "final_milestone_xp": 1600,
+  "gift_deeds_per_npc": 2,
+  "check_dc_tier_cap": {"1": "medium", "2": "hard", "3": "very_hard"}
 }

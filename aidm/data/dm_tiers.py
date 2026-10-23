@@ -17,12 +17,18 @@
   escape / surprise / parley checks of a world-pulled encounter, by region tier; parleying
   with a boss uses the second table.
 - `quest_gold_gp` (M5.6): gold per living PC for a completed quest, by region tier then reward
-  tier; `region_milestone_xp_tier`: the `grant_xp` tier a resolved region pays, by region tier;
-  `final_milestone_xp_tier`: the extra tier paid when the last region resolves.
-- `spoke_visit_xp_tier` / `spoke_clear_xp_tier` (M9.2): the `grant_xp` tier paid once per spoke
-  for its first visit and for clearing it (a won fight or a successful parley there).
+  tier.
+- `milestone_xp` (M29.6b, was level-scaled `grant_xp` tiers): XP per PC by REGION tier for a
+  spoke's first `visit`, for `clear`ing it (a won fight or a successful parley there) and for
+  resolving the `region` (by fight or alliance); `final_milestone_xp`: the extra XP when the
+  last region resolves. Fixed per region so the curve cannot run away as the party levels.
+- `gift_deeds_per_npc` (M29.6b): how many gifts to one NPC earn a deed; a repeat of an item
+  that NPC was already given earns none either.
+- `check_dc_tier_cap` (M29.6b): the hardest `DcTier` value a requested check or a new lock may
+  have, by region tier (act 1 never asks DC 20 of level-1 heroes).
 
-Public API: `TierRow`, `DmTiers`, `load_dm_tiers(path=None)`, `dm_tiers()` (default, cached).
+Public API: `TierRow`, `MilestoneXp`, `DmTiers`, `load_dm_tiers(path=None)`, `dm_tiers()`
+(default, cached).
 The lookups are `aidm.rules.dm_tiers`.
 """
 
@@ -36,6 +42,8 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 TIER_KEYS = frozenset({"minor", "moderate", "major"})
+REGION_TIERS = frozenset({"1", "2", "3"})
+type DcTierKey = Literal["trivial", "easy", "medium", "hard", "very_hard", "nearly_impossible"]
 type AbilityKey = Literal["str", "dex", "con", "int", "wis", "cha"]
 
 DEFAULT_DM_TIERS = Path(__file__).resolve().parents[2] / "data" / "bg3" / "dm_tiers.json"
@@ -55,6 +63,12 @@ class TierRow(_Strict):
         return {"minor": self.minor, "moderate": self.moderate, "major": self.major}[tier]
 
 
+class MilestoneXp(_Strict):
+    visit: int = Field(ge=0)
+    clear: int = Field(ge=0)
+    region: int = Field(ge=0)
+
+
 def _check_rows(rows: tuple[TierRow, ...], name: str) -> None:
     levels = [r.max_level for r in rows]
     if not rows or levels != sorted(levels) or levels[-1] != 20:
@@ -62,19 +76,15 @@ def _check_rows(rows: tuple[TierRow, ...], name: str) -> None:
 
 
 def _check_reward_tables(tiers: DmTiers) -> None:
-    region_tiers = {"1", "2", "3"}
+    region_tiers = REGION_TIERS
     if set(tiers.quest_gold_gp) != region_tiers:
         raise ValueError("quest_gold_gp needs region tiers 1, 2 and 3")
     if any(set(row) != TIER_KEYS for row in tiers.quest_gold_gp.values()):
         raise ValueError("quest_gold_gp rows need exactly the keys minor, moderate, major")
-    named = [
-        *tiers.region_milestone_xp_tier.values(),
-        tiers.final_milestone_xp_tier,
-        tiers.spoke_visit_xp_tier,
-        tiers.spoke_clear_xp_tier,
-    ]
-    if set(tiers.region_milestone_xp_tier) != region_tiers or not set(named) <= TIER_KEYS:
-        raise ValueError("milestone XP tiers need region tiers 1-3 and minor/moderate/major values")
+    if set(tiers.milestone_xp) != region_tiers:
+        raise ValueError("milestone_xp needs region tiers 1, 2 and 3")
+    if not set(tiers.check_dc_tier_cap) <= region_tiers:
+        raise ValueError("check_dc_tier_cap keys are region tiers 1, 2 and 3")
 
 
 class DmTiers(_Strict):
@@ -94,10 +104,10 @@ class DmTiers(_Strict):
     offer_dc_tiers: dict[str, str] = Field(default_factory=dict[str, str])
     boss_parley_dc_tiers: dict[str, str] = Field(default_factory=dict[str, str])
     quest_gold_gp: dict[str, dict[str, int]]
-    region_milestone_xp_tier: dict[str, str]
-    final_milestone_xp_tier: str
-    spoke_visit_xp_tier: str = "moderate"
-    spoke_clear_xp_tier: str = "moderate"
+    milestone_xp: dict[str, MilestoneXp]
+    final_milestone_xp: int = Field(ge=0)
+    gift_deeds_per_npc: int = Field(default=2, ge=0)
+    check_dc_tier_cap: dict[str, DcTierKey] = Field(default_factory=dict[str, DcTierKey])
 
     @model_validator(mode="after")
     def _check(self) -> DmTiers:

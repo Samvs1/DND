@@ -149,7 +149,7 @@ def test_fresh_view_trade_and_second_run_with_the_fake_storyteller(tmp_path: Pat
         out = [await ops.cmd_new(tmp_path, "t1", "solo", 3, False, port)]
         out.append(await ops.cmd_act(tmp_path, "t1", None, "I walk to the market"))
         out.append(await ops.cmd_trade(tmp_path, "t1", None, ["list"]))
-        out.append(await ops.cmd_trade(tmp_path, "t1", None, ["buy", "dice-set"]))
+        out.append(await ops.cmd_trade(tmp_path, "t1", None, ["buy", "camp-ration"]))
         out.append(await ops.cmd_trade(tmp_path, "t1", None, ["sell", "crowbar"]))
         return out
 
@@ -159,6 +159,6 @@ def test_fresh_view_trade_and_second_run_with_the_fake_storyteller(tmp_path: Pat
         ops.cmd_stop(tmp_path, "t1")
     assert not port_open(port)
     assert "[save c-" in first and "[save c-" in acted
-    assert "Shop of" in listed and "dice-set" in listed and "15gp" in listed
-    assert "Brienne 12/12hp ac18 L1 fighter 14gp" in bought  # 15gp - the 1gp dice set
+    assert "Shop of" in listed and "camp-ration" in listed and "15gp" in listed
+    assert "Brienne 12/12hp ac18 L1 fighter 14gp" in bought  # 15gp - the 1gp camp ration
     assert "ERROR" not in sold and "fighter 14gp" not in sold

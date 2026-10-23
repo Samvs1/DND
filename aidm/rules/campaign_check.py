@@ -6,18 +6,24 @@ feed them back to the LLM on its retry (M5.3).
 Checks (codes): `unknown_archetype` (NPC archetype is not an SRD monster/NPC stat block),
 `unknown_monster` (encounter theme or boss is not an encounter-ready catalogue monster),
 `theme_tier` (an encounter theme is not of the region tier), `boss_tier` (boss CR does not fit the
-region tier), `unknown_terrain` (a terrain tag is not a zone-template terrain).
+region tier), `boss_area` (M29.6b: the boss's area blast, a breath weapon, would rate above the
+boss cap against heroes of the tier's planned level, `aidm.rules.encounter_danger`),
+`unknown_terrain` (a terrain tag is not a zone-template terrain).
 
-Public API: `check_plan_refs(plan) -> list[Problem]` (empty when valid).
+Public API: `check_plan_refs(plan) -> list[Problem]` (empty when valid),
+`master_too_dangerous(monster_id, tier) -> bool` (the `boss_area` test).
 """
 
 from __future__ import annotations
 
 from aidm.data.encounter_monsters import encounter_monsters, tier_for_cr
+from aidm.data.encounter_tables import encounter_tables
 from aidm.data.srd import srd
 from aidm.data.zone_templates import zone_templates
 from aidm.models.campaign import CampaignPlan, NodePlan, RegionPlan
+from aidm.models.encounter import Difficulty
 from aidm.models.problem import Problem
+from aidm.rules.encounter_danger import too_dangerous
 
 
 def _terrain(owner: str, tags: tuple[str, ...]) -> list[Problem]:
@@ -57,7 +63,22 @@ def _boss(region: RegionPlan) -> list[Problem]:
             f"{region.id}: boss {boss.monster_id!r} (CR {entry.cr}) does not fit tier {region.tier}"
         )
         return [Problem(code="boss_tier", message=msg, subject=region.id)]
+    if master_too_dangerous(boss.monster_id, region.tier):
+        msg = (
+            f"{region.id}: boss {boss.monster_id!r} has an area attack too strong for the "
+            f"heroes of tier {region.tier}; choose another boss"
+        )
+        return [Problem(code="boss_area", message=msg, subject=region.id)]
     return []
+
+
+def master_too_dangerous(monster_id: str, tier: int) -> bool:
+    tables = encounter_tables()
+    hp = tables.area_reference_hp.get(tier)
+    monster = srd().monsters.find(monster_id)
+    if hp is None or monster is None:
+        return False
+    return too_dangerous(monster, hp, Difficulty(tables.boss_rating_cap), tables)
 
 
 def _region(region: RegionPlan) -> list[Problem]:

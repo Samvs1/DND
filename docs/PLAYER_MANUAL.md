@@ -147,7 +147,11 @@ The storyteller's prose reads as one paragraph. Plain statements from the game i
 
 **Quest items and keepsakes**: some things lie in the world because a quest needs them (the orders a smuggler lost, three ember-stones for a beacon). They are **quest items**: picked up, they become keepsakes that belong to a task, and they count for that task's steps. Like every keepsake they cannot be sold or dropped. Some lie in plain sight; others are hidden, and you find them by searching the place where they lie (type *I search the tunnels*; a Perception or Investigation check that is good enough turns them up). A plain keepsake from the story is just that: a memento with no use in any task, even if it looks like something a quest asks for. The storyteller cannot conjure a quest item out of thin air: if it lies elsewhere, you have to go and find it.
 
-**Giving things**: on the **Hero** tab, every keepsake has a **Give** button, and so does every item (tap it in the Inventory first): it opens a list of the people here (alive and not hostile), with a **Cancel**, and hands the thing to the one you pick (not during a fight). A quest item says *Quest item: for <quest>*, a plain keepsake says *Keepsake*. You can also type *give the tide-orders to Gorran* (or *hand*, *show*, *offer*; *give Gorran the orders* works too, and so does *Rook hands the orders over to Gorran*) while that person is here, and your hero really hands it over: a keepsake or quest item now belongs to them (that is how a quest step to deliver something is done), and an ordinary item from your pack is a gift they appreciate. Handing over a keepsake earns no favour by itself; finishing the task does. If the person is not here, is hostile, or you do not carry the thing, your phone says so and nothing changes. Any other wording that does not hand the thing over changes nothing, and the storyteller does not tell it as given: the thing stays in your pack.
+**Giving things**: on the **Hero** tab, every keepsake has a **Give** button, and so does every item (tap it in the Inventory first): it opens a list of the people here (alive and not hostile), with a **Cancel**, and hands the thing to the one you pick (not during a fight). A quest item says *Quest item: for <quest>*, a plain keepsake says *Keepsake*. You can also type *give the tide-orders to Gorran* (or *hand*, *show*, *offer*; *give Gorran the orders* works too, and so does *Rook hands the orders over to Gorran*) while that person is here, and your hero really hands it over: a keepsake or quest item now belongs to them (that is how a quest step to deliver something is done), and an ordinary item from your pack is a gift they appreciate (see below: only the first few gifts earn favour). Handing over a keepsake earns no favour by itself; finishing the task does. If the person is not here, is hostile, or you do not carry the thing, your phone says so and nothing changes. Any other wording that does not hand the thing over changes nothing, and the storyteller does not tell it as given: the thing stays in your pack.
+
+<!-- generated:gift_rules -->
+- The first 2 different gifts to a person earn their favour; the same thing given again, or more gifts after that, earns nothing more (an item from a quest's reward still counts once).
+<!-- end generated:gift_rules -->
 
 ### The action queue
 Actions are handled one at a time, in the order they were sent. You may have one action waiting at a time. The screen shows who is typing, who is acting now and who is next. Your words appear in the story when your turn in line comes up, not while they wait. Your phone shows **Waiting (n)** while your action is in line. If the storyteller stumbles, you see a plain in-story fallback instead of an error.
@@ -166,6 +170,14 @@ When the outcome is uncertain, you roll a d20, add your modifier and compare it 
 | Hard | 20 |
 | Very hard | 25 |
 | Nearly impossible | 30 |
+
+The hardest check the storyteller may ask grows with the story, so the first region never asks a Hard check of new heroes:
+
+<!-- generated:check_caps -->
+- In the first region a check or a new lock is at most medium.
+- In the second region a check or a new lock is at most hard.
+- In the third region a check or a new lock is at most very hard.
+<!-- end generated:check_caps -->
 
 - A natural 20 on an ability or skill check always succeeds and a natural 1 always fails.
 - Saving throws compare the total only. Spell save DC is 8 + proficiency bonus + your casting modifier.
@@ -269,13 +281,13 @@ Say what you do with an item in plain words, and the game uses it for real: "I l
 - **Copying a scroll** (wizards): instead of reading it, a wizard can copy a scroll into the spellbook from the **Spellbook** tab of the sheet, outside a fight. It must be a wizard spell of a level you can prepare and not already in your book. It costs 50 gold per spell level (an Evocation wizard pays half for an evocation spell), and the gold and the scroll are spent. The spell is then yours for good.
 
 ### Trouble ahead
-When the party arrives somewhere dangerous, the game warns you first and nothing starts without a choice. Every phone with a hero shows a **Trouble ahead** box: who you face and how hard the fight looks (trivial to deadly). The first player to press a choice decides for the whole party:
+When the party arrives somewhere dangerous, the game warns you first and nothing starts without a choice. Every phone with a hero shows a **Trouble ahead** box: who you face and how hard the fight looks (trivial to deadly). A creature with a breath weapon or a like blast is rated by what one blast does to your heroes' hit points, not only by its experience value: a young dragon whose breath can drop a hero is shown as deadly. The first player to press a choice decides for the whole party:
 - **Fight**: the fight begins.
 - **Ambush them**: the whole party rolls Stealth. If at least half succeed, the foes are surprised. The fight starts either way.
 - **Slip away**: each hero rolls the better of Stealth and Athletics. If at least half succeed, the party goes back to where it came from and there is no fight. If not, the fight begins.
 - **Parley**: your hero (the one whose player pressed it) rolls Persuasion. On a success there is no fight. On a failure the fight begins. Talking a region's master down is an easy check in the first region (DC 10) and a medium one after that (DC 15), the same as talking your way past other trouble; a success also warms the master to you (see Quests and the journal for how a master can become an ally).
 
-The first place of each region is always safe. Fights start only from a warning you answer or from what the party does, never from a timer. Fights are built for your party's size and level: a place's creatures are an easy fight for the heroes you have, and when the creatures that haunt a place are too strong for your party, weaker creatures of the same kind of place stand in. The master of a region waits in its last place with company: foes from around the region who make it a fair fight, at most one companion for each hero. A master too strong on its own for a small party (one or two heroes) comes in weakened, with fewer hit points (never below half).
+The first place of each region is always safe. Fights start only from a warning you answer or from what the party does, never from a timer. Fights are built for your party's size and level: a place's creatures are an easy fight for the heroes you have, and when the creatures that haunt a place are too strong for your party, weaker creatures of the same kind of place stand in (an easy place never fields a creature whose blast alone makes it a harder fight). The master of a region waits in its last place with company: foes from around the region who make it a fair fight, at most one companion for each hero. A master too strong on its own for a small party (one or two heroes) comes in weakened, with fewer hit points (never below half). A master whose blast alone is more than a fair fight comes without company, and a story never picks a master whose breath would drop a hero of that region in one blast.
 
 ### Votes
 Some things need the whole table: **travelling**, **resting** (short or long) and **browsing a shop**. To ask, type it on the Play tab (*take a short rest*, *make camp* for a long rest, *go to* a place; a longer sentence works too, *we make camp among the thorns and take a short rest* or *the party sets watches and rests for the night*) or press **Trade** when a trader is here; a vote then opens on every phone (as a card at the top of the page) and on the screen. Typing *look around* or *inventory* gets an instant answer without a vote.
@@ -297,8 +309,8 @@ Rests also need a vote and happen between fights.
 When the table agrees to browse a shop, your phone opens the shop. Every player trades for themselves with their own gold.
 - **For sale** lists what the trader sells. **Your pack** lists what you can sell.
 - A trader sells different things depending on their trade.
-- Every region has at least one trader. When a story has no trader in a region, a peddler waits at its first, safe place.
-- A general store always has camp food, a Potion of Healing and a Healer's Kit.
+- Every region has at least one trader who sells weapons, armour and healing. When a story has no such trader in a region, a peddler (a general store) waits at its first, safe place.
+- A general store always has camp food, a Herbal Poultice (10 gp), a Traveller's Tonic (25 gp), a Potion of Healing (50 gp) and a Healer's Kit, and at least one weapon and one piece of armour. A smith always has a Herbal Poultice and at least one potion.
 - You cannot sell what you are wearing or wielding: take it off first.
 
 <!-- generated:shop_rules -->
@@ -306,11 +318,12 @@ When the table agrees to browse a shop, your phone opens the shop. Every player 
 - A shop buys from you at 50% of the value, rounded down.
 - You can trade up to 10 of an item at a time.
 - A trader whose trade is unclear counts as a general shop.
+- Every region has a trader who sells weapon, armor, potion.
 
 Kinds of shop:
 
-- **General** sells gear, tool, supply, key, potion (about 14 items).
-- **Smith** sells weapon, armor (about 14 items).
+- **General** sells gear, tool, supply, key, potion (about 14 items), always with at least one weapon, armor.
+- **Smith** sells weapon, armor (about 14 items), always with at least one potion.
 - **Alchemist** sells potion, supply (about 8 items).
 - **Scribe** sells scroll (about 10 items).
 - **Provisioner** sells supply, gear (about 8 items).
@@ -336,7 +349,17 @@ Things you can buy that matter most:
 <!-- end generated:consumables -->
 
 ### Loot and gold
-After a victory the party's loot is gathered into one reward: experience for every living hero, gold shared out evenly (any remainder goes to the first heroes), items handed out in turn, and any camp supplies found go to the shared pool. Gold is kept per hero and shows on your sheet. The adventure's side quests pay gold, experience and sometimes an item when they are completed; a region's main quest is rewarded by the experience for dealing with its master; favours earn goodwill only, never gold or experience. Reaching new places and clearing them can pay experience too.
+After a victory the party's loot is gathered into one reward: experience for every living hero, gold shared out evenly (any remainder goes to the first heroes), items handed out in turn, and any camp supplies found go to the shared pool. Gold is kept per hero and shows on your sheet. The adventure's side quests pay gold, experience and sometimes an item when they are completed; a region's main quest is rewarded by the experience for dealing with its master; favours earn goodwill only, never gold or experience. Reaching new places and clearing them (a fight won or a parley there) pays experience too, and so does dealing with a region's master, by a fight or by an alliance. These amounts are fixed per region, so a party that talks its way through meets each master at the same level as one that fights: about level 2 at the first master, 3 at the second and 4 or 5 at the last.
+
+<!-- generated:milestone_xp -->
+| Region | Reaching a new place | Clearing it | Dealing with the master |
+| --- | --- | --- | --- |
+| First | 50 | 100 | 150 |
+| Second | 100 | 200 | 600 |
+| Third | 400 | 800 | 1,000 |
+
+The last master dealt with adds 1,600 more. Each pays every living hero once.
+<!-- end generated:milestone_xp -->
 
 ### Quests and the journal
 The **Journal** tab has three sections: **Journal**, **Map** and **Story** (the recent story in full, for catching up). The Journal section is laid out like this. At the top the **main quest** of the region is pinned: its title, its objective and every **way** you have found so far (Force, Peace, Cunning), each with the steps you have done ticked off; a way that is finished is marked *Done*. Under it the quests are grouped: **Active**, **Offered** (who asked, and the objective they told you), **Leads** (plain lines about rumours and hints of tasks still to be found), **Completed**, and **Left behind and failed** (greyed out and folded away; tap to open). Each quest card shows who gave it, the objective, its done steps ticked off and a short log of what happened in it (older log lines fold away). The journal shows what you have **done**, not what to do next: the next step is told only by the *What now?* help. It also keeps what is known so far and earlier scenes. On the phone, a short **toast** at the top tells the quest moments (a task taken on, a step done, a quest completed, a way found, a lead, a task left behind, a keepsake handed over), and the screen's story shows the same moments as lines. Each region has one **main quest**, active from the moment you arrive: it ends when the region's master is defeated, or when you finish another way of dealing with them that you discover by talking to the right people or by doing one of its steps. Quests are made of steps, and the game checks a step off by itself as soon as what it asks has really happened (you went there, won the fight there, carry the item, handed it over, met the person). Only the quest items the game placed for a task count for it; see *Quest items and keepsakes* above. Work you did before taking a quest on counts once it is active. An offered quest does not move until it is accepted; when every step of an accepted quest is done, it completes and pays its reward once.

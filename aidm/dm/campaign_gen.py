@@ -41,7 +41,7 @@ from aidm.dm.llm_client import LlmClient
 from aidm.dm.llm_types import LlmFailure, LlmRole
 from aidm.models.campaign import CampaignPlan
 from aidm.models.problem import Problem
-from aidm.rules.campaign_check import check_plan_refs
+from aidm.rules.campaign_check import check_plan_refs, master_too_dangerous
 from aidm.rules.quest_check import check_plan_quests
 from aidm.rules.world_graph import build_campaign_graph, validate_campaign_graph
 
@@ -113,6 +113,9 @@ def _candidate_text() -> str:
         entries = encounter_monsters().filter(lambda m, t=tier: m.tier == t)
         listed = ", ".join(f"{m.index} [{' '.join(m.tags)}]" for m in entries)
         lines.append(f"tier {tier}: {listed}")
+        unfit = [m.index for m in entries if master_too_dangerous(m.index, tier)]
+        if unfit:  # M29.6b: their breath downs a hero of that act in one blast
+            lines.append(f"tier {tier}, never a boss (area attack too strong): {', '.join(unfit)}")
     humanoids = sorted(
         m.index
         for m in srd().monsters.all()

@@ -18,6 +18,8 @@ The scoped rope rule (M27.5, `aidm.rules.gear_fit`): when the player's words
 keepsake too) and the check is in a situation the item table covers (a lock, a dark place,
 climbing, searching...) where none of that gear has a fitting use, the AI's advantage is
 dropped (the plain check still rolls); elsewhere the AI's call stands.
+M29.6b: a check's DC tier is at most the region tier's `dm_tiers.check_dc_tier_cap` (act 1:
+medium), so an improvised gate never asks DC 20 of level-1 heroes; saves keep their tier.
 
 Public API: `run_request_check(state, args, ctx, rng, regs)`,
 `run_request_save(state, args, ctx, rng, regs)` -> `ToolResult`.
@@ -37,6 +39,7 @@ from aidm.models.world_events import FeatureDiscovered
 from aidm.rules.checks import dc_for_tier
 from aidm.rules.conditions import save_with_conditions
 from aidm.rules.dice import Rng
+from aidm.rules.dm_tiers import capped_dc_tier
 from aidm.rules.gear_checks import gear_check
 from aidm.rules.gear_fit import misfit
 from aidm.rules.locks import lock_check, locked_here
@@ -94,7 +97,8 @@ def run_request_check(
     on_lock = _on_lock(state, args, creature, rng) if args.feature else None
     if on_lock is not None:
         return on_lock
-    dc = dc_for_tier(args.dc_tier)
+    tier = capped_dc_tier(regs.tiers, args.dc_tier, state.world.region_tier)
+    dc = dc_for_tier(tier)
     adv = int(args.advantage is AdvState.ADVANTAGE)
     dropped = bool(adv) and _gear_misfit(state, args, creature, ctx)
     adv = 0 if dropped else adv
@@ -102,7 +106,7 @@ def run_request_check(
     what = args.ability_or_skill
     result = gear_check(rng, state, creature, what, dc, adv_sources=adv, dis_sources=dis)
     label = f"{what.value} check" if isinstance(what, Skill) else f"{what.value.upper()} check"
-    result = result.model_copy(update={"tier": args.dc_tier})
+    result = result.model_copy(update={"tier": tier})
     event = CheckResolved(creature_id=creature.id, result=result, reason=args.reason)
     found = discovery_events(state, creature.id, result)
     summary = _outcome(creature.name, label, result)

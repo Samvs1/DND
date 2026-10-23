@@ -122,8 +122,8 @@ def test_region_resolution_pays_milestone_xp() -> None:
     _tour_with_rewards(state, log, 0)
     mark = [e for e in log if isinstance(e, RewardGranted) and e.kind == "milestone"]
     assert len(mark) == 1 and mark[0].source == region.id
-    # region tier 1 pays a moderate grant at level 1: 75 XP each (dm_tiers xp_by_level).
-    assert mark[0].xp_each == 75
+    # region tier 1 pays 150 XP each (dm_tiers milestone_xp, M29.6b house number).
+    assert mark[0].xp_each == 150
     assert replay(start, log) == state
 
 
@@ -136,7 +136,8 @@ def test_full_campaign_flags_level_ups_and_replays() -> None:
     finals = [e for e in log if isinstance(e, RegionResolved)]
     assert [e.final for e in finals] == [False, False, True]
     milestones = [e for e in log if isinstance(e, RewardGranted) and e.kind == "milestone"]
-    assert [m.xp_each for m in milestones] == [75, 150, 300]  # moderate, major, major + final major
+    # milestone_xp region 150 / 600 / 1000, the last plus final_milestone_xp 1600 (M29.6b).
+    assert [m.xp_each for m in milestones] == [150, 600, 2600]
     assert any(isinstance(e, LevelUpReady) for e in log)
     assert replay(start, log) == state
 

@@ -43,6 +43,7 @@ def _feature_of(result: ToolResult) -> str:
 
 def test_introduce_feature_places_a_lock_on_a_cache() -> None:
     state = _state()
+    state.world.region_tier = 2  # M29.6b: act 1 caps a new lock at medium
     result = _introduce(state, "cache", lock_tier="hard")
     lock = state.world.features[_feature_of(result)].lock
     assert lock is not None and lock.dc_tier is DcTier.HARD and lock.opens.value == "cache"

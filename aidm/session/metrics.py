@@ -6,6 +6,9 @@ wrapper) and returns one JSON-able object. Notes on what a log can and cannot sa
   milestone), or an `items_traded` / `character_rewritten` just after it (shop buy/sell, Scribe).
 - Server exceptions and AI fallback notices are not events, so they are reported as `unrecorded`.
 - The act is 1 + the number of `region_resolved` events so far.
+- M29.6b: `master_levels` is the party's lowest level when each act's master is first offered
+  (fight and talk paths alike); `xp_each_by_source` splits one hero's XP into milestone and
+  quest rewards (their `xp_each`) and the rest (fights and storyteller grants).
 - M29.2: a party wipe that was retried leaves its discarded tail in `events.<n>.defeat`
   (`load_defeat_tails`); `compute_metrics(events, tails)` reports each as a lost fight under
   `wipes` (the main log alone only shows the retry that was won). A tail's first `seq` is the
@@ -81,6 +84,8 @@ class _Run:
         self.quests: dict[str, str] = {}
         self.items: Counter[str] = Counter()
         self.counts: Counter[str] = Counter()
+        self.master_levels: dict[int, int] = {}
+        self.reward_xp: Counter[str] = Counter()
 
     def min_level(self) -> int:
         return min((self.levels[p] for p in self.pcs if p in self.levels), default=1)
@@ -131,6 +136,10 @@ class _Run:
             self.levels[e["creature_id"]] = e["pc"]["level"]
         elif t == "encounter_offered":
             self.offers[e["offer"]["id"]] = e["offer"]
+            if e["offer"].get("boss_npc_id") is not None:
+                self.master_levels.setdefault(self.act, self.min_level())
+        elif t == "reward_granted" and e.get("kind") in ("milestone", "quest"):
+            self.reward_xp[e["kind"]] += e.get("xp_each", 0)
         elif t == "offer_resolved":
             offer = self.offers.get(e["offer_id"], {})
             self.boss_offer = offer.get("boss_npc_id") is not None
@@ -230,6 +239,8 @@ def compute_metrics(
         "boss_fights": [
             {"act": b["act"], "level": b["level"], "heroes_down": b["heroes_down"]} for b in bosses
         ],
+        "master_levels": {str(a): v for a, v in sorted(run.master_levels.items())},
+        "xp_each_by_source": _xp_sources(run),
         "wipes": _wipes(events, tails or []),
         "quests": dict(Counter(run.quests.values())),
         "item_uses": dict(run.items),
@@ -239,6 +250,13 @@ def compute_metrics(
             "unrecorded": ["fallbacks", "exceptions"],
         },
     }
+
+
+def _xp_sources(run: _Run) -> dict[str, int]:
+    heroes = max(1, len(run.pcs))
+    each = sum(run.xp.values()) // heroes
+    rewards = {k: run.reward_xp[k] for k in ("milestone", "quest")}
+    return {**rewards, "other": max(0, each - sum(rewards.values()))}
 
 
 def _pc_deaths(events: list[Event], pcs: set[str]) -> int:

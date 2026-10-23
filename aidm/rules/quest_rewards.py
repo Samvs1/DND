@@ -8,8 +8,8 @@ inventory key `rules.secrets.item_key`). Quests the AI invents during play pay n
 model cannot farm XP by creating and completing quests; a favour (M23.5) never pays XP, gold or
 items, even if its id matched a plan quest (its only reward is the asker's goodwill, a deed).
 
-Milestones: a resolved region pays its tier's `grant_xp` tier (`region_milestone_xp_tier`), and the
-final region adds `final_milestone_xp_tier`. XP flags level-ups (`LevelUpReady`).
+Milestones: a resolved region pays its tier's `milestone_xp` `region` XP (M29.6b: fixed per region
+tier), and the final region adds `final_milestone_xp`. XP flags level-ups (`LevelUpReady`).
 
 Public API:
 - `quest_transition_refusal(old, new) -> str | None`: why the move is not allowed.
@@ -98,10 +98,9 @@ def milestone_payout(state: GameState, resolved: RegionResolved, tiers: DmTiers)
     )
     if region is None:
         return Payout()
-    level = party_level(state)
-    amount = xp_award(tiers, XpTier(tiers.region_milestone_xp_tier[str(region.tier)]), level)
+    amount = tiers.milestone_xp[str(region.tier)].region
     if resolved.final:
-        amount += xp_award(tiers, XpTier(tiers.final_milestone_xp_tier), level)
+        amount += tiers.final_milestone_xp
     return Payout(xp_each=amount)
 
 

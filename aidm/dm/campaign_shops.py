@@ -2,9 +2,10 @@
 so gold was useless). Repair over reject, like the quest repairs (`aidm.dm.campaign_draft`).
 
 A region has a trader when one of the cast living in it has a shopkeeper role (the role words
-the table uses to find a shop, `aidm.dm.precheck.SHOP_ROLES`). A region without one gets a
-peddler at its arrival (the safe place), with a repair note; the model's own cast is never
-changed.
+the table uses to find a shop, `aidm.dm.precheck.SHOP_ROLES`) whose shop kind sells the basics
+(M29.6b, `ShopTable.basics`: weapons, armour and healing; p2's region-1 shop sold neither weapon
+nor armour). A region without one gets a peddler (a general store) at its arrival (the safe
+place), with a repair note; the model's own cast is never changed.
 
 Public API: `PEDDLER_ROLE`, `region_has_trader(plan, region) -> bool`,
 `with_traders(plan, notes) -> CampaignPlan`.
@@ -12,11 +13,13 @@ Public API: `PEDDLER_ROLE`, `region_has_trader(plan, region) -> bool`,
 
 import re
 
+from aidm.data.shop_defs import shop_table
 from aidm.dm.campaign_draft_base import slug_id
 from aidm.dm.campaign_steps import repair_note
 from aidm.dm.precheck import SHOP_ROLES
 from aidm.models.campaign import CampaignPlan, NpcPlan, RegionPlan
 from aidm.models.problem import Problem
+from aidm.rules.shop import role_shop_kind
 
 PEDDLER_ROLE = "travelling peddler and trader"
 PEDDLER_ARCHETYPE = "commoner"
@@ -29,8 +32,11 @@ def _role_words(role: str) -> frozenset[str]:
 
 def region_has_trader(plan: CampaignPlan, region: RegionPlan) -> bool:
     homes = {n.id for n in region.nodes()}
+    table = shop_table()
     return any(
-        npc.home_node in homes and any(r in _role_words(npc.role) for r in SHOP_ROLES)
+        npc.home_node in homes
+        and any(r in _role_words(npc.role) for r in SHOP_ROLES)
+        and table.stocks_basics(role_shop_kind(npc.role, table))
         for npc in plan.npcs
     )
 

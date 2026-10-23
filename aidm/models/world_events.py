@@ -85,6 +85,7 @@ class AttitudeChanged(_WorldEvent):
     deeds: int
     hostile: bool = False
     reason: str = ""
+    gift: str = ""  # M29.6b: the item key of a gift that earned this deed (WorldNpc.gifts)
 
 
 class SecretRevealed(_WorldEvent):

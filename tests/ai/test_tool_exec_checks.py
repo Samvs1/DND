@@ -48,6 +48,7 @@ def test_golden_dm_tier_tables() -> None:
 
 def test_request_check_skill_and_ability() -> None:
     state = party_state()
+    state.world.region_tier = 2  # M29.6b: act 1 caps a check at medium (DC 15)
     skill = run_tool(
         state, "request_check", actor="rogue", ability_or_skill="stealth", dc_tier="hard"
     )

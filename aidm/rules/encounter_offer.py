@@ -18,11 +18,16 @@ main quest (`rules.quest_progress.route_effects`, M23.2) changes the boss fight:
 offers the boss without company, `boss_surprised` starts the fight with the boss side surprised.
 Nothing starts without the warning beat: the offer lists fight / surprise / escape / parley
 (answered by `aidm.rules.offer_answer`).
+M29.6b area danger (`aidm.rules.encounter_danger`): the offer's difficulty word is the higher of
+the XP rating and each monster's area-blast rating against the heroes' hit points; a spoke never
+picks a monster whose blast alone rates above the spoke cap (unless nothing else exists), and a
+master whose blast rates above the boss cap comes without company.
 
 Public API:
 - `OfferData(monsters, tables, terrains, tiers, encounter)`: the registries (passed in).
 - `arrival_offer_events(state, data, retreat_node) -> list[AnyEvent]`: `[EncounterOffered]` or [].
 - `boss_hp_scale(state, data, monster) -> float`: the boss spawn's hit point scale (M29.6).
+- `hero_hp(state) -> float`: the living heroes' average hit point maximum (M29.6b).
 - `offer_fight_events(state, offer, data, rng, surprise) -> list[AnyEvent]`: the boss turns
   hostile if needed, then `rules.encounter.start_encounter` on a zone map from the node terrain.
 """
@@ -57,6 +62,7 @@ from aidm.rules.dice import Rng
 from aidm.rules.dm_tiers import party_levels
 from aidm.rules.encounter import start_encounter
 from aidm.rules.encounter_budget import adjusted_xp, pick_monsters, rate_encounter, rating_cap_xp
+from aidm.rules.encounter_danger import area_rating, harder, too_dangerous
 from aidm.rules.finale import finale_open
 from aidm.rules.progression import boss_defeated, boss_npc, node_plan, region_of
 from aidm.rules.quest_progress import route_effects
@@ -88,6 +94,18 @@ def _boss_waits(state: GameState, region: RegionPlan) -> WorldNpc | None:
 
 def _xp(data: OfferData, monster: str) -> int:
     return data.monsters.get(monster).xp
+
+
+def hero_hp(state: GameState) -> float:
+    """The living heroes' average hit point maximum (0 with none)."""
+    pcs = [c.max_hp for c in state.creatures.values() if c.pc is not None and not c.dead]
+    return sum(pcs) / len(pcs) if pcs else 0.0
+
+
+def _safe(state: GameState, data: OfferData, monsters: list[str], cap: Difficulty) -> list[str]:
+    """M29.6b: the monsters whose area blast alone does not rate above `cap`."""
+    hp = hero_hp(state)
+    return [m for m in monsters if not too_dangerous(data.monsters.get(m), hp, cap, data.tables)]
 
 
 def _company(
@@ -138,38 +156,45 @@ def _monsters(
     levels = party_levels(state)
     size = len(levels)
     if boss is not None:
-        cap = rating_cap_xp(levels, Difficulty(data.tables.boss_rating_cap), data.tables)
-        if "boss_alone" in route_effects(state, region):
+        rating = Difficulty(data.tables.boss_rating_cap)
+        cap = rating_cap_xp(levels, rating, data.tables)
+        alone = not _safe(state, data, [boss.archetype_id], rating)
+        if alone or "boss_alone" in route_effects(state, region):
             return []
-        themes = _boss_themes(region, node)
+        themes = tuple(_safe(state, data, list(_boss_themes(region, node)), rating))
         return _company(rng, data, themes, cap, [boss.archetype_id], size)[1:]
-    rating = data.tables.spoke_rating_cap.get(region.tier, Difficulty.MEDIUM.value)
+    rating = Difficulty(data.tables.spoke_rating_cap.get(region.tier, Difficulty.MEDIUM.value))
     scale = data.tables.spoke_budget_scale.get(region.tier, 1.0)
-    cap = int(rating_cap_xp(levels, Difficulty(rating), data.tables) * scale)
-    xps = {m: _xp(data, m) for m in node.encounter_themes}
+    cap = int(rating_cap_xp(levels, rating, data.tables) * scale)
+    themes = _safe(state, data, list(node.encounter_themes), rating)
+    xps = {m: _xp(data, m) for m in themes}
     tables = _spoke_tables(data, region.tier, size)
     picked = pick_monsters(rng, cap, xps, size, tables)
     if not picked and data.tables.spoke_stand_ins:
-        picked = _stand_ins(rng, data, node.encounter_themes, (cap, size), tables)
-    return picked or [min(sorted(xps), key=lambda m: xps[m])]
+        picked = _stand_ins(rng, (state, data), node.encounter_themes, (cap, size, rating), tables)
+    every = xps or {m: _xp(data, m) for m in node.encounter_themes}
+    return picked or [min(sorted(every), key=lambda m: every[m])]
 
 
 def _stand_ins(
     rng: Rng,
-    data: OfferData,
+    where: tuple[GameState, OfferData],
     themes: tuple[str, ...],
-    budget: tuple[int, int],
+    budget: tuple[int, int, Difficulty],
     tables: EncounterTables,
 ) -> list[str]:
     """M29.6: no theme monster fits the party's budget (a small or low-level party) -> the
     encounter-ready monsters sharing a terrain with the themes, at the highest XP one of them
-    fits alone, picked within the budget. [] when none fits (the cheapest theme monster stays)."""
-    cap, size = budget
+    fits alone, picked within the budget (M29.6b: and whose area blast is within the spoke cap).
+    [] when none fits (the cheapest theme monster stays)."""
+    state, data = where
+    cap, size, rating = budget
     tags = {t for m in themes if (e := data.encounter.find(m)) is not None for t in e.tags}
+    near = [e.index for e in data.encounter.all() if tags & set(e.tags)]
     fits = {
-        e.index: _xp(data, e.index)
-        for e in data.encounter.all()
-        if tags & set(e.tags) and adjusted_xp([_xp(data, e.index)], size, tables) <= cap
+        m: _xp(data, m)
+        for m in _safe(state, data, near, rating)
+        if adjusted_xp([_xp(data, m)], size, tables) <= cap
     }
     if not fits:
         return []
@@ -209,6 +234,9 @@ def _offer(
     if boss is not None:
         xps.append(_xp(data, boss.archetype_id))
     rated = rate_encounter(xps, party_levels(state), data.tables)
+    hp = hero_hp(state)
+    for m in [*monsters, *([boss.archetype_id] if boss is not None else [])]:
+        rated = harder(rated, area_rating(data.monsters.get(m), hp, data.tables))
     common = _dc(data.tiers.offer_dc_tiers, region.tier)
     parley = _dc(data.tiers.boss_parley_dc_tiers, region.tier) if boss else common
     return EncounterOffer(

@@ -1,18 +1,16 @@
 """Spoke milestones and campaign pacing (M9.2, RULES_DECISIONS M9.2).
 
-A spoke pays `spoke_visit_xp_tier` (moderate) on its first visit and `spoke_clear_xp_tier`
-(moderate) when a fight there is won or a parley succeeds, each once (`CampaignState.milestones`).
+A spoke pays `milestone_xp[tier].visit` on its first visit and `milestone_xp[tier].clear`
+(M29.6b: by region tier) when a fight there is won or a parley succeeds, each once.
 Pacing: act 1's spokes alone take a level-1 party to level 2; the full sample campaign ends
 with the party at level 4-5 before the final boss.
 """
 
 from aidm.models.campaign_state import OfferChoice
-from aidm.models.dm_tiers import XpTier
 from aidm.models.encounter import EncounterStatus, Side
 from aidm.models.events import AnyEvent, CampSuppliesChanged, CreatureDied, XpGained
 from aidm.models.state import GameState
 from aidm.models.world_events import LevelUpReady, RewardGranted
-from aidm.rules.dm_tiers import xp_award
 from aidm.rules.encounter import end_encounter
 from aidm.rules.leveling import can_level_up
 from aidm.rules.milestones import clear_key, milestone_events, visit_key
@@ -75,16 +73,15 @@ def test_spoke_visit_and_clear_pay_once() -> None:
     start, state, log = campaign_state()
     spoke = R1.spokes[0].id
     visit = _go(state, spoke, log)
-    # moderate tier at level 1: 75 XP each (dm_tiers xp_by_level).
-    assert xp_award(REGS.tiers, XpTier.MODERATE, 1) == 75
+    # region tier 1: visit 50 XP each, clear 100 (dm_tiers milestone_xp, M29.6b house numbers).
+    assert REGS.tiers.milestone_xp["1"].visit == 50
     paid = [e for e in visit if isinstance(e, RewardGranted)]
-    assert [(e.source, e.kind, e.xp_each) for e in paid] == [(visit_key(spoke), "milestone", 75)]
+    assert [(e.source, e.kind, e.xp_each) for e in paid] == [(visit_key(spoke), "milestone", 50)]
     before = _xp(state)
     cleared = _won(state, log)
     paid = [e for e in cleared if isinstance(e, RewardGranted)]
-    # moderate tier at level 1: 75 XP each.
-    assert [(e.source, e.xp_each) for e in paid] == [(clear_key(spoke), 75)]
-    assert all(after >= b + 75 for after, b in zip(_xp(state), before, strict=True))
+    assert [(e.source, e.xp_each) for e in paid] == [(clear_key(spoke), 100)]
+    assert all(after >= b + 100 for after, b in zip(_xp(state), before, strict=True))
     assert state.campaign is not None
     assert state.campaign.milestones == [visit_key(spoke), clear_key(spoke)]
     _go(state, R1.arrival.id, log)
@@ -122,8 +119,8 @@ def test_act_one_spokes_reach_level_two_naturally() -> None:
             _go(state, R1.arrival.id, log)
         _go(state, spoke.id, log)
         _won(state, log)
-    # 3 spokes x (75 + 75) milestone XP + kill XP >= 300 (SRD level 2); the three visits and
-    # one won fight alone make 300, so a lost fight or two does not stall the level.
+    # 3 spokes x (50 + 100) milestone XP + kill XP >= 300 (SRD level 2); two cleared spokes
+    # alone make 300, so a lost fight does not stall the level.
     assert min(_xp(state)) >= 300
     ready = {e.creature_id for e in log if isinstance(e, LevelUpReady) and e.level == 2}
     assert len(ready) == 4

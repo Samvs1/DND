@@ -44,7 +44,8 @@ def load_runs(root: Path) -> list[tuple[str, str, Metrics]]:
 
 def aggregate(runs: list[Metrics]) -> dict[str, float]:
     """Target id -> value over the runs; ids with no data are left out (reported N/A).
-    M29.2: a retried wipe counts as a lost fight (normal) or a boss fight with its downs."""
+    M29.2: a retried wipe counts as a lost fight (normal) or a boss fight with its downs.
+    M29.6b: `master_level_act<n>` is the median level when the act's master is first offered."""
     out: dict[str, float] = {}
     lost = [f for r in runs for f in r.get("wipes", {}).get("fights", [])]
     normal = [f for r in runs for f in r["fights"]["list"] if not f["boss"]]
@@ -60,6 +61,9 @@ def aggregate(runs: list[Metrics]) -> dict[str, float]:
         levels = [b["level"] for b in bosses if str(b["act"]) == act]
         if levels:
             out[f"boss_level_act{act}"] = min(levels)
+        met = [r["master_levels"][act] for r in runs if act in r.get("master_levels", {})]
+        if met:
+            out[f"master_level_act{act}"] = median(met)
         gold = [r["gold_per_hero_act_end"][act] for r in runs if act in r["gold_per_hero_act_end"]]
         if gold:
             out[f"gold_act{act}_end"] = median(gold)

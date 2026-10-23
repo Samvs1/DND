@@ -16,8 +16,9 @@ from tests.session.progression_fixtures import REGS
 
 def test_m29_xp_visit_and_clear_are_two_milestones_paid_once() -> None:
     """G18 (p2 41/112, 173/230, 265/330): the "warning beat" 75 is the spoke's first-visit
-    milestone and the victory 75 its clear milestone (RULES_DECISIONS M9.2): two rewards, each
-    once. Kill XP (12, 25, 12) is the encounter's own award. Nothing pays twice."""
+    milestone and the victory 75 its clear milestone (RULES_DECISIONS M9.2; amounts by region
+    tier since M29.6b): two rewards, each once. Kill XP (12, 25, 12) is the encounter's own
+    award. Nothing pays twice."""
     sources = [
         e.event.source
         for e in events_of("p2")
@@ -26,12 +27,12 @@ def test_m29_xp_visit_and_clear_are_two_milestones_paid_once() -> None:
     assert all(n == 1 for n in Counter(sources).values()), sources
     state = replay_until("p2", 10**6)
     assert state.campaign is not None
-    tier = REGS.tiers.spoke_visit_xp_tier
+    amount = REGS.tiers.milestone_xp["1"].visit
     for node in ("mothyard-ruin", "bitter-well", "copse-of-thorns"):
         keys = (visit_key(node), clear_key(node))
         assert set(keys) <= set(state.campaign.milestones)
         for key in keys:
-            assert spoke_milestone_events(state, key, tier, REGS.tiers, REGS.catalogue) == []
+            assert spoke_milestone_events(state, key, amount, REGS.catalogue) == []
 
 
 def test_m29_find_on_a_failed_search_is_told_as_found() -> None:

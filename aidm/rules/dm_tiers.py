@@ -9,9 +9,12 @@ Public API:
 - `xp_award(tiers, tier, level) -> int`: XP per PC for a `grant_xp` tier.
 - `item_value_cap(tiers, region_tier) -> int`: the most one `grant_item` may be worth (gp).
 - `deed_points(tiers, tier) -> int`: attitude points for a deed of that tier.
+- `capped_dc_tier(tiers, tier, region_tier) -> DcTier`: `tier`, at most the region tier's
+  `check_dc_tier_cap` (M29.6b: p2 failed a DC 20 Athletics gate 6/6 in act 1).
 """
 
 from aidm.data.dm_tiers import DmTiers, TierRow
+from aidm.models.checks import DcTier
 from aidm.models.dm_tiers import Severity, XpTier
 from aidm.models.state import GameState
 
@@ -51,3 +54,11 @@ def item_value_cap(tiers: DmTiers, region_tier: int) -> int:
 
 def deed_points(tiers: DmTiers, tier: XpTier) -> int:
     return tiers.deed_points[tier.value]
+
+
+def capped_dc_tier(tiers: DmTiers, tier: DcTier, region_tier: int) -> DcTier:
+    cap = tiers.check_dc_tier_cap.get(str(region_tier))
+    if cap is None:
+        return tier
+    order = list(DcTier)
+    return DcTier(cap) if order.index(tier) > order.index(DcTier(cap)) else tier

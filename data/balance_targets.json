@@ -1,12 +1,15 @@
 {
   "version": 1,
-  "note": "GOAL_BALANCE targets. styles/parties null = every group. Gold and planned-level bounds are placeholders to tune in M29.2/M29.3 (data only).",
+  "note": "GOAL_BALANCE targets. styles/parties null = every group. Gold and planned-level bounds are placeholders to tune in M29.2/M29.3 (data only). M29.6b: master_level_* (the level when each master is first met, fight or talk) keeps the XP curve on the plan from both sides.",
   "targets": [
     {"id": "normal_clean_win_rate", "text": "Normal fights won with no hero falling", "min": 0.75, "max": 0.90, "styles": ["balanced"], "parties": null},
     {"id": "boss_heroes_down_avg", "text": "Boss fights: heroes down on average", "min": null, "max": 1.0, "styles": null, "parties": null},
     {"id": "boss_level_act1", "text": "Party level at the act 1 boss (planned level)", "min": 2, "max": null, "styles": null, "parties": null},
     {"id": "boss_level_act2", "text": "Party level at the act 2 boss (planned level)", "min": 3, "max": null, "styles": null, "parties": null},
     {"id": "boss_level_act3", "text": "Party level at the act 3 boss (planned level)", "min": 4, "max": null, "styles": null, "parties": null},
+    {"id": "master_level_act1", "text": "Median party level when the act 1 master is met (every path; the talker rows are the talk path)", "min": 2, "max": 2, "styles": null, "parties": null},
+    {"id": "master_level_act2", "text": "Median party level when the act 2 master is met (every path; the talker rows are the talk path)", "min": 3, "max": 3, "styles": null, "parties": null},
+    {"id": "master_level_act3", "text": "Median party level when the act 3 master is met (every path; the talker rows are the talk path)", "min": 4, "max": 5, "styles": null, "parties": null},
     {"id": "gold_act1_end", "text": "Median gold per hero at the end of act 1", "min": 30, "max": 300, "styles": null, "parties": null},
     {"id": "gold_act2_end", "text": "Median gold per hero at the end of act 2", "min": 100, "max": 900, "styles": null, "parties": null},
     {"id": "gold_act3_end", "text": "Median gold per hero at the end of act 3", "min": 200, "max": 1800, "styles": null, "parties": null}

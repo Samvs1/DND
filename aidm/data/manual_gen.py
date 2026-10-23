@@ -27,6 +27,9 @@ SECTIONS: dict[str, Callable[[], str]] = {
     "consumables": manual_rules.consumables_table,
     "shop_rules": manual_rules.shop_rules,
     "scribe_prices": manual_rules.scribe_prices,
+    "milestone_xp": manual_rules.milestone_xp,
+    "check_caps": manual_rules.check_caps,
+    "gift_rules": manual_rules.gift_rules,
     "item_uses": manual_uses.item_uses_table,
 }
 

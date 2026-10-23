@@ -12,9 +12,11 @@ trades while it is open (`ShopOpened` sets `world.shop_npc_id`) and its keeper i
 
 Public API:
 - `ShopRefusal`, `ShopRefused(reason, detail)`: typed refusals; nothing is spent or consumed.
-- `StockEntry(item, price_gp)`; `shop_kind(npc, table) -> str` (role keywords, else the default).
+- `StockEntry(item, price_gp)`; `shop_kind(npc, table) -> str` (role keywords, else the default);
+  `role_shop_kind(role, table) -> str` (the same from a role text).
 - `buy_price(value_gp, qty, table)`, `sell_price(value_gp, qty, table)`.
-- `shop_stock(catalogue, table, kind, region_tier, rng) -> tuple[StockEntry, ...]`.
+- `shop_stock(catalogue, table, kind, region_tier, rng) -> tuple[StockEntry, ...]`: the `always`
+  items, one of each `one_of_each` category (M29.6b), then random picks up to `size`.
 - `npc_shop_stock(state, npc_id, catalogue, table) -> tuple[StockEntry, ...]`.
 - `buy_events(state, pc_id, npc_id, item, qty, catalogue, table) -> list[AnyEvent]`.
 - `sell_events(state, pc_id, npc_id, item, qty, catalogue, table) -> list[AnyEvent]`.
@@ -65,7 +67,11 @@ class StockEntry:
 
 
 def shop_kind(npc: WorldNpc, table: ShopTable) -> str:
-    role = npc.role.lower()
+    return role_shop_kind(npc.role, table)
+
+
+def role_shop_kind(role_text: str, table: ShopTable) -> str:
+    role = role_text.lower()
     for name, kind in table.kinds.items():
         if any(word in role for word in kind.keywords):
             return name
@@ -89,14 +95,19 @@ def shop_stock(
 ) -> tuple[StockEntry, ...]:
     shape = table.kinds[kind]
     chosen = [i for i in shape.always if i in catalogue]
-    pool = sorted(
-        item.id
-        for item in catalogue.all()
-        if item.category in shape.categories
-        and item.tier <= region_tier
-        and item.value_gp > 0
-        and item.id not in chosen
+    shelf = sorted(
+        (
+            item
+            for item in catalogue.all()
+            if shape.sells(item.category) and item.tier <= region_tier and item.value_gp > 0
+        ),
+        key=lambda item: item.id,
     )
+    for category in shape.one_of_each:  # M29.6b: a general store always has a weapon and armour
+        some = [i.id for i in shelf if i.category == category and i.id not in chosen]
+        if some:
+            chosen.append(some[rng.randint(0, len(some) - 1)])
+    pool = [i.id for i in shelf if i.category in shape.categories and i.id not in chosen]
     while pool and len(chosen) < shape.size:
         chosen.append(pool.pop(rng.randint(0, len(pool) - 1)))
     entries = [

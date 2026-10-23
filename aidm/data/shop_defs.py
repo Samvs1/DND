@@ -4,7 +4,11 @@
 - `sell_fraction`: a shop pays `value_gp x sell_fraction` (half, 5e and BG3), rounded down.
 - `max_qty`: the most one purchase or sale may cover.
 - `kinds`: shop kinds. `keywords` match an NPC's role text, `categories` are the item categories
-  the kind stocks, `always` are item ids it always has, `size` the number of stocked items.
+  the kind stocks, `always` are item ids it always has, `size` the number of stocked items;
+  `one_of_each` (M29.6b) are categories it always has at least one item of (a general store's
+  weapon and armour), picked like the rest of its shelf.
+- `basics` (M29.6b): the categories every region's trader must sell (`stocks_basics`); a region
+  whose cast has no trader of such a kind gets a peddler (`aidm.dm.campaign_shops`).
 
 Public API: `ShopKind`, `ShopTable`, `load_shop_table(path=None)`, `shop_table()` (cached).
 """
@@ -28,7 +32,11 @@ class ShopKind(BaseModel):
     keywords: tuple[str, ...] = ()
     categories: tuple[ItemCategory, ...] = Field(min_length=1)
     always: tuple[str, ...] = ()
+    one_of_each: tuple[ItemCategory, ...] = ()
     size: int = Field(ge=1, le=40)
+
+    def sells(self, category: ItemCategory) -> bool:
+        return category in self.categories or category in self.one_of_each
 
 
 class ShopTable(BaseModel):
@@ -40,11 +48,18 @@ class ShopTable(BaseModel):
     max_qty: int = Field(ge=1)
     default_kind: str
     kinds: dict[str, ShopKind]
+    basics: tuple[ItemCategory, ...] = ()
+
+    def stocks_basics(self, kind: str) -> bool:
+        shape = self.kinds[kind]
+        return all(shape.sells(c) for c in self.basics)
 
     @model_validator(mode="after")
     def _default_exists(self) -> ShopTable:
         if self.default_kind not in self.kinds:
             raise ValueError(f"default_kind {self.default_kind!r} is not a shop kind")
+        if not self.stocks_basics(self.default_kind):
+            raise ValueError("the default shop kind must sell every basic category")
         return self
 
 

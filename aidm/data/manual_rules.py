@@ -2,6 +2,7 @@
 
 from aidm.data.condition_defs import ConditionDef, condition_defs
 from aidm.data.consumable_defs import consumable_defs
+from aidm.data.dm_tiers import dm_tiers
 from aidm.data.manual_md import join, table, words
 from aidm.data.scribe_defs import scribe_table
 from aidm.data.shop_defs import shop_table
@@ -197,7 +198,8 @@ def consumables_table() -> str:
 def shop_rules() -> str:
     s = shop_table()
     kinds = [
-        f"- **{words(name).capitalize()}** sells {join(k.categories)} (about {k.size} items)."
+        f"- **{words(name).capitalize()}** sells {join(k.categories)} (about {k.size} items)"
+        + (f", always with at least one {join(k.one_of_each)}." if k.one_of_each else ".")
         for name, k in s.kinds.items()
     ]
     return "\n".join(
@@ -206,11 +208,46 @@ def shop_rules() -> str:
             f"- A shop buys from you at {round(s.sell_fraction * 100)}% of the value, rounded down.",
             f"- You can trade up to {s.max_qty} of an item at a time.",
             f"- A trader whose trade is unclear counts as a {words(s.default_kind)} shop.",
+            f"- Every region has a trader who sells {join(s.basics)}.",
             "",
             "Kinds of shop:",
             "",
             *kinds,
         ]
+    )
+
+
+def milestone_xp() -> str:
+    """M29.6b: the experience for places and masters, by region (data/bg3/dm_tiers.json)."""
+    t = dm_tiers()
+    names = {"1": "First", "2": "Second", "3": "Third"}
+    rows = [
+        [names[k], str(r.visit), str(r.clear), f"{r.region:,}"]
+        for k, r in sorted(t.milestone_xp.items())
+    ]
+    head = ["Region", "Reaching a new place", "Clearing it", "Dealing with the master"]
+    last = f"The last master dealt with adds {t.final_milestone_xp:,} more."
+    last += " Each pays every living hero once."
+    return f"{table(head, rows)}\n\n{last}"
+
+
+def check_caps() -> str:
+    """M29.6b: the hardest check the storyteller may ask, by region (dm_tiers.json)."""
+    names = {"1": "first", "2": "second", "3": "third"}
+    lines = [
+        f"- In the {names[k]} region a check or a new lock is at most {words(v)}."
+        for k, v in sorted(dm_tiers().check_dc_tier_cap.items())
+    ]
+    return "\n".join(lines)
+
+
+def gift_rules() -> str:
+    """M29.6b: how many gifts earn a person's favour (dm_tiers.json)."""
+    n = dm_tiers().gift_deeds_per_npc
+    return (
+        f"- The first {n} different gifts to a person earn their favour; the same thing given "
+        "again, or more gifts after that, earns nothing more (an item from a quest's reward "
+        "still counts once)."
     )
 
 

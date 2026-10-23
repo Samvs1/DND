@@ -25,10 +25,16 @@
       "always": [
         "camp-ration",
         "camp-meal-basket",
+        "herbal-poultice",
+        "travellers-tonic",
         "potion-of-healing",
         "healers-kit"
       ],
-      "size": 14
+      "size": 14,
+      "one_of_each": [
+        "weapon",
+        "armor"
+      ]
     },
     "smith": {
       "keywords": [
@@ -45,9 +51,13 @@
         "armor"
       ],
       "always": [
-        "camp-ration"
+        "camp-ration",
+        "herbal-poultice"
       ],
-      "size": 14
+      "size": 14,
+      "one_of_each": [
+        "potion"
+      ]
     },
     "alchemist": {
       "keywords": [
@@ -109,5 +119,10 @@
       ],
       "size": 8
     }
-  }
+  },
+  "basics": [
+    "weapon",
+    "armor",
+    "potion"
+  ]
 }

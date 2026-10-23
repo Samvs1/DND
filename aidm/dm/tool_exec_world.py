@@ -2,7 +2,8 @@
 
 `introduce_npc` / `introduce_feature` are the only ways new people and features exist (capped
 per scene, NPC stat blocks from the SRD catalogue). A feature's lock (M27.4) is repaired, never
-refused: `aidm.rules.locks.placed_lock` strips a lock that may not stay and caps its tier.
+refused: `aidm.rules.locks.placed_lock` strips a lock that may not stay and caps its tier, and
+(M29.6b) a new lock's tier is at most the region tier's `dm_tiers.check_dc_tier_cap`.
 `move_party` only follows `legal_neighbours`
 (the campaign graph minus the derived locks) and never moves while an encounter offer waits;
 leaving a region with open tasks first asks (M23.4, `rules.quest_leaving.crossing`): the same
@@ -31,9 +32,10 @@ from aidm.dm.tools import (
     RevealSecretArgs,
     UpdateAttitudeArgs,
 )
+from aidm.models.checks import DcTier
 from aidm.models.encounter import EncounterStatus
 from aidm.models.state import GameState
-from aidm.models.world import LockInfo, WorldFeature, WorldNpc
+from aidm.models.world import FeatureKind, LockInfo, WorldFeature, WorldNpc
 from aidm.models.world_events import (
     FeatureIntroduced,
     NpcIntroduced,
@@ -43,6 +45,7 @@ from aidm.models.world_events import (
 )
 from aidm.rules.checks import dc_for_tier, difficulty_word
 from aidm.rules.dice import Rng
+from aidm.rules.dm_tiers import capped_dc_tier
 from aidm.rules.gateway_lock import locked_reason
 from aidm.rules.light import arrival_events
 from aidm.rules.locks import lock_problem, placed_lock
@@ -144,6 +147,14 @@ def run_introduce_npc(
     return ToolResult(events=(NpcIntroduced(npc=npc),), summary=f"npc {npc.name} id={npc.id}")
 
 
+def _lock(
+    state: GameState, tier: DcTier | None, kind: FeatureKind, regs: ToolRegistries
+) -> LockInfo | None:
+    if tier is None:
+        return None
+    return LockInfo(dc_tier=capped_dc_tier(regs.tiers, tier, state.world.region_tier), opens=kind)
+
+
 def run_introduce_feature(
     state: GameState, args: IntroduceFeatureArgs, ctx: ToolContext, rng: Rng, regs: ToolRegistries
 ) -> ToolResult:
@@ -162,7 +173,7 @@ def run_introduce_feature(
         scene_index=world.scene_index,
         hidden=args.hidden,
         discover_dc=dc if args.hidden else None,
-        lock=LockInfo(dc_tier=args.lock_tier, opens=args.kind) if args.lock_tier else None,
+        lock=_lock(state, args.lock_tier, args.kind, regs),
     )
     placed = placed_lock(state, feature)
     summary = f"{feature.kind.value} {feature.name} id={feature.id}"

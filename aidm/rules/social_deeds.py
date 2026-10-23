@@ -7,7 +7,10 @@ Deeds are uncapped and the only way past the ally bar (`aidm.rules.social`). Sou
 - combat help: winning a fight where non-hostile NPCs stand by is a minor deed for each of them
   (the party fought for them);
 - gifts: giving an NPC an item the PC carries is a minor deed, a major one for a campaign plot
-  item (a quest's reward item).
+  item (a quest's reward item). M29.6b (p3 431-449: one candle given five times made a master an
+  ally): an item that NPC was already given earns no deed, nor does a minor gift once the NPC has
+  `dm_tiers.gift_deeds_per_npc` paid gifts; the item still changes hands. A paid gift is
+  remembered in `WorldNpc.gifts` (`AttitudeChanged.gift`).
 Points per tier are data (`dm_tiers.json` `deed_points`).
 
 Public API: `QUEST_DEED_TIER`, `FAVOUR_DEED_TIER`, `GiftRefused`,
@@ -110,7 +113,18 @@ def gift_events(
     entry = next((e for e in data.inventory if e.item == item), None) if data else None
     if entry is None:
         raise GiftRefused(f"{pc_id!r} does not carry {item!r}")
-    tier = PLOT_GIFT_TIER if item_key(item) in _plot_items(state) else GIFT_TIER
     take = InventoryChanged(creature_id=pc_id, item=item, delta=-1, qty=entry.qty - 1)
+    tier = _gift_tier(state, npc, item_key(item), tiers)
+    if tier is None:
+        return [take]
     deed = deed_attitude_events(npc, deed_points(tiers, tier), f"gift: {item}")
-    return [take, *deed]
+    return [take, *(e.model_copy(update={"gift": item_key(item)}) for e in deed)]
+
+
+def _gift_tier(state: GameState, npc: WorldNpc, key: str, tiers: DmTiers) -> XpTier | None:
+    """The deed tier a gift of `key` earns from `npc`; None: no deed (a repeat, or one too many)."""
+    if key in npc.gifts:
+        return None
+    if key in _plot_items(state):
+        return PLOT_GIFT_TIER
+    return GIFT_TIER if len(npc.gifts) < tiers.gift_deeds_per_npc else None
