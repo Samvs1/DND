@@ -40,7 +40,9 @@ def _check_lines(c: ConditionDef) -> list[str]:
     if c.check_dice:
         out.append(f"{c.check_dice} on ability checks")
     if c.auto_fail_saves:
-        out.append("automatically fails " + "/".join(a.upper() for a in c.auto_fail_saves) + " saves")
+        out.append(
+            "automatically fails " + "/".join(a.upper() for a in c.auto_fail_saves) + " saves"
+        )
     if c.save_advantage:
         out.append("advantage on " + "/".join(a.upper() for a in c.save_advantage) + " saves")
     if c.save_disadvantage:
@@ -84,6 +86,18 @@ def _body_lines(c: ConditionDef) -> list[str]:
         out.append("others cannot see it")
     if c.sightless:
         out.append("cannot see")
+    if c.turn_start_damage:
+        out.append(
+            f"takes {c.turn_start_damage} {c.turn_start_damage_type} damage at the start of its turns"
+        )
+    if c.turn_end_damage:
+        out.append(
+            f"takes {c.turn_end_damage} {c.turn_end_damage_type} damage at the end of its turn"
+        )
+    if c.end_check:
+        out.append(
+            f"an action and a DC {c.end_check.dc} {c.end_check.ability.upper()} check end it"
+        )
     return out
 
 
@@ -119,7 +133,11 @@ def conditions_table() -> str:
 
 
 def _moment(harm: SurfaceHarm) -> str:
-    names = {"create": "when it appears", "enter": "on entering", "turn_start": "at the start of a turn"}
+    names = {
+        "create": "when it appears",
+        "enter": "on entering",
+        "turn_start": "at the start of a turn",
+    }
     return ", ".join(names.get(m, words(m)) for m in harm.when)
 
 
@@ -134,7 +152,9 @@ def _harm_text(harm: SurfaceHarm, dc: int) -> str:
     effect = " and ".join(what)
     if harm.save:
         tail = ", half damage on a success" if harm.half_on_save else " on a failed save"
-        return f"{_moment(harm)}: {(harm.save or '').upper()} save DC {harm.dc or dc}, {effect}{tail}"
+        return (
+            f"{_moment(harm)}: {(harm.save or '').upper()} save DC {harm.dc or dc}, {effect}{tail}"
+        )
     return f"{_moment(harm)}: {effect}"
 
 
@@ -188,14 +208,32 @@ def spells_table() -> str:
         name = srd().spells.get(s.index).name
         level = "Cantrip" if s.level == 0 else str(s.level)
         who = join(sorted(c for c in s.classes if c in _CASTERS))
-        rows.append([name, level, s.school, words(s.casting_time), _range(s), "yes" if s.concentration else "no", who])
-    return table(["Spell", "Level", "School", "Casting time", "Range", "Concentration", "Classes"], rows)
+        rows.append(
+            [
+                name,
+                level,
+                s.school,
+                words(s.casting_time),
+                _range(s),
+                "yes" if s.concentration else "no",
+                who,
+            ]
+        )
+    return table(
+        ["Spell", "Level", "School", "Casting time", "Range", "Concentration", "Classes"], rows
+    )
 
 
 def consumables_table() -> str:
     rows = []
     for c in consumable_defs().all():
-        effect = f"heals {c.heal}" if c.heal else f"adds {c.supply} camp supply" if c.supply == 1 else f"adds {c.supply} camp supplies"
+        effect = (
+            f"heals {c.heal}"
+            if c.heal
+            else f"adds {c.supply} camp supply"
+            if c.supply == 1
+            else f"adds {c.supply} camp supplies"
+        )
         price = f"{c.value_gp:g} gp" if c.value_gp is not None else "-"
         rows.append([c.name, c.category, effect, price])
     return table(["Item", "Kind", "Effect", "Price"], rows)

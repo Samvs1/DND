@@ -13,6 +13,7 @@ from aidm.data.condition_defs import condition_defs
 from aidm.data.feature_defs import DEFAULT_FEATURES, FeatureDef, feature_defs, load_feature_defs
 from aidm.data.feature_hooks import (
     BonusActionHook,
+    DropToOneHook,
     ExtraActionHook,
     ProficiencyHook,
     ResourceHook,
@@ -69,6 +70,18 @@ def test_unsupported_features_are_listed_in_rules_decisions() -> None:
     assert [i for i in unsupported if f"`{i}`" not in text] == []
 
 
+def test_m29_no_unsupported_feature_shows_a_resource() -> None:
+    """M29.9a T18: a feature whose effect is not modelled never shows a usable-looking counter
+    (Relentless Endurance showed 1/1 while its hook was `unsupported`)."""
+    shown = [
+        e.index
+        for e in feature_defs().all()
+        if any(isinstance(h, UnsupportedHook) for h in e.hooks)
+        and any(isinstance(h, ResourceHook) for h in e.hooks)
+    ]
+    assert shown == []
+
+
 def test_resources_used_by_hooks_are_defined() -> None:
     registry = feature_defs()
     defined = {h.key for e in registry.all() for h in e.hooks if isinstance(h, ResourceHook)}
@@ -77,7 +90,7 @@ def test_resources_used_by_hooks_are_defined() -> None:
         for hook in entry.hooks:
             if isinstance(hook, BonusActionHook | ToggleHook) and hook.resource:
                 used.add(hook.resource)
-            elif isinstance(hook, ExtraActionHook | SlotRecoveryHook):
+            elif isinstance(hook, ExtraActionHook | SlotRecoveryHook | DropToOneHook):
                 used.add(hook.resource)
             elif isinstance(hook, SpellGrantHook):
                 used |= {g.resource for g in hook.spells if g.resource}

@@ -592,7 +592,8 @@ Conditions are shown on tokens and on your sheet.
 | Silenced | Immune to thunder damage; cannot cast spells with spoken parts; also counts as deafened. |
 | Turned | Cannot take actions; cannot take reactions; ends when it takes damage; also counts as frightened. |
 | Befriended | Cannot attack whoever charmed it; ends when whoever caused it, or one of their companions, harms it; also counts as charmed. |
-| Burning | Lasts 10 rounds. |
+| Burning | Takes 1d4 fire damage at the start of its turns; an action and a DC 10 DEX check end it; lasts 10 rounds. |
+| Acid Burn | Takes 2d4 acid damage at the end of its turn; lasts 1 round. |
 <!-- end generated:conditions -->
 
 ### Suggestions

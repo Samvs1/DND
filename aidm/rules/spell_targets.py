@@ -30,7 +30,9 @@ Public API:
   damage (hostile acts start a fight first), area and point spells are refused. A "point" spell
   picks a zone in range and its only instance is the caster. Dead creatures are refused unless
   the targeting asks for dead targets (then only dead ones); creatures outside the targeting's
-  `creature_types` are refused (an area keeps only those types: Turn Undead); `order`
+  `creature_types` are refused (an area keeps only those types: Turn Undead), and so are those
+  the targeting excludes (`spell_can_affect`, M29.9a: Sleep leaves out undead and the
+  charm-immune, so its pool is never spent on them); `order`
   "hp_ascending" sorts the instances by current HP (stable, ties keep their order).
 """
 
@@ -45,6 +47,7 @@ from aidm.data.spell_defs import (
     Effect,
     SaveEffect,
     SpellDef,
+    Targeting,
 )
 from aidm.models.commands import RefusalCode
 from aidm.models.encounter import Encounter, EncounterStatus
@@ -183,6 +186,16 @@ def needs_battlefield(spell: SpellDef) -> bool:
     return spell.targeting.kind in ("area", "point") or _needs_fight(spell.effects)
 
 
+def spell_can_affect(creature: Creature, targeting: Targeting) -> bool:
+    """The targeting's creature types admit `creature` and none of its exclusions apply."""
+    kind = creature_type_of(creature)
+    if targeting.creature_types and kind not in targeting.creature_types:
+        return False
+    if kind in targeting.exclude_creature_types:
+        return False
+    return not set(targeting.exclude_condition_immune) & set(creature.condition_immunities)
+
+
 def _check_creature(
     state: GameState, enc: Encounter | None, caster_id: str, cid: str, spell: SpellDef
 ) -> None:
@@ -193,8 +206,7 @@ def _check_creature(
         raise _refuse(RefusalCode.INVALID_TARGET, f"It is too late for {creature.name}.")
     if spell.targeting.dead and not creature.dead:
         raise _refuse(RefusalCode.INVALID_TARGET, f"{creature.name} is not dead.")
-    kinds = spell.targeting.creature_types
-    if kinds and creature_type_of(creature) not in kinds:
+    if not spell_can_affect(creature, spell.targeting):
         raise _refuse(RefusalCode.INVALID_TARGET, f"That spell cannot affect {creature.name}.")
     band = spell_band(spell)
     if enc is None:
@@ -227,9 +239,7 @@ def _area_targets(
         return SpellTargets(instances=(caster_id,), zone=zone, chosen=(caster_id,))
     area = spell.targeting.area or "zone"
     found = area_creatures(state, zone, area, {caster_id})
-    kinds = spell.targeting.creature_types
-    if kinds:
-        found = tuple(c for c in found if creature_type_of(state.creatures[c]) in kinds)
+    found = tuple(c for c in found if spell_can_affect(state.creatures[c], spell.targeting))
     return SpellTargets(instances=found, zone=zone)
 
 

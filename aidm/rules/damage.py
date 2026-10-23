@@ -19,6 +19,9 @@ Public API:
   - already at 0: damage >= max HP kills; otherwise one death save failure, two on a crit, and the
     creature is no longer stable (`DeathSavesSet`); a third failure adds `CreatureDied`
     (SRD "Damage at 0 Hit Points"). Damage fully absorbed by temp HP causes no failure.
+  - M29.9a T18: dropping from above 0 to 0 without being killed outright, a `drop_to_one`
+    feature with a use left (`rules.hp_floor`, Relentless Endurance) keeps the creature at 1 HP
+    instead: `HpChanged` to 1, `ResourceSet` (the use spent) and `FeatureUsed`.
   A dead target yields no events. At least one packet is required.
 - `resolve_healing(target, amount) -> list[AnyEvent]`: SRD "Healing": HP rise by `amount`, never
   above max; nothing for the dead; healing from 0 removes the 0-HP unconscious condition and
@@ -27,6 +30,7 @@ Public API:
 
 from collections.abc import Sequence
 
+from aidm.models.combat_events import FeatureUsed
 from aidm.models.damage import DamagePacket, DamagePart
 from aidm.models.events import (
     AnyEvent,
@@ -40,6 +44,8 @@ from aidm.models.events import (
 )
 from aidm.models.state import ActiveCondition, Creature, CreatureKind
 from aidm.rules.conditions import condition_immune, condition_resists, damage_ended_conditions
+from aidm.rules.hp_floor import endurance
+from aidm.rules.resources import spend_resource
 
 UNCONSCIOUS = "unconscious"
 ZERO_HP_SOURCE = "zero_hp"
@@ -99,6 +105,40 @@ def _hit_at_zero(target: Creature, damage: int, crit: bool) -> list[AnyEvent]:
     return events
 
 
+def _endured(target: Creature, remaining: int, hp_lost: int) -> list[AnyEvent] | None:
+    """M29.9a T18: a `drop_to_one` feature (Relentless Endurance) when this damage would drop
+    the target from above 0 to 0 without killing it outright: spend its use, stay at 1 HP."""
+    if not remaining or target.hp == 0 or target.hp != hp_lost:
+        return None
+    if remaining - hp_lost >= target.max_hp:
+        return None
+    found = endurance(target)
+    if found is None:
+        return None
+    feature_id, name, resource = found
+    return [
+        *spend_resource(target, resource),
+        FeatureUsed(creature_id=target.id, feature=feature_id, name=name),
+    ]
+
+
+def _hp_events(target: Creature, remaining: int, hp_lost: int, crit: bool) -> list[AnyEvent]:
+    events: list[AnyEvent] = []
+    endured = _endured(target, remaining, hp_lost)
+    if endured is not None:
+        hp_lost -= 1
+    if hp_lost:
+        new_hp = target.hp - hp_lost
+        events.append(HpChanged(creature_id=target.id, delta=-hp_lost, new_hp=new_hp))
+    if endured is not None:
+        events.extend(endured)
+    elif remaining and target.hp == 0:
+        events.extend(_hit_at_zero(target, remaining, crit))
+    elif remaining and target.hp == hp_lost:
+        events.extend(_dropped_to_zero(target, remaining - hp_lost))
+    return events
+
+
 def resolve_damage(
     target: Creature,
     packets: Sequence[DamagePacket],
@@ -122,13 +162,14 @@ def resolve_damage(
     absorbed = min(target.temp_hp, total)
     remaining = total - absorbed
     hp_lost = min(target.hp, remaining)
+    kept = 1 if _endured(target, remaining, hp_lost) is not None else 0
     events: list[AnyEvent] = [
         DamageTaken(
             creature_id=target.id,
             parts=parts,
             total=total,
             temp_absorbed=absorbed,
-            hp_lost=hp_lost,
+            hp_lost=hp_lost - kept,
             crit=crit,
             source_id=source_id,
         )
@@ -142,13 +183,7 @@ def resolve_damage(
         )
     if absorbed:
         events.append(TempHpSet(creature_id=target.id, temp_hp=target.temp_hp - absorbed))
-    if hp_lost:
-        new_hp = target.hp - hp_lost
-        events.append(HpChanged(creature_id=target.id, delta=-hp_lost, new_hp=new_hp))
-    if remaining and target.hp == 0:
-        events.extend(_hit_at_zero(target, remaining, crit))
-    elif remaining and target.hp == hp_lost:
-        events.extend(_dropped_to_zero(target, remaining - hp_lost))
+    events.extend(_hp_events(target, remaining, hp_lost, crit))
     return events
 
 

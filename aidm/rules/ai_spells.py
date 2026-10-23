@@ -41,8 +41,13 @@ from aidm.rules.ai_view import (
     damage_value,
     heal_value,
 )
-from aidm.rules.monster_stats import creature_type_of
-from aidm.rules.spell_targets import area_creatures, area_zones, instance_count, spell_band
+from aidm.rules.spell_targets import (
+    area_creatures,
+    area_zones,
+    instance_count,
+    spell_band,
+    spell_can_affect,
+)
 from aidm.rules.zones import zone_range_check
 
 _SLOT_VALUE = 3.0
@@ -123,8 +128,7 @@ def _in_band(state: GameState, view: AiView, spell: SpellDef, cid: str) -> bool:
     enc = state.encounter
     if enc is None or cid not in enc.combatants:
         return False
-    kinds = spell.targeting.creature_types
-    if kinds and creature_type_of(state.creatures[cid]) not in kinds:
+    if not spell_can_affect(state.creatures[cid], spell.targeting):
         return False
     zone = enc.combatant(cid).zone_id
     return zone_range_check(enc.zone_map, view.zone_id, zone, spell_band(spell)).in_range

@@ -46,6 +46,9 @@ Every hook has `min_level` (the character level it starts working at, default 1)
 - `scroll_copy`: copy spell scrolls into a spellbook for `gold_per_level` gold per spell level;
   an entry with a `school` changes that school's cost to `cost_percent`.
 - `reroll_ones`: a natural 1 on the listed d20 `tests` is rerolled once.
+- `drop_to_one` (M29.9a): damage that would drop the creature from above 0 to 0 HP without
+  killing it outright leaves it at 1 HP instead, spending one use of `resource` (SRD 5.1
+  Half-Orc Relentless Endurance; `aidm.rules.hp_floor`, read at the damage choke point).
 - `unsupported`: the mechanic is not modelled yet; `reason` is listed in docs/RULES_DECISIONS.md.
 
 Public API: the hook classes, `FeatureHook` (discriminated union), `ActiveEffectHook` (the kinds
@@ -253,6 +256,11 @@ class RerollOnesHook(_Hook):
     tests: tuple[TestKey, ...] = Field(min_length=1)
 
 
+class DropToOneHook(_Hook):
+    kind: Literal["drop_to_one"] = "drop_to_one"
+    resource: str = Field(min_length=1)
+
+
 class UnsupportedHook(_Hook):
     kind: Literal["unsupported"] = "unsupported"
     reason: str = Field(min_length=1)
@@ -282,6 +290,7 @@ FeatureHook = Annotated[
     | SlotRecoveryHook
     | ScrollCopyHook
     | RerollOnesHook
+    | DropToOneHook
     | UnsupportedHook,
     Field(discriminator="kind"),
 ]

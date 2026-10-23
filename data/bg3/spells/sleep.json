@@ -16,7 +16,13 @@
   "targeting": {
     "kind": "area",
     "area": "zone",
-    "order": "hp_ascending"
+    "order": "hp_ascending",
+    "exclude_creature_types": [
+      "undead"
+    ],
+    "exclude_condition_immune": [
+      "charmed"
+    ]
   },
   "effects": [
     {

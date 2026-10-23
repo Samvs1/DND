@@ -15,7 +15,8 @@ Turn flow (events only; the session applies them between calls):
   The economy reflects those consequences (a natural 20 on the death save wakes the creature
   up with its full economy; a surprised creature gets no action, bonus action, movement or
   reaction). Refused when a turn is already open or nobody can act.
-- `end_turn(rng, state) -> list[AnyEvent]`: the end-of-turn ticks and save-ends rolls
+- `end_turn(rng, state) -> list[AnyEvent]`: the turn-end damage of the creature's conditions
+  (M29.9a, `rules.condition_harms`), the end-of-turn ticks and save-ends rolls
   (`condition_timing.turn_end_events`) then `TurnEnded`. Refused when no turn is open.
 - `fresh_economy(creature) -> TurnEconomy`: action and bonus action when conditions allow
   actions; movement = `conditions.effective_speed` (speed x the condition factor rounded down,
@@ -39,7 +40,7 @@ from aidm.models.encounter import Combatant, Encounter, TurnEconomy
 from aidm.models.encounter_events import EconomyChanged, TurnEnded, TurnStarted
 from aidm.models.events import AnyEvent
 from aidm.models.state import Creature, GameState
-from aidm.rules.condition_harms import turn_start_condition_damage
+from aidm.rules.condition_harms import turn_end_condition_damage, turn_start_condition_damage
 from aidm.rules.condition_timing import turn_end_events, turn_start_events
 from aidm.rules.conditions import (
     can_take_actions,
@@ -142,7 +143,9 @@ def end_turn(rng: Rng, state: GameState) -> list[AnyEvent]:
     cid = enc.active_id()
     if cid is None:
         raise EncounterRefused(EncounterRefusal.NO_OPEN_TURN, enc.id)
-    return [*turn_end_events(rng, state, cid), TurnEnded(creature_id=cid)]
+    harm = turn_end_condition_damage(rng, state, cid)
+    after = project_state(state, harm)
+    return [*harm, *turn_end_events(rng, after, cid), TurnEnded(creature_id=cid)]
 
 
 def _spender(state: GameState, creature_id: str, own_turn: bool) -> tuple[Combatant, Creature]:

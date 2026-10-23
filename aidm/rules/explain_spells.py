@@ -92,7 +92,7 @@ def _effects(effects: tuple[Effect, ...]) -> list[str]:
     out: list[str] = []
     for e in effects:
         if isinstance(e, AttackRollEffect):
-            out.append("on a hit " + "; ".join(_effects(e.on_hit)))
+            out.append("on a hit " + "; ".join(_effects(e.on_hit)) + _miss(e))
         elif isinstance(e, SaveEffect):
             out.append(_save(e))
         elif isinstance(e, HpPoolEffect):
@@ -110,6 +110,14 @@ def _effects(effects: tuple[Effect, ...]) -> list[str]:
         elif (text := _simple(e)) is not None:
             out.append(text)
     return out
+
+
+def _miss(e: AttackRollEffect) -> str:
+    if e.on_miss == "half":
+        return ", half the damage on a miss"
+    if e.on_miss == "none":
+        return ""
+    return "; on a miss " + "; ".join(_effects(e.on_miss))
 
 
 def _save(e: SaveEffect) -> str:
@@ -133,6 +141,17 @@ def _first_roll(effects: tuple[Effect, ...]) -> str | None:
 
 
 def _who(spell: SpellDef) -> str:
+    t = spell.targeting
+    spared = [
+        *t.exclude_creature_types,
+        *(f"those immune to {c}" for c in t.exclude_condition_immune),
+    ]
+    if spared:
+        return _who_kind(spell) + " (not " + " or ".join(spared) + ")"
+    return _who_kind(spell)
+
+
+def _who_kind(spell: SpellDef) -> str:
     t = spell.targeting
     if t.kind == "self":
         return "on you"

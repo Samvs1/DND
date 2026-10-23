@@ -23,8 +23,13 @@
           "dice": "4d4",
           "damage_type": "acid",
           "upcast_dice": "1d4"
+        },
+        {
+          "type": "apply_condition",
+          "condition": "acid-burn"
         }
-      ]
+      ],
+      "on_miss": "half"
     }
   ]
 }

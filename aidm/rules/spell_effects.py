@@ -7,7 +7,8 @@ earlier ones (a second beam at a creature the first one dropped).
 
 Semantics (SRD 5.1 unless noted):
 - attack_roll: THE attack path (`rules.attacks.roll_attack`) with a spell `AttackProfile`
-  (spell attack bonus, range band); a crit doubles the on-hit damage dice.
+  (spell attack bonus, range band); a crit doubles the on-hit damage dice; a miss runs
+  `on_miss` ("half": the on-hit damage halved, rounded down, its other effects skipped).
 - save: `save_with_conditions` against the caster's spell DC (Bless dice, condition and feature
   advantage, e.g. gnome cunning against "magic"), logged as `CheckResolved`; "half" halves the
   on-fail damage (rounded down) and skips its other effects.
@@ -223,6 +224,10 @@ def _attack(ctx: CastContext, effect: AttackRollEffect, target_id: str, shared: 
     ctx.emit(rolled.events)
     if rolled.hit:
         run_effects(ctx, effect.on_hit, target_id, crit=rolled.crit, shared=shared)
+    elif effect.on_miss == "half":
+        run_effects(ctx, effect.on_hit, target_id, half=True, shared=shared)
+    elif not isinstance(effect.on_miss, str):
+        run_effects(ctx, effect.on_miss, target_id, shared=shared)
 
 
 def place_surface(ctx: CastContext, effect: SurfaceEffect, zone_id: str) -> None:

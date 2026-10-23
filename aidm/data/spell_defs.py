@@ -25,14 +25,18 @@ is in docs/DECISIONS.md ("Spell DSL authoring guide").
   `order` "hp_ascending" runs the instances from the lowest current HP up (Sleep); `dead` True
   means the creature targets must be dead (Revivify), else dead creatures are refused.
   `creature_types` (M3.8) limits creature targets to those SRD types (Hold Person: humanoid;
-  PCs and NPCs count as humanoid). This block is how multi-targeting by count or area is
-  expressed.
+  PCs and NPCs count as humanoid). `exclude_creature_types` and `exclude_condition_immune`
+  (M29.9a T1) leave out creatures of those types or immune to one of those conditions: an area
+  skips them before any `hp_pool` is spent on them, a chosen target is refused (Sleep: undead
+  and the charm-immune are not affected, SRD 5.1). This block is how multi-targeting by count
+  or area is expressed.
 - `effects`: ordered `Effect`s run for each target instance (area spells share one roll per
   damage/heal effect across targets, SRD).
 
 Effects (`type` tag):
-- `attack_roll(attack: melee|ranged, on_hit)`: a spell attack; `on_hit` runs on a hit, a
-  critical hit doubles its damage dice.
+- `attack_roll(attack: melee|ranged, on_hit, on_miss)`: a spell attack; `on_hit` runs on a hit,
+  a critical hit doubles its damage dice; `on_miss` (M29.9a) is "none", "half" (the `on_hit`
+  damage halved, its other effects skipped: Acid Arrow) or a list of effects.
 - `save(ability, on_fail, on_success)`: the target saves against the caster's spell DC;
   `on_success` is "none", "half" (the `on_fail` damage halved, its other effects skipped) or a
   list of effects.
@@ -112,6 +116,8 @@ class Targeting(_Strict):
     order: Literal["chosen", "hp_ascending"] = "chosen"
     dead: bool = False
     creature_types: tuple[str, ...] = ()
+    exclude_creature_types: tuple[str, ...] = ()
+    exclude_condition_immune: tuple[str, ...] = ()
     shape: AreaShape | None = None
 
     @model_validator(mode="after")
@@ -127,6 +133,7 @@ class AttackRollEffect(_Strict):
     type: Literal["attack_roll"] = "attack_roll"
     attack: Literal["melee", "ranged"]
     on_hit: tuple[Effect, ...] = Field(min_length=1)
+    on_miss: Literal["none", "half"] | tuple[Effect, ...] = "none"
 
 
 class SaveEffect(_Strict):

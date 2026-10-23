@@ -32,9 +32,11 @@ def test_golden_cure_wounds() -> None:
 
 
 def test_golden_sleep() -> None:
-    # SRD 5.1 Sleep: 5d8 hit points of creatures, lowest first, +2d8 per slot level.
+    # SRD 5.1 Sleep: 5d8 hit points of creatures, lowest first, +2d8 per slot level; undead
+    # and the charm-immune are not affected (M29.9a T1).
     assert _text("spell:sleep") == (
-        "Sleep. Level 1, action. Up to 2 zones away, hits everyone else in a zone. "
+        "Sleep. Level 1, action. Up to 2 zones away, hits everyone else in a zone "
+        "(not undead or those immune to charmed). "
         "Rolls 5d8 hit points of creatures, lowest first; each one that fits: Asleep. "
         "Higher slot: +2d8 hit points per slot level above its own."
     )

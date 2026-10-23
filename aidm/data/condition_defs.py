@@ -31,7 +31,9 @@ Fields of `ConditionDef` (all but index/name/source default to "no effect"):
 - `bonus_actions`: actions the bearer may take as a bonus action ("dash": Expeditious Retreat).
 - `blocks_verbal`: the bearer cannot cast spells with a verbal component (Silence).
 - `turn_start_damage` / `turn_start_damage_type`: dice of damage the bearer takes at the start of
-  each of its turns (burning from alchemist's fire, M27.6).
+  each of its turns (burning from alchemist's fire, M27.6); `turn_end_damage` /
+  `turn_end_damage_type` the same at the end of each of its turns (M29.9a: Acid Arrow's later
+  acid, a one-round condition that ticks on the bearer's own turn end).
 - `end_check`: `EndCheck(ability, dc, label)`: a creature in the bearer's zone (the bearer too)
   may use its action to make this ability check; a success ends every instance (SRD 5.1
   Alchemist's Fire: an action and a DC 10 Dexterity check put the flames out).
@@ -141,6 +143,8 @@ class ConditionDef(BaseModel):
     blocks_verbal: bool = False
     turn_start_damage: str | None = Field(default=None, pattern=r"^\d*d\d+([+-]\d+)?$")
     turn_start_damage_type: DamageKey | None = None
+    turn_end_damage: str | None = Field(default=None, pattern=r"^\d*d\d+([+-]\d+)?$")
+    turn_end_damage_type: DamageKey | None = None
     end_check: EndCheck | None = None
     duration: DefaultDuration = DefaultDuration()
 
@@ -148,6 +152,8 @@ class ConditionDef(BaseModel):
     def _check_turn_damage(self) -> ConditionDef:
         if (self.turn_start_damage is None) != (self.turn_start_damage_type is None):
             raise ValueError("turn_start_damage and turn_start_damage_type go together")
+        if (self.turn_end_damage is None) != (self.turn_end_damage_type is None):
+            raise ValueError("turn_end_damage and turn_end_damage_type go together")
         return self
 
 
