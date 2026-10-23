@@ -1,6 +1,7 @@
 """M23.2 quest progress, one pass at a time (rules/quest_progress.py) on the sample campaign."""
 
 import random
+from dataclasses import replace
 
 from aidm.models.campaign import RegionPlan
 from aidm.models.character import Keepsake
@@ -183,7 +184,12 @@ def test_cunning_route_sends_the_boss_alone() -> None:
     assert pending_company(state) == 0
 
 
+# The route effect, not the budget, is under test: the full boss cap (M29.6b's
+# boss_budget_scale would leave a level-5 party's act-2 master alone anyway).
+FULL_CAP = replace(DATA, tables=DATA.tables.model_copy(update={"boss_budget_scale": {}}))
+
+
 def pending_company(state: GameState) -> int:
     trial = state.model_copy(deep=True)
-    apply_all(trial, arrival_offer_events(trial, DATA, None))
+    apply_all(trial, arrival_offer_events(trial, FULL_CAP, None))
     return len(pending(trial).monster_ids)
