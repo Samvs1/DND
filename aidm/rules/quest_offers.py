@@ -18,8 +18,8 @@ backfill) and place the act's quest items.
   (M23.5) lets it go (failed + `withdrawn`, no deed: a favour is never asked again).
   `QuestOfferRefused` when that quest is not being asked.
 
-Public API: `QuestOfferRefused`, `LEAD_TEXT`, `lead_events(state)`, `ask_events(state, batch)`,
-`answer_events(state, quest_id, accept)`.
+Public API: `QuestOfferRefused`, `LEAD_TEXT`, `LEAD_AGAIN` (a second asker in one place),
+`lead_events(state)`, `ask_events(state, batch)`, `answer_events(state, quest_id, accept)`.
 """
 
 from collections.abc import Sequence
@@ -40,6 +40,7 @@ from aidm.rules.quest_steps import npc_meetable
 from aidm.rules.scene import node_display_name
 
 LEAD_TEXT = "Someone at {place} may need help."
+LEAD_AGAIN = "Someone else at {place} may need help too."
 
 
 class QuestOfferRefused(Exception):
@@ -63,6 +64,7 @@ def lead_events(state: GameState) -> list[AnyEvent]:
     _, region, quests = found
     world = state.world
     led = {lead.quest_id for lead in world.leads}
+    said = {lead.text for lead in world.leads}
     events: list[AnyEvent] = []
     for quest in quests:
         giver = world.npcs.get(quest.giver_npc_id)
@@ -72,7 +74,11 @@ def lead_events(state: GameState) -> list[AnyEvent]:
         lives = region_of(state, home)
         if home is None or home == world.current_node or lives is None or lives.id != region.id:
             continue
-        text = LEAD_TEXT.format(place=node_display_name(state, home))
+        place = node_display_name(state, home)
+        text = LEAD_TEXT.format(place=place)
+        if text in said:  # M29.5b G14: two askers in one place are two different leads
+            text = LEAD_AGAIN.format(place=place)
+        said.add(text)
         events.append(QuestLeadAdded(lead=QuestLead(quest_id=quest.id, text=text)))
     return events
 

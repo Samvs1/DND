@@ -33,3 +33,7 @@ def replay_until(run: str, seq: int) -> GameState:
 
 def logged(run: str, seq: int) -> LoggedEvent:
     return next(e for e in _log(run)[1] if e.seq == seq)
+
+
+def events_of(run: str) -> tuple[LoggedEvent, ...]:
+    return _log(run)[1]

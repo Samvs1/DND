@@ -181,14 +181,17 @@ def test_quest_moments_have_engine_and_template_lines() -> None:
     _, state, log = _started()
     found = next(e for e in log if isinstance(e, RouteDiscovered))
     assert event_line(state, found) == (
-        "Quest 'Fog on the Quay': the party found a way: Turn Gorran against the Choir."
+        "Quest 'Fog on the Quay': a way the party knows of: Turn Gorran against the Choir."
     )
     assert (
         template_line(state, found)
         == "Another way opens before you: Turn Gorran against the Choir."
     )
     step = QuestStepDone(quest_id=MAIN, route_id="force", step=0, log_line="Explore the quay")
-    assert event_line(state, step) == "Quest 'Fog on the Quay': step done: Explore the quay."
+    assert event_line(state, step) == (
+        "Quest 'Fog on the Quay': step done: Explore the quay (met by what the party has already"
+        " done; describe no new deed for it)."
+    )
     assert (
         template_line(state, step) == "Explore the quay: one more part of Fog on the Quay is done."
     )

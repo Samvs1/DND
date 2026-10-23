@@ -94,7 +94,12 @@ def _attack(state: GameState, e: AttackRolled) -> str:
 def _item_found(state: GameState, e: we.ItemDiscovered) -> str:
     item = state.world.items.get(e.item_id)
     name = item.name if item is not None else "something hidden"
-    return f"{_who(state, e.creature_id)} found {name}."
+    # M29.5b G19: a hidden thing is found against its OWN DC, so the search may find it while
+    # the check missed its stated goal; the model is told so, and that it is an object.
+    return (
+        f"{_who(state, e.creature_id)}'s search turns up the {name}, an object that lies here"
+        " ready to pick up (found even if the check missed its own goal)."
+    )
 
 
 _LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {

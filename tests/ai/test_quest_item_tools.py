@@ -110,7 +110,10 @@ def test_hand_over_and_found_lines_for_model_and_templates() -> None:
     _at(state, TUNNELS)
     found = ItemDiscovered(item_id=ORDERS, creature_id="fighter")
     apply_all(state, [found])
-    assert event_line(state, found) == f"{hero} found Choir tide-orders."
+    assert event_line(state, found) == (
+        f"{hero}'s search turns up the Choir tide-orders, an object that lies here ready to pick"
+        " up (found even if the check missed its own goal)."
+    )
     assert template_line(state, found) == f"{hero} finds Choir tide-orders."
 
 
