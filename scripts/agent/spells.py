@@ -2,8 +2,9 @@
 
 The sheet's `spellcasting` block lists cantrips apart from the levelled spells; the hotbar of
 the real client shows both, so the harness does too. A spell needs a zone when its
-`target_kind` is `area` (unless it is centred on the caster) or `point`; creature spells take
-foes or allies.
+`target_kind` is `area` (unless it is centred on the caster with no aimed shape) or `point`;
+an aimed self cone or line (`area_shape`/`area_feet`, M29.7d) takes the zone it is aimed at,
+the caster's own or a neighbour within its length. Creature spells take foes or allies.
 
 Public API: `find_spell`, `spell_lines`, `needs_zone`, `needs_creature`.
 """
@@ -29,7 +30,9 @@ def find_spell(sheet: Msg | None, index: str) -> Msg | None:
 
 def needs_zone(spell: Msg) -> bool:
     kind = spell.get("target_kind", "creature")
-    return kind == "point" or (kind == "area" and spell.get("range_kind") != "self")
+    if kind == "point":
+        return True
+    return kind == "area" and (spell.get("range_kind") != "self" or bool(spell.get("area_feet")))
 
 
 def needs_creature(spell: Msg) -> bool:
@@ -59,6 +62,9 @@ def _blocked(spell: Msg, sheet: Msg | None, eco: Msg) -> str:
 
 
 def _aim(spell: Msg) -> str:
+    if needs_zone(spell) and spell.get("area_feet") and spell.get("range_kind") == "self":
+        shape = spell.get("area_shape") or "area"
+        return f" <zone id|name> ({spell['area_feet']}-ft {shape} from your zone)"
     if needs_zone(spell):
         return " <zone id|name>"
     if needs_creature(spell):

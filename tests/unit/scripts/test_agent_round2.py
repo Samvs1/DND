@@ -5,11 +5,15 @@ import time
 from pathlib import Path
 from typing import Any
 
+import pytest
+
 from scripts.agent import ops, trade
+from scripts.agent.commands import UsageError, build_command
 from scripts.agent.damage import avg_dice, pick_option
 from scripts.agent.hero_view import hero_lines, learned, roll_why, zone_lines
 from scripts.agent.link import Link
 from scripts.agent.session import Session
+from scripts.agent.spells import spell_lines
 from scripts.agent.text import digest, look_text, option_lines
 from scripts.agent_play import build_parser
 from scripts.sim.server import free_port
@@ -226,3 +230,25 @@ def test_m29_h14_look_lists_heroes_and_supplies_with_the_fake_storyteller(tmp_pa
         ops.cmd_stop(tmp_path, "r2")
     assert "Camp supplies:" in look and "Heroes:" in look
     assert "matches 0 items" in bad
+
+
+def _cone_sheet() -> Msg:
+    cone = {"index": "burning-hands", "prepared": True, "target_kind": "area"}
+    cone |= {"range_kind": "self", "area_shape": "cone", "area_feet": 15}
+    aura = {"index": "aura", "prepared": True, "target_kind": "area", "range_kind": "self"}
+    level = {"level": 1, "slots": [{"current": 2}], "spells": [cone, aura]}
+    return {"spellcasting": {"cantrips": [], "levels": [level]}}
+
+
+def test_m29_r26_harness_aims_a_self_cone_at_a_zone() -> None:
+    zones = [{"id": "z1", "name": "Gate"}, {"id": "z2", "name": "Yard"}]
+    combat: Msg = {"zones": zones, "tokens": []}
+    sheet = _cone_sheet()
+    cmd = build_command(["cast", "burning-hands", "Yard"], "pc-1", [], sheet, combat)
+    assert cmd["target_zone"] == "z2" and cmd["target_ids"] == []
+    with pytest.raises(UsageError, match="needs a zone"):
+        build_command(["cast", "burning-hands"], "pc-1", [], sheet, combat)
+    assert "target_zone" not in build_command(["cast", "aura"], "pc-1", [], sheet, combat)
+    text = "\n".join(spell_lines(sheet, combat, ECO))
+    assert "do cast burning-hands <zone id|name> (15-ft cone from your zone)" in text
+    assert "do cast aura   (level 1)" in text and "(zones: z1=Gate, z2=Yard)" in text
