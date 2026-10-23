@@ -12,7 +12,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from aidm.session.balance import aggregate, load_runs
+from aidm.session.balance import aggregate, load_runs, outcomes
 from aidm.session.metrics import compute_metrics, load_defeat_tails, load_events
 
 Ev = dict[str, Any]
@@ -99,3 +99,26 @@ def test_m29_metrics_camp_food_bought_is_a_shop_buy() -> None:
     trade = {"type": "items_traded", "sold": False}
     m = compute_metrics([_pc(0), _gold(0, -2, 8), supplies, trade])
     assert m["gold"]["out"] == {"shop_buy": 2}
+
+
+def test_m29_outcomes_per_style_and_party() -> None:
+    m = {"level_end": 3, "wipes": {"count": 2, "fights": []}}
+    entries = [
+        ({"style": "talker", "party": "solo", "outcome": "epilogue", "level": 5}, m),
+        (
+            {"style": "talker", "party": "solo", "outcome": "defeated act 2 at bridge", "level": 3},
+            m,
+        ),
+        ({"style": "talker", "party": "solo", "outcome": "defeated act 2 at tower", "level": 4}, m),
+    ]
+    assert outcomes(entries) == [
+        {
+            "style": "talker",
+            "party": "solo",
+            "runs": 3,
+            "epilogue": 1,
+            "lost": {"act 2": 2},
+            "level": 4,
+            "wipes_per_run": 2.0,
+        }
+    ]

@@ -1,4 +1,8 @@
-"""Aggregate many runs' metrics against the balance targets (M29.1). Pure over metrics dicts."""
+"""Aggregate many runs' metrics against the balance targets (M29.1). Pure over metrics dicts.
+
+M29.2: `outcomes(entries)` summarises how scripted runs ended per (style, party), from each
+run's `tags.json` (`outcome`, written by `scripts/sim/grid.py`) and its metrics (`wipes`).
+"""
 
 from __future__ import annotations
 
@@ -87,4 +91,43 @@ def evaluate(runs: list[tuple[str, str, Metrics]], targets: BalanceTargets) -> l
                     "verdict": verdict,
                 }
             )
+    return rows
+
+
+def run_tags(save: Path) -> dict[str, Any]:
+    """The whole `tags.json` beside a save ({} when there is none)."""
+    folder = save if save.is_dir() else save.parent
+    tag_file = folder / "tags.json"
+    return dict(json.loads(tag_file.read_text(encoding="utf-8"))) if tag_file.exists() else {}
+
+
+def _ended(outcome: str) -> str:
+    """'epilogue', 'act N' (lost for good in act N) or 'other'."""
+    if outcome == "epilogue":
+        return "epilogue"
+    words = outcome.split()
+    return f"act {words[2]}" if outcome.startswith("defeated act") and len(words) > 2 else "other"
+
+
+def outcomes(entries: list[tuple[dict[str, Any], Metrics]]) -> list[dict[str, Any]]:
+    """Per (style, party): runs, how they ended, the median final level and wipes per run."""
+    groups: dict[tuple[str, str], list[tuple[dict[str, Any], Metrics]]] = defaultdict(list)
+    for tags, metrics in entries:
+        key = (str(tags.get("style", "untagged")), str(tags.get("party", "untagged")))
+        groups[key].append((tags, metrics))
+    rows: list[dict[str, Any]] = []
+    for (style, party), members in sorted(groups.items()):
+        ends = [_ended(str(t.get("outcome", ""))) for t, _ in members]
+        wipes = [m.get("wipes", {}).get("count", 0) for _, m in members]
+        rows.append(
+            {
+                "style": style,
+                "party": party,
+                "runs": len(members),
+                "epilogue": ends.count("epilogue"),
+                "lost": {e: ends.count(e) for e in sorted(set(ends)) if e != "epilogue"},
+                "level": median(int(t.get("level", m["level_end"])) for t, m in members),
+                "wipes_per_run": sum(wipes) / len(members),
+            }
+        )
     return rows

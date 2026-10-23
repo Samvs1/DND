@@ -63,10 +63,10 @@ def _campaigns(args: argparse.Namespace) -> int:
     from scripts.sim.shapes import SHAPES
     from scripts.sim.styles import STYLES
 
-    style = args.style or "balanced"
-    party = args.party or "classic"
-    styles = list(STYLES) if style == "all" else style.split(",")
-    shapes = list(SHAPES) if party == "all" else party.split(",")
+    style: str = args.style or "balanced"
+    party: str = args.party or "classic"
+    styles: list[str] = list(STYLES) if style == "all" else [str(x) for x in style.split(",")]
+    shapes: list[str] = list(SHAPES) if party == "all" else [str(x) for x in party.split(",")]
     seeds = list(range(args.first_seed, args.first_seed + args.seeds))
     opts = SimOptions(live_ai=args.live_ai, timeout=args.timeout, verbose=args.verbose)
     reports = asyncio.run(run_grid(styles, shapes, seeds, opts, args.out))
