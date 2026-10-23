@@ -28,6 +28,7 @@
   "large_party_min": 6,
   "max_monsters": 8,
   "spoke_rating_cap": {"1": "easy", "2": "easy", "3": "easy"},
+  "spoke_budget_scale": {"1": 0.6, "2": 0.5, "3": 0.5},
   "spoke_max_monsters_per_pc": {"1": 1, "2": 2, "3": 2},
   "boss_rating_cap": "medium",
   "boss_company_max_per_pc": 1,

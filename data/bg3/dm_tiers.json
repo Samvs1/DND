@@ -11,7 +11,7 @@
     {"max_level": 1, "minor": 25, "moderate": 75, "major": 150},
     {"max_level": 2, "minor": 50, "moderate": 150, "major": 300},
     {"max_level": 3, "minor": 100, "moderate": 300, "major": 600},
-    {"max_level": 4, "minor": 200, "moderate": 500, "major": 1000},
+    {"max_level": 4, "minor": 200, "moderate": 750, "major": 1000},
     {"max_level": 20, "minor": 300, "moderate": 800, "major": 1600}
   ],
   "item_value_cap_gp": {"1": 75, "2": 300, "3": 1500},

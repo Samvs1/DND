@@ -1,5 +1,6 @@
 """M29.6 tuning: world-pulled fights scale with the party's size and level (encounter_budget.json).
 
+- A spoke's budget is its rating cap x `spoke_budget_scale[tier]`.
 - A spoke whose theme monsters are all too costly for the party gets terrain-matched stand-ins
   within the budget (`spoke_stand_ins`), not the cheapest theme monster over budget.
 - The boss's company is capped per hero (`boss_company_max_per_pc`) and by the boss rating cap;
@@ -61,24 +62,25 @@ def _spoke(region_index: int, monster: str) -> str:
 
 
 def test_golden_solo_level_one_gets_a_smaller_spoke_fight_than_a_classic_four() -> None:
-    # Level 1 easy cap: four heroes 4 x 50 - 1 = 199 adjusted XP, one hero 50 - 1 = 49.
+    # Level 1 easy cap x the tier-1 budget scale 0.6: four heroes (4 x 50 - 1) x 0.6 = 119
+    # adjusted XP; one hero (50 - 1) x 0.6 = 29, which not even one CR 1/8 fits (25 x 1.5 = 37),
+    # so the cheapest theme monster comes alone.
     node = _spoke(0, "crocodile")
     solo, four = _offer_at(1, 1, node), _offer_at(1, 4, node)
     assert sum(_xps(solo)) < sum(_xps(four))
-    assert adjusted_xp(_xps(solo), 1, DATA.tables) <= 49
-    assert adjusted_xp(_xps(four), 4, DATA.tables) <= 199
+    assert _xps(solo) == [25]
+    assert adjusted_xp(_xps(four), 4, DATA.tables) <= 119
 
 
 def test_golden_duo_gets_stand_ins_within_budget_at_an_act_two_spoke() -> None:
-    # Duo level 3, easy cap = 2 x 150 - 1 = 299; a CR 2 theme monster alone is 450 x 1.5
-    # (small party: one step up) = 675 and a CR 1 one 300, over budget -> one CR 1/2 stand-in
-    # (100 x 1.5 = 150; two would be 200 x 2.0 = 400).
+    # Duo level 3: easy cap 2 x 150 - 1 = 299, x the tier-2 budget scale 0.5 = 149. A CR 2
+    # theme monster alone is 450 x 1.5 (small party: one step up) = 675, over budget -> one
+    # CR 1/4 stand-in (50 x 1.5 = 75; a CR 1/2 is 150, two CR 1/4 are 100 x 2.0 = 200).
     node = _spoke(1, "bandit-captain")
     offer = _offer_at(3, 2, node)
     assert len(offer.monster_ids) == 1
-    assert DATA.monsters.get(offer.monster_ids[0]).xp == 100
-    assert adjusted_xp(_xps(offer), 2, DATA.tables) <= 299
-    assert offer.difficulty == "easy"
+    assert DATA.monsters.get(offer.monster_ids[0]).xp == 50
+    assert adjusted_xp(_xps(offer), 2, DATA.tables) <= 149
 
 
 def test_stand_ins_share_a_terrain_with_the_themes() -> None:
@@ -97,9 +99,22 @@ def test_without_stand_ins_the_cheapest_theme_monster_still_comes() -> None:
 
 
 def test_classic_four_keeps_its_theme_monster_when_it_fits() -> None:
-    # Four level-5 heroes: easy cap 4 x 500 - 1 = 1999 >= one CR 5 (1800).
-    offer = _offer_at(5, 4, _spoke(2, "earth-elemental"))
-    assert set(offer.monster_ids) <= {"earth-elemental", "xorn"}
+    # Four level-4 heroes at an act-2 spoke: (4 x 250 - 1) x 0.5 = 499 >= one CR 2 (450).
+    offer = _offer_at(4, 4, _spoke(1, "ankheg"))
+    assert len(offer.monster_ids) == 1
+    assert set(offer.monster_ids) <= {"ankheg", "ogre"}
+
+
+def test_golden_budget_scale_shrinks_an_act_three_spoke() -> None:
+    # Four level-5 heroes: the full easy cap 4 x 500 - 1 = 1999 takes a CR 5 theme (1800); the
+    # tier-3 scale 0.5 leaves 999, so a CR 3 stand-in (700) comes instead (CR 4 is 1100).
+    node = _spoke(2, "earth-elemental")
+    whole = DATA.tables.model_copy(update={"spoke_budget_scale": {}})
+    assert set(_offer_at(5, 4, node, replace(DATA, tables=whole)).monster_ids) <= {
+        "earth-elemental",
+        "xorn",
+    }
+    assert _xps(_offer_at(5, 4, node)) == [700]
 
 
 def test_master_company_scales_with_party_size() -> None:

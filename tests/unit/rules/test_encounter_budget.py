@@ -120,6 +120,7 @@ def test_world_encounter_caps_are_data() -> None:
     # most one companion per hero, stand-ins for over-budget spokes, a lone boss too strong for
     # a small party scaled down to at most half its hit points.
     assert T.spoke_rating_cap == {1: "easy", 2: "easy", 3: "easy"}
+    assert T.spoke_budget_scale == {1: 0.6, 2: 0.5, 3: 0.5}
     assert T.spoke_max_monsters_per_pc == {1: 1, 2: 2, 3: 2}
     assert T.boss_rating_cap == "medium"
     assert T.boss_company_max_per_pc == 1
