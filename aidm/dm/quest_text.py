@@ -17,6 +17,7 @@ from typing import Any
 
 from aidm.models.quest_events import (
     KeepsakeGiven,
+    KeepsakeTaken,
     QuestAskDeclined,
     QuestAsked,
     QuestLeadAdded,
@@ -126,6 +127,18 @@ def _given(state: GameState, e: KeepsakeGiven) -> str:
     return f"{who} hands the {thing} to {npc.name if npc is not None else 'them'}."
 
 
+def _taken(state: GameState, e: KeepsakeTaken) -> str:
+    hero = state.creatures.get(e.creature_id)
+    npc = state.world.npcs.get(e.npc_id)
+    held = [
+        *(npc.keepsakes if npc is not None else []),
+        *(hero.pc.keepsakes if hero and hero.pc else []),
+    ]
+    thing = next((k.name for k in held if k.id == e.keepsake_id), "something")
+    who = hero.name if hero is not None else "Someone"
+    return f"{who} lifts the {thing} from {npc.name if npc is not None else 'them'}."
+
+
 def _left(e: QuestUpdated) -> bool:
     return e.quest.closed_reason is ClosedReason.LEFT_BEHIND
 
@@ -217,6 +230,7 @@ QUEST_EVENT_LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     QuestStepDone: _step_fact,
     RouteDiscovered: _route_fact,
     KeepsakeGiven: _given,
+    KeepsakeTaken: _taken,
 }
 
 # M29.5c G36: model-only instructions, kept out of the lines players can see
@@ -233,4 +247,5 @@ QUEST_TEMPLATE_LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = 
     QuestStepDone: _step_story,
     RouteDiscovered: _route_story,
     KeepsakeGiven: _given,
+    KeepsakeTaken: _taken,
 }

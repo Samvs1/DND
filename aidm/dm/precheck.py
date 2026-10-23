@@ -17,7 +17,8 @@ Public API:
   `aidm.dm.help_intent`), `GiveIntent(actor_id, npc_id, thing)` (M23.3: "give the <thing> to
   <name>"; `aidm.dm.give_intent`), `HeroHandIntent` (M29.7a R7/R8: "hand the poultice to Elowen",
   "give Elowen 30 gold": to another hero, before healing; `aidm.dm.hand_intent`),
-  `BarredIntent(text)` (M23.8: "go to <a locked exit>"; the
+  `LiftIntent` (M29.7a R18: "lift the link back out of his pouch": a keepsake an NPC here holds;
+  `aidm.dm.lift_intent`, before a give), `BarredIntent(text)` (M23.8: "go to <a locked exit>"; the
   world reason, `aidm.rules.gateway_lock`), `UseIntent` (M27.5: "light my torch", "use X on
   Y", "put out my torch"...; `aidm.dm.use_intent`, after the item commands), `HealIntent`
   (M29.5b: "drink my potion", "pour my potion into Rook", "cast cure wounds on Tamsin";
@@ -43,6 +44,7 @@ from aidm.dm.give_intent import GiveIntent, give_intent
 from aidm.dm.hand_intent import HeroHandIntent, hand_intent
 from aidm.dm.heal_intent import HealIntent, heal_intent
 from aidm.dm.help_intent import HelpUpIntent, help_up_intent
+from aidm.dm.lift_intent import LiftIntent, lift_intent
 from aidm.dm.rest_words import wordy_rest
 from aidm.dm.sentence import normalise, own_reading
 from aidm.dm.use_intent import UseIntent, item_phrase, light_first, use_intent
@@ -106,6 +108,7 @@ type Intent = (
     | HelpUpIntent
     | GiveIntent
     | HeroHandIntent
+    | LiftIntent
     | BarredIntent
     | UseIntent
     | HealIntent
@@ -251,7 +254,7 @@ def precheck(state: GameState, actor_id: str, text: str) -> Intent | None:
         return LookIntent(look_around_text(state))
     if _INVENTORY.fullmatch(clean):
         return InventoryIntent(actor_id)
-    given = give_intent(state, actor_id, clean)
+    given = lift_intent(state, actor_id, clean) or give_intent(state, actor_id, clean)
     if given is not None:
         return given
     handed = hand_intent(state, actor_id, clean)

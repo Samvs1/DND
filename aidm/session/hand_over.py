@@ -12,12 +12,17 @@
   M29.7a R8) share ONE path to another hero: `rules.hero_handing.hand_events`, then the engine
   line of the hand-over is told (no model call); a refusal is the rules' plain reason.
 
-Public API: `take_intent`, `give`, `give_intent`, `hand`, `hand_intent`.
+- `lift_intent` (typed "lift the link back out of his pouch", M29.7a R18):
+  `rules.lifting.lift_events` (a Sleight of Hand check; the keepsake moves on a success, the
+  NPC notices on a failure), then `telling.conclude` tells it.
+
+Public API: `take_intent`, `give`, `give_intent`, `hand`, `hand_intent`, `lift_intent`.
 """
 
 from aidm.dm.event_text import event_line
 from aidm.dm.give_intent import GiveIntent
 from aidm.dm.hand_intent import HeroHandIntent
+from aidm.dm.lift_intent import LiftIntent
 from aidm.dm.narration_templates import template_line
 from aidm.dm.precheck import TakeIntent
 from aidm.models.item_events import HandedOver
@@ -27,6 +32,7 @@ from aidm.models.state import Creature
 from aidm.rules.equipment import EquipRefused, take_events
 from aidm.rules.handing import GiveRefused, give_events
 from aidm.rules.hero_handing import HandRefused, hand_events
+from aidm.rules.lifting import LiftRefused, lift_events
 from aidm.session.table_core import Player, TableCore
 from aidm.session.telling import conclude, follow_ups, remember, tell_text
 
@@ -105,3 +111,20 @@ async def _hand(core: TableCore, player: Player, intent: HeroHandIntent) -> None
         line for e in applied if isinstance(e, HandedOver) and (line := event_line(core.state, e))
     ]
     await remember(core, await tell_text(core, " ".join(lines)), applied)
+
+
+async def lift_intent(core: TableCore, player: Player, intent: LiftIntent) -> None:
+    try:
+        events = lift_events(
+            core.state,
+            intent.actor_id,
+            intent.npc_id,
+            intent.keepsake_id,
+            core.rng,
+            core.regs.tiers,
+        )
+    except LiftRefused as refused:
+        core.error(player.id, ErrorCode.REFUSED, refused.detail, "lift_refused")
+        return
+    core.apply_all(events)
+    await conclude(core, None, events, actor_id=intent.actor_id)

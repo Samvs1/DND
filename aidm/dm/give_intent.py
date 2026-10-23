@@ -1,18 +1,24 @@
 """Typed handing-over (M23.3, GOAL "Items": "give the bell-tongue to Yeva" is deterministic).
 
 `give_intent(state, actor_id, clean)` reads the precheck's normalised sentence ("give the
-tide-orders to gorran", "hand over the hymnal to the cantor", "show the letter to venk", "give
-yeva the bell-tongue") and returns a `GiveIntent` when it names a thing the actor carries (a
-keepsake first, then an inventory item; words compared through `rules.quest_items.item_words`)
+tide-orders to gorran", "hand over the hymnal to the cantor", "give yeva the bell-tongue") and
+returns a `GiveIntent` when it names a thing the actor carries (a keepsake first, then an
+inventory item; words compared through `rules.quest_items.item_words`; M29.7a R18: showing is
+not giving, "show" is no hand-over verb; R23: a keepsake is also named by its description, or,
+when its quest's deliver step names this NPC, by any word it shares with the name: "the bent
+silver coin" is "Mord's Coin" for Mord)
 and a known, living NPC (a present one first, by name or role; when two records fit, the one an
 active quest's deliver step names). The NPC need not be here: the
 rules then refuse in plain words ("Yeva Mossbell is not here."), as they refuse a hostile one.
 M29.5c G31: the hero's own name with a third-person verb ("Rook hands the scroll over to Ranna,
-giving it into her hands") reads the same, a trailing clause cut. A sentence naming nothing
-carried or nobody known is None and goes on to the adjudicator ("give
-my thanks to Yeva" is roleplay). The rules decide (`aidm.rules.handing.give_events`).
+giving it into her hands") reads the same, a trailing clause cut. A sentence naming nobody known
+is None and goes on to the adjudicator; so is an abstract gift or coin ("give my thanks to
+Yeva", "give him a coin": `hand_intent.ABSTRACT_GIFTS`, `_MONEY`). M29.7a R23: a concrete thing
+the actor does not carry is still an intent (`thing` ""), so the rules say so plainly instead
+of a storyteller gift. The rules decide (`aidm.rules.handing.give_events`).
 
-Public API: `GiveIntent(actor_id, npc_id, thing)` (`thing` a keepsake id or an inventory key),
+Public API: `GiveIntent(actor_id, npc_id, thing)` (`thing` a keepsake id, an inventory key,
+or "" for nothing carried),
 `give_intent(state, actor_id, clean) -> GiveIntent | None`.
 """
 
@@ -20,6 +26,7 @@ import re
 from dataclasses import dataclass
 
 from aidm.dm.entities import display_name
+from aidm.dm.hand_intent import ABSTRACT_GIFTS
 from aidm.models.quests import StepKind
 from aidm.models.state import Creature, GameState
 from aidm.models.world import QuestState, WorldNpc
@@ -29,22 +36,23 @@ from aidm.rules.scene import current_scene
 
 _THING = r"(?:my |the |a |an |this |that |our )?(?P<{}>[a-z0-9 ,'-]+?)"
 _GIVE = re.compile(
-    r"(?:give|hand|pass|offer|present|show|deliver)(?: over| back)? "
+    r"(?:give|hand|pass|offer|present|deliver|return)(?: over| back)? "
     + _THING.format("item")
     + r"(?: over| back)? to (?:the )?(?P<who>[a-z0-9' -]+?)|"
-    r"(?:give|hand|pass|offer|show) (?P<who2>[a-z0-9' -]+?) "
+    r"(?:give|hand|pass|offer|return) (?P<who2>[a-z0-9' -]+?) "
     r"(?:my |the |our |this |that )(?P<item2>[a-z0-9 ,'-]+?)"
 )
 
 
+_PRONOUNS = frozenset({"it", "them", "this", "that", "these", "those", "one", "him", "her"})
 _THIRD = {
     "gives": "give",
     "hands": "hand",
     "passes": "pass",
     "offers": "offer",
     "presents": "present",
-    "shows": "show",
     "delivers": "deliver",
+    "returns": "return",
 }
 
 
@@ -64,14 +72,49 @@ def _fits(wanted: frozenset[str], name: str) -> bool:
     return bool(wanted) and bool(have) and (wanted <= have or have <= wanted)
 
 
-def _thing(actor: Creature, name: str) -> str | None:
+_MONEY = re.compile(
+    r"(?:\d+|some|a few|a|an|one|two|three|a handful of|a bit of|a little)? ?"
+    r"(?:gold|silver|copper|coin|coins|gold coins?|silver coins?|copper coins?|gp|sp|cp|money)"
+    r"(?: pieces?| coins?)?"
+)
+
+
+def _delivers_to(state: GameState, quest_id: str | None, npc_id: str) -> bool:
+    """A quest (side, favour or main route) whose deliver step names this NPC."""
+    if quest_id is None:
+        return False
+    quest = state.world.quests.get(quest_id)
+    steps = list(quest.steps) if quest is not None else []
+    if state.campaign is not None:
+        mains = main_quests(state.campaign.plan)
+        steps += [s for m in mains if m.id == quest_id for r in m.routes for s in r.steps]
+    return any(s.kind is StepKind.DELIVER and s.npc == npc_id for s in steps)
+
+
+def _keepsake(state: GameState, actor: Creature, wanted: frozenset[str], npc_id: str) -> str | None:
+    assert actor.pc is not None
+    held = actor.pc.keepsakes
+    named = next((k.id for k in held if _fits(wanted, k.name)), None)
+    described = next((k.id for k in held if k.description and _fits(wanted, k.description)), None)
+    owed = [
+        k.id
+        for k in held
+        if _delivers_to(state, k.quest_id, npc_id)
+        and wanted & (_words(k.name) | _words(k.description))
+    ]
+    return named or described or (owed[0] if owed else None)
+
+
+def _thing(state: GameState, actor: Creature, name: str, npc_id: str) -> str | None:
+    """The keepsake or item named; "" for a concrete thing not carried; None for an abstract
+    gift or coin (the adjudicator)."""
     if actor.pc is None:
         return None
     wanted = _words(name)
-    keepsake = next((k.id for k in actor.pc.keepsakes if _fits(wanted, k.name)), None)
+    keepsake = _keepsake(state, actor, wanted, npc_id)
     if keepsake is not None:
         return keepsake
-    return next(
+    item = next(
         (
             e.item
             for e in actor.pc.inventory
@@ -79,6 +122,11 @@ def _thing(actor: Creature, name: str) -> str | None:
         ),
         None,
     )
+    if item is not None:
+        return item
+    plain = name.strip().removeprefix("some ")
+    abstract = not wanted or wanted & ABSTRACT_GIFTS or wanted <= _PRONOUNS
+    return None if abstract or _MONEY.fullmatch(plain) else ""
 
 
 def _npc_fits(npc: WorldNpc, wanted: frozenset[str]) -> bool:
@@ -138,8 +186,10 @@ def _intent(state: GameState, actor: Creature, reading: str) -> GiveIntent | Non
         item, npc_id = match["item"], _receiver(state, match["who"], anywhere=True)
     else:
         item, npc_id = match["item2"], _receiver(state, match["who2"], anywhere=False)
-    thing = _thing(actor, item)
-    if npc_id is None or thing is None:
+    if npc_id is None:
+        return None
+    thing = _thing(state, actor, item, npc_id)
+    if thing is None:
         return None
     return GiveIntent(actor.id, npc_id, thing)
 
@@ -148,4 +198,5 @@ def give_intent(state: GameState, actor_id: str, clean: str) -> GiveIntent | Non
     actor = state.creatures.get(actor_id)
     if actor is None:
         return None
-    return next((i for r in _readings(actor, clean) if (i := _intent(state, actor, r))), None)
+    found = [i for r in _readings(actor, clean) if (i := _intent(state, actor, r)) is not None]
+    return next((i for i in found if i.thing), found[0] if found else None)

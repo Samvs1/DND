@@ -17,6 +17,7 @@ from typing import assert_never
 
 from aidm.models.quest_events import (
     KeepsakeGiven,
+    KeepsakeTaken,
     QuestAskDeclined,
     QuestAsked,
     QuestLeadAdded,
@@ -36,6 +37,7 @@ type QuestEvent = (
     | QuestAsked
     | QuestAskDeclined
     | KeepsakeGiven
+    | KeepsakeTaken
 )
 
 QUEST_EVENT_TYPES = (
@@ -46,6 +48,7 @@ QUEST_EVENT_TYPES = (
     QuestAsked,
     QuestAskDeclined,
     KeepsakeGiven,
+    KeepsakeTaken,
 )
 
 
@@ -101,6 +104,18 @@ def _given(state: GameState, event: KeepsakeGiven) -> None:
     npc.keepsakes.append(keepsake.model_copy())
 
 
+def _taken(state: GameState, event: KeepsakeTaken) -> None:
+    creature = state.creatures.get(event.creature_id)
+    npc = state.world.npcs.get(event.npc_id)
+    if creature is None or creature.pc is None or npc is None:
+        raise ReducerError(f"no hero {event.creature_id!r} or npc {event.npc_id!r} to take from")
+    keepsake = next((k for k in npc.keepsakes if k.id == event.keepsake_id), None)
+    if keepsake is None:
+        raise ReducerError(f"npc {event.npc_id!r} holds no keepsake {event.keepsake_id!r}")
+    npc.keepsakes.remove(keepsake)
+    creature.pc.keepsakes.append(keepsake.model_copy())
+
+
 def quest_updated(state: GameState, quest: Quest) -> None:
     world = state.world
     world.quests[quest.id] = quest
@@ -153,5 +168,7 @@ def apply_quest_event(state: GameState, event: QuestEvent) -> None:
             _declined(state, quest_id)
         case KeepsakeGiven():
             _given(state, event)
+        case KeepsakeTaken():
+            _taken(state, event)
         case _:
             assert_never(event)

@@ -38,6 +38,7 @@ from aidm.dm.give_intent import GiveIntent
 from aidm.dm.hand_intent import HeroHandIntent
 from aidm.dm.heal_intent import HealIntent
 from aidm.dm.help_intent import HelpUpIntent
+from aidm.dm.lift_intent import LiftIntent
 from aidm.dm.llm_types import ToolCall
 from aidm.dm.precheck import (
     BarredIntent,
@@ -242,6 +243,8 @@ async def resolve_action(core: TableCore, entry: QueueEntry) -> None:
         await hand_over.give_intent(core, player, intent)
     elif isinstance(intent, HeroHandIntent):
         await hand_over.hand_intent(core, player, intent)
+    elif isinstance(intent, LiftIntent):
+        await hand_over.lift_intent(core, player, intent)
     elif isinstance(intent, UseIntent):
         await _gear_use(core, player, entry, intent)
     elif isinstance(intent, HealIntent):

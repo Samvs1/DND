@@ -15,6 +15,8 @@ Public API:
 - `QuestAskDeclined(quest_id)`: "Not now": the card closes, the quest stays offered.
 - `KeepsakeGiven(creature_id, keepsake_id, npc_id)`: the hero hands a keepsake to an NPC; it
   leaves the hero and joins `WorldNpc.keepsakes`.
+- `KeepsakeTaken(creature_id, keepsake_id, npc_id)` (M29.7a R18): the hero lifted a keepsake
+  the NPC holds (`aidm.rules.lifting`); it leaves `WorldNpc.keepsakes` and joins the hero.
 - `QuestEvents`: the union of these classes.
 """
 
@@ -73,6 +75,13 @@ class KeepsakeGiven(_QuestEvent):
     npc_id: str = Field(min_length=1)
 
 
+class KeepsakeTaken(_QuestEvent):
+    type: Literal["keepsake_taken"] = "keepsake_taken"
+    creature_id: str = Field(min_length=1)
+    keepsake_id: str = Field(min_length=1)
+    npc_id: str = Field(min_length=1)
+
+
 QuestEvents = (
     QuestStepDone
     | RouteDiscovered
@@ -81,4 +90,5 @@ QuestEvents = (
     | QuestAsked
     | QuestAskDeclined
     | KeepsakeGiven
+    | KeepsakeTaken
 )
