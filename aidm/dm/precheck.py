@@ -20,7 +20,8 @@ Public API:
   `LiftIntent` (M29.7a R18: "lift the link back out of his pouch": a keepsake an NPC here holds;
   `aidm.dm.lift_intent`, before a give), `ParleyIntent` (M29.7a R4: talking to the foes while an
   encounter offer waits answers it as parley, `aidm.dm.parley_intent`), `BarredIntent(text)`
-  (M23.8: "go to <a locked exit>"; the world reason, `aidm.rules.gateway_lock`), `UseIntent`
+  (M23.8: "go to <a locked exit>"; the world reason, `aidm.rules.gateway_lock`; M29.7c R24:
+  "pick the lock on <a locked exit>" too, no check, `aidm.dm.lock_intent`), `UseIntent`
   (M27.5: "light my torch", "use X on Y", "put out my torch"...; `aidm.dm.use_intent`, after
   the item commands), `HealIntent` (M29.5b: "drink my potion", "pour my potion into Rook",
   "cast cure wounds on Tamsin"; `aidm.dm.heal_intent`, after a give to an NPC); a rest named
@@ -49,6 +50,7 @@ from aidm.dm.hand_intent import HeroHandIntent, hand_intent
 from aidm.dm.heal_intent import HealIntent, heal_intent
 from aidm.dm.help_intent import HelpUpIntent, help_up_intent
 from aidm.dm.lift_intent import LiftIntent, lift_intent
+from aidm.dm.lock_intent import barred_lock_reason
 from aidm.dm.parley_intent import ParleyIntent, parley_intent
 from aidm.dm.rest_words import wordy_rest
 from aidm.dm.sentence import normalise, own_reading
@@ -279,6 +281,9 @@ def precheck(state: GameState, actor_id: str, text: str) -> Intent | None:
     travel = _TRAVEL.fullmatch(clean)
     if travel:
         return _travel(state, scene, travel["dest"])
+    barred = barred_lock_reason(state, scene.locked_exits, clean)  # M29.7c R24: no check
+    if barred is not None:
+        return BarredIntent(barred)
     found = item_command(state, actor_id, clean) or light_first(state, actor_id, clean)
     found = found or use_intent(state, actor_id, clean)
     take = _TAKE.fullmatch(clean)

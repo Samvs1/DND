@@ -54,7 +54,7 @@ from aidm.rules.equipment import (
     unequip_events,
 )
 from aidm.rules.items import use_item_events
-from aidm.rules.leveling import LevelUpInvalid, can_level_up, level_up
+from aidm.rules.leveling import LevelUpInvalid, level_up, level_up_refusal
 from aidm.rules.offer_answer import OfferRefused, answer_offer
 from aidm.rules.rests import RestRefused, long_rest, rest_refused_text, short_rest
 from aidm.rules.scrolls import ScrollCopyRefused, copy_scroll_to_spellbook, scroll_spell_index
@@ -207,8 +207,9 @@ async def level(core: TableCore, player: Player, msg: LevelUp) -> None:
     if core.combat_active():  # M20.4: as in the video game, levels are taken between fights
         core.error(player.id, ErrorCode.WRONG_PHASE, "Level up when the fight is over.")
         return
-    if not can_level_up(pc):
-        core.error(player.id, ErrorCode.REFUSED, "Your hero is not ready to level up yet.")
+    refusal = level_up_refusal(pc)
+    if refusal is not None:  # M29.7c R25: say why (a downed hero first stands up)
+        core.error(player.id, ErrorCode.REFUSED, f"Not yet: {refusal}.")
         return
     try:
         events = level_up(pc, msg.choices, core.regs.combat.chars)

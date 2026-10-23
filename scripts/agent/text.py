@@ -228,13 +228,16 @@ def no_fight_text(state: Msg) -> str:
 
 
 def level_up_names(state: Msg, hero_id: str | None = None) -> list[str]:
-    """Every living hero whose XP reached the next level (M29.5b G24: the view flagged only the
-    hero whose seat asked); `hero_id` is one the server already said can level up."""
+    """Every standing hero whose XP reached the next level (M29.5b G24: the view flagged only the
+    hero whose seat asked; M29.7c R25: a downed hero cannot level up, so it is not offered);
+    `hero_id` is one the server already said can level up."""
     out: list[str] = []
     for c in state.get("party", []):
         level, xp = c.get("level"), c.get("xp")
         due = isinstance(level, int) and isinstance(xp, int) and level < MAX_LEVEL
-        if c["id"] == hero_id or (due and not c.get("dead") and level_for_xp(xp) > level):
+        hp = c.get("hp")  # M29.7c R25: a downed hero cannot level up (the rule), so no offer
+        standing = not c.get("dead") and (not isinstance(hp, int) or hp > 0)
+        if c["id"] == hero_id or (due and standing and level_for_xp(xp) > level):
             out.append(c["name"])
     known = {c["id"] for c in state.get("party", [])}
     return [hero_id] + out if hero_id is not None and hero_id not in known else out

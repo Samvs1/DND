@@ -9,7 +9,8 @@ Public API:
   or a negative amount), plus a log-only `LevelUpReady` when the total newly reaches the next level
   (M5.6 flag; `already` is XP granted earlier in the same unapplied batch). Levels are taken with
   `level_up`, never automatically.
-- `can_level_up(creature) -> bool`: a living PC under MAX_LEVEL with enough XP.
+- `can_level_up(creature) -> bool`: a living PC under MAX_LEVEL with enough XP;
+  `level_up_refusal(creature) -> str | None` (why not, M29.7c R25).
 - `validate_level_up(creature, choices, regs) -> list[CreationError]`: every problem; [] = valid.
 - `level_up(creature, choices, regs) -> list[AnyEvent]`: `LevelGained` (HP: fixed average + CON
   modifier per level with the new CON for every level, plus feature HP per level; current HP
@@ -93,7 +94,13 @@ def _gate_errors(creature: Creature) -> list[CreationError]:
     if pc is None:
         return [_err(_E.NOT_A_PC, "creature", f"{creature.id!r} is not a player character")]
     if creature.dead or creature.hp == 0:
-        return [_err(_E.CANNOT_LEVEL_NOW, "creature", "a downed character cannot level up")]
+        return [
+            _err(
+                _E.CANNOT_LEVEL_NOW,
+                "creature",
+                "a downed hero must be back on their feet to level up",
+            )
+        ]
     if pc.level >= MAX_LEVEL:
         return [_err(_E.MAX_LEVEL_REACHED, "level", f"level {MAX_LEVEL} is the cap")]
     needed = xp_for_level(pc.level + 1)
@@ -104,6 +111,12 @@ def _gate_errors(creature: Creature) -> list[CreationError]:
 
 def can_level_up(creature: Creature) -> bool:
     return not _gate_errors(creature)
+
+
+def level_up_refusal(creature: Creature) -> str | None:
+    """Why `creature` cannot level up now (None: it can), M29.7c R25."""
+    errors = _gate_errors(creature)
+    return errors[0].detail if errors else None
 
 
 def _subclass(cls: ClassDef, level: int, choices: LevelUpChoices) -> list[CreationError]:
