@@ -1,13 +1,15 @@
 """The gear bots' decisions and assertions (M27.10): pure helpers over the public views."""
 
+import json
 import random
+from pathlib import Path
 
 from aidm.models.item_events import ItemUseRefused
 from aidm.models.state import GameState
 from scripts.sim.checks import hero_up
 from scripts.sim.client import Msg
 from scripts.sim.combat import Plan
-from scripts.sim.gear import refusal_runs
+from scripts.sim.gear import refusal_runs, tail_uses
 from scripts.sim.gear_fight import KIT_USE, gear_command, gear_key
 from tests.unit.rules.item_fixtures import DOCKS, at, hero
 
@@ -125,3 +127,15 @@ def test_m27_sim_unconscious_hero_cannot_propose() -> None:
     state.creatures["pc-1"].hp = 0  # unconscious, not dead: its bot cannot act
     assert not hero_up(state, "pc-1")
     assert not hero_up(state, "pc-unknown")
+
+
+def test_m29_kit_used_in_a_retried_wipe_still_counts(tmp_path: Path) -> None:
+    # M29.6: a retry cuts the wiped fight from the live log into events.<n>.defeat; the gear
+    # check must still see the healer's kit used there (seed 3 failed after the tuning).
+    used = {"type": "item_used", "creature_id": "pc-1", "item": "healers-kit", "use_id": "kit"}
+    rows = [{"seq": 40, "event": used}, {"seq": 41, "event": {"type": "turn_ended"}}]
+    text = "\n".join(json.dumps(r) for r in rows)
+    (tmp_path / "events.1.defeat").write_text(text, encoding="utf-8")
+    assert tail_uses(tmp_path, "kit") == 1
+    assert tail_uses(tmp_path, "torch-light") == 0
+    assert tail_uses(tmp_path / "missing", "kit") == 0

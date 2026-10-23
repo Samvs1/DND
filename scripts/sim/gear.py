@@ -9,16 +9,20 @@
   the same search rolls without it, and the light is put out again before the next dark place.
 - `gear_failures`: what the engine's event log must show at the end of a seed: a light lit and
   put out, a combat item used in the fights, the healer's kit used whenever an ally lay dying on
-  the kit bearer's turn, and no refused use repeated over and over.
+  the kit bearer's turn, and no refused use repeated over and over. Uses made in a fight that
+  ended in a retried wipe live in the save's `events.<n>.defeat` tails (cut from the live log),
+  so those count too (M29.6: a tuned spoke wiped the party mid-kit in seed 3).
 
-Public API: `stock_up`, `dark_place`, `gear_failures`, `refusal_runs`.
+Public API: `stock_up`, `dark_place`, `gear_failures`, `refusal_runs`, `tail_uses`.
 """
 
 from collections import Counter
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from aidm.models.item_events import ItemUsed, ItemUseRefused, LightEnded, LightLit
 from aidm.rules.light import DARKNESS, DOUSED
+from aidm.session.metrics import load_defeat_tails
 from scripts.sim.bot import Bot
 from scripts.sim.checks import hero_up
 from scripts.sim.explore import scene_of
@@ -135,6 +139,21 @@ def refusal_runs(events: list[object]) -> list[str]:
     return out
 
 
+def tail_uses(folder: Path, use_id: str) -> int:
+    """`ItemUsed` of `use_id` in the save's retried-wipe tails (`events.<n>.defeat`)."""
+    tails = load_defeat_tails(folder) if folder.is_dir() else []
+    return sum(
+        1
+        for _, events in tails
+        for e in events
+        if e.get("type") == "item_used" and e.get("use_id") == use_id
+    )
+
+
+def _save(d: "Director") -> Path:
+    return d.srv.saves_dir / d.srv.table.state.campaign_id
+
+
 def gear_failures(d: "Director") -> list[str]:
     events = [entry.event for entry in d.srv.table.log]
     used = Counter(e.use_id for e in events if isinstance(e, ItemUsed))
@@ -148,7 +167,7 @@ def gear_failures(d: "Director") -> list[str]:
     if d.report.combats and not any(u in COMBAT_ITEM_USES for u in used):
         out.append(f"no combat item used in {d.report.combats} fights ({dict(used)})")
     chances = sum(b.plan.kit_chances for b in d.party.bots)
-    if chances and not used[KIT_USE]:
+    if chances and not used[KIT_USE] + tail_uses(_save(d), KIT_USE):
         out.append(f"an ally lay dying on the kit bearer's turn {chances}x; the kit was never used")
     d.report.gear["kit_chances"] += chances
     return out
