@@ -57,9 +57,10 @@ class TurnClock:
     end: TimerHandle | None = None
     warn: TimerHandle | None = None
     deadline: float | None = None  # clock time the turn runs out (None: no countdown shown)
+    restored_at: float | None = None  # M29.5b G37: when a save was loaded or retried
 
     def stop(self) -> None:
         for timer in (self.end, self.warn):
             if timer is not None:
                 timer.cancel()
-        self.end = self.warn = self.deadline = None
+        self.end = self.warn = self.deadline = None  # restored_at stays

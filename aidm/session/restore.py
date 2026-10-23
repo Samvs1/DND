@@ -62,6 +62,7 @@ def restore(core: TableCore, loaded: LoadedCampaign) -> None:
     enc = loaded.state.encounter
     core.in_combat = enc is not None and enc.status is EncounterStatus.ACTIVE
     core.resume_combat = core.in_combat
+    core.turn_clock.restored_at = core.config.clock.time()  # M29.5b G37: away seats get a grace
 
 
 type Seats = dict[str, tuple[str, str]]

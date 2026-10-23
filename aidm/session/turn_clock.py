@@ -9,8 +9,9 @@
   (`TableCore.turn_left`, sent as `floor.seconds_left`).
 - Reconnect grace: an owner whose last connection drops (their turn, or their turn comes up
   while they are away) keeps the turn for `GRACE_SECONDS` before the careful auto-turn
-  (`grace`, `grace_left`); coming back (`resume`) restarts their clock. A kicked hero plays at
-  once (`lobby.release_turn(grace=False)`).
+  (`grace`, `grace_left`); coming back (`resume`) restarts their clock. A seat restored by a
+  load or a retry and not connected since gets the same grace from the restore (M29.5b G37).
+  A kicked hero plays at once (`lobby.release_turn(grace=False)`).
 - `set_timer`: the host setting (`host_turn_timer`), persisted in table.json (`turn_timer`).
 
 Public API: `TURN_CHOICES`, `WARN_SECONDS`, `GRACE_SECONDS`, `WARN_TEXT`, `limit_for`, `start`,
@@ -54,10 +55,13 @@ def stop(core: TableCore) -> None:
 
 
 def grace_left(core: TableCore, owner: Player) -> float:
-    """Seconds an away owner still has to come back (0 when connected or long gone)."""
-    if owner.connected or owner.left_at is None:
+    """Seconds an away owner still has to come back (0 when connected or long gone). A seat
+    restored by a load or a retry that has not connected since counts as gone at the restore
+    (M29.5b G37: such heroes were auto-played at once)."""
+    since = owner.left_at if owner.left_at is not None else core.turn_clock.restored_at
+    if owner.connected or since is None:
         return 0.0
-    return max(0.0, core.config.grace_seconds - (core.config.clock.time() - owner.left_at))
+    return max(0.0, core.config.grace_seconds - (core.config.clock.time() - since))
 
 
 def grace(core: TableCore, key: str, owner: Player) -> None:
