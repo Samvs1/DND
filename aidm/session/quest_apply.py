@@ -18,6 +18,7 @@ from typing import assert_never
 from aidm.models.quest_events import (
     KeepsakeGiven,
     KeepsakeTaken,
+    LoreLearned,
     QuestAskDeclined,
     QuestAsked,
     QuestLeadAdded,
@@ -38,6 +39,7 @@ type QuestEvent = (
     | QuestAskDeclined
     | KeepsakeGiven
     | KeepsakeTaken
+    | LoreLearned
 )
 
 QUEST_EVENT_TYPES = (
@@ -49,6 +51,7 @@ QUEST_EVENT_TYPES = (
     QuestAskDeclined,
     KeepsakeGiven,
     KeepsakeTaken,
+    LoreLearned,
 )
 
 
@@ -170,5 +173,7 @@ def apply_quest_event(state: GameState, event: QuestEvent) -> None:
             _given(state, event)
         case KeepsakeTaken():
             _taken(state, event)
+        case LoreLearned(tag=tag):
+            world.learned[tag] = state.event_count
         case _:
             assert_never(event)

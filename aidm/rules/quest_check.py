@@ -12,9 +12,9 @@ boss), `deliver_item` (a delivered item is not obtained by a step of the same qu
 counts only quest items owned by the quest, M23.2; a main quest's routes share one owner),
 `route_hint` (a route's hint NPC does not live in the act region), `step_clear_arrival` (a
 `clear` of the arrival: it is safe, nothing to fight), `step_tag` (a `learn` tag the engine can
-never know in that act: no word of the act's places, the quests up to that act or the secrets of
-its residents), `route_peace_ally` (a Peace route on a boss without an ally path: the alliance
-resolution needs one).
+never know in that act: no clue item teaches it and no single place, other quest up to that act
+or resident's secret holds its words, `rules.plan_satisfy.learnable`), `route_peace_ally` (a
+Peace route on a boss without an ally path: the alliance resolution needs one).
 
 Public API: `MAX_SIDE_QUESTS`, `check_plan_quests(plan) -> list[Problem]` (empty when valid),
 `learnable_words(plan, act) -> frozenset[str]` (the words a `learn` tag of that act may use).
@@ -26,6 +26,7 @@ from aidm.models.campaign import Act, CampaignPlan
 from aidm.models.problem import Problem
 from aidm.models.quests import MAX_STEPS, QuestStep, RouteKind, StepKind
 from aidm.rules.plan_ids import boss_npc_id
+from aidm.rules.plan_satisfy import learnable
 from aidm.rules.quest_plan import main_quest, quest_steps
 from aidm.rules.secrets import fact_words, item_key
 
@@ -51,11 +52,11 @@ class _Region:
     """What the steps of one act may name."""
 
     def __init__(self, plan: CampaignPlan, act: Act) -> None:
+        self.plan = plan
         self.act = act
         self.nodes = {n.id for n in act.region.nodes()}
         self.residents = {n.id for n in plan.npcs if n.home_node in self.nodes}
         self.npcs = self.residents | {boss_npc_id(act.region)}
-        self.words = learnable_words(plan, act)
 
 
 def _step(region: _Region, owner: str, step: QuestStep) -> list[Problem]:
@@ -69,7 +70,7 @@ def _step(region: _Region, owner: str, step: QuestStep) -> list[Problem]:
         out.append(_problem("step_npc", owner, msg))
     if step.kind is StepKind.CLEAR and step.nodes == (region.act.region.arrival.id,):
         out.append(_problem("step_clear_arrival", owner, "the arrival is safe, nothing to clear"))
-    if step.kind is StepKind.LEARN and not fact_words(step.tag or "") <= region.words:
+    if step.kind is StepKind.LEARN and not learnable(region.plan, region.act, owner, step):
         msg = f"tag {step.tag!r} can never be learned in act {region.act.index}"
         out.append(_problem("step_tag", owner, msg))
     return out

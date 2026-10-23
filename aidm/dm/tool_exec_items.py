@@ -8,6 +8,8 @@ value, at most `MAX_KEEPSAKES` per hero. M23.3: a name that looks like an engine
 item (`rules.quest_items.quest_item_named`) never makes a lookalike: a copy lying visible here
 is picked up for real (`take_events`, as `take_item`); one lying elsewhere, hidden, carried or
 already handed over is refused as a tool error, so the model narrates something else.
+M29.9b T13: `teaches` makes the found object a clue for a tag a learn step asks now
+(`rules.lore.wanted_tags`; any other tag is refused); taking up a clue records `LoreLearned`.
 
 Public API: `MAX_KEEPSAKES`, `run_take_item`, `run_give_keepsake`.
 """
@@ -20,6 +22,7 @@ from aidm.models.state import Creature, GameState
 from aidm.models.world_events import KeepsakeGained
 from aidm.rules.dice import Rng
 from aidm.rules.equipment import EquipRefused, take_events
+from aidm.rules.lore import lore_events, wanted_tags
 from aidm.rules.quest_items import Spot, quest_item_named
 
 MAX_KEEPSAKES = 20
@@ -70,11 +73,24 @@ def run_give_keepsake(
         raise ToolRefused(f"{pc.name} already carries {MAX_KEEPSAKES} keepsakes")
     if any(k.name.casefold() == args.name.strip().casefold() for k in held):
         raise ToolRefused(f"{pc.name} already carries the {args.name}")
+    teaches = _teaches(state, args.teaches)
     taken = [k.id for c in state.creatures.values() if c.pc is not None for k in c.pc.keepsakes]
     keepsake = Keepsake(
         id=new_entity_id("keepsake", args.name, [*taken, *state.world.items]),
         name=args.name.strip(),
         description=args.description.strip(),
+        teaches=teaches,
     )
-    event = KeepsakeGained(creature_id=pc.id, keepsake=keepsake)
-    return ToolResult(events=(event,), summary=f"{pc.name} now carries the {keepsake.name}")
+    events = (KeepsakeGained(creature_id=pc.id, keepsake=keepsake), *lore_events(pc.id, keepsake))
+    return ToolResult(events=events, summary=f"{pc.name} now carries the {keepsake.name}")
+
+
+def _teaches(state: GameState, tag: str | None) -> str | None:
+    """M29.9b T13: a found note may tell what a learn step asks, never any other tag."""
+    if tag is None or not tag.strip():
+        return None
+    wanted = tag.strip().lower()
+    if wanted not in wanted_tags(state):
+        listed = ", ".join(sorted(wanted_tags(state))) or "none"
+        raise ToolRefused(f"teaches {tag!r} is not a tag the party is learning (open: {listed})")
+    return wanted

@@ -2,11 +2,13 @@
 
 The epilogue may only tell what actually happened, so its input is exactly these facts and
 nothing else (no motives, no unrevealed secrets, no plan flavour): how each region was resolved
-(defeat or alliance) and by which route the party finished (M23.9: by force, or the Peace route's
-title; a finished Cunning route that helped), the finale's question and the ending the party
+(defeat or alliance) and by which route the party finished (M23.9: by force, or the Peace
+route; a finished Cunning route that helped; M29.9b T21: told by the engine's deeds of the
+route's steps, never its title, and an ally "sided with the party": the roster stays the
+heroes), the finale's question and the ending the party
 chose (with the plan's ending text, public once chosen), who fell and who survived, how every
-side quest and favour ended (completed, failed, left behind, let go, never taken up, left
-unfinished; main quests are told by their regions), where each NPC's attitude ended (the public
+quest ended (completed, failed, left behind, let go, never taken up, left unfinished; M29.9b
+T21: the main quests too), where each NPC's attitude ended (the public
 band only), the secrets the party really learned, and every entry of the fact ledger.
 `template_epilogue` is the safe fallback: it lists the same facts in plain past-tense sentences,
 and a defeated boss is only ever "defeated". M29.5c G35: each boss's fate comes from the final
@@ -32,6 +34,7 @@ from aidm.rules.plan_ids import main_quest_id
 from aidm.rules.progression import boss_defeated, boss_npc
 from aidm.rules.quest_plan import main_quest
 from aidm.rules.social import public_npc_view
+from aidm.rules.step_text import state_names, step_deed
 
 MAX_LEDGER_FACTS = 24
 MAX_ATTITUDES = 10
@@ -42,8 +45,8 @@ class RegionOutcome:
     region: str
     boss: str
     how: RegionResolution | None
-    peace: str = ""  # the finished Peace route's title (M23.9)
-    cunning: str = ""  # the finished Cunning route's title
+    peace: str = ""  # M29.9b T21: the deeds of the finished Peace route ("met X, then ...")
+    cunning: str = ""  # the deeds of the finished Cunning route
     fate: str = ""  # M29.5c G35: DEAD or TURNED from the final state ("" alive and as resolved)
 
 
@@ -112,10 +115,12 @@ def _quest_word(quest: QuestOutcome) -> str:
 
 def _region_line(region: RegionOutcome) -> str:
     if region.how is RegionResolution.DEFEAT:
-        helped = f" Cunning paved the way first: {region.cunning}." if region.cunning else ""
+        helped = (
+            f" Cunning paved the way first: the party {region.cunning}." if region.cunning else ""
+        )
         return f"In {region.region}, {region.boss} was defeated by force.{helped}"
     if region.how is RegionResolution.ALLIANCE:
-        way = f", by the way of peace: {region.peace}" if region.peace else ""
+        way = f", after the party {region.peace}" if region.peace else ""
         if region.fate == DEAD:
             return (
                 f"In {region.region}, {region.boss} was won over{way}, but later died in a fight."
@@ -125,7 +130,7 @@ def _region_line(region: RegionOutcome) -> str:
                 f"In {region.region}, {region.boss} was won over{way}, but turned on the party at"
                 " the last and still lives."
             )
-        return f"In {region.region}, {region.boss} was won over and joined the party{way}."
+        return f"In {region.region}, {region.boss} was won over and sided with the party{way}."
     if region.fate == DEAD:
         return f"In {region.region}, {region.boss} was slain."
     return f"{region.region} was never resolved."
@@ -147,7 +152,8 @@ def _fate(state: GameState, act: Act) -> str:
 
 
 def _finished_route(state: GameState, act: Act, kind: RouteKind) -> str:
-    """The title of the act's main-quest route of `kind` the party finished, else ""."""
+    """What the party did on the act's main-quest route of `kind` it finished (M29.9b T21: the
+    engine's deeds of its steps, never the model's route title), else ""."""
     campaign = state.campaign
     known = state.world.quests.get(main_quest_id(act.region))
     if campaign is None or known is None:
@@ -155,7 +161,8 @@ def _finished_route(state: GameState, act: Act, kind: RouteKind) -> str:
     for route in main_quest(campaign.plan, act.index).routes:
         progress = known.route(route.id)
         if route.kind is kind and progress is not None and progress.steps_done >= len(route.steps):
-            return route.title
+            names = state_names(state)
+            return ", then ".join(step_deed(s, names) for s in route.steps)
     return ""
 
 
@@ -185,6 +192,12 @@ def _quest_outcome(quest: Quest) -> QuestOutcome:
     return QuestOutcome(quest.title, quest.state, quest.closed_reason)
 
 
+def _quests(state: GameState) -> tuple[QuestOutcome, ...]:
+    """M29.9b T21: every quest, the main quests first (they were missing from "Completed")."""
+    quests = sorted(state.world.quests.values(), key=lambda q: q.kind is not QuestKind.MAIN)
+    return tuple(_quest_outcome(q) for q in quests)
+
+
 def epilogue_facts(state: GameState) -> EpilogueFacts:
     campaign = state.campaign
     if campaign is None:
@@ -200,9 +213,7 @@ def epilogue_facts(state: GameState) -> EpilogueFacts:
         finale=_finale_outcome(state),
         fallen=tuple(c.name for c in pcs if c.dead),
         survivors=tuple(c.name for c in pcs if not c.dead),
-        quests=tuple(
-            _quest_outcome(q) for q in state.world.quests.values() if q.kind is not QuestKind.MAIN
-        ),
+        quests=_quests(state),
         attitudes=tuple(
             (n.name, n.role or "no stated role", n.attitude.value)
             for n in npcs

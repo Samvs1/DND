@@ -46,7 +46,7 @@ def test_never_an_undiscovered_route() -> None:
 def test_a_discovered_route_shows_its_step_and_where_its_item_is() -> None:
     _, state, _ = fresh()  # Dessa Orrin (the Peace hint) stands at the arrival: route known
     text = _quests(state)
-    assert f"Known way: {PEACE_TITLE} [the-tide-orders]: now: Find the Choir's" in text
+    assert f"Known way: {PEACE_TITLE} [the-tide-orders]: now: Find the Choir tide-orders" in text
     assert "Choir tide-orders: not found yet" in text  # hidden: never its place
     assert "lies at" not in text
     state.world.items[TIDE].hidden = False
@@ -68,7 +68,7 @@ def test_the_card_offers_and_an_active_side_quest() -> None:
     line = next(ln for ln in text.splitlines() if "The Missing Ledger" in ln)
     assert line.startswith("- Active side quest: The Missing Ledger [missing-ledger]")
     assert "for Tobin Marrow: Recover the harbour ledger" in line
-    assert "now: Drive the smugglers out of the Saltcellar Tunnels, step 1 of 2" in line
+    assert "now: Win the fight at Saltcellar Tunnels, step 1 of 2" in line
 
 
 def test_offered_quest_names_its_giver_and_where_they_are() -> None:

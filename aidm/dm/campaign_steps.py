@@ -30,7 +30,6 @@ from aidm.models.dm_tiers import AttitudeBand
 from aidm.models.problem import Problem
 from aidm.models.quests import MAX_STEP_COUNT, MAX_STEPS, QuestStep, StepKind
 from aidm.rules.plan_ids import boss_npc_id
-from aidm.rules.quest_check import learnable_words
 from aidm.rules.quest_items import same_item
 from aidm.rules.quest_plan import short_text
 from aidm.rules.secrets import fact_words, item_key
@@ -48,7 +47,7 @@ class StepDraft(Draft):
     npc: str | None = Field(default=None, max_length=40)
     item: str | None = Field(default=None, max_length=40)
     count: int = Field(default=1, description="obtain only: copies to gather, 1-5")
-    hidden: bool = Field(default=False, description="obtain only: must be searched for")
+    hidden: bool = Field(default=False, description="obtain or a learn clue: must be searched for")
     band: AttitudeBand | None = Field(default=None, description="win_over: friendly or ally")
     tag: str | None = Field(default=None, max_length=24, description="learn: one word")
 
@@ -67,12 +66,11 @@ class StepDraft(Draft):
 
 @dataclass(frozen=True)
 class ActNames:
-    """What the steps of one act may name: name key -> id indexes and the learnable words."""
+    """What the steps of one act may name: name key -> id indexes."""
 
     act: Act
     places: dict[str, str]
     npcs: dict[str, str]
-    words: frozenset[str]
 
     @classmethod
     def build(cls, plan: CampaignPlan, act: Act) -> ActNames:
@@ -81,7 +79,7 @@ class ActNames:
         homes = set(places.values())
         npcs = {name_key(n.name): n.id for n in plan.npcs if n.home_node in homes}
         npcs.setdefault(name_key(region.boss.name), boss_npc_id(region))
-        return cls(act, places, npcs, learnable_words(plan, act))
+        return cls(act, places, npcs)
 
     @property
     def first_spoke(self) -> str:
@@ -168,11 +166,16 @@ def _win_over(names: ActNames, draft: StepDraft) -> _Resolved:
 
 
 def _learn(names: ActNames, draft: StepDraft) -> _Resolved:
+    """M29.9b T13: a learn step may name a clue item (a note, a carving) at one place; a tag
+    nothing in the act teaches gets a clue from `rules.plan_satisfy`, it is no longer free."""
     tag = (draft.tag or "").strip().lower()
-    words = fact_words(tag)
-    if not words or not words <= names.words:
-        raise _Unresolved(f"tag {draft.tag!r} can never be learned in act {names.act.index}")
-    return {"tag": tag}, None
+    if not fact_words(tag):
+        raise _Unresolved(f"tag {draft.tag!r} names no word to learn")
+    if not draft.item or not draft.item.strip():
+        return {"tag": tag}, None
+    nodes = _places(names, draft)[:1] or [names.first_spoke]
+    fields = {"tag": tag, "item": draft.item.strip(), "nodes": tuple(nodes)}
+    return fields | {"hidden": draft.hidden}, None
 
 
 def _free(names: ActNames, draft: StepDraft) -> _Resolved:

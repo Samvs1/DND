@@ -74,7 +74,8 @@ def test_m29_shared_item_goes_to_one_person_p8_clapper() -> None:
     assert len(_named(act_quest_items(plan, 1), "Cold Clapper")) == 1
     side = next(q for q in plan.quests if q.id == "the-cold-clapper")
     assert [s.kind for s in side.steps] == [StepKind.OBTAIN, StepKind.MEET]
-    assert side.steps[1].npc == "sister-ondra" and "Show the Cold Clapper" in side.steps[1].text
+    assert side.steps[1].npc == "sister-ondra"
+    assert side.steps[1].text == "Meet Sister Ondra"  # M29.9b: the engine's line of a meet
     assert any("only shown it" in n.message for n in notes)
 
 
@@ -108,7 +109,7 @@ def test_m29_clear_step_text_names_what_the_place_fields() -> None:
     assert route is not None
     clear = route.steps[0]
     assert clear.kind is StepKind.CLEAR
-    assert clear.text == "Win the fight at Gallowroot Copse (stirge, goblin)"
+    assert clear.text == "Win the fight at Gallowroot Copse"  # M29.9b T2: no themed foes
     p4, _ = _repaired("r2-p4")
     texts = [s.text for a in p4.acts for r in (a.main.routes if a.main else ()) for s in r.steps]
     assert not any("Flood" in t or "Sever" in t for t in texts)

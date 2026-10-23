@@ -149,6 +149,7 @@ def _moved(state: GameState, event: PartyMoved) -> None:
     left_place(state)  # the alert and the place-scoped gear boons stay behind (M27.3)
     if event.to_node not in world.visited:
         world.visited.append(event.to_node)
+    world.arrived[event.to_node] = state.event_count  # M29.9b: visits count while a quest is on
     refresh_travel(state)
 
 

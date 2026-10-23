@@ -23,8 +23,8 @@ FORCE_LINE = (
     "0 of 3 places seen; next: Rotting Boathouse."
 )
 PEACE_LINE = (
-    "Turn the master of Gullmere Quay against the Choir: Find the Choir's tide-orders in the"
-    " Saltcellar Tunnels. Where: Saltcellar Tunnels. It is hidden there: search when you arrive."
+    "Turn the master of Gullmere Quay against the Choir: Find the Choir tide-orders at Saltcellar"
+    " Tunnels. Where: Saltcellar Tunnels. It is hidden there: search when you arrive."
 )
 
 
@@ -47,8 +47,8 @@ def test_golden_what_now_after_accepting_the_ledger() -> None:
     _, state, log = fresh()
     accept(state, LEDGER, log)
     assert what_now(state)[2] == (
-        "The Missing Ledger (for Tobin Marrow): Drive the smugglers out of the Saltcellar"
-        " Tunnels. Where: Saltcellar Tunnels."
+        "The Missing Ledger (for Tobin Marrow): Win the fight at Saltcellar Tunnels."
+        " Where: Saltcellar Tunnels."
     )
 
 

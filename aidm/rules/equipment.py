@@ -31,6 +31,7 @@ from aidm.models.world_events import EquipmentChanged, ItemPlaced, ItemRemoved, 
 from aidm.rules.defense import armor_class
 from aidm.rules.features import feature_ac_bonus
 from aidm.rules.item_grants import carried_qty
+from aidm.rules.lore import lore_events
 
 SHIELD = "Shield"
 _SLOTS = ("armor", "shield", "main_hand", "off_hand", "ranged")
@@ -171,8 +172,11 @@ def take_events(state: GameState, creature: Creature, item_id: str) -> list[AnyE
         raise EquipRefused(EquipRefusal.NOT_HERE, "that is not lying here")
     gone = ItemRemoved(item_id=item.id)
     if item.catalog_id is None:
-        keepsake = Keepsake(id=item.id, name=item.name[:40], quest_id=item.quest_id)
-        return [gone, KeepsakeGained(creature_id=creature.id, keepsake=keepsake)]
+        keepsake = Keepsake(
+            id=item.id, name=item.name[:40], quest_id=item.quest_id, teaches=item.teaches
+        )
+        gained = KeepsakeGained(creature_id=creature.id, keepsake=keepsake)
+        return [gone, gained, *lore_events(creature.id, keepsake)]  # M29.9b T13: a clue
     qty = carried_qty(creature, item.catalog_id) + item.qty
     stack = InventoryChanged(creature_id=creature.id, item=item.catalog_id, delta=item.qty, qty=qty)
     return [gone, stack]

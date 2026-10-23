@@ -5,11 +5,13 @@ A learn step needs a fact the party learned for it, never any older fact with th
 while current (`aidm.rules.quest_steps.steps_met`), so a source that is true NOW is learned for
 the step: the party stands at a place whose name holds the tag (it went there to learn it), a
 discovered feature here holds it, a revealed secret of someone here holds it, or a finished
-quest's title holds it (a deed done once, named in the step's line). A visit long ago no longer
+quest's title holds it (a deed done once, named in the step's line), or (M29.9b T13) a living
+hero carries a clue keepsake that teaches the tag. A visit long ago no longer
 counts. Secrets revealed by a known fact still use `secrets.engine_knows` (any time).
 
-Public API: `learn_source(state, tag) -> str | None` (what teaches it now, as a short line; None
-when nothing does).
+Public API: `learn_source(state, tag, *, here_counts=True) -> str | None` (what teaches it now,
+as a short line; None when nothing does; `here_counts=False` leaves out the sources bound to the
+party's place, M29.9b: those count only after an arrival made while the quest is active).
 """
 
 from aidm.models.state import GameState
@@ -22,12 +24,23 @@ def _holds(wanted: set[str], *texts: str) -> bool:
     return wanted <= fact_words(*texts)
 
 
-def learn_source(state: GameState, tag: str) -> str | None:
+def learn_source(state: GameState, tag: str, *, here_counts: bool = True) -> str | None:
     wanted = fact_words(tag)
-    world = state.world
-    here = world.current_node
     if not wanted:
         return None
+    found = _here_source(state, wanted) if here_counts else None
+    if found is not None:
+        return found
+    for quest in state.world.quests.values():
+        if quest.state is QuestState.COMPLETED and _holds(wanted, quest.id, quest.title):
+            return f"the party finished {quest.title}"
+    return _clue_held(state, tag)
+
+
+def _here_source(state: GameState, wanted: set[str]) -> str | None:
+    """The sources bound to the party's place: its name, a feature or a told secret here."""
+    world = state.world
+    here = world.current_node
     if here is not None and _holds(wanted, here, world.node_names.get(here, "")):
         return f"the party is at {node_display_name(state, here)}"
     for feature in world.features.values():
@@ -38,7 +51,16 @@ def learn_source(state: GameState, tag: str) -> str | None:
         told = [s.text for s in npc.secrets if s.revealed]
         if npc.node_id == here and not npc.dead and told and _holds(wanted, *told):
             return f"{npc.name} told the party"
-    for quest in world.quests.values():
-        if quest.state is QuestState.COMPLETED and _holds(wanted, quest.id, quest.title):
-            return f"the party finished {quest.title}"
+    return None
+
+
+def _clue_held(state: GameState, tag: str) -> str | None:
+    """M29.9b T13: a living hero carries a keepsake that teaches the tag (the clue in hand)."""
+    for creature in state.creatures.values():
+        pc = creature.pc
+        if pc is None or creature.dead:
+            continue
+        clue = next((k for k in pc.keepsakes if k.teaches == tag), None)
+        if clue is not None:
+            return f"{creature.name} carries the {clue.name}"
     return None

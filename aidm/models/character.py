@@ -61,6 +61,7 @@ class Keepsake(BaseModel):
     name: str = Field(min_length=1, max_length=MAX_KEEPSAKE_NAME)
     description: str = Field(default="", max_length=MAX_KEEPSAKE_TEXT)
     quest_id: str | None = None  # M23: a quest item (engine-placed); None: flavour only
+    teaches: str | None = None  # M29.9b T13: the learn tag it carries (held or read: learned)
 
 
 class Equipped(BaseModel):

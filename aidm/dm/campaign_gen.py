@@ -70,14 +70,17 @@ Rules the engine checks:
   A boss is one person: never list them again among the NPCs under a shorter name.
 - Write short, evocative flavour. NPC motives and secrets are for the game master only.
 Quests (the engine checks every step itself; use the exact names you defined):
-- A step is a kind plus short player text (max 100 characters): visit (places: 1-3 places to
-  reach), clear (places: one place whose fight must be won; never the arrival; its text is that
-  fight against the place's encounter_themes, no other deed or creature), defeat (npc:
-  who must fall), obtain (item: a short item name; places: where it lies; count: copies, 1-5;
-  hidden: true if it must be searched for), deliver (item: obtained by an earlier step of the
-  SAME quest or route; npc: who receives it), meet (npc: reach them alive and not hostile),
-  win_over (npc; band friendly or ally), learn (tag: one lowercase word from a place name, a
-  quest title or an NPC secret of that act), free (text only; the game master judges it; rare).
+- A step is a kind plus a short note (max 100 characters; the engine writes the line players read
+  from the step's fields, so put the story in the quest objective): visit (places: 1-3 places to
+  reach), clear (places: one place whose fight must be won; never the arrival), defeat (npc: who
+  must fall), obtain (item: a short item name; places: where it lies; count: copies, 1-5; hidden:
+  true if it must be searched for), deliver (item: obtained by an earlier step of the SAME quest or
+  route; npc: who receives it), meet (npc: reach them alive and not hostile), win_over (npc; band
+  friendly or ally), learn (tag: one lowercase word from a place name, a quest title or an NPC
+  secret of that act; or item + one place: a note, letter or carving lying there that tells it),
+  free (text only; the game master judges it; rare).
+- A side quest never meets the boss (meeting the boss belongs to the main quest) and never
+  sends the party to its giver's own place.
 - Every place, NPC and item a step names belongs to the quest's own act: a place of that act's
   region, an NPC living there, or that act's boss. Quest items lie at a named place of the act.
 - Fighting through (explore the region, defeat the boss) is built by the engine; never write it.

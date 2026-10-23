@@ -18,6 +18,7 @@ from typing import Any
 from aidm.models.quest_events import (
     KeepsakeGiven,
     KeepsakeTaken,
+    LoreLearned,
     QuestAskDeclined,
     QuestAsked,
     QuestLeadAdded,
@@ -140,6 +141,13 @@ def _taken(state: GameState, e: KeepsakeTaken) -> str:
     return f"{who} lifts the {thing} from {npc.name if npc is not None else 'them'}."
 
 
+def _lore(state: GameState, e: LoreLearned) -> str:
+    """M29.9b T13: what the clue told, as a plain fact (the tag, never a secret)."""
+    hero = state.creatures.get(e.creature_id)
+    who = hero.name if hero is not None else "Someone"
+    return f"{who} learns about {e.tag} from the {e.item}."
+
+
 def _left(e: QuestUpdated) -> bool:
     return e.quest.closed_reason is ClosedReason.LEFT_BEHIND
 
@@ -232,6 +240,7 @@ QUEST_EVENT_LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     RouteDiscovered: _route_fact,
     KeepsakeGiven: _given,
     KeepsakeTaken: _taken,
+    LoreLearned: _lore,
 }
 
 # M29.5c G36: model-only instructions, kept out of the lines players can see
@@ -249,4 +258,5 @@ QUEST_TEMPLATE_LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = 
     RouteDiscovered: _route_story,
     KeepsakeGiven: _given,
     KeepsakeTaken: _taken,
+    LoreLearned: _lore,
 }

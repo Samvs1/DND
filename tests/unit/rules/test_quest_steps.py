@@ -4,7 +4,7 @@ from aidm.models.character import InventoryItem, Keepsake
 from aidm.models.dm_tiers import AttitudeBand
 from aidm.models.quests import QuestStep, StepKind
 from aidm.models.state import GameState
-from aidm.models.world import Fact
+from aidm.models.world import Fact, Quest
 from aidm.rules.milestones import clear_key
 from aidm.rules.quest_steps import npc_meetable, step_count, step_met, steps_met
 from aidm.rules.social import ALLY_BAR
@@ -25,13 +25,23 @@ def _hero(state: GameState) -> str:
     return next(cid for cid, c in sorted(state.creatures.items()) if c.pc is not None)
 
 
+def _active(state: GameState, step: QuestStep) -> None:
+    """`OWNER` accepted now (M29.9b: only arrivals after `active_since` count)."""
+    quest = Quest(id=OWNER, title="Ledger", steps=(step,), active_since=state.event_count)
+    state.world.quests[OWNER] = quest
+
+
 def test_visit_counts_each_place() -> None:
     state = _state()
     step = QuestStep(kind=StepKind.VISIT, text="Explore", nodes=SPOKES)
+    _active(state, step)
     assert step_count(state, step, OWNER) == 0
-    state.world.visited += list(SPOKES[:2])
+    state.world.visited += list(SPOKES)  # earlier visits never count (T3 T14)
+    assert step_count(state, step, OWNER) == 0
+    for node in SPOKES[:2]:
+        state.world.arrived[node] = state.event_count + 1
     assert step_count(state, step, OWNER) == 2 and not step_met(state, step, OWNER)
-    state.world.visited.append(SPOKES[2])
+    state.world.arrived[SPOKES[2]] = state.event_count + 2
     assert step_met(state, step, OWNER)
 
 
@@ -80,9 +90,17 @@ def test_deliver_needs_the_npc_to_hold_it() -> None:
     assert step_met(state, step, OWNER)
 
 
+def _taken_on_early(state: GameState, step: QuestStep, since: int = 0) -> None:
+    """`OWNER` accepted at seq `since` (0: before the party arrived at the docks)."""
+    state.world.quests[OWNER] = Quest(id=OWNER, title="Ledger", steps=(step,), active_since=since)
+
+
 def test_meet_needs_the_npc_here_alive_and_not_hostile() -> None:
     state = _state()
     step = QuestStep(kind=StepKind.MEET, text="Bring word", npc=TOBIN)
+    _taken_on_early(state, step, since=state.event_count)
+    assert not step_met(state, step, OWNER)  # M29.9b: standing with Tobin when accepting
+    _taken_on_early(state, step)
     assert state.world.current_node == DOCKS and step_met(state, step, OWNER)
     state.world.npcs[TOBIN].hostile = True
     assert not npc_meetable(state, TOBIN)
@@ -108,11 +126,14 @@ def test_win_over_reaches_the_band_floor() -> None:
 def test_learn_reads_what_the_engine_knows_never_ledger_facts() -> None:
     state = _state()
     step = QuestStep(kind=StepKind.LEARN, text="Find the tunnels", tag="saltcellar")
+    _taken_on_early(state, step, since=state.event_count)
     state.world.facts.append(Fact(id="f1", text="The saltcellar tunnels exist"))
     assert not step_met(state, step, OWNER)
     state.world.visited.append(SPOKES[1])
     assert not step_met(state, step, OWNER)  # M29.7c R1: an old visit is not learned for it
     state.world.current_node = SPOKES[1]
+    assert not step_met(state, step, OWNER)  # M29.9b: there at acceptance, no arrival since
+    state.world.arrived[SPOKES[1]] = state.event_count + 1
     assert step_met(state, step, OWNER)
 
 
@@ -120,6 +141,7 @@ def test_free_never_moves_and_steps_are_sequential() -> None:
     state = _state()
     free = QuestStep(kind=StepKind.FREE, text="Something only the story can judge")
     meet = QuestStep(kind=StepKind.MEET, text="Bring word", npc=TOBIN)
+    _taken_on_early(state, meet)
     assert not step_met(state, free, OWNER)
     assert steps_met(state, (free, meet), 0, OWNER) == 0
     assert steps_met(state, (free, meet), 1, OWNER) == 2

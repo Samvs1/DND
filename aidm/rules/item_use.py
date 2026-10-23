@@ -2,7 +2,8 @@
 
 The AI proposes (`use_item(actor, item, target?)`, M27.5), the engine disposes. In order:
 1. the actor is a hero carrying the CATALOGUE item (matched by catalogue id or name; a keepsake
-   never counts, even one named "Rope");
+   never counts, even one named "Rope"); M29.9b T13: a carried clue keepsake (`teaches`) is
+   read instead, its only use: one `LoreLearned` (`aidm.rules.lore`);
 2. one item use per action: an `ItemUsed` by the same hero among `prior` (the events already
    produced for this action) refuses the next;
 3. a use of that item (`candidate_uses`: data/bg3/item_uses.json, optionally the one `use_id`;
@@ -81,6 +82,7 @@ from aidm.rules.dice import Rng
 from aidm.rules.item_effects import UseCtx, effect_events, gear_name
 from aidm.rules.light import hero_light, place_dark
 from aidm.rules.locks import key_open, locked_here
+from aidm.rules.lore import read_events
 from aidm.rules.progression import node_plan
 from aidm.rules.projection import project_state
 
@@ -304,6 +306,9 @@ def use_item(
     actor = state.creatures.get(actor_id)
     if actor is None:
         return [refused(actor_id, item, "Only a hero carries gear to use.")]
+    lore = read_events(state, actor_id, item)  # M29.9b T13: reading a clue keepsake
+    if lore:
+        return list(lore)
     entry = carried_gear(state, actor, item)
     if isinstance(entry, str):
         return [refused(actor_id, item, entry)]

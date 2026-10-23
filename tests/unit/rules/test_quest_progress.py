@@ -79,7 +79,7 @@ def test_active_side_quest_steps_then_completes_and_pays_once() -> None:
     _accept(state, LEDGER)
     state.campaign.milestones.append(clear_key(TUNNELS))
     first = _pass(state)
-    line = "Drive the smugglers out of the Saltcellar Tunnels"
+    line = "Win the fight at Saltcellar Tunnels"  # M29.9b: the engine's step line
     assert first == [QuestStepDone(quest_id=LEDGER, step=0, log_line=line)]
     assert _pass(state) == []  # Tobin is at the docks, the party is not
     state.world.current_node = "gullmere-quay-docks"
@@ -103,7 +103,7 @@ def test_a_done_step_discovers_an_unknown_route_first() -> None:
             quest_id=MAIN,
             route_id=PEACE,
             step=0,
-            log_line="Find the Choir's tide-orders in the Saltcellar Tunnels",
+            log_line="Find the Choir tide-orders at Saltcellar Tunnels",
         ),
     ]
 

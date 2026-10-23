@@ -83,19 +83,22 @@ def test_facts_carry_the_chosen_ending_after_the_regions() -> None:
 def test_facts_tell_each_region_route_and_how_the_side_quests_ended() -> None:
     facts = epilogue_facts(_routes_walked())
     text = "\n".join(facts.lines())
-    assert (
-        "In Gullmere Quay, Gorran Hookhand was won over and joined the party, by the way of"
-        " peace: Turn Gorran against the Choir." in text
+    assert (  # M29.9b T21: an ally sided with the party; the route told by its deeds
+        "In Gullmere Quay, Gorran Hookhand was won over and sided with the party, after the"
+        " party found the Choir tide-orders at Saltcellar Tunnels, then gave the Choir"
+        " tide-orders to Gorran Hookhand." in text
     )
     assert (
         "In The Kelpglass Reach, Cantor Ashmere Voll was defeated by force. Cunning paved the"
-        " way first: Take the tower unseen." in text
+        " way first: the party won the fight at Harrowmere Bridge, then met Old Marek"
+        " Thistlewood." in text
     )
+    assert "joined the party" not in text and "Take the tower unseen" not in text
     assert "Tallow Point was never resolved." in text
     assert "Quest The Missing Ledger: completed." in text
     assert "Quest Break the Smugglers: left behind." in text
     assert "Quest The Warden's Signet: never taken up." in text
-    assert "Fog on the Quay" not in text  # main quests are told by their regions
+    assert "Quest Fog on the Quay: completed." in text  # M29.9b T21: main quests listed too
     assert facts.finale is None
 
 
@@ -107,7 +110,7 @@ def test_template_epilogue_tells_the_chosen_ending_and_passes_the_guard() -> Non
     assert f"They chose: Silence the song. {SILENCE_TEXT}" in text
     assert not epilogue_checker(state, facts)(text).violations
     sides = " ".join(template_epilogue(epilogue_facts(_routes_walked())))
-    assert "Completed quests: The Missing Ledger." in sides
+    assert "Completed quests: Fog on the Quay, The Kelpglass Reach, The Missing Ledger." in sides
     assert "Left behind: Break the Smugglers." in sides
     assert "Never taken up: The Warden's Signet." in sides
 

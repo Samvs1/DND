@@ -11,12 +11,14 @@ XP, gold or items, `quest_rewards`). Rules (`favour_events`, each refusal a `Fav
 - the step is one of `FAVOUR_KINDS` (no `free`: the engine closes favours; no `obtain`: nothing
   is placed for a favour); its places and NPCs are known and lie in the party's CURRENT region
   (closed world); `deliver` names a flavour keepsake a hero carries; `clear` is never the
-  arrival; the step is not met already (a favour asks for something still to do). M29.9a T17:
+  arrival; the step is not met already (a favour asks for something still to do; M29.9b: a
+  visit never names the place the party stands at, as only later arrivals count). M29.9a T17:
   `pay` names the NPC to pay (the asker too) and the price; its `gold` is stored as the total
   that NPC must have been paid (what they had before plus the price), so old coins never count.
-The id is `favour-<n>`; title and objective (the step text) are the model's words, shown as
-written. Not now withdraws a favour (failed + `withdrawn`, no deed, `rules.quest_offers`); an
-offered favour whose card is gone (the party moved on) lapses the same way
+The id is `favour-<n>`; title and objective are the model's words, shown as written; the step
+line is the engine's (`rules.step_text`, M29.9b T3). Not now withdraws a favour (failed +
+`withdrawn`, no deed, `rules.quest_offers`); an offered favour whose card is gone (the party
+moved on) lapses the same way
 (`favour_lapse_events`); a favour is left behind with its region (`rules.quest_leaving`).
 
 Public API: `FAVOUR_KINDS`, `FavourRefused`, `open_favour(state) -> Quest | None`,
@@ -38,6 +40,7 @@ from aidm.rules.progression import region_of
 from aidm.rules.quest_steps import step_met
 from aidm.rules.secrets import item_key
 from aidm.rules.social import npc_is_hostile
+from aidm.rules.step_text import state_names, step_text
 
 FAVOUR_KINDS = frozenset(
     {
@@ -158,7 +161,9 @@ def _check_step(state: GameState, step: QuestStep, asker: WorldNpc, owner: str) 
         _check_npc(state, step.npc, asker, step.kind)
     if step.kind is StepKind.DELIVER and not _carried_flavour(state, step.item or ""):
         raise FavourRefused("a favour delivers a keepsake a hero carries now (not a quest item)")
-    if step_met(state, step, owner):
+    here = state.world.current_node
+    done = here in step.nodes if step.kind is StepKind.VISIT else step_met(state, step, owner)
+    if done:
         raise FavourRefused("that is already done; a favour asks for something still to do")
 
 
@@ -174,6 +179,8 @@ def favour_events(state: GameState, npc_id: str, title: str, step: QuestStep) ->
     asker = _asker(state, npc_id)
     quest_id = _favour_id(state)
     _check_step(state, step, asker, quest_id)
+    asked = step.text  # the model's words: the objective; the step line is the engine's
+    step = step.model_copy(update={"text": step_text(step, state_names(state))})
     payee = state.world.npcs.get(step.npc or "")
     if step.kind is StepKind.PAY and payee is not None:  # the price on top of earlier coins
         step = step.model_copy(update={"gold": step.gold + payee.paid})
@@ -185,7 +192,7 @@ def favour_events(state: GameState, npc_id: str, title: str, step: QuestStep) ->
         state=QuestState.OFFERED,
         giver_npc_id=asker.id,
         kind=QuestKind.FAVOUR,
-        objective=step.text,
+        objective=asked,
         steps=(step,),
     )
     ask = QuestAsk(quest_id=quest_id, npc_id=asker.id, node_id=node)

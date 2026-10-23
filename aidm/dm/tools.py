@@ -260,6 +260,12 @@ class GiveKeepsakeArgs(_Args):
 
     name: str = Field(min_length=1, max_length=40)
     description: str = Field(default="", max_length=200)
+    teaches: str | None = Field(
+        default=None,
+        max_length=24,
+        description="only when the object tells what an open 'Learn about <tag>' step asks: "
+        "that tag (a note, a letter, a carving); otherwise leave it out",
+    )
 
 
 class UseItemArgs(_Args):

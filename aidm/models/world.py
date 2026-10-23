@@ -38,7 +38,8 @@ Public API:
 - `WorldItem(id, name, catalog_id, qty, node_id, hidden, discover_dc, quest_id)`: an item lying
   in a place (dropped, found); visible items are part of the manifest. A hidden item is found by
   a search check meeting `discover_dc` (M23.3); `quest_id` marks a quest item the engine placed
-  (picked up, it becomes a `Keepsake` with that `quest_id`).
+  (picked up, it becomes a `Keepsake` with that `quest_id`). M29.9b T13: `teaches`, the learn tag
+  a clue item carries (it goes along to the keepsake, `rules.lore`).
 - `World(current_node, neighbours, locked_nodes, visited, region_tier, scene_index, npcs,
   features, quests, facts, shop_npc_id, node_names, descriptions, items, lore_names,
   scene_turn)`: `neighbours` maps a node id to its legal travel neighbours (the region graph of
@@ -47,6 +48,10 @@ Public API:
   description of a node, stored once and never regenerated), `items` (world items by id),
   `lore_names` (world-bible names the guard allows), `scene_turn` (narrated turns in the
   current scene; reset by a move). The derived scene view is `aidm.rules.scene.current_scene`.
+  M29.9b: `arrived` (node id -> the seq of the party's last arrival there) and `learned` (learn
+  tag -> the seq of the last `LoreLearned`); `Quest.active_since` is the seq at which a side
+  quest or favour was accepted (None: a main quest, or a save from before), so a visit or a
+  lesson counts only when made while the quest is active (`aidm.rules.quest_steps`).
   M23: `leads` (quest leads), `quest_ask` (the pending quest offer, at most one);
   `WorldNpc.keepsakes` holds keepsakes handed to that NPC. A closed quest's `closed_reason`:
   `left_behind` (its region was left) or `withdrawn` (a favour let go, M23.5).
@@ -228,6 +233,7 @@ class Quest(BaseModel):
     routes: tuple[RouteProgress, ...] = ()
     log: tuple[str, ...] = Field(default=(), max_length=MAX_QUEST_LOG)
     closed_reason: ClosedReason | None = None
+    active_since: int | None = Field(default=None, ge=0)  # M29.9b: seq of the acceptance
 
     def route(self, route_id: str) -> RouteProgress | None:
         return next((r for r in self.routes if r.route_id == route_id), None)
@@ -278,6 +284,7 @@ class WorldItem(BaseModel):
     hidden: bool = False
     discover_dc: int | None = Field(default=None, ge=0)
     quest_id: str | None = None
+    teaches: str | None = None  # M29.9b T13: the learn tag a clue item carries
 
 
 class World(BaseModel):
@@ -307,6 +314,8 @@ class World(BaseModel):
     alerted_by: AlertCause | None = None  # M27.5: why `alerted` (old saves: None = noise)
     foraged: list[str] = Field(default_factory=list[str])  # M27.3
     charted: list[str] = Field(default_factory=list[str])  # M27.3
+    arrived: dict[str, int] = Field(default_factory=dict[str, int])  # M29.9b: node -> last seq
+    learned: dict[str, int] = Field(default_factory=dict[str, int])  # M29.9b: tag -> last seq
 
     @model_validator(mode="before")
     @classmethod

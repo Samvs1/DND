@@ -14,6 +14,9 @@ Public API:
 - `QuestStep(kind, text, nodes, npc, item, count, hidden, band, tag, gold)`: exactly the fields its
   kind needs (`STEP_FIELDS`); `goal()` is the count shown as x/N (visit: its nodes, obtain: its
   count, else 1). `obtain` places `count` copies of `item` over `nodes` (1..count places).
+  M29.9b T13: a `learn` step may name a clue `item` lying at ONE place (`nodes`, maybe
+  `hidden`): the engine places it, and it carries the step's `tag` (`rules.lore`). The `text`
+  of every kind but `free` is written by the engine from these fields (`rules.step_text`).
 - `RoutePlan(id, kind, title, hint_npc_id, steps, effect)`: `effect` only (and always) on Cunning.
 - `MainQuestPlan(routes)`: the stored routes of an act (Peace and/or Cunning, never Force).
 - `MainQuest(id, act, title, objective, routes)`: the derived main quest (Force first).
@@ -75,7 +78,7 @@ STEP_FIELDS: dict[StepKind, tuple[frozenset[str], frozenset[str]]] = {
     StepKind.DELIVER: (frozenset({"item", "npc"}), frozenset()),
     StepKind.MEET: (frozenset({"npc"}), frozenset()),
     StepKind.WIN_OVER: (frozenset({"npc", "band"}), frozenset()),
-    StepKind.LEARN: (frozenset({"tag"}), frozenset()),
+    StepKind.LEARN: (frozenset({"tag"}), frozenset({"item", "nodes", "hidden"})),
     StepKind.FREE: (frozenset(), frozenset()),
     StepKind.PAY: (frozenset({"npc", "gold"}), frozenset()),
 }
@@ -127,6 +130,8 @@ class QuestStep(_Plan):
             raise ValueError("a 'clear' step names exactly one place")
         if self.kind is StepKind.OBTAIN and len(self.nodes) > self.count:
             raise ValueError("an 'obtain' step places at most `count` copies")
+        if self.kind is StepKind.LEARN and (self.item is None) != (len(self.nodes) != 1):
+            raise ValueError("a 'learn' step's clue item lies at exactly one place")
         if self.band is AttitudeBand.HOSTILE:
             raise ValueError("a 'win_over' step cannot aim at a hostile attitude")
         return self

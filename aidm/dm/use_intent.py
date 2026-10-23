@@ -16,6 +16,8 @@
   the SRD improvised throw);
 - "open my pack", "unpack my dungeoneer's pack" (M29.3b): the sealed pack's `unpack` use;
 - "read the scroll of X" (M27.7: "... at/on Z"): a carried scroll that matches, aimed at Z;
+- M29.9b T13 (`clue_read`): "read / examine / study the <clue keepsake>", any sentence part after
+  it as `rest`: the read of a clue the hero carries (one `LoreLearned`);
 - "use X", "use X on Y": every use of X, aimed at Y;
 - "brew a poultice", "craft with my herbalism kit": a use with the verb (a long-rest use sets
   `at_rest`: the session proposes the rest and crafts during it).
@@ -78,6 +80,10 @@ _USE = re.compile(rf"use {_THE}{_THING}{_AT}(?P<target>[a-z0-9' -]+))?")
 _CRAFT = re.compile(
     rf"(?P<verb>brew|craft) {_THE}(?P<what>[a-z0-9' -]+?)"
     rf"(?: (?:with|using) {_THE}(?P<item>[a-z0-9 ,'-]+))?"
+)
+_STUDY = re.compile(
+    r"(?:read|reread|examine|study|inspect|peruse|unfold|look over|look at|pore over) "
+    rf"{_THE}{_THING}(?: (?:carefully|closely|again|aloud|out loud|slowly))*"
 )
 _LIGHT_WORDS = frozenset({"light", "flame", "fire", "wick"})
 _PURPOSE = re.compile(r" (?:so that|so|to|in order to|because|before|while|for) .+$")
@@ -219,10 +225,30 @@ def _crafter(actor: Creature, verb: str) -> str | None:
     )
 
 
+def clue_read(state: GameState, actor_id: str, clean: str) -> UseIntent | None:
+    """M29.9b T13: "read the note", "examine the spore-ink note carefully" (and the rest of a
+    compound sentence as `rest`) for a clue keepsake the hero carries (`rules.lore`); the read
+    is a use of that keepsake (`rules.item_use.use_item`). Anything else: None."""
+    actor = state.creatures.get(actor_id)
+    if actor is None or actor.pc is None:
+        return None
+    cut = split_clause(clean)
+    head, rest = cut if cut is not None else (clean, None)
+    m = _STUDY.fullmatch(head)
+    if m is None:
+        return None
+    wanted = words(m["item"])
+    clue = next((k for k in actor.pc.keepsakes if k.teaches and fits(wanted, k.name)), None)
+    return UseIntent(actor.id, clue.name, verb="read", rest=rest) if clue is not None else None
+
+
 def use_intent(state: GameState, actor_id: str, clean: str) -> UseIntent | None:
     actor = state.creatures.get(actor_id)
     if actor is None or actor.pc is None:
         return None
+    read = clue_read(state, actor_id, clean)
+    if read is not None:
+        return read
     aim = _PURPOSE.sub("", clean) if split_clause(clean) is None else clean
     if m := _PUT_OUT.fullmatch(aim):
         return _put_out(state, actor, m["item"] or m["item2"])

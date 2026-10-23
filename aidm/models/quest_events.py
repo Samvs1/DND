@@ -17,6 +17,9 @@ Public API:
   leaves the hero and joins `WorldNpc.keepsakes`.
 - `KeepsakeTaken(creature_id, keepsake_id, npc_id)` (M29.7a R18): the hero lifted a keepsake
   the NPC holds (`aidm.rules.lifting`); it leaves `WorldNpc.keepsakes` and joins the hero.
+- `LoreLearned(creature_id, item, tag)` (M29.9b T13): the hero took up or read a clue keepsake
+  that teaches `tag`; `World.learned[tag]` records the seq (a learn step counts it while its
+  quest is active, `aidm.rules.quest_steps`).
 - `QuestEvents`: the union of these classes.
 """
 
@@ -82,6 +85,13 @@ class KeepsakeTaken(_QuestEvent):
     npc_id: str = Field(min_length=1)
 
 
+class LoreLearned(_QuestEvent):
+    type: Literal["lore_learned"] = "lore_learned"
+    creature_id: str = Field(min_length=1)
+    item: str = Field(min_length=1)
+    tag: str = Field(min_length=1)
+
+
 QuestEvents = (
     QuestStepDone
     | RouteDiscovered
@@ -91,4 +101,5 @@ QuestEvents = (
     | QuestAskDeclined
     | KeepsakeGiven
     | KeepsakeTaken
+    | LoreLearned
 )

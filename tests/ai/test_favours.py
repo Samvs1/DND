@@ -58,6 +58,7 @@ def test_a_favour_is_asked_through_the_quest_card() -> None:
     assert favour.kind is QuestKind.FAVOUR and favour.state is QuestState.OFFERED
     assert favour.giver_npc_id == ASKER and favour.objective == VISIT["text"]
     assert [s.kind for s in favour.steps] == [StepKind.VISIT]
+    assert favour.steps[0].text == "Go to Rotting Boathouse"  # M29.9b T3: the engine's line
     assert state.world.quest_ask is not None and state.world.quest_ask.quest_id == "favour-1"
 
 
@@ -67,7 +68,7 @@ def test_a_favour_is_asked_through_the_quest_card() -> None:
         ({"npc": "wren-calloway"}, "not here"),  # at a spoke
         ({"npc": "nobody"}, "unknown"),
         ({"place": "harrowmere-bridge"}, "not a place of this region"),  # act 2
-        ({"place": "gullmere-quay-docks"}, "already done"),  # visited
+        ({"place": "gullmere-quay-docks"}, "already done"),  # the party stands there
         ({"kind": "clear", "place": "gullmere-quay-docks"}, "arrival"),
         ({"kind": "meet", "place": None, "target_npc": ASKER}, "other than the asker"),
         ({"kind": "meet", "place": None, "target_npc": "tobin-marrow"}, "already done"),
@@ -137,7 +138,7 @@ def test_a_done_favour_pays_goodwill_only() -> None:
     _favour(state, log)
     accept(state, "favour-1", log)
     before = state.world.npcs[ASKER].deeds
-    state.world.visited.append(SPOKE)  # the step is done (a move would also roll an offer)
+    state.world.arrived[SPOKE] = state.event_count  # done (a move would also roll an offer)
     out = settle(state, [], log)
     assert state.world.quests["favour-1"].state is QuestState.COMPLETED
     paid = (XpGained, GoldChanged, RewardGranted, InventoryChanged)
@@ -201,7 +202,7 @@ def test_favour_lines_for_the_model_and_the_players() -> None:
     assert template_line(state, asked) == "Dessa Orrin asks a favour of you: Check the boathouse."
     assert template_line(state, events[0]) is None  # the ask line says it
     accept(state, "favour-1", log)
-    state.world.visited.append(SPOKE)
+    state.world.arrived[SPOKE] = state.event_count  # M29.9b: an arrival after acceptance
     done = next(e for e in settle(state, [], log) if isinstance(e, QuestUpdated))
     assert "grateful (no reward)" in (event_line(state, done) or "")
     assert "They will remember it." in (template_line(state, done) or "")

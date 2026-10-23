@@ -12,29 +12,28 @@ model plan never reaches play (repair over reject, each repair a `quest_repair` 
 - a reward is never the quest's own item (R10): a `reward_item` with the words of an item a step
   of that quest obtains or delivers becomes "<giver>'s Token" (Favour, Keepsake... when taken;
   secrets revealed by showing the old reward follow the new name);
-- a `clear` step's text names the place and what it fields (R1): the model's text promised deeds
-  and creatures the place never had ("Snuff the bone-pyre the acolytes are stoking" at a copse of
-  stirges and goblins), so it becomes "Win the fight at <place> (<foes>)"; at a gateway the foe
-  is the master.
+- M29.9b: a side quest never meets a master and never visits its giver's home
+  (`rules.plan_steps`); every step nobody could finish is repaired (`rules.plan_satisfy`); last,
+  the engine writes the text of every checked step from its fields (`rules.step_text`; R1 and
+  T2: a `clear` step reads "Win the fight at <place>", never the foes the plan only themes).
 
 Public API: `repair_plan(plan, notes) -> CampaignPlan` (notes appended to `notes`).
 """
 
 from dataclasses import dataclass, field
 
-from aidm.data.srd import srd
 from aidm.models.campaign import (
     Act,
     CampaignPlan,
-    NodePlan,
     NpcPlan,
     QuestPlan,
-    RegionPlan,
     SecretPlan,
 )
 from aidm.models.problem import Problem
 from aidm.models.quests import MainQuestPlan, QuestStep, StepKind
 from aidm.rules.plan_ids import boss_npc_id, main_quest_id
+from aidm.rules.plan_satisfy import satisfy_plan
+from aidm.rules.plan_steps import engine_texts, home_visits, master_meets
 from aidm.rules.quest_items import item_words, same_item
 from aidm.rules.quest_plan import short_text
 from aidm.rules.secrets import item_key
@@ -42,7 +41,6 @@ from aidm.rules.secrets import item_key
 MAX_REWARD_ITEM = 60
 TOKENS = ("Token", "Favour", "Keepsake", "Thanks")
 SHOW = "Show the {item} to {npc}"
-CLEAR = "Win the fight at {place} ({foes})"
 
 
 def _note(owner: str, message: str) -> Problem:
@@ -195,41 +193,8 @@ def _renamed_reveals(npc: NpcPlan, renamed: dict[str, str]) -> NpcPlan:
     return npc.model_copy(update={"secrets": tuple(secrets)})
 
 
-def _foes(region: RegionPlan, node: NodePlan) -> str:
-    if node.id == region.gateway.id:
-        return region.boss.name
-    monsters = srd().monsters
-    found = (monsters.find(m) for m in node.encounter_themes)
-    return ", ".join(m.name.lower() for m in found if m is not None) or "its dangers"
-
-
-def _clear_text(region: RegionPlan, step: QuestStep) -> QuestStep:
-    node = next((n for n in region.nodes() if n.id == step.nodes[0]), None)
-    if node is None:
-        return step
-    text = short_text(CLEAR.format(place=node.name, foes=_foes(region, node)))
-    return step.model_copy(update={"text": text})
-
-
-def _clear_texts(plan: CampaignPlan) -> CampaignPlan:
-    def fixed(region: RegionPlan, steps: tuple[QuestStep, ...]) -> tuple[QuestStep, ...]:
-        return tuple(_clear_text(region, s) if s.kind is StepKind.CLEAR else s for s in steps)
-
-    acts: list[Act] = []
-    for act in plan.acts:
-        if act.main is not None:
-            routes = tuple(
-                r.model_copy(update={"steps": fixed(act.region, r.steps)}) for r in act.main.routes
-            )
-            act = act.model_copy(update={"main": MainQuestPlan(routes=routes)})
-        acts.append(act)
-    regions = {a.index: a.region for a in plan.acts}
-    quests = tuple(
-        q.model_copy(update={"steps": fixed(regions[q.act], q.steps)}) for q in plan.quests
-    )
-    return plan.model_copy(update={"acts": tuple(acts), "quests": quests})
-
-
 def repair_plan(plan: CampaignPlan, notes: list[Problem]) -> CampaignPlan:
-    repaired = _clear_texts(_fit_rewards(_shared_items(plan, notes), notes))
+    repaired = _fit_rewards(_shared_items(plan, notes), notes)
+    repaired = home_visits(master_meets(repaired, notes), notes)
+    repaired = engine_texts(satisfy_plan(repaired, notes))
     return CampaignPlan.model_validate(repaired.model_dump())

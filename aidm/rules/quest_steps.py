@@ -1,8 +1,10 @@
 """Engine checks of quest steps (M23, GOAL "Steps"). Pure, state-based.
 
-Every check reads the CURRENT state, so work done before a quest is accepted counts the moment
-it is active. A step is met when its count reaches `QuestStep.goal()`:
-- visit: its places in `World.visited` (x/N);
+Every check reads the CURRENT state. A step is met when its count reaches `QuestStep.goal()`:
+- visit (M29.9b T3 T14): its places the party ARRIVED at after the quest was accepted
+  (`World.arrived` after `Quest.active_since`; the place it stands at when it accepts does not
+  count until the next arrival); a main quest (active from the first step into its region) and
+  a save from before count `World.visited` (x/N);
 - clear: a fight there was won (or a parley succeeded): the spoke milestone `clear:<node>` in
   `CampaignState.milestones` (DECISIONS M23.2); a gateway counts once its boss is defeated;
 - defeat: the NPC is dead (`WorldNpc.dead`), or the step names a region boss and
@@ -12,10 +14,14 @@ it is active. A step is met when its count reaches `QuestStep.goal()`:
   that living heroes carry or have handed to someone, plus inventory entries with the item's key;
 - deliver: the NPC holds such a keepsake (`WorldNpc.keepsakes`, handed over by `KeepsakeGiven`);
   for a favour a flavour keepsake (no `quest_id`) of that name counts too (M23.5);
-- meet: the party stands where the NPC is, the NPC alive and not hostile;
+- meet: the party stands where the NPC is, the NPC alive and not hostile, and (M29.9b) the
+  party arrived there after the quest was accepted (`_fresh_here`; a main quest: always);
 - win_over: the NPC (alive, not hostile) reaches the band's floor score;
 - learn: something teaches the tag NOW (`rules.quest_learn.learn_source`, M29.7c R1: the place
-  the party stands at, a feature or secret here, a finished quest), never an old visit;
+  the party stands at, a feature or secret here, a finished quest, a clue a hero carries; the
+  sources bound to the place only after an arrival while the quest is active), never an old
+  visit; or a clue was held or read (`World.learned`, M29.9b T13) after the quest
+  was accepted;
 - free: never by itself (the AI proposes it through `update_quest`, `rules.quest_free`);
 - pay (M29.9a): the NPC's `WorldNpc.paid` total reaches the step's `gold` (`rules.paying`).
 
@@ -29,7 +35,7 @@ from collections.abc import Callable
 
 from aidm.models.quests import QuestKind, QuestStep, StepKind
 from aidm.models.state import GameState
-from aidm.models.world import WorldNpc
+from aidm.models.world import QuestState, WorldNpc
 from aidm.rules.milestones import clear_key
 from aidm.rules.plan_ids import boss_npc_id
 from aidm.rules.progression import boss_defeated
@@ -52,8 +58,31 @@ def npc_meetable(state: GameState, npc_id: str | None) -> bool:
     return npc.node_id == state.world.current_node and not npc_is_hostile(npc)
 
 
+def _since(state: GameState, owner: str) -> int | None:
+    """The seq after which a visit or a presence counts for `owner` (M29.9b T3 T14): its
+    acceptance; an offered quest counts only what comes next; None (a main quest, active from
+    the party's first step into its region, a save from before, or no registered quest: a
+    favour checked before it is asked) counts every visit."""
+    quest = state.world.quests.get(owner)
+    if quest is not None and quest.state is QuestState.OFFERED:
+        return state.event_count
+    return quest.active_since if quest is not None else None
+
+
+def _fresh_here(state: GameState, owner: str) -> bool:
+    """The party ARRIVED where it stands after `owner` was accepted (M29.9b: presence the
+    party had before, at acceptance, never closes a step; the next arrival does)."""
+    since = _since(state, owner)
+    here = state.world.current_node or ""
+    return since is None or state.world.arrived.get(here, -1) > since
+
+
 def _visit(state: GameState, step: QuestStep, owner: str) -> int:
-    return sum(1 for node in step.nodes if node in state.world.visited)
+    world = state.world
+    since = _since(state, owner)
+    if since is None:
+        return sum(1 for node in step.nodes if node in world.visited)
+    return sum(1 for node in step.nodes if world.arrived.get(node, -1) > since)
 
 
 def _clear(state: GameState, step: QuestStep, owner: str) -> int:
@@ -127,7 +156,7 @@ def _deliver(state: GameState, step: QuestStep, owner: str) -> int:
 
 
 def _meet(state: GameState, step: QuestStep, owner: str) -> int:
-    return int(npc_meetable(state, step.npc))
+    return int(npc_meetable(state, step.npc) and _fresh_here(state, owner))
 
 
 def _win_over(state: GameState, step: QuestStep, owner: str) -> int:
@@ -138,7 +167,12 @@ def _win_over(state: GameState, step: QuestStep, owner: str) -> int:
 
 
 def _learn(state: GameState, step: QuestStep, owner: str) -> int:
-    return int(learn_source(state, step.tag or "") is not None)
+    tag = step.tag or ""
+    since = _since(state, owner)
+    learned = state.world.learned.get(tag)
+    if learned is not None and (since is None or learned > since):
+        return 1  # M29.9b T13: a clue held or read while the quest is on (`rules.lore`)
+    return int(learn_source(state, tag, here_counts=_fresh_here(state, owner)) is not None)
 
 
 def _free(state: GameState, step: QuestStep, owner: str) -> int:

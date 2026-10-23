@@ -113,7 +113,7 @@ def ask_events(state: GameState, batch: Sequence[AnyEvent]) -> list[AnyEvent]:
 
 
 def _accepted(state: GameState, quest: Quest) -> Quest:
-    update: dict[str, object] = {"state": QuestState.ACTIVE}
+    update: dict[str, object] = {"state": QuestState.ACTIVE, "active_since": state.event_count}
     campaign = state.campaign
     plan = campaign.plan if campaign is not None else None
     planned = next((q for q in plan.quests if q.id == quest.id), None) if plan else None

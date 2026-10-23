@@ -76,7 +76,7 @@ def test_unresolvable_step_becomes_free_with_its_text() -> None:
     draft["quests"][1]["steps"][0]["places"] = ["The Dark Lantern Room"]  # an act-3 place
     plan, notes = _assemble(draft)
     ledger = _quest(plan, "The Missing Ledger").steps[1]
-    assert ledger == QuestStep(kind=StepKind.FREE, text="Bring word to Tobin Marrow")
+    assert ledger == QuestStep(kind=StepKind.FREE, text="Meet Tobin Marrow")
     assert _quest(plan, "Break the Smugglers").steps[0].kind is StepKind.FREE
     assert len(notes) == 2 and "became a free step" in _messages(notes)
     assert check_plan_quests(plan) == []
@@ -164,8 +164,39 @@ def test_unplayable_steps_are_repaired() -> None:
     steps.append({"kind": "learn", "text": "Learn of the tunnels", "tag": "Saltcellar"})
     plan, notes = _assemble(draft)
     got = _quest(plan, "The Missing Ledger").steps
-    assert [s.kind for s in got] == [StepKind.FREE] * 3 + [StepKind.LEARN]
-    assert got[3].tag == "saltcellar" and len(notes) == 2
+    kinds = [StepKind.FREE, StepKind.LEARN, StepKind.FREE, StepKind.LEARN]
+    assert [s.kind for s in got] == kinds
+    # M29.9b: a tag nothing in the act teaches gets an engine clue (it is no longer free)
+    assert (got[1].tag, got[1].item, got[1].text) == (
+        "dragon",
+        "Notes on Dragon",
+        "Learn about dragon from the Notes on Dragon",
+    )
+    assert got[3].tag == "saltcellar" and got[3].item is None
+    assert "a tag nothing in the act can teach" in _messages(notes)
+    assert check_plan_quests(plan) == []
+
+
+def test_m29_a_learn_step_may_name_its_clue() -> None:
+    """M29.9b T13: "Read the spore-ink note" is a learn step whose clue the engine places."""
+    draft = draft_from_plan()
+    draft["quests"][0]["steps"][1] = {
+        "kind": "learn",
+        "text": "Read the note the clerk left",
+        "tag": "ledger",
+        "item": "Clerk's Note",
+        "places": ["Rotting Boathouse"],
+        "hidden": True,
+    }
+    plan, _ = _assemble(draft)
+    step = _quest(plan, "The Missing Ledger").steps[1]
+    assert (step.kind, step.item, step.nodes, step.hidden) == (
+        StepKind.LEARN,
+        "Clerk's Note",
+        ("rotting-boathouse",),
+        True,
+    )
+    assert step.text == "Learn about ledger from Clerk's Note"
     assert check_plan_quests(plan) == []
 
 
