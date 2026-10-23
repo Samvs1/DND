@@ -642,6 +642,7 @@ Casters get more cantrips, spells and slots as they level up.
 - Your maximum hit points rise by a fixed average for your hit die (half the die plus one) plus your Constitution modifier, and your current hit points rise by the same amount, but levelling does not heal you to full. A hero who is down or dead cannot level up.
 - Spell slots you already spent stay spent when your slots grow.
 - A wizard adds two spells to their spellbook per level.
+- **Prepared spells grow, they are never re-picked.** The spells you have prepared stay prepared; the level only adds room (your spellcasting modifier plus your new level, so an ability score improvement to Intelligence or Wisdom counts at once). A wizard's new room is filled with the spells just written into the spellbook, then with the rest of the book; a cleric picks spells for the new room.
 
 ### Spell list
 

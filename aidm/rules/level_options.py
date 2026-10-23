@@ -101,9 +101,10 @@ def _spells(
         count = pick_count(casting.spellbook_per_level if book else 0, pool, have)
         if count:
             out["spells"] = _spell_group("spells", "Spellbook", count, pool - have, regs)
-        limit = prepared_spell_limit(cls, level, creature.abilities)
-        allowed = pool if not book else (have | pool)
-        out["prepared"] = _spell_group("prepared", "Prepared", limit, allowed, regs)
+        room = prepared_spell_limit(cls, level, creature.abilities) - len(pc.prepared)
+        allowed = (pool if not book else (have | pool)) - set(pc.prepared)
+        if room > 0 and allowed:  # M29.9a T20: the prepared spells stay; only the new room
+            out["prepared"] = _spell_group("prepared", "Prepared", room, allowed, regs)
         return out
     known = set(pc.spells_known)
     count = pick_count(

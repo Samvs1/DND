@@ -70,12 +70,16 @@ def test_golden_sheet_high_elf_wizard_l3() -> None:
     sheet = build_sheet(_wizard_l3(), REGS)
     # M3.6b: the default picks come from SHIPPED spells only, so the snapshot's cantrip and
     # spellbook indexes changed (Dancing Lights, Alarm... are hidden from pickers).
+    # M29.9a T20: level-ups fill the prepared room from the book, so 4 spells are prepared
+    # (the limit below) where the snapshot had kept the level 1 list.
     _snapshot("sheet_wizard_high_elf_l3", sheet)
     casting = sheet.spellcasting
     assert casting is not None
     # INT 12 + 1 = 13 (+1): DC 8 + 2 + 1 = 11, attack +3 (SRD Spellcasting Ability).
     assert (casting.ability, casting.save_dc, casting.attack_bonus) == (Ability.INT, 11, 3)
     assert casting.prepared_limit == 4  # INT mod 1 + wizard level 3
+    prepared = [s for g in casting.levels for s in g.spells if s.prepared and not s.always_prepared]
+    assert len(prepared) == 4
     assert len(casting.cantrips) == 3 + 1  # class cantrips + high elf cantrip
     slots = {g.level: [(s.current, s.maximum) for s in g.slots] for g in casting.levels}
     assert slots == {1: [(4, 4)], 2: [(2, 2)]}  # SRD Wizard table, 3rd level

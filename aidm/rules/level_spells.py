@@ -7,8 +7,11 @@ feature `expanded` grants (warlock patron), shipped spells only. Rules per caste
 - known and pact casters: new spells = `spells_known(new) - spells_known(old)` of a level they
   have slots for; they may also swap ONE known spell (`replace_spell` -> `replacement`).
 - spellbook casters (wizard): `spellbook_per_level` spells added to the book (slot levels only).
-- prepared casters: an optional new `prepared` list from the book (wizard) or the class list
-  (cleric), at most `prepared_spell_limit` with the new scores; None keeps the old list.
+- prepared casters: an optional `prepared` list from the book (wizard) or the class list
+  (cleric), at most `prepared_spell_limit` with the new scores. M29.9a T20: a level-up never
+  re-picks: the spells already prepared stay, the picked ones are added, and a wizard's free
+  room is filled with the spells just written into the book, then the rest of the book in
+  book order, up to the new limit (SRD 5.1: Int modifier + wizard level, at least 1).
 Before the class's `first_level` (ranger 1) nothing may be picked.
 
 Public API:
@@ -17,7 +20,7 @@ Public API:
 - `spell_learning_errors(pc, class_def, level, abilities, choices, regs, feature_ids, subclass)
   -> list[CreationError]` for the level being gained (`feature_ids` and `subclass` as they
   will be after it).
-- `learned_spell_lists(pc, class_def, choices) -> LearnedSpells`: the new
+- `learned_spell_lists(pc, class_def, choices, prepared_limit) -> LearnedSpells`: the new
   `cantrips`, `spells_known`, `spellbook`, `prepared` lists (valid choices only).
 """
 
@@ -172,7 +175,20 @@ def spell_learning_errors(
     return errors
 
 
-def learned_spell_lists(pc: PcData, class_def: ClassDef, choices: LevelUpChoices) -> LearnedSpells:
+def _prepared_list(
+    pc: PcData, choices: LevelUpChoices, uses_book: bool, prepared_limit: int
+) -> list[str]:
+    if prepared_limit <= 0:
+        return list(pc.prepared)
+    book: list[str] = [*choices.spells, *pc.spellbook] if uses_book else []
+    picked: list[str] = list(choices.prepared or [])
+    merged = list(dict.fromkeys([*pc.prepared, *picked, *book]))
+    return merged[: max(prepared_limit, len(pc.prepared))]
+
+
+def learned_spell_lists(
+    pc: PcData, class_def: ClassDef, choices: LevelUpChoices, prepared_limit: int
+) -> LearnedSpells:
     casting = class_def.spellcasting
     uses_book = casting is not None and casting.spellbook_start > 0
     known = [choices.replacement if s == choices.replace_spell else s for s in pc.spells_known]
@@ -181,5 +197,5 @@ def learned_spell_lists(pc: PcData, class_def: ClassDef, choices: LevelUpChoices
         cantrips=[*pc.cantrips, *choices.cantrips],
         spells_known=known if uses_book else [*known, *choices.spells],
         spellbook=[*pc.spellbook, *choices.spells] if uses_book else list(pc.spellbook),
-        prepared=list(choices.prepared) if choices.prepared is not None else list(pc.prepared),
+        prepared=_prepared_list(pc, choices, uses_book, prepared_limit),
     )

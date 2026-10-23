@@ -44,7 +44,7 @@ from aidm.rules.feature_build import (
 )
 from aidm.rules.hp import max_hp_at_level
 from aidm.rules.level_spells import learned_spell_lists, spell_learning_errors
-from aidm.rules.spellcasting import slot_maximum_events
+from aidm.rules.spellcasting import prepared_spell_limit, slot_maximum_events
 
 MAX_LEVEL = 5
 XP_THRESHOLDS: tuple[int, ...] = (0, 300, 900, 2700, 6500)
@@ -198,13 +198,13 @@ def validate_level_up(
 
 
 def _new_pc(
-    pc: PcData, cls: ClassDef, choices: LevelUpChoices, regs: CharacterRegistries
+    pc: PcData, cls: ClassDef, choices: LevelUpChoices, regs: CharacterRegistries, limit: int
 ) -> PcData:
     level = pc.level + 1
     gained, subclass = _new_features(pc, cls, level, choices)
     features = with_picks([*pc.features, *gained], choices.feature_choices, regs.features)
     effects = feature_effects([*features, *pc.traits], level, regs.features)
-    spells = learned_spell_lists(pc, cls, choices)
+    spells = learned_spell_lists(pc, cls, choices, limit)
     return pc.model_copy(
         update={
             "level": level,
@@ -244,11 +244,12 @@ def level_up(
         raise LevelUpInvalid(errors)
     old = creature.pc
     cls = regs.classes.get(old.class_index)
-    pc = _new_pc(old, cls, choices, regs)
+    abilities = _raised(creature.abilities, choices.asi)
+    limit = prepared_spell_limit(cls, old.level + 1, abilities)  # M29.9a T20: the new scores
+    pc = _new_pc(old, cls, choices, regs, limit)
     ids = [*pc.features, *pc.traits]
     before = feature_effects([*old.features, *old.traits], old.level, regs.features)
     effects = feature_effects(ids, pc.level, regs.features)
-    abilities = _raised(creature.abilities, choices.asi)
     con_mod = ability_modifier(abilities[Ability.CON])
     max_hp = max_hp_at_level(cls.hit_die, con_mod, pc.level) + effects.hp_per_level * pc.level
     hp = min(max_hp, max(0, creature.hp + max_hp - creature.max_hp))
