@@ -187,7 +187,7 @@ def start_encounter(
         if spawn.npc_id is not None:  # M20.5: this creature IS that world NPC
             creature = creature.model_copy(update={"npc_id": spawn.npc_id})
         if spawn.side is Side.HOSTILE:
-            creature = scale_spawn(creature, state.difficulty.monster_hp)
+            creature = scale_spawn(creature, state.difficulty.monster_hp * spawn.hp_scale)
         spawned.append((creature, spawn.side, spawn.zone_id, block.xp))
     spawned = _lettered(spawned)
     joined = [(state.creatures[p.creature_id], p.side, p.zone_id, 0) for p in setup.party]

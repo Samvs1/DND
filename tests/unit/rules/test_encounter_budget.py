@@ -116,7 +116,12 @@ def test_golden_rating_caps() -> None:
 
 
 def test_world_encounter_caps_are_data() -> None:
-    # RULES_DECISIONS M9.2: tier-1 spokes easy, later spokes medium, bosses hard.
-    assert T.spoke_rating_cap == {1: "easy", 2: "medium", 3: "medium"}
+    # RULES_DECISIONS M9.2, retuned in M29.6 (DECISIONS): every spoke easy, bosses medium with at
+    # most one companion per hero, stand-ins for over-budget spokes, a lone boss too strong for
+    # a small party scaled down to at most half its hit points.
+    assert T.spoke_rating_cap == {1: "easy", 2: "easy", 3: "easy"}
     assert T.spoke_max_monsters_per_pc == {1: 1, 2: 2, 3: 2}
-    assert T.boss_rating_cap == "hard"
+    assert T.boss_rating_cap == "medium"
+    assert T.boss_company_max_per_pc == 1
+    assert T.spoke_stand_ins is True
+    assert T.boss_hp_scale_floor == 0.5

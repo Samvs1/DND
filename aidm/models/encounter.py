@@ -30,7 +30,9 @@ State model (all mutable state models, changed only by the reducer, new fields n
 Setup inputs (frozen, built by the DM tool or the session):
 - `SurpriseKind`: NONE / PARTY (the party is ambushed) / HOSTILE (the party ambushes).
 - `PartyPlacement(creature_id, zone_id, side)`: an existing creature joining the fight.
-- `MonsterSpawn(monster, zone_id, side, name)`: an SRD monster index to instantiate.
+- `MonsterSpawn(monster, zone_id, side, name, npc_id, hp_scale)`: an SRD monster index to
+  instantiate; `hp_scale` (M29.6, at most 1) scales its hit points on top of the host
+  difficulty (a boss too strong alone for a small party, `aidm.rules.encounter_offer`).
 - `EncounterSetup(encounter_id, zone_map, party, monsters, surprise)`.
 - `Difficulty`: EASY / MEDIUM / HARD / DEADLY (the encounter budget tiers).
 - `BudgetCheck(adjusted_xp, deadly_budget, difficulty, allowed)`: a rated monster list
@@ -151,6 +153,7 @@ class MonsterSpawn(BaseModel):
     side: Side = Side.HOSTILE
     name: str | None = None
     npc_id: str | None = None  # M20.5: the world NPC this creature is (its death is theirs)
+    hp_scale: float = Field(default=1.0, gt=0, le=1.0)
 
 
 class EncounterSetup(BaseModel):

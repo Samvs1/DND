@@ -10,16 +10,19 @@ Monsters come from the node's themes within the CR budget of the actual party (s
 levels): a spoke's list is rated at most `tables.spoke_rating_cap[region tier]` (tier 1: easy)
 and fields at most `spoke_max_monsters_per_pc` monsters per PC; the boss and its company are
 rated at most `tables.boss_rating_cap` (hard) (`aidm.rules.encounter_budget.rating_cap_xp`,
-RULES_DECISIONS M9.2); a theme list too costly for the party still yields its cheapest monster
-(the warning beat lets the party escape or parley). A finished Cunning route of the region's
+RULES_DECISIONS M9.2); a theme list too costly for the party gets terrain-matched stand-ins
+within the budget when `tables.spoke_stand_ins` is on (M29.6), else (or when none fits) its
+cheapest monster (the warning beat lets the party escape or parley). The boss's company is also
+capped at `tables.boss_company_max_per_pc` per hero. A finished Cunning route of the region's
 main quest (`rules.quest_progress.route_effects`, M23.2) changes the boss fight: `boss_alone`
 offers the boss without company, `boss_surprised` starts the fight with the boss side surprised.
 Nothing starts without the warning beat: the offer lists fight / surprise / escape / parley
 (answered by `aidm.rules.offer_answer`).
 
 Public API:
-- `OfferData(monsters, tables, terrains, tiers)`: the registries (passed in).
+- `OfferData(monsters, tables, terrains, tiers, encounter)`: the registries (passed in).
 - `arrival_offer_events(state, data, retreat_node) -> list[AnyEvent]`: `[EncounterOffered]` or [].
+- `boss_hp_scale(state, data, monster) -> float`: the boss spawn's hit point scale (M29.6).
 - `offer_fight_events(state, offer, data, rng, surprise) -> list[AnyEvent]`: the boss turns
   hostile if needed, then `rules.encounter.start_encounter` on a zone map from the node terrain.
 """
@@ -28,6 +31,7 @@ import random
 from dataclasses import dataclass
 
 from aidm.data.dm_tiers import DmTiers
+from aidm.data.encounter_monsters import EncounterMonster
 from aidm.data.encounter_tables import EncounterTables
 from aidm.data.registry import Registry
 from aidm.data.srd_monsters import SrdMonster
@@ -67,6 +71,7 @@ class OfferData:
     tables: EncounterTables
     terrains: Registry[TerrainTemplate]
     tiers: DmTiers
+    encounter: Registry[EncounterMonster]
 
 
 def _boss_waits(state: GameState, region: RegionPlan) -> WorldNpc | None:
@@ -88,10 +93,15 @@ def _xp(data: OfferData, monster: str) -> int:
 def _company(
     rng: Rng, data: OfferData, themes: tuple[str, ...], budget: int, lead: list[str], size: int
 ) -> list[str]:
-    """`lead` plus theme monsters added at random while the adjusted XP stays within budget."""
+    """`lead` plus theme monsters added at random while the adjusted XP stays within budget
+    (and the company within `boss_company_max_per_pc` per hero, M29.6)."""
     picked = list(lead)
     pool = sorted(set(themes))
-    while len(picked) < data.tables.max_monsters and pool:
+    limit = data.tables.max_monsters
+    per_pc = data.tables.boss_company_max_per_pc
+    if per_pc is not None:
+        limit = min(limit, len(lead) + per_pc * size)
+    while len(picked) < limit and pool:
         xps = [_xp(data, m) for m in picked]
         fits = [m for m in pool if adjusted_xp([*xps, _xp(data, m)], size, data.tables) <= budget]
         if not fits:
@@ -134,10 +144,49 @@ def _monsters(
         themes = _boss_themes(region, node)
         return _company(rng, data, themes, cap, [boss.archetype_id], size)[1:]
     rating = data.tables.spoke_rating_cap.get(region.tier, Difficulty.MEDIUM.value)
-    cap = rating_cap_xp(levels, Difficulty(rating), data.tables)
+    scale = data.tables.spoke_budget_scale.get(region.tier, 1.0)
+    cap = int(rating_cap_xp(levels, Difficulty(rating), data.tables) * scale)
     xps = {m: _xp(data, m) for m in node.encounter_themes}
-    picked = pick_monsters(rng, cap, xps, size, _spoke_tables(data, region.tier, size))
+    tables = _spoke_tables(data, region.tier, size)
+    picked = pick_monsters(rng, cap, xps, size, tables)
+    if not picked and data.tables.spoke_stand_ins:
+        picked = _stand_ins(rng, data, node.encounter_themes, (cap, size), tables)
     return picked or [min(sorted(xps), key=lambda m: xps[m])]
+
+
+def _stand_ins(
+    rng: Rng,
+    data: OfferData,
+    themes: tuple[str, ...],
+    budget: tuple[int, int],
+    tables: EncounterTables,
+) -> list[str]:
+    """M29.6: no theme monster fits the party's budget (a small or low-level party) -> the
+    encounter-ready monsters sharing a terrain with the themes, at the highest XP one of them
+    fits alone, picked within the budget. [] when none fits (the cheapest theme monster stays)."""
+    cap, size = budget
+    tags = {t for m in themes if (e := data.encounter.find(m)) is not None for t in e.tags}
+    fits = {
+        e.index: _xp(data, e.index)
+        for e in data.encounter.all()
+        if tags & set(e.tags) and adjusted_xp([_xp(data, e.index)], size, tables) <= cap
+    }
+    if not fits:
+        return []
+    top = max(fits.values())
+    return pick_monsters(rng, cap, {m: x for m, x in fits.items() if x == top}, size, tables)
+
+
+def boss_hp_scale(state: GameState, data: OfferData, monster: str) -> float:
+    """M29.6: a boss whose own adjusted XP is over the boss cap for this party (a solo or duo)
+    gets its hit points scaled by cap / adjusted XP, floored at `boss_hp_scale_floor`."""
+    floor = data.tables.boss_hp_scale_floor
+    levels = party_levels(state)
+    if floor is None or not levels:
+        return 1.0
+    cap = rating_cap_xp(levels, Difficulty(data.tables.boss_rating_cap), data.tables)
+    alone = adjusted_xp([_xp(data, monster)], len(levels), data.tables)
+    return 1.0 if alone <= cap else max(floor, cap / alone)
 
 
 def _dc(table: dict[str, str], tier: int) -> int:
@@ -210,7 +259,11 @@ def _setup(
     boss = state.world.npcs.get(offer.boss_npc_id or "")
     if boss is not None:
         boss_spawn = MonsterSpawn(
-            monster=boss.archetype_id, zone_id=foes, name=boss.name, npc_id=boss.id
+            monster=boss.archetype_id,
+            zone_id=foes,
+            name=boss.name,
+            npc_id=boss.id,
+            hp_scale=boss_hp_scale(state, data, boss.archetype_id),
         )
         spawns.insert(0, boss_spawn)
     pcs = sorted(c.id for c in state.creatures.values() if c.pc is not None and not c.dead)

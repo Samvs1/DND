@@ -86,6 +86,7 @@ def offer_data(regs: ToolRegistries) -> OfferData:
         tables=regs.encounter_tables,
         terrains=regs.terrains,
         tiers=regs.tiers,
+        encounter=regs.encounter_monsters,
     )
 
 

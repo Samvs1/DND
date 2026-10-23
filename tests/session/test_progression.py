@@ -127,7 +127,8 @@ def test_boss_parley_improves_attitude_and_alliance_resolves_region() -> None:
     _, state, log = campaign_state()
     _visit_spokes(state, log)
     move(state, R1.gateway.id, log)
-    assert pending(state).boss_npc_id == boss_npc_id(R1) and pending(state).parley_dc == 15
+    # M29.6 tuning: the act-1 master parley is an easy Persuasion (DC 10, dm_tiers.json).
+    assert pending(state).boss_npc_id == boss_npc_id(R1) and pending(state).parley_dc == 10
     events = answer(state, OfferChoice.PARLEY, log, rng=Rigged(high=True))
     assert any(isinstance(e, AttitudeChanged) for e in events)
     assert _no_fight(state) and region_resolution_events(state) == []
@@ -201,7 +202,8 @@ def test_a_lair_without_themes_still_gives_the_boss_company() -> None:
         update={"acts": (act.model_copy(update={"region": region}), *sample.acts[1:])}
     )
     state = GameState(campaign_id="prog", seed=SEED)
-    build_party(state, 1)
+    # M29.6: the boss cap is medium, so at level 1 the bugbear alone fills it; level 2 has room.
+    build_party(state, 2)
     log = apply_all(state, install_campaign(state, bare, SEED))
     _visit_spokes(state, log)
     move(state, R1.gateway.id, log)

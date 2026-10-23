@@ -10,6 +10,13 @@
   highest difficulty rating a spoke's monster list may reach (tier 1: easy), `boss_rating_cap`
   the boss fight's (hard); `spoke_max_monsters_per_pc[region tier]` caps a spoke's monster count
   at that multiple of the party size (action economy).
+- M29.6 tuning: `spoke_budget_scale[region tier]` multiplies a spoke's rating cap (default 1.0:
+  the whole tier up to the next threshold); `spoke_stand_ins` (when no theme monster fits a spoke's budget, encounter-ready
+  monsters sharing a terrain with the themes stand in, at the highest XP that fits, instead of
+  the cheapest theme monster over budget); `boss_company_max_per_pc` caps the boss's company at
+  that multiple of the party size (None: only the budget and `max_monsters`); a boss whose own
+  adjusted XP is over the boss cap (a small party) spawns with its hit points scaled by
+  cap / adjusted XP, never below `boss_hp_scale_floor` (None: never scaled).
 
 Public API: `EncounterTables`, `MultiplierStep`, `load_encounter_tables(path=None)`,
 `encounter_tables()` (default file, cached). The arithmetic is `aidm.rules.encounter_budget`.
@@ -54,6 +61,10 @@ class EncounterTables(BaseModel):
     )
     spoke_max_monsters_per_pc: dict[int, int] = Field(default_factory=dict[int, int])
     boss_rating_cap: DifficultyKey = "hard"
+    spoke_stand_ins: bool = False
+    spoke_budget_scale: dict[int, float] = Field(default_factory=dict[int, float])
+    boss_company_max_per_pc: int | None = Field(default=None, ge=0)
+    boss_hp_scale_floor: float | None = Field(default=None, gt=0, le=1.0)
 
     @model_validator(mode="after")
     def _check(self) -> EncounterTables:
