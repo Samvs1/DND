@@ -58,6 +58,6 @@ def _explorer(state: Msg, rng: random.Random) -> str:
 def explore_text(role: str, state: Msg, rng: random.Random) -> str:
     if role == "fighter":
         return rng.choice(FIGHTER_LINES)
-    if role == "explorer":
-        return _explorer(state, rng)
-    return chaos_text(rng)
+    if role == "chaos":
+        return chaos_text(rng)
+    return _explorer(state, rng)  # the explorer, and the M29.2 rogue and caster roles

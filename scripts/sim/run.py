@@ -4,7 +4,7 @@
 three bots, runs the `Director` phases and then checks: server errors, snapshot invariants on
 every received snapshot, privacy of everything received, and replay of the saved log.
 
-Public API: `run_seed`, `run_all`, `SimOptions`.
+Public API: `run_seed`, `run_all`, `SimOptions`, `post_checks` (the M29.2 campaign runs reuse it).
 """
 
 import asyncio
@@ -89,7 +89,7 @@ async def _play(srv: SimServer, report: Report, party: Party, opts: SimOptions) 
         report.fail(problem)
 
 
-def _post_checks(srv: SimServer, report: Report, party: Party | None) -> None:
+def post_checks(srv: SimServer, report: Report, party: Party | None) -> None:
     report.step = "final checks"
     for error in srv.capture.errors:
         report.fail(f"server error: {error[:1500]}")
@@ -125,7 +125,7 @@ async def run_seed(seed: int, opts: SimOptions) -> Report:
             if party is not None:
                 await asyncio.gather(*(b.conn.close() for b in party.bots))
             await srv.stop()
-        _post_checks(srv, report, party)
+        post_checks(srv, report, party)
         report.step = "replay"
         for problem in replay_problems(saves, srv.state.campaign_id, srv.table.state):
             report.fail(problem)

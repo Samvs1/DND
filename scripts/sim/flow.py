@@ -37,6 +37,7 @@ class Director:
         self.long_rests = 0
         # Exploration rounds left (None = no cap); --live-ai caps them to bound the run.
         self.explore_budget: int | None = None
+        self.campaign = False  # M29.2: a full campaign run (`scripts.sim.campaign`)
 
     @property
     def host(self) -> Bot:
@@ -93,6 +94,8 @@ class Director:
     async def probes(self) -> None:
         self.step("chaos probes")
         chaos = self.party.chaos
+        if chaos is None:
+            return
         for message in await run_probes(chaos.conn, chaos.rng, 15.0 * chaos.patience):
             self.report.fail(message)
         await self.settle()
@@ -106,12 +109,13 @@ class Director:
             self.explore_budget -= 1
         self.step(f"explore {label}")
         texts = [(b, explore_text(b.role, self.state(), b.rng)) for b in self.party.bots]
-        gold_before = _gold(self.party.chaos)
+        chaos = self.party.chaos
+        gold_before = _gold(chaos) if chaos is not None else None
         outcomes = await asyncio.gather(*(b.submit(t, self.timeout) for b, t in texts))
         for (bot, text), outcome in zip(texts, outcomes, strict=True):
             self.report.say(f"{bot.name}: {text[:50]!r} -> {outcome}")
         await self.settle()
-        if _gold(self.party.chaos) != gold_before:
+        if chaos is not None and _gold(chaos) != gold_before:
             self.report.fail(f"chaotic hero gold changed during exploration: {gold_before}")
 
     # --- votes and travel ------------------------------------------------------------------

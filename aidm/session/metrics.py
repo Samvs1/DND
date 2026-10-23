@@ -6,6 +6,10 @@ wrapper) and returns one JSON-able object. Notes on what a log can and cannot sa
   milestone), or an `items_traded` / `character_rewritten` just after it (shop buy/sell, Scribe).
 - Server exceptions and AI fallback notices are not events, so they are reported as `unrecorded`.
 - The act is 1 + the number of `region_resolved` events so far.
+- M29.2: a party wipe that was retried leaves its discarded tail in `events.<n>.defeat`
+  (`load_defeat_tails`); `compute_metrics(events, tails)` reports each as a lost fight under
+  `wipes` (the main log alone only shows the retry that was won). A tail's first `seq` is the
+  position in the main log where it was cut (the main log's seq is its line index).
 """
 
 from __future__ import annotations
@@ -18,11 +22,15 @@ from typing import Any
 Event = dict[str, Any]
 _GOLD_PASS = {
     "gold_changed",
+    "camp_supplies_changed",
     "inventory_changed",
     "equipment_changed",
     "item_removed",
     "item_placed",
 }
+
+
+_GOLD_BACK = 64  # a reward pays every hero: one gold and xp event each after the reward line
 
 
 def load_events(path: Path) -> list[Event]:
@@ -37,7 +45,7 @@ def load_events(path: Path) -> list[Event]:
 
 
 def _gold_source(events: list[Event], i: int) -> str:
-    for back in range(1, 4):
+    for back in range(1, _GOLD_BACK):
         if i - back < 0:
             break
         prev = events[i - back]
@@ -158,7 +166,42 @@ def _act_block(fights: list[Event], act: int) -> dict[str, Any]:
     return {"fights": len(mine), "won": len(won), "won_clean": len(clean)}
 
 
-def compute_metrics(events: list[Event]) -> dict[str, Any]:
+def load_defeat_tails(path: Path) -> list[tuple[int, list[Event]]]:
+    """(cut position, events) of every `events.<n>.defeat` beside a save's log, by attempt."""
+    folder = path if path.is_dir() else path.parent
+
+    def attempt(file: Path) -> int:
+        middle = file.name.split(".")[1]
+        return int(middle) if middle.isdigit() else 0
+
+    out: list[tuple[int, list[Event]]] = []
+    for file in sorted(folder.glob("events.*.defeat"), key=attempt):
+        rows = [json.loads(x) for x in file.read_text(encoding="utf-8").splitlines() if x.strip()]
+        if rows:
+            out.append((int(rows[0].get("seq", 0)), [r.get("event", r) for r in rows]))
+    return out
+
+
+def _lost_fight(events: list[Event], cut: int, tail: list[Event]) -> Event | None:
+    run = _Run()
+    merged = events[:cut] + tail
+    for i in range(len(merged)):
+        run.step(merged, i)
+    last = run.fight or (run.fights[-1] if run.fights else None)
+    if last is None:
+        return None
+    keep = ("act", "boss", "level", "heroes_down", "hp_lost", "rounds")
+    return {**{k: last[k] for k in keep}, "status": "defeat"}
+
+
+def _wipes(events: list[Event], tails: list[tuple[int, list[Event]]]) -> dict[str, Any]:
+    lost = [f for cut, tail in tails if (f := _lost_fight(events, cut, tail)) is not None]
+    return {"count": len(tails), "fights": lost}
+
+
+def compute_metrics(
+    events: list[Event], tails: list[tuple[int, list[Event]]] | None = None
+) -> dict[str, Any]:
     run = _Run()
     for i in range(len(events)):
         run.step(events, i)
@@ -187,6 +230,7 @@ def compute_metrics(events: list[Event]) -> dict[str, Any]:
         "boss_fights": [
             {"act": b["act"], "level": b["level"], "heroes_down": b["heroes_down"]} for b in bosses
         ],
+        "wipes": _wipes(events, tails or []),
         "quests": dict(Counter(run.quests.values())),
         "item_uses": dict(run.items),
         "item_refusals": c["item_use_refused"],

@@ -8,7 +8,7 @@ import json
 import sys
 from pathlib import Path
 
-from aidm.session.metrics import compute_metrics, load_events
+from aidm.session.metrics import compute_metrics, load_defeat_tails, load_events
 
 
 def main() -> int:
@@ -20,7 +20,7 @@ def main() -> int:
     if not path.exists():
         print(f"no such save: {path}")
         return 2
-    metrics = compute_metrics(load_events(path))
+    metrics = compute_metrics(load_events(path), load_defeat_tails(path))
     print(
         json.dumps(metrics, sort_keys=True)
         if args.json

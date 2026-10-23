@@ -4,7 +4,7 @@ Join order matters: the first player is the host, so the fighter joins first. Ra
 with the seed (any legal race x subrace), the classes are fighter, cleric-or-wizard and rogue.
 The rogue uses the rolled-abilities path (`roll_abilities` -> `ability_rolls` -> assignment).
 
-Public API: `Party`, `seat_party`.
+Public API: `Party`, `seat_party`, `choices_for` (M29.2: the shapes reuse it), `CANTRIPS`.
 """
 
 import random
@@ -23,23 +23,33 @@ NAMES = {"fighter": "Brienne", "explorer": "Elowen", "chaos": "Rook"}
 
 @dataclass
 class Party:
-    fighter: Bot
-    explorer: Bot
-    chaos: Bot
+    """The seated bots in join order (the first is the host). The M9.1 party is fighter,
+    explorer and chaos; an M29.2 shape may seat one to four bots and no chaotic player."""
+
+    bots: list[Bot]
 
     @property
-    def bots(self) -> list[Bot]:
-        return [self.fighter, self.explorer, self.chaos]
+    def fighter(self) -> Bot:
+        return self.bots[0]
+
+    @property
+    def explorer(self) -> Bot:
+        return next((b for b in self.bots if b.role == "explorer"), self.bots[-1])
+
+    @property
+    def chaos(self) -> Bot | None:
+        return next((b for b in self.bots if b.role == "chaos"), None)
 
 
 # Attack cantrips first, so the caster's first cantrip is one that hurts (guidance is a buff).
 CANTRIPS = {
     "cleric": ["sacred-flame", "guidance", "resistance"],
     "wizard": ["fire-bolt", "ray-of-frost", "acid-splash"],
+    "warlock": ["eldritch-blast", "chill-touch"],
 }
 
 
-def _choices(class_index: str, name: str, rng: random.Random) -> Msg:
+def choices_for(class_index: str, name: str, rng: random.Random) -> Msg:
     race, sub = rng.choice(race_combos())
     made = default_choices(class_index, race, sub).model_copy(update={"name": name})
     picks = CANTRIPS.get(class_index)
@@ -86,7 +96,7 @@ async def seat_party(url: str, seed: int, report: Report) -> Party:
         await conn.hello()
         rng = random.Random(seed * 1000 + len(bots))
         bot = Bot(conn, role, class_index, rng, report)
-        choices = _choices(class_index, NAMES[role], rng)
+        choices = choices_for(class_index, NAMES[role], rng)
         if role == "chaos":
             choices = await _rolled(bot, choices)
         result = await bot.create_hero(choices)
@@ -94,4 +104,4 @@ async def seat_party(url: str, seed: int, report: Report) -> Party:
             report.fail(f"creation of {role} {class_index} refused: {result['errors']}")
         report.say(f"{role}: {class_index} {choices['race']}/{choices['subrace']} seated")
         bots.append(bot)
-    return Party(*bots)
+    return Party(bots)

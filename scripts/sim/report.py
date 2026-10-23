@@ -20,6 +20,12 @@ class Report:
     level: int = 1  # the highest hero level reached by play
     rests: tuple[int, int] = (0, 0)  # short and long rests taken by play
     gear: Counter[str] = field(default_factory=Counter[str])  # M27.10: gear uses by the bots
+    # M29.2 campaign runs: style, shape, how the run ended, defeat retries and wall time.
+    style: str = ""
+    shape: str = ""
+    outcome: str = ""
+    retries: int = 0
+    seconds: float = 0.0
 
     def fail(self, message: str) -> None:
         text = f"seed={self.seed} step={self.step}: {message}"
@@ -34,7 +40,17 @@ class Report:
     def ok(self) -> bool:
         return not self.failures
 
+    def campaign_line(self) -> str:
+        status = "ok" if self.ok else f"FAILED({len(self.failures)})"
+        return (
+            f"{self.style}/{self.shape} seed {self.seed}: {status} outcome={self.outcome or '-'} "
+            f"level={self.level} combats={self.combats} retries={self.retries} "
+            f"turns={self.turns} {self.seconds:.0f}s"
+        )
+
     def summary(self) -> str:
+        if self.style:
+            return self.campaign_line()
         status = "ok" if self.ok else f"FAILED({len(self.failures)})"
         short, long = self.rests
         gear = ",".join(f"{k}:{n}" for k, n in sorted(self.gear.items()))

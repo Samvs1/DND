@@ -76,7 +76,7 @@ class SimServer:
     async def start(self) -> None:
         env = load_env() if self.live_ai else {"AIDM_FAKE_LLM": "1"}
         settings = server_settings_from_env(env, port=self.port, saves_dir=self.saves_dir)
-        settings = replace(settings, tts_enabled=False)
+        settings = replace(settings, tts_enabled=False, ai_turn_pause_s=0.0)
         llm: LlmClient | None = None
         if not self.live_ai:
             settings = replace(settings, llm=replace(settings.llm, log_path=None))

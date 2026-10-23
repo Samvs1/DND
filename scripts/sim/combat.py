@@ -31,6 +31,7 @@ class Plan:
     fight_used: set[str] = field(default_factory=set[str])
     fight_refused: set[str] = field(default_factory=set[str])
     kit_chances: int = 0
+    smart: bool = False  # M29.2 campaign bots: spells and potions (`scripts.sim.spells`)
 
 
 def token_of(combat: Msg, creature_id: str) -> Msg | None:

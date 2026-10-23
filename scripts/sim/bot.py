@@ -15,6 +15,7 @@ from scripts.sim.client import Conn, Msg
 from scripts.sim.combat import MAX_STEPS, Plan, choose_command, foes_of, pick_target
 from scripts.sim.gear_fight import gear_command, gear_key
 from scripts.sim.report import Report
+from scripts.sim.spells import spell_command
 
 # What a player sees as "my action was handled".
 TERMINAL = frozenset(
@@ -30,7 +31,13 @@ TERMINAL = frozenset(
 )
 
 
-PLAN_ROLE = {"fighter": "fighter", "explorer": "caster", "chaos": "rogue"}
+PLAN_ROLE = {
+    "fighter": "fighter",
+    "explorer": "caster",
+    "chaos": "rogue",
+    "rogue": "rogue",
+    "caster": "caster",
+}
 
 
 def _idle(m: Msg) -> bool:
@@ -51,6 +58,7 @@ class Bot:
         self.answered_prompts = 0
         # Scales the short per-command waits (combat, sheet): 1.0 fake AI, more with --live-ai.
         self.patience = 1.0
+        self.sheet: Msg | None = None  # my last sheet (M29.2: spells, potions, keepsakes)
 
     @property
     def name(self) -> str:
@@ -159,7 +167,10 @@ class Bot:
             )
         except TimeoutError:
             return []
-        return list(got["sheet"].get("gear_uses", [])) if got["type"] == "sheet" else []
+        if got["type"] != "sheet":
+            return []
+        self.sheet = got["sheet"]
+        return list(got["sheet"].get("gear_uses", []))
 
     async def play_turn(self) -> None:
         """One hero turn: up to MAX_STEPS safe commands (gear first, M27.10), then end_turn."""
@@ -176,20 +187,29 @@ class Bot:
             party = list(self.conn.state.get("party", []))
             cmd = gear_command(self.plan, combat, party, gear, target)
             if cmd is None:
+                cmd = spell_command(self.plan, combat, party, self.sheet, target)
+            if cmd is None:
                 chances = await self._chances(target["creature_id"])
                 cmd = choose_command(self.plan, combat, chances, target)
             outcome = await self._command(cmd)
             self.report.say(f"{self.name} {cmd['type']} {cmd.get('target_id', '')} -> {outcome}")
             if outcome.startswith("refused"):
                 self._refused(cmd)
-            elif cmd["type"] == "use_item":
-                self.report.gear[cmd["use_id"]] += 1
+            elif cmd["type"] == "use_item" or self._spent(cmd):
+                self.report.gear[cmd.get("use_id") or cmd.get("item") or "spell"] += 1
                 gear = await self.gear_uses()
             if cmd["type"] == "end_turn":
                 return
         await self._command({"type": "end_turn", "actor_id": self.hero_id})
 
+    def _spent(self, cmd: Msg) -> bool:
+        """A leveled spell was cast (M29.2): the sheet's slots changed."""
+        return cmd["type"] == "cast" and cmd.get("spell_id") != self.plan.cantrip
+
     def _refused(self, cmd: Msg) -> None:
+        if self._spent(cmd):
+            self.plan.refused.add(f"cast:{cmd['spell_id']}")
+            return
         key = gear_key(cmd)
         self.plan.refused.add(key)
         if not key.startswith("gear:"):

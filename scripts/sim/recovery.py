@@ -23,7 +23,8 @@ BADLY_HURT = 0.6
 
 
 def hp_ratio(d: "Director") -> float:
-    heroes = [c for c in d.srv.table.state.creatures.values() if c.pc is not None]
+    # M29.2: the dead do not count (no rest heals them; the Scribe rewrites them).
+    heroes = [c for c in d.srv.table.state.creatures.values() if c.pc is not None and not c.dead]
     return min((c.hp / c.max_hp for c in heroes), default=1.0)
 
 
@@ -36,13 +37,15 @@ async def _buy_supplies(d: "Director", needed: int) -> None:
     if stock is None:
         d.report.say("no shop_stock after the shop vote")
         return
+    # M29.2: the best camp food on sale (a smith only keeps rations), not only meal baskets.
+    food = [s for s in stock["stock"] if s.get("category") == "supply" and s.get("supply")]
+    item = max(food, key=lambda s: (s["supply"] / max(1, s["price_gp"]), s["supply"]), default=None)
     for bot in d.party.bots:
         me = bot.me() or {}
         gold = me.get("gold") or 0
-        item = next((s for s in stock["stock"] if s["item_id"] == "camp-meal-basket"), None)
         if item is None or gold < item["price_gp"] or needed <= 0:
             continue
-        qty = min(gold // item["price_gp"], max(1, needed // max(1, item["supply"])))
+        qty = min(gold // item["price_gp"], max(1, -(-needed // max(1, item["supply"]))), 10)
         await _buy(bot, stock, item["item_id"], qty)
         needed -= qty * item["supply"]
         await d.settle()
@@ -82,11 +85,12 @@ async def camp(d: "Director") -> bool:
     return True
 
 
-async def recover(d: "Director") -> None:
+async def recover(d: "Director", hurt: float = HURT, badly: float = BADLY_HURT) -> None:
+    """Short rest below `hurt`, camp below `badly` (M29.2: a play style sets both)."""
     state = d.srv.table.state
-    if hp_ratio(d) < HURT and state.short_rests_used < MAX_SHORT_RESTS:
+    if hp_ratio(d) < hurt and state.short_rests_used < MAX_SHORT_RESTS:
         await d.short_rest()
-    if hp_ratio(d) >= BADLY_HURT:
+    if hp_ratio(d) >= badly:
         return
     if not await camp(d):
         d.report.notes.append(f"party pressed on hurt ({hp_ratio(d):.2f})")

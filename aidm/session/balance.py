@@ -9,7 +9,7 @@ from statistics import median
 from typing import Any
 
 from aidm.data.balance_targets import BalanceTargets
-from aidm.session.metrics import compute_metrics, load_events
+from aidm.session.metrics import compute_metrics, load_defeat_tails, load_events
 
 Metrics = dict[str, Any]
 
@@ -32,17 +32,24 @@ def tags_of(save: Path) -> tuple[str, str]:
 
 
 def load_runs(root: Path) -> list[tuple[str, str, Metrics]]:
-    return [(*tags_of(s), compute_metrics(load_events(s))) for s in find_saves(root)]
+    return [
+        (*tags_of(s), compute_metrics(load_events(s), load_defeat_tails(s)))
+        for s in find_saves(root)
+    ]
 
 
 def aggregate(runs: list[Metrics]) -> dict[str, float]:
-    """Target id -> value over the runs; ids with no data are left out (reported N/A)."""
+    """Target id -> value over the runs; ids with no data are left out (reported N/A).
+    M29.2: a retried wipe counts as a lost fight (normal) or a boss fight with its downs."""
     out: dict[str, float] = {}
+    lost = [f for r in runs for f in r.get("wipes", {}).get("fights", [])]
     normal = [f for r in runs for f in r["fights"]["list"] if not f["boss"]]
+    normal += [f for f in lost if not f["boss"]]
     if normal:
         clean = sum(f["status"] == "victory" and f["heroes_down"] == 0 for f in normal)
         out["normal_clean_win_rate"] = clean / len(normal)
     bosses = [b for r in runs for b in r["boss_fights"]]
+    bosses += [{k: f[k] for k in ("act", "level", "heroes_down")} for f in lost if f["boss"]]
     if bosses:
         out["boss_heroes_down_avg"] = sum(b["heroes_down"] for b in bosses) / len(bosses)
     for act in ("1", "2", "3"):
