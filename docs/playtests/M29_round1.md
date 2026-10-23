@@ -45,7 +45,7 @@ turned into hard checks or no effect.
 About 132 actions, region 1 resolved, 0 defeats, stopped by the stuck rule. Suspected cause of the two blockers: party VOTES (travel, rest) the harness neither shows nor answers; verify from the save before fixing.
 | id | what | where (event) | severity |
 |---|---|---|---|
-| G16 | Travel to region 2 ("Reedland Ferry") only "proposes", never travels, no reason shown | 689-691, 722 | blocker (check vote) |
+| G16 | Travel to region 2 ("Reedland Ferry") only "proposes", never travels, no reason shown | 689-691, 722 | blocker (check vote) | (fixed M29.5a 5bdb9de: travel confirm shown, answerable)
 | G17 | Rest by typing is prose only (HP unchanged); out-of-fight Cure Wounds and Potion of Healing / Herbal Poultice on an ally do nothing | 355-361, 662-666 | blocker (rest: check vote; healing: real gap, G2 family) |
 | G18 | XP maybe paid twice: 75 at the warning beat and again at victory (zombie 47/118, thug 179/240, wolves 273/336) | 47, 118, 179, 240, 273, 336 | high (balance) |
 | G19 | Items "found" on a FAILED Investigation while prose says nothing found; an item (hatched moth) described as a creature | 135, 143 | medium |
@@ -54,9 +54,9 @@ About 132 actions, region 1 resolved, 0 defeats, stopped by the stuck rule. Susp
 | G22 | "[unlisted] [unlisted]" placeholder in prose | 143 | low |
 | G23 | Foe numbering shifts after deaths; fled foes listed but not numbered; `attack 1` may hit another foe | 313, 336, 580 | medium |
 | G24 | Level-up prompt flags only one of four eligible heroes | 246 | medium |
-| G25 | Spell options shown with no action/slot left; ally target ids not discoverable for healing spells | 313, 476, 614 | low (harness or view) |
+| G25 | Spell options shown with no action/slot left; ally target ids not discoverable for healing spells | 313, 476, 614 | low (harness or view) | (fixed M29.5a 5bdb9de: harness part)
 | G26 | HP lost with no damage line; monster attacks narrated without a roll line | 381-393, 59, 75, 308 | medium |
-| G27 | Free-text act moved the party; refused moves still print "X moves: ..." | 672, 712, 255, 689 | low |
+| G27 | Free-text act moved the party; refused moves still print "X moves: ..." | 672, 712, 255, 689 | low | (fixed M29.5a 5bdb9de: harness part)
 | G28 | Sub-gp prices: 2 dice sets cost 1 gp total (rounding per line?) | harness smoke s1 | check |
 Balance: region 1's only shop has no weapons/armour and a Potion of Healing costs 50 gp vs about 27 gp per hero; a DC 20 Athletics gate (frozen thing) failed 6/6 with no other route; L2 after two fights (see G18).
 
@@ -73,8 +73,8 @@ Explains G16: travel into the next region waits for `answer confirm`, which the 
 | G34 | Generated campaign with NO shop in any of 15 places; long-rest refusal does not say supplies vs hour | 1363 | high (generator) |
 | G35 | Epilogue contradicts state (dead/alive bosses, the egg) | 1761 | medium |
 | G36 | Prompt instructions leak into notice lines ("Do NOT choose for them...") | 1551, 1760 | high (guard) |
-| G37 | `do flee`: fled hero still listed in the zone; after a retry two heroes were auto-played "dodging" the whole rematch | 1571, 1749 | medium (check harness after retry) |
-| G38 | Offer lists the boss foe as "?" | 850, 1534 | low |
-| G39 | No cantrips in casters' fight options (eldritch blast, fire bolt, sacred flame) | 66-82 | check (harness or view) |
-| G40 | Harness: travel confirm, finale and offers not shown in `look`; parley skill choice (persuasion/intimidation) not shown; area spells cannot take a zone | 460-473 | harness |
+| G37 | `do flee`: fled hero still listed in the zone; after a retry two heroes were auto-played "dodging" the whole rematch | 1571, 1749 | medium (check harness after retry) | (fixed M29.5a 5bdb9de: harness part)
+| G38 | Offer lists the boss foe as "?" | 850, 1534 | low | (fixed M29.5a 5bdb9de: harness shows the boss name)
+| G39 | No cantrips in casters' fight options (eldritch blast, fire bolt, sacred flame) | 66-82 | check (harness or view) | (fixed M29.5a 5bdb9de: harness only; the server sends cantrips)
+| G40 | Harness: travel confirm, finale and offers not shown in `look`; parley skill choice (persuasion/intimidation) not shown; area spells cannot take a zone | 460-473 | harness | (fixed M29.5a 5bdb9de)
 Balance: XP far too fast (L5 by action 203; milestones 75-800, boss alliances 600 and 3200 vs fights 12-175); gift deeds farmable (same candle x5 -> boss ALLY, 431-449); dragon labels wrong (green wyrmling "trivial" nearly TPK; young black dragon "medium", breath 51/47 on 30-48 HP heroes, 1714); parley success about 45 percent; no shop (G34) made gold useless.
