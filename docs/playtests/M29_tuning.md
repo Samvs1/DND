@@ -676,3 +676,42 @@ and its slice numbers are in docs/DECISIONS.md (M29.6b).
 | talker | duo | 5 | 4 | act 3: 1 | 5 | 1.4 |
 | talker | martial | 5 | 5 | - | 5 | 0.6 |
 | talker | solo | 5 | 2 | act 2: 2, act 3: 1 | 5 | 2.8 |
+
+# M29.7d: small grid after the round-2 rules fixes (2026-10-23)
+
+Slice of the M29.6b grid, 30 full campaigns on the fake storyteller, 0 runs failed a check:
+balanced x classic, martial (`saves/balance/M29d_a`), balanced x casters, duo, solo (`M29d_b`) and
+aggressive x classic (`M29d_c`), 5 seeds each. Report:
+`python scripts/balance_report.py saves/balance/M29d_a saves/balance/M29d_b saves/balance/M29d_c --markdown`.
+Before = the same slice of `saves/balance/M29b_final`, re-read with the same report.
+
+Changes since M29.6b that act in the sims: aimed self cones and lines (R26; the bots aim away from
+their friends), ranged attacks in close combat at disadvantage for heroes and monsters (R3),
+befriended charms that end on the party's harm (R20). The new danger labels only label: spokes still
+pick by XP (docs/DECISIONS.md M29.7d).
+
+| slice | clean-win | heroes down per master | epilogues | wipes/run |
+|---|---|---|---|---|
+| balanced classic | 0.82 -> 0.82 | **1.42 -> 0.53** (now PASS) | 5 -> 5 | 0.8 -> 0 |
+| balanced casters | 0.84 -> 0.87 | 0.27 -> 0.40 | 5 -> 5 | 0 -> 0 |
+| balanced martial | 0.91 -> 0.93 | 0.73 -> 0.13 | 5 -> 5 | 0 -> 0 |
+| balanced duo | 1.00 -> 1.00 | 0.19 -> 0.58 | 5 -> 5 | 0.2 -> 0.8 |
+| balanced solo | 0.95 -> 0.97 | 0.62 -> 0.74 | 3 -> 1 | 3.2 -> 3.4 |
+| aggressive classic | - | 1.95 -> 1.31 | 5 -> 5 | 1 -> 0.2 |
+
+Target for clean-win: 0.75-0.90 (balanced only). For heroes down per master: <= 1. Master levels
+2 / 3 / 4-5 and gold at the act ends pass in every slice.
+
+## Reading
+- **No target broke.** The misses are the M29.6b misses: clean-win over the ceiling for martial, duo
+  and solo (spokes untouched), and aggressive classic heroes down per master (1.31, down from 1.95).
+- **Classic at the masters is much safer** (1.42 -> 0.53). Two changes likely explain it, though
+  5 seeds cannot prove which: the wizard no longer catches its friends with a self cone in its own
+  zone, and a master's bow (the wight's longbow) now rolls at disadvantage when a hero stands in its
+  zone.
+- **Solo epilogues 1/5** (3/5 before): all 4 lost runs end at Fogwright's Tower, the act-2 wight, at
+  level 3. That is where M29.6b lost 20 of its 25 solo runs. Across the M29.6b styles solo ranged from
+  0 to 3 epilogues per 5 seeds, so 1/5 is inside the noise of one slice. R3 does reach this fight,
+  though: next to the fighter the wight's bow rolls at disadvantage, but it may step out of the zone
+  first, since leaving a zone provokes no attack. So a real effect cannot be ruled out. The lever is
+  still a per-size boss scale (data); round 3 and the next wide grid decide.
