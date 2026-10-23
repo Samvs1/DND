@@ -49,3 +49,9 @@ class SrdEquipment(SrdModel):
     gear_category: ApiRef | None = None
     desc: list[str] = []
     contents: list[PackContent] = []  # M27.10: an equipment pack's items (SRD 5.1)
+
+
+def pack_items(item: SrdEquipment | None) -> list[tuple[str, int]]:
+    """(item index, quantity) of an equipment pack's SRD contents; empty for anything else.
+    The one source for opening a pack, at creation (M27.10) and from an old save (M29.3b)."""
+    return [(c.item.index, c.quantity) for c in item.contents] if item is not None else []

@@ -11,6 +11,7 @@
   several uses sets `use_id` to the one for the target: "light" vs "throw" the torch, at a
   creature the torch's hit; in a fight "throw my waterskin at Z", gear without a throw use, is
   the SRD improvised throw);
+- "open my pack", "unpack my dungeoneer's pack" (M29.3b): the sealed pack's `unpack` use;
 - "read the scroll of X" (M27.7: "... at/on Z"): a carried scroll that matches, aimed at Z;
 - "use X", "use X on Y": every use of X, aimed at Y;
 - "brew a poultice", "craft with my herbalism kit": a use with the verb (a long-rest use sets
@@ -63,6 +64,7 @@ _THROW = re.compile(
 _READ = re.compile(
     rf"(?P<verb>read) {_THE}(?P<item>scroll(?: of [a-z0-9' -]+?)?){_AT}(?P<target>[a-z0-9' -]+))?"
 )
+_OPEN = re.compile(rf"(?P<verb>open|unpack|unseal) (?:up )?{_THE}{_THING}")
 _USE = re.compile(rf"use {_THE}{_THING}{_AT}(?P<target>[a-z0-9' -]+))?")
 _CRAFT = re.compile(
     rf"(?P<verb>brew|craft) {_THE}(?P<what>[a-z0-9' -]+?)"
@@ -211,7 +213,7 @@ def use_intent(state: GameState, actor_id: str, clean: str) -> UseIntent | None:
         return None
     if m := _PUT_OUT.fullmatch(clean):
         return _put_out(state, actor, m["item"] or m["item2"])
-    for pattern in (_LIGHT, _THROW, _READ):
+    for pattern in (_LIGHT, _THROW, _READ, _OPEN):
         if m := pattern.fullmatch(clean):
             target = m["target"] if "target" in pattern.groupindex else None
             return _with_verb(state, actor, held_gear(state, actor, m["item"]), m["verb"], target)

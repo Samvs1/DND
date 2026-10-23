@@ -32,7 +32,7 @@ from collections.abc import Mapping, Sequence
 
 from aidm.data.character_data import CharacterRegistries
 from aidm.data.registry import Registry
-from aidm.data.srd_equipment import SrdEquipment
+from aidm.data.srd_equipment import SrdEquipment, pack_items
 from aidm.models.abilities import Ability, Skill
 from aidm.models.character import Equipped, InventoryItem, PcData, Size
 from aidm.models.creation import CreationChoices, CreationError, CreationErrorCode
@@ -210,7 +210,7 @@ def _inventory(
     entries.extend(refs.background.gear)
     for entry in entries:
         found = equipment.find(entry.item)
-        opened = [(c.item.index, c.quantity) for c in found.contents] if found else []
+        opened = pack_items(found)
         for item, qty in opened or [(entry.item, 1)]:
             counts[item] = counts.get(item, 0) + qty * entry.qty
     return [InventoryItem(item=item, qty=qty) for item, qty in counts.items()]

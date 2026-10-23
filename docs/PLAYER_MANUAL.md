@@ -182,6 +182,7 @@ Say what you do with an item in plain words, and the game uses it for real: "I l
 - **One item use per action.** Gear is never refused just because it would not help: the use happens, the item is spent as usual and the game tells you it had no special effect. Only the impossible is refused (an item you do not carry, a target out of reach, an action you already spent, relighting a light that is already lit) and then nothing is used up.
 - **Lights**: a lit torch, candle or lantern stays lit and travels with you until the next long rest. You can light it anywhere, daylight too: it lights the next dark place you walk into. Putting it out is free, in or out of a fight ("put out my torch", "douse the lantern"). A torch or candle is then used up; a lantern can be lit again later.
 - **Light and stealth**: a light in a dark place gives the party away. When you light one there you hear: *Your light shows you the way, and shows you to anything waiting here.* Foes in that place cannot be surprised, and a fight there starts with *They saw your light coming. No surprise.* Putting the light out does not undo it. To sneak, put your light out BEFORE you walk into the next dark place.
+- **Sealed packs**: a hero made before starting packs were opened at creation may still carry a sealed pack (a Dungeoneer's Pack as one item). Open it from its item card (**Open the pack**) or by typing "open my pack"; it becomes its contents (torches, rope, crowbar and the rest). It takes time, so not during a fight.
 - **At a long rest**: crafting gear (the herbalism kit: a poultice for 2 camp supplies, proficiency needed) is used while the party rests. Say "I brew a poultice" and the party votes on a long rest; the poultice is made after the rest, from the supplies left.
 - **What the screens show**: darkness and light are never hidden.
   - *Dark places.* The scene picture and the top of your phone dim and carry a **Dark** badge, and your Now card says *It is dark here.* On the hex map a dark zone is dimmed with a **Dark** mark; zones a light reaches glow warm and carry **Lit**, and the hero carrying the light has a small flame on their token. The legend says it: *Dark: heroes without darkvision attack into it at disadvantage.* A fight in the dark starts with *It is dark here. Heroes without darkvision attack into dark zones at disadvantage.*
@@ -242,6 +243,13 @@ Say what you do with an item in plain words, and the game uses it for real: "I l
 | Caltrops | Scatter the caltrops in a zone | in a fight | Action | leaves caltrops in a zone |
 | Ball bearings (bag of 1,000) | Spill the ball bearings in a zone | in a fight | Action | leaves ball bearings in a zone |
 | Spell scroll (any) | Read the scroll | anywhere | Action | casts the scroll's spell |
+| Burglar's Pack | Open the pack | anywhere | - | opens the pack into its contents |
+| Diplomat's Pack | Open the pack | anywhere | - | opens the pack into its contents |
+| Dungeoneer's Pack | Open the pack | anywhere | - | opens the pack into its contents |
+| Entertainer's Pack | Open the pack | anywhere | - | opens the pack into its contents |
+| Explorer's Pack | Open the pack | anywhere | - | opens the pack into its contents |
+| Priest's Pack | Open the pack | anywhere | - | opens the pack into its contents |
+| Scholar's Pack | Open the pack | anywhere | - | opens the pack into its contents |
 <!-- end generated:item_uses -->
 
 **Gear in a fight.** On your turn open **Items** on the hotbar: it lists your potions and each fight use of your gear with its cost (**Action** or **Bonus action**). Tap the use, then pick its target (a creature, a fallen ally or a zone). You can also type it: "I throw the acid at the goblin", "I scatter the caltrops in the gate". A throw reaches your zone or a touching one. A use that has no special effect still happens and is spent.

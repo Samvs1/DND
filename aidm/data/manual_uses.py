@@ -30,6 +30,7 @@ _PLAIN = {
     "supplies": "adds camp supplies",
     "condition": "puts a condition on the target",
     "ignite": "fire into a zone (sets oil alight)",
+    "unpack": "opens the pack into its contents",
 }
 
 

@@ -20,7 +20,8 @@ catalogue, surfaces, spells and skills.
   holy, silver, oil); `aidm.rules.weaknesses` applies a target's weakness to it.
 - `effect`: a closed union keyed by `kind`: light_place, boon, surface, damage (an optional
   `condition` on a hit), condition, unlock, supplies, stabilize, craft, cast_spell, reveal_map,
-  ignite (damage of a type into a zone, only through the surfaces' damage interactions).
+  ignite (damage of a type into a zone, only through the surfaces' damage interactions),
+  unpack (a sealed equipment pack becomes its SRD contents, M29.3b).
 
 `ScrollPower(level, save_dc, attack_bonus)`: the SRD 5.1 Spell Scroll table, stored as data.
 
@@ -43,6 +44,7 @@ from aidm.data.condition_defs import DamageKey, condition_defs
 from aidm.data.item_catalogue import SCROLL_PREFIX, item_catalogue
 from aidm.data.spell_defs import shipped_spell_ids
 from aidm.data.srd import srd
+from aidm.data.srd_equipment import pack_items
 from aidm.data.surface_defs import surface_defs
 
 DEFAULT_ITEM_USES = Path(__file__).resolve().parents[2] / "data" / "bg3" / "item_uses.json"
@@ -152,6 +154,12 @@ class Ignite(_Strict):
     damage_type: DamageKey = "fire"
 
 
+class Unpack(_Strict):
+    """Open a sealed equipment pack into its SRD 5.1 contents (M29.3b, old saves)."""
+
+    kind: Literal["unpack"]
+
+
 type UseEffect = Annotated[
     LightPlace
     | Boon
@@ -164,7 +172,8 @@ type UseEffect = Annotated[
     | Craft
     | CastSpell
     | RevealMap
-    | Ignite,
+    | Ignite
+    | Unpack,
     Field(discriminator="kind"),
 ]
 
@@ -248,6 +257,8 @@ def _use_problems(use: ItemUse) -> list[str]:
     problems = _effect_problems(use.effect)
     if use.item != SCROLL_FAMILY and use.item not in item_catalogue():
         problems.append(f"unknown item {use.item!r}")
+    if isinstance(use.effect, Unpack) and not pack_items(srd().equipment.find(use.item)):
+        problems.append(f"{use.item!r} is not an equipment pack")
     return problems
 
 

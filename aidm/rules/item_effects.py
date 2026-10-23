@@ -34,6 +34,8 @@ is spent per its data and the interpreter marks `ItemUsed.no_effect`).
 - surface / ignite aimed at a creature of the fight land in that creature's zone.
 - ignite (M27.6): damage of a type into a zone in reach (`rules.surfaces.zone_damage_events`:
   a lit torch into oil sets it alight); where nothing reacts the torch just lands there.
+- unpack (M29.3b): the sealed pack's SRD contents (`pack_items`, the creation function) are added
+  as `InventoryChanged`; the use `consumes` the pack. Out of a fight only (no cost).
 - cast_spell (M27.7): the scroll's spell through THE spell engine with the SRD Spell Scroll
   numbers and no slot (`aidm.rules.scroll_read.read_scroll`).
 
@@ -62,8 +64,11 @@ from aidm.data.item_uses import (
     Supplies,
     SurfaceUse,
     Unlock,
+    Unpack,
     item_substances,
 )
+from aidm.data.srd import srd
+from aidm.data.srd_equipment import pack_items
 from aidm.data.surface_defs import surface_defs
 from aidm.models.abilities import Ability, Skill
 from aidm.models.character import InventoryItem
@@ -305,6 +310,21 @@ def _unlock(ctx: UseCtx, effect: Unlock) -> list[AnyEvent] | str:
     )
 
 
+def _unpack(ctx: UseCtx, effect: Unpack) -> list[AnyEvent] | str:
+    """The pack's SRD contents join the hero's gear (the interpreter removes the pack itself)."""
+    items = pack_items(srd().equipment.find(ctx.entry.item))
+    pc = ctx.actor.pc
+    held = {e.item: e.qty for e in pc.inventory} if pc else {}
+    events: list[AnyEvent] = []
+    for item, qty in items:
+        events.append(
+            InventoryChanged(
+                creature_id=ctx.actor.id, item=item, delta=qty, qty=held.get(item, 0) + qty
+            )
+        )
+    return events
+
+
 def effect_events(ctx: UseCtx) -> list[AnyEvent] | str:
     effect = ctx.use.effect
     match effect:
@@ -330,6 +350,8 @@ def effect_events(ctx: UseCtx) -> list[AnyEvent] | str:
             return _throw(ctx, effect)
         case Ignite():
             return _ignite(ctx, effect)
+        case Unpack():
+            return _unpack(ctx, effect)
         case CastSpell():
             item, target = ctx.entry.item, ctx.target
             return read_scroll(

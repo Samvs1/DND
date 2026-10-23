@@ -239,6 +239,7 @@ def test_surprise_still_works_at_a_quiet_place() -> None:
 def test_every_shipped_effect_kind_is_dispatched() -> None:
     kinds = {u.effect.kind for u in item_use_data().uses}
     assert kinds <= {
+        "unpack",
         "light_place",
         "boon",
         "surface",

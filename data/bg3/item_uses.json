@@ -733,6 +733,111 @@
    },
    "cost": "action",
    "consumes": true
+  },
+  {
+   "id": "burglars-pack-open",
+   "item": "burglars-pack",
+   "verbs": [
+    "open",
+    "unpack",
+    "unseal"
+   ],
+   "when": "place",
+   "label": "Open the pack",
+   "effect": {
+    "kind": "unpack"
+   },
+   "consumes": true
+  },
+  {
+   "id": "diplomats-pack-open",
+   "item": "diplomats-pack",
+   "verbs": [
+    "open",
+    "unpack",
+    "unseal"
+   ],
+   "when": "place",
+   "label": "Open the pack",
+   "effect": {
+    "kind": "unpack"
+   },
+   "consumes": true
+  },
+  {
+   "id": "dungeoneers-pack-open",
+   "item": "dungeoneers-pack",
+   "verbs": [
+    "open",
+    "unpack",
+    "unseal"
+   ],
+   "when": "place",
+   "label": "Open the pack",
+   "effect": {
+    "kind": "unpack"
+   },
+   "consumes": true
+  },
+  {
+   "id": "entertainers-pack-open",
+   "item": "entertainers-pack",
+   "verbs": [
+    "open",
+    "unpack",
+    "unseal"
+   ],
+   "when": "place",
+   "label": "Open the pack",
+   "effect": {
+    "kind": "unpack"
+   },
+   "consumes": true
+  },
+  {
+   "id": "explorers-pack-open",
+   "item": "explorers-pack",
+   "verbs": [
+    "open",
+    "unpack",
+    "unseal"
+   ],
+   "when": "place",
+   "label": "Open the pack",
+   "effect": {
+    "kind": "unpack"
+   },
+   "consumes": true
+  },
+  {
+   "id": "priests-pack-open",
+   "item": "priests-pack",
+   "verbs": [
+    "open",
+    "unpack",
+    "unseal"
+   ],
+   "when": "place",
+   "label": "Open the pack",
+   "effect": {
+    "kind": "unpack"
+   },
+   "consumes": true
+  },
+  {
+   "id": "scholars-pack-open",
+   "item": "scholars-pack",
+   "verbs": [
+    "open",
+    "unpack",
+    "unseal"
+   ],
+   "when": "place",
+   "label": "Open the pack",
+   "effect": {
+    "kind": "unpack"
+   },
+   "consumes": true
   }
  ],
  "scroll_table": [
