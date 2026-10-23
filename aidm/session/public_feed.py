@@ -8,7 +8,9 @@ an event is public and returns its player-visible line (else None):
 2. the line is `dm.event_text.event_line`, which never renders hidden features, motives,
    unrevealed secrets or campaign setup; no line means not public;
 3. defence in depth: a line containing any private text of the current state (an NPC motive,
-   an unrevealed secret, the name or description of a hidden undiscovered feature) is dropped.
+   an unrevealed secret, the name or description of a hidden undiscovered feature) is dropped,
+   and a sentence holding a storyteller instruction or a placeholder is cut from the line
+   (`aidm.dm.guard_leaks.instruction_free`, M29.5c G36).
 Non-public events are never sent: their seq is simply skipped (the snapshot seq still covers
 them). `private_texts` + `leaks` also filter the fact lines of the snapshot (`views`).
 
@@ -30,6 +32,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass, field
 
 from aidm.dm.event_text import event_line
+from aidm.dm.guard_leaks import instruction_free
 from aidm.dm.narration_templates import template_line
 from aidm.models.events import AnyEvent, DamageTaken, LoggedEvent
 from aidm.models.narration import NarrationTone
@@ -93,6 +96,7 @@ def public_line(state: GameState, event: AnyEvent) -> str | None:
     line = (
         template_line(state, event) if isinstance(event, QuestAsked) else event_line(state, event)
     )
+    line = instruction_free(line) if line else line  # M29.5c G36: never a storyteller instruction
     if not line or leaks(line, private_texts(state)):
         return None
     return line

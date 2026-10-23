@@ -145,7 +145,9 @@
   ],
   "defeat_claims": [
     "unconscious", "knocked out", "out cold", "is dying", "lies dying", "lay dying", "beaten down",
-    "senseless", "lies still", "lay still"
+    "senseless", "lies still", "lay still", "falls still", "fell still", "goes still",
+    "went still", "lies motionless", "lay motionless", "crumples", "crumpled", "goes limp",
+    "went limp", "folds without a word", "pitches sideways", "drops face-first"
   ],
   "blow_claims": [
     "slays", "slew", "slain", "kills", "killed", "cuts down", "cut down", "cuts it down",
@@ -235,5 +237,125 @@
     "holds", "held", "refuses", "refused", "won't", "will not", "cannot", "can't", "fails",
     "failed", "still locked", "stays shut", "stays locked", "remains locked", "remains shut",
     "in vain", "no luck", "resists", "resisted", "unyielding", "stuck"
-  ]
+  ],
+  "attack_claims": [
+    "springs at", "leaps at", "lunges at", "lunges", "lunge at", "snaps at", "swings at",
+    "rushes at", "charges at", "bites", "bit", "bites into", "bites deep", "strikes", "struck",
+    "slashes", "slashed", "stabs", "stabbed", "gouging", "gouges", "gouged", "rakes", "raked",
+    "claws at", "sinks its teeth", "teeth sinking", "jaws close", "closes its jaws", "smashes into",
+    "crunches into", "hammers into", "slams into", "drives into", "hits", "wounds", "reopens"
+  ],
+  "attack_hedges": [
+    "ready to", "about to", "poised to", "as if to", "threatens to", "threatening to",
+    "waiting to", "set to", "eager to", "readies", "would", "could", "might", "may", "before it can",
+    "if", "yet", "neither", "no one", "nobody", "none"
+  ],
+  "weapon_nouns": [
+    "sword", "blade", "longsword", "shortsword", "greatsword", "rapier", "scimitar", "sabre",
+    "saber", "mace", "axe", "handaxe", "greataxe", "battleaxe", "hammer", "warhammer", "maul",
+    "club", "greatclub", "spear", "javelin", "dagger", "knife", "staff", "quarterstaff", "bow",
+    "longbow", "shortbow", "crossbow", "sling", "whip", "flail", "morningstar", "trident",
+    "glaive", "halberd", "pike", "lance", "sickle", "scythe"
+  ],
+  "attack_words": {
+    "crossbow": ["bolt", "bolts", "quarrel", "quarrels", "shot", "string"],
+    "longbow": ["arrow", "arrows", "shaft", "shot", "string"],
+    "shortbow": ["arrow", "arrows", "shaft", "shot", "string"],
+    "sling": ["stone", "bullet", "shot"],
+    "bite": ["teeth", "jaws", "fangs", "maw"],
+    "claw": ["claws", "talons"],
+    "claws": ["claw", "talons"],
+    "dagger": ["knife", "blade"],
+    "unarmed": ["fist", "fists", "punch", "knuckles"],
+    "light": ["crossbow"],
+    "hand": ["crossbow"],
+    "heavy": ["crossbow"]
+  },
+  "wound_claims": [
+    "rat-bites", "rat bites", "bite marks", "bites mark", "bitten", "wounded", "wound", "wounds",
+    "bleeding", "bleeds", "bled", "bloodied", "bloody", "gash", "gashes", "gashed", "limps",
+    "limping", "limped", "bruised", "injured", "injury", "injuries", "torn flesh", "grazed"
+  ],
+  "payment_verbs": [
+    "pay", "pays", "paid", "paying", "count out", "counts out",
+    "counted out", "counting out", "sets gold", "set gold", "sets the gold", "sets coin",
+    "slides the coins", "slides the coin", "pass over", "passes over", "settles the price", "settles up", "pressed into his palm", "presses into his palm"
+  ],
+  "coin_nouns": [
+    "gold", "coin", "coins", "gp", "silver", "copper", "platinum", "purse", "payment"
+  ],
+  "gear_nouns": [
+    "potion", "vial", "flask", "elixir", "draught", "rope", "javelin", "spear", "sword", "blade",
+    "axe", "mace", "hammer", "bow", "crossbow", "longbow", "shortbow", "dagger", "knife", "torch",
+    "lantern", "scroll", "wand", "staff", "rod", "shield", "ring", "amulet", "orb", "horn", "lute",
+    "map", "key", "net", "grapple", "grappling hook", "crowbar", "lockpicks", "pick", "cloak",
+    "boots", "gauntlets", "helm", "trident", "whip", "sling", "rapier", "scimitar", "longsword",
+    "shortsword", "greatsword", "halberd", "glaive", "flail", "maul", "club", "quarterstaff"
+  ],
+  "gear_modifier_stops": [
+    "my", "his", "her", "their", "our", "your", "the", "a", "an", "some", "of", "this", "that",
+    "out", "up", "and", "with", "from", "at", "to", "it", "fifty", "feet", "foot", "ten", "magic",
+    "magical", "old", "trusty", "spare", "new", "small", "little", "second", "third", "another",
+    "other", "first", "last", "extra", "fresh", "one", "two", "three"
+  ],
+  "payment_refusals": [
+    "untouched", "refuses", "refused", "won't", "will not", "does not take", "doesn't take",
+    "no acceptance", "waves away", "waved away", "pushes back", "declines", "declined", "in vain",
+    "turns down"
+  ],
+  "absent_phrases": [
+    "no such", "does not have", "doesn't have", "did not have", "didn't have", "has none",
+    "had none", "carries no", "carried no", "finds no", "found no", "finds nothing", "found nothing",
+    "finds only", "found only", "is not there", "isn't there", "was not there", "wasn't there",
+    "not there", "there is no", "there was no", "nothing there", "empty", "no potion", "no rope",
+    "never had"
+  ],
+  "handover_claims": [
+    "takes it", "took it", "takes the", "took the", "accepts it", "accepted it", "accepts the",
+    "accepted the", "folds her fingers around", "folds his fingers around", "closes her fingers around",
+    "closes his fingers around", "tucks it", "tucked it", "holds both", "hands it", "hands the",
+    "handed the", "passes the", "passes it", "extends it to", "gives it to", "gave it to",
+    "receives it", "received it", "receives the", "into her hands", "into his hands"
+  ],
+  "light_nouns": ["torch", "torches", "lantern", "candle", "candles", "lamp", "brand"],
+  "light_claims": [
+    "catches", "takes the flame", "flares", "flared", "kindles", "kindled", "blazes",
+    "bursts into flame", "sputters to life", "flickers to life", "springs to life", "comes alight",
+    "is lit", "are lit", "now burn", "now burns", "burns bright"
+  ],
+  "instruction_phrases": [
+    "do not choose for them", "do not tell either ending", "tell this ending", "tell it only as",
+    "tell only", "describe no new deed", "describe only", "end with that question",
+    "engine guard", "resolved tool results", "the players already heard", "awaiting the player's",
+    "the engine resolved", "no mechanics numbers", "second person plural", "scene manifest",
+    "system prompt", "as an ai", "do not write", "never say they"
+  ],
+  "instruction_caps": ["NOT", "NEVER", "ONLY", "MUST", "DO"],
+  "epilogue_death_claims": [
+    "fell", "fallen", "was killed", "were killed", "was slain", "met her end", "met his end",
+    "met its end", "perished", "was destroyed", "was no more", "died", "lay dead"
+  ],
+  "alive_claims": [
+    "kept his word", "kept her word", "keeps his word", "keeps her word", "still rules",
+    "still reigns", "lives on", "lived on", "walked among", "walks among", "still lives",
+    "rules on", "ruled on", "still watches", "kept watch", "returned home", "thanked the party"
+  ],
+  "use_verbs": [
+    "drink", "drinks", "quaff", "quaffs", "sip", "sips", "uncork", "uncorks", "throw", "throws",
+    "hurl", "hurls", "toss", "tosses", "draw", "draws", "pull", "pulls", "wield", "wields",
+    "swing", "swings", "raise", "raises", "lift", "lifts", "tie", "ties", "light", "lights",
+    "read", "reads", "fire", "fires", "use", "uses", "brandish", "brandishes", "produce",
+    "produces", "take out", "takes out", "grab", "grabs", "ready", "readies", "unroll", "unrolls",
+    "wave", "waves", "blow", "blows", "play", "plays", "hold up", "holds up", "strap on",
+    "straps on", "put on", "puts on", "pour", "pours"
+  ],
+  "purchase_words": [
+    "buy", "buys", "bought", "purchase", "purchases", "pay", "pays", "paid", "sell", "sells",
+    "trade", "trades", "barter"
+  ],
+  "handover_words": [
+    "give", "gives", "hand", "hands", "pass", "passes", "offer", "offers", "present", "presents",
+    "deliver", "delivers", "extend", "extends"
+  ],
+  "kindle_words": ["light", "lights", "kindle", "kindles", "ignite", "ignites"]
 }

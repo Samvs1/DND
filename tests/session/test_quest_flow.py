@@ -5,7 +5,7 @@ helper (`session/quest_flow.settle_after`), no double payout, replay == snapshot
 import json
 from pathlib import Path
 
-from aidm.dm.event_text import event_line
+from aidm.dm.event_text import event_line, event_notes
 from aidm.dm.narration_templates import template_line
 from aidm.models.campaign import CampaignPlan
 from aidm.models.campaign_events import RegionResolved
@@ -190,8 +190,9 @@ def test_quest_moments_have_engine_and_template_lines() -> None:
     step = QuestStepDone(quest_id=MAIN, route_id="force", step=0, log_line="Explore the quay")
     assert event_line(state, step) == (
         "Quest 'Fog on the Quay': step done: Explore the quay (met by what the party has already"
-        " done; describe no new deed for it)."
+        " done)."
     )
+    assert "no new deed" in " ".join(event_notes(state, [step]))  # M29.5c G36: model-only
     assert (
         template_line(state, step) == "Explore the quay: one more part of Fog on the Quay is done."
     )

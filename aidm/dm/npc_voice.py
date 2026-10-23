@@ -149,7 +149,7 @@ def npc_voice(
     sentences = guarded_narration(
         llm,
         messages,
-        guard if guard is not None else prose_checker(state, turn_events),
+        guard if guard is not None else prose_checker(state, turn_events, speech=True),
         [silent_line(npc)],
         role=LlmRole.QUALITY,
         max_tokens=NPC_VOICE_MAX_TOKENS,

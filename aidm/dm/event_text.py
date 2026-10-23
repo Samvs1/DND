@@ -10,18 +10,23 @@ Conditions read by display name in plain words (`aidm.dm.condition_text`, M20.7)
 (light lit/put out, a gear use, a lock opened, the fight start a light gave away) come from
 `aidm.dm.item_text` (M27.5).
 
-Public API: `event_line(state, event) -> str | None`, `event_lines(state, events) -> list[str]`.
+Lines are facts only, since the public feed shows them too; the instructions that go with some
+of them (do not choose the finale for the party, tell no new deed for a step) are
+`event_notes(state, events)`, for the narrator alone (M29.5c G36).
+
+Public API: `event_line(state, event) -> str | None`, `event_lines(state, events) -> list[str]`,
+`event_notes(state, events) -> list[str]`.
 """
 
 from collections.abc import Callable, Sequence
 from typing import Any
 
-from aidm.dm.campaign_text import CAMPAIGN_EVENT_LINES
+from aidm.dm.campaign_text import CAMPAIGN_EVENT_LINES, CAMPAIGN_EVENT_NOTES
 from aidm.dm.condition_text import applied_line, removed_line
 from aidm.dm.entities import display_name
 from aidm.dm.item_text import ITEM_EVENT_LINES
-from aidm.dm.quest_text import QUEST_EVENT_LINES
-from aidm.dm.wording import check_subject, with_article
+from aidm.dm.quest_text import QUEST_EVENT_LINES, QUEST_EVENT_NOTES
+from aidm.dm.wording import attack_label, check_subject, with_article
 from aidm.models import events as ev
 from aidm.models import world_events as we
 from aidm.models.combat_events import AttackRolled, CombatantMoved, FeatureUsed, SpellCast
@@ -87,8 +92,11 @@ def _encounter_ended(state: GameState, e: EncounterEnded) -> str:
 
 
 def _attack(state: GameState, e: AttackRolled) -> str:
+    """M29.5c G7: the line names the weapon, so the narrator cannot swap a crossbow for a mace."""
     verdict = "critically hits" if e.crit else ("hits" if e.hit else "misses")
-    return f"{_who(state, e.attacker_id)} attacks {_who(state, e.target_id)} and {verdict}."
+    weapon = with_article(attack_label(e.attack))
+    who, whom = _who(state, e.attacker_id), _who(state, e.target_id)
+    return f"{who} attacks {whom} with {weapon} and {verdict}."
 
 
 def _item_found(state: GameState, e: we.ItemDiscovered) -> str:
@@ -163,3 +171,20 @@ def event_lines(state: GameState, events: Sequence[ev.AnyEvent]) -> list[str]:
         if line:
             out.append(line)
     return out
+
+
+_NOTES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
+    **CAMPAIGN_EVENT_NOTES,
+    **QUEST_EVENT_NOTES,
+}
+
+
+def event_notes(state: GameState, events: Sequence[ev.AnyEvent]) -> list[str]:
+    """M29.5c G36: the model-only instructions that go with these events (never public)."""
+    notes: list[str] = []
+    for event in events:
+        render = _NOTES.get(type(event))
+        note = render(state, event) if render is not None else None
+        if note and note not in notes:
+            notes.append(note)
+    return notes

@@ -1,6 +1,7 @@
 """Plain-language lines for the quest events (M23.2): one set for the model, one for templates.
 
-`QUEST_EVENT_LINES` join `aidm.dm.event_text` (authoritative, for the model);
+`QUEST_EVENT_LINES` join `aidm.dm.event_text` (authoritative, for the model; facts only, since
+they are public lines too); `QUEST_EVENT_NOTES` are the model-only instructions (M29.5c G36);
 `QUEST_TEMPLATE_LINES` join `aidm.dm.narration_templates` (for players when no model is
 available). A step line names the quest and the step that was done (its log line); a route line
 names the route the party just found. Only discovered routes are ever named. A hand-over line
@@ -90,10 +91,12 @@ def _step_fact(state: GameState, e: QuestStepDone) -> str:
         who = _holder(state, step.item)
         held = f"{who} already carries the {step.item}" if who is not None else None
     why = held or "met by what the party has already done"
-    return (
-        f"Quest '{_title(state, e.quest_id)}': step done: {done} ({why}; describe no new deed"
-        " for it)."
-    )
+    return f"Quest '{_title(state, e.quest_id)}': step done: {done} ({why})."
+
+
+STEP_NOTE = (
+    "Describe no new deed for a quest step marked done: what the party did or carries met it."
+)
 
 
 def _route_fact(state: GameState, e: RouteDiscovered) -> str:
@@ -214,6 +217,11 @@ QUEST_EVENT_LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     QuestStepDone: _step_fact,
     RouteDiscovered: _route_fact,
     KeepsakeGiven: _given,
+}
+
+# M29.5c G36: model-only instructions, kept out of the lines players can see
+QUEST_EVENT_NOTES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
+    QuestStepDone: lambda s, e: STEP_NOTE,
 }
 
 QUEST_TEMPLATE_LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {

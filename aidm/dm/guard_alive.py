@@ -13,7 +13,8 @@ stillness cue follows it (`death_soft_cues`, QA-03: "he is gone, still and cold"
 
 A creature that still has hit points (or an NPC outside a fight) declared down, out cold or
 beaten (`defeat_claims`, M19.1: the narrator told a whole fight as won while it had only begun)
-is flagged by `unhurt_declared_down` with the terms of `standing_terms`.
+is flagged by `unhurt_declared_down` with the terms of `standing_terms` (M29.5c G21: anywhere in
+the clause after the name, up to `DOWN_REACH` characters).
 A hero at 0 HP told waking, standing or coming to (`rise_claims`) with no healing event is
 flagged by `downed_rising` with the terms of `downed_terms` (M20.2).
 
@@ -32,9 +33,11 @@ from aidm.dm.guard_types import Violation, ViolationKind
 from aidm.models.state import GameState
 
 CLAIM_REACH = 40
+DOWN_REACH = 90  # M29.5c G21: "the zombie drops face-first onto the stones and lies still"
 MIN_TERM_LEN = 4
 _WORD = re.compile(r"[A-Za-z]+")
 _CLAUSE = re.compile(r"\b(?:while|whilst|as|when|but|though|until|before|after)\b|[;:]", re.I)
+_DOWN_CLAUSE = re.compile(rf"{_CLAUSE.pattern}|,", re.I)
 
 
 def _living_names(state: GameState) -> set[str]:
@@ -85,9 +88,14 @@ def standing_terms(state: GameState, terms: dict[str, str]) -> dict[str, str]:
 
 
 def _claimed(
-    sentence: str, tokens: list[Token], end: int, lex: GuardLexicon, claims: frozenset[str]
+    sentence: str,
+    tokens: list[Token],
+    end: int,
+    lex: GuardLexicon,
+    claims: frozenset[str],
+    reach: int = CLAIM_REACH,
 ) -> bool:
-    for m in find_phrases(sentence[end : end + CLAIM_REACH], claims):
+    for m in find_phrases(sentence[end : end + reach], claims):
         index = _index_at(tokens, end + m.start())
         if index is None:
             continue
@@ -132,15 +140,17 @@ def unhurt_declared_down(
     for term in sorted(terms, key=lambda t: (-len(t), t)):
         pattern = rf"(?<![A-Za-z]){re.escape(term)}(?:'s|s)?(?![A-Za-z])"
         for m in re.finditer(pattern, sentence, re.IGNORECASE):
-            if _claimed(sentence, tokens, m.end(), lex, lex.defeat_claims):
+            end = _clause_end(sentence, m.end(), _DOWN_CLAUSE)
+            reach = min(end - m.end(), DOWN_REACH)  # M29.5c G21: the clause after the name
+            if _claimed(sentence, tokens, m.end(), lex, lex.defeat_claims, reach):
                 detail = f"{terms[term]} is still standing; no engine event beat them"
                 return [Violation(ViolationKind.UNHURT_DECLARED_DOWN, m.group(0), detail)]
     return []
 
 
-def _clause_end(sentence: str, start: int) -> int:
+def _clause_end(sentence: str, start: int, clause: re.Pattern[str] = _CLAUSE) -> int:
     """Where the clause after a name ends ("Slendee lies still while the ranger gets up")."""
-    found = _CLAUSE.search(sentence, start)
+    found = clause.search(sentence, start)
     return found.start() if found is not None else len(sentence)
 
 

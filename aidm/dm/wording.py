@@ -7,8 +7,11 @@ Counting foes (M20.6, playtest 3: two rats were "a giant rat"): `plural(noun)` (
 "swarms of bats", "wolves"), `counted(noun, n, digits=False)` ("a goblin", "two giant rats", or
 "2 giant rats" for the model).
 
+An attack's name as prose (M29.5c G7: the narrator was never told the weapon): `attack_label`
+("Crossbow, light" -> "light crossbow", "Bite" -> "bite").
+
 Public API: `with_article(phrase)`, `plural(noun)`, `counted(noun, n, digits=False)`,
-`ABILITY_NAMES`, `skill_name(skill)`, `check_subject(result)`.
+`ABILITY_NAMES`, `skill_name(skill)`, `check_subject(result)`, `attack_label(attack)`.
 """
 
 from aidm.models.abilities import Ability, Skill
@@ -76,3 +79,9 @@ def check_subject(result: CheckResult) -> str:
     if result.skill is not None:
         return skill_name(result.skill)
     return ABILITY_NAMES[result.ability]
+
+
+def attack_label(attack: str) -> str:
+    """The attack's name in plain words: SRD "Crossbow, light" reads "light crossbow"."""
+    head, _, tail = attack.partition(",")
+    return f"{tail.strip()} {head.strip()}".strip().lower() if tail else attack.strip().lower()

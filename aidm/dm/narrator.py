@@ -8,7 +8,10 @@ reusing what was already narrated; second person plural or character names, no m
 numbers unless the player asked for them (`allow_numbers`). When nothing changed, or a fight has
 only just begun, the facts say so, so the model cannot tell an outcome the engine did not produce.
 A refused gear use (`use_item` tool error, M27.5; a creative effect's `GEAR_REFUSED`, M27.6) is
-a fact told as an attempt (`TRIED`), never as a result.
+a fact told as an attempt (`TRIED`), never as a result. M29.5c (the honest storyteller): the
+facts also carry `aidm.dm.turn_facts` (the weapons used, who still stands, who is unhurt, a
+claimed thing the hero does not carry, a payment or hand-over no event made) and the events'
+model-only notes (`event_text.event_notes`), and the guard knows the actor and the player's words.
 Every sentence passes THE guard (`aidm.dm.guard`, default `prose_checker(state, events)`)
 before it is yielded: one regeneration with a correction and scrubbed names, then the template.
 Without a model (no key, outage, timeout, empty answer) the stream falls back to the
@@ -42,6 +45,7 @@ from aidm.dm.adjudicator import AdjudicationResult
 from aidm.dm.context import DEFAULT_BUDGET_TOKENS, build_context, to_messages
 from aidm.dm.context_text import ContextPurpose
 from aidm.dm.creative_gear import GEAR_REFUSED
+from aidm.dm.event_text import event_notes
 from aidm.dm.guard import guarded_narration, prose_checker
 from aidm.dm.guard_types import ProseCheck
 from aidm.dm.llm_client import LlmClient
@@ -55,6 +59,7 @@ from aidm.dm.narration_weight import (
     truth_notes,
     weight_for,
 )
+from aidm.dm.turn_facts import turn_facts
 from aidm.models.encounter import EncounterStatus
 from aidm.models.encounter_events import EncounterEnded, EncounterStarted
 from aidm.models.events import AnyEvent
@@ -160,10 +165,11 @@ def narrate(
     style = style_for(weight)
     style = f"{style} {NUMBERS_ALLOWED}" if allow_numbers else style
     style = f"{style} {VOICE_NEXT.format(name=voice_next)}" if voice_next else style
+    told = turn_facts(state, events, actor_id=actor_id, player_text=player_text)
     messages = narration_messages(
         state,
         events,
-        [*facts, *truth_notes(events)],
+        [*facts, *truth_notes(events), *told, *event_notes(state, events)],
         style,
         actor_id=actor_id,
         player_text=player_text,
@@ -175,7 +181,11 @@ def narrate(
     sentences = guarded_narration(
         llm,
         messages,
-        guard if guard is not None else prose_checker(state, events, voice_next=voice_next),
+        guard
+        if guard is not None
+        else prose_checker(
+            state, events, voice_next=voice_next, actor_id=actor_id, player_text=player_text
+        ),
         fallback,
         max_tokens=max_tokens_for(weight),
         player_text=player_text,
@@ -194,7 +204,8 @@ def narrate_round_segment(
     died = any(e.type in ("creature_died", "encounter_ended") for e in events)
     weight = NarrationWeight.MAJOR if died else NarrationWeight.NORMAL
     style = segment_style_for(weight)
-    messages = narration_messages(state, events, [], style, budget_tokens=budget_tokens)
+    facts = [*turn_facts(state, events), *event_notes(state, events)]
+    messages = narration_messages(state, events, facts, style, budget_tokens=budget_tokens)
     sentences = guarded_narration(
         llm,
         messages,

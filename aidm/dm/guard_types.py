@@ -3,7 +3,9 @@
 Public API:
 - `ViolationKind`: UNKNOWN_NAME, DEAD_ACTING, ITEM_DESTROYED, WRONG_IDENTITY, UNLISTED_FEATURE,
   ABSENT_NPC, INVENTED_CROWD, ERASED_PRESENT, SECRET_LEAK (M4.7), LIVING_DECLARED_DEAD and
-  UNEARNED_REWARD (M4.8), UNHURT_DECLARED_DOWN (M19.1);
+  UNEARNED_REWARD (M4.8), UNHURT_DECLARED_DOWN (M19.1); M29.5c: UNRESOLVED_BLOW, WRONG_WEAPON,
+  UNHURT_WOUNDED, UNPAID, CLAIMED_ITEM, UNMADE_HANDOVER, UNLIT_LIGHT, PLACEHOLDER,
+  INSTRUCTION_LEAK;
   `SCRUBBED_KINDS` (names removed from a retry).
 - `Violation(kind, span, detail)`: `span` is the offending text as written (a name, a phrase).
 - `GuardReport(violations)`: `ok`, `scrub_terms` (distinct offending names, removed from the
@@ -37,6 +39,15 @@ class ViolationKind(StrEnum):
     OFFER_BLOW = "offer_blow"
     SPOKE_FOR_NPC = "spoke_for_npc"
     LOCK_OPENED = "lock_opened"
+    UNRESOLVED_BLOW = "unresolved_blow"  # M29.5c: the honest storyteller
+    WRONG_WEAPON = "wrong_weapon"
+    UNHURT_WOUNDED = "unhurt_wounded"
+    UNPAID = "unpaid"
+    CLAIMED_ITEM = "claimed_item"
+    UNMADE_HANDOVER = "unmade_handover"
+    UNLIT_LIGHT = "unlit_light"
+    PLACEHOLDER = "placeholder"
+    INSTRUCTION_LEAK = "instruction_leak"
 
 
 SCRUBBED_KINDS = frozenset({ViolationKind.UNKNOWN_NAME, ViolationKind.ABSENT_NPC})

@@ -59,6 +59,29 @@ class GuardLexicon(BaseModel):
     speech_verbs: frozenset[str] = frozenset()
     open_claims: frozenset[str] = frozenset()  # M27.5: a lock opened in prose
     lock_failures: frozenset[str] = frozenset()  # M27.5: ...unless the sentence says it held
+    # M29.5c (the honest storyteller): what the engine did not resolve is not told as done
+    attack_claims: frozenset[str] = frozenset()
+    attack_hedges: frozenset[str] = frozenset()
+    weapon_nouns: frozenset[str] = frozenset()
+    attack_words: dict[str, tuple[str, ...]] = {}
+    wound_claims: frozenset[str] = frozenset()
+    payment_verbs: frozenset[str] = frozenset()
+    coin_nouns: frozenset[str] = frozenset()
+    payment_refusals: frozenset[str] = frozenset()
+    gear_nouns: frozenset[str] = frozenset()
+    gear_modifier_stops: frozenset[str] = frozenset()
+    absent_phrases: frozenset[str] = frozenset()
+    handover_claims: frozenset[str] = frozenset()
+    light_nouns: frozenset[str] = frozenset()
+    light_claims: frozenset[str] = frozenset()
+    instruction_phrases: frozenset[str] = frozenset()
+    instruction_caps: tuple[str, ...] = ()  # all-caps imperative words ("Do NOT")
+    epilogue_death_claims: frozenset[str] = frozenset()
+    alive_claims: frozenset[str] = frozenset()
+    use_verbs: frozenset[str] = frozenset()
+    purchase_words: frozenset[str] = frozenset()
+    handover_words: frozenset[str] = frozenset()
+    kindle_words: frozenset[str] = frozenset()
 
     @model_validator(mode="after")
     def _check(self) -> GuardLexicon:

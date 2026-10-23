@@ -23,6 +23,7 @@ from aidm.dm.guard_alive import downed_terms, living_terms, standing_terms
 from aidm.dm.guard_rewards import rewarded
 from aidm.dm.guard_secrets import SecretKey, secret_keys
 from aidm.dm.guard_text import plain
+from aidm.dm.guard_turn import TurnTruth, turn_truth
 from aidm.models import events as ev
 from aidm.models.encounter import EncounterStatus
 from aidm.models.state import GameState
@@ -69,6 +70,7 @@ class GuardScene:
     rewarded: bool = False
     other_places: dict[str, str] = field(default_factory=dict[str, str])
     locked: dict[str, str] = field(default_factory=dict[str, str])  # M27.5: word -> feature
+    turn: TurnTruth = field(default_factory=TurnTruth)  # M29.5c: what these events resolved
 
 
 def _lost_items(events: Sequence[ev.AnyEvent]) -> set[str]:
@@ -136,7 +138,13 @@ def _absent_terms(absent: set[str], here: set[str], lex: GuardLexicon) -> dict[s
     return terms
 
 
-def guard_scene(state: GameState, events: Sequence[ev.AnyEvent] = ()) -> GuardScene:
+def guard_scene(
+    state: GameState,
+    events: Sequence[ev.AnyEvent] = (),
+    *,
+    actor_id: str | None = None,
+    player_text: str | None = None,
+) -> GuardScene:
     lex = guard_lexicon()
     reg = entity_registry(state)
     scene = current_scene(state)
@@ -148,6 +156,7 @@ def guard_scene(state: GameState, events: Sequence[ev.AnyEvent] = ()) -> GuardSc
     monsters = {state.creatures[c].name for c in scene.monster_ids}
     present_roles = _role_words(state, present_ids) | words_of(" ".join(monsters))
     known = set().union(*(words_of(n) for n in reg.all_names - reg.hidden_features))
+    known |= set().union(*(words_of(n) for n in _carried(state)))  # M29.5c G22: keepsakes too
     party = {plain(c.name): c.pc.class_index for c in state.creatures.values() if c.pc is not None}
     slain = {n.name for n in state.world.npcs.values() if n.dead}  # M20.5
     dead = frozenset(plain(n) for n in reg.dead | slain) - living
@@ -179,6 +188,7 @@ def guard_scene(state: GameState, events: Sequence[ev.AnyEvent] = ()) -> GuardSc
         rewarded=rewarded(events),
         other_places=_other_places(state),
         locked=_locked_terms(state, scene, lex),
+        turn=turn_truth(state, events, actor_id=actor_id, player_text=player_text),
     )
 
 

@@ -38,12 +38,22 @@ from collections.abc import Sequence
 from aidm.dm.guard_alive import downed_rising, living_declared_dead, unhurt_declared_down
 from aidm.dm.guard_claims import false_travel, invented_strangers, offer_blows, spoken_for
 from aidm.dm.guard_flow import MAX_SENTENCES, GuardedSentences
+from aidm.dm.guard_goods import claimed_items, unlit_light, unmade_handover, unpaid_coin
+from aidm.dm.guard_leaks import instructions, placeholders
 from aidm.dm.guard_names import absent_people, crowds, erased_people, unknown_names, wrong_identity
 from aidm.dm.guard_pronoun import PronounContext, pronoun_declared_dead
 from aidm.dm.guard_rewards import unearned_rewards
 from aidm.dm.guard_scene import GuardScene, guard_scene
 from aidm.dm.guard_secrets import leaked_secrets
-from aidm.dm.guard_text import plain, tokenize
+from aidm.dm.guard_text import Token, plain, tokenize
+from aidm.dm.guard_truth import (
+    dead_alive,
+    pronoun_down,
+    unhurt_wounded,
+    unresolved_blows,
+    wrong_weapon,
+)
+from aidm.dm.guard_turn import TurnTruth
 from aidm.dm.guard_types import GuardReport, ProseCheck, Violation
 from aidm.dm.guard_world import dead_acting, destroyed_items, opened_locks, unlisted_features
 from aidm.dm.llm_backend import Message
@@ -84,6 +94,26 @@ def _sentence_violations(
         *offer_blows(sentence, scene),
         *spoken_for(sentence, scene),
         *opened_locks(sentence, tokens, scene),
+        *_honest(sentence, tokens, scene, context),
+    ]
+
+
+def _honest(
+    sentence: str, tokens: list[Token], scene: GuardScene, context: PronounContext
+) -> list[Violation]:
+    """M29.5c: nothing the engine did not resolve is told as done, and no machinery leaks."""
+    return [
+        *placeholders(sentence),
+        *instructions(sentence, scene.lexicon),
+        *unresolved_blows(sentence, tokens, scene),
+        *wrong_weapon(sentence, scene),
+        *unhurt_wounded(sentence, tokens, scene),
+        *pronoun_down(sentence, tokens, scene, context),
+        *dead_alive(sentence, tokens, scene),
+        *unpaid_coin(sentence, tokens, scene),
+        *claimed_items(sentence, tokens, scene),
+        *unmade_handover(sentence, tokens, scene),
+        *unlit_light(sentence, tokens, scene),
     ]
 
 
@@ -104,10 +134,20 @@ def check_prose(
 
 
 def prose_checker(
-    state: GameState, events: Sequence[AnyEvent] = (), *, voice_next: str | None = None
+    state: GameState,
+    events: Sequence[AnyEvent] = (),
+    *,
+    voice_next: str | None = None,
+    actor_id: str | None = None,
+    player_text: str | None = None,
+    speech: bool = False,
 ) -> ProseCheck:
-    """One checker per narration: it remembers who earlier sentences named (pronouns, QA-03)."""
-    scene = dataclasses.replace(guard_scene(state, events), voice_next=voice_next or "")
+    """One checker per narration: it remembers who earlier sentences named (pronouns, QA-03).
+    `actor_id` and `player_text` let it know what the player claimed (M29.5c); an NPC's own
+    `speech` is not judged by this turn's blows, payments and hand-overs."""
+    base = guard_scene(state, events, actor_id=actor_id, player_text=player_text)
+    turn = TurnTruth() if speech else base.turn
+    scene = dataclasses.replace(base, voice_next=voice_next or "", turn=turn)
     context = PronounContext()
     return lambda text: check_prose(text, state, scene=scene, context=context)
 

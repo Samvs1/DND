@@ -4,7 +4,7 @@ engine did (a find on a failed check, a step met by an item already carried)."""
 
 from collections import Counter
 
-from aidm.dm.event_text import event_line
+from aidm.dm.event_text import event_line, event_notes
 from aidm.models.events import CheckResolved
 from aidm.models.quest_events import QuestLead, QuestLeadAdded, QuestStepDone, RouteDiscovered
 from aidm.models.world_events import ItemDiscovered, RewardGranted
@@ -56,7 +56,8 @@ def test_m29_step_met_on_accept_names_the_carried_item() -> None:
     assert isinstance(step, QuestStepDone) and step.step == 0
     line = event_line(replay_until("p2", 706), step)
     assert line is not None
-    assert "Elowen already carries the Hatched Moth" in line and "no new deed" in line
+    assert "Elowen already carries the Hatched Moth" in line and "no new deed" not in line
+    assert "no new deed" in " ".join(event_notes(replay_until("p2", 706), [step]))
 
 
 def test_m29_opening_routes_are_ways_known_not_found() -> None:

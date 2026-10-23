@@ -34,9 +34,11 @@ _WORD = re.compile(r"[A-Za-z]+")
 
 @dataclass
 class PronounContext:
-    """Who the last sentence that named anyone named: name -> alive."""
+    """Who the last sentence that named anyone named: name -> alive (and name -> still standing,
+    for `aidm.dm.guard_truth.pronoun_down`, M29.5c)."""
 
     last: dict[str, bool] = field(default_factory=dict[str, bool])
+    standing: dict[str, bool] = field(default_factory=dict[str, bool])
 
 
 def _mentions(sentence: str, scene: GuardScene) -> list[tuple[int, str, bool]]:

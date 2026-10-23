@@ -1,7 +1,9 @@
 """Plain-language lines for the campaign events (M5.4): one set for the model, one for templates.
 
 `CAMPAIGN_EVENT_LINES` join `aidm.dm.event_text` (authoritative lines with numbers, for the
-model); `CAMPAIGN_TEMPLATE_LINES` join `aidm.dm.narration_templates` (no digits, for players when
+model, and public: they hold facts only); `CAMPAIGN_EVENT_NOTES` are the model-only instructions
+that go with them (M29.5c G36: "Do NOT choose for them" reached a player's notice line);
+`CAMPAIGN_TEMPLATE_LINES` join `aidm.dm.narration_templates` (no digits, for players when
 no model is available). The encounter offer IS the warning beat, so its template line always
 names the danger and the choices. Never renders motives, secrets or ally paths.
 M23.9: with a finale in the plan the final resolution ends on the finale question (the model is
@@ -63,8 +65,7 @@ def _resolved_fact(state: GameState, e: ce.RegionResolved) -> str:
         a, b = (o.title for o in finale.options)
         return (
             f"Region {e.region_id} resolved by {e.how.value}. The last region is resolved. "
-            f'The party must now choose: {finale.question} The two endings: "{a}" or "{b}". '
-            "Do NOT choose for them and do not tell either ending: end with that question."
+            f'The party must now choose: {finale.question} The two endings: "{a}" or "{b}".'
         )
     end = " The campaign is complete." if e.final else " The way to the next region is open."
     return f"Region {e.region_id} resolved by {e.how.value}.{end}"
@@ -85,10 +86,18 @@ def _chosen_fact(state: GameState, e: ce.FinaleChosen) -> str | None:
     ending = chosen_ending(state)
     if ending is None:
         return None
-    return (
-        f'FINALE: the party chose the ending "{ending.title}": {ending.text} Tell this ending '
-        "as it happens now; the campaign is complete."
-    )
+    return f'The party chose the ending "{ending.title}": {ending.text} The campaign is complete.'
+
+
+FINALE_ASK_NOTE = (
+    "The party has not chosen yet: do not choose for them and do not tell either ending; end"
+    " with the finale question."
+)
+FINALE_TELL_NOTE = "Tell the chosen ending as it happens now."
+
+
+def _resolved_note(state: GameState, e: ce.RegionResolved) -> str | None:
+    return FINALE_ASK_NOTE if _finale(state, e) is not None else None
 
 
 def _chosen_story(state: GameState, e: ce.FinaleChosen) -> str | None:
@@ -114,6 +123,12 @@ CAMPAIGN_EVENT_LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = 
     ce.RegionResolved: _resolved_fact,
     ce.FinaleChosen: _chosen_fact,
     ce.CampaignInstalled: lambda s, e: None,
+}
+
+# M29.5c G36: instructions for the model only, never part of a line a player can see
+CAMPAIGN_EVENT_NOTES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
+    ce.RegionResolved: _resolved_note,
+    ce.FinaleChosen: lambda s, e: FINALE_TELL_NOTE if chosen_ending(s) is not None else None,
 }
 
 CAMPAIGN_TEMPLATE_LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {

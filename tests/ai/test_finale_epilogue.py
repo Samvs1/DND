@@ -7,7 +7,7 @@ from aidm.dm.context import SectionKey, build_context
 from aidm.dm.context_text import ContextPurpose
 from aidm.dm.epilogue import epilogue_checker
 from aidm.dm.epilogue_facts import epilogue_facts, template_epilogue
-from aidm.dm.event_text import event_line
+from aidm.dm.event_text import event_line, event_notes
 from aidm.dm.narration_templates import template_line
 from aidm.models.campaign_events import FinaleChosen, RegionResolved
 from aidm.models.campaign_state import RegionResolution
@@ -134,7 +134,8 @@ def test_final_resolution_line_ends_on_the_question_and_the_choice_tells_the_end
     final = next(e for e in reversed(log) if isinstance(e, RegionResolved))
     fact = event_line(state, final) or ""
     assert "must now choose" in fact and _finale_question() in fact
-    assert "Do NOT choose for them" in fact and SILENCE_TEXT not in fact
+    assert SILENCE_TEXT not in fact and "do not" not in fact.lower()  # M29.5c G36: facts only
+    assert "do not choose for them" in " ".join(event_notes(state, [final]))
     story = template_line(state, final) or ""
     assert story.endswith(_finale_question())
     chosen = FinaleChosen(option_id="silence-the-song")
