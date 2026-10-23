@@ -17,9 +17,9 @@ Saves: saves/playtests/p1-classic/saves and saves/playtests/p6-breaker/saves (ca
 | id | what | where (save / event) | severity |
 |---|---|---|---|
 | G1 | Narrator describes a purchase and payment no shop tool performed; gold and pack unchanged | p6 60, 67, 75 | high: closed world |
-| G2 | A Restorative Draught in the pack cannot be drunk by typing; narrator says the pack holds no draught | p6 875-884 | high |
+| G2 | A Restorative Draught in the pack cannot be drunk by typing; narrator says the pack holds no draught | p6 875-884 | high | (fixed M29.5b 1952114: typed drink/use/pour/give goes through the potion Use path) |
 | G3 | Narrator treats claimed items as real (potion "shatters" then becomes canon, silk rope, javelin, 500 gold) | p6 37, 39, 41, 86, 335 | high: closed world |
-| G4 | Free-text `act` during a fight returns nothing (no reply, no error, no event) | p6 151, 180, 702 | high: "never silent" |
+| G4 | Free-text `act` during a fight returns nothing (no reply, no error, no event) | p6 151, 180, 702 | high: "never silent" | (not reproduced: the save has a reply for each, 151-152 narration, 180-184 a creative-action check and damage, 702-703 narration; the harness `settle` returned during the live model's silent gap) |
 | G5 | Away heroes are auto-played without a visible "(away)" label; grace differs per hero (30 s / 4.5 s / none) | p1 66-69, 83 | medium |
 | G6 | Narration describes attacks before they are rolled / against the wrong target | p1 59 | medium |
 | G7 | Narration names the wrong weapon (mace / blade for crossbow, shortbow, longbow, bite) | p1 82; p6 158, 241 | low |
@@ -46,7 +46,7 @@ About 132 actions, region 1 resolved, 0 defeats, stopped by the stuck rule. Susp
 | id | what | where (event) | severity |
 |---|---|---|---|
 | G16 | Travel to region 2 ("Reedland Ferry") only "proposes", never travels, no reason shown | 689-691, 722 | blocker (check vote) | (fixed M29.5a 5bdb9de: travel confirm shown, answerable)
-| G17 | Rest by typing is prose only (HP unchanged); out-of-fight Cure Wounds and Potion of Healing / Herbal Poultice on an ally do nothing | 355-361, 662-666 | blocker (rest: check vote; healing: real gap, G2 family) |
+| G17 | Rest by typing is prose only (HP unchanged); out-of-fight Cure Wounds and Potion of Healing / Herbal Poultice on an ally do nothing | 355-361, 662-666 | blocker (rest: check vote; healing: real gap, G2 family) | (fixed M29.5b 1952114: healing part; rest part open: wordy rest sentences at 353-357 went to the storyteller, which has no rest tool; the plain commands work) |
 | G18 | XP maybe paid twice: 75 at the warning beat and again at victory (zombie 47/118, thug 179/240, wolves 273/336) | 47, 118, 179, 240, 273, 336 | high (balance) |
 | G19 | Items "found" on a FAILED Investigation while prose says nothing found; an item (hatched moth) described as a creature | 135, 143 | medium |
 | G20 | Quest step completes on accept, narrator claims the hero did it | 707 | medium |
@@ -65,15 +65,15 @@ Whole campaign to the epilogue in 261 actions; all alive, L5; one defeat + retry
 Explains G16: travel into the next region waits for `answer confirm`, which the harness never shows (harness gap, not an engine bug).
 | id | what | where (event) | severity |
 |---|---|---|---|
-| G29 | Boss encounter offer stays open after the region resolves by alliance; a failed parley on it turns the allied boss hostile; blocks travel and the finale | 849-890, 1061, 1533-1714 | blocker |
-| G30 | Side-quest NPC and boss share one name ("Ranna" x2 in People); "give X to Ranna" goes to the boss record; the deliver step cannot finish | 420-426 | blocker (route) |
+| G29 | Boss encounter offer stays open after the region resolves by alliance; a failed parley on it turns the allied boss hostile; blocks travel and the finale | 849-890, 1061, 1533-1714 | blocker | (fixed M29.5b 9344e3f) |
+| G30 | Side-quest NPC and boss share one name ("Ranna" x2 in People); "give X to Ranna" goes to the boss record; the deliver step cannot finish | 420-426 | blocker (route) | (fixed M29.5b 9344e3f) |
 | G31 | Narrator narrates a hand-over that did not happen (only "give X to Y" works) | 415-420 | high: closed world |
 | G32 | Narrator invents wounds and kills (lizardfolk "falls still" at 22/22; "rat-bites" on full-HP heroes) | 66, 74, 150, 315, 496 | medium |
-| G33 | Out-of-fight Cure Wounds by typing narrates a heal, HP and slots unchanged (G17 family) | 592 | high |
-| G34 | Generated campaign with NO shop in any of 15 places; long-rest refusal does not say supplies vs hour | 1363 | high (generator) |
+| G33 | Out-of-fight Cure Wounds by typing narrates a heal, HP and slots unchanged (G17 family) | 592 | high | (fixed M29.5b 1952114) |
+| G34 | Generated campaign with NO shop in any of 15 places; long-rest refusal does not say supplies vs hour | 1363 | high (generator) | (fixed M29.5b 9344e3f) |
 | G35 | Epilogue contradicts state (dead/alive bosses, the egg) | 1761 | medium |
 | G36 | Prompt instructions leak into notice lines ("Do NOT choose for them...") | 1551, 1760 | high (guard) |
-| G37 | `do flee`: fled hero still listed in the zone; after a retry two heroes were auto-played "dodging" the whole rematch | 1571, 1749 | medium (check harness after retry) | (fixed M29.5a 5bdb9de: harness part)
+| G37 | `do flee`: fled hero still listed in the zone; after a retry two heroes were auto-played "dodging" the whole rematch | 1571, 1749 | medium (check harness after retry) | (fixed M29.5a 5bdb9de: harness part) (fixed M29.5b f37d4ea: restored seats get the reconnect grace) |
 | G38 | Offer lists the boss foe as "?" | 850, 1534 | low | (fixed M29.5a 5bdb9de: harness shows the boss name)
 | G39 | No cantrips in casters' fight options (eldritch blast, fire bolt, sacred flame) | 66-82 | check (harness or view) | (fixed M29.5a 5bdb9de: harness only; the server sends cantrips)
 | G40 | Harness: travel confirm, finale and offers not shown in `look`; parley skill choice (persuasion/intimidation) not shown; area spells cannot take a zone | 460-473 | harness | (fixed M29.5a 5bdb9de)
