@@ -21,7 +21,7 @@ Public API: `fight_command(state, actor_id, text) -> FightCommand | None`.
 import re
 
 from aidm.data.combat_data import combat_registries
-from aidm.dm.attack_intent import attack_command
+from aidm.dm.attack_intent import typed_attack
 from aidm.dm.heal_intent import heal_intent
 from aidm.models.commands import (
     AttackCommand,
@@ -70,7 +70,7 @@ def fight_command(state: GameState, actor_id: str, text: str) -> FightCommand | 
         return None
     if actor_id not in enc.combatants:
         return None
-    attack = attack_command(state, actor_id, text)
+    attack = typed_attack(state, actor_id, text)
     if attack is not None:
         return attack
     clean = " ".join(text.lower().replace("’", "'").split()).rstrip(".!?").strip()

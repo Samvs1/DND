@@ -1,7 +1,7 @@
 """Typed weapon attacks in a fight (M29.7a R22: "I swing my longsword at Mirrorwarden Luth" became
 a creative action, a Strength check and a flat 2d6 with no roll against AC, and killed a master).
 
-`attack_command(state, actor_id, text)` reads a PLAIN weapon attack on a foe of the fight and
+`typed_attack(state, actor_id, text)` reads a PLAIN weapon attack on a foe of the fight and
 returns the SAME `AttackCommand` the hotbar sends, so armour class, advantage, the weapon's own
 damage dice and the turn economy all apply (the rules refuse it with their reason: out of
 reach, no attack left). Read forms (the hero's own name with a third-person verb reads the same):
@@ -13,7 +13,7 @@ the weapon words; no weapon named: the ranged option for shoot / fire / loose, e
 hand. A named weapon that is no option of the hero (not in hand) or anything more ("swing from
 the chandelier into him", "kick the brazier at it") is None: it stays a creative action.
 
-Public API: `attack_command(state, actor_id, text) -> AttackCommand | None`.
+Public API: `typed_attack(state, actor_id, text) -> AttackCommand | None`.
 """
 
 import re
@@ -81,7 +81,7 @@ def _option(actor: Creature, weapon: str | None, verb: str) -> str | None:
     return "main_hand" if any(o.key == "main_hand" for o in options) else UNARMED_KEY
 
 
-def attack_command(state: GameState, actor_id: str, text: str) -> AttackCommand | None:
+def typed_attack(state: GameState, actor_id: str, text: str) -> AttackCommand | None:
     enc = state.encounter
     actor = state.creatures.get(actor_id)
     if enc is None or enc.status is not EncounterStatus.ACTIVE or actor is None:
