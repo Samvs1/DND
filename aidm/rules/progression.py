@@ -9,7 +9,7 @@ resolving the last region completes the campaign.
 Public API:
 - `region_of(state, node_id) -> RegionPlan | None`; `node_plan(state, node_id) -> NodePlan | None`.
 - `boss_npc(state, region) -> WorldNpc | None`; `boss_defeated(state, region) -> bool`
-  (a dead creature with the boss's name and stat block).
+  (a dead creature with the boss's name and stat block, or one that surrendered, M29.9a).
 - `region_resolution_events(state) -> list[AnyEvent]`: `RegionResolved` (+ the next act's
   quest items) for every unresolved region whose boss is defeated or allied; empty otherwise. The
   session calls it after a fight ends and after attitude changes. M29.9a T15: no deed or quest
@@ -27,9 +27,10 @@ from aidm.models.campaign_events import OfferResolved, RegionResolved
 from aidm.models.campaign_state import EncounterOffer, OfferChoice, RegionResolution
 from aidm.models.dm_tiers import AttitudeBand
 from aidm.models.events import AnyEvent
-from aidm.models.state import GameState
+from aidm.models.state import Creature, GameState
 from aidm.models.world import WorldNpc
 from aidm.rules.campaign_install import act_quest_events
+from aidm.rules.conditions import condition_def
 from aidm.rules.plan_ids import boss_npc_id
 from aidm.rules.social import attitude_band, attitude_score
 
@@ -58,9 +59,14 @@ def boss_npc(state: GameState, region: RegionPlan) -> WorldNpc | None:
 def boss_defeated(state: GameState, region: RegionPlan) -> bool:
     boss = region.boss
     return any(
-        c.dead and c.name == boss.name and c.monster_index == boss.monster_id
+        (c.dead or _yielded(c)) and c.name == boss.name and c.monster_index == boss.monster_id
         for c in state.creatures.values()
     )
+
+
+def _yielded(creature: Creature) -> bool:
+    """M29.9a: a master who surrendered to the party counts as beaten (DECISIONS M29.9a)."""
+    return any(condition_def(c.name).counts_as_defeated for c in creature.conditions)
 
 
 def _allied(state: GameState, region: RegionPlan) -> bool:

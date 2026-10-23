@@ -123,7 +123,7 @@ def _hurt(batch: _Batch, origin: _Origin, harm: SurfaceHarm, target_id: str, hal
     batch.emit(events)
     if events and isinstance(events[0], DamageTaken):
         batch.emit(concentration_after_damage(batch.rng, batch.state, events[0]))
-        batch.emit(harm_ended_events(batch.state, events[0]))
+        batch.emit(harm_ended_events(batch.state, events[0], direct=False))
 
 
 def _afflict(batch: _Batch, origin: _Origin, harm: SurfaceHarm, target_id: str) -> None:

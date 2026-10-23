@@ -16,6 +16,9 @@
 - `offer_dc_tiers` / `boss_parley_dc_tiers` (M5.4): the DC tier (a `DcTier` value) of the
   escape / surprise / parley checks of a world-pulled encounter, by region tier; parleying
   with a boss uses the second table.
+- `surrender_unbeaten_steps` (M29.9a): a demand to surrender in a fight uses the same DC tables
+  (the boss table when a master stands among the foes), this many tiers harder while no foe
+  has fallen and the foes keep more than half their hit points (`aidm.rules.surrender`).
 - `quest_gold_gp` (M5.6): gold per living PC for a completed quest, by region tier then reward
   tier.
 - `milestone_xp` (M29.6b, was level-scaled `grant_xp` tiers): XP per PC by REGION tier for a
@@ -103,6 +106,7 @@ class DmTiers(_Strict):
     deed_points: dict[str, int]
     offer_dc_tiers: dict[str, str] = Field(default_factory=dict[str, str])
     boss_parley_dc_tiers: dict[str, str] = Field(default_factory=dict[str, str])
+    surrender_unbeaten_steps: int = Field(default=1, ge=0, le=4)
     quest_gold_gp: dict[str, dict[str, int]]
     milestone_xp: dict[str, MilestoneXp]
     final_milestone_xp: int = Field(ge=0)

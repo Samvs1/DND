@@ -32,6 +32,7 @@ def test_extras_are_marked_non_srd() -> None:
     spell_extras |= {"burning"}  # M27.6: SRD Alchemist's Fire
     spell_extras |= {"befriended"}  # M29.7d: Animal Friendship, Charm Person
     spell_extras |= {"acid-burn"}  # M29.9a: Acid Arrow's later acid
+    spell_extras |= {"surrendered"}  # M29.9a: a successful demand to surrender
     base = {"dodging", "hidden", "surprised", "helped", "blessed", "shield-of-faith"}
     assert extras == base | spell_extras
 

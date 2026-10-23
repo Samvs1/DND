@@ -22,6 +22,10 @@ Fields of `ConditionDef` (all but index/name/source default to "no effect"):
   `ends_on_source_side_harm` (M29.7d): the instance ends when the creature that applied it, or
   anyone on its side, damages the bearer (SRD 5.1 Animal Friendship, Charm Person: "if you or
   your companions harm it"); a hostile befriended so by the party no longer keeps a fight going.
+  M29.9a (surrender): `harm_must_be_direct` limits that to a blow (an attack, spell or action),
+  never a surface or a lasting condition already burning; `counts_as_defeated` makes a hostile
+  so held by the party count as defeated (kill XP, loot, a master beaten); `spares_types` lists
+  creature types the condition never takes hold of (the mindless do not yield).
 - `unseen` / `sightless` (M29.7d): others cannot see the bearer (invisible, hidden) / the
   bearer cannot see (blinded); read by "Ranged Attacks in Close Combat" (`rules.hit_chance`).
 - `speed_bonus`: feet added to the bearer's speed while it can move (Longstrider).
@@ -133,6 +137,9 @@ class ConditionDef(BaseModel):
     consumed_by_attack: bool = False
     ends_on_damage: bool = False
     ends_on_source_side_harm: bool = False
+    harm_must_be_direct: bool = False
+    counts_as_defeated: bool = False
+    spares_types: tuple[str, ...] = ()
     unseen: bool = False
     sightless: bool = False
     speed_bonus: int = Field(default=0, ge=0)

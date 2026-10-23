@@ -54,6 +54,7 @@ from aidm.dm.precheck import (
     asks_what_now,
     precheck,
 )
+from aidm.dm.surrender_intent import surrender_intent
 from aidm.dm.tool_context import ToolContext
 from aidm.dm.tool_exec import execute_tool
 from aidm.dm.use_intent import UseIntent
@@ -82,14 +83,12 @@ from aidm.session import (
 from aidm.session.declared import declare
 from aidm.session.opening import strike_if_opening
 from aidm.session.quest_people import CROSS_STAY, hold
+from aidm.session.surrender_turn import ACTION_SPENT, surrender_turn
 from aidm.session.table_core import Job, Player, TableCore
 from aidm.session.telling import conclude, remember, tell_text
 
 HOLD = "{name} stands on the brink of violence. {why}"  # M29.5c G11: the reason, too
 STAY_HAND = "You stay your hand, and the moment passes without bloodshed."
-ACTION_SPENT = (
-    "You have already used your action this turn. Move, use a bonus action or end your turn."
-)
 
 
 def submit_action(core: TableCore, player: Player, msg: SubmitAction) -> None:
@@ -136,6 +135,10 @@ def _combat_text(core: TableCore, player: Player, pc: Creature, text: str) -> No
     command = fight_command(core.state, pc.id, text)
     if command is not None:  # M29.5b: "I use Second Wind", "I drink my potion": the hotbar's way
         core.schedule(lambda: _typed_command(core, player, entry, command))
+        return
+    demand = surrender_intent(core.state, pc.id, text)
+    if demand is not None:  # M29.9a T12: "surrender!" is one engine check, not a story roll
+        core.schedule(lambda: surrender_turn(core, player, entry, demand))
         return
     if not _action_left(core, pc.id):
         core.error(player.id, ErrorCode.REFUSED, ACTION_SPENT)

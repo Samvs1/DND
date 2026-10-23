@@ -594,6 +594,7 @@ Conditions are shown on tokens and on your sheet.
 | Befriended | Cannot attack whoever charmed it; ends when whoever caused it, or one of their companions, harms it; also counts as charmed. |
 | Burning | Takes 1d4 fire damage at the start of its turns; an action and a DC 10 DEX check end it; lasts 10 rounds. |
 | Acid Burn | Takes 2d4 acid damage at the end of its turn; lasts 1 round. |
+| Surrendered | Cannot move; cannot take actions; cannot take reactions; ends when whoever caused it, or one of their companions, harms it. |
 <!-- end generated:conditions -->
 
 ### Suggestions
@@ -601,6 +602,9 @@ When it is another hero's turn, you can **suggest a move** to them (not during a
 
 ### Monster behaviour and loot
 Monsters have a fixed number of hit points. The host can scale monster health and damage (see For the host). Each defeated foe adds to the loot of the fight, and the experience of every defeated foe is split evenly among the living heroes.
+
+### Demanding surrender
+On your turn you can call on the foes to give up: *I call for them to surrender*, *drop your weapons*, *yield and we spare you*. It takes your action and is one roll: Intimidation, or Persuasion when you offer mercy (*spare*, *plead*, *promise*, *convince*). The difficulty is the same as talking your way past trouble in that region (easy in the first region, medium after that), one step harder while none of them has fallen and they still have more than half their strength. On a success every foe still standing **surrenders**: it drops its weapons and cannot attack, move or react. Undead, constructs, oozes and plants never surrender; they fight on. A surrendered foe stays surrendered until a hero strikes it (an attack, a spell or an action); fire or oil the party set before it gave up can still burn it, and that does not end the surrender. When every foe left has surrendered or been befriended, the fight ends in victory, and surrendered foes count as beaten: they give experience and their loot, and a region's master who surrenders is dealt with as if defeated. On a failure nothing changes but your action.
 
 ### Ending a fight
 A fight ends in **victory** when no hostile creature is left standing, in **defeat** when no hero can act, or when the party has fled. A foe your party has **befriended** (Animal Friendship on a beast, Charm Person on a person) no longer keeps a fight going: when only befriended foes are left, the fight ends as a victory. They are not defeated, so they give no experience and no loot. The charm ends as soon as the caster or any hero harms them. When a fight ends, effects that last a number of rounds end, and the story continues. The screen's **VICTORY!** banner and the victory music play only after a real victory, never after a defeat or an escape.

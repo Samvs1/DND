@@ -60,7 +60,7 @@ def _condition_damage(rng: Rng, state: GameState, creature_id: str, at_end: bool
         if hurt and isinstance(hurt[0], DamageTaken):
             after = project_state(state, events)
             events.extend(concentration_after_damage(rng, after, hurt[0]))
-            events.extend(harm_ended_events(after, hurt[0]))
+            events.extend(harm_ended_events(after, hurt[0], direct=False))
     return events
 
 

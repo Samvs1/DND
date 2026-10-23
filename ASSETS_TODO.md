@@ -7,9 +7,9 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 `python scripts/gen_assets_todo.py`. Prompts start with the style bible
 (`docs/STYLE_BIBLE.md`). Never overwrite a real or v1 asset.
 
-9 placeholder entries: condition_icon 2, music 1, sfx 6
+10 placeholder entries: condition_icon 3, music 1, sfx 6
 
-## condition_icon (2)
+## condition_icon (3)
 
 ### condition_icon.acid-burn
 - file: aidm/web/static/img/icons/conditions/acid_burn.png
@@ -22,6 +22,12 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 - size: 128x128
 - transparent: yes
 - prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The status condition Befriended as a plain symbol. One simple symbolic mark of the status, centred, bold shapes readable at 32 px, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.
+
+### condition_icon.surrendered
+- file: aidm/web/static/img/icons/conditions/surrendered.png
+- size: 128x128
+- transparent: yes
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The status condition Surrendered as a plain symbol. One simple symbolic mark of the status, centred, bold shapes readable at 32 px, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.
 
 ## music (1)
 

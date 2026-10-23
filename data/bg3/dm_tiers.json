@@ -31,6 +31,7 @@
   "deed_points": {"minor": 10, "moderate": 20, "major": 35},
   "offer_dc_tiers": {"1": "easy", "2": "medium", "3": "medium"},
   "boss_parley_dc_tiers": {"1": "easy", "2": "medium", "3": "medium"},
+  "surrender_unbeaten_steps": 1,
   "quest_gold_gp": {
     "1": {"minor": 25, "moderate": 60, "major": 120},
     "2": {"minor": 60, "moderate": 150, "major": 300},

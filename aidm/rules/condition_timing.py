@@ -34,6 +34,7 @@ from aidm.models.events import (
 from aidm.models.state import ActiveCondition, Creature, GameState
 from aidm.rules.conditions import condition_def, save_with_conditions
 from aidm.rules.dice import Rng
+from aidm.rules.monster_stats import creature_type_of
 
 
 def new_condition(
@@ -77,8 +78,10 @@ def _with_implied(name: str) -> set[str]:
 
 
 def apply_condition(target: Creature, condition: ActiveCondition) -> list[AnyEvent]:
-    condition_def(condition.name)
+    cdef = condition_def(condition.name)
     if target.dead or _with_implied(condition.name) & set(target.condition_immunities):
+        return []
+    if creature_type_of(target) in cdef.spares_types:  # M29.9a: the mindless never yield
         return []
     return [ConditionApplied(creature_id=target.id, condition=condition)]
 

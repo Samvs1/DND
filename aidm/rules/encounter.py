@@ -32,6 +32,8 @@ Public API:
   otherwise no HOSTILE combatant standing -> VICTORY. NEUTRAL combatants never decide it, nor
   does a hostile befriended by the party (M29.7d, `rules.harm_ends`): when only such foes are
   left the fight ends as a victory; they are not defeated (no kill XP, no loot from them).
+  M29.9a: a foe that surrendered to the party (`surrendered`, `rules.surrender`) ends the fight
+  the same way and DOES count as defeated (`harm_ends.yielded_to_party`: kill XP and loot).
 - `withdraw_combatant(state, creature_id, reason) -> list[AnyEvent]`: fled or surrendered.
 - `defeated_hostiles(state) -> list[Combatant]`: the HOSTILE combatants that count as defeated
   (loot and kill XP use it).
@@ -71,7 +73,7 @@ from aidm.rules.condition_timing import apply_condition, combat_end_events, new_
 from aidm.rules.conditions import can_take_reactions
 from aidm.rules.dice import Rng, roll
 from aidm.rules.difficulty import scale_spawn
-from aidm.rules.harm_ends import befriended_by_party
+from aidm.rules.harm_ends import befriended_by_party, yielded_to_party
 from aidm.rules.leveling import gain_xp
 from aidm.rules.monster_stats import creature_from_monster
 
@@ -278,6 +280,8 @@ def withdraw_combatant(
 
 def _defeated(state: GameState, combatant: Combatant) -> bool:
     if combatant.withdrawn is WithdrawReason.SURRENDERED:
+        return True
+    if yielded_to_party(state, combatant.creature_id):  # M29.9a: surrendered to the party
         return True
     creature = state.creatures.get(combatant.creature_id)
     if creature is None or combatant.withdrawn is WithdrawReason.FLED:
