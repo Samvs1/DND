@@ -22,9 +22,9 @@ function zoneBadges(zone) {
   return out;
 }
 
-/** One '?' per fact, in a row under the chip (a button cannot hold a button). */
+/** One '?' per fact, laid over the chip's badge row right after its badge (a button cannot hold a button). */
 function badgeTips(facts) {
-  return h('ul', { class: 'ct-t-tips', 'aria-label': t('ct.zoneFacts') }, ...facts.map((f) => h('li', { class: 'ct-tip-fact' }, h('span', {}, f.text), tipButton(f.tip, f.text))));
+  return h('ul', { class: 'ct-t-tips', 'aria-label': t('ct.zoneFacts') }, ...facts.map((f) => h('li', { class: 'ct-tip-fact' }, h('span', { class: 'ct-zb ct-zb-ghost', 'aria-hidden': 'true' }, f.text), tipButton(f.tip, f.text))));
 }
 
 /** What a zone needs, or '' when it can be walked to now. */
@@ -46,7 +46,7 @@ function zoneChip(zone, { combat, mine, ctrl, arming }) {
     { type: 'button', class: `ct-target place${here ? ' here' : ''}`, disabled: !reachable && !arming, 'data-testid': 'zone-chip', 'data-zone': zone.id, onclick: () => ctrl.pickZone(zone) },
     h('span', { class: 'ct-t-zone' }, label),
     note ? h('span', { class: 'ct-t-need', 'data-testid': 'zone-need' }, note) : null,
-    facts.length ? h('span', { class: 'ct-t-badges' }, ...facts.map((f) => h('span', { class: 'ct-zb', 'data-testid': 'zone-badge' }, f.text))) : null,
+    facts.length ? h('span', { class: 'ct-t-badges' }, ...facts.flatMap((f) => [h('span', { class: 'ct-zb', 'data-testid': 'zone-badge' }, f.text), h('span', { class: 'ct-zb-gap', 'aria-hidden': 'true' })])) : null,
   );
   return facts.length ? h('div', { class: 'ct-place-cell' }, button, badgeTips(facts)) : button;
 }

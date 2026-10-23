@@ -39,18 +39,35 @@ function refresh() {
   }
 }
 
+function bottomLimit(button) {
+  const vh = window.innerHeight;
+  const strip = document.querySelector('.ct-strip');
+  if (!strip || strip.contains(button)) return vh - EDGE;
+  const top = strip.getBoundingClientRect().top;
+  return (top > 0 ? Math.min(vh, top) : vh) - EDGE; // keep the hero strip usable while a tip is open
+}
+
 function place(pop, button) {
+  pop.style.maxHeight = '';
+  pop.style.overflowY = '';
   const r = button.getBoundingClientRect();
   const w = pop.offsetWidth;
-  const hh = pop.offsetHeight;
   const vw = document.documentElement.clientWidth;
-  const vh = window.innerHeight;
+  const below = bottomLimit(button) - (r.bottom + GAP);
+  const above = r.top - GAP - EDGE;
+  const hh = pop.offsetHeight;
+  const up = hh > below && above > below;
+  const room = up ? above : below;
+  if (hh > room) {
+    pop.style.maxHeight = `${Math.max(room, 60)}px`;
+    pop.style.overflowY = 'auto';
+  }
+  const height = Math.min(hh, Math.max(room, 60));
   let left = r.left;
   if (left + w > vw - EDGE) left = r.right - w; // flip to the left at the right edge
-  let top = r.bottom + GAP;
-  if (top + hh > vh - EDGE) top = r.top - hh - GAP; // flip above at the bottom edge
+  const top = up ? r.top - height - GAP : r.bottom + GAP;
   pop.style.left = `${Math.max(EDGE, Math.min(left, vw - w - EDGE))}px`;
-  pop.style.top = `${Math.max(EDGE, Math.min(top, vh - hh - EDGE))}px`;
+  pop.style.top = `${Math.max(EDGE, top)}px`;
 }
 
 export function closeTip(returnFocus = true) {

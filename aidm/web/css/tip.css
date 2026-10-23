@@ -14,6 +14,7 @@
   cursor: pointer;
   background: transparent;
   border: 1px solid var(--line-2);
+  margin-inline-start: 6px;
   border-radius: 50%;
 }
 
@@ -77,6 +78,7 @@
   top: 0;
   right: 0;
   z-index: 2;
+  margin: 0;
   background: color-mix(in srgb, var(--raised) 85%, transparent);
 }
 
@@ -85,22 +87,45 @@
 }
 
 .ct-t-tips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.2rem 0.5rem;
+  position: absolute;
+  right: 0.6rem;
+  bottom: calc(0.4rem + 2px);
+  left: calc(0.6rem + 6px);
   padding: 0;
-  margin: 0.2rem 0 0;
-  font-size: 0.8rem;
+  margin: 0;
   list-style: none;
+  pointer-events: none;
 }
 
 .ct-tip-fact {
   display: inline-flex;
-  gap: 0.2rem;
+  gap: 0;
   align-items: center;
+  height: 24px;
+  margin-right: 0.2rem;
+  pointer-events: none;
+}
+
+.ct-tip-fact .tip-btn {
+  pointer-events: auto;
+}
+
+.ct-zb-ghost {
+  visibility: hidden;
+}
+
+.ct-zb-gap {
+  width: 30px;
+  height: 24px;
+}
+
+.ct-t-badges {
+  align-items: center;
+  gap: 0 0.2rem;
 }
 
 .ct-place-cell {
+  position: relative;
   display: flex;
   flex-direction: column;
 }
@@ -113,23 +138,29 @@
   width: 100%;
 }
 
-/* The phone's slot is a 3.4rem icon in the middle of its cell: the '?' sits on the icon's lower right corner. */
+/* The phone's slot art is a 2.1rem icon in the middle of a 3.4rem frame: the '?' sits at the cell's top right corner,
+   a little past the frame's edge, so it never covers the art, the key number or the advantage mark. */
 .ct .hb-cell > .tip-corner {
-  top: 2.3rem;
-  right: calc(50% - 2.3rem);
+  top: 0;
+  right: -12px;
+}
+
+.ct-strip {
+  gap: 0.6rem;
 }
 
 .ct-strip-ac {
-  position: relative;
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 
-.ct-strip-ac > .tip-corner {
-  top: -0.4rem;
-  right: -0.6rem;
+.ct-strip-ac > .tip-btn {
+  margin: 0;
 }
 
 .ct-strip .hp-wrap > .tip-btn {
-  margin-left: 0.2rem;
+  margin-left: 8px;
 }
 
 .ct-now-darkrow,
@@ -156,4 +187,17 @@
   display: inline-flex;
   align-items: center;
   gap: 0.2rem;
+}
+
+/* The quest offer heading: a long title ellipsizes before the '?', which keeps its 6px gap. */
+.qo-head {
+  display: flex;
+  align-items: center;
+}
+
+.qo-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

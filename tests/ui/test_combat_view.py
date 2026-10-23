@@ -76,7 +76,7 @@ def test_two_players_fight_attack_move_suggest_and_end_turn(
     go = active.locator("[data-testid=zone-chip]:not([disabled])")
     if go.count():
         before = active.locator("[data-testid=pip-move]").inner_text()
-        go.first.click()
+        go.first.click(position={"x": 20, "y": 8})  # the label, not the '?' over the badge row
         active.wait_for_function(
             f"document.querySelector('[data-testid=pip-move]').innerText !== {before!r}",
             timeout=20000,

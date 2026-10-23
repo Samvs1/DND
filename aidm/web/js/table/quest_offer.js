@@ -23,7 +23,7 @@ export function mountQuestOffer(root, { store, client }) {
       client.send('answer_quest_offer', { quest_id: offer.quest_id, accept });
     };
     box.append(
-      h('h3', { 'data-testid': 'quest-offer-title' }, t('table.questOfferTitle', { giver: offer.giver, title: offer.title }), tipButton('word:quest-offer', offer.title)),
+      h('h3', { class: 'qo-head', 'data-testid': 'quest-offer-title' }, h('span', { class: 'qo-text' }, t('table.questOfferTitle', { giver: offer.giver, title: offer.title })), tipButton('word:quest-offer', offer.title)),
       offer.objective ? h('p', { class: 'dialog-text', 'data-testid': 'quest-offer-objective' }, offer.objective) : null,
       h('p', { class: 'hint quest-hint' }, t('table.questOfferHint')),
       h(
