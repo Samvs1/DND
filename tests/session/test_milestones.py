@@ -147,9 +147,9 @@ def _tour(state: GameState, log: list[AnyEvent], act: int) -> int:
     _go(state, region.gateway.id, log)
     level = min(c.pc.level for c in state.creatures.values() if c.pc is not None)
     if act == 0:
-        # The boss and its company are rated medium for the actual party (four level-2 heroes;
-        # M29.6 tuning: boss_rating_cap medium, was hard).
-        assert pending(state).difficulty == "medium"
+        # The boss and its company are rated easy for the actual party (four level-2 heroes;
+        # M29.6 boss_rating_cap medium, M29.6b x boss_budget_scale 0.8: 479 adjusted XP).
+        assert pending(state).difficulty == "easy"
     _won(state, log)
     _level_ups(state, log)
     return level

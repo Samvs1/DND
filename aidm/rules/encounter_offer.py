@@ -157,7 +157,7 @@ def _monsters(
     size = len(levels)
     if boss is not None:
         rating = Difficulty(data.tables.boss_rating_cap)
-        cap = rating_cap_xp(levels, rating, data.tables)
+        cap = _boss_cap_xp(levels, data, region.tier)
         alone = not _safe(state, data, [boss.archetype_id], rating)
         if alone or "boss_alone" in route_effects(state, region):
             return []
@@ -202,14 +202,21 @@ def _stand_ins(
     return pick_monsters(rng, cap, {m: x for m, x in fits.items() if x == top}, size, tables)
 
 
+def _boss_cap_xp(levels: list[int], data: OfferData, tier: int) -> int:
+    """The most adjusted XP a master's fight may have (M29.6b: x `boss_budget_scale[tier]`)."""
+    cap = rating_cap_xp(levels, Difficulty(data.tables.boss_rating_cap), data.tables)
+    return int(cap * data.tables.boss_budget_scale.get(tier, 1.0))
+
+
 def boss_hp_scale(state: GameState, data: OfferData, monster: str) -> float:
-    """M29.6: a boss whose own adjusted XP is over the boss cap for this party (a solo or duo)
-    gets its hit points scaled by cap / adjusted XP, floored at `boss_hp_scale_floor`."""
+    """M29.6: a boss whose own adjusted XP is over the boss cap for this party (a solo or duo;
+    M29.6b: the cap x `boss_budget_scale`) gets its hit points scaled by cap / adjusted XP,
+    floored at `boss_hp_scale_floor`."""
     floor = data.tables.boss_hp_scale_floor
     levels = party_levels(state)
     if floor is None or not levels:
         return 1.0
-    cap = rating_cap_xp(levels, Difficulty(data.tables.boss_rating_cap), data.tables)
+    cap = _boss_cap_xp(levels, data, state.world.region_tier)
     alone = adjusted_xp([_xp(data, monster)], len(levels), data.tables)
     return 1.0 if alone <= cap else max(floor, cap / alone)
 

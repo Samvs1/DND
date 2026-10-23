@@ -34,6 +34,7 @@
   "boss_company_max_per_pc": 1,
   "spoke_stand_ins": true,
   "boss_hp_scale_floor": 0.5,
+  "boss_budget_scale": {"1": 0.8, "2": 0.45, "3": 0.6},
   "area_damage_rating": {"medium": 0.4, "hard": 0.6, "deadly": 0.9},
   "area_reference_hp": {"1": 17, "2": 23, "3": 29}
 }

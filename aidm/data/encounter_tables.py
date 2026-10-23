@@ -20,7 +20,9 @@
 - M29.6b area danger (`aidm.rules.encounter_danger`): `area_damage_rating[difficulty]` is the
   share of the heroes' average hit point maximum one area blast (a breath weapon) must reach to
   rate the fight at least that difficulty (empty: off); `area_reference_hp[region tier]` is a
-  hero's average maximum at the tier's planned level, which the plan check uses for masters.
+  hero's average maximum at the tier's planned level, which the plan check uses for masters;
+  `boss_budget_scale[region tier]` multiplies the boss cap's XP for the master's company and
+  hit point scale (default 1.0), as `spoke_budget_scale` does for spokes.
 
 Public API: `EncounterTables`, `MultiplierStep`, `load_encounter_tables(path=None)`,
 `encounter_tables()` (default file, cached). The arithmetic is `aidm.rules.encounter_budget`.
@@ -73,6 +75,7 @@ class EncounterTables(BaseModel):
         default_factory=dict[DifficultyKey, float]
     )
     area_reference_hp: dict[int, float] = Field(default_factory=dict[int, float])
+    boss_budget_scale: dict[int, float] = Field(default_factory=dict[int, float])
 
     @model_validator(mode="after")
     def _check(self) -> EncounterTables:
