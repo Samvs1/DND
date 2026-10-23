@@ -16,7 +16,7 @@
   "duration_rounds": 10,
   "targeting": {
     "kind": "area",
-    "area": "zone"
+    "area": "zone", "shape": {"kind": "cone", "feet": 30}
   },
   "effects": [
     {

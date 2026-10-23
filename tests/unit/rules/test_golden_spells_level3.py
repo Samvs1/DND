@@ -56,14 +56,15 @@ def test_golden_spell_fireball() -> None:
 
 
 def test_golden_spell_lightning_bolt() -> None:
-    # Lightning Bolt: the caster's zone and the next one, DEX save, 8d6 lightning, half on a save.
+    # Lightning Bolt: a 100-ft line aimed at one zone (own or next, M29.7d), DEX save, 8d6
+    # lightning, half on a save. Aimed at the yard (30 ft away): the gate is spared.
     wiz = caster("w", "wizard", spells=["lightning-bolt"], level=5, slots={3: 1})
     state = battle(wiz, ("gob", "gate"), ("gob2", "yard"))
     dice = (6, 6, 6, 6, 1, 1, 1, 1)
-    events = cast(state, "w", "lightning-bolt", ScriptedRng(5, *dice, 20))
+    events = cast(state, "w", "lightning-bolt", ScriptedRng(5, *dice, 20), zone="yard")
     assert of(events, DamageTaken)[0].parts[0].damage_type.value == "lightning"
-    assert [d.total for d in of(events, DamageTaken)] == [28, 14]
-    assert (state.creatures["gob"].hp, state.creatures["gob2"].hp) == (2, 16)
+    assert [d.total for d in of(events, DamageTaken)] == [28]
+    assert (state.creatures["gob"].hp, state.creatures["gob2"].hp) == (30, 2)
 
 
 def test_golden_spell_mass_healing_word() -> None:

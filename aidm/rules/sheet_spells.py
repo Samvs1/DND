@@ -42,6 +42,8 @@ def _targeting(index: str, level: int) -> dict[str, object]:
         "count_per_slot": aim.count_per_slot,
         "range_kind": spell.range.kind,
         "range_feet": spell.range.feet,
+        "area_shape": aim.shape.kind if aim.shape is not None else None,
+        "area_feet": aim.shape.feet if aim.shape is not None else None,
         "concentration": spell.concentration,
     }
 

@@ -840,6 +840,12 @@ body.is-controller #app {
   font-size: 0.8rem;
 }
 
+/* M29.7d: an armed area spell would catch a friend in this zone */
+.ct-t-need.ct-t-ally {
+  color: var(--blood-text);
+  font-weight: 600;
+}
+
 /* Short phones: the Not now explanation folds away so the action box stays on screen (the manual says it). */
 @media (max-height: 760px) {
   .quest-card .quest-hint {

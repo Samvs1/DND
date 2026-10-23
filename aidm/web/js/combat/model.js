@@ -61,6 +61,20 @@ export function neighbours(combat, zoneId) {
   return out;
 }
 
+/**
+ * Who an area spell aimed at `zoneId` would catch (M29.7d): the living, present tokens there, never the caster.
+ * `area` is {caster, feet}: `feet` is an aimed self cone/line/cube, which reaches the caster's zone or a neighbour
+ * whose edge is no longer than it (the server's rule); null when it cannot reach that zone.
+ */
+export function areaCaught(combat, area, zoneId) {
+  const mine = tokenById(combat, area.caster);
+  if (area.feet && mine && zoneId !== mine.zone_id) {
+    const edge = neighbours(combat, mine.zone_id).find((n) => n.id === zoneId);
+    if (!edge || edge.feet > area.feet) return null;
+  }
+  return combat.tokens.filter((tk) => tk.zone_id === zoneId && !tk.dead && !tk.withdrawn && tk.creature_id !== area.caster);
+}
+
 /** True when entering the zone costs double (terrain or a difficult surface; `rough` is the server's effective flag). */
 export function isRough(zone) {
   return Boolean(zone?.rough ?? zone?.difficult);

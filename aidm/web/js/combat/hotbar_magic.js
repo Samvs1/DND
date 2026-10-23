@@ -26,17 +26,19 @@ function castCommand(me, spell, slot, picks) {
   return cmd;
 }
 
-/** Start casting `spell` at `slot`: self and own-zone spells cast at once, the rest aim first. */
+/** Start casting `spell` at `slot`: self and own-zone spells cast at once, the rest (aimed cones too) aim first. */
 export function startCast(ctx, spell, slot) {
   const { ctrl, me } = ctx;
   const extra = Math.max(0, slot - spell.level) * (spell.count_per_slot || 0);
   const count = spell.target_count + extra;
   const live = (token) => !token.dead;
   const kind = spell.target_kind;
-  if (kind === 'self' || (kind === 'area' && spell.range_kind === 'self')) return ctrl.send(castCommand(me, spell, slot, []));
+  if (kind === 'self' || (kind === 'area' && spell.range_kind === 'self' && !spell.area_feet)) return ctrl.send(castCommand(me, spell, slot, []));
+  // M29.7d: an area spell (an aimed cone or line too) shows on each zone chip who it would catch, allies marked.
+  const area = kind === 'area' ? { caster: me, feet: spell.range_kind === 'self' ? spell.area_feet : null } : null;
   const step =
     kind === 'area' || kind === 'point'
-      ? { need: 'zone', prompt: t('combat.pickZone') }
+      ? { need: 'zone', prompt: t('combat.pickZone'), area }
       : { need: 'creature', count: kind === 'creatures' ? count : 1, valid: live, prompt: kind === 'creatures' ? (n) => t('combat.pickAllies', { n: n + 1, total: count }) : t('combat.pickTarget') };
   ctrl.arm({ steps: [step], build: (picks) => castCommand(me, spell, slot, picks) });
 }

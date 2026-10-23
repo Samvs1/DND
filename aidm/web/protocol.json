@@ -6493,6 +6493,30 @@
               "title": "Always Prepared",
               "type": "boolean"
             },
+            "area_feet": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Area Feet"
+            },
+            "area_shape": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Area Shape"
+            },
             "casting_time": {
               "default": "action",
               "title": "Casting Time",

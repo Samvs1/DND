@@ -80,6 +80,10 @@ def _body_lines(c: ConditionDef) -> list[str]:
         out.append("can " + "/".join(c.bonus_actions) + " as a bonus action")
     if c.blocks_verbal:
         out.append("cannot cast spells with spoken parts")
+    if c.unseen:
+        out.append("others cannot see it")
+    if c.sightless:
+        out.append("cannot see")
     return out
 
 
@@ -89,6 +93,8 @@ def _tail_lines(c: ConditionDef) -> list[str]:
         out.append("ends after its next attack")
     if c.ends_on_damage:
         out.append("ends when it takes damage")
+    if c.ends_on_source_side_harm:
+        out.append("ends when whoever caused it, or one of their companions, harms it")
     if c.implies:
         out.append("also counts as " + join(c.implies))
     d = c.duration

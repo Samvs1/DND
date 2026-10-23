@@ -12,10 +12,11 @@ Public API:
   the hotbar preview is `aidm.rules.hit_chance.hit_chances`).
 - `SlotLine(kind, current, maximum)`; `SpellLine(index, name, level, prepared, always_prepared,
   source, resource, casting_time, target_kind, target_count, count_per_slot, range_kind,
-  range_feet, concentration)` (the last seven describe how the hotbar targets it, from the spell
-  data; `target_count` is the count at the caster's level, plus `count_per_slot` per slot level
-  above the spell's); `SpellLevelGroup(level, slots, spells)`; `SpellcastingBlock(ability,
-  save_dc, attack_bonus, prepared_limit, cantrips, levels)`.
+  range_feet, area_shape, area_feet, concentration)` (the last nine describe how the
+  hotbar targets it, from the spell data; `target_count` is the count at the caster's level,
+  plus `count_per_slot` per slot level above the spell's; `area_shape`/`area_feet`: an aimed
+  self cone, line or cube, M29.7d); `SpellLevelGroup(level, slots, spells)`;
+  `SpellcastingBlock(ability, save_dc, attack_bonus, prepared_limit, cantrips, levels)`.
 - `FeatureLine(index, name, summary, source)`; `ResourceLine(key, current, maximum, recharge)`.
 - `FeatureActionLine(feature, name, economy, available, resource, uses_left, uses_max, heal,
   target_kind, range_kind, range_feet)` (M7.5b): a feature action the `feature_action` command
@@ -100,6 +101,8 @@ class SpellLine(_Line):
     count_per_slot: int = 0
     range_kind: str = "feet"
     range_feet: int | None = None
+    area_shape: str | None = None
+    area_feet: int | None = None
     concentration: bool = False
 
 

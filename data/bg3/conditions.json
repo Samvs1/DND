@@ -3,6 +3,7 @@
     "index": "blinded",
     "name": "Blinded",
     "source": "SRD 5.1 Conditions: Blinded (sight-based checks auto-fail: adjudicated by the DM)",
+    "sightless": true,
     "own_attacks": "disadvantage",
     "attacks_against_melee": "advantage",
     "attacks_against_ranged": "advantage"
@@ -49,6 +50,7 @@
     "index": "invisible",
     "name": "Invisible",
     "source": "SRD 5.1 Conditions: Invisible",
+    "unseen": true,
     "own_attacks": "advantage",
     "attacks_against_melee": "disadvantage",
     "attacks_against_ranged": "disadvantage"
@@ -136,6 +138,7 @@
     "index": "hidden",
     "name": "Hidden",
     "source": "SRD 5.1 Unseen Attackers and Targets (set by the Hide action)",
+    "unseen": true,
     "srd_condition": false,
     "own_attacks": "advantage",
     "attacks_against_melee": "disadvantage",
@@ -226,6 +229,7 @@
     "index": "invisibility",
     "name": "Invisibility",
     "source": "SRD 5.1 Invisibility (as invisible; ends when the bearer attacks, modelled as the first attack roll)",
+    "unseen": true,
     "srd_condition": false,
     "own_attacks": "advantage",
     "attacks_against_melee": "disadvantage",

@@ -23,7 +23,9 @@ quarters) to the target's AC (SRD 5.1 Cover). Attacks inside the zone ignore it.
 
 Public API: `zone_is_difficult(zone) -> bool`,
 `zone_neighbors(zone_map, zone_id) -> list[(zone_id, feet)]` (cost to ENTER each),
-`hop_cost(zone_map, a, b) -> int | None`, `zone_path(zone_map, start, goal) -> ZonePath`,
+`hop_cost(zone_map, a, b) -> int | None`,
+`edge_feet(zone_map, a, b) -> int | None` (the edge's own length, not doubled for difficult
+ground; None when not adjacent), `zone_path(zone_map, start, goal) -> ZonePath`,
 `reachable_zones(zone_map, start, movement_feet) -> dict[zone_id, feet]`,
 `zone_hops(zone_map, a, b) -> int`, `hops_for_range(feet) -> int`,
 `range_band(normal_feet, long_feet=None) -> RangeBand`, `MELEE_BAND`,
@@ -80,6 +82,12 @@ def zone_neighbors(zone_map: ZoneMap, zone_id: str) -> list[tuple[str, int]]:
 def hop_cost(zone_map: ZoneMap, a: str, b: str) -> int | None:
     _require(zone_map, b)
     return dict(zone_neighbors(zone_map, a)).get(b)
+
+
+def edge_feet(zone_map: ZoneMap, a: str, b: str) -> int | None:
+    _require(zone_map, a, b)
+    found = [e.feet for e in zone_map.edges if {e.a, e.b} == {a, b}]
+    return min(found) if found else None
 
 
 def _dijkstra(zone_map: ZoneMap, start: str) -> tuple[dict[str, int], dict[str, str]]:

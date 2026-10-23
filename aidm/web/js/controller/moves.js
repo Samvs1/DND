@@ -2,8 +2,9 @@
 // below the long hotbar, so only Jump was found). On MY turn it sits right under the Now card: one chip per zone
 // with its distance and the board's facts (cover, high ground, rough ground, surfaces). A zone out of reach says
 // what it needs ("Dash first" while the Dash action is still free, else "too far this turn"). A tap does what
-// tapping the zone on the board did (`ctrl.pickZone`): a move, or the zone of an armed spell.
-import { combatOf, isMyTurn, isRough, moveCost, tokenById } from '../combat/model.js';
+// tapping the zone on the board did (`ctrl.pickZone`): a move, or the zone of an armed spell. While an area spell is
+// armed each chip says who it would catch, allies marked, or that the cone or line cannot reach it (M29.7d).
+import { areaCaught, combatOf, isMyTurn, isRough, moveCost, tokenById } from '../combat/model.js';
 import { t } from '../strings.js';
 import { clear, h } from '../ui/dom.js';
 import { titleCase } from '../ui/format.js';
@@ -33,7 +34,17 @@ export function reachNote(feet, economy) {
   return economy.action && !economy.dashed ? t('ct.moveDashFirst') : t('ct.moveTooFar');
 }
 
-function zoneChip(zone, { combat, mine, ctrl, arming }) {
+/** The "Hits ..." line of a zone chip while an area spell is armed (allies marked), or "Out of reach". */
+function caughtNote(combat, area, zone) {
+  const caught = areaCaught(combat, area, zone.id);
+  if (caught === null) return h('span', { class: 'ct-t-need', 'data-testid': 'zone-caught' }, t('ct.areaOut'));
+  if (!caught.length) return h('span', { class: 'ct-t-need', 'data-testid': 'zone-caught' }, t('ct.areaNobody'));
+  const names = caught.map((tk) => (tk.side === 'party' ? t('ct.areaAlly', { name: tk.name }) : tk.name)).join(', ');
+  const ally = caught.some((tk) => tk.side === 'party');
+  return h('span', { class: `ct-t-need${ally ? ' ct-t-ally' : ''}`, 'data-testid': 'zone-caught', 'data-ally': ally ? '1' : '0' }, t('ct.areaHits', { names }));
+}
+
+function zoneChip(zone, { combat, mine, ctrl, arming, area }) {
   const here = zone.id === mine?.zone_id;
   const feet = mine && !here ? moveCost(combat, mine.zone_id, zone.id) : null;
   const economy = combat.economy ?? { movement_left: 0, action: false, dashed: true };
@@ -45,7 +56,8 @@ function zoneChip(zone, { combat, mine, ctrl, arming }) {
     'button',
     { type: 'button', class: `ct-target place${here ? ' here' : ''}`, disabled: !reachable && !arming, 'data-testid': 'zone-chip', 'data-zone': zone.id, onclick: () => ctrl.pickZone(zone) },
     h('span', { class: 'ct-t-zone' }, label),
-    note ? h('span', { class: 'ct-t-need', 'data-testid': 'zone-need' }, note) : null,
+    note && !arming ? h('span', { class: 'ct-t-need', 'data-testid': 'zone-need' }, note) : null,
+    arming && area ? caughtNote(combat, area, zone) : null,
     facts.length ? h('span', { class: 'ct-t-badges' }, ...facts.map((f) => h('span', { class: 'ct-zb', 'data-testid': 'zone-badge' }, f.text))) : null,
   );
   return facts.length ? h('div', { class: 'ct-place-cell' }, button, badgeTips(facts)) : button;
@@ -64,8 +76,10 @@ export function mountMoves(root, { store }, ctrl) {
       last = '';
       return;
     }
-    const arming = ctrl.ui.arming?.steps[ctrl.ui.arming.step]?.need === 'zone';
-    const key = JSON.stringify([combat.tokens, combat.zones, combat.economy, arming]);
+    const spec = ctrl.ui.arming?.steps[ctrl.ui.arming.step];
+    const arming = spec?.need === 'zone';
+    const area = arming ? (spec.area ?? null) : null;
+    const key = JSON.stringify([combat.tokens, combat.zones, combat.economy, arming, area]);
     if (key === last) return;
     last = key;
     const mine = tokenById(combat, ctrl.actor());
@@ -73,7 +87,7 @@ export function mountMoves(root, { store }, ctrl) {
     clear(box);
     box.append(
       h('h3', { class: 'side-h' }, arming ? t('ct.placesPick') : t('ct.placesLeft', { feet: left })),
-      h('div', { class: 'ct-places' }, ...combat.zones.map((zone) => zoneChip(zone, { combat, mine, ctrl, arming }))),
+      h('div', { class: 'ct-places' }, ...combat.zones.map((zone) => zoneChip(zone, { combat, mine, ctrl, arming, area }))),
     );
   }
   render(store.get());

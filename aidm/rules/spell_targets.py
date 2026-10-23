@@ -17,6 +17,10 @@ Public API:
   targeting block allows at this cast (count + count_per_slot per level above, or the cantrip
   table by character level).
 - `spell_band(spell) -> RangeBand`: self and touch = the same zone, feet = its range band.
+- `area_zones(zone_map, start, spell) -> tuple[str, ...]`: the zones an area or point spell cast
+  from `start` can be aimed at: in its range band; a self-ranged area covers the caster's zone,
+  and an aimed self `shape` (M29.7d: cone, line, cube) also reaches a neighbouring zone whose
+  edge is no longer than the shape (Burning Hands 15 ft over a 15-ft edge, Fear 30 ft over 25).
 - `needs_battlefield(spell) -> bool`: the spell cannot resolve outside a fight (below).
 - `area_creatures(state, zone_id, area, exclude) -> tuple[str, ...]`: living, present
   combatants in the zone (and its neighbours for "zone_and_adjacent").
@@ -47,7 +51,7 @@ from aidm.models.encounter import Encounter, EncounterStatus
 from aidm.models.events import AnyEvent
 from aidm.models.sheet import SpellLine
 from aidm.models.state import Creature, GameState
-from aidm.models.zones import RangeBand
+from aidm.models.zones import RangeBand, ZoneMap
 from aidm.rules.abilities import ability_modifier
 from aidm.rules.command_checks import CommandRefused
 from aidm.rules.features import dice_at_level
@@ -56,7 +60,13 @@ from aidm.rules.monster_stats import creature_type_of
 from aidm.rules.resources import resource_left, spend_resource
 from aidm.rules.sheet_spells import spellcasting_block
 from aidm.rules.spellcasting import SlotError, choose_slot, spend_slot
-from aidm.rules.zones import MELEE_BAND, range_band, zone_neighbors, zone_range_check
+from aidm.rules.zones import (
+    MELEE_BAND,
+    edge_feet,
+    range_band,
+    zone_neighbors,
+    zone_range_check,
+)
 
 
 @dataclass(frozen=True)
@@ -124,6 +134,19 @@ def spell_band(spell: SpellDef) -> RangeBand:
     if spell.range.kind == "feet" and spell.range.feet is not None:
         return range_band(spell.range.feet)
     return MELEE_BAND
+
+
+def area_zones(zone_map: ZoneMap, start: str, spell: SpellDef) -> tuple[str, ...]:
+    if spell.range.kind != "self":
+        band = spell_band(spell)
+        return tuple(
+            z.id for z in zone_map.zones if zone_range_check(zone_map, start, z.id, band).in_range
+        )
+    shape = spell.targeting.shape
+    if shape is None:
+        return (start,)
+    near = [z for z, _ in zone_neighbors(zone_map, start)]
+    return (start, *(z for z in near if (edge_feet(zone_map, start, z) or 0) <= shape.feet))
 
 
 def _active(state: GameState) -> Encounter | None:
@@ -194,11 +217,12 @@ def _area_targets(
     if enc is None:
         raise _refuse(RefusalCode.NOT_IN_COMBAT, "That spell needs a battlefield.")
     start = enc.combatant(caster_id).zone_id
-    zone = start if spell.range.kind == "self" else target_zone
+    aimed = spell.range.kind != "self" or spell.targeting.shape is not None
+    zone = (target_zone or (start if spell.range.kind == "self" else None)) if aimed else start
     if zone is None or not enc.zone_map.has_zone(zone):
         raise _refuse(RefusalCode.UNKNOWN_ZONE, "Choose an area for that spell.")
-    if not zone_range_check(enc.zone_map, start, zone, spell_band(spell)).in_range:
-        raise _refuse(RefusalCode.OUT_OF_RANGE, "That area is out of range.")
+    if zone not in area_zones(enc.zone_map, start, spell):
+        raise _refuse(RefusalCode.OUT_OF_RANGE, _out_of_reach(enc.zone_map, start, zone, spell))
     if spell.targeting.kind == "point":
         return SpellTargets(instances=(caster_id,), zone=zone, chosen=(caster_id,))
     area = spell.targeting.area or "zone"
@@ -207,6 +231,17 @@ def _area_targets(
     if kinds:
         found = tuple(c for c in found if creature_type_of(state.creatures[c]) in kinds)
     return SpellTargets(instances=found, zone=zone)
+
+
+def _out_of_reach(zone_map: ZoneMap, start: str, zone: str, spell: SpellDef) -> str:
+    shape = spell.targeting.shape
+    if shape is None:
+        return "That area is out of range."
+    name = zone_map.zone(zone).name
+    feet = edge_feet(zone_map, start, zone)
+    if feet is None:
+        return f"The {shape.feet}-ft {shape.kind} cannot reach {name} from here."
+    return f"The {shape.feet}-ft {shape.kind} does not reach {name}, {feet} ft away."
 
 
 def _picked(spell: SpellDef, target_ids: Sequence[str], allowed: int) -> tuple[str, ...]:

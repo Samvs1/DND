@@ -2,7 +2,7 @@
 
 `spell_aims(state, view, caster_id, spell, numbers, regs)` lists the ways to cast one spell from
 the caster's current zone, each with a value (`rules.ai_view` units), best first:
-- "area" spells: every zone in range (a self-range area is the caster's own zone); the value
+- "area" spells: every zone it can be aimed at (`rules.spell_targets.area_zones`); the value
   sums every creature the area hits, allies included (`ally_loss`), so a breath weapon or a
   Fireball avoids friends when it can;
 - "creature": one target; "creatures": up to `instance_count` targets: distinct creatures by
@@ -42,7 +42,7 @@ from aidm.rules.ai_view import (
     heal_value,
 )
 from aidm.rules.monster_stats import creature_type_of
-from aidm.rules.spell_targets import area_creatures, instance_count, spell_band
+from aidm.rules.spell_targets import area_creatures, area_zones, instance_count, spell_band
 from aidm.rules.zones import zone_range_check
 
 _SLOT_VALUE = 3.0
@@ -109,16 +109,7 @@ def _area_aims(state: GameState, view: AiView, spell: SpellDef, est: _Estimator)
     enc = state.encounter
     if enc is None:
         return []
-    own = view.zone_id
-    if spell.range.kind == "self":
-        zones = [own]
-    else:
-        band = spell_band(spell)
-        zones = [
-            z.id
-            for z in enc.zone_map.zones
-            if zone_range_check(enc.zone_map, own, z.id, band).in_range
-        ]
+    zones = area_zones(enc.zone_map, view.zone_id, spell)
     area = spell.targeting.area or "zone"
     aims: list[SpellAim] = []
     for zone in zones:

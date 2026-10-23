@@ -439,6 +439,7 @@ The reaction is shown for completeness, but no reaction abilities work in this v
 An attack roll is a d20 plus your attack bonus against the target's armour class (AC). A natural 1 always misses. A natural 20 is a critical hit and doubles the damage dice. A fighter with Improved Critical crits on a lower number.
 - Fighters and rangers attack more than once per action once they have **Extra Attack** (level 5). Your first attack spends the action and leaves the others available.
 - An **off-hand attack** with a second weapon is a bonus action. It adds no positive ability bonus to damage unless you have the Two-Weapon Fighting style.
+- **Close combat**: a ranged attack (a bow, a crossbow, a thrown weapon or a ranged spell attack) has disadvantage while a foe who can see you and can still act stands in your zone, whatever you aim at. Monsters shoot under the same rule. Fight hand to hand, or step out first.
 - A rogue's **Sneak Attack** adds extra damage once per turn with a finesse or ranged weapon when you have advantage, or when an ally who can act is next to the target and you do not have disadvantage. It is 1d6 at level 1, 2d6 at level 3 and 3d6 at level 5.
 
 ### Other actions
@@ -459,7 +460,8 @@ Pick **Spells**, choose a spell, then choose its target or the zone. Casting a s
 - **Cantrips** cost nothing. They get stronger at character level 5.
 - Levelled spells use a **slot** of that level (or a higher one for a stronger effect). Slots come back on a long rest. Warlock pact slots come back on a short rest too.
 - **Concentration**: you can concentrate on one spell at a time, and casting another concentration spell ends the first. It also ends if you are knocked out or incapacitated, or if you fail a Constitution save. You make that save each time you take damage, against a DC of 10 or half the damage, whichever is higher.
-- Area spells hit everyone in the target zone, **friends included** (never the caster). Self-range areas such as Burning Hands, Thunderwave, Color Spray, Fear and Spirit Guardians use your own zone, and Lightning Bolt also hits the neighbouring zones. One damage roll counts for all, and each target saves on their own.
+- Area spells hit everyone in the target zone, **friends included** (never the caster). While you pick the zone, each zone in the **Move** list says who the spell would catch, with friends marked **(ally)**, or **Out of reach**.
+- A cone, line or cube that starts from you (Burning Hands and Color Spray 15 ft, Thunderwave 15 ft, Fear 30 ft, Lightning Bolt 100 ft) is aimed: pick your own zone or a neighbouring zone whose distance is no longer than the spell (Burning Hands reaches a zone 15 ft away, not one 25 ft away; Fear reaches 25 or 30 ft). It hits everyone in that one zone and never you. Aimed at your own zone it also catches the friends beside you. Spirit Guardians always surrounds you in your own zone. One damage roll counts for all, and each target saves on their own.
 - Spell attacks use your proficiency bonus plus your casting modifier.
 - **Healing outside a fight**: type it, *I cast cure wounds on Tamsin* (Cure Wounds, Healing Word, Mass Healing Word, Prayer of Healing). The spell is cast by the engine with your lowest fitting slot, and the target heals; with no one named it heals you (a many-target spell heals the whole party). A spell you do not have, or no slot left, is refused in plain words.
 
@@ -544,14 +546,14 @@ Conditions are shown on tokens and on your sheet.
 <!-- generated:conditions -->
 | Condition | What it does |
 | --- | --- |
-| Blinded | Its attacks have disadvantage; attacks against it have advantage. |
+| Blinded | Its attacks have disadvantage; attacks against it have advantage; cannot see. |
 | Charmed | Cannot attack whoever charmed it. |
 | Deafened | No numbers of its own: the Dungeon Master plays it out. |
 | Exhaustion | Its ability checks have disadvantage; lasts until a long rest. |
 | Frightened | Its attacks have disadvantage; its ability checks have disadvantage. |
 | Grappled | Cannot move. |
 | Incapacitated | Cannot take actions; cannot take reactions. |
-| Invisible | Its attacks have advantage; attacks against it have disadvantage. |
+| Invisible | Its attacks have advantage; attacks against it have disadvantage; others cannot see it. |
 | Paralyzed | Attacks against it have advantage; melee hits against it are critical hits; automatically fails STR/DEX saves; cannot move; also counts as incapacitated. |
 | Petrified | Attacks against it have advantage; automatically fails STR/DEX saves; cannot move; resists all damage; immune to poison damage; also counts as incapacitated. |
 | Poisoned | Its attacks have disadvantage; its ability checks have disadvantage. |
@@ -560,7 +562,7 @@ Conditions are shown on tokens and on your sheet.
 | Stunned | Attacks against it have advantage; automatically fails STR/DEX saves; cannot move; also counts as incapacitated. |
 | Unconscious | Attacks against it have advantage; melee hits against it are critical hits; automatically fails STR/DEX saves; cannot move; also counts as incapacitated. |
 | Dodging | Attacks against it have disadvantage; advantage on DEX saves; lasts 1 round. |
-| Hidden | Its attacks have advantage; attacks against it have disadvantage; ends after its next attack. |
+| Hidden | Its attacks have advantage; attacks against it have disadvantage; others cannot see it; ends after its next attack. |
 | Surprised | Cannot move; cannot take actions; cannot take reactions; lasts 1 round. |
 | Helped | Its attacks have advantage; its ability checks have advantage; ends after its next attack; lasts 1 round. |
 | Blessed | 1d4 on attack rolls; 1d4 on saving throws. |
@@ -571,7 +573,7 @@ Conditions are shown on tokens and on your sheet.
 | Guided | Attacks against it have advantage. |
 | Mage Armor | +3 AC. |
 | Blurred | Attacks against it have disadvantage. |
-| Invisibility | Its attacks have advantage; attacks against it have disadvantage; ends after its next attack. |
+| Invisibility | Its attacks have advantage; attacks against it have disadvantage; others cannot see it; ends after its next attack. |
 | Slowed | Speed is 50%; cannot take reactions; -2 AC. |
 | Nauseated | Cannot take actions; cannot take reactions; lasts 1 round. |
 | Guidance | 1d4 on ability checks. |

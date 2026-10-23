@@ -18,7 +18,9 @@ is in docs/DECISIONS.md ("Spell DSL authoring guide").
   level above the spell's level, or the `count_by_character_level` table: distinct creatures,
   or with `repeat` exactly that many instances spread round-robin over the chosen creatures,
   like darts and beams); "area" (every creature except the caster in the chosen zone, or the
-  caster's zone for range self; `area` "zone_and_adjacent" adds the neighbouring zones);
+  caster's zone for range self; `area` "zone_and_adjacent" adds the neighbouring zones;
+  `shape` (M29.7d) is a self-ranged cone, line or cube of `feet` that is aimed: the caster's
+  own zone or a neighbouring zone whose edge is at most `feet` long, never the caster);
   "point" (a zone in range and no creature: the caster is the only instance, e.g. a teleport).
   `order` "hp_ascending" runs the instances from the lowest current HP up (Sleep); `dead` True
   means the creature targets must be dead (Revivify), else dead creatures are refused.
@@ -95,6 +97,11 @@ class SpellRange(_Strict):
         return self
 
 
+class AreaShape(_Strict):
+    kind: Literal["cone", "line", "cube"]
+    feet: int = Field(ge=5)
+
+
 class Targeting(_Strict):
     kind: Literal["self", "creature", "creatures", "area", "point"]
     count: int = Field(default=1, ge=1)
@@ -105,11 +112,14 @@ class Targeting(_Strict):
     order: Literal["chosen", "hp_ascending"] = "chosen"
     dead: bool = False
     creature_types: tuple[str, ...] = ()
+    shape: AreaShape | None = None
 
     @model_validator(mode="after")
     def _check_area(self) -> Targeting:
         if (self.kind == "area") != (self.area is not None):
             raise ValueError("area is required for, and only for, kind 'area'")
+        if self.shape is not None and self.kind != "area":
+            raise ValueError("shape is for area targeting only")
         return self
 
 
@@ -243,6 +253,8 @@ class SpellDef(_Strict):
             raise ValueError("count_per_slot needs a levelled spell")
         if self.targeting.kind == "point" and self.range.kind != "feet":
             raise ValueError("point targeting needs a range in feet")
+        if self.targeting.shape is not None and self.range.kind != "self":
+            raise ValueError("an aimed shape needs range 'self'")
         return self
 
 

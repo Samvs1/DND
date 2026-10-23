@@ -4,8 +4,12 @@
 (`aidm.rules.attacks`) and the hotbar preview can never disagree:
 - advantage sources (combined with `combine_adv`): the attacker's and target's conditions
   (`attacks_against_melee/ranged`, hidden, helped, dodging, prone...), feature attack
-  advantage (Pack Tactics, M3.8), high ground (BG3), long range (one disadvantage source) and
-  darkness (M27.2: a hero without darkvision attacking into a dark unlit zone, `rules.light`);
+  advantage (Pack Tactics, M3.8), high ground (BG3), long range (one disadvantage source),
+  darkness (M27.2: a hero without darkvision attacking into a dark unlit zone, `rules.light`) and
+  close combat (M29.7d, SRD 5.1 "Ranged Attacks in Close Combat", BG3 Threatened: a ranged
+  attack while a creature of the opposing side shares the attacker's zone, is up, not
+  incapacitated, can see (not `sightless`) the attacker (not `unseen`) and may attack it (not
+  charmed by it): one disadvantage source);
 - target AC: the creature's AC + condition AC bonuses (Shield of Faith), at least the condition
   AC floor (Barkskin), + cover for a ranged attack from another zone (SRD 5.1 Cover);
 - crit threshold from features (Improved Critical), auto-crit for a melee hit on a paralyzed or
@@ -17,7 +21,8 @@ Public API:
 - `AttackSituation(adv, target_ac, bonus_dice, crit_on, auto_crit, range_check, ally_adjacent,
   lucky, adv_why)`: `lucky` = the attacker rerolls a natural 1 (halfling Lucky, a feature hook);
   `adv_why` names the advantage or disadvantage sources (M26.2: conditions, features, high
-  ground, long range, darkness; `rules.d20.adv_reasons`).
+  ground, long range, darkness, close combat; `rules.d20.adv_reasons`).
+- `threatened(state, encounter, attacker_id) -> bool`: the close-combat test above.
 - `attack_situation(state, attacker_id, target_id, profile, feats) -> AttackSituation`
   (both creatures must be combatants of the state's encounter; KeyError otherwise).
 - `natural_chances(adv) -> dict[int, Fraction]`: the chance of each natural d20 result.
@@ -42,15 +47,18 @@ from aidm.data.registry import Registry
 from aidm.data.spell_defs import SpellDef
 from aidm.models.combat import AttackProfile, HitChance
 from aidm.models.dice import AdvState
-from aidm.models.encounter import Encounter
+from aidm.models.encounter import Encounter, Side
 from aidm.models.state import GameState
 from aidm.models.zones import RangeCheck
 from aidm.rules.attack_profiles import attack_options
 from aidm.rules.conditions import (
     attack_adv_names,
+    can_attack_target,
     condition_ac_bonus,
     condition_ac_floor,
     condition_bonus_dice,
+    condition_def,
+    effective_conditions,
     is_incapacitated,
     melee_hit_auto_crits,
 )
@@ -75,6 +83,8 @@ from aidm.rules.zones import (
 D20 = 20
 HIGH_GROUND = "high ground"
 LONG_RANGE = "long range"
+CLOSE_COMBAT = "close combat"
+_OPPOSED = {Side.PARTY: Side.HOSTILE, Side.HOSTILE: Side.PARTY}
 
 
 @dataclass(frozen=True)
@@ -102,6 +112,30 @@ def _ally_adjacent(state: GameState, enc: Encounter, attacker_id: str, target_id
     return False
 
 
+def _sees(state: GameState, watcher_id: str, attacker_id: str) -> bool:
+    eyes = effective_conditions(state.creatures[watcher_id])
+    seen = effective_conditions(state.creatures[attacker_id])
+    blind = any(condition_def(n).sightless for n in eyes)
+    return not blind and not any(condition_def(n).unseen for n in seen)
+
+
+def threatened(state: GameState, enc: Encounter, attacker_id: str) -> bool:
+    """A foe stands in the attacker's zone and can see it: ranged attacks are at disadvantage."""
+    me = enc.combatant(attacker_id)
+    foe_side = _OPPOSED.get(me.side)
+    attacker = state.creatures[attacker_id]
+    for cid, combatant in enc.combatants.items():
+        creature = state.creatures.get(cid)
+        if creature is None or combatant.side is not foe_side or combatant.zone_id != me.zone_id:
+            continue
+        up = not creature.dead and creature.hp > 0 and combatant.withdrawn is None
+        if not up or is_incapacitated(creature) or not can_attack_target(creature, attacker):
+            continue
+        if _sees(state, cid, attacker_id):
+            return True
+    return False
+
+
 def attack_situation(
     state: GameState,
     attacker_id: str,
@@ -123,14 +157,16 @@ def attack_situation(
     hg_adv, hg_dis = high_ground_adv_counts(zmap, a_zone, t_zone, ranged=ranged)
     long_dis = 1 if check.long_range else 0
     dark_dis = attack_darkness(state, attacker_id, t_zone)
+    close_dis = 1 if ranged and threatened(state, enc, attacker_id) else 0
     ac = max(target.ac + condition_ac_bonus(target), condition_ac_floor(target))
     ac += cover_ac_bonus(zmap, a_zone, t_zone, ranged=ranged)
     adv = combine_adv(
         len(for_adv) + min(1, len(feat_adv)) + hg_adv,
-        len(for_dis) + hg_dis + long_dis + dark_dis,
+        len(for_dis) + hg_dis + long_dis + dark_dis + close_dis,
     )
     for_adv += feat_adv + [HIGH_GROUND] * hg_adv
     for_dis += [HIGH_GROUND] * hg_dis + [LONG_RANGE] * long_dis + [DARKNESS] * dark_dis
+    for_dis += [CLOSE_COMBAT] * close_dis
     return AttackSituation(
         adv=adv,
         target_ac=ac,

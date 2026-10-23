@@ -19,6 +19,11 @@ Fields of `ConditionDef` (all but index/name/source default to "no effect"):
   Resistance, Guidance); a leading "-" subtracts it instead (Bane: "-1d4").
   `consumed_by_attack`: the instance ends when the bearer makes an attack roll (hidden, helped).
   `ends_on_damage`: the instance ends when the bearer takes damage (magical sleep).
+  `ends_on_source_side_harm` (M29.7d): the instance ends when the creature that applied it, or
+  anyone on its side, damages the bearer (SRD 5.1 Animal Friendship, Charm Person: "if you or
+  your companions harm it"); a hostile befriended so by the party no longer keeps a fight going.
+- `unseen` / `sightless` (M29.7d): others cannot see the bearer (invisible, hidden) / the
+  bearer cannot see (blinded); read by "Ranged Attacks in Close Combat" (`rules.hit_chance`).
 - `speed_bonus`: feet added to the bearer's speed while it can move (Longstrider).
 - `damage_resistances`: damage types the bearer resists while the condition lasts.
 - `source_rider_dice` / `source_rider_type`: extra damage when the creature that applied the
@@ -125,6 +130,9 @@ class ConditionDef(BaseModel):
     check_dice: str | None = Field(default=None, pattern=BONUS_DICE)
     consumed_by_attack: bool = False
     ends_on_damage: bool = False
+    ends_on_source_side_harm: bool = False
+    unseen: bool = False
+    sightless: bool = False
     speed_bonus: int = Field(default=0, ge=0)
     damage_resistances: tuple[DamageKey, ...] = ()
     source_rider_dice: str | None = Field(default=None, pattern=r"^\d*d\d+$")

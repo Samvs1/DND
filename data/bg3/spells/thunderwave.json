@@ -14,7 +14,7 @@
   },
   "targeting": {
     "kind": "area",
-    "area": "zone"
+    "area": "zone", "shape": {"kind": "cube", "feet": 15}
   },
   "effects": [
     {

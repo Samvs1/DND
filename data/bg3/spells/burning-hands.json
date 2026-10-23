@@ -5,7 +5,7 @@
   "classes": ["sorcerer", "wizard"],
   "casting_time": "action",
   "range": {"kind": "self"},
-  "targeting": {"kind": "area", "area": "zone"},
+  "targeting": {"kind": "area", "area": "zone", "shape": {"kind": "cone", "feet": 15}},
   "effects": [
     {
       "type": "save",

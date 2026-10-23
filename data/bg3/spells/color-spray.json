@@ -13,7 +13,7 @@
   "targeting": {
     "kind": "area",
     "area": "zone",
-    "order": "hp_ascending"
+    "order": "hp_ascending", "shape": {"kind": "cone", "feet": 15}
   },
   "effects": [
     {
