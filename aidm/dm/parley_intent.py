@@ -10,7 +10,7 @@ parley, a sentence that talks to the foes answers the offer as parley with the s
 - persuade, convince, plead, reason, negotiate, parley, bargain, beg, appeal, calm, soothe,
   and the plain talking words (talk, speak, ask, call out, hail, greet, shout, tell, say) ->
   Persuasion. A sentence that names another hero ("I ask Elowen what she thinks", "I warn Rook")
-  is not a parley.
+  or the party ("I tell the others to get ready") is not a parley.
 Anything else is None (an attack, a sneak or a run is the offer's other buttons, or the AI).
 
 Public API: `ParleyIntent(actor_id, skill)`, `parley_intent(state, actor_id, clean)`.
@@ -61,8 +61,11 @@ class ParleyIntent:
     skill: Skill
 
 
+_OWN_SIDE = frozenset({"everyone", "others", "party", "friends", "companions", "allies", "group"})
+
+
 def _names_a_friend(state: GameState, actor_id: str, words: set[str]) -> bool:
-    return any(
+    return bool(words & _OWN_SIDE) or any(
         c.kind is CreatureKind.PC and c.id != actor_id and c.name.lower().split()[0] in words
         for c in state.creatures.values()
     )

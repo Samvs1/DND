@@ -82,7 +82,8 @@ def test_m29_talk_while_an_offer_waits_is_the_parley() -> None:
     assert precheck(state, "pc-p2", "I lie to Veles about who sent us") == ParleyIntent(
         "pc-p2", Skill.DECEPTION
     )
-    for other in ("I lie low in the reeds", "I swing my longsword at Veles"):
+    others = ("I lie low in the reeds", "I tell the others to get ready", "I ask my companions")
+    for other in (*others, "I swing my longsword at Veles"):
         assert not isinstance(precheck(state, "pc-p2", other), ParleyIntent)
     assert precheck(replay_until("r2-p5", 520), "pc-p2", R4_TEXT) is None  # no offer waits
 
