@@ -4,12 +4,13 @@ finale chosen (M23.9; `ending=None` leaves the finale card open)."""
 from __future__ import annotations
 
 from aidm.models.campaign_events import FinaleChosen
-from aidm.models.campaign_state import OfferChoice
+from aidm.models.campaign_state import OfferChoice, RegionResolution
 from aidm.models.encounter import EncounterStatus, Side
 from aidm.models.events import AnyEvent, CreatureDied
 from aidm.models.state import GameState
 from aidm.models.world_events import FactRecorded
 from aidm.rules.encounter import end_encounter
+from aidm.rules.plan_ids import boss_npc_id
 from aidm.rules.progression import campaign_complete, region_resolution_events
 from tests.ai.tool_fixtures import run_tool
 from tests.session.progression_fixtures import answer, apply_all, campaign_state, move, plan
@@ -67,3 +68,26 @@ def finished_campaign(
         apply_all(state, [FinaleChosen(option_id=ending)], log)
         assert campaign_complete(state)
     return start, state, log, final
+
+
+def turned_and_dead() -> GameState:
+    """The p3 shape (G35): every region allied, then one ally killed (Regent Varek) and one who
+    turned on the party and lives (the Deep-Brood Matron)."""
+    _, state, _, _ = finished_campaign()
+    first, last = plan().acts[0].region, plan().acts[2].region
+    assert state.campaign is not None
+    allied = dict.fromkeys(state.campaign.resolved, RegionResolution.ALLIANCE)
+    boss = next(c for c in state.creatures.values() if c.name == last.boss.name)
+    npc = state.world.npcs[boss_npc_id(last)]
+    npcs = {**state.world.npcs, npc.id: npc.model_copy(update={"hostile": True, "dead": False})}
+    assert first.boss.name != last.boss.name
+    return state.model_copy(
+        update={
+            "creatures": {
+                **state.creatures,
+                boss.id: boss.model_copy(update={"dead": False, "hp": 9}),
+            },
+            "world": state.world.model_copy(update={"npcs": npcs}),
+            "campaign": state.campaign.model_copy(update={"resolved": allied, "epilogue": None}),
+        }
+    )

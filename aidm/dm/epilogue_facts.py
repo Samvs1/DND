@@ -9,7 +9,9 @@ side quest and favour ended (completed, failed, left behind, let go, never taken
 unfinished; main quests are told by their regions), where each NPC's attitude ended (the public
 band only), the secrets the party really learned, and every entry of the fact ledger.
 `template_epilogue` is the safe fallback: it lists the same facts in plain past-tense sentences,
-and a defeated boss is only ever "defeated".
+and a defeated boss is only ever "defeated". M29.5c G35: each boss's fate comes from the final
+state (`RegionOutcome.fate`: an ally who later died, or one who turned on the party and lives,
+is told so, and every boss gets an "At the end, X is dead/alive." fact).
 
 Public API:
 - `RegionOutcome`, `QuestOutcome`, `FinaleOutcome`, `EpilogueFacts` (frozen; `lines()` is the
@@ -27,7 +29,7 @@ from aidm.models.state import GameState
 from aidm.models.world import ClosedReason, Quest, QuestState
 from aidm.rules.finale import chosen_ending
 from aidm.rules.plan_ids import main_quest_id
-from aidm.rules.progression import boss_defeated
+from aidm.rules.progression import boss_defeated, boss_npc
 from aidm.rules.quest_plan import main_quest
 from aidm.rules.social import public_npc_view
 
@@ -42,6 +44,11 @@ class RegionOutcome:
     how: RegionResolution | None
     peace: str = ""  # the finished Peace route's title (M23.9)
     cunning: str = ""  # the finished Cunning route's title
+    fate: str = ""  # M29.5c G35: DEAD or TURNED from the final state ("" alive and as resolved)
+
+
+DEAD = "dead"
+TURNED = "turned"
 
 
 @dataclass(frozen=True)
@@ -74,6 +81,7 @@ class EpilogueFacts:
         out = [f"The campaign was called {self.title}."]
         for r in self.regions:
             out.append(_region_line(r))
+        out.extend(_fate_line(r) for r in self.regions)
         if self.finale is not None:
             out.append(f"The final choice: {self.finale.question}")
             out.append(f"The party chose: {self.finale.title}. {self.finale.text}")
@@ -108,8 +116,34 @@ def _region_line(region: RegionOutcome) -> str:
         return f"In {region.region}, {region.boss} was defeated by force.{helped}"
     if region.how is RegionResolution.ALLIANCE:
         way = f", by the way of peace: {region.peace}" if region.peace else ""
+        if region.fate == DEAD:
+            return (
+                f"In {region.region}, {region.boss} was won over{way}, but later died in a fight."
+            )
+        if region.fate == TURNED:
+            return (
+                f"In {region.region}, {region.boss} was won over{way}, but turned on the party at"
+                " the last and still lives."
+            )
         return f"In {region.region}, {region.boss} was won over and joined the party{way}."
+    if region.fate == DEAD:
+        return f"In {region.region}, {region.boss} was slain."
     return f"{region.region} was never resolved."
+
+
+def _fate_line(region: RegionOutcome) -> str:
+    """M29.5c G35: the boss's fate from the final state, stated plainly (the epilogue told a
+    living boss as fallen and a dead one keeping his word)."""
+    if region.fate == DEAD:
+        return f"At the end, {region.boss} is dead."
+    return f"At the end, {region.boss} is alive."
+
+
+def _fate(state: GameState, act: Act) -> str:
+    npc = boss_npc(state, act.region)
+    if boss_defeated(state, act.region) or (npc is not None and npc.dead):
+        return DEAD
+    return TURNED if npc is not None and npc.hostile else ""
 
 
 def _finished_route(state: GameState, act: Act, kind: RouteKind) -> str:
@@ -134,6 +168,7 @@ def _region_outcome(state: GameState, act: Act) -> RegionOutcome:
         how,
         peace=_finished_route(state, act, RouteKind.PEACE),
         cunning=_finished_route(state, act, RouteKind.CUNNING),
+        fate=_fate(state, act),
     )
 
 

@@ -77,7 +77,7 @@ from aidm.session.quest_people import CROSS_STAY, hold
 from aidm.session.table_core import Job, Player, TableCore
 from aidm.session.telling import conclude, remember, tell_text
 
-HOLD = "{name} stands on the brink of violence."
+HOLD = "{name} stands on the brink of violence. {why}"  # M29.5c G11: the reason, too
 STAY_HAND = "You stay your hand, and the moment passes without bloodshed."
 ACTION_SPENT = (
     "You have already used your action this turn. Move, use a bonus action or end your turn."
@@ -302,7 +302,7 @@ async def _hold(core: TableCore, entry: QueueEntry, call: ToolCall, prompt: str)
     if call.name != "move_party":  # M23.4: a crossing only asks, nothing violent is held
         actor = core.state.creatures.get(entry.creature_id)
         name = actor.name if actor is not None else "The hero"
-        await tell_text(core, HOLD.format(name=name))
+        await tell_text(core, HOLD.format(name=name, why=prompt).strip())
     hold(core, entry.player_id, entry.creature_id, call, prompt)
 
 

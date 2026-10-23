@@ -8,11 +8,13 @@ never alive again), living people declared dead and unearned rewards are flagged
 with the offending names scrubbed, then the deterministic template that lists what really
 happened (`template_epilogue`). The epilogue is a story ABOUT the past, so the scene-local
 "absent NPC" check is switched off (everyone who exists may be mentioned); the closed-world name
-check is not.
+check is not. M29.5c G35: past-tense death words ("fell", "was killed": `epilogue_death_claims`)
+count as death claims about the living, the facts state each boss's fate, and this turn's
+blow, coin and hand-over checks are off (the epilogue tells the past).
 
 Public API:
 - `EPILOGUE_STYLE`, `epilogue_ready(state) -> bool`, `epilogue_messages(facts) -> list[Message]`.
-- `epilogue_checker(state) -> ProseCheck`; `facts_checker(state, lines) -> ProseCheck` (the same
+- `epilogue_checker(state) -> ProseCheck`; `facts_checker(state, lines, *, past_deaths)` (the same
   relaxed guard for any prose about listed facts; the defeat epilogue uses it too).
 - `begin_epilogue(state, llm) -> NarrationStream | None`: None until the campaign is complete (or
   when the epilogue is already written); the stream's sentences are the epilogue.
@@ -28,6 +30,7 @@ from aidm.dm.epilogue_facts import EpilogueFacts, epilogue_facts, template_epilo
 from aidm.dm.guard import check_prose, guarded_narration
 from aidm.dm.guard_flow import NarrationSource
 from aidm.dm.guard_scene import guard_scene, words_of
+from aidm.dm.guard_turn import TurnTruth
 from aidm.dm.guard_types import GuardReport, ProseCheck
 from aidm.dm.llm_backend import Message
 from aidm.dm.llm_client import LlmClient
@@ -72,20 +75,27 @@ def epilogue_messages(facts: EpilogueFacts) -> list[Message]:
 
 def epilogue_checker(state: GameState, facts: EpilogueFacts | None = None) -> ProseCheck:
     """THE guard with the scene-local checks relaxed: every word of the facts is known."""
-    return facts_checker(state, (facts or epilogue_facts(state)).lines())
+    return facts_checker(state, (facts or epilogue_facts(state)).lines(), past_deaths=True)
 
 
-def facts_checker(state: GameState, lines: Sequence[str]) -> ProseCheck:
+def facts_checker(
+    state: GameState, lines: Sequence[str], *, past_deaths: bool = False
+) -> ProseCheck:
     """THE guard for prose ABOUT listed facts (epilogue, defeat): no absent-NPC check, the
-    facts' words are known; the closed-world name check stays on."""
+    facts' words are known; the closed-world name check stays on. `past_deaths` (the campaign
+    epilogue) also reads "fell" or "was killed" about the living as a death claim (M29.5c G35)."""
     listed = words_of(" ".join(lines))
     base = guard_scene(state)
+    lex = base.lexicon
+    past = lex.epilogue_death_claims if past_deaths else frozenset[str]()
     scene = dataclasses.replace(
         base,
+        lexicon=lex.model_copy(update={"death_claims": lex.death_claims | past}),
         absent_npcs={},
         absent_roles=frozenset[str](),
         known_words=base.known_words | listed,
         feature_words=base.feature_words | listed,
+        turn=TurnTruth(),
     )
     return lambda text: check_prose(text, state, scene=scene)
 

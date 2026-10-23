@@ -116,6 +116,8 @@ def _mentions(sentence: str, scene: GuardScene) -> list[tuple[int, str, bool]]:
     terms = [(t, n, True) for t, n in scene.standing_terms.items()]
     terms += [(t, n, False) for t, n in scene.living_terms.items() if t not in scene.standing_terms]
     terms += [(n, n, False) for n in scene.dead]
+    fallen = {w.casefold() for n in scene.dead for w in re.findall(r"[A-Za-z]{4,}", n)}
+    terms += [(w, w, False) for w in fallen - scene.lexicon.titles]  # "the bandit" who died
     found: list[tuple[int, str, bool]] = []
     for term, name, up in terms:
         pattern = rf"(?<![A-Za-z]){re.escape(term)}(?:'s|s)?(?![A-Za-z])"

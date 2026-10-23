@@ -7,7 +7,9 @@ keepsake first, then an inventory item; words compared through `rules.quest_item
 and a known, living NPC (a present one first, by name or role; when two records fit, the one an
 active quest's deliver step names). The NPC need not be here: the
 rules then refuse in plain words ("Yeva Mossbell is not here."), as they refuse a hostile one.
-A sentence naming nothing carried or nobody known is None and goes on to the adjudicator ("give
+M29.5c G31: the hero's own name with a third-person verb ("Rook hands the scroll over to Ranna,
+giving it into her hands") reads the same, a trailing clause cut. A sentence naming nothing
+carried or nobody known is None and goes on to the adjudicator ("give
 my thanks to Yeva" is roleplay). The rules decide (`aidm.rules.handing.give_events`).
 
 Public API: `GiveIntent(actor_id, npc_id, thing)` (`thing` a keepsake id or an inventory key),
@@ -33,6 +35,17 @@ _GIVE = re.compile(
     r"(?:give|hand|pass|offer|show) (?P<who2>[a-z0-9' -]+?) "
     r"(?:my |the |our |this |that )(?P<item2>[a-z0-9 ,'-]+?)"
 )
+
+
+_THIRD = {
+    "gives": "give",
+    "hands": "hand",
+    "passes": "pass",
+    "offers": "offer",
+    "presents": "present",
+    "shows": "show",
+    "delivers": "deliver",
+}
 
 
 @dataclass(frozen=True)
@@ -102,10 +115,24 @@ def _receiver(state: GameState, who: str, anywhere: bool) -> str | None:
     return _pick(state, [n.id for n in living if _fits(wanted, n.name)])
 
 
-def give_intent(state: GameState, actor_id: str, clean: str) -> GiveIntent | None:
-    match = _GIVE.fullmatch(clean)
-    actor = state.creatures.get(actor_id)
-    if match is None or actor is None:
+def _readings(actor: Creature, clean: str) -> list[str]:
+    """M29.5c G31: "rook hands the receipt-scroll over to ranna, giving it into her hands" is a
+    hand-over too: the hero's own name and a third-person verb read as "hand ...", and a
+    trailing clause (after a comma or "and") is cut."""
+    text = clean
+    name = actor.name.lower()
+    for prefix in (name, name.split()[0]):
+        if text.startswith(f"{prefix} "):
+            verb, _, rest = text[len(prefix) + 1 :].partition(" ")
+            text = f"{_THIRD.get(verb, verb)} {rest}".strip()
+            break
+    cuts = [text, text.split(",")[0].strip(), text.split(" and ")[0].strip()]
+    return list(dict.fromkeys(c for c in cuts if c))
+
+
+def _intent(state: GameState, actor: Creature, reading: str) -> GiveIntent | None:
+    match = _GIVE.fullmatch(reading)
+    if match is None:
         return None
     if match["who"] is not None:
         item, npc_id = match["item"], _receiver(state, match["who"], anywhere=True)
@@ -114,4 +141,11 @@ def give_intent(state: GameState, actor_id: str, clean: str) -> GiveIntent | Non
     thing = _thing(actor, item)
     if npc_id is None or thing is None:
         return None
-    return GiveIntent(actor_id, npc_id, thing)
+    return GiveIntent(actor.id, npc_id, thing)
+
+
+def give_intent(state: GameState, actor_id: str, clean: str) -> GiveIntent | None:
+    actor = state.creatures.get(actor_id)
+    if actor is None:
+        return None
+    return next((i for r in _readings(actor, clean) if (i := _intent(state, actor, r))), None)
