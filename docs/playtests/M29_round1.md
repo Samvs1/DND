@@ -59,3 +59,22 @@ About 132 actions, region 1 resolved, 0 defeats, stopped by the stuck rule. Susp
 | G27 | Free-text act moved the party; refused moves still print "X moves: ..." | 672, 712, 255, 689 | low |
 | G28 | Sub-gp prices: 2 dice sets cost 1 gp total (rounding per line?) | harness smoke s1 | check |
 Balance: region 1's only shop has no weapons/armour and a Potion of Healing costs 50 gp vs about 27 gp per hero; a DC 20 Athletics gate (frozen thing) failed 6/6 with no other route; L2 after two fights (see G18).
+
+## Batch 2, persona #3 talkers (Sonnet), save p3-talkers c-20261023-093353-0001
+Whole campaign to the epilogue in 261 actions; all alive, L5; one defeat + retry; the Peace path works in all three regions.
+Explains G16: travel into the next region waits for `answer confirm`, which the harness never shows (harness gap, not an engine bug).
+| id | what | where (event) | severity |
+|---|---|---|---|
+| G29 | Boss encounter offer stays open after the region resolves by alliance; a failed parley on it turns the allied boss hostile; blocks travel and the finale | 849-890, 1061, 1533-1714 | blocker |
+| G30 | Side-quest NPC and boss share one name ("Ranna" x2 in People); "give X to Ranna" goes to the boss record; the deliver step cannot finish | 420-426 | blocker (route) |
+| G31 | Narrator narrates a hand-over that did not happen (only "give X to Y" works) | 415-420 | high: closed world |
+| G32 | Narrator invents wounds and kills (lizardfolk "falls still" at 22/22; "rat-bites" on full-HP heroes) | 66, 74, 150, 315, 496 | medium |
+| G33 | Out-of-fight Cure Wounds by typing narrates a heal, HP and slots unchanged (G17 family) | 592 | high |
+| G34 | Generated campaign with NO shop in any of 15 places; long-rest refusal does not say supplies vs hour | 1363 | high (generator) |
+| G35 | Epilogue contradicts state (dead/alive bosses, the egg) | 1761 | medium |
+| G36 | Prompt instructions leak into notice lines ("Do NOT choose for them...") | 1551, 1760 | high (guard) |
+| G37 | `do flee`: fled hero still listed in the zone; after a retry two heroes were auto-played "dodging" the whole rematch | 1571, 1749 | medium (check harness after retry) |
+| G38 | Offer lists the boss foe as "?" | 850, 1534 | low |
+| G39 | No cantrips in casters' fight options (eldritch blast, fire bolt, sacred flame) | 66-82 | check (harness or view) |
+| G40 | Harness: travel confirm, finale and offers not shown in `look`; parley skill choice (persuasion/intimidation) not shown; area spells cannot take a zone | 460-473 | harness |
+Balance: XP far too fast (L5 by action 203; milestones 75-800, boss alliances 600 and 3200 vs fights 12-175); gift deeds farmable (same candle x5 -> boss ALLY, 431-449); dragon labels wrong (green wyrmling "trivial" nearly TPK; young black dragon "medium", breath 51/47 on 30-48 HP heroes, 1714); parley success about 45 percent; no shop (G34) made gold useless.
