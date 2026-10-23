@@ -9,6 +9,9 @@ Public API: `UsageError`, `build_command`, `answer_message`, `target_of`.
 
 from typing import Any
 
+from scripts.agent.spells import find_spell, needs_creature, needs_zone
+from scripts.agent.text import PARLEY_WORDS, waiting_lines
+
 Msg = dict[str, Any]
 
 SIMPLE = {
@@ -28,17 +31,26 @@ class UsageError(Exception):
     """A mistyped command: the message says how to fix it (shown to the tester)."""
 
 
-def target_of(word: str, foes: list[Msg]) -> str:
-    """A foe number from `look` (1-based) or a creature id."""
+def target_of(word: str, foes: list[Msg], tokens: list[Msg] | None = None) -> str:
+    """A foe number from `look` (1-based), a creature id or a creature's name."""
     if word.isdigit():
         number = int(word)
         if not 1 <= number <= len(foes):
             raise UsageError(f"there is no foe number {number} (foes: 1..{len(foes)})")
         return str(foes[number - 1]["creature_id"])
+    for token in tokens or []:
+        if word.lower() in (str(token["creature_id"]).lower(), str(token["name"]).lower()):
+            return str(token["creature_id"])
     return word
 
 
-def build_command(words: list[str], hero_id: str, foes: list[Msg], sheet: Msg | None) -> Msg:
+def build_command(
+    words: list[str],
+    hero_id: str,
+    foes: list[Msg],
+    sheet: Msg | None,
+    combat: Msg | None = None,
+) -> Msg:
     if not words:
         raise UsageError("do what? try: do attack 1 | do dodge | do end | do cast <spell> [foe#]")
     verb, rest = words[0].lower(), words[1:]
@@ -58,10 +70,7 @@ def build_command(words: list[str], hero_id: str, foes: list[Msg], sheet: Msg | 
             raise UsageError("do help <ally creature id>")
         return {"type": "help", **base, "target_id": rest[0]}
     if verb == "cast":
-        if not rest:
-            raise UsageError("do cast <spell id> [foe#]")
-        targets = [target_of(rest[1], foes)] if len(rest) > 1 else []
-        return {"type": "cast", **base, "spell_id": rest[0], "target_ids": targets}
+        return _cast(rest, base, foes, sheet, combat or {})
     if verb == "use":
         return _use(rest, base, foes, sheet)
     if verb == "feature":
@@ -74,6 +83,32 @@ def build_command(words: list[str], hero_id: str, foes: list[Msg], sheet: Msg | 
         f"unknown action {verb!r}: attack, cast, use, feature, bonus, dodge, dash, disengage, "
         "hide, flee, end"
     )
+
+
+def _zone_of(word: str, combat: Msg) -> str:
+    zones = combat.get("zones", [])
+    for z in zones:
+        if word.lower() in (str(z["id"]).lower(), str(z["name"]).lower()):
+            return str(z["id"])
+    names = ", ".join(f"{z['id']}={z['name']}" for z in zones)
+    raise UsageError(f"there is no zone {word!r} (zones: {names or 'none'})")
+
+
+def _cast(rest: list[str], base: Msg, foes: list[Msg], sheet: Msg | None, combat: Msg) -> Msg:
+    if not rest:
+        raise UsageError("do cast <spell id> [foe#|ally|zone]")
+    cmd: Msg = {"type": "cast", **base, "spell_id": rest[0], "target_ids": []}
+    spell = find_spell(sheet, rest[0])
+    tokens = combat.get("tokens", [])
+    if spell is not None and needs_zone(spell):
+        if len(rest) < 2:
+            raise UsageError(f"{rest[0]} needs a zone: do cast {rest[0]} <zone id|name>")
+        return {**cmd, "target_ids": [], "target_zone": _zone_of(rest[1], combat)}
+    if spell is not None and not needs_creature(spell):
+        return cmd
+    if len(rest) > 1:
+        cmd["target_ids"] = [target_of(w, foes, tokens) for w in rest[1:]]
+    return cmd
 
 
 def _feature(rest: list[str], base: Msg, foes: list[Msg], sheet: Msg | None) -> Msg:
@@ -104,13 +139,23 @@ def _use(rest: list[str], base: Msg, foes: list[Msg], sheet: Msg | None) -> Msg:
     return cmd
 
 
-def answer_message(state: Msg, words: list[str]) -> list[Msg]:
+def _parley_skill(choice: str, skill: str) -> str:
+    if choice != "parley":
+        raise UsageError(f"only parley takes a skill: answer parley [{'|'.join(PARLEY_WORDS)}]")
+    if skill not in PARLEY_WORDS:
+        raise UsageError(f"parley uses {' or '.join(PARLEY_WORDS)}, not {skill!r}")
+    return skill
+
+
+def answer_message(state: Msg, words: list[str], pending: str | None = None) -> list[Msg]:
     """The message(s) that answer whatever waits in `state` (offer, quest offer, finale, vote).
 
     A confirm of a hostile act is `answer confirm` / `answer cancel`; a level-up is not here.
     """
     if not words:
-        raise UsageError("answer <choice>: see what waits in `look`")
+        raise UsageError(
+            f"answer <choice>. Waiting now: {'; '.join(waiting_lines(state, pending)) or 'nothing'}"
+        )
     choice = words[0].lower()
     if state.get("defeat") or state.get("phase") == "defeated":
         return [_defeat(state, choice, words)]
@@ -122,7 +167,7 @@ def answer_message(state: Msg, words: list[str]) -> list[Msg]:
             raise UsageError(f"answer one of: {', '.join(options)}")
         msg: Msg = {"type": "answer_offer", "choice": choice}
         if len(words) > 1:
-            msg["skill"] = words[1].lower()
+            msg["skill"] = _parley_skill(choice, words[1].lower())
         return [msg]
     if state.get("quest_offer"):
         return [_yes_no("answer_quest_offer", choice, quest_id=state["quest_offer"]["quest_id"])]
@@ -131,7 +176,10 @@ def answer_message(state: Msg, words: list[str]) -> list[Msg]:
         return [{"type": "choose_finale", "option_id": words[0], "confirm": confirm}]
     if state.get("vote"):
         return [_yes_no("vote", choice, vote_id=state["vote"]["vote_id"])]
-    raise UsageError("nothing is waiting for an answer")
+    waiting = waiting_lines(state, pending)
+    if not waiting:
+        raise UsageError("nothing is waiting for an answer")
+    raise UsageError(f"that answer fits no waiting card. Waiting now: {'; '.join(waiting)}")
 
 
 def _defeat(state: Msg, choice: str, words: list[str]) -> Msg:

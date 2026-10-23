@@ -99,8 +99,17 @@ async def cmd_new(root: Path, run: str | None, shape: str, seed: int, live: bool
         await host.close()
 
 
+def _pending(link: Link) -> str | None:
+    """The hostile-act or travel confirmation the table re-sent to this hero on connect."""
+    for m in reversed(link.conn.log):
+        if m["type"] == "pending_confirmation" and m.get("player_id") == link.conn.player_id:
+            return str(m["prompt"])
+    return None
+
+
 def _view(link: Link, player: Msg, sheet: Msg | None, level_up: bool = False) -> str:
-    return look_text(link.state, link.seq, player["hero_id"], sheet, level_up)
+    state = link.state
+    return look_text(state, link.seq, player["hero_id"], sheet, level_up, _pending(link))
 
 
 def _player(session: Session, name: str | None, state: Msg) -> Msg:
@@ -174,13 +183,21 @@ async def cmd_do(root: Path, run: str | None, as_name: str | None, words: list[s
             return f"There is no fight: use act.\n{footer(link.state['campaign_id'], link.seq)}"
         foes = foe_list(combat, player["hero_id"])
         try:
-            cmd = build_command(words, player["hero_id"], foes, await link.sheet())
+            sheet = await link.sheet()
+            cmd = build_command(words, player["hero_id"], foes, sheet, combat)
         except UsageError as err:
             return f"{err}\n{await _report(link, player, [])}"
         said = await link.command(cmd)
-        return await _report(link, player, said, f"{player['name']} does: {' '.join(words)}")
+        note = f"{player['name']} does: {' '.join(words)}"
+        if words[0].lower() == "flee" and not _refused(said):
+            note += f"\n{player['name']} fled: left the fight and the zone."
+        return await _report(link, player, said, note)
     finally:
         await link.close()
+
+
+def _refused(said: list[Msg]) -> bool:
+    return any(m["type"] == "error" for m in said)
 
 
 async def cmd_move(root: Path, run: str | None, as_name: str | None, where: str) -> str:
@@ -191,7 +208,8 @@ async def cmd_move(root: Path, run: str | None, as_name: str | None, where: str)
             said = await link.command(cmd)
         else:
             said = await link.send({"type": "submit_action", "text": f"I travel to {where}"})
-        return await _report(link, player, said, f"{player['name']} moves: {where}")
+        note = "" if _refused(said) else f"{player['name']} moves: {where}"
+        return await _report(link, player, said, note)
     finally:
         await link.close()
 
@@ -201,17 +219,29 @@ async def cmd_answer(root: Path, run: str | None, as_name: str | None, words: li
     link, player = await _actor(session, as_name)
     try:
         try:
-            msgs = answer_message(link.state, words)
+            msgs = answer_message(link.state, words, _pending(link))
         except UsageError as err:
             return f"{err}\n{await _report(link, player, [])}"
         said: list[Msg] = []
-        for msg in msgs:
-            said += await link.send(msg)
-            if msg["type"] == "vote" and not as_name:
-                said += await _others_vote(session, player, msg)
+        defeat = msgs[0]["type"].startswith("defeat_")
+        held = await _hold_seats(session, player) if defeat else []
+        try:
+            for msg in msgs:
+                said += await link.send(msg)
+                if msg["type"] == "vote" and not as_name:
+                    said += await _others_vote(session, player, msg)
+        finally:
+            for other in held:
+                await other.close()
         return await _report(link, player, said, f"{player['name']} answers: {' '.join(words)}")
     finally:
         await link.close()
+
+
+async def _hold_seats(session: Session, acting: Msg) -> list[Link]:
+    """Connect the other heroes while a retry or load rebuilds the table, so they get their
+    turns prompted (a reloaded table treats seats nobody holds as away and plays them)."""
+    return [await open_link(session, p) for p in session.players if p is not acting]
 
 
 async def _others_vote(session: Session, first: Msg, msg: Msg) -> list[Msg]:

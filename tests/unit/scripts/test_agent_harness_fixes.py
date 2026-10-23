@@ -25,7 +25,11 @@ SECOND_WIND: Msg = {
     "target_kind": "self",
 }
 CHANNEL: Msg = {**SECOND_WIND, "feature": "turn-undead", "name": "Turn Undead", "economy": "action"}
-HEALING_WORD = {"level": 1, "spells": [{"index": "healing-word", "prepared": True}]}
+HEALING_WORD = {
+    "level": 1,
+    "slots": [{"kind": "standard", "current": 2, "maximum": 2}],
+    "spells": [{"index": "healing-word", "prepared": True}],
+}
 
 
 def _combat(eco: Msg) -> Msg:

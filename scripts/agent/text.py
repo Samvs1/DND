@@ -8,7 +8,11 @@ Public API: `footer`, `look_text`, `digest`, `foe_list`, `option_lines`, `ascii_
 
 from typing import Any
 
+from aidm.rules.offer_answer import PARLEY_SKILLS
+from scripts.agent.spells import spell_lines
+
 Msg = dict[str, Any]
+PARLEY_WORDS = tuple(str(skill.value) for skill in PARLEY_SKILLS)
 
 
 _ASCII = {
@@ -53,17 +57,6 @@ def foe_list(combat: Msg | None, hero_id: str) -> list[Msg]:
         for t in combat["tokens"]
         if t["side"] not in (side, "neutral") and not t["dead"] and not t.get("withdrawn")
     ]
-
-
-def _spell_lines(sheet: Msg | None) -> list[str]:
-    out: list[str] = []
-    casting = (sheet or {}).get("spellcasting") or {}
-    for group in casting.get("levels", []):
-        for sp in group.get("spells", []):
-            ready = sp.get("prepared") or sp.get("always_prepared") or group["level"] == 0
-            if ready:
-                out.append(f"do cast {sp['index']} [foe#]   (level {group['level']})")
-    return out
 
 
 def _feature_lines(sheet: Msg | None, eco: Msg) -> tuple[list[str], list[str]]:
@@ -115,7 +108,7 @@ def option_lines(combat: Msg | None, hero_id: str, sheet: Msg | None) -> list[st
     for use in (sheet or {}).get("gear_uses", []):
         label = f"{use['name']}: {use['label']}, {use['cost']}"
         lines.append(f"do use {use['use_id']} [foe#]   ({label})")
-    lines += _spell_lines(sheet)
+    lines += spell_lines(sheet, combat, eco)
     if eco.get("movement_left", 0) > 0:
         lines.append(f"move <zone>   ({eco['movement_left']}ft left)")
     return lines
@@ -149,6 +142,8 @@ def _combat(combat: Msg, hero_id: str) -> list[str]:
     out = [f"FIGHT round {combat['round']}; turn of {turn}"]
     for t in combat["tokens"]:
         state = "dead" if t["dead"] else f"{t['hp']}/{t['max_hp']}hp"
+        if t.get("withdrawn") and not t["dead"]:
+            state += " (left the fight)"
         where = f"{zones.get(t['zone_id'], '?')} [{t['zone_id']}]"
         out.append(f"  {t['creature_id']} {t['name']} ({t['side']}) {state} in {where}")
     eco = combat.get("economy") or {}
@@ -160,23 +155,52 @@ def _combat(combat: Msg, hero_id: str) -> list[str]:
     return out
 
 
-def _waiting(state: Msg) -> list[str]:
+def _who(ids: list[str], names: dict[str, str]) -> str:
+    return ", ".join(names.get(i, i) for i in ids) or "nobody"
+
+
+def _vote_line(v: Msg, names: dict[str, str]) -> str:
+    ready, declined = list(v.get("ready", [])), list(v.get("declined", []))
+    waiting = [i for i in v.get("voters", []) if i not in ready + declined]
+    head = f"VOTE {v['vote_id']} ({v['kind']} {v.get('detail', '')})"
+    return (
+        f"{head}; yes: {_who(ready, names)}; no: {_who(declined, names)}; "
+        f"waiting: {_who(waiting, names)}. answer yes|no "
+        "(without --as every other hero votes the same)"
+    )
+
+
+def waiting_lines(state: Msg, pending: str | None = None) -> list[str]:
+    """Everything that waits for an answer, with the exact `answer` words that resolve it."""
     out: list[str] = []
+    names = {c["id"]: c["name"] for c in state.get("party", [])}
+    if pending:
+        out.append(f"CONFIRM: {pending} answer confirm | cancel")
     if state.get("offer"):
         o = state["offer"]
-        foes = ", ".join(o.get("foes", [])) or "?"
-        choices = "|".join(o["options"])
-        out.append(f"OFFER {o['id']}: {foes} ({o.get('difficulty')}). answer {choices}")
+        foes = ", ".join(o.get("foes", [])) or o.get("boss_name") or "?"
+        choices = [str(c) for c in o["options"]]
+        extra = f" [{'|'.join(PARLEY_WORDS)}]" if "parley" in choices else ""
+        out.append(f"OFFER {o['id']}: {foes} ({o.get('difficulty')}). answer {'|'.join(choices)}")
+        if extra:
+            out.append(f"  parley takes a skill the engine accepts: answer parley{extra}")
     if state.get("quest_offer"):
         q = state["quest_offer"]
         out.append(f"QUEST OFFER {q['quest_id']} from {q['giver']}: {q['title']}. answer yes|no")
     if state.get("vote"):
-        v = state["vote"]
-        out.append(f"VOTE {v['vote_id']} ({v['kind']} {v.get('detail', '')}). answer yes|no")
+        out.append(_vote_line(state["vote"], names))
     if state.get("finale") and state["finale"].get("chosen") is None:
         f = state["finale"]
         opts = " | ".join(f"{o['id']}={o['title']}" for o in f.get("options", []))
-        out.append(f"FINALE: {f['question']} answer <id>: {opts}")
+        out.append(f"FINALE: {f['question']} answer <id> [confirm]: {opts}")
+    if state.get("defeat") or state.get("phase") == "defeated":
+        retry = ["retry"] if state.get("checkpoint") else []
+        out.append("DEFEAT: answer " + " | ".join(retry + ["load <save id>", "new"]))
+    return out
+
+
+def _waiting(state: Msg, pending: str | None = None) -> list[str]:
+    out = [x for x in waiting_lines(state, pending) if not x.startswith("DEFEAT")]
     for q in state.get("quests", []):
         if q.get("state") == "active":
             out.append(f"Quest: {q['title']}: {q.get('objective', '')}")
@@ -184,7 +208,12 @@ def _waiting(state: Msg) -> list[str]:
 
 
 def look_text(
-    state: Msg, seq: int, hero_id: str, sheet: Msg | None = None, level_up: bool = False
+    state: Msg,
+    seq: int,
+    hero_id: str,
+    sheet: Msg | None = None,
+    level_up: bool = False,
+    pending: str | None = None,
 ) -> str:
     """The whole short view: place, party, fight, what waits for an answer, options, footer."""
     title = state.get("campaign_title") or "campaign"
@@ -196,7 +225,7 @@ def look_text(
     combat = state.get("combat")
     if combat:
         lines += _combat(combat, hero_id)
-    lines += _waiting(state)
+    lines += _waiting(state, pending)
     if state.get("resolving"):
         lines.append(f"The table is busy with: {state['resolving']['text'][:80]}")
     if state.get("complete") or state.get("epilogue"):
@@ -240,6 +269,8 @@ def digest(messages: list[Msg]) -> str:
             chunks = []
         elif kind == "dice_roll":
             out.append(_roll_line(m))
+        elif kind == "pending_confirmation":
+            out.append(f"CONFIRM: {m['prompt']} answer confirm | cancel")
         elif kind == "notice":
             out.append(f"Notice: {m['text']}")
         elif kind == "error":
