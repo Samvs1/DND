@@ -87,6 +87,8 @@ def offer_data(regs: ToolRegistries) -> OfferData:
         terrains=regs.terrains,
         tiers=regs.tiers,
         encounter=regs.encounter_monsters,
+        overlay=regs.combat.monster_overlay,
+        spells=regs.combat.spells,
     )
 
 

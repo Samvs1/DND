@@ -23,6 +23,10 @@
   hero's average maximum at the tier's planned level, which the plan check uses for masters;
   `boss_budget_scale[region tier]` multiplies the boss cap's XP for the master's company and
   hit point scale (default 1.0), as `spoke_budget_scale` does for spokes.
+- M29.7d round damage (`aidm.rules.encounter_threat`): `round_damage_rating[difficulty]` is the
+  share of the heroes' average hit point maximum one foe's expected damage per round must reach
+  to rate the fight at least that difficulty (empty: off); `cover_rating_step[cover]` adds steps
+  when a foe with a ranged attack fights from a zone with that cover ("half", "three_quarters").
 
 Public API: `EncounterTables`, `MultiplierStep`, `load_encounter_tables(path=None)`,
 `encounter_tables()` (default file, cached). The arithmetic is `aidm.rules.encounter_budget`.
@@ -75,6 +79,10 @@ class EncounterTables(BaseModel):
         default_factory=dict[DifficultyKey, float]
     )
     area_reference_hp: dict[int, float] = Field(default_factory=dict[int, float])
+    round_damage_rating: dict[DifficultyKey, float] = Field(
+        default_factory=dict[DifficultyKey, float]
+    )
+    cover_rating_step: dict[str, int] = Field(default_factory=dict[str, int])
     boss_budget_scale: dict[int, float] = Field(default_factory=dict[int, float])
 
     @model_validator(mode="after")

@@ -22,9 +22,13 @@ M29.6b area danger (`aidm.rules.encounter_danger`): the offer's difficulty word 
 the XP rating and each monster's area-blast rating against the heroes' hit points; a spoke never
 picks a monster whose blast alone rates above the spoke cap (unless nothing else exists), and a
 master whose blast rates above the boss cap comes without company.
+M29.7d: the word also counts each foe's expected damage per round and a shooter's cover
+(`rules.offer_label`); the fight map is fixed by the seed, the node and the offer id
+(`fight_map`), so the card already knows the zone the foes stand in.
 
 Public API:
-- `OfferData(monsters, tables, terrains, tiers, encounter)`: the registries (passed in).
+- `OfferData(monsters, tables, terrains, tiers, encounter, overlay, spells)`: the registries.
+- `fight_map(state, node, offer_id, terrains) -> ZoneMap`: the offer's fight map.
 - `arrival_offer_events(state, data, retreat_node) -> list[AnyEvent]`: `[EncounterOffered]` or [].
 - `boss_hp_scale(state, data, monster) -> float`: the boss spawn's hit point scale (M29.6).
 - `hero_hp(state) -> float`: the living heroes' average hit point maximum (M29.6b).
@@ -33,12 +37,14 @@ Public API:
 """
 
 import random
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from aidm.data.dm_tiers import DmTiers
 from aidm.data.encounter_monsters import EncounterMonster
 from aidm.data.encounter_tables import EncounterTables
+from aidm.data.monster_overlay import MonsterOverlay
 from aidm.data.registry import Registry
+from aidm.data.spell_defs import SpellDef
 from aidm.data.srd_monsters import SrdMonster
 from aidm.data.zone_templates import TerrainTemplate
 from aidm.models.campaign import NodePlan, RegionPlan
@@ -57,13 +63,15 @@ from aidm.models.encounter import (
 from aidm.models.events import AnyEvent
 from aidm.models.state import GameState
 from aidm.models.world import WorldNpc
+from aidm.models.zones import ZoneMap
 from aidm.rules.checks import dc_for_tier
 from aidm.rules.dice import Rng
 from aidm.rules.dm_tiers import party_levels
 from aidm.rules.encounter import start_encounter
 from aidm.rules.encounter_budget import adjusted_xp, pick_monsters, rate_encounter, rating_cap_xp
-from aidm.rules.encounter_danger import area_rating, harder, too_dangerous
+from aidm.rules.encounter_danger import too_dangerous
 from aidm.rules.finale import finale_open
+from aidm.rules.offer_label import LabelContext, danger_label, heroes_ac
 from aidm.rules.progression import boss_defeated, boss_npc, node_plan, region_of
 from aidm.rules.quest_progress import route_effects
 from aidm.rules.social import attitude_band, attitude_score, hostile_attitude_events
@@ -78,6 +86,8 @@ class OfferData:
     terrains: Registry[TerrainTemplate]
     tiers: DmTiers
     encounter: Registry[EncounterMonster]
+    overlay: MonsterOverlay = field(default_factory=MonsterOverlay)
+    spells: Registry[SpellDef] | None = None
 
 
 def _boss_waits(state: GameState, region: RegionPlan) -> WorldNpc | None:
@@ -241,13 +251,18 @@ def _offer(
     if boss is not None:
         xps.append(_xp(data, boss.archetype_id))
     rated = rate_encounter(xps, party_levels(state), data.tables)
-    hp = hero_hp(state)
-    for m in [*monsters, *([boss.archetype_id] if boss is not None else [])]:
-        rated = harder(rated, area_rating(data.monsters.get(m), hp, data.tables))
+    offer_id = f"offer-{state.event_count}"
+    zone_map = fight_map(state, node, offer_id, data.terrains)
+    cover = zone_map.zone(_foes_zone(zone_map)).cover
+    ctx = LabelContext(
+        data.tables, data.overlay, data.spells, hero_hp(state), heroes_ac(state), cover
+    )
+    foes = [data.monsters.get(m) for m in [*monsters, *([boss.archetype_id] if boss else [])]]
+    rated = danger_label(rated, foes, ctx)
     common = _dc(data.tiers.offer_dc_tiers, region.tier)
     parley = _dc(data.tiers.boss_parley_dc_tiers, region.tier) if boss else common
     return EncounterOffer(
-        id=f"offer-{state.event_count}",
+        id=offer_id,
         node_id=node.id,
         region_id=region.id,
         monster_ids=tuple(monsters),
@@ -282,14 +297,28 @@ def arrival_offer_events(
     return [EncounterOffered(offer=_offer(state, data, (region, node), boss, retreat_node))]
 
 
-def _setup(
-    state: GameState, offer: EncounterOffer, data: OfferData, rng: Rng, surprise: SurpriseKind
-) -> EncounterSetup:
-    node = node_plan(state, offer.node_id)
+def fight_map(
+    state: GameState, node: NodePlan | None, offer_id: str, terrains: Registry[TerrainTemplate]
+) -> ZoneMap:
+    """The fight's zone map, fixed by the campaign seed, the node and the offer (M29.7d: the
+    warning card knows the foes' cover before the fight starts)."""
+    campaign = state.campaign
+    seed = campaign.seed if campaign is not None else state.seed
+    node_id = node.id if node is not None else ""
     tags = node.terrain_tags if node is not None else ()
-    zone_map = generate_zone_map(rng, tags, data.terrains)
+    return generate_zone_map(random.Random(f"{seed}:{node_id}:{offer_id}:map"), tags, terrains)
+
+
+def _foes_zone(zone_map: ZoneMap) -> str:
+    return zone_neighbors(zone_map, zone_map.zones[0].id)[0][0]
+
+
+def _setup(
+    state: GameState, offer: EncounterOffer, data: OfferData, surprise: SurpriseKind
+) -> EncounterSetup:
+    zone_map = fight_map(state, node_plan(state, offer.node_id), offer.id, data.terrains)
     start = zone_map.zones[0].id
-    foes = zone_neighbors(zone_map, start)[0][0]
+    foes = _foes_zone(zone_map)
     spawns = [MonsterSpawn(monster=m, zone_id=foes) for m in offer.monster_ids]
     boss = state.world.npcs.get(offer.boss_npc_id or "")
     if boss is not None:
@@ -321,6 +350,6 @@ def offer_fight_events(
     region = region_of(state, offer.node_id)
     if boss is not None and region is not None and "boss_surprised" in route_effects(state, region):
         surprise = SurpriseKind.HOSTILE
-    setup = _setup(state, offer, data, rng, surprise)
+    setup = _setup(state, offer, data, surprise)
     events.extend(start_encounter(rng, state, setup, data.monsters))
     return events
