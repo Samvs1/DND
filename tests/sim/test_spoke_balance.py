@@ -4,8 +4,9 @@ the tier-1 spoke offers of the sample campaign, 50 campaign seeds x every act-1 
 Each seed: a fighter, a cleric (odd seeds) or wizard (even seeds) and a rogue with seeded races
 and the default creation picks (no extra potions, like the party simulation), the campaign
 installed with that seed, the party walks to the spoke, the world's offer is answered `fight`
-and `CombatRunner` plays both sides to the end. Every offer must be rated easy or trivial and
-field at most one monster per hero; the party must win at least 80% of the fights.
+and `CombatRunner` plays both sides to the end. Every offer's monsters must rate easy or trivial by
+SRD XP (the pick rule; the word on the card may be higher since M29.7d counts round damage and
+cover, label only) and field at most one monster per hero; the party must win at least 80%.
 """
 
 from __future__ import annotations
@@ -15,10 +16,12 @@ import sys
 from collections import Counter
 
 from aidm.models.campaign_state import EncounterOffer, OfferChoice
-from aidm.models.encounter import EncounterStatus
+from aidm.models.encounter import Difficulty, EncounterStatus
 from aidm.models.state import GameState
 from aidm.rules.campaign_install import install_campaign
 from aidm.rules.creation import build_character
+from aidm.rules.dm_tiers import party_levels
+from aidm.rules.encounter_budget import rate_encounter
 from aidm.rules.offer_answer import answer_offer
 from aidm.session.combat_runner import CombatRunner
 from tests.session.progression_fixtures import DATA, apply_all, move, plan
@@ -46,6 +49,9 @@ def spoke_fight(seed: int, spoke: str) -> tuple[EncounterOffer, EncounterStatus]
     move(state, spoke, [])
     assert state.campaign is not None and state.campaign.offer is not None
     offer = state.campaign.offer
+    xps = [DATA.monsters.get(m).xp for m in offer.monster_ids]
+    rated = rate_encounter(xps, party_levels(state), DATA.tables)
+    assert rated in (None, Difficulty.EASY), (seed, spoke, offer)
     rng = random.Random(seed)
     apply_all(state, answer_offer(state, OfferChoice.FIGHT, DATA, rng, actor_id="fighter"))
     status = CombatRunner(state, REGS, rng).run(MAX_ROUNDS)
@@ -57,7 +63,6 @@ def test_tier_one_spokes_are_fair_for_three_level_one_heroes() -> None:
     for seed in SEEDS:
         for spoke in SPOKES:
             offer, status = spoke_fight(seed, spoke)
-            assert offer.difficulty in ("easy", "trivial"), (seed, spoke, offer)
             assert 1 <= len(offer.monster_ids) <= 3, (seed, spoke, offer.monster_ids)
             outcomes[status] += 1
     fights = sum(outcomes.values())
