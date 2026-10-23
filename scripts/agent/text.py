@@ -3,11 +3,13 @@
 Pure functions over the public snapshot dicts (`PublicState`) and the messages a command
 collected, so they are unit-testable without a server.
 
-Public API: `footer`, `look_text`, `digest`, `foe_list`, `option_lines`, `ascii_text`.
+Public API: `footer`, `look_text`, `digest`, `foe_list`, `out_of_fight`, `option_lines`,
+`level_up_names`, `no_fight_text`, `ascii_text`.
 """
 
 from typing import Any
 
+from aidm.rules.leveling import MAX_LEVEL, level_for_xp
 from aidm.rules.offer_answer import PARLEY_SKILLS
 from scripts.agent.spells import spell_lines
 
@@ -47,16 +49,20 @@ def _hp(c: Msg) -> str:
 
 
 def foe_list(combat: Msg | None, hero_id: str) -> list[Msg]:
-    """The living enemy tokens in a stable order (the numbers `do attack 1` refers to)."""
+    """Every enemy token of the fight, dead and fled ones too, in the server's stable token
+    order: foe N stays foe N for the whole fight (M29.5b G23: numbers shifted after a death)."""
     if not combat:
         return []
     me = next((t for t in combat["tokens"] if t["creature_id"] == hero_id), None)
     side = me["side"] if me else "party"
-    return [
-        t
-        for t in combat["tokens"]
-        if t["side"] not in (side, "neutral") and not t["dead"] and not t.get("withdrawn")
-    ]
+    return [t for t in combat["tokens"] if t["side"] not in (side, "neutral")]
+
+
+def out_of_fight(token: Msg) -> str | None:
+    """Why a foe can no longer be targeted (dead, fled), else None."""
+    if token.get("dead"):
+        return "dead"
+    return "fled" if token.get("withdrawn") else None
 
 
 def _feature_lines(sheet: Msg | None, eco: Msg) -> tuple[list[str], list[str]]:
@@ -95,7 +101,8 @@ def option_lines(combat: Msg | None, hero_id: str, sheet: Msg | None) -> list[st
     lines: list[str] = []
     if can_act:
         for n, foe in enumerate(foe_list(combat, hero_id), 1):
-            lines.append(f"do attack {n}   ({foe['name']} {foe['hp']}/{foe['max_hp']})")
+            if out_of_fight(foe) is None:
+                lines.append(f"do attack {n}   ({foe['name']} {foe['hp']}/{foe['max_hp']})")
     if eco.get("action"):
         lines += ["do dodge", "do dash", "do disengage"]
     else:
@@ -140,12 +147,15 @@ def _combat(combat: Msg, hero_id: str) -> list[str]:
     zones = {z["id"]: z["name"] for z in combat.get("zones", [])}
     turn = combat.get("turn_of") or combat.get("active_id")
     out = [f"FIGHT round {combat['round']}; turn of {turn}"]
+    number = {t["creature_id"]: n for n, t in enumerate(foe_list(combat, hero_id), 1)}
     for t in combat["tokens"]:
         state = "dead" if t["dead"] else f"{t['hp']}/{t['max_hp']}hp"
+        foe = t["creature_id"] in number
         if t.get("withdrawn") and not t["dead"]:
-            state += " (left the fight)"
+            state += " (fled: not a target)" if foe else " (left the fight)"
         where = f"{zones.get(t['zone_id'], '?')} [{t['zone_id']}]"
-        out.append(f"  {t['creature_id']} {t['name']} ({t['side']}) {state} in {where}")
+        tag = f"foe {number[t['creature_id']]}: " if foe else ""
+        out.append(f"  {tag}{t['creature_id']} {t['name']} ({t['side']}) {state} in {where}")
     eco = combat.get("economy") or {}
     if combat.get("active_id") == hero_id and eco:
         out.append(
@@ -207,6 +217,29 @@ def _waiting(state: Msg, pending: str | None = None) -> list[str]:
     return out
 
 
+def no_fight_text(state: Msg) -> str:
+    """Why `do` has nothing to act on (M29.5b G12: after a defeat it said "use act")."""
+    if state.get("defeat"):
+        retry = "retry | " if state.get("checkpoint") else ""
+        return (
+            f"The fight is over: the party has fallen. Choose: answer {retry}load <save id> | new"
+        )
+    return "There is no fight (any fight is over): use act."
+
+
+def level_up_names(state: Msg, hero_id: str | None = None) -> list[str]:
+    """Every living hero whose XP reached the next level (M29.5b G24: the view flagged only the
+    hero whose seat asked); `hero_id` is one the server already said can level up."""
+    out: list[str] = []
+    for c in state.get("party", []):
+        level, xp = c.get("level"), c.get("xp")
+        due = isinstance(level, int) and isinstance(xp, int) and level < MAX_LEVEL
+        if c["id"] == hero_id or (due and not c.get("dead") and level_for_xp(xp) > level):
+            out.append(c["name"])
+    known = {c["id"] for c in state.get("party", [])}
+    return [hero_id] + out if hero_id is not None and hero_id not in known else out
+
+
 def look_text(
     state: Msg,
     seq: int,
@@ -236,8 +269,9 @@ def look_text(
         lines.append(
             "Choose: answer " + " | ".join((["retry"] if state.get("checkpoint") else []) + choices)
         )
-    if level_up:
-        lines.append(f"LEVEL UP available for {hero_id}: run `levelup --as <name>`.")
+    ready = level_up_names(state, hero_id if level_up else None)
+    if ready:
+        lines.append(f"LEVEL UP available for {', '.join(ready)}: run `levelup --as <name>`.")
     options = option_lines(combat, hero_id, sheet)
     if options:
         lines.append("Options:")

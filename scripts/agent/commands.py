@@ -10,7 +10,7 @@ Public API: `UsageError`, `build_command`, `answer_message`, `target_of`.
 from typing import Any
 
 from scripts.agent.spells import find_spell, needs_creature, needs_zone
-from scripts.agent.text import PARLEY_WORDS, waiting_lines
+from scripts.agent.text import PARLEY_WORDS, out_of_fight, waiting_lines
 
 Msg = dict[str, Any]
 
@@ -37,7 +37,11 @@ def target_of(word: str, foes: list[Msg], tokens: list[Msg] | None = None) -> st
         number = int(word)
         if not 1 <= number <= len(foes):
             raise UsageError(f"there is no foe number {number} (foes: 1..{len(foes)})")
-        return str(foes[number - 1]["creature_id"])
+        foe = foes[number - 1]
+        gone = out_of_fight(foe)
+        if gone is not None:
+            raise UsageError(f"foe {number} ({foe['name']}) is {gone}: not a target")
+        return str(foe["creature_id"])
     for token in tokens or []:
         if word.lower() in (str(token["creature_id"]).lower(), str(token["name"]).lower()):
             return str(token["creature_id"])

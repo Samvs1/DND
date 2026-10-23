@@ -23,7 +23,7 @@ from scripts.agent.session import (
     start_server,
     stop_server,
 )
-from scripts.agent.text import digest, foe_list, footer, look_text
+from scripts.agent.text import digest, foe_list, footer, look_text, no_fight_text
 from scripts.agent.trade import (
     match_line,
     open_stock,
@@ -180,7 +180,7 @@ async def cmd_do(root: Path, run: str | None, as_name: str | None, words: list[s
     try:
         combat = link.state.get("combat")
         if not combat:
-            return f"There is no fight: use act.\n{footer(link.state['campaign_id'], link.seq)}"
+            return f"{no_fight_text(link.state)}\n{footer(link.state['campaign_id'], link.seq)}"
         foes = foe_list(combat, player["hero_id"])
         try:
             sheet = await link.sheet()
