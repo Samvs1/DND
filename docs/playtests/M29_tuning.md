@@ -448,3 +448,231 @@ saves/balance/M29_tuned --markdown [--group style|party]`.
 
 
 </details>
+
+# M29.6b: balance from the live playtests (2026-10-23)
+
+Same grid: **7 styles x 5 parties x 5 seeds = 175 full campaigns** on the fake storyteller,
+`python scripts/simulate_party.py --style <styles> --party all --seeds 5 --out saves/balance/M29b_final`
+in 4 detached processes, **36 minutes wall clock** (16:06-16:42); 0 runs failed a check. Report:
+`python scripts/balance_report.py saves/balance/M29b_final --markdown [--group style|party]`.
+Before = the M29.6 grid above (saves/balance/M29_tuned, re-read with today's metrics). Each change
+and its slice numbers are in docs/DECISIONS.md (M29.6b).
+
+## What changed
+1. **XP curve** (p3 level 5 by action 203; milestones 75-800 vs fights 12-175): spoke and region
+   milestones followed the party level, so each level raised the next payout. Now fixed per region
+   tier (`dm_tiers.milestone_xp`: visit/clear/region 50/100/150, 100/200/600, 400/800/1000, final
+   +1600). New metric `master_levels` and targets `master_level_act1..3` [2] [3] [4-5] (every style;
+   the talker rows are the talk path).
+2. **Gift deeds** (one candle five times made a master an ally): a repeat item earns no deed, nor
+   a minor gift past `gift_deeds_per_npc` 2 (`WorldNpc.gifts`).
+3. **Dragon labels** (wyrmling "trivial", young black dragon "medium"): a breath weapon is rated by
+   its average damage over the heroes' average max HP (`area_damage_rating` 0.4/0.6/0.9); the label
+   is the higher rating; spokes never field a breath over their cap; such a master comes alone and
+   the plan check `boss_area` refuses it (the prompt lists 12 "never a boss" monsters).
+4. **Shops**: a general store always has a weapon, an armour, a Herbal Poultice (10 gp) and a
+   Traveller's Tonic (25 gp) besides the SRD Potion of Healing (50 gp); every region needs a trader
+   that sells weapons, armour and potions (else a peddler).
+5. **DC 20 gate**: requested checks and new locks are capped per region tier (medium / hard / very
+   hard; `check_dc_tier_cap`).
+6. **Masters at the planned level** (found by the first grid, saves/balance/M29b_first: the act-2
+   wight met at level 3 instead of 4 raised balanced heroes down per master 0.97 -> 1.36):
+   `boss_budget_scale` {1: 0.8, 2: 0.45, 3: 0.6} on the boss cap (company and hit point scale).
+
+## Headline, M29.6 -> M29.6b (175 runs each)
+| measure | M29.6 | M29.6b | target |
+|---|---|---|---|
+| campaigns reaching the epilogue | 134/175 | **140/175** | - |
+| epilogues: classic / casters / martial | 33 / 30 / 28 | 35 / 35 / 33 (of 35) | - |
+| epilogues: duo / solo | 30 / 13 | 27 / 10 | a meaningful share |
+| median level at the masters, every style | 2 / **4** / 5 | **2 / 3 / 5** (talker 2 / 3 / 4) | 2 / 3 / 4-5 |
+| XP per hero to the epilogue (median) | 10500-13100 | 9400-10100 | - |
+| XP share from fights (median) | 0.09-0.11 | 0.11-0.14 | not the only route |
+| balanced clean-win: classic / casters | 0.82 / 0.87 | **0.82 / 0.84 PASS** | 0.75-0.90 |
+| balanced clean-win: martial / duo / solo / pooled | 0.91 / 0.98 / 0.97 / 0.91 | 0.91 / 1.00 / 0.95 / 0.90 | 0.75-0.90 |
+| heroes down per master, balanced (all parties) | 0.97 | **0.67 PASS** | <= 1 |
+| heroes down per master, all styles: classic / casters / martial | 1.40 / 1.62 / 2.24 | 1.08 / **0.39** / 1.20 | <= 1 |
+| heroes down per master, all styles: duo / solo | 0.74 / 0.66 | 0.88 / 0.73 | <= 1 |
+| talker regions won by alliance | 21 of 71 | 24 of 69 | - |
+| gold per hero at act ends (pooled medians) | 116-132 / 146-264 / 213-485 | 113-130 / 143-289 / 203-500 | spender act 3 95 (MISS) |
+
+## What still misses, and why
+- **Clean-win over the 0.90 ceiling** for martial, duo, solo and the balanced pool (0.90): spokes
+  were not touched (M29.6 note stands: too easy beats too hard for small parties).
+- **Heroes down per master, classic 1.08 (balanced 1.42), martial 1.20, aggressive 1.29**: the
+  act-2 wight at the planned level 3 (classic 2.1 downs there; resists nonmagical weapons, which
+  bots never answer with oil, fire or radiant) and the mage's fireball on a party starting in one
+  zone. Scaling further would make the masters trivial for casters and duos (0.39 / 0.88 now).
+  Round 2 of the live playtests decides; the lever stays the master pick or the boss scale (data).
+- **Spender gold at act 3 (95 vs >= 200)**: general stores now sell weapons, armour and cheap
+  healing, so the spender style spends 1.8x more (shop buys 3760-3890 vs 2070-2210 gold over
+  five four-hero runs). That is the shop fix working; every other style passes.
+- **Solo epilogues 10/35** (13 before): 20 of the 25 lost solo runs end at Fogwright's Tower, the act-2 wight (already at half hit points for one hero), now met at level 3 instead of 4; 4 at the act-1 bugbear, 1 at the mage. Duo loses 5 of its 8 there. A per-size boss scale is the data lever if round 2 agrees.
+
+## Targets by style (all parties pooled)
+| verdict | style | party | runs | target | value | bounds |
+|---|---|---|---|---|---|---|
+| MISS | aggressive | all | 25 | boss_heroes_down_avg | 1.29 | -..1 |
+| PASS | aggressive | all | 25 | boss_level_act1 | 2 | 2..- |
+| PASS | aggressive | all | 25 | boss_level_act2 | 3 | 3..- |
+| PASS | aggressive | all | 25 | boss_level_act3 | 4 | 4..- |
+| PASS | aggressive | all | 25 | master_level_act1 | 2 | 2..2 |
+| PASS | aggressive | all | 25 | master_level_act2 | 3 | 3..3 |
+| PASS | aggressive | all | 25 | master_level_act3 | 5 | 4..5 |
+| PASS | aggressive | all | 25 | gold_act1_end | 117 | 30..300 |
+| PASS | aggressive | all | 25 | gold_act2_end | 146 | 100..900 |
+| PASS | aggressive | all | 25 | gold_act3_end | 212.5 | 200..1800 |
+| MISS | balanced | all | 25 | normal_clean_win_rate | 0.9 | 0.75..0.9 |
+| PASS | balanced | all | 25 | boss_heroes_down_avg | 0.67 | -..1 |
+| PASS | balanced | all | 25 | boss_level_act1 | 2 | 2..- |
+| PASS | balanced | all | 25 | boss_level_act2 | 3 | 3..- |
+| PASS | balanced | all | 25 | boss_level_act3 | 4 | 4..- |
+| PASS | balanced | all | 25 | master_level_act1 | 2 | 2..2 |
+| PASS | balanced | all | 25 | master_level_act2 | 3 | 3..3 |
+| PASS | balanced | all | 25 | master_level_act3 | 5 | 4..5 |
+| PASS | balanced | all | 25 | gold_act1_end | 115 | 30..300 |
+| PASS | balanced | all | 25 | gold_act2_end | 188 | 100..900 |
+| PASS | balanced | all | 25 | gold_act3_end | 311 | 200..1800 |
+| PASS | cautious | all | 25 | boss_heroes_down_avg | 0.91 | -..1 |
+| PASS | cautious | all | 25 | boss_level_act1 | 2 | 2..- |
+| PASS | cautious | all | 25 | boss_level_act2 | 3 | 3..- |
+| PASS | cautious | all | 25 | boss_level_act3 | 4 | 4..- |
+| PASS | cautious | all | 25 | master_level_act1 | 2 | 2..2 |
+| PASS | cautious | all | 25 | master_level_act2 | 3 | 3..3 |
+| PASS | cautious | all | 25 | master_level_act3 | 5 | 4..5 |
+| PASS | cautious | all | 25 | gold_act1_end | 115 | 30..300 |
+| PASS | cautious | all | 25 | gold_act2_end | 210.5 | 100..900 |
+| PASS | cautious | all | 25 | gold_act3_end | 327.5 | 200..1800 |
+| PASS | cunning | all | 25 | boss_heroes_down_avg | 0.59 | -..1 |
+| PASS | cunning | all | 25 | boss_level_act1 | 2 | 2..- |
+| PASS | cunning | all | 25 | boss_level_act2 | 3 | 3..- |
+| PASS | cunning | all | 25 | boss_level_act3 | 5 | 4..- |
+| PASS | cunning | all | 25 | master_level_act1 | 2 | 2..2 |
+| PASS | cunning | all | 25 | master_level_act2 | 3 | 3..3 |
+| PASS | cunning | all | 25 | master_level_act3 | 5 | 4..5 |
+| PASS | cunning | all | 25 | gold_act1_end | 115.5 | 30..300 |
+| PASS | cunning | all | 25 | gold_act2_end | 178 | 100..900 |
+| PASS | cunning | all | 25 | gold_act3_end | 300 | 200..1800 |
+| PASS | hoarder | all | 25 | boss_heroes_down_avg | 0.78 | -..1 |
+| PASS | hoarder | all | 25 | boss_level_act1 | 2 | 2..- |
+| PASS | hoarder | all | 25 | boss_level_act2 | 3 | 3..- |
+| PASS | hoarder | all | 25 | boss_level_act3 | 4 | 4..- |
+| PASS | hoarder | all | 25 | master_level_act1 | 2 | 2..2 |
+| PASS | hoarder | all | 25 | master_level_act2 | 3 | 3..3 |
+| PASS | hoarder | all | 25 | master_level_act3 | 5 | 4..5 |
+| PASS | hoarder | all | 25 | gold_act1_end | 117 | 30..300 |
+| PASS | hoarder | all | 25 | gold_act2_end | 176 | 100..900 |
+| PASS | hoarder | all | 25 | gold_act3_end | 304 | 200..1800 |
+| PASS | spender | all | 25 | boss_heroes_down_avg | 0.74 | -..1 |
+| PASS | spender | all | 25 | boss_level_act1 | 2 | 2..- |
+| PASS | spender | all | 25 | boss_level_act2 | 3 | 3..- |
+| PASS | spender | all | 25 | boss_level_act3 | 4 | 4..- |
+| PASS | spender | all | 25 | master_level_act1 | 2 | 2..2 |
+| PASS | spender | all | 25 | master_level_act2 | 3 | 3..3 |
+| PASS | spender | all | 25 | master_level_act3 | 5 | 4..5 |
+| PASS | spender | all | 25 | gold_act1_end | 107 | 30..300 |
+| PASS | spender | all | 25 | gold_act2_end | 147 | 100..900 |
+| MISS | spender | all | 25 | gold_act3_end | 95 | 200..1800 |
+| PASS | talker | all | 25 | boss_heroes_down_avg | 0.91 | -..1 |
+| PASS | talker | all | 25 | boss_level_act1 | 2 | 2..- |
+| PASS | talker | all | 25 | boss_level_act2 | 3 | 3..- |
+| PASS | talker | all | 25 | boss_level_act3 | 4 | 4..- |
+| PASS | talker | all | 25 | master_level_act1 | 2 | 2..2 |
+| PASS | talker | all | 25 | master_level_act2 | 3 | 3..3 |
+| PASS | talker | all | 25 | master_level_act3 | 4 | 4..5 |
+| PASS | talker | all | 25 | gold_act1_end | 106 | 30..300 |
+| PASS | talker | all | 25 | gold_act2_end | 156 | 100..900 |
+| PASS | talker | all | 25 | gold_act3_end | 259 | 200..1800 |
+
+## Targets by party (all styles pooled; the clean-win target is defined for the balanced style only)
+| verdict | style | party | runs | target | value | bounds |
+|---|---|---|---|---|---|---|
+| PASS | all | casters | 35 | boss_heroes_down_avg | 0.39 | -..1 |
+| PASS | all | casters | 35 | boss_level_act1 | 2 | 2..- |
+| PASS | all | casters | 35 | boss_level_act2 | 3 | 3..- |
+| PASS | all | casters | 35 | boss_level_act3 | 4 | 4..- |
+| PASS | all | casters | 35 | master_level_act1 | 2 | 2..2 |
+| PASS | all | casters | 35 | master_level_act2 | 3 | 3..3 |
+| PASS | all | casters | 35 | master_level_act3 | 5 | 4..5 |
+| PASS | all | casters | 35 | gold_act1_end | 113 | 30..300 |
+| PASS | all | casters | 35 | gold_act2_end | 143 | 100..900 |
+| PASS | all | casters | 35 | gold_act3_end | 203 | 200..1800 |
+| MISS | all | classic | 35 | boss_heroes_down_avg | 1.08 | -..1 |
+| PASS | all | classic | 35 | boss_level_act1 | 2 | 2..- |
+| PASS | all | classic | 35 | boss_level_act2 | 3 | 3..- |
+| PASS | all | classic | 35 | boss_level_act3 | 4 | 4..- |
+| PASS | all | classic | 35 | master_level_act1 | 2 | 2..2 |
+| PASS | all | classic | 35 | master_level_act2 | 3 | 3..3 |
+| PASS | all | classic | 35 | master_level_act3 | 5 | 4..5 |
+| PASS | all | classic | 35 | gold_act1_end | 113 | 30..300 |
+| PASS | all | classic | 35 | gold_act2_end | 143 | 100..900 |
+| PASS | all | classic | 35 | gold_act3_end | 203 | 200..1800 |
+| PASS | all | duo | 35 | boss_heroes_down_avg | 0.88 | -..1 |
+| PASS | all | duo | 35 | boss_level_act1 | 2 | 2..- |
+| PASS | all | duo | 35 | boss_level_act2 | 3 | 3..- |
+| PASS | all | duo | 35 | boss_level_act3 | 4 | 4..- |
+| PASS | all | duo | 35 | master_level_act1 | 2 | 2..2 |
+| PASS | all | duo | 35 | master_level_act2 | 3 | 3..3 |
+| PASS | all | duo | 35 | master_level_act3 | 5 | 4..5 |
+| PASS | all | duo | 35 | gold_act1_end | 117 | 30..300 |
+| PASS | all | duo | 35 | gold_act2_end | 181.5 | 100..900 |
+| PASS | all | duo | 35 | gold_act3_end | 305 | 200..1800 |
+| MISS | all | martial | 35 | boss_heroes_down_avg | 1.2 | -..1 |
+| PASS | all | martial | 35 | boss_level_act1 | 2 | 2..- |
+| PASS | all | martial | 35 | boss_level_act2 | 3 | 3..- |
+| PASS | all | martial | 35 | boss_level_act3 | 4 | 4..- |
+| PASS | all | martial | 35 | master_level_act1 | 2 | 2..2 |
+| PASS | all | martial | 35 | master_level_act2 | 3 | 3..3 |
+| PASS | all | martial | 35 | master_level_act3 | 5 | 4..5 |
+| PASS | all | martial | 35 | gold_act1_end | 114 | 30..300 |
+| PASS | all | martial | 35 | gold_act2_end | 146 | 100..900 |
+| PASS | all | martial | 35 | gold_act3_end | 210 | 200..1800 |
+| PASS | all | solo | 35 | boss_heroes_down_avg | 0.73 | -..1 |
+| PASS | all | solo | 35 | boss_level_act1 | 2 | 2..- |
+| PASS | all | solo | 35 | boss_level_act2 | 3 | 3..- |
+| PASS | all | solo | 35 | boss_level_act3 | 4 | 4..- |
+| PASS | all | solo | 35 | master_level_act1 | 2 | 2..2 |
+| PASS | all | solo | 35 | master_level_act2 | 3 | 3..3 |
+| PASS | all | solo | 35 | master_level_act3 | 5 | 4..5 |
+| PASS | all | solo | 35 | gold_act1_end | 130 | 30..300 |
+| PASS | all | solo | 35 | gold_act2_end | 289 | 100..900 |
+| PASS | all | solo | 35 | gold_act3_end | 500 | 200..1800 |
+
+## How the runs ended (per style and party)
+| style | party | runs | epilogue | lost for good | top level (median) | wipes/run |
+|---|---|---|---|---|---|---|
+| aggressive | casters | 5 | 5 | - | 5 | 0.4 |
+| aggressive | classic | 5 | 5 | - | 5 | 1 |
+| aggressive | duo | 5 | 1 | act 2: 3, act 3: 1 | 3 | 2.6 |
+| aggressive | martial | 5 | 5 | - | 5 | 1 |
+| aggressive | solo | 5 | 0 | act 2: 5 | 3 | 4.2 |
+| balanced | casters | 5 | 5 | - | 5 | 0 |
+| balanced | classic | 5 | 5 | - | 5 | 0.8 |
+| balanced | duo | 5 | 5 | - | 5 | 0.2 |
+| balanced | martial | 5 | 5 | - | 5 | 0 |
+| balanced | solo | 5 | 3 | act 1: 1, act 2: 1 | 5 | 3.2 |
+| cautious | casters | 5 | 5 | - | 5 | 0 |
+| cautious | classic | 5 | 5 | - | 5 | 0.4 |
+| cautious | duo | 5 | 4 | act 2: 1 | 5 | 1.8 |
+| cautious | martial | 5 | 4 | act 2: 1 | 5 | 0.8 |
+| cautious | solo | 5 | 2 | act 2: 3 | 3 | 4.6 |
+| cunning | casters | 5 | 5 | - | 5 | 0 |
+| cunning | classic | 5 | 5 | - | 5 | 0.2 |
+| cunning | duo | 5 | 4 | act 2: 1 | 5 | 0.8 |
+| cunning | martial | 5 | 5 | - | 5 | 0.4 |
+| cunning | solo | 5 | 1 | act 1: 1, act 2: 3 | 3 | 3 |
+| hoarder | casters | 5 | 5 | - | 5 | 0 |
+| hoarder | classic | 5 | 5 | - | 5 | 0 |
+| hoarder | duo | 5 | 5 | - | 5 | 0.6 |
+| hoarder | martial | 5 | 4 | act 2: 1 | 5 | 0.8 |
+| hoarder | solo | 5 | 0 | act 1: 1, act 2: 4 | 3 | 3.2 |
+| spender | casters | 5 | 5 | - | 5 | 0 |
+| spender | classic | 5 | 5 | - | 5 | 0.4 |
+| spender | duo | 5 | 4 | act 3: 1 | 5 | 1.2 |
+| spender | martial | 5 | 5 | - | 5 | 0.4 |
+| spender | solo | 5 | 2 | act 1: 1, act 2: 2 | 3 | 2.4 |
+| talker | casters | 5 | 5 | - | 5 | 0 |
+| talker | classic | 5 | 5 | - | 5 | 0.2 |
+| talker | duo | 5 | 4 | act 3: 1 | 5 | 1.4 |
+| talker | martial | 5 | 5 | - | 5 | 0.6 |
+| talker | solo | 5 | 2 | act 2: 2, act 3: 1 | 5 | 2.8 |
