@@ -12,24 +12,24 @@ as planned. No defeat in any run. Masters met at level 2 / 3 / 4-5 in every run 
 ## Harness problems (scripts/agent only)
 - H7 `trade` reads the `shop_stock` message right after the turn settles and does not wait for it; on the live
   storyteller the stock arrives late, so the first trade after arriving says "The shop did not open (no vote?)" although
-  the engine opened the shop (p5 events 327-328, 713). `open_stock` must wait for the stock message.
+  the engine opened the shop (p5 events 327-328, 713). `open_stock` must wait for the stock message. Fixed in M29.7e (61f85c9): `trade` / `open_stock` wait (bounded, 10 s fake, 90 s live) for the `shop_stock` message after the votes; `test_m29_h7_trade_waits_for_the_late_shop_stock`.
 - H8 `do attack` without an option picks the attack with the best hit chance only (`Link.best_option`), so a fighter
-  with Archery always fires the crossbow, even with the foe in its zone (p5 549-640). Weigh expected damage.
+  with Archery always fires the crossbow, even with the foe in its zone (p5 549-640). Weigh expected damage. Fixed in M29.7e (61f85c9): `Link.best_option` picks by hit chance x average damage (+ crit share, bonus dice), damage from the sheet's attack lines (`scripts/agent/damage.py`); `test_m29_h8_best_option_weighs_expected_damage`.
 - H9 Display: every turn line shows `attacks_left=0` at the start of a turn; Action Surge is listed as "(spent or
   unavailable)" until the action is spent; the region milestone XP line is unlabelled; the first fight line says
-  "turn of None".
+  "turn of None". Fixed in M29.7e (61f85c9): no `attacks_left=0` (shown only when more attacks wait), Action Surge listed until spent, XP lines labelled, no "turn of None"; `test_m29_h9_display_turn_start_surge_xp_and_first_fight_line`.
 - H10 `trade list` shows the pack only, never keepsakes (p7's "vanished" clapper was held all along, p7 546); there
-  is no `equip`/`unequip` command although the protocol has both.
+  is no `equip`/`unequip` command although the protocol has both. Fixed in M29.7e (61f85c9): `trade list` ends with the keepsakes marked not for sale, new `equip <item>` / `unequip <item>` commands over the existing messages; `test_m29_h10_keepsakes_and_equip_commands`.
 - H11 `look` does not show which hero carries a lit light, zone cover, or why a roll had advantage or disadvantage
   (the events carry `adv_why`, e.g. "high ground", and `target_ac` 21 with three-quarters cover, p4 862-871);
-  thrown oil and ball bearings print no zone or surface. The phone shows light and cover; the harness must too.
+  thrown oil and ball bearings print no zone or surface. The phone shows light and cover; the harness must too. Fixed in M29.7e (61f85c9): `look` shows the lit light per hero, zone cover, high ground, light and surfaces (oil, ball bearings), and the last roll with its `adv_why` (digest rolls too); `test_m29_h11_look_shows_light_cover_surfaces_and_the_roll_reason`.
 - H12 `settle` still returns during the live model's silent gap now and then: p4's "ignored" fight act (1371) has
   its narration at 1372 (G4 again); full-run parley, surprise and typed attacks printed the state before the result
-  (full 66 vs 69, 457-475, 2247). H7 hit the full run too (589, 752, 768).
-- H13 After the finale the tool prints only "THE CAMPAIGN IS COMPLETE"; the ending narration (full 2311) is not shown.
+  (full 66 vs 69, 457-475, 2247). H7 hit the full run too (589, 752, 768). Fixed in M29.7e (61f85c9): `settle` also waits for the narration of the acted turn, bounded by a quiet period (grace 1.5 s fake, 15 s live); `test_m29_h12_settle_waits_for_the_narration_of_the_acted_turn`, `test_m29_h12_settle_ends_after_a_bounded_quiet_when_no_narration_comes`.
+- H13 After the finale the tool prints only "THE CAMPAIGN IS COMPLETE"; the ending narration (full 2311) is not shown. Fixed in M29.7e (61f85c9): the epilogue text prints after "THE CAMPAIGN IS COMPLETE" (`Ending:`) and in the digest; `test_m29_h13_the_ending_narration_is_printed`.
 - H14 `look` shows no spell slots, camp supplies, spell list out of a fight, or what a level-up taught; `trade list`
   shows the camp ration at 1 gp while it costs 0.5 gp (G28 rounding) and does not state the 10-per-trade cap.
-  One driver answers every hero's vote, so votes never show (by harness design, not a game bug).
+  One driver answers every hero's vote, so votes never show (by harness design, not a game bug). Fixed in M29.7e (61f85c9): every view has `Camp supplies` and a `Heroes:` block (slots, spells out of a fight, resources); `levelup` prints what the level taught (before/after sheet); `trade list` shows the bulk price ("2 for 1 gp") and the per-trade cap; the help text says votes are answered by one driver by design; `test_m29_h14_slots_spells_level_up_prices_and_the_cap`.
 
 ## Game findings (each fix needs a `test_m29_<slug>`)
 | id | what | where (run / event) | severity | status |
