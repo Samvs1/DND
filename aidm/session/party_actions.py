@@ -55,7 +55,7 @@ from aidm.rules.equipment import (
 from aidm.rules.items import use_item_events
 from aidm.rules.leveling import LevelUpInvalid, can_level_up, level_up
 from aidm.rules.offer_answer import OfferRefused, answer_offer
-from aidm.rules.rests import RestRefused, long_rest, short_rest
+from aidm.rules.rests import RestRefused, long_rest, rest_refused_text, short_rest
 from aidm.rules.scrolls import ScrollCopyRefused, copy_scroll_to_spellbook, scroll_spell_index
 from aidm.rules.shop import ShopRefused, buy_events, npc_shop_stock, sell_events
 from aidm.session import combat_flow
@@ -63,8 +63,6 @@ from aidm.session.quest_people import hold
 from aidm.session.table_core import Job, Player, TableCore
 from aidm.session.telling import conclude, remember, tell_text
 from aidm.session.views import stock_lines
-
-REST_REFUSED = "The party cannot rest right now: the supplies or the hour do not allow it."
 
 
 def _tool(name: str, **args: str) -> ToolCall:
@@ -97,8 +95,8 @@ def rest_job(core: TableCore, kind: RestKind) -> Job:
                 if kind is RestKind.SHORT
                 else long_rest(core.state)
             )
-        except RestRefused:
-            core.notice(None, NoticeKind.REFUSED, REST_REFUSED)
+        except RestRefused as refused:
+            core.notice(None, NoticeKind.REFUSED, rest_refused_text(refused))
             return
         await conclude(core, None, core.apply_all(events))
 

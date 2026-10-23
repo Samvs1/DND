@@ -32,10 +32,9 @@ from aidm.rules.dice import Rng
 from aidm.rules.item_effects import gear_name
 from aidm.rules.item_use import use_item
 from aidm.rules.light import put_out
-from aidm.rules.rests import RestRefused, long_rest
+from aidm.rules.rests import RestRefused, long_rest, rest_refused_text
 from aidm.session import combat_flow, votes
 from aidm.session.declared import declare
-from aidm.session.party_actions import REST_REFUSED
 from aidm.session.table_core import Job, Player, TableCore
 from aidm.session.telling import conclude
 from aidm.session.views import public_combat
@@ -83,8 +82,8 @@ def rest_with_crafts(core: TableCore, crafts: tuple[tuple[str, str], ...]) -> Jo
     async def job() -> None:
         try:
             events = core.apply_all(long_rest(core.state))
-        except RestRefused:
-            core.notice(None, NoticeKind.REFUSED, REST_REFUSED)
+        except RestRefused as refused:
+            core.notice(None, NoticeKind.REFUSED, rest_refused_text(refused))
             return
         for actor_id, item in crafts:
             made = use_item(

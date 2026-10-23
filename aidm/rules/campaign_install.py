@@ -9,7 +9,10 @@ first move to act 1's arrival.
 
 Bosses are registered as world NPCs at their gateway (`plan_ids.boss_npc_id(region)`), so the social
 rules apply to them: a boss with an ally path starts unfriendly (`BOSS_ALLY_PATH_BASE`) and can
-be turned by deeds; a boss without one starts hostile (DECISIONS M5.3).
+be turned by deeds; a boss without one starts hostile (DECISIONS M5.3). A cast member whose id
+is a boss id (the generator's repair of a boss written twice, M29.5b G30) is merged into that
+boss: one record with the boss's role, place and attitude and the person's demeanor, voice,
+motive and secrets.
 
 Public API: `install_campaign(state, plan, seed) -> list[AnyEvent]` (`ValueError` when a campaign
 is already installed or an id clashes), `plan_npc(npc) -> WorldNpc`,
@@ -70,6 +73,22 @@ def _boss(region: RegionPlan) -> WorldNpc:
     )
 
 
+def _cast(plan: CampaignPlan) -> list[WorldNpc]:
+    """The plan's cast and bosses; a cast member with a boss's id is merged into that boss."""
+    bosses = {b.id: b for b in (_boss(r) for r in plan.all_regions())}
+    cast: list[WorldNpc] = []
+    for npc in plan.npcs:
+        boss = bosses.pop(npc.id, None)
+        if boss is None:
+            cast.append(plan_npc(npc))
+            continue
+        person = plan_npc(npc)
+        motive = " ".join(m for m in (person.motive, boss.motive) if m)
+        update = {"demeanor": person.demeanor, "voice_tag": person.voice_tag, "motive": motive}
+        cast.append(boss.model_copy(update={**update, "secrets": person.secrets}))
+    return cast + list(bosses.values())
+
+
 def act_quest_events(state: GameState, plan: CampaignPlan, act: int) -> list[AnyEvent]:
     return list[AnyEvent](quest_item_events(state, plan, act))
 
@@ -77,7 +96,7 @@ def act_quest_events(state: GameState, plan: CampaignPlan, act: int) -> list[Any
 def install_campaign(state: GameState, plan: CampaignPlan, seed: int) -> list[AnyEvent]:
     if state.campaign is not None:
         raise ValueError("a campaign is already installed")
-    npcs = [plan_npc(n) for n in plan.npcs] + [_boss(r) for r in plan.all_regions()]
+    npcs = _cast(plan)
     clashes = sorted({n.id for n in npcs} & set(state.world.npcs))
     if clashes or len({n.id for n in npcs}) != len(npcs):
         raise ValueError(f"campaign npc ids clash: {clashes or 'boss id'}")

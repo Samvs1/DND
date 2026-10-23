@@ -9,7 +9,9 @@ Public API:
   install gives the party, one long rest for four, M9.2), `SHORT_REST_HEAL_DIVISOR` (2: a
   short rest heals half of max HP, BG3; no hit dice).
 - `RestRefusal`: NO_PARTY / NO_SHORT_RESTS_LEFT / NOT_ENOUGH_SUPPLIES.
-- `RestRefused(reason, detail)`: ValueError subclass carrying the `reason`.
+- `RestRefused(reason, detail, short_by=0)`: ValueError subclass carrying the `reason` (and,
+  for missing supplies, how many are missing).
+- `rest_refused_text(refused) -> str`: the player line naming the actual reason (M29.5b G34).
 - `living_party(state) -> list[Creature]`; `short_rests_left(state) -> int`;
   `long_rest_cost(state) -> int` (= living members x CAMP_SUPPLY_PER_MEMBER).
 - `adjust_camp_supplies(state, delta) -> list[AnyEvent]`: `[CampSuppliesChanged]` (loot, shops);
@@ -60,9 +62,22 @@ class RestRefusal(StrEnum):
 class RestRefused(ValueError):
     """A rest the rules do not allow right now; `reason` says why."""
 
-    def __init__(self, reason: RestRefusal, detail: str) -> None:
+    def __init__(self, reason: RestRefusal, detail: str, short_by: int = 0) -> None:
         super().__init__(f"{reason.value}: {detail}")
         self.reason = reason
+        self.detail = detail
+        self.short_by = short_by
+
+
+def rest_refused_text(refused: RestRefused) -> str:
+    if refused.reason is RestRefusal.NOT_ENOUGH_SUPPLIES:
+        return (
+            f"The party cannot make camp: {refused.short_by} camp supplies short "
+            f"({refused.detail}). Buy supplies from a trader or find them as loot."
+        )
+    if refused.reason is RestRefusal.NO_SHORT_RESTS_LEFT:
+        return f"No short rest is left: {refused.detail}. A long rest (make camp) resets them."
+    return "No living hero is able to rest."
 
 
 def living_party(state: GameState) -> list[Creature]:
@@ -124,7 +139,8 @@ def long_rest(state: GameState) -> list[AnyEvent]:
     if state.camp_supplies < cost:
         raise RestRefused(
             RestRefusal.NOT_ENOUGH_SUPPLIES,
-            f"need {cost} camp supplies, have {state.camp_supplies}",
+            f"the long rest needs {cost}, the party has {state.camp_supplies}",
+            short_by=cost - state.camp_supplies,
         )
     events: list[AnyEvent] = [
         LongRestTaken(supplies_spent=cost, camp_supplies=state.camp_supplies - cost)

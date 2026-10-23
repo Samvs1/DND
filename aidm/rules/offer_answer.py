@@ -10,6 +10,8 @@ The checks use the DCs the offer carries (set from the region tier by data, neve
   success -> no fight (with a boss: Persuasion improves its attitude, social contribution only,
   capped and floored); failure -> the fight starts.
 Group checks follow SRD 5.1 "Group Checks": the group succeeds when at least half succeed.
+A boss offer whose region is already resolved (an old save from before M29.5b G29) closes
+peacefully whatever the answer: an allied boss is never turned hostile by it.
 
 Public API: `OfferRefused`; `answer_offer(state, choice, data, rng, *, actor_id=None,
 skill=None) -> list[AnyEvent]` (starts with `OfferResolved`; `CheckResolved` per roll).
@@ -31,6 +33,7 @@ from aidm.rules.conditions import skill_check_with_conditions
 from aidm.rules.dice import Rng
 from aidm.rules.encounter_offer import OfferData, offer_fight_events
 from aidm.rules.light import arrival_events
+from aidm.rules.progression import peaceful_close, settled_offer
 from aidm.rules.social import social_attitude_events
 
 PARLEY_SKILLS = (Skill.PERSUASION, Skill.INTIMIDATION)
@@ -121,6 +124,8 @@ def answer_offer(
         raise OfferRefused("no encounter is waiting for an answer")
     if choice not in offer.options:
         raise OfferRefused(f"{choice.value} is not an option here")
+    if settled_offer(state) is not None:  # M29.5b G29: the boss's region is already settled
+        return [peaceful_close(offer)]
     success, checks, surprise = _resolve(state, offer, choice, rng, (actor_id, skill))
     detail = "the fight starts" if surprise is not None else "no fight"
     events: list[AnyEvent] = [
