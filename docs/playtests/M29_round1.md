@@ -27,9 +27,9 @@ Saves: saves/playtests/p1-classic/saves and saves/playtests/p6-breaker/saves (ca
 | G9 | A second torch "catches" in prose while only one torch is consumed | p6 82 | low |
 | G10 | Invented place mapped to a real exit and described as blocked | p6 90 | low |
 | G11 | Attacking a friendly NPC prints only "stands on the brink of violence" with no explanation | p6 106, 108 | low |
-| G12 | Refusal after a defeat says "There is no fight: use act." | p1 517 | low |
-| G13 | Opening recap says "The party found a way: ..." before any action | p1 24-25 | low |
-| G14 | Duplicate lead line at campaign start ("Someone at Tollgate Halt may need help" x2) | livecheck c-20261023-080351-0001 | low |
+| G12 | Refusal after a defeat says "There is no fight: use act." | p1 517 | low | (fixed M29.5b ac03786: harness `do` says the fight is over / the party has fallen) |
+| G13 | Opening recap says "The party found a way: ..." before any action | p1 24-25 | low | (fixed M29.5b 680460f: "a way the party knows of") |
+| G14 | Duplicate lead line at campaign start ("Someone at Tollgate Halt may need help" x2) | livecheck c-20261023-080351-0001 | low | (fixed M29.5b 680460f: a second asker gets "Someone else at ... too") |
 | G15 | Long rest in the fen refused only in prose ("no dry ground"), no engine reason or vote | p6 331, 333 | check |
 
 ## Balance notes
@@ -46,16 +46,16 @@ About 132 actions, region 1 resolved, 0 defeats, stopped by the stuck rule. Susp
 | id | what | where (event) | severity |
 |---|---|---|---|
 | G16 | Travel to region 2 ("Reedland Ferry") only "proposes", never travels, no reason shown | 689-691, 722 | blocker (check vote) | (fixed M29.5a 5bdb9de: travel confirm shown, answerable)
-| G17 | Rest by typing is prose only (HP unchanged); out-of-fight Cure Wounds and Potion of Healing / Herbal Poultice on an ally do nothing | 355-361, 662-666 | blocker (rest: check vote; healing: real gap, G2 family) | (fixed M29.5b 1952114: healing part; rest part open: wordy rest sentences at 353-357 went to the storyteller, which has no rest tool; the plain commands work) |
-| G18 | XP maybe paid twice: 75 at the warning beat and again at victory (zombie 47/118, thug 179/240, wolves 273/336) | 47, 118, 179, 240, 273, 336 | high (balance) |
-| G19 | Items "found" on a FAILED Investigation while prose says nothing found; an item (hatched moth) described as a creature | 135, 143 | medium |
-| G20 | Quest step completes on accept, narrator claims the hero did it | 707 | medium |
+| G17 | Rest by typing is prose only (HP unchanged); out-of-fight Cure Wounds and Potion of Healing / Herbal Poultice on an ally do nothing | 355-361, 662-666 | blocker (rest: check vote; healing: real gap, G2 family) | (fixed M29.5b 1952114: healing part; rest part open: wordy rest sentences at 353-357 went to the storyteller, which has no rest tool; the plain commands work) | (fixed M29.5b 4a9f574: wordy rest sentences open the rest vote) |
+| G18 | XP maybe paid twice: 75 at the warning beat and again at victory (zombie 47/118, thug 179/240, wolves 273/336) | 47, 118, 179, 240, 273, 336 | high (balance) | (not reproduced: not a double count; the first 75 is the spoke's first-visit milestone, the second its clear milestone, each paid once per source (RULES_DECISIONS M9.2); the curve is M29.6b's; guarded by a test in 680460f) |
+| G19 | Items "found" on a FAILED Investigation while prose says nothing found; an item (hatched moth) described as a creature | 135, 143 | medium | (fixed M29.5b 680460f: discovery stays per item DC by rule; the storyteller is now told the search found the object even though the check missed its goal) |
+| G20 | Quest step completes on accept, narrator claims the hero did it | 707 | medium | (fixed M29.5b 680460f: the step was met by an item picked up at 145 (kept); the step line now says who already carries it and to tell no new deed) |
 | G21 | Narrator kills foes before the engine does ("lies still" at 3/22, 8/32; "the last bandit" with one alive) | 97, 207, 533 | medium |
 | G22 | "[unlisted] [unlisted]" placeholder in prose | 143 | low |
-| G23 | Foe numbering shifts after deaths; fled foes listed but not numbered; `attack 1` may hit another foe | 313, 336, 580 | medium |
-| G24 | Level-up prompt flags only one of four eligible heroes | 246 | medium |
+| G23 | Foe numbering shifts after deaths; fled foes listed but not numbered; `attack 1` may hit another foe | 313, 336, 580 | medium | (fixed M29.5b ac03786: harness numbers foes for the whole fight, dead/fled foes are refused as targets; the phone already targets by creature id and hides fled foes) |
+| G24 | Level-up prompt flags only one of four eligible heroes | 246 | medium | (fixed M29.5b ac03786: the engine sent each owner its own prompt; the harness view now flags every eligible hero) |
 | G25 | Spell options shown with no action/slot left; ally target ids not discoverable for healing spells | 313, 476, 614 | low (harness or view) | (fixed M29.5a 5bdb9de: harness part)
-| G26 | HP lost with no damage line; monster attacks narrated without a roll line | 381-393, 59, 75, 308 | medium |
+| G26 | HP lost with no damage line; monster attacks narrated without a roll line | 381-393, 59, 75, 308 | medium | (not reproduced: the save has the attack roll, damage dice and damage_taken for each loss (p2 387-390); the wrong weapon in prose is G7) |
 | G27 | Free-text act moved the party; refused moves still print "X moves: ..." | 672, 712, 255, 689 | low | (fixed M29.5a 5bdb9de: harness part)
 | G28 | Sub-gp prices: 2 dice sets cost 1 gp total (rounding per line?) | harness smoke s1 | check |
 Balance: region 1's only shop has no weapons/armour and a Potion of Healing costs 50 gp vs about 27 gp per hero; a DC 20 Athletics gate (frozen thing) failed 6/6 with no other route; L2 after two fights (see G18).
