@@ -14,7 +14,8 @@ it is active. A step is met when its count reaches `QuestStep.goal()`:
   for a favour a flavour keepsake (no `quest_id`) of that name counts too (M23.5);
 - meet: the party stands where the NPC is, the NPC alive and not hostile;
 - win_over: the NPC (alive, not hostile) reaches the band's floor score;
-- learn: `rules.secrets.engine_knows(tag)`;
+- learn: something teaches the tag NOW (`rules.quest_learn.learn_source`, M29.7c R1: the place
+  the party stands at, a feature or secret here, a finished quest), never an old visit;
 - free: never by itself (the AI proposes it through `update_quest`, `rules.quest_free`).
 
 Public API: `step_count(state, step, owner) -> int` (0..goal, the x of "x/N"),
@@ -31,7 +32,8 @@ from aidm.models.world import WorldNpc
 from aidm.rules.milestones import clear_key
 from aidm.rules.plan_ids import boss_npc_id
 from aidm.rules.progression import boss_defeated
-from aidm.rules.secrets import engine_knows, item_key
+from aidm.rules.quest_learn import learn_source
+from aidm.rules.secrets import item_key
 from aidm.rules.social import attitude_score, band_floor, npc_is_hostile
 
 type _Check = Callable[[GameState, QuestStep, str], int]
@@ -135,7 +137,7 @@ def _win_over(state: GameState, step: QuestStep, owner: str) -> int:
 
 
 def _learn(state: GameState, step: QuestStep, owner: str) -> int:
-    return int(engine_knows(state, step.tag or ""))
+    return int(learn_source(state, step.tag or "") is not None)
 
 
 def _free(state: GameState, step: QuestStep, owner: str) -> int:

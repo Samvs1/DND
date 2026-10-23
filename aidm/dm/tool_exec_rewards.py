@@ -10,6 +10,8 @@ NPC stops at the point of no return until the player confirms. M27.5: an item th
 shops, loot and starting packs only (closes "I find a rope").
 
 Public API: `run_grant_item`, `run_grant_xp`, `run_start_encounter` -> `ToolResult`;
+`fight_npcs(state, npcs, rng, regs, why) -> ToolResult` (M29.7c R15: a confirmed attack on
+people here starts the fight with them, no danger budget);
 `catalog_value_gp(regs, catalog_id) -> float | None` (None: not a grantable catalogue item).
 """
 
@@ -34,6 +36,7 @@ from aidm.rules.encounter import EncounterRefused, start_encounter
 from aidm.rules.encounter_budget import check_encounter_budget
 from aidm.rules.item_grants import gain_item_events
 from aidm.rules.leveling import gain_xp
+from aidm.rules.progression import node_plan
 from aidm.rules.social import hostile_attitude_events
 from aidm.rules.zone_gen import generate_zone_map
 from aidm.rules.zones import zone_neighbors
@@ -131,6 +134,44 @@ def _setup(
     )
 
 
+def _start(
+    state: GameState,
+    args: StartEncounterArgs,
+    npcs: list[WorldNpc],
+    rng: Rng,
+    regs: ToolRegistries,
+    why: str,
+) -> list[AnyEvent]:
+    events: list[AnyEvent] = []
+    for npc in non_hostile(npcs):
+        events.extend(hostile_attitude_events(npc, why))
+    try:
+        setup = _setup(state, args, npcs, rng, regs)
+        events.extend(start_encounter(rng, state, setup, regs.combat.monsters))
+    except EncounterRefused as exc:
+        raise ToolRefused(str(exc)) from None
+    return events
+
+
+def fight_npcs(
+    state: GameState, npcs: list[WorldNpc], rng: Rng, regs: ToolRegistries, why: str
+) -> ToolResult:
+    """M29.7c R15: the party's own confirmed attack on people standing here starts the fight
+    with them at once (an ally master in the finale too). No danger budget: the point of no
+    return was the warning, and refusing a possible attack is not the engine's call."""
+    if state.encounter is not None and state.encounter.status is EncounterStatus.ACTIVE:
+        raise ToolRefused("a fight is already under way")
+    if not living_pcs(state):
+        raise ToolRefused("no living player character to fight")
+    node = node_plan(state, state.world.current_node)
+    terrain = list(node.terrain_tags) if node is not None else []
+    args = StartEncounterArgs(against_npcs=[n.id for n in npcs], terrain_tags=terrain)
+    events = _start(state, args, npcs, rng, regs, why)
+    names = ", ".join(n.name for n in npcs)
+    summary = f"the fight starts: {names}; the hero's blow is struck in the fight, by turns"
+    return ToolResult(events=tuple(events), summary=summary)
+
+
 def run_start_encounter(
     state: GameState, args: StartEncounterArgs, ctx: ToolContext, rng: Rng, regs: ToolRegistries
 ) -> ToolResult:
@@ -142,14 +183,6 @@ def run_start_encounter(
     peaceful = non_hostile(npcs)
     if peaceful and not ctx.confirm_hostile:
         return hostile_pending(ctx, peaceful, "start_encounter")
-    events: list[AnyEvent] = []
-    for npc in peaceful:
-        events.extend(hostile_attitude_events(npc, "the party attacked"))
-    try:
-        events.extend(
-            start_encounter(rng, state, _setup(state, args, npcs, rng, regs), regs.combat.monsters)
-        )
-    except EncounterRefused as exc:
-        raise ToolRefused(str(exc)) from None
+    events = _start(state, args, npcs, rng, regs, "the party attacked")
     names = ", ".join([*args.monster_ids, *(n.name for n in npcs)])
     return ToolResult(events=tuple(events), summary=f"fight starts ({difficulty}): {names}")

@@ -5298,6 +5298,14 @@
               },
               "title": "Options",
               "type": "array"
+            },
+            "sure": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/OfferChoice"
+              },
+              "title": "Sure",
+              "type": "array"
             }
           },
           "required": [

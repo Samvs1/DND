@@ -13,7 +13,7 @@ Public API:
   visible items and present NPCs.
 - `MapNode`, `PublicMap`: the region graph with fog (visited nodes and their neighbours).
 - `PublicQuest` (title, state, giver and objective once taken on); `PublicSummary` (scene
-  summaries); `PublicOffer` (a pending encounter offer: foes, boss, options);
+  summaries); `PublicOffer` (a pending encounter offer: foes, boss, options, the sure ones);
   `PublicQuestOffer` (M23.4: the giver's open question, the phones' Accept / Not now card).
 - `PublicZone`, `CombatToken`, `PublicCombat`: zones (with terrain), tokens (monster index for
   art), initiative, the active creature and its economy pips.
@@ -182,6 +182,7 @@ class PublicOffer(_View):
     boss_name: str | None = None
     difficulty: str = ""
     options: tuple[OfferChoice, ...] = ()
+    sure: tuple[OfferChoice, ...] = ()  # M29.7c R14: answers that surely hold (a done Peace route)
 
 
 class PublicQuestOffer(_View):

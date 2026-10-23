@@ -25,13 +25,14 @@ from aidm.models.quest_events import (
     QuestStepDone,
     RouteDiscovered,
 )
-from aidm.models.quests import QuestKind, QuestStep, RoutePlan, StepKind
+from aidm.models.quests import QuestKind, QuestStep, RoutePlan
 from aidm.models.state import GameState
 from aidm.models.world import ClosedReason, Quest, QuestState
 from aidm.models.world_events import QuestUpdated
+from aidm.rules.offer_answer import sure_parley
 from aidm.rules.plan_ids import main_quest_id
 from aidm.rules.quest_plan import main_quest
-from aidm.rules.secrets import item_key
+from aidm.rules.quest_reasons import step_reason
 
 _QUESTS = {
     QuestState.OFFERED: "A new task is offered: {title}.",
@@ -71,28 +72,28 @@ def _step(state: GameState, e: QuestStepDone) -> QuestStep | None:
     return steps[e.step] if 0 <= e.step < len(steps) else None
 
 
-def _holder(state: GameState, item: str) -> str | None:
-    wanted = item_key(item)
-    for c in state.creatures.values():
-        if c.pc is None or c.dead:
-            continue
-        names = [k.name for k in c.pc.keepsakes] + [row.item for row in c.pc.inventory]
-        if any(item_key(n) == wanted for n in names):
-            return c.name
-    return None
-
-
 def _step_fact(state: GameState, e: QuestStepDone) -> str:
     """M29.5b G20: a step is met by what the state already records (an item found before the
-    quest was taken counts at once), so the model is told what met it and to tell no new deed."""
+    quest was taken counts at once), so the model is told what met it and to tell no new deed;
+    M29.7c R1: every kind of step names what met it (`rules.quest_reasons.step_reason`)."""
     done = (e.log_line or f"step {e.step + 1}").rstrip(".")
     step = _step(state, e)
-    held = None
-    if step is not None and step.kind is StepKind.OBTAIN and step.item:
-        who = _holder(state, step.item)
-        held = f"{who} already carries the {step.item}" if who is not None else None
-    why = held or "met by what the party has already done"
-    return f"Quest '{_title(state, e.quest_id)}': step done: {done} ({why})."
+    why = step_reason(state, step, e.quest_id) if step is not None else None
+    why = why or "met by what the party has already done"
+    line = f"Quest '{_title(state, e.quest_id)}': step done: {done} ({why})."
+    return f"{line} {PEACE_WAITS}" if e.route_id is not None and _peace_waits(state) else line
+
+
+PEACE_WAITS = (
+    "The master still waits for the party's answer: nothing is settled yet, and a parley now "
+    "would surely hold."
+)
+
+
+def _peace_waits(state: GameState) -> bool:
+    """M29.7c R14: the master's offer waits while its Peace route is done."""
+    offer = state.campaign.offer if state.campaign is not None else None
+    return offer is not None and sure_parley(state, offer)
 
 
 STEP_NOTE = (

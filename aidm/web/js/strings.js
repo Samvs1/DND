@@ -279,6 +279,7 @@ export const STRINGS = {
     offer_surprise: 'Ambush them',
     offer_escape: 'Slip away',
     offer_parley: 'Parley',
+    offerSure: '{label} (sure to hold)',
     questOfferTitle: '{giver} asks: {title}',
     questOfferAccept: 'Accept',
     questOfferLater: 'Not now',

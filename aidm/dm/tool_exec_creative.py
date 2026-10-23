@@ -4,7 +4,9 @@ The model picks an `effect_kind` and a `severity`; the engine picks the dice (by
 the save DC, the duration cap, the condition's saving throw and the surface, all from
 data/bg3/dm_tiers.json. Damage goes through the one damage path (`rules.attacks.deal_damage`).
 A damaging, condition or push effect aimed at a non-hostile NPC stops at the point of no return;
-one aimed at another player's hero is refused (a push is allowed in a fight).
+confirmed (or aimed at a hostile NPC here) it starts the fight with them (M29.7c R15,
+`tool_exec_rewards.fight_npcs`). One aimed at another player's hero is refused (a push is
+allowed in a fight).
 M27.6: an effect that leans on gear (`item`, or the gear the player's words name) goes through
 `aidm.dm.creative_gear`: gear the hero lacks (or a keepsake) is refused and told as an attempt;
 carried gear thrown at a creature of the fight is THE item interpreter's use, a substance the
@@ -15,7 +17,8 @@ Public API: `run_creative_effect(state, args, ctx, rng, regs) -> ToolResult`.
 
 from aidm.dm.creative_gear import gear_outcome, leaned_gear
 from aidm.dm.tool_context import ToolContext, ToolRefused, ToolRegistries, ToolResult
-from aidm.dm.tool_exec_common import hostile_pending, require_creature
+from aidm.dm.tool_exec_common import hostile_pending, npc_is_present, require_creature
+from aidm.dm.tool_exec_rewards import fight_npcs
 from aidm.dm.tools import CreativeEffectArgs
 from aidm.models.abilities import Ability
 from aidm.models.combat_events import CombatantMoved
@@ -33,7 +36,7 @@ from aidm.rules.conditions import save_with_conditions
 from aidm.rules.dice import Rng, roll
 from aidm.rules.dm_tiers import party_level, severity_damage_dice, severity_rounds, severity_save_dc
 from aidm.rules.projection import project_state
-from aidm.rules.social import hostile_attitude_events, npc_is_hostile
+from aidm.rules.social import npc_is_hostile
 from aidm.rules.surface_state import surface_removed_events, zone_surface
 from aidm.rules.surfaces import enter_zone_events, place_surface_events
 from aidm.rules.zones import zone_neighbors
@@ -52,14 +55,15 @@ def _encounter(state: GameState) -> Encounter:
     return enc
 
 
-def _against_npc(npc: WorldNpc, args: CreativeEffectArgs, ctx: ToolContext) -> ToolResult:
-    if not npc_is_hostile(npc):
-        if not ctx.confirm_hostile:
-            return hostile_pending(ctx, [npc], "creative_effect")
-        events = hostile_attitude_events(npc, f"attacked by {args.actor}")
-        summary = f"{npc.name} turns hostile; use start_encounter with against_npcs to fight"
-        return ToolResult(events=tuple(events), summary=summary)
-    raise ToolRefused(f"{npc.name} is hostile: start_encounter with against_npcs to fight them")
+def _against_npc(run: _Run, npc: WorldNpc, ctx: ToolContext) -> ToolResult:
+    """An attack on someone out of a fight: past the point of no return it starts the fight with
+    them (M29.7c R15: a confirmed attack on an allied master only turned it hostile)."""
+    state, args, rng, regs = run
+    if not npc_is_present(state, npc):
+        raise ToolRefused(f"{npc.name} is not here")
+    if not npc_is_hostile(npc) and not ctx.confirm_hostile:
+        return hostile_pending(ctx, [npc], "creative_effect")
+    return fight_npcs(state, [npc], rng, regs, f"attacked by {args.actor}")
 
 
 def _refuse_against_hero(state: GameState, args: CreativeEffectArgs, target: Creature) -> None:
@@ -178,7 +182,7 @@ def run_creative_effect(
     target_id = args.target or args.actor
     npc = state.world.npcs.get(target_id)
     if npc is not None and kind in _HOSTILE and target_id not in state.creatures:
-        return _against_npc(npc, args, ctx)
+        return _against_npc(run, npc, ctx)
     target = require_creature(state, target_id)
     _refuse_against_hero(state, args, target)
     if kind is EffectKind.MINOR_DAMAGE:

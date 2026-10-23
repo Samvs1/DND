@@ -16,7 +16,7 @@ from aidm.models.protocol_views import (
 from aidm.models.quests import QuestKind, RoutePlan
 from aidm.models.state import GameState
 from aidm.models.world import Quest
-from aidm.rules.finale import chosen_ending, finale_open
+from aidm.rules.finale import chosen_ending, fight_first, finale_open
 from aidm.rules.plan_ids import main_quest_id
 from aidm.rules.quest_plan import main_quest
 from aidm.session.public_feed import leaks, private_texts
@@ -123,6 +123,8 @@ def public_finale(state: GameState) -> PublicFinale | None:
     chosen = chosen_ending(state)
     if finale is None or (finale_open(state) is None and chosen is None):
         return None
+    if chosen is None and fight_first(state):
+        return None  # M29.7c R15: the fight comes first, the card returns after it
     return PublicFinale(
         question=finale.question,
         options=tuple(PublicFinaleOption(id=o.id, title=o.title) for o in finale.options),

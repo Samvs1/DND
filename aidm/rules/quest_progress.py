@@ -13,7 +13,10 @@ A pass, in order:
    its steps is met or its hint NPC can be met (present, alive, not hostile). Once nothing moves
    and the act region is resolved, the quest completes with a log line saying how (defeat or
    alliance). A finished Peace route gives the boss the deeds that reach ALLY, so the EXISTING
-   alliance resolution (`progression.region_resolution_events`) resolves the region; a finished
+   alliance resolution (`progression.region_resolution_events`) resolves the region; while the
+   master's encounter offer waits, the deeds wait too unless the last step was the party's own
+   hand-over (M29.7c R14: the party answers, and with the route done a parley surely holds,
+   `offer_answer`); a finished
    Cunning route is read by the boss offer through `route_effects` (no event of its own).
 3. Each ACTIVE side quest or favour with steps: newly met steps are recorded; when every step
    is recorded the quest completes with `quest_deed_events` + `quest_reward_events` (once: only
@@ -21,7 +24,8 @@ A pass, in order:
 Offered quests never move. A quest without steps (made up by the model) never moves by itself.
 
 Public API: `current_act(state) -> int | None`, `quest_progress_events(state, tiers, catalogue)
--> list[AnyEvent]`, `route_effects(state, region) -> frozenset[RouteEffect]`.
+-> list[AnyEvent]`, `route_effects(state, region) -> frozenset[RouteEffect]`,
+`peace_ready(state, region) -> bool` (every step of the region's Peace route is done).
 """
 
 from aidm.data.dm_tiers import DmTiers
@@ -31,7 +35,7 @@ from aidm.models.campaign import Act, CampaignPlan, RegionPlan
 from aidm.models.campaign_state import RegionResolution
 from aidm.models.events import AnyEvent
 from aidm.models.quest_events import QuestStepDone, RouteDiscovered
-from aidm.models.quests import QuestKind, RouteEffect, RouteKind, RoutePlan
+from aidm.models.quests import QuestKind, RouteEffect, RouteKind, RoutePlan, StepKind
 from aidm.models.state import GameState
 from aidm.models.world import MAX_QUEST_LOG, Quest, QuestState
 from aidm.models.world_events import QuestUpdated
@@ -44,6 +48,7 @@ from aidm.rules.quest_steps import npc_meetable, steps_met
 from aidm.rules.social import ALLY_BAR, attitude_score, deed_attitude_events
 from aidm.rules.social_deeds import quest_deed_events
 
+ANSWERING_STEPS = frozenset({StepKind.DELIVER})
 RESOLVED_LINES = {
     RegionResolution.DEFEAT: "{boss} was defeated.",
     RegionResolution.ALLIANCE: "{boss} was won over.",
@@ -97,11 +102,40 @@ def _peace_deeds(
         return []
     if progress.steps_done < len(route.steps):
         return []
+    if route.steps[-1].kind not in ANSWERING_STEPS and _offer_waits(state, region):
+        return []
     boss = state.world.npcs.get(boss_npc_id(region))
     if boss is None or boss.dead or boss.hostile:
         return []
     needed = ALLY_BAR - attitude_score(boss)
     return deed_attitude_events(boss, needed, f"route {route.id} done") if needed > 0 else []
+
+
+def _offer_waits(state: GameState, region: RegionPlan) -> bool:
+    """The master's encounter offer is waiting for the party's answer (M29.7c R14: a Peace route
+    finished by arriving never answers it; the party does, and a parley then surely holds. A
+    hand-over to the master, `ANSWERING_STEPS`, is the party's own answer)."""
+    campaign = state.campaign
+    offer = campaign.offer if campaign is not None else None
+    return offer is not None and offer.boss_npc_id == boss_npc_id(region)
+
+
+def peace_ready(state: GameState, region: RegionPlan) -> bool:
+    """Every step of `region`'s Peace route is done (the master is ready to be won over)."""
+    campaign = state.campaign
+    quest = state.world.quests.get(main_quest_id(region))
+    act = (
+        next((a for a in campaign.plan.acts if a.region.id == region.id), None)
+        if campaign
+        else None
+    )
+    if campaign is None or quest is None or act is None:
+        return False
+    for route in main_quest(campaign.plan, act.index).routes:
+        progress = quest.route(route.id)
+        if route.kind is RouteKind.PEACE and progress is not None:
+            return progress.steps_done >= len(route.steps)
+    return False
 
 
 def _completed(state: GameState, quest: Quest, act: Act) -> Quest:

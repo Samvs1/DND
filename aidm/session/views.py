@@ -22,6 +22,7 @@ from aidm.data.registry import Registry
 from aidm.data.scribe_defs import scribe_table
 from aidm.data.zone_templates import zone_templates
 from aidm.dm.precheck import is_shop
+from aidm.models.campaign_state import OfferChoice
 from aidm.models.encounter import EncounterStatus
 from aidm.models.protocol_views import (
     AudioSettings,
@@ -51,6 +52,7 @@ from aidm.models.zones import Zone
 from aidm.rules.gateway_lock import locked_reason
 from aidm.rules.hex_layout import Hex, hex_layout
 from aidm.rules.light import node_dark
+from aidm.rules.offer_answer import sure_parley
 from aidm.rules.progression import campaign_complete, node_plan
 from aidm.rules.scene import current_scene, node_display_name
 from aidm.rules.scribe import scribe_view
@@ -251,6 +253,7 @@ def public_offer(state: GameState) -> PublicOffer | None:
         boss_name=boss.name if boss is not None else None,
         difficulty=offer.difficulty,
         options=offer.options,
+        sure=(OfferChoice.PARLEY,) if sure_parley(state, offer) else (),
     )
 
 

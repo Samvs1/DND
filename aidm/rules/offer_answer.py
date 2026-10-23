@@ -9,13 +9,16 @@ The checks use the DCs the offer carries (set from the region tier by data, neve
 - parley: one PC (the actor, else the first living PC) rolls Persuasion (or Intimidation, or
   Deception, M29.7a);
   success -> no fight (with a boss: Persuasion improves its attitude, social contribution only,
-  capped and floored); failure -> the fight starts.
+  capped and floored); failure -> the fight starts. A master whose Peace route is done hears the
+  party out: the parley holds without a roll (M29.7c R14, `sure_parley`); the route's deeds then
+  win the master over (`quest_progress`).
 Group checks follow SRD 5.1 "Group Checks": the group succeeds when at least half succeed.
 A boss offer whose region is already resolved (an old save from before M29.5b G29) closes
 peacefully whatever the answer: an allied boss is never turned hostile by it.
 
 Public API: `OfferRefused`; `answer_offer(state, choice, data, rng, *, actor_id=None,
-skill=None) -> list[AnyEvent]` (starts with `OfferResolved`; `CheckResolved` per roll).
+skill=None) -> list[AnyEvent]` (starts with `OfferResolved`; `CheckResolved` per roll);
+`sure_parley(state, offer) -> bool`.
 """
 
 from collections.abc import Sequence
@@ -34,7 +37,8 @@ from aidm.rules.conditions import skill_check_with_conditions
 from aidm.rules.dice import Rng
 from aidm.rules.encounter_offer import OfferData, offer_fight_events
 from aidm.rules.light import arrival_events
-from aidm.rules.progression import peaceful_close, settled_offer
+from aidm.rules.progression import peaceful_close, region_of, settled_offer
+from aidm.rules.quest_progress import peace_ready
 from aidm.rules.social import social_attitude_events
 
 PARLEY_SKILLS = (Skill.PERSUASION, Skill.INTIMIDATION, Skill.DECEPTION)
@@ -81,6 +85,8 @@ def _parley(
     used = skill or Skill.PERSUASION
     if used not in PARLEY_SKILLS:
         raise OfferRefused(f"parley uses {' or '.join(s.value for s in PARLEY_SKILLS)}")
+    if sure_parley(state, offer):
+        return True, []
     speaker = _speaker(state, actor_id)
     result = skill_check_with_conditions(rng, speaker, used, offer.parley_dc)
     events: list[AnyEvent] = [CheckResolved(creature_id=speaker.id, result=result, reason="parley")]
@@ -88,6 +94,13 @@ def _parley(
     if result.success and boss is not None and used is Skill.PERSUASION:
         events.extend(social_attitude_events(boss, DeltaTier.IMPROVE, "a successful parley"))
     return result.success, events
+
+
+def sure_parley(state: GameState, offer: EncounterOffer) -> bool:
+    """A master whose Peace route is done hears the party out: the parley holds without a roll
+    (M29.7c R14; shown as sure on the offer card)."""
+    region = region_of(state, offer.node_id)
+    return offer.boss_npc_id is not None and region is not None and peace_ready(state, region)
 
 
 def _resolve(

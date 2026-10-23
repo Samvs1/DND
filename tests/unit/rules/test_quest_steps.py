@@ -111,6 +111,8 @@ def test_learn_reads_what_the_engine_knows_never_ledger_facts() -> None:
     state.world.facts.append(Fact(id="f1", text="The saltcellar tunnels exist"))
     assert not step_met(state, step, OWNER)
     state.world.visited.append(SPOKES[1])
+    assert not step_met(state, step, OWNER)  # M29.7c R1: an old visit is not learned for it
+    state.world.current_node = SPOKES[1]
     assert step_met(state, step, OWNER)
 
 

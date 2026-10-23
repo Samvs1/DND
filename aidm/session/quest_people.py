@@ -38,6 +38,7 @@ LET_GO = "{name} says not now; {giver} lets the favour go."
 NOTHING = "Nobody is asking for your help right now."
 SURE = "Are you sure? This ends the story."
 NO_FINALE = "There is no ending to choose right now."
+FIGHT_FIRST = "The fight comes first: choose the ending once it is over."
 
 
 def hold(core: TableCore, player_id: str, actor_id: str, call: ToolCall, prompt: str) -> None:
@@ -73,6 +74,9 @@ async def choose_finale(core: TableCore, player: Player, msg: ChooseFinale) -> N
     pc = core.living_pc(player)
     if pc is None:
         core.error(player.id, ErrorCode.NO_CHARACTER, "You need a living hero for that.")
+        return
+    if core.combat_active():  # M29.7c R15: the fight comes first
+        core.error(player.id, ErrorCode.WRONG_PHASE, FIGHT_FIRST)
         return
     try:
         events = choose_events(core.state, msg.option_id)

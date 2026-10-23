@@ -12,10 +12,13 @@ Public API:
 - `chosen_ending(state) -> FinaleOption | None`: the ending the party chose.
 - `finale_texts(state) -> tuple[str, ...]`: what players may know of the finale now (the question
   and both ending titles while it is open or chosen, plus the chosen ending's text).
+- `fight_first(state) -> bool`: a fight is under way, so the choice waits (M29.7c R15; the card
+  hides meanwhile).
 - `choose_events(state, option_id) -> list[AnyEvent]`: `[FinaleChosen]`.
 """
 
 from aidm.models.campaign_events import FinaleChosen
+from aidm.models.encounter import EncounterStatus
 from aidm.models.events import AnyEvent
 from aidm.models.quests import FinaleOption, FinalePlan
 from aidm.models.state import GameState
@@ -54,10 +57,19 @@ def finale_texts(state: GameState) -> tuple[str, ...]:
     return (finale.question, *titles, *((chosen.text,) if chosen is not None else ()))
 
 
+def fight_first(state: GameState) -> bool:
+    """M29.7c R15: a fight under way (the party attacked an allied master in the finale) comes
+    first; the ending is chosen once it is over."""
+    enc = state.encounter
+    return enc is not None and enc.status is EncounterStatus.ACTIVE
+
+
 def choose_events(state: GameState, option_id: str) -> list[AnyEvent]:
     finale = finale_open(state)
     if finale is None:
         raise FinaleRefused("no finale is waiting for a choice")
+    if fight_first(state):
+        raise FinaleRefused("the fight comes first")
     if option_id not in {o.id for o in finale.options}:
         raise FinaleRefused(f"unknown ending {option_id!r}")
     return [FinaleChosen(option_id=option_id)]

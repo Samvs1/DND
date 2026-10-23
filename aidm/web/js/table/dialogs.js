@@ -71,7 +71,10 @@ export function mountOffer(root, { store, client }) {
         'div',
         { class: 'dialog-actions' },
         ...offer.options.map((choice) => {
-          const button = h('button', { type: 'button', class: choice === 'fight' ? 'btn btn-primary' : 'btn', 'data-testid': `offer-${choice}` }, t(`table.offer_${choice}`));
+          // M29.7c R14: a master whose Peace route is done hears the party out (the server says so)
+          const label = t(`table.offer_${choice}`);
+          const text = (offer.sure ?? []).includes(choice) ? t('table.offerSure', { label }) : label;
+          const button = h('button', { type: 'button', class: choice === 'fight' ? 'btn btn-primary' : 'btn', 'data-testid': `offer-${choice}` }, text);
           button.addEventListener('click', () => {
             body.querySelectorAll('button').forEach((b) => (b.disabled = true));
             client.send('answer_offer', { choice });
