@@ -40,3 +40,22 @@ Saves: saves/playtests/p1-classic/saves and saves/playtests/p6-breaker/saves (ca
 Injections (5 kinds), invented gold/items/spells/NPCs, level-up and revive by narration, fight ending by narration,
 out-of-turn and double actions, movement beyond speed, casting as a non-caster, keepsake as gear, impossible actions
 turned into hard checks or no effect.
+
+## Batch 2, persona #2 all martial (Haiku), save p2-martial c-20261023-093351-0001
+About 132 actions, region 1 resolved, 0 defeats, stopped by the stuck rule. Suspected cause of the two blockers: party VOTES (travel, rest) the harness neither shows nor answers; verify from the save before fixing.
+| id | what | where (event) | severity |
+|---|---|---|---|
+| G16 | Travel to region 2 ("Reedland Ferry") only "proposes", never travels, no reason shown | 689-691, 722 | blocker (check vote) |
+| G17 | Rest by typing is prose only (HP unchanged); out-of-fight Cure Wounds and Potion of Healing / Herbal Poultice on an ally do nothing | 355-361, 662-666 | blocker (rest: check vote; healing: real gap, G2 family) |
+| G18 | XP maybe paid twice: 75 at the warning beat and again at victory (zombie 47/118, thug 179/240, wolves 273/336) | 47, 118, 179, 240, 273, 336 | high (balance) |
+| G19 | Items "found" on a FAILED Investigation while prose says nothing found; an item (hatched moth) described as a creature | 135, 143 | medium |
+| G20 | Quest step completes on accept, narrator claims the hero did it | 707 | medium |
+| G21 | Narrator kills foes before the engine does ("lies still" at 3/22, 8/32; "the last bandit" with one alive) | 97, 207, 533 | medium |
+| G22 | "[unlisted] [unlisted]" placeholder in prose | 143 | low |
+| G23 | Foe numbering shifts after deaths; fled foes listed but not numbered; `attack 1` may hit another foe | 313, 336, 580 | medium |
+| G24 | Level-up prompt flags only one of four eligible heroes | 246 | medium |
+| G25 | Spell options shown with no action/slot left; ally target ids not discoverable for healing spells | 313, 476, 614 | low (harness or view) |
+| G26 | HP lost with no damage line; monster attacks narrated without a roll line | 381-393, 59, 75, 308 | medium |
+| G27 | Free-text act moved the party; refused moves still print "X moves: ..." | 672, 712, 255, 689 | low |
+| G28 | Sub-gp prices: 2 dice sets cost 1 gp total (rounding per line?) | harness smoke s1 | check |
+Balance: region 1's only shop has no weapons/armour and a Potion of Healing costs 50 gp vs about 27 gp per hero; a DC 20 Athletics gate (frozen thing) failed 6/6 with no other route; L2 after two fights (see G18).
