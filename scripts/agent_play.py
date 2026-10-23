@@ -8,12 +8,14 @@
         | use <use_id> [foe#]
     python scripts/agent_play.py move <place or zone>
     python scripts/agent_play.py answer <fight|surprise|escape|parley|yes|no|confirm|cancel|id>
+    python scripts/agent_play.py trade list | buy <item> [qty] | sell <item> [qty]
     python scripts/agent_play.py levelup
     python scripts/agent_play.py stop
 
 `new` starts a background server on its own port (default 8101, never 8000) with a fresh
 campaign under `saves/playtests/<run>/` and seats the heroes; later commands reconnect to it
-(the run is the last `new`, or `--run NAME` / $AIDM_AGENT_RUN). `--as NAME` picks the hero (in a
+(the run is the last `new` unless another run was live then, so pass `--run NAME`; or
+$AIDM_AGENT_RUN). `--as NAME` picks the hero (in a
 fight the hero whose turn it is acts). `--live` uses the real DeepSeek model through the one
 LLM client and the key in .env (never printed); without it the deterministic fake storyteller
 answers. Every output ends with `[save <campaign id> | event <n>]` for bug reports.
@@ -57,7 +59,7 @@ def build_parser() -> argparse.ArgumentParser:
     for name in ("look", "stop", "levelup", "serve"):
         sub.add_parser(name, parents=hidden)
     sub.add_parser("act", parents=hidden).add_argument("text", nargs="+")
-    for name in ("do", "answer"):
+    for name in ("do", "answer", "trade"):
         sub.add_parser(name, parents=hidden).add_argument("words", nargs="+")
     sub.add_parser("move", parents=hidden).add_argument("where", nargs="+")
     return parser
@@ -80,6 +82,8 @@ async def dispatch(args: argparse.Namespace) -> str:
             return await ops.cmd_move(root, run, who, " ".join(args.where))
         case "answer":
             return await ops.cmd_answer(root, run, who, args.words)
+        case "trade":
+            return await ops.cmd_trade(root, run, who, args.words)
         case "levelup":
             return await ops.cmd_levelup(root, run, who)
         case _:
@@ -88,6 +92,7 @@ async def dispatch(args: argparse.Namespace) -> str:
 
 def main(argv: list[str] | None = None) -> int:
     from scripts.agent.session import serve
+    from scripts.agent.text import ascii_text
 
     if isinstance(sys.stdout, io.TextIOWrapper):
         sys.stdout.reconfigure(encoding="utf-8")
@@ -100,7 +105,7 @@ def main(argv: list[str] | None = None) -> int:
     except SystemExit as err:
         print(f"ERROR: {err}")
         return 1
-    print(text.encode("ascii", "replace").decode("ascii"))
+    print(ascii_text(text))
     return 0
 
 

@@ -57,12 +57,12 @@ def grace_left(core: TableCore, owner: Player) -> float:
     """Seconds an away owner still has to come back (0 when connected or long gone)."""
     if owner.connected or owner.left_at is None:
         return 0.0
-    return max(0.0, GRACE_SECONDS - (core.config.clock.time() - owner.left_at))
+    return max(0.0, core.config.grace_seconds - (core.config.clock.time() - owner.left_at))
 
 
 def grace(core: TableCore, key: str, owner: Player) -> None:
     """The owner of the open turn went away: the auto-turn waits for the rest of the grace."""
-    seconds = grace_left(core, owner) or GRACE_SECONDS
+    seconds = grace_left(core, owner) or core.config.grace_seconds
     core.diag("grace_started", player_id=owner.id, creature_id=owner.creature_id, seconds=seconds)
     start(core, key, seconds, shown=False)
 

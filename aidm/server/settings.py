@@ -52,6 +52,8 @@ class ServerSettings:
     web_root: Path | None = None  # AIDM_WEB_ROOT: serve a copy of aidm/web (tests, art-less runs)
     ai_turn_pause_s: float = DEFAULT_AI_TURN_PAUSE_S
     show_wait_cap_s: float = DEFAULT_SHOW_WAIT_CAP_S
+    grace_seconds: float = 30.0  # playtest only (M29.4): how long an away hero keeps its turn
+    turn_seconds: float | None = 180.0  # the turn timer a new table starts with (None = off)
 
     @property
     def fish_ready(self) -> bool:

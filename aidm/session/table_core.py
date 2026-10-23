@@ -91,6 +91,7 @@ class TableConfig:
     session_log: SessionLog = field(default_factory=SessionLog)  # M15.3 diagnostics
     ai_turn_pause_s: float = 0.0  # M20.3: how long the screen holds each AI turn
     show_wait_cap_s: float = 8.0  # M26.3: the longest wait for a screen's show
+    grace_seconds: float = 30.0  # M15.1 reconnect grace; the playtest harness raises it (M29.4)
 
 
 @dataclass

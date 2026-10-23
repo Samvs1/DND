@@ -5,7 +5,7 @@ Each returns the text the playtester reads: a short digest of what the table sai
 as a plain line (never a traceback); the footer is still printed so a report can point at it.
 
 Public API: `cmd_new`, `cmd_look`, `cmd_act`, `cmd_do`, `cmd_move`, `cmd_answer`, `cmd_levelup`,
-`cmd_stop`, `parse_party`.
+`cmd_stop`, `cmd_trade`, `parse_party`.
 """
 
 import random
@@ -19,11 +19,18 @@ from scripts.agent.session import (
     alive,
     current_run,
     run_dir,
-    set_current,
+    set_current_unless_live,
     start_server,
     stop_server,
 )
 from scripts.agent.text import digest, foe_list, footer, look_text
+from scripts.agent.trade import (
+    match_line,
+    open_stock,
+    parse_trade,
+    shopkeeper_of,
+    stock_text,
+)
 from scripts.sim.levelup import build_choices
 from scripts.sim.shapes import NAMES, PRIORITY, SHAPES, main_ability, smart_choices
 
@@ -75,7 +82,7 @@ async def cmd_new(root: Path, run: str | None, shape: str, seed: int, live: bool
     name = run or time.strftime("run-%m%d-%H%M%S")
     session = Session(run=name, port=port, live=live, shape=shape, seed=seed)
     start_server(session, root)
-    set_current(root, name)
+    moved = set_current_unless_live(root, name)
     host = await _seat(session, classes)
     session.save(root)
     mark = host.conn.mark()
@@ -84,14 +91,16 @@ async def cmd_new(root: Path, run: str | None, shape: str, seed: int, live: bool
     await host.conn.wait_for(lambda m: m["type"] == "narration_done", wait * 3, mark)
     out = digest(await host.settle(mark))
     head = f"New run {name}: {shape} ({'live' if live else 'fake'} storyteller), port {port}."
+    if not moved:
+        head += f" Another run is live: pass --run {name} to every command for this one."
     try:
         return "\n".join([head, out, _view(host, session.players[0], None)]).strip()
     finally:
         await host.close()
 
 
-def _view(link: Link, player: Msg, sheet: Msg | None) -> str:
-    return look_text(link.state, link.seq, player["hero_id"], sheet)
+def _view(link: Link, player: Msg, sheet: Msg | None, level_up: bool = False) -> str:
+    return look_text(link.state, link.seq, player["hero_id"], sheet, level_up)
 
 
 def _player(session: Session, name: str | None, state: Msg) -> Msg:
@@ -126,10 +135,18 @@ def _session(root: Path, run: str | None) -> Session:
 
 
 async def _report(link: Link, player: Msg, said: list[Msg], note: str = "") -> str:
-    combat = link.state.get("combat")
-    sheet = await link.sheet() if combat and combat.get("active_id") == player["hero_id"] else None
-    parts = [note, digest(said), _view(link, player, sheet)]
-    return "\n".join(p for p in parts if p).strip()
+    """The digest of `said` plus a view built from a FRESH snapshot (H3: the state after the
+    command's events, not the last snapshot this link happened to receive)."""
+    fresh = await open_link(link.session, player)
+    try:
+        combat = fresh.state.get("combat")
+        got = await fresh.sheet_msg()
+        mine = bool(combat and combat.get("active_id") == player["hero_id"])
+        sheet = got["sheet"] if got and mine else None
+        parts = [note, digest(said), _view(fresh, player, sheet, bool(got and got.get("level_up")))]
+        return "\n".join(p for p in parts if p).strip()
+    finally:
+        await fresh.close()
 
 
 async def cmd_look(root: Path, run: str | None, as_name: str | None) -> str:
@@ -236,3 +253,39 @@ def cmd_stop(root: Path, run: str | None) -> str:
     session = Session.load(root, name)
     result = stop_server(session, root)
     return f"Run {name}: {result}. Save: {run_dir(root, name) / 'saves'}"
+
+
+async def cmd_trade(root: Path, run: str | None, as_name: str | None, words: list[str]) -> str:
+    session = _session(root, run)
+    link, player = await _actor(session, as_name)
+    try:
+        try:
+            verb, item, qty = parse_trade(words)
+            keeper = shopkeeper_of(link.state)
+            stock = await open_stock(session, link, keeper)
+            if stock is None:
+                return f"The shop did not open (no vote?).\n{await _report(link, player, [])}"
+            said, note = await _trade_step(link, stock, verb, item, qty)
+        except UsageError as err:
+            return f"{err}\n{await _report(link, player, [])}"
+        return await _report(link, player, said, note)
+    finally:
+        await link.close()
+
+
+async def _trade_step(
+    link: Link, stock: Msg, verb: str, item: str, qty: int
+) -> tuple[list[Msg], str]:
+    sheet = await link.sheet()
+    gold = (sheet or {}).get("gold")
+    if verb == "list":
+        pack = ", ".join(f"{i['item']} x{i['qty']}" for i in (sheet or {}).get("inventory", []))
+        return [], f"{stock_text(stock, gold)}\nYour pack: {pack or 'empty'}"
+    npc = stock["npc_id"]
+    if verb == "buy":
+        line = match_line(stock["stock"], item, "item_id", "name")
+        msg: Msg = {"type": "shop_buy", "npc_id": npc, "item_id": line["item_id"], "qty": qty}
+    else:
+        line = match_line((sheet or {}).get("inventory", []), item, "item", "name")
+        msg = {"type": "shop_sell", "npc_id": npc, "item_id": line["item"], "qty": qty}
+    return await link.send(msg), f"Trade {verb} {qty} x {item}"

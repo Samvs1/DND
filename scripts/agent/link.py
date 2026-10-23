@@ -77,13 +77,17 @@ class Link:
         return await self.settle(mark)
 
     async def sheet(self) -> Msg | None:
+        got = await self.sheet_msg()
+        return got["sheet"] if got else None
+
+    async def sheet_msg(self) -> Msg | None:
         mark = self.conn.mark()
         await self.conn.send({"type": "request_sheet"})
         try:
             got = await self.conn.wait_for(lambda m: m["type"] in ("sheet", "error"), 10.0, mark)
         except TimeoutError:
             return None
-        return got["sheet"] if got["type"] == "sheet" else None
+        return got if got["type"] == "sheet" else None
 
     async def best_option(self, target_id: str) -> str:
         """The strike with the best hit chance in range (what the Strike button would pick)."""

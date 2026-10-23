@@ -29,6 +29,8 @@ from aidm.session.persistence import new_game_state
 from aidm.session.table import Table
 from scripts.sim.fake_dm import sim_responder
 
+NO_GRACE_S = 86400.0  # a day: an away hero is never auto-played
+
 
 def free_port() -> int:
     with socket.socket() as probe:
@@ -54,11 +56,18 @@ class ErrorCapture(logging.Handler):
 
 class SimServer:
     def __init__(
-        self, seed: int, saves_dir: Path, *, live_ai: bool = False, port: int | None = None
+        self,
+        seed: int,
+        saves_dir: Path,
+        *,
+        live_ai: bool = False,
+        port: int | None = None,
+        no_timers: bool = False,
     ) -> None:
         self.seed = seed
         self.saves_dir = saves_dir
         self.live_ai = live_ai
+        self.no_timers = no_timers  # M29.4: no turn timer, no away grace (slow AI players)
         self.port = port or free_port()
         self.capture = ErrorCapture()
         self._server: uvicorn.Server | None = None
@@ -79,6 +88,8 @@ class SimServer:
         env = load_env() if self.live_ai else {"AIDM_FAKE_LLM": "1"}
         settings = server_settings_from_env(env, port=self.port, saves_dir=self.saves_dir)
         settings = replace(settings, tts_enabled=False, ai_turn_pause_s=0.0)
+        if self.no_timers:
+            settings = replace(settings, turn_seconds=None, grace_seconds=NO_GRACE_S)
         llm: LlmClient | None = None
         if not self.live_ai:
             settings = replace(settings, llm=replace(settings.llm, log_path=None))

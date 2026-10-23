@@ -42,6 +42,8 @@ class TableRegistry:
             session_log=FileLog(Path(settings.saves_dir).parent / "logs" / "session.jsonl"),
             ai_turn_pause_s=settings.ai_turn_pause_s,
             show_wait_cap_s=settings.show_wait_cap_s,
+            grace_seconds=settings.grace_seconds,
+            turn_seconds=settings.turn_seconds,
         )
         self._state = state
         self._campaign_id = campaign_id

@@ -3,12 +3,24 @@
 Pure functions over the public snapshot dicts (`PublicState`) and the messages a command
 collected, so they are unit-testable without a server.
 
-Public API: `footer`, `look_text`, `digest`, `foe_list`, `option_lines`.
+Public API: `footer`, `look_text`, `digest`, `foe_list`, `option_lines`, `ascii_text`.
 """
 
 from typing import Any
 
 Msg = dict[str, Any]
+
+
+_ASCII = {
+    "‘": "'", "’": "'", "“": '"', "”": '"', "–": "-", "—": "-",
+    "…": "...", " ": " ",
+}  # fmt: skip
+
+
+def ascii_text(text: str) -> str:
+    """Curly quotes and dashes become ASCII for the console (stored events stay untouched)."""
+    text = "".join(_ASCII.get(ch, ch) for ch in text)
+    return text.encode("ascii", "replace").decode("ascii")
 
 
 def footer(campaign_id: str, seq: int) -> str:
@@ -54,16 +66,52 @@ def _spell_lines(sheet: Msg | None) -> list[str]:
     return out
 
 
+def _feature_lines(sheet: Msg | None, eco: Msg) -> tuple[list[str], list[str]]:
+    """Class and race feature actions the hotbar offers (`do feature <id>`), and the spent ones."""
+    ready: list[str] = []
+    spent: list[str] = []
+    for f in (sheet or {}).get("feature_actions", []):
+        slot = "bonus_action" if f["economy"] == "bonus_action" else "action"
+        left = f"{f['uses_left']}/{f['uses_max']} left" if f.get("uses_max") is not None else ""
+        label = ", ".join(x for x in (f["economy"].replace("_", " "), left) if x)
+        if f["economy"] == "extra_action":
+            usable = f["available"] and not eco.get("action")
+        else:
+            usable = f["available"] and bool(eco.get(slot))
+        if usable:
+            aim = "" if f.get("target_kind", "self") == "self" else " [foe#|ally id|zone]"
+            ready.append(f"do feature {f['feature']}{aim}   ({f['name']}: {label})")
+        else:
+            spent.append(f["name"])
+    return ready, spent
+
+
+def _bonus_lines(sheet: Msg | None, eco: Msg) -> list[str]:
+    feats = {f.get("index") for f in (sheet or {}).get("features", [])}
+    if "cunning-action" not in feats or not eco.get("bonus_action"):
+        return []
+    return [f"do bonus {v}   (Cunning Action, bonus action)" for v in ("dash", "disengage", "hide")]
+
+
 def option_lines(combat: Msg | None, hero_id: str, sheet: Msg | None) -> list[str]:
     """The exact `do` / `move` commands a hero can type right now in a fight."""
     if not combat or combat.get("active_id") != hero_id:
         return []
     eco = combat.get("economy") or {}
+    can_act = bool(eco.get("action")) or eco.get("attacks_left", 0) > 0
     lines: list[str] = []
-    for n, foe in enumerate(foe_list(combat, hero_id), 1):
-        hp = f"{foe['hp']}/{foe['max_hp']}"
-        lines.append(f"do attack {n}   ({foe['name']} {hp})")
-    lines += ["do dodge", "do dash", "do disengage", "do end"]
+    if can_act:
+        for n, foe in enumerate(foe_list(combat, hero_id), 1):
+            lines.append(f"do attack {n}   ({foe['name']} {foe['hp']}/{foe['max_hp']})")
+    if eco.get("action"):
+        lines += ["do dodge", "do dash", "do disengage"]
+    else:
+        lines.append("(action spent: no attack, dodge, dash or disengage left)")
+    features, spent = _feature_lines(sheet, eco)
+    lines += features + _bonus_lines(sheet, eco)
+    if spent:
+        lines.append("(spent or unavailable: " + ", ".join(spent) + ")")
+    lines.append("do end")
     for use in (sheet or {}).get("gear_uses", []):
         label = f"{use['name']}: {use['label']}, {use['cost']}"
         lines.append(f"do use {use['use_id']} [foe#]   ({label})")
@@ -135,7 +183,9 @@ def _waiting(state: Msg) -> list[str]:
     return out
 
 
-def look_text(state: Msg, seq: int, hero_id: str, sheet: Msg | None = None) -> str:
+def look_text(
+    state: Msg, seq: int, hero_id: str, sheet: Msg | None = None, level_up: bool = False
+) -> str:
     """The whole short view: place, party, fight, what waits for an answer, options, footer."""
     title = state.get("campaign_title") or "campaign"
     lines = [f"== {title} | phase {state['phase']} | tier {state.get('region_tier', 1)} =="]
@@ -153,6 +203,12 @@ def look_text(state: Msg, seq: int, hero_id: str, sheet: Msg | None = None) -> s
         lines.append("THE CAMPAIGN IS COMPLETE.")
     if state.get("defeat"):
         lines.append("DEFEAT: " + str(state["defeat"])[:160])
+        choices = ["load <save id>", "new"]
+        lines.append(
+            "Choose: answer " + " | ".join((["retry"] if state.get("checkpoint") else []) + choices)
+        )
+    if level_up:
+        lines.append(f"LEVEL UP available for {hero_id}: run `levelup --as <name>`.")
     options = option_lines(combat, hero_id, sheet)
     if options:
         lines.append("Options:")
@@ -191,6 +247,8 @@ def digest(messages: list[Msg]) -> str:
             out.append(f"ERROR {m['code']}: {m['text']}{extra}")
         elif kind == "event" and m.get("line"):
             out.append(f"* {m['line']}")
+        elif kind == "level_up_available":
+            out.append(f"LEVEL UP available for {m['creature_id']} (level {m['level']}): levelup")
         elif kind == "epilogue":
             out.append("EPILOGUE reached.")
     if chunks:

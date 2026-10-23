@@ -64,9 +64,29 @@ def build_command(words: list[str], hero_id: str, foes: list[Msg], sheet: Msg | 
         return {"type": "cast", **base, "spell_id": rest[0], "target_ids": targets}
     if verb == "use":
         return _use(rest, base, foes, sheet)
+    if verb == "feature":
+        return _feature(rest, base, foes, sheet)
+    if verb == "bonus":
+        if not rest or rest[0] not in ("dash", "disengage", "hide"):
+            raise UsageError("do bonus dash|disengage|hide (Cunning Action)")
+        return {"type": rest[0], **base, "bonus_action": True}
     raise UsageError(
-        f"unknown action {verb!r}: attack, cast, use, dodge, dash, disengage, hide, flee, end"
+        f"unknown action {verb!r}: attack, cast, use, feature, bonus, dodge, dash, disengage, "
+        "hide, flee, end"
     )
+
+
+def _feature(rest: list[str], base: Msg, foes: list[Msg], sheet: Msg | None) -> Msg:
+    feats = {f["feature"]: f for f in (sheet or {}).get("feature_actions", [])}
+    if not rest or rest[0] not in feats:
+        raise UsageError(f"do feature <id> [target] (yours: {', '.join(sorted(feats)) or 'none'})")
+    kind = feats[rest[0]].get("target_kind", "self")
+    cmd: Msg = {"type": "feature_action", **base, "feature_id": rest[0]}
+    if len(rest) > 1 and kind in ("area", "point"):
+        cmd["target_zone"] = rest[1]
+    elif len(rest) > 1 and kind != "self":
+        cmd["target_ids"] = [target_of(rest[1], foes)]
+    return cmd
 
 
 def _use(rest: list[str], base: Msg, foes: list[Msg], sheet: Msg | None) -> Msg:
@@ -92,6 +112,8 @@ def answer_message(state: Msg, words: list[str]) -> list[Msg]:
     if not words:
         raise UsageError("answer <choice>: see what waits in `look`")
     choice = words[0].lower()
+    if state.get("defeat") or state.get("phase") == "defeated":
+        return [_defeat(state, choice, words)]
     if choice in ("confirm", "cancel"):
         return [{"type": "confirm_hostile" if choice == "confirm" else "cancel_hostile"}]
     if state.get("offer"):
@@ -110,6 +132,20 @@ def answer_message(state: Msg, words: list[str]) -> list[Msg]:
     if state.get("vote"):
         return [_yes_no("vote", choice, vote_id=state["vote"]["vote_id"])]
     raise UsageError("nothing is waiting for an answer")
+
+
+def _defeat(state: Msg, choice: str, words: list[str]) -> Msg:
+    """The defeat screen's three choices: retry, load <save id> (default: this save), new."""
+    if choice == "retry":
+        return {"type": "defeat_retry"}
+    if choice == "new":
+        return {"type": "defeat_new"}
+    if choice == "load":
+        return {
+            "type": "defeat_load",
+            "campaign_id": words[1] if len(words) > 1 else state["campaign_id"],
+        }
+    raise UsageError("the party has fallen: answer retry | load <save id> | new")
 
 
 def _yes_no(kind: str, choice: str, **fields: str) -> Msg:

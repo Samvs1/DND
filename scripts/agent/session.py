@@ -77,6 +77,19 @@ def set_current(root: Path, run: str) -> None:
     (root / "CURRENT").write_text(run, encoding="utf-8")
 
 
+def set_current_unless_live(root: Path, run: str) -> bool:
+    """Point CURRENT at `run` unless another run's server is live (H5: runs keep their own
+    pointer; pass --run). Returns whether the pointer moved."""
+    pointer = root / "CURRENT"
+    if pointer.exists():
+        other = pointer.read_text(encoding="utf-8").strip()
+        path = run_dir(root, other) / "session.json" if other and other != run else None
+        if path is not None and path.exists() and alive(Session.load(root, other)):
+            return False
+    set_current(root, run)
+    return True
+
+
 def port_open(port: int) -> bool:
     with socket.socket() as probe:
         probe.settimeout(0.5)
@@ -139,7 +152,13 @@ async def serve(root: Path, run: str) -> None:
 
     session = Session.load(root, run)
     folder = run_dir(root, run)
-    srv = SimServer(session.seed, folder / "saves", live_ai=session.live, port=session.port)
+    srv = SimServer(
+        session.seed,
+        folder / "saves",
+        live_ai=session.live,
+        port=session.port,
+        no_timers=True,
+    )
     await srv.start()
     print(f"serving {run} on {session.port} campaign {srv.state.campaign_id}", flush=True)
     flag = folder / "stop.flag"
