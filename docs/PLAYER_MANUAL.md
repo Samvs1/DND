@@ -278,7 +278,7 @@ When the party arrives somewhere dangerous, the game warns you first and nothing
 The first place of each region is always safe. Fights start only from a warning you answer or from what the party does, never from a timer. Fights are built for your party's size and level: a place's creatures are an easy fight for the heroes you have, and when the creatures that haunt a place are too strong for your party, weaker creatures of the same kind of place stand in. The master of a region waits in its last place with company: foes from around the region who make it a fair fight, at most one companion for each hero. A master too strong on its own for a small party (one or two heroes) comes in weakened, with fewer hit points (never below half).
 
 ### Votes
-Some things need the whole table: **travelling**, **resting** (short or long) and **browsing a shop**. To ask, type it on the Play tab (*take a short rest*, *make camp* for a long rest, *go to* a place) or press **Trade** when a trader is here; a vote then opens on every phone (as a card at the top of the page) and on the screen. Typing *look around* or *inventory* gets an instant answer without a vote.
+Some things need the whole table: **travelling**, **resting** (short or long) and **browsing a shop**. To ask, type it on the Play tab (*take a short rest*, *make camp* for a long rest, *go to* a place; a longer sentence works too, *we make camp among the thorns and take a short rest* or *the party sets watches and rests for the night*) or press **Trade** when a trader is here; a vote then opens on every phone (as a card at the top of the page) and on the screen. Typing *look around* or *inventory* gets an instant answer without a vote.
 - Each player presses **Ready** or **Not yet**. The person who asked counts as ready.
 - It passes as soon as more than half are ready and fails as soon as half or more decline.
 - If time runs out (30 seconds), it passes when more are ready than declined. Silence does not block the table.
@@ -441,6 +441,7 @@ Pick **Spells**, choose a spell, then choose its target or the zone. Casting a s
 ### Class features
 **On the hotbar** (you use them):
 - **Second Wind** (fighter): bonus action, heals 1d10 plus your level, once per short rest.
+- **Typing a feature or a heal in a fight**: on your turn, *I use Second Wind*, *I drink my potion of healing* or *I cast cure wounds on Tamsin* does exactly what the hotbar button does and costs the same (action, bonus action, use, slot or draught); if the rules refuse it, the reason is shown. A feature aimed at others (a breath weapon) is used from the hotbar.
 - **Action Surge** (fighter): gives one extra action, once per short rest.
 - **Cunning Action** (rogue): Dash, Disengage or Hide as a bonus action (under Bonus actions).
 - **Channel Divinity: Turn Undead** (cleric): turns undead creatures nearby.

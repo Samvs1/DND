@@ -21,7 +21,8 @@ fight started by a weapon attack on an NPC rolls that attack before the narratio
 M23.8: a typed "what now" is answered before the queue (`what_now.answer`, not a turn), and a typed
 move to a locked exit is told why it is shut (`BarredIntent`, `rules.gateway_lock`).
 M27.5: typed gear use (`UseIntent`) runs through `gear_actions` (a refused use goes on to the
-adjudicator); in a fight a typed put-out or light is `gear_actions.fight_gear`.
+adjudicator); in a fight a typed put-out or light is `gear_actions.fight_gear`. M29.5b: a typed
+feature or heal in a fight is the hotbar's command (`dm.fight_intent`).
 
 Public API: `submit_action`, `kick_resolver`, `resolve_next`, `resolve_action`,
 `adjudicated`, `confirm_hostile`, `cancel_hostile`, `inventory_text`.
@@ -29,6 +30,7 @@ Public API: `submit_action`, `kick_resolver`, `resolve_next`, `resolve_action`,
 
 from aidm.dm.adjudicator import AdjudicationOptions, AdjudicationResult, adjudicate
 from aidm.dm.combat_intent import combat_move
+from aidm.dm.fight_intent import FightCommand, fight_command
 from aidm.dm.give_intent import GiveIntent
 from aidm.dm.heal_intent import HealIntent
 from aidm.dm.help_intent import HelpUpIntent
@@ -123,6 +125,10 @@ def _combat_text(core: TableCore, player: Player, pc: Creature, text: str) -> No
     if moves is not None:  # M19.4: "I move to the ravine" moves (no action spent)
         core.schedule(lambda: _typed_move(core, player, entry, moves))
         return
+    command = fight_command(core.state, pc.id, text)
+    if command is not None:  # M29.5b: "I use Second Wind", "I drink my potion": the hotbar's way
+        core.schedule(lambda: _typed_command(core, player, entry, command))
+        return
     if not _action_left(core, pc.id):
         core.error(player.id, ErrorCode.REFUSED, ACTION_SPENT)
         return
@@ -144,6 +150,14 @@ def _combat_text(core: TableCore, player: Player, pc: Creature, text: str) -> No
         await combat_flow.after_player_step(core, pc.id)
 
     core.schedule(job)
+
+
+async def _typed_command(
+    core: TableCore, player: Player, entry: QueueEntry, command: FightCommand
+) -> None:
+    """A typed feature or heal runs as the hotbar command (a refusal says the rules' reason)."""
+    declare(core, entry)
+    await combat_flow.player_command(core, player, command)
 
 
 async def _typed_move(
