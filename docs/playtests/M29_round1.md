@@ -6,12 +6,12 @@ The playtesters could not write report files (subagent Write refused), so the ma
 Saves: saves/playtests/p1-classic/saves and saves/playtests/p6-breaker/saves (campaign c-20261023-080804-0001 in each).
 
 ## Harness problems (fix before batch 2; scripts/agent only)
-- H1 The away-timer auto-plays heroes in a fight when an AI player takes >30 s per command; p1 was wiped in 6 auto-played rounds (p1 events 83-515); p6 fought 3 fights with 3 of 4 heroes auto-dodging. Playtests need the turn clock off. (fixed in 3c7e1e1)
-- H2 A defeat cannot be answered (retry / load / new) from the tool (p1 event 523). (fixed in 3c7e1e1)
-- H3 Command output shows the state BEFORE the event (move, short rest, fight end, quest answer). (fixed in 3c7e1e1)
-- H4 Curly apostrophes print as "?" (ASCII console). (fixed in 3c7e1e1)
-- H5 `new` moves the shared default run pointer (saves/playtests/CURRENT) while another run is live. (fixed in 3c7e1e1)
-- H6 Class features (Second Wind etc.) are not listed in fight options / `do use`; `look` never says a level-up is available; no Trade/shop command (economy persona #7 needs one); options still list attack/dodge after the action is spent. (fixed in 3c7e1e1)
+- H1 The away-timer auto-plays heroes in a fight when an AI player takes >30 s per command; p1 was wiped in 6 auto-played rounds (p1 events 83-515); p6 fought 3 fights with 3 of 4 heroes auto-dodging. Playtests need the turn clock off. (fixed in 0314897)
+- H2 A defeat cannot be answered (retry / load / new) from the tool (p1 event 523). (fixed in 0314897)
+- H3 Command output shows the state BEFORE the event (move, short rest, fight end, quest answer). (fixed in 0314897)
+- H4 Curly apostrophes print as "?" (ASCII console). (fixed in 0314897)
+- H5 `new` moves the shared default run pointer (saves/playtests/CURRENT) while another run is live. (fixed in 0314897)
+- H6 Class features (Second Wind etc.) are not listed in fight options / `do use`; `look` never says a level-up is available; no Trade/shop command (economy persona #7 needs one); options still list attack/dodge after the action is spent. (fixed in 0314897)
 
 ## Game bugs (for M29.5, each needs a `test_m29_<slug>`)
 | id | what | where (save / event) | severity |
