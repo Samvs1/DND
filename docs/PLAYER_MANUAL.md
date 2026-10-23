@@ -263,7 +263,7 @@ Say what you do with an item in plain words, and the game uses it for real: "I l
 - **Caltrops** (action): scattered in a zone, whoever walks in makes a DC 15 Dexterity save or takes 1 piercing. **Ball bearings** (action): whoever walks in makes a DC 10 Dexterity save or falls prone.
 - **Torch** (bonus action to light it). A **lit torch** can be thrown as an action: at a creature it is a ranged attack that deals 1 fire on a hit; into a zone it lands there, and into oil it sets the oil alight. Throwing it ends your light.
 - **Healer's kit** (action): stabilizes a dying ally in your zone, no roll; it has 10 uses.
-- **Healing potions**: drinking one is a bonus action (from **Items**, or from the sheet outside a fight). A potion drunk at full health is still drunk: it is gone and the game says it had no special effect.
+- **Healing potions**: drinking one is a bonus action (from **Items**, or from the sheet outside a fight). A potion drunk at full health is still drunk: it is gone and the game says it had no special effect. Outside a fight you can also type it: *I drink my potion*, *use the restorative draught*, *I pour my potion into Rook*, *Brienne binds Rook's wounds with her herbal poultice*. A hero's own draught can be given to them too (*pour his potion between Rook's lips*). The engine heals for real, or says plainly why not (a dead hero cannot be helped, and nothing is used).
 
 **Spell scrolls.** Anyone can read a scroll, spellcaster or not: "I read the scroll of sleep at the goblins", or tap it under **Items** in a fight. Reading takes your action in a fight, and works outside a fight too. The spell is cast at the scroll's own level with the scroll's own numbers, not yours: a 1st or 2nd level scroll has save DC 13 and +5 to hit, 3rd or 4th DC 15 and +7, 5th or 6th DC 17 and +9, 7th or 8th DC 18 and +10, 9th DC 19 and +11. No spell slot is used, and the scroll is gone once read. It is aimed like the spell: at a creature, at a zone (Sleep lands in the zone of the foe you aim it at) or at nobody (a spell that centres on you). Outside a fight a harmful spell read at someone starts a fight: at a person you were talking to you are asked **Are you sure?** first, and on yes the scroll is read as the fight's opening strike. Read at nobody outside a fight, it is spent with no special effect.
 - **Copying a scroll** (wizards): instead of reading it, a wizard can copy a scroll into the spellbook from the **Spellbook** tab of the sheet, outside a fight. It must be a wizard spell of a level you can prepare and not already in your book. It costs 50 gold per spell level (an Evocation wizard pays half for an evocation spell), and the gold and the scroll are spent. The spell is then yours for good.
@@ -290,13 +290,14 @@ The **Journal** tab has a **Map** section. It shows the region as places you can
 ### Rests
 Rests also need a vote and happen between fights.
 - **Short rest**: every living hero regains half of their maximum hit points (a hero at 0 HP wakes up), and abilities that come back on a short rest are restored. You can take at most two short rests between long rests.
-- **Long rest**: every living hero returns to full hit points and regains all spell slots and abilities. Temporary hit points and short effects end, and death save counts reset. A long rest costs **10 camp supplies for each living hero**. If the party does not have enough, it is refused.
+- **Long rest**: every living hero returns to full hit points and regains all spell slots and abilities. Temporary hit points and short effects end, and death save counts reset. A long rest costs **10 camp supplies for each living hero**. If the party does not have enough, it is refused, and the game says how many supplies are missing (a third short rest is refused the same way, naming the limit).
 - **Camp supplies** are shared by the whole party. The party starts with 40. Buy rations, baskets, stew kits and hampers in shops, or find them as loot. Fallen heroes are not revived by resting and do not pay.
 
 ### Shops
 When the table agrees to browse a shop, your phone opens the shop. Every player trades for themselves with their own gold.
 - **For sale** lists what the trader sells. **Your pack** lists what you can sell.
 - A trader sells different things depending on their trade.
+- Every region has at least one trader. When a story has no trader in a region, a peddler waits at its first, safe place.
 - A general store always has camp food, a Potion of Healing and a Healer's Kit.
 - You cannot sell what you are wearing or wielding: take it off first.
 
@@ -435,6 +436,7 @@ Pick **Spells**, choose a spell, then choose its target or the zone. Casting a s
 - **Concentration**: you can concentrate on one spell at a time, and casting another concentration spell ends the first. It also ends if you are knocked out or incapacitated, or if you fail a Constitution save. You make that save each time you take damage, against a DC of 10 or half the damage, whichever is higher.
 - Area spells hit everyone in the target zone, **friends included** (never the caster). Self-range areas such as Burning Hands, Thunderwave, Color Spray, Fear and Spirit Guardians use your own zone, and Lightning Bolt also hits the neighbouring zones. One damage roll counts for all, and each target saves on their own.
 - Spell attacks use your proficiency bonus plus your casting modifier.
+- **Healing outside a fight**: type it, *I cast cure wounds on Tamsin* (Cure Wounds, Healing Word, Mass Healing Word, Prayer of Healing). The spell is cast by the engine with your lowest fitting slot, and the target heals; with no one named it heals you (a many-target spell heals the whole party). A spell you do not have, or no slot left, is refused in plain words.
 
 ### Class features
 **On the hotbar** (you use them):

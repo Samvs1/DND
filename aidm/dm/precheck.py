@@ -17,7 +17,9 @@ Public API:
   `aidm.dm.help_intent`), `GiveIntent(actor_id, npc_id, thing)` (M23.3: "give the <thing> to
   <name>"; `aidm.dm.give_intent`), `BarredIntent(text)` (M23.8: "go to <a locked exit>"; the
   world reason, `aidm.rules.gateway_lock`), `UseIntent` (M27.5: "light my torch", "use X on
-  Y", "put out my torch"...; `aidm.dm.use_intent`, after the item commands).
+  Y", "put out my torch"...; `aidm.dm.use_intent`, after the item commands), `HealIntent`
+  (M29.5b: "drink my potion", "pour my potion into Rook", "cast cure wounds on Tamsin";
+  `aidm.dm.heal_intent`, after a give to an NPC).
 - `Intent` (the union), `precheck(state, actor_id, text) -> Intent | None`.
 - `gear_intent(state, actor_id, text) -> UseIntent | None`: the gear precheck alone, for the
   typed actions of a fight (M27.5: putting a light out is free, lighting one a bonus action).
@@ -35,6 +37,7 @@ from enum import StrEnum
 
 from aidm.dm.entities import display_name
 from aidm.dm.give_intent import GiveIntent, give_intent
+from aidm.dm.heal_intent import HealIntent, heal_intent
 from aidm.dm.help_intent import HelpUpIntent, help_up_intent
 from aidm.dm.use_intent import UseIntent, item_phrase, use_intent
 from aidm.models.encounter import EncounterStatus
@@ -111,6 +114,7 @@ type Intent = (
     | GiveIntent
     | BarredIntent
     | UseIntent
+    | HealIntent
 )
 
 SHOP_ROLES = (
@@ -305,6 +309,9 @@ def precheck(state: GameState, actor_id: str, text: str) -> Intent | None:
     given = give_intent(state, actor_id, clean)
     if given is not None:
         return given
+    healed = heal_intent(state, actor_id, clean)
+    if healed is not None:
+        return healed
     scene = current_scene(state)
     shop = _SHOP.fullmatch(clean)
     if shop:
