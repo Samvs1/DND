@@ -165,14 +165,15 @@ def test_hotbar_mark_is_off_the_art_strip_is_spaced_and_moves_tips_sit_by_badges
             break
         active.wait_for_timeout(200)
     for cell in active.locator(".ct-place-cell").all():
-        badges = cell.locator("[data-testid=zone-badge]")
-        marks = cell.locator(f".ct-tip-fact {LIVE}")
-        assert marks.count() == badges.count()
-        for i in range(badges.count()):
-            b = badges.nth(i).evaluate(BOX)
-            m = marks.nth(i).evaluate(BOX)
-            assert (
-                0 <= m["l"] - b["r"] <= 12 and abs((m["t"] + m["b"]) - (b["t"] + b["b"])) <= 12
-            ), (b, m)
+        chip = cell.locator("[data-testid=zone-chip]").evaluate(BOX)
+        marks = cell.locator(LIVE)
+        assert marks.count() == 1
+        assert _apart(chip, marks.first.evaluate(BOX)), (chip, marks.first.evaluate(BOX))
+    chip = active.locator("[data-testid=zone-chip]:not([disabled])")
+    if chip.count():
+        box = chip.first.bounding_box()
+        assert box is not None
+        active.mouse.click(box["x"] + box["width"] / 2, box["y"] + box["height"] / 2)
+        assert active.locator(POP).count() == 0
     _shot(active, "moves", size)
     assert errors == []

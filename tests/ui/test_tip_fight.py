@@ -85,8 +85,8 @@ def test_foe_health_word_and_zone_badge_and_strip_condition_marks(
     active.click("[data-testid=tip-close]")
     zone = active.locator("[data-testid=zone-chip]").first.get_attribute("data-zone")
     active.evaluate(PATCH_ZONE, [zone, {"rough": True, "cover": "half"}])
-    active.locator(".ct-tip-fact", has_text="Rough ground").locator(LIVE).click()
-    assert _title(active) == "Rough ground"
+    active.locator(f".ct-place-cell:has([data-zone='{zone}']) {LIVE}").click()
+    assert "Rough ground" in _title(active)
     active.click("[data-testid=tip-close]")
     active.evaluate(COND, "prone")
     active.locator("[data-testid=strip] .conditions").locator(LIVE).click()

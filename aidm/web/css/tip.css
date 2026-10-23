@@ -87,47 +87,21 @@
 }
 
 .ct-t-tips {
-  position: absolute;
-  right: 0.6rem;
-  bottom: calc(0.4rem + 2px);
-  left: calc(0.6rem + 6px);
-  padding: 0;
-  margin: 0;
-  list-style: none;
-  pointer-events: none;
-}
-
-.ct-tip-fact {
-  display: inline-flex;
-  gap: 0;
+  display: flex;
+  flex: 0 0 auto;
   align-items: center;
-  height: 24px;
-  margin-right: 0.2rem;
-  pointer-events: none;
-}
-
-.ct-tip-fact .tip-btn {
-  pointer-events: auto;
-}
-
-.ct-zb-ghost {
-  visibility: hidden;
-}
-
-.ct-zb-gap {
-  width: 30px;
-  height: 24px;
-}
-
-.ct-t-badges {
-  align-items: center;
-  gap: 0 0.2rem;
+  padding-left: 6px;
 }
 
 .ct-place-cell {
-  position: relative;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: stretch;
+}
+
+.ct-place-cell > .ct-target {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .ct-target.has-tip {

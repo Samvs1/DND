@@ -82,8 +82,12 @@ export function closeTip(returnFocus = true) {
 
 function openTip(button) {
   closeTip(false);
-  const tip = known[button.dataset.tip];
+  let tip = known[button.dataset.tip];
   if (!tip) return;
+  if (button.tipMerge) {
+    const all = button.tipKeys.map((k) => known[k]).filter(Boolean); // one '?' for several facts: their titles and lines in order
+    tip = { title: all.map((x) => x.title).join(', '), lines: all.flatMap((x) => x.lines) };
+  }
   const close = h('button', { type: 'button', class: 'tip-close', 'aria-label': t('tip.close'), 'data-testid': 'tip-close' }, '×');
   const pop = h('div', { class: 'tip-pop', role: 'dialog', tabindex: '-1', 'aria-label': tip.title, 'data-testid': 'tip-pop' },
     close, h('strong', { class: 'tip-title' }, tip.title), ...[...tip.lines, button.tipExtra].filter(Boolean).map((l) => h('p', { class: 'tip-line' }, l)));
@@ -115,11 +119,12 @@ function openTip(button) {
 
 /** A '?' button for a tip key (or a list of keys: the first known one is used). It stays hidden while tips are off,
  * still loading or unknown, so it is safe to place. */
-export function tipButton(key, label = '', extra = '') {
+export function tipButton(key, label = '', extra = '', merge = false) {
   const keys = [key].flat();
   const button = h('button', { type: 'button', class: 'tip-btn', hidden: true, 'data-tip': keys[0], 'data-testid': 'tip-btn', 'aria-haspopup': 'dialog', 'aria-expanded': 'false' }, '?');
   button.tipKeys = keys;
   button.tipExtra = extra;
+  button.tipMerge = merge;
   button.setAttribute('aria-label', t('tip.what', { title: label }));
   button.addEventListener('click', (e) => {
     e.stopPropagation();
