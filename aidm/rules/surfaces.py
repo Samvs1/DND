@@ -54,6 +54,7 @@ from aidm.rules.condition_timing import apply_condition, new_condition
 from aidm.rules.conditions import save_with_conditions
 from aidm.rules.damage import resolve_damage
 from aidm.rules.dice import Rng, parse_dice, roll
+from aidm.rules.harm_ends import harm_ended_events
 from aidm.rules.projection import project_state
 from aidm.rules.surface_state import (
     inside_condition_removals,
@@ -122,6 +123,7 @@ def _hurt(batch: _Batch, origin: _Origin, harm: SurfaceHarm, target_id: str, hal
     batch.emit(events)
     if events and isinstance(events[0], DamageTaken):
         batch.emit(concentration_after_damage(batch.rng, batch.state, events[0]))
+        batch.emit(harm_ended_events(batch.state, events[0]))
 
 
 def _afflict(batch: _Batch, origin: _Origin, harm: SurfaceHarm, target_id: str) -> None:

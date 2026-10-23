@@ -6,7 +6,8 @@ Public API:
   effect's duration; when the effect gives none (`rounds` None, `until_long_rest` False) the
   data default (`ConditionDef.duration`) applies. Unknown keys raise `UnknownEntryError`.
 - `apply_condition(target, condition) -> list[AnyEvent]`: `[ConditionApplied]`, or nothing for
-  a dead target or one immune to the key (`Creature.condition_immunities`). An instance with the
+  a dead target or one immune to the key or to a key it implies (`Creature.condition_immunities`;
+  a creature immune to charmed is immune to befriended, M29.7d). An instance with the
   same (name, source) is replaced (refreshing its duration).
 - `remove_condition(target, name, source_id=None) -> list[AnyEvent]`: `[ConditionRemoved]` when
   a matching instance exists (any source when `source_id` is None), else nothing.
@@ -65,9 +66,19 @@ def new_condition(
     )
 
 
+def _with_implied(name: str) -> set[str]:
+    names, stack = set[str](), [name]
+    while stack:
+        here = stack.pop()
+        if here not in names:
+            names.add(here)
+            stack.extend(condition_def(here).implies)
+    return names
+
+
 def apply_condition(target: Creature, condition: ActiveCondition) -> list[AnyEvent]:
     condition_def(condition.name)
-    if target.dead or condition.name in target.condition_immunities:
+    if target.dead or _with_implied(condition.name) & set(target.condition_immunities):
         return []
     return [ConditionApplied(creature_id=target.id, condition=condition)]
 

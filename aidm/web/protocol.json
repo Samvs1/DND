@@ -6661,6 +6661,12 @@
         "StockLine": {
           "additionalProperties": false,
           "properties": {
+            "bulk": {
+              "default": "",
+              "description": "e.g. '2 for 1 gp' for an item under 1 gp",
+              "title": "Bulk",
+              "type": "string"
+            },
             "category": {
               "default": "",
               "title": "Category",
@@ -6685,6 +6691,13 @@
               "minimum": 0,
               "title": "Supply",
               "type": "integer"
+            },
+            "unit_gp": {
+              "default": 0.0,
+              "description": "exact price of one before rounding",
+              "minimum": 0,
+              "title": "Unit Gp",
+              "type": "number"
             }
           },
           "required": [

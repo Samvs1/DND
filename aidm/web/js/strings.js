@@ -460,7 +460,7 @@ export const STRINGS = {
     shop_not_enough_gold: 'You do not have enough gold for that.',
     shop_not_carried: 'You are not carrying that.',
     shop_equipped: 'Take that off before selling it.',
-    shop_worthless: 'The shopkeeper will not pay anything for that.',
+    shop_worthless: "A trader pays half an item's value in whole gold, so anything worth under 2 gp fetches nothing.",
     shop_not_tradable: 'That cannot be traded.',
     item_not_owned: 'You are not carrying that.',
     full_hp: 'Already at full health, so nothing was used.',

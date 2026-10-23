@@ -28,7 +28,7 @@
       "on_fail": [
         {
           "type": "apply_condition",
-          "condition": "charmed"
+          "condition": "befriended"
         }
       ],
       "on_success": "none"

@@ -194,7 +194,9 @@ def run_open_shop(
     if npc_is_hostile(npc):
         raise ToolRefused(f"{npc.name} will not trade with the party")
     stock = npc_shop_stock(state, npc.id, regs.catalogue, regs.shops)
-    shelves = ", ".join(f"{e.item} ({e.price_gp} gp)" for e in stock)
+    shelves = ", ".join(
+        f"{e.item} ({e.price_gp} gp{f', {e.bulk}' if e.bulk else ''})" for e in stock
+    )
     return ToolResult(
         events=(ShopOpened(npc_id=npc.id),), summary=f"{npc.name} opens shop; stock: {shelves}"
     )

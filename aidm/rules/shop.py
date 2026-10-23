@@ -12,9 +12,15 @@ trades while it is open (`ShopOpened` sets `world.shop_npc_id`) and its keeper i
 
 Public API:
 - `ShopRefusal`, `ShopRefused(reason, detail)`: typed refusals; nothing is spent or consumed.
-- `StockEntry(item, price_gp)`; `shop_kind(npc, table) -> str` (role keywords, else the default);
+- `StockEntry(item, price_gp, unit_gp, bulk)`: `price_gp` buys one; `unit_gp` is the exact price of
+  one before the whole-gold rounding (several cost `buy_price` of the lot: 10 rations at 0.5 gp
+  cost 5 gp) and `bulk` says so for an item under 1 gp ("2 for 1 gp", M29.7d R6).
+  `shop_kind(npc, table) -> str` (role keywords, else the default);
   `role_shop_kind(role, table) -> str` (the same from a role text).
-- `buy_price(value_gp, qty, table)`, `sell_price(value_gp, qty, table)`.
+- `buy_price(value_gp, qty, table)`, `sell_price(value_gp, qty, table)`;
+  `bulk_note(unit_gp) -> str`: "<n> for <m> gp" for a price under 1 gp ("" otherwise).
+- A sale that would fetch less than 1 gp is refused (`WORTHLESS`) with the true reason: a trader
+  pays half an item's value in whole gold (M29.7d R6: never "not worth buying").
 - `shop_stock(catalogue, table, kind, region_tier, rng) -> tuple[StockEntry, ...]`: the `always`
   items, one of each `one_of_each` category (M29.6b), then random picks up to `size`.
 - `npc_shop_stock(state, npc_id, catalogue, table) -> tuple[StockEntry, ...]`.
@@ -64,6 +70,8 @@ class ShopRefused(ValueError):
 class StockEntry:
     item: str
     price_gp: int
+    unit_gp: float = 0.0
+    bulk: str = ""
 
 
 def shop_kind(npc: WorldNpc, table: ShopTable) -> str:
@@ -84,6 +92,22 @@ def buy_price(value_gp: float, qty: int, table: ShopTable) -> int:
 
 def sell_price(value_gp: float, qty: int, table: ShopTable) -> int:
     return math.floor(value_gp * qty * table.sell_fraction + 1e-9)
+
+
+def bulk_note(unit_gp: float) -> str:
+    if not 0 < unit_gp < 1:
+        return ""
+    for qty in range(2, 101):
+        total = unit_gp * qty
+        if abs(total - round(total)) < 1e-9:
+            return f"{qty} for {round(total)} gp"
+    return ""
+
+
+def _entry(item: CatalogueItem, table: ShopTable) -> StockEntry:
+    unit = item.value_gp * table.buy_markup
+    price = buy_price(item.value_gp, 1, table)
+    return StockEntry(item=item.id, price_gp=price, unit_gp=unit, bulk=bulk_note(unit))
 
 
 def shop_stock(
@@ -110,9 +134,7 @@ def shop_stock(
     pool = [i.id for i in shelf if i.category in shape.categories and i.id not in chosen]
     while pool and len(chosen) < shape.size:
         chosen.append(pool.pop(rng.randint(0, len(pool) - 1)))
-    entries = [
-        StockEntry(item=i, price_gp=buy_price(catalogue.get(i).value_gp, 1, table)) for i in chosen
-    ]
+    entries = [_entry(catalogue.get(i), table) for i in chosen]
     return tuple(sorted(entries, key=lambda e: (e.price_gp, e.item)))
 
 
@@ -197,7 +219,12 @@ def sell_events(
         raise ShopRefused(ShopRefusal.EQUIPPED, f"unequip {entry.name} first")
     gain = sell_price(entry.value_gp, qty, table)
     if gain < 1:
-        raise ShopRefused(ShopRefusal.WORTHLESS, f"{entry.name} is not worth buying")
+        worth = f"{entry.value_gp * qty:g} gp"
+        raise ShopRefused(
+            ShopRefusal.WORTHLESS,
+            f"a trader pays half an item's value in whole gold, so {entry.name} (worth {worth})"
+            " fetches nothing",
+        )
     gold = pc.pc.gold if pc.pc is not None else 0
     return [
         InventoryChanged(creature_id=pc_id, item=item, delta=-qty, qty=carried - qty),

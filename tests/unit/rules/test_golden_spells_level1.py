@@ -11,34 +11,41 @@ from aidm.models.combat import AttackProfile
 from aidm.models.combat_events import AttackRolled, SpellCast
 from aidm.models.commands import DashCommand
 from aidm.models.damage import DamagePacket, DamageType
+from aidm.models.encounter import Side
 from aidm.models.encounter_events import EconomyChanged
 from aidm.models.events import CheckResolved, ConditionRemoved, DamageTaken
+from aidm.models.state import GameState
 from aidm.rules.attacks import resolve_attack
 from aidm.rules.conditions import condition_ac_bonus, save_with_conditions
 from aidm.rules.damage import resolve_damage
 from aidm.rules.hit_chance import hit_chance
 from aidm.rules.turns import fresh_economy
 from aidm.session.reducer import apply
-from tests.unit.rules.combat_fixtures import REGS, ScriptedRng, do, economy
+from tests.unit.rules.combat_fixtures import REGS, ScriptedRng, do, economy, fight
+from tests.unit.rules.monster_fixtures import srd_monster
 from tests.unit.rules.spell_fixtures import battle, cast, caster, conditions_of, of, slots_left
 
 CLAW = AttackProfile(key="claw", name="Claw", attack_bonus=4)
 
 
 def test_golden_spell_animal_friendship() -> None:
-    # Animal Friendship (ranger, level 2): WIS save DC 13 or charmed for 24 hours (14400 rounds).
-    ranger = caster("r", "ranger", spells=["animal-friendship"], level=2, slots={1: 2})
-    state = battle(ranger, ("gob", "yard"))
-    events = cast(state, "r", "animal-friendship", ScriptedRng(5), targets=["gob"])
+    # Animal Friendship (ranger, level 2): a beast only; WIS save DC 13 or befriended (charmed,
+    # ends on the party's harm) for 24 hours (14400 rounds). The wolf has WIS 12 (+1).
+    def wolf_fight() -> GameState:
+        ranger = caster("r", "ranger", spells=["animal-friendship"], level=2, slots={1: 2})
+        return fight(
+            [(ranger, Side.PARTY, "gate"), (srd_monster("wolf", "wolf-1"), Side.HOSTILE, "yard")]
+        )
+
+    state = wolf_fight()
+    events = cast(state, "r", "animal-friendship", ScriptedRng(5), targets=["wolf-1"])
     assert of(events, CheckResolved)[0].result.dc == 13
-    charmed = state.creatures["gob"].conditions[0]
-    assert charmed.name == "charmed" and charmed.rounds_left == 14400
+    charmed = state.creatures["wolf-1"].conditions[0]
+    assert charmed.name == "befriended" and charmed.rounds_left == 14400
     assert slots_left(state.creatures["r"], 1) == 1
-    state = battle(
-        caster("r", "ranger", spells=["animal-friendship"], level=2, slots={1: 2}), ("gob", "yard")
-    )
-    cast(state, "r", "animal-friendship", ScriptedRng(13), targets=["gob"])
-    assert conditions_of(state, "gob") == []
+    state = wolf_fight()
+    cast(state, "r", "animal-friendship", ScriptedRng(12), targets=["wolf-1"])
+    assert conditions_of(state, "wolf-1") == []
 
 
 def test_golden_spell_charm_person() -> None:
@@ -47,7 +54,7 @@ def test_golden_spell_charm_person() -> None:
     state = battle(wiz, ("gob", "yard"), ("gob2", "yard"))
     events = cast(state, "w", "charm-person", ScriptedRng(5, 5), targets=["gob", "gob2"], slot=2)
     assert of(events, SpellCast)[0].cast_level == 2
-    assert [conditions_of(state, g) for g in ("gob", "gob2")] == [["charmed"], ["charmed"]]
+    assert [conditions_of(state, g) for g in ("gob", "gob2")] == [["befriended"], ["befriended"]]
     assert state.creatures["gob"].conditions[0].rounds_left == 600
     state = battle(caster("w", "wizard", spells=["charm-person"], slots={1: 1}), ("gob", "yard"))
     cast(state, "w", "charm-person", ScriptedRng(14), targets=["gob"])

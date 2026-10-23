@@ -16,8 +16,9 @@ Public API:
   rerolls each kept die below `reroll_below` once (the first die stays visible, not kept).
 - `deal_damage(rng, state, attacker_id, target_id, packets, *, crit, feats) -> list[AnyEvent]`:
   the damage choke point (`rules.damage.resolve_damage`) plus its consequences: the target's
-  concentration check and the attacker's kill temp HP (a feature hook) when a hostile drops to 0.
-  `state` must already include the events emitted before this hit.
+  concentration check, the charms its side's harm ends (`rules.harm_ends`) and the attacker's
+  kill temp HP (a feature hook) when a hostile drops to 0. `state` must already include the
+  events emitted before this hit.
 - `AttackResult(events, hit, crit, riders_used)`; `resolve_attack(rng, state, attacker_id,
   target_id, profile, feats) -> AttackResult`: roll + weapon damage + the profile's typed
   `extra_damage` parts (a monster bite's fire; doubled on a crit) + feature riders (Sneak
@@ -56,6 +57,7 @@ from aidm.rules.features import (
     feature_names,
     kill_temp_hp,
 )
+from aidm.rules.harm_ends import harm_ended_events
 from aidm.rules.hit_chance import AttackSituation, attack_situation
 from aidm.rules.projection import project_state
 
@@ -168,6 +170,7 @@ def deal_damage(
     taken = events[0]
     if isinstance(taken, DamageTaken):
         events.extend(concentration_after_damage(rng, after, taken))
+        events.extend(harm_ended_events(after, taken))
     events.extend(_kill_bonus(state, after, attacker_id, target_id, feats))
     return events
 

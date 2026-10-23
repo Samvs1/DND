@@ -26,7 +26,9 @@ Public API:
 - `encounter_outcome(state) -> EncounterStatus | None` (None while the fight goes on):
   no PARTY-side combatant standing -> FLED if a party member withdrew by fleeing and is still up
   (alive, HP > 0), else DEFEAT (party wipe: everyone dead, dying or stable at 0 HP);
-  otherwise no HOSTILE combatant standing -> VICTORY. NEUTRAL combatants never decide it.
+  otherwise no HOSTILE combatant standing -> VICTORY. NEUTRAL combatants never decide it, nor
+  does a hostile befriended by the party (M29.7d, `rules.harm_ends`): when only such foes are
+  left the fight ends as a victory; they are not defeated (no kill XP, no loot from them).
 - `withdraw_combatant(state, creature_id, reason) -> list[AnyEvent]`: fled or surrendered.
 - `defeated_hostiles(state) -> list[Combatant]`: the HOSTILE combatants that count as defeated
   (loot and kill XP use it).
@@ -64,6 +66,7 @@ from aidm.rules.condition_timing import apply_condition, combat_end_events, new_
 from aidm.rules.conditions import can_take_reactions
 from aidm.rules.dice import Rng, roll
 from aidm.rules.difficulty import scale_spawn
+from aidm.rules.harm_ends import befriended_by_party
 from aidm.rules.leveling import gain_xp
 from aidm.rules.monster_stats import creature_from_monster
 
@@ -242,7 +245,8 @@ def encounter_outcome(state: GameState) -> EncounterStatus | None:
         if any(_fled_and_up(state, c) for c in party):
             return EncounterStatus.FLED
         return EncounterStatus.DEFEAT
-    if not any(is_standing(state, c) for c in hostile):
+    fighting = [c for c in hostile if not befriended_by_party(state, c.creature_id)]
+    if not any(is_standing(state, c) for c in fighting):
         return EncounterStatus.VICTORY
     return None
 

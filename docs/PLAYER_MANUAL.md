@@ -314,6 +314,8 @@ When the table agrees to browse a shop, your phone opens the shop. Every player 
 - Every region has at least one trader who sells weapons, armour and healing. When a story has no such trader in a region, a peddler (a general store) waits at its first, safe place.
 - A general store always has camp food, a Herbal Poultice (10 gp), a Traveller's Tonic (25 gp), a Potion of Healing (50 gp) and a Healer's Kit, and at least one weapon and one piece of armour. A smith always has a Herbal Poultice and at least one potion.
 - You cannot sell what you are wearing or wielding: take it off first.
+- Gold comes only in whole coins. An item worth less than 1 gp costs 1 gp on its own, but a lot costs its true price rounded up: a camp ration is worth half a gold piece, so one costs 1 gp and ten cost 5 gp. The shop shows the price of the quantity you picked and, for such cheap goods, a note like **2 for 1 gp**.
+- A trader pays half an item's value in whole gold, so an item worth less than 2 gp (a hammer, a rope, incense) fetches nothing and the trader says so.
 
 <!-- generated:shop_rules -->
 - You buy at 100% of an item's value, rounded up, never less than 1 gp.
@@ -587,6 +589,7 @@ Conditions are shown on tokens and on your sheet.
 | Asleep | Ends when it takes damage; also counts as unconscious. |
 | Silenced | Immune to thunder damage; cannot cast spells with spoken parts; also counts as deafened. |
 | Turned | Cannot take actions; cannot take reactions; ends when it takes damage; also counts as frightened. |
+| Befriended | Cannot attack whoever charmed it; ends when whoever caused it, or one of their companions, harms it; also counts as charmed. |
 | Burning | Lasts 10 rounds. |
 <!-- end generated:conditions -->
 
@@ -597,7 +600,7 @@ When it is another hero's turn, you can **suggest a move** to them (not during a
 Monsters have a fixed number of hit points. The host can scale monster health and damage (see For the host). Each defeated foe adds to the loot of the fight, and the experience of every defeated foe is split evenly among the living heroes.
 
 ### Ending a fight
-A fight ends in **victory** when no hostile creature is left standing, in **defeat** when no hero can act, or when the party has fled. When it ends, effects that last a number of rounds end, and the story continues. The screen's **VICTORY!** banner and the victory music play only after a real victory, never after a defeat or an escape.
+A fight ends in **victory** when no hostile creature is left standing, in **defeat** when no hero can act, or when the party has fled. A foe your party has **befriended** (Animal Friendship on a beast, Charm Person on a person) no longer keeps a fight going: when only befriended foes are left, the fight ends as a victory. They are not defeated, so they give no experience and no loot. The charm ends as soon as the caster or any hero harms them. When a fight ends, effects that last a number of rounds end, and the story continues. The screen's **VICTORY!** banner and the victory music play only after a real victory, never after a defeat or an escape.
 
 ## 5. Spells and levelling
 

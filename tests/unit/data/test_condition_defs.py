@@ -30,6 +30,7 @@ def test_extras_are_marked_non_srd() -> None:
     spell_extras |= {"hunters-mark", "expeditious-retreat", "asleep", "silenced"}
     spell_extras |= {"turned"}  # M7.5b: Channel Divinity: Turn Undead
     spell_extras |= {"burning"}  # M27.6: SRD Alchemist's Fire
+    spell_extras |= {"befriended"}  # M29.7d: Animal Friendship, Charm Person
     base = {"dodging", "hidden", "surprised", "helped", "blessed", "shield-of-faith"}
     assert extras == base | spell_extras
 

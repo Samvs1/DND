@@ -8,17 +8,17 @@ import { createPanel } from '../ui/modal.js';
 import { clear, h } from '../ui/dom.js';
 import { myHero, publicState } from '../table/lookup.js';
 import { tipButton } from '../ui/tip.js';
-import { sellPrice, sellable } from './pricing.js';
+import { buyPrice, sellPrice, sellable } from './pricing.js';
 
 function stockRow(line, ctx) {
   const { gold, qty, send } = ctx;
-  const price = line.price_gp * qty();
-  const buy = h('button', { type: 'button', class: 'btn btn-small', 'data-testid': 'shop-buy', 'data-item': line.item_id, 'aria-label': t('shop.buyOne', { name: line.name }), disabled: gold < line.price_gp * qty(), onclick: () => send('shop_buy', line) }, t('shop.buy'));
+  const price = buyPrice(line, qty());
+  const buy = h('button', { type: 'button', class: 'btn btn-small', 'data-testid': 'shop-buy', 'data-item': line.item_id, 'aria-label': t('shop.buyOne', { name: line.name }), disabled: gold < price, onclick: () => send('shop_buy', line) }, t('shop.buy'));
   return h(
     'li',
     { class: 'shop-line', 'data-testid': 'shop-line', 'data-item': line.item_id },
     h('img', { src: assetUrl([`item_icon.${line.item_id}`, `item_icon.${line.category || 'gear'}`]), alt: '', width: 32, height: 32 }),
-    h('div', { class: 'shop-main' }, h('strong', {}, line.name), tipButton(`item:${line.item_id}`, line.name), line.supply ? h('span', { class: 'hint' }, ` ${t('shop.supplyLine', { n: line.supply })}`) : null),
+    h('div', { class: 'shop-main' }, h('strong', {}, line.name), tipButton(`item:${line.item_id}`, line.name), line.supply ? h('span', { class: 'hint' }, ` ${t('shop.supplyLine', { n: line.supply })}`) : null, line.bulk ? h('span', { class: 'hint', 'data-testid': 'shop-bulk' }, ` ${line.bulk}`) : null),
     h('span', { class: 'shop-price' }, t('shop.price', { n: price })),
     buy,
   );

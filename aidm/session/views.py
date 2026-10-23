@@ -370,6 +370,8 @@ def stock_lines(
                 item_id=entry.item,
                 name=name,
                 price_gp=entry.price_gp,
+                unit_gp=entry.unit_gp,
+                bulk=entry.bulk,
                 category=item.category.value if item is not None else "",
                 supply=item.supply if item is not None else 0,
             )

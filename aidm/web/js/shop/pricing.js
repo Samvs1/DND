@@ -9,3 +9,9 @@ export function sellPrice(item) {
 export function sellable(item) {
   return !item.equipped_slot && sellPrice(item) >= 1;
 }
+
+/** What `qty` of a stock line cost (the server's rule): the exact lot price rounded up, at least 1 gp. */
+export function buyPrice(line, qty) {
+  if (!line.unit_gp) return line.price_gp * qty;
+  return Math.max(1, Math.ceil(line.unit_gp * qty - 1e-9));
+}

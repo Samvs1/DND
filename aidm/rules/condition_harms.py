@@ -18,6 +18,7 @@ from aidm.rules.concentration import concentration_after_damage
 from aidm.rules.conditions import condition_def
 from aidm.rules.damage import resolve_damage
 from aidm.rules.dice import Rng, roll
+from aidm.rules.harm_ends import harm_ended_events
 from aidm.rules.projection import project_state
 
 
@@ -52,4 +53,5 @@ def turn_start_condition_damage(rng: Rng, state: GameState, creature_id: str) ->
         if hurt and isinstance(hurt[0], DamageTaken):
             after = project_state(state, events)
             events.extend(concentration_after_damage(rng, after, hurt[0]))
+            events.extend(harm_ended_events(after, hurt[0]))
     return events

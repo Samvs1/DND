@@ -393,5 +393,7 @@ class StockLine(_View):
     item_id: str
     name: str
     price_gp: int = Field(ge=0)
+    unit_gp: float = Field(default=0.0, ge=0, description="exact price of one before rounding")
+    bulk: str = Field(default="", description="e.g. '2 for 1 gp' for an item under 1 gp")
     category: str = ""
     supply: int = Field(default=0, ge=0, description="camp supplies one purchase adds")
