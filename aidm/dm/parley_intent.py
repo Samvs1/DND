@@ -10,7 +10,9 @@ parley, a sentence that talks to the foes answers the offer as parley with the s
 - persuade, convince, plead, reason, negotiate, parley, bargain, beg, appeal, calm, soothe,
   and the plain talking words (talk, speak, ask, call out, hail, greet, shout, tell, say) ->
   Persuasion. A sentence that names another hero ("I ask Elowen what she thinks", "I warn Rook")
-  or the party ("I tell the others to get ready") is not a parley.
+  or the party ("I tell the others to get ready") is not a parley. M29.9a T16: nor is a
+  sentence that names an NPC standing here who is not among the offer's foes, unless it also
+  names a foe ("Brienne asks Dreda Flint who she is" while an ogre waits is a talk turn).
 Anything else is None (an attack, a sneak or a run is the offer's other buttons, or the AI).
 
 Public API: `ParleyIntent(actor_id, skill)`, `parley_intent(state, actor_id, clean)`.
@@ -20,7 +22,7 @@ import re
 from dataclasses import dataclass
 
 from aidm.models.abilities import Skill
-from aidm.models.campaign_state import OfferChoice
+from aidm.models.campaign_state import EncounterOffer, OfferChoice
 from aidm.models.state import CreatureKind, GameState
 
 _SKILL_WORDS: tuple[tuple[Skill, frozenset[str]], ...] = (
@@ -71,13 +73,36 @@ def _names_a_friend(state: GameState, actor_id: str, words: set[str]) -> bool:
     )
 
 
+_FILLER = frozenset({"the", "of", "and", "old", "young", "a", "an", "in", "at", "to"})
+
+
+def _name_words(name: str) -> set[str]:
+    return set(re.findall(r"[a-z]+", name.lower())) - _FILLER
+
+
+def _names_a_bystander(state: GameState, offer: EncounterOffer, words: set[str]) -> bool:
+    """An NPC here who is not one of the offer's foes is named, and no foe is (M29.9a T16)."""
+    foe_words = {w for m in offer.monster_ids for w in m.split("-")}
+    boss = state.world.npcs.get(offer.boss_npc_id or "")
+    if boss is not None:
+        foe_words |= _name_words(boss.name)
+    if words & foe_words:
+        return False
+    here = state.world.current_node
+    return any(
+        words & (_name_words(n.name) - foe_words)
+        for n in state.world.npcs.values()
+        if n.node_id == here and not n.dead and n.id != offer.boss_npc_id
+    )
+
+
 def parley_intent(state: GameState, actor_id: str, clean: str) -> ParleyIntent | None:
     campaign = state.campaign
     offer = campaign.offer if campaign is not None else None
     if offer is None or OfferChoice.PARLEY not in offer.options or actor_id not in state.creatures:
         return None
     words = set(re.findall(r"[a-z]+", clean))
-    if _names_a_friend(state, actor_id, words):
+    if _names_a_friend(state, actor_id, words) or _names_a_bystander(state, offer, words):
         return None
     if re.search(r"\blies? to\b", clean):
         words.add("deceive")

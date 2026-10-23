@@ -337,6 +337,7 @@ def _setup(
         party=tuple(PartyPlacement(creature_id=pc, zone_id=start) for pc in pcs),
         monsters=tuple(spawns),
         surprise=surprise,
+        offer_id=offer.id,
     )
 
 

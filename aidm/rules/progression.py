@@ -12,9 +12,9 @@ Public API:
   (a dead creature with the boss's name and stat block).
 - `region_resolution_events(state) -> list[AnyEvent]`: `RegionResolved` (+ the next act's
   quest items) for every unresolved region whose boss is defeated or allied; empty otherwise. The
-  session calls it after a fight ends and after attitude changes. An alliance also closes that
-  boss's still-pending encounter offer peacefully (M29.5b G29: a stale offer blocked travel
-  and its failed parley turned the allied boss hostile).
+  session calls it after a fight ends and after attitude changes. M29.9a T15: no deed or quest
+  step closes the master's waiting offer; it waits, shown as a sure parley, for the player's
+  answer (`offer_answer.answer_offer` closes a settled master's offer peacefully, M29.5b G29).
 - `settled_offer(state) -> EncounterOffer | None`: the pending offer of a boss whose region is
   already resolved (such an offer is answered without a fight).
 - `campaign_complete(state) -> bool`: the story is over: the final region is resolved and, when
@@ -90,16 +90,9 @@ def region_resolution_events(state: GameState) -> list[AnyEvent]:
         resolved.add(region.id)
         final = len(resolved) == len(acts)
         events.append(RegionResolved(region_id=region.id, how=how, final=final))
-        offer = campaign.offer
-        if how is RegionResolution.ALLIANCE and offer is not None and _boss_offer(offer, region):
-            events.append(peaceful_close(offer))
         if act.index < len(acts):
             events.extend(act_quest_events(state, campaign.plan, act.index + 1))
     return events
-
-
-def _boss_offer(offer: EncounterOffer, region: RegionPlan) -> bool:
-    return offer.region_id == region.id and offer.boss_npc_id is not None
 
 
 def peaceful_close(offer: EncounterOffer) -> OfferResolved:

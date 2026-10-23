@@ -10,7 +10,7 @@ from aidm.models.campaign_events import OfferResolved, RegionResolved
 from aidm.models.campaign_state import OfferChoice
 from aidm.models.encounter_events import EncounterStarted
 from aidm.models.world_events import AttitudeChanged
-from aidm.rules.offer_answer import answer_offer
+from aidm.rules.offer_answer import answer_offer, sure_parley
 from aidm.rules.progression import region_resolution_events
 from aidm.rules.rests import RestRefused, long_rest, rest_refused_text
 from aidm.session.reducer import apply
@@ -19,18 +19,25 @@ from tests.session.playtest_saves import logged, replay_until
 P3_BOSS = "boss-bracken-march"
 
 
-def test_m29_alliance_closes_the_boss_offer() -> None:
-    """p3 857-860: Varek is won over while his offer is open; the alliance closes it."""
+def test_m29_alliance_leaves_the_boss_offer_for_the_player() -> None:
+    """p3 857-860: Varek is won over while his offer is open. M29.9a T15: the alliance no longer
+    closes the offer by itself; it waits as a sure parley and the answer closes it peacefully."""
     state = replay_until("p3", 860)
     assert state.campaign is not None and state.campaign.offer is not None
     events = region_resolution_events(state)
     assert isinstance(events[0], RegionResolved) and events[0].how.value == "alliance"
-    closed = [e for e in events if isinstance(e, OfferResolved)]
-    assert [(e.offer_id, e.choice, e.success) for e in closed] == [
-        ("offer-849", OfferChoice.PARLEY, True)
-    ]
+    assert not any(isinstance(e, OfferResolved) for e in events)
     for event in events:
         apply(state, event)
+    offer = state.campaign.offer
+    assert offer is not None and offer.id == "offer-849" and sure_parley(state, offer)
+    answer = answer_offer(
+        state, OfferChoice.PARLEY, offer_data(tool_registries()), random.Random(1)
+    )
+    assert [(e.offer_id, e.choice, e.success) for e in answer if isinstance(e, OfferResolved)] == [
+        ("offer-849", OfferChoice.PARLEY, True)
+    ]
+    apply(state, answer[0])
     assert state.campaign.offer is None
     assert not state.world.npcs[P3_BOSS].hostile
 

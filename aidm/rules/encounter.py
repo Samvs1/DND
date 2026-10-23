@@ -17,6 +17,9 @@ Public API:
   initiative, round 1, no turn open), then a "surprised" condition (data-driven: no actions,
   movement or reactions until the end of the creature's first turn) on every creature of the
   surprised side. Foes at a place the party alerted are never surprised (`party_surprise`).
+  M29.9a T8: this is the one door every fight start goes through, so a waiting encounter offer
+  at the current place is resolved here (`OfferResolved`, choice fight) unless the setup says
+  it answers that offer; the encounter records the place (`Encounter.node_id`).
 - `party_surprise(state, surprise) -> SurpriseKind` (M27.3): HOSTILE becomes NONE when the
   current place is `World.alerted` (a noisy gear use, or arriving there with a carried light).
 - `roll_initiative(rng, creatures) -> list[InitiativeEntry]`: BG3 1d4 + DEX modifier per
@@ -47,6 +50,8 @@ from string import ascii_uppercase
 from aidm.data.registry import Registry
 from aidm.data.srd_monsters import SrdMonster
 from aidm.models.abilities import Ability
+from aidm.models.campaign_events import OfferResolved
+from aidm.models.campaign_state import OfferChoice
 from aidm.models.encounter import (
     Combatant,
     Encounter,
@@ -178,10 +183,20 @@ def _surprised(side: Side, surprise: SurpriseKind) -> bool:
     )
 
 
+def _offer_closed_by_fight(state: GameState, setup: EncounterSetup) -> list[AnyEvent]:
+    """M29.9a T8: a fight started at a place whose offer still waits answers that offer."""
+    offer = state.campaign.offer if state.campaign is not None else None
+    if offer is None or offer.id == setup.offer_id or offer.node_id != state.world.current_node:
+        return []
+    detail = "the fight starts"
+    return [OfferResolved(offer_id=offer.id, choice=OfferChoice.FIGHT, success=None, detail=detail)]
+
+
 def start_encounter(
     rng: Rng, state: GameState, setup: EncounterSetup, monsters: Registry[SrdMonster]
 ) -> list[AnyEvent]:
     _validate(state, setup, monsters)
+    closed = _offer_closed_by_fight(state, setup)
     taken = set(state.creatures)
     spawned: list[_Spawn] = []
     for spawn in setup.monsters:
@@ -217,9 +232,10 @@ def start_encounter(
         zone_map=setup.zone_map.model_copy(deep=True),
         combatants=combatants,
         initiative=roll_initiative(rng, [c for c, *_ in everyone]),
+        node_id=state.world.current_node,
     )
     added: list[AnyEvent] = [CreatureAdded(creature=c) for c, *_ in spawned]
-    return [*added, EncounterStarted(encounter=encounter), *surprise_events]
+    return [*closed, *added, EncounterStarted(encounter=encounter), *surprise_events]
 
 
 def is_standing(state: GameState, combatant: Combatant) -> bool:

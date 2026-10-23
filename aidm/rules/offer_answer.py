@@ -15,12 +15,16 @@ The checks use the DCs the offer carries (set from the region tier by data, neve
 Group checks follow SRD 5.1 "Group Checks": the group succeeds when at least half succeed.
 A boss offer whose region is already resolved (an old save from before M29.5b G29) closes
 peacefully whatever the answer: an allied boss is never turned hostile by it.
+M29.9a T8: an offer whose foes are all dead or gone never starts a fight (`foes_gone`: the boss
+died, or a finished fight at the offer's place downed every monster the offer lists); any answer
+closes it with "no foes are left" (an old save kept such an offer open and respawned the foe).
 
 Public API: `OfferRefused`; `answer_offer(state, choice, data, rng, *, actor_id=None,
 skill=None) -> list[AnyEvent]` (starts with `OfferResolved`; `CheckResolved` per roll);
-`sure_parley(state, offer) -> bool`.
+`sure_parley(state, offer) -> bool`; `foes_gone(state, offer) -> bool`.
 """
 
+from collections import Counter
 from collections.abc import Sequence
 
 from aidm.models.abilities import Skill
@@ -28,7 +32,7 @@ from aidm.models.campaign_events import OfferResolved
 from aidm.models.campaign_state import EncounterOffer, OfferChoice
 from aidm.models.checks import CheckResult
 from aidm.models.dm_tiers import DeltaTier
-from aidm.models.encounter import SurpriseKind
+from aidm.models.encounter import EncounterStatus, Side, SurpriseKind
 from aidm.models.events import AnyEvent, CheckResolved
 from aidm.models.state import Creature, GameState
 from aidm.models.world_events import PartyMoved
@@ -98,9 +102,29 @@ def _parley(
 
 def sure_parley(state: GameState, offer: EncounterOffer) -> bool:
     """A master whose Peace route is done hears the party out: the parley holds without a roll
-    (M29.7c R14; shown as sure on the offer card)."""
+    (M29.7c R14; shown as sure on the offer card). So does a master already won over (M29.9a
+    T15: the alliance leaves the offer waiting for the player's answer)."""
     region = region_of(state, offer.node_id)
-    return offer.boss_npc_id is not None and region is not None and peace_ready(state, region)
+    if offer.boss_npc_id is None or region is None:
+        return False
+    return settled_offer(state) is not None or peace_ready(state, region)
+
+
+def foes_gone(state: GameState, offer: EncounterOffer) -> bool:
+    boss = state.world.npcs.get(offer.boss_npc_id or "")
+    if boss is not None:
+        return boss.dead
+    enc = state.encounter
+    if enc is None or enc.status is EncounterStatus.ACTIVE or enc.node_id != offer.node_id:
+        return False
+    downed: Counter[str] = Counter()
+    for combatant in enc.combatants.values():
+        creature = state.creatures.get(combatant.creature_id)
+        if combatant.side is not Side.HOSTILE or creature is None or creature.monster_index is None:
+            continue
+        if creature.dead or creature.hp <= 0 or combatant.withdrawn is not None:
+            downed[creature.monster_index] += 1
+    return bool(offer.monster_ids) and Counter(offer.monster_ids) <= downed
 
 
 def _resolve(
@@ -140,6 +164,8 @@ def answer_offer(
         raise OfferRefused(f"{choice.value} is not an option here")
     if settled_offer(state) is not None:  # M29.5b G29: the boss's region is already settled
         return [peaceful_close(offer)]
+    if foes_gone(state, offer):
+        return [OfferResolved(offer_id=offer.id, choice=choice, detail="no foes are left")]
     success, checks, surprise = _resolve(state, offer, choice, rng, (actor_id, skill))
     detail = "the fight starts" if surprise is not None else "no fight"
     events: list[AnyEvent] = [

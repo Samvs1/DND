@@ -26,6 +26,7 @@ State model (all mutable state models, changed only by the reducer, new fields n
   -1 before the first turn. `turn_open` is True between `TurnStarted` and `TurnEnded`.
   `round` starts at 1 and increments when the order wraps. Helpers: `combatant(cid)`,
   `positions()` (creature id -> zone id), `active_id()` (None when no turn is open).
+  `node_id` (M29.9a) is the place the fight started.
 
 Setup inputs (frozen, built by the DM tool or the session):
 - `SurpriseKind`: NONE / PARTY (the party is ambushed) / HOSTILE (the party ambushes).
@@ -33,7 +34,8 @@ Setup inputs (frozen, built by the DM tool or the session):
 - `MonsterSpawn(monster, zone_id, side, name, npc_id, hp_scale)`: an SRD monster index to
   instantiate; `hp_scale` (M29.6, at most 1) scales its hit points on top of the host
   difficulty (a boss too strong alone for a small party, `aidm.rules.encounter_offer`).
-- `EncounterSetup(encounter_id, zone_map, party, monsters, surprise)`.
+- `EncounterSetup(encounter_id, zone_map, party, monsters, surprise, offer_id)`: `offer_id`
+  names the waiting offer this fight answers (its `OfferResolved` is already emitted).
 - `Difficulty`: EASY / MEDIUM / HARD / DEADLY (the encounter budget tiers).
 - `BudgetCheck(adjusted_xp, deadly_budget, difficulty, allowed)`: a rated monster list
   (`aidm.rules.encounter_budget.check_encounter_budget`).
@@ -124,6 +126,7 @@ class Encounter(BaseModel):
     active_index: int = Field(default=-1, ge=-1)
     turn_open: bool = False
     status: EncounterStatus = EncounterStatus.ACTIVE
+    node_id: str | None = None  # M29.9a T8: the place the fight started (None in older saves)
 
     def combatant(self, creature_id: str) -> Combatant:
         return self.combatants[creature_id]
@@ -164,6 +167,7 @@ class EncounterSetup(BaseModel):
     party: tuple[PartyPlacement, ...] = ()
     monsters: tuple[MonsterSpawn, ...] = ()
     surprise: SurpriseKind = SurpriseKind.NONE
+    offer_id: str | None = None  # M29.9a T8: the offer this fight answers (already resolved)
 
 
 class BudgetCheck(BaseModel):
