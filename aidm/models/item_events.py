@@ -32,7 +32,9 @@ Public API:
 - `HandedOver(creature_id, to_id, item, keepsake_id, qty, gold)` (M29.7a R8): a hero handed
   something to another hero: `qty` of the inventory item `item` or `gold` coins (moved by the
   `InventoryChanged` / `GoldChanged` pair that comes with it; this event is their record), or
-  the keepsake `keepsake_id` (moved by this event, `aidm.rules.hero_handing`).
+  the keepsake `keepsake_id` (moved by this event, `aidm.rules.hero_handing`). M29.9a T17:
+  `to_id` may be a world NPC for gold only (paying them, `aidm.rules.paying`): the hero's
+  `GoldChanged` comes with it and this event adds the coins to `WorldNpc.paid`.
 - `ItemEvents`: the union of these classes.
 """
 

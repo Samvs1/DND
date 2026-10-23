@@ -19,7 +19,7 @@ of a storyteller gift. The rules decide (`aidm.rules.handing.give_events`).
 
 Public API: `GiveIntent(actor_id, npc_id, thing)` (`thing` a keepsake id, an inventory key,
 or "" for nothing carried),
-`give_intent(state, actor_id, clean) -> GiveIntent | None`.
+`give_intent(state, actor_id, clean) -> GiveIntent | None`, `named_npc(state, who, anywhere)`.
 """
 
 import re
@@ -153,7 +153,8 @@ def _pick(state: GameState, fitting: list[str]) -> str | None:
     return next((i for i in fitting if i in named), fitting[0])
 
 
-def _receiver(state: GameState, who: str, anywhere: bool) -> str | None:
+def named_npc(state: GameState, who: str, anywhere: bool) -> str | None:
+    """The NPC `who` names: a present one first (by name or role), else any living one."""
     wanted = _words(who)
     present = current_scene(state).npc_ids
     here = _pick(state, [i for i in present if _npc_fits(state.world.npcs[i], wanted)])
@@ -183,9 +184,9 @@ def _intent(state: GameState, actor: Creature, reading: str) -> GiveIntent | Non
     if match is None:
         return None
     if match["who"] is not None:
-        item, npc_id = match["item"], _receiver(state, match["who"], anywhere=True)
+        item, npc_id = match["item"], named_npc(state, match["who"], anywhere=True)
     else:
-        item, npc_id = match["item2"], _receiver(state, match["who2"], anywhere=False)
+        item, npc_id = match["item2"], named_npc(state, match["who2"], anywhere=False)
     if npc_id is None:
         return None
     thing = _thing(state, actor, item, npc_id)

@@ -41,6 +41,7 @@ from aidm.dm.help_intent import HelpUpIntent
 from aidm.dm.lift_intent import LiftIntent
 from aidm.dm.llm_types import ToolCall
 from aidm.dm.parley_intent import ParleyIntent
+from aidm.dm.pay_intent import PayIntent
 from aidm.dm.precheck import (
     BarredIntent,
     InventoryIntent,
@@ -245,6 +246,8 @@ async def resolve_action(core: TableCore, entry: QueueEntry) -> None:
         await hand_over.give_intent(core, player, intent)
     elif isinstance(intent, HeroHandIntent):
         await hand_over.hand_intent(core, player, intent)
+    elif isinstance(intent, PayIntent):
+        await _pay(core, player, entry, intent)
     elif isinstance(intent, LiftIntent):
         await hand_over.lift_intent(core, player, intent)
     elif isinstance(intent, ParleyIntent):  # M29.7a R4: one roll answers the waiting offer
@@ -266,6 +269,17 @@ async def resolve_action(core: TableCore, entry: QueueEntry) -> None:
         _propose(core, player, kind, detail, party_actions.rest_job(core, intent.kind))
     else:
         _shop_intent(core, player, entry, intent)
+
+
+async def _pay(core: TableCore, player: Player, entry: QueueEntry, intent: PayIntent) -> None:
+    """M29.9a T17: the coins move first; "pay Rutter and ask him about the girl" then asks."""
+    paid = hand_over.pay_first(core, player, intent)
+    if paid is None:
+        return
+    if intent.rest is None:
+        await conclude(core, None, paid, actor_id=intent.actor_id)
+        return
+    await adjudicated(core, entry.model_copy(update={"text": intent.rest}), prior=paid)
 
 
 async def _gear_use(core: TableCore, player: Player, entry: QueueEntry, intent: UseIntent) -> None:

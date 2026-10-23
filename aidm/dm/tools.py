@@ -30,7 +30,7 @@ from aidm.models.damage import DamageType
 from aidm.models.dice import AdvState
 from aidm.models.dm_tiers import AttitudeBand, DeltaTier, EffectKind, Severity, XpTier
 from aidm.models.encounter import SurpriseKind
-from aidm.models.quests import MAX_STEP_TEXT, MAX_TAG
+from aidm.models.quests import MAX_STEP_GOLD, MAX_STEP_TEXT, MAX_TAG
 from aidm.models.world import FeatureKind
 
 
@@ -216,13 +216,15 @@ class FavourKind(StrEnum):
     MEET = "meet"
     WIN_OVER = "win_over"
     LEARN = "learn"
+    PAY = "pay"
 
 
 class OfferFavourArgs(_Args):
     """A present NPC asks the party a small favour (only when they really ask for help). One
     step the engine can check: visit or clear a place (place), defeat, meet or win over an NPC
     (target_npc; win_over also band), deliver a keepsake a hero carries to an NPC (item,
-    target_npc), or learn something (tag). Ids from this region only. The players accept or not;
+    target_npc), learn something (tag), or pay an NPC, the asker too (target_npc, gold).
+    Ids from this region only. The players accept or not;
     it earns that NPC's goodwill, never gold or XP."""
 
     npc: str = _id()
@@ -234,6 +236,7 @@ class OfferFavourArgs(_Args):
     item: str | None = Field(default=None, max_length=MAX_KEEPSAKE_NAME)
     band: AttitudeBand | None = None
     tag: str | None = Field(default=None, max_length=MAX_TAG)
+    gold: int | None = Field(default=None, ge=1, le=MAX_STEP_GOLD, description="pay: the price")
 
 
 class RecordFactArgs(_Args):

@@ -11,7 +11,9 @@ XP, gold or items, `quest_rewards`). Rules (`favour_events`, each refusal a `Fav
 - the step is one of `FAVOUR_KINDS` (no `free`: the engine closes favours; no `obtain`: nothing
   is placed for a favour); its places and NPCs are known and lie in the party's CURRENT region
   (closed world); `deliver` names a flavour keepsake a hero carries; `clear` is never the
-  arrival; the step is not met already (a favour asks for something still to do).
+  arrival; the step is not met already (a favour asks for something still to do). M29.9a T17:
+  `pay` names the NPC to pay (the asker too) and the price; its `gold` is stored as the total
+  that NPC must have been paid (what they had before plus the price), so old coins never count.
 The id is `favour-<n>`; title and objective (the step text) are the model's words, shown as
 written. Not now withdraws a favour (failed + `withdrawn`, no deed, `rules.quest_offers`); an
 offered favour whose card is gone (the party moved on) lapses the same way
@@ -46,6 +48,7 @@ FAVOUR_KINDS = frozenset(
         StepKind.MEET,
         StepKind.WIN_OVER,
         StepKind.LEARN,
+        StepKind.PAY,
     }
 )
 OPEN = (QuestState.OFFERED, QuestState.ACTIVE)
@@ -121,11 +124,11 @@ def _check_place(state: GameState, node: str, kind: StepKind) -> None:
         raise FavourRefused(f"unknown place {node!r}; use a known place id")
 
 
-def _check_npc(state: GameState, npc_id: str, asker: WorldNpc) -> None:
+def _check_npc(state: GameState, npc_id: str, asker: WorldNpc, kind: StepKind) -> None:
     npc = state.world.npcs.get(npc_id)
     if npc is None or npc.dead:
         raise FavourRefused(f"unknown or dead npc {npc_id!r}; name a known, living NPC")
-    if npc.id == asker.id:
+    if npc.id == asker.id and kind is not StepKind.PAY:
         raise FavourRefused("the favour must concern someone other than the asker")
     region = _region(state)
     home = region_of(state, npc.node_id)
@@ -147,12 +150,12 @@ def _check_step(state: GameState, step: QuestStep, asker: WorldNpc, owner: str) 
     if step.kind not in FAVOUR_KINDS:
         raise FavourRefused(
             f"a favour cannot be a {step.kind.value!r} step; use visit, clear, defeat, deliver,"
-            " meet, win_over or learn"
+            " meet, win_over, learn or pay"
         )
     for node in step.nodes:
         _check_place(state, node, step.kind)
     if step.npc is not None:
-        _check_npc(state, step.npc, asker)
+        _check_npc(state, step.npc, asker, step.kind)
     if step.kind is StepKind.DELIVER and not _carried_flavour(state, step.item or ""):
         raise FavourRefused("a favour delivers a keepsake a hero carries now (not a quest item)")
     if step_met(state, step, owner):
@@ -171,6 +174,9 @@ def favour_events(state: GameState, npc_id: str, title: str, step: QuestStep) ->
     asker = _asker(state, npc_id)
     quest_id = _favour_id(state)
     _check_step(state, step, asker, quest_id)
+    payee = state.world.npcs.get(step.npc or "")
+    if step.kind is StepKind.PAY and payee is not None:  # the price on top of earlier coins
+        step = step.model_copy(update={"gold": step.gold + payee.paid})
     node = asker.node_id
     assert node is not None  # `_asker`: they stand at the party's place
     quest = Quest(

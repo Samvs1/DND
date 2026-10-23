@@ -78,6 +78,12 @@ def _used(state: GameState, event: ItemUsed) -> None:
 def _handed(state: GameState, event: HandedOver) -> None:
     giver = state.creatures.get(event.creature_id)
     taker = state.creatures.get(event.to_id)
+    npc = state.world.npcs.get(event.to_id)
+    if giver is not None and giver.pc is not None and taker is None and npc is not None:
+        if event.gold < 1 or event.item is not None or event.keepsake_id is not None:
+            raise ReducerError(f"only gold is paid to {event.to_id!r} this way")
+        npc.paid += event.gold  # M29.9a T17: the coins left with the GoldChanged before it
+        return
     if giver is None or giver.pc is None or taker is None or taker.pc is None:
         raise ReducerError(f"no heroes {event.creature_id!r} and {event.to_id!r} to hand between")
     if event.keepsake_id is None:

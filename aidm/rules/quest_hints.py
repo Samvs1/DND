@@ -68,7 +68,7 @@ _TITLES = frozenset(
         "elder",
     }
 )
-_NPC_STEPS = (StepKind.DEFEAT, StepKind.MEET, StepKind.WIN_OVER, StepKind.DELIVER)
+_NPC_STEPS = (StepKind.DEFEAT, StepKind.MEET, StepKind.WIN_OVER, StepKind.DELIVER, StepKind.PAY)
 
 
 def _suffix(state: GameState, node: str) -> str:

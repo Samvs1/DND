@@ -29,6 +29,7 @@ _NEEDS = {
     StepKind.MEET: "target_npc",
     StepKind.WIN_OVER: "target_npc and band",
     StepKind.LEARN: "tag",
+    StepKind.PAY: "target_npc and gold",
 }
 
 
@@ -42,6 +43,7 @@ def favour_step(args: OfferFavourArgs) -> QuestStep:
         ("item", args.item),
         ("band", args.band),
         ("tag", args.tag),
+        ("gold", args.gold),
     ):
         if value:
             fields[name] = value

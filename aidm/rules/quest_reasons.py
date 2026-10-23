@@ -79,6 +79,10 @@ def _free(state: GameState, step: QuestStep) -> str | None:
     return None
 
 
+def _pay(state: GameState, step: QuestStep) -> str:
+    return f"{_npc(state, step.npc)} has been paid"
+
+
 _REASONS: dict[StepKind, _Reason] = {
     StepKind.VISIT: _visit,
     StepKind.CLEAR: _clear,
@@ -89,6 +93,7 @@ _REASONS: dict[StepKind, _Reason] = {
     StepKind.WIN_OVER: _win_over,
     StepKind.LEARN: _learn,
     StepKind.FREE: _free,
+    StepKind.PAY: _pay,
 }
 
 

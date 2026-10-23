@@ -16,7 +16,8 @@ it is active. A step is met when its count reaches `QuestStep.goal()`:
 - win_over: the NPC (alive, not hostile) reaches the band's floor score;
 - learn: something teaches the tag NOW (`rules.quest_learn.learn_source`, M29.7c R1: the place
   the party stands at, a feature or secret here, a finished quest), never an old visit;
-- free: never by itself (the AI proposes it through `update_quest`, `rules.quest_free`).
+- free: never by itself (the AI proposes it through `update_quest`, `rules.quest_free`);
+- pay (M29.9a): the NPC's `WorldNpc.paid` total reaches the step's `gold` (`rules.paying`).
 
 Public API: `step_count(state, step, owner) -> int` (0..goal, the x of "x/N"),
 `step_met(state, step, owner) -> bool`, `steps_met(state, steps, done, owner) -> int` (how many
@@ -144,6 +145,11 @@ def _free(state: GameState, step: QuestStep, owner: str) -> int:
     return 0
 
 
+def _pay(state: GameState, step: QuestStep, owner: str) -> int:
+    npc = _alive(state, step.npc)
+    return int(npc is not None and step.gold > 0 and npc.paid >= step.gold)
+
+
 _CHECKS: dict[StepKind, _Check] = {
     StepKind.VISIT: _visit,
     StepKind.CLEAR: _clear,
@@ -154,6 +160,7 @@ _CHECKS: dict[StepKind, _Check] = {
     StepKind.WIN_OVER: _win_over,
     StepKind.LEARN: _learn,
     StepKind.FREE: _free,
+    StepKind.PAY: _pay,
 }
 
 

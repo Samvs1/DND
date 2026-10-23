@@ -18,7 +18,9 @@ Public API:
   <name>"; `aidm.dm.give_intent`), `HeroHandIntent` (M29.7a R7/R8: "hand the poultice to Elowen",
   "give Elowen 30 gold": to another hero, before healing; `aidm.dm.hand_intent`),
   `LiftIntent` (M29.7a R18: "lift the link back out of his pouch": a keepsake an NPC here holds;
-  `aidm.dm.lift_intent`, before a give), `ParleyIntent` (M29.7a R4: talking to the foes while an
+  `aidm.dm.lift_intent`, before a give), `PayIntent` (M29.9a T17: "pay Rutter 4 silver", "hand
+  Rutter a gold piece": coins to an NPC, when no carried thing is named; `aidm.dm.pay_intent`),
+  `ParleyIntent` (M29.7a R4: talking to the foes while an
   encounter offer waits answers it as parley, `aidm.dm.parley_intent`), `BarredIntent(text)`
   (M23.8: "go to <a locked exit>"; the world reason, `aidm.rules.gateway_lock`; M29.7c R24:
   "pick the lock on <a locked exit>" too, no check, `aidm.dm.lock_intent`), `UseIntent`
@@ -52,6 +54,7 @@ from aidm.dm.help_intent import HelpUpIntent, help_up_intent
 from aidm.dm.lift_intent import LiftIntent, lift_intent
 from aidm.dm.lock_intent import barred_lock_reason
 from aidm.dm.parley_intent import ParleyIntent, parley_intent
+from aidm.dm.pay_intent import PayIntent, pay_intent
 from aidm.dm.rest_words import wordy_rest
 from aidm.dm.sentence import normalise, own_reading
 from aidm.dm.use_intent import UseIntent, item_phrase, light_first, use_intent
@@ -114,6 +117,7 @@ type Intent = (
     | TakeIntent
     | HelpUpIntent
     | GiveIntent
+    | PayIntent
     | HeroHandIntent
     | LiftIntent
     | ParleyIntent
@@ -263,6 +267,8 @@ def precheck(state: GameState, actor_id: str, text: str) -> Intent | None:
     if _INVENTORY.fullmatch(clean):
         return InventoryIntent(actor_id)
     given = lift_intent(state, actor_id, clean) or give_intent(state, actor_id, clean)
+    if given is None or (isinstance(given, GiveIntent) and not given.thing):
+        given = pay_intent(state, actor_id, clean) or given  # M29.9a T17: coins to an NPC
     if given is not None:
         return given
     handed = hand_intent(state, actor_id, clean)

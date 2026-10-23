@@ -160,6 +160,7 @@ class WorldNpc(BaseModel):
     dead: bool = False  # M20.5: their fight creature died; never present, never fought again
     keepsakes: list[Keepsake] = Field(default_factory=list[Keepsake])  # M23: handed to them
     gifts: list[str] = Field(default_factory=list[str])  # M29.6b: item keys that earned a deed
+    paid: int = Field(default=0, ge=0)  # M29.9a T17: gold the party paid them (pay steps)
 
 
 class PublicNpcView(BaseModel):

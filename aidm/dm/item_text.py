@@ -45,7 +45,10 @@ DARK_FIGHT = "It is dark here. Heroes without darkvision attack into dark zones 
 
 def _who(state: GameState, creature_id: str) -> str:
     creature = state.creatures.get(creature_id)
-    return creature.name if creature is not None else "someone"
+    if creature is not None:
+        return creature.name
+    npc = state.world.npcs.get(creature_id)  # M29.9a: gold paid to an NPC
+    return npc.name if npc is not None else "someone"
 
 
 def _lit(state: GameState, e: LightLit) -> str:

@@ -179,6 +179,10 @@ def _free(names: ActNames, draft: StepDraft) -> _Resolved:
     return {}, None
 
 
+def _pay(names: ActNames, draft: StepDraft) -> _Resolved:
+    raise _Unresolved("a pay step is asked as a favour in play, never planned")
+
+
 _RESOLVERS: dict[StepKind, Callable[[ActNames, StepDraft], _Resolved]] = {
     StepKind.VISIT: _visit,
     StepKind.CLEAR: _clear,
@@ -189,6 +193,7 @@ _RESOLVERS: dict[StepKind, Callable[[ActNames, StepDraft], _Resolved]] = {
     StepKind.WIN_OVER: _win_over,
     StepKind.LEARN: _learn,
     StepKind.FREE: _free,
+    StepKind.PAY: _pay,
 }
 
 

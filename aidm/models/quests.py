@@ -8,9 +8,10 @@ routes a plan writes. Plans without these fields (old saves) are derived by
 `aidm.rules.quest_check`, never here, so saved plans keep validating.
 
 Public API:
-- `QuestKind`: main / side / favour. `StepKind`: the 9 step kinds. `RouteKind`: force / peace /
+- `QuestKind`: main / side / favour. `StepKind`: the 10 step kinds (M29.9a `pay`: give an NPC
+  `gold` coins, a favour step). `RouteKind`: force / peace /
   cunning. `RouteEffect`: what a finished Cunning route does to the boss fight.
-- `QuestStep(kind, text, nodes, npc, item, count, hidden, band, tag)`: exactly the fields its
+- `QuestStep(kind, text, nodes, npc, item, count, hidden, band, tag, gold)`: exactly the fields its
   kind needs (`STEP_FIELDS`); `goal()` is the count shown as x/N (visit: its nodes, obtain: its
   count, else 1). `obtain` places `count` copies of `item` over `nodes` (1..count places).
 - `RoutePlan(id, kind, title, hint_npc_id, steps, effect)`: `effect` only (and always) on Cunning.
@@ -32,6 +33,7 @@ from aidm.models.dm_tiers import AttitudeBand
 MAX_STEP_TEXT = 100
 MAX_STEPS = 4
 MAX_STEP_COUNT = 5
+MAX_STEP_GOLD = 500
 MAX_TAG = 24
 FORCE_ROUTE_ID = "force"
 _REF = r"^[a-z0-9][a-z0-9-]*$"
@@ -55,6 +57,7 @@ class StepKind(StrEnum):
     WIN_OVER = "win_over"
     LEARN = "learn"
     FREE = "free"
+    PAY = "pay"
 
 
 class RouteKind(StrEnum):
@@ -74,6 +77,7 @@ STEP_FIELDS: dict[StepKind, tuple[frozenset[str], frozenset[str]]] = {
     StepKind.WIN_OVER: (frozenset({"npc", "band"}), frozenset()),
     StepKind.LEARN: (frozenset({"tag"}), frozenset()),
     StepKind.FREE: (frozenset(), frozenset()),
+    StepKind.PAY: (frozenset({"npc", "gold"}), frozenset()),
 }
 
 
@@ -91,6 +95,7 @@ class QuestStep(_Plan):
     hidden: bool = False
     band: AttitudeBand | None = None
     tag: str | None = Field(default=None, min_length=1, max_length=MAX_TAG)
+    gold: int = Field(default=0, ge=0, le=MAX_STEP_GOLD)  # M29.9a: a pay step's coins
 
     def given_fields(self) -> frozenset[str]:
         given = {
@@ -101,6 +106,7 @@ class QuestStep(_Plan):
             "hidden": self.hidden,
             "band": self.band is not None,
             "tag": self.tag is not None,
+            "gold": self.gold != 0,
         }
         return frozenset(name for name, present in given.items() if present)
 
