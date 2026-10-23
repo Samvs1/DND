@@ -53,11 +53,13 @@ class ErrorCapture(logging.Handler):
 
 
 class SimServer:
-    def __init__(self, seed: int, saves_dir: Path, *, live_ai: bool = False) -> None:
+    def __init__(
+        self, seed: int, saves_dir: Path, *, live_ai: bool = False, port: int | None = None
+    ) -> None:
         self.seed = seed
         self.saves_dir = saves_dir
         self.live_ai = live_ai
-        self.port = free_port()
+        self.port = port or free_port()
         self.capture = ErrorCapture()
         self._server: uvicorn.Server | None = None
         self._task: asyncio.Task[None] | None = None
