@@ -130,12 +130,15 @@ def _in_fight(state: GameState) -> bool:
     return enc is not None and enc.status is EncounterStatus.ACTIVE
 
 
-def _dark_problem(state: GameState, actor: Creature, gear: str) -> str | None:
+def _dark_problem(state: GameState, actor: Creature, gear: str, item: str) -> str | None:
     """A light is lit anywhere (M27.6, owner: it is carried into the next dark place); only a
-    hero who already carries a lit light cannot light a second one."""
+    hero who already carries a lit light cannot light a second one (M29.7a R17: the same light
+    is told as already lit)."""
     own = hero_light(state, actor.id)
     if own is not None:
         carried = gear_name(own.item).lower()
+        if own.item == item:
+            return f"{actor.name} already carries a lit {carried}: it is already lit."
         return f"{actor.name} already carries a lit {carried}; the {gear} changes nothing."
     return None
 
@@ -183,7 +186,7 @@ def situation_problem(
         if problem is not None:
             return problem
     if use.when == "dark_place":
-        return _dark_problem(state, actor, gear)
+        return _dark_problem(state, actor, gear, use.item)
     if use.when == "tagged_place":
         return _tag_problem(state, use, gear)
     if use.when == "long_rest" and not resting:

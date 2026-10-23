@@ -9,8 +9,8 @@ commands). Intents carry ids only; the session executes them through the rules.
 
 Public API:
 - Intents (frozen): `RestIntent(kind)` (`RestKind` SHORT/LONG), `ShopIntent(npc_id)`,
-  `TravelIntent(node_id)`, `ItemIntent(actor_id, action, item)` (`ItemAction`
-  EQUIP/UNEQUIP/DROP, `item` is the inventory index), `InventoryIntent(actor_id)`,
+  `TravelIntent(node_id)`, `ItemIntent` (equip / unequip / drop, `aidm.dm.equip_intent`),
+  `InventoryIntent(actor_id)`,
   `LookIntent(text)` (the deterministic description, `look_around_text`),
   `TakeIntent(actor_id, item_id)` (M19.3: "pick up / take / grab <a visible item here>"),
   `HelpUpIntent(actor_id, target_id)` (M20.2: "help her up", "wake <a downed hero>";
@@ -38,15 +38,16 @@ import re
 from dataclasses import dataclass
 from enum import StrEnum
 
-from aidm.dm.entities import display_name
+from aidm.dm.equip_intent import ItemIntent, item_command
 from aidm.dm.give_intent import GiveIntent, give_intent
 from aidm.dm.hand_intent import HeroHandIntent, hand_intent
 from aidm.dm.heal_intent import HealIntent, heal_intent
 from aidm.dm.help_intent import HelpUpIntent, help_up_intent
 from aidm.dm.rest_words import wordy_rest
-from aidm.dm.use_intent import UseIntent, item_phrase, use_intent
+from aidm.dm.sentence import normalise, own_reading
+from aidm.dm.use_intent import UseIntent, item_phrase, light_first, use_intent
 from aidm.models.encounter import EncounterStatus
-from aidm.models.state import Creature, GameState
+from aidm.models.state import GameState
 from aidm.models.world import WorldNpc
 from aidm.rules.gateway_lock import locked_reason, short_reason
 from aidm.rules.scene import SceneView, current_scene, node_display_name
@@ -56,12 +57,6 @@ from aidm.rules.world_graph import legal_neighbours
 class RestKind(StrEnum):
     SHORT = "short"
     LONG = "long"
-
-
-class ItemAction(StrEnum):
-    EQUIP = "equip"
-    UNEQUIP = "unequip"
-    DROP = "drop"
 
 
 @dataclass(frozen=True)
@@ -77,13 +72,6 @@ class ShopIntent:
 @dataclass(frozen=True)
 class TravelIntent:
     node_id: str
-
-
-@dataclass(frozen=True)
-class ItemIntent:
-    actor_id: str
-    action: ItemAction
-    item: str
 
 
 @dataclass(frozen=True)
@@ -139,10 +127,6 @@ SHOP_ROLES = (
     "quartermaster",
 )
 
-_SUBJECT = re.compile(
-    r"^(?:please |ok |okay )?(?:(?:i|we)(?: will| shall|'ll| want to| would like to)?|let'?s|"
-    r"let us)\s+"
-)
 _SHORT = re.compile(
     r"(?:take |have )?(?:a )?short rest|rest (?:for )?(?:an|one|a) hour|"
     r"(?:catch (?:our|my) breath|take a breather)"
@@ -161,13 +145,6 @@ _TRAVEL = re.compile(
     r"(?:go|travel|head|walk|move|return|journey|ride|set off|set out|proceed|make (?:our|my) way)"
     r"(?: back)? (?:to|towards?|into|for) (?:the )?(?P<dest>[a-z0-9' -]+)"
 )
-_EQUIP = re.compile(
-    r"(?:equip|wield|don|put on|wear|ready) (?:my |the |a |an )?(?P<item>[a-z ,'-]+)"
-)
-_UNEQUIP = re.compile(
-    r"(?:unequip|unwield|sheathe|stow|put away|take off|doff) (?:my |the )?(?P<item>[a-z ,'-]+)"
-)
-_DROP = re.compile(r"(?:drop|discard|throw away) (?:my |the |a |an )?(?P<item>[a-z ,'-]+)")
 _TAKE = re.compile(
     r"(?:pick up|take|grab|collect|retrieve|scoop up|pocket|lift|get) (?:up )?"
     r"(?:the |a |an |that |this )?(?P<item>[a-z0-9 ,'-]+?)(?: up)?"
@@ -203,13 +180,7 @@ def asks_what_now(state: GameState, actor_id: str, text: str) -> bool:
     clean = " ".join(text.lower().replace("’", "'").split()).strip(" .!?")
     if _WHAT_NOW.fullmatch(clean) is None:
         return False
-    return help_up_intent(state, actor_id, _normalise(text)) is None
-
-
-def _normalise(text: str) -> str:
-    clean = " ".join(text.lower().replace("’", "'").split())
-    clean = clean.rstrip(".!?").removesuffix(" please").strip()
-    return _SUBJECT.sub("", clean, count=1).strip()
+    return help_up_intent(state, actor_id, normalise(text)) is None
 
 
 def _words(name: str) -> frozenset[str]:
@@ -252,40 +223,6 @@ def _shop(state: GameState, scene: SceneView, who: str | None) -> ShopIntent | N
     return ShopIntent(current.id)
 
 
-def _equipped(pc: Creature) -> list[str]:
-    assert pc.pc is not None
-    eq = pc.pc.equipped
-    return [s for s in (eq.main_hand, eq.off_hand, eq.ranged, eq.armor, eq.shield) if s]
-
-
-def _item(actor: Creature, action: ItemAction, name: str) -> ItemIntent | None:
-    if actor.pc is None:
-        return None
-    pool = (
-        _equipped(actor) if action is ItemAction.UNEQUIP else [i.item for i in actor.pc.inventory]
-    )
-    wanted = _words(name)
-    for index in pool:
-        if wanted in (_words(index), _words(display_name(index))):
-            return ItemIntent(actor.id, action, index)
-    return None
-
-
-def _item_command(state: GameState, actor_id: str, text: str) -> ItemIntent | None:
-    actor = state.creatures.get(actor_id)
-    if actor is None:
-        return None
-    for action, pattern in (
-        (ItemAction.EQUIP, _EQUIP),
-        (ItemAction.UNEQUIP, _UNEQUIP),
-        (ItemAction.DROP, _DROP),
-    ):
-        match = pattern.fullmatch(text)
-        if match:
-            return _item(actor, action, match["item"])
-    return None
-
-
 def _take(state: GameState, scene: SceneView, actor_id: str, name: str) -> TakeIntent | None:
     wanted = _words(name)
     for item_id in scene.item_ids:
@@ -298,7 +235,9 @@ def _take(state: GameState, scene: SceneView, actor_id: str, name: str) -> TakeI
 def precheck(state: GameState, actor_id: str, text: str) -> Intent | None:
     if _in_fight(state):
         return None
-    clean = _normalise(text)
+    actor = state.creatures.get(actor_id)
+    clean = normalise(text)
+    clean = own_reading(actor.name, clean) if actor is not None else clean
     if not clean:
         return None
     helped = help_up_intent(state, actor_id, clean)
@@ -331,22 +270,22 @@ def precheck(state: GameState, actor_id: str, text: str) -> Intent | None:
     travel = _TRAVEL.fullmatch(clean)
     if travel:
         return _travel(state, scene, travel["dest"])
-    item = _item_command(state, actor_id, clean)
-    used = use_intent(state, actor_id, clean) if item is None else None
+    found = item_command(state, actor_id, clean) or light_first(state, actor_id, clean)
+    found = found or use_intent(state, actor_id, clean)
     take = _TAKE.fullmatch(clean)
-    if used is None and item is None and take:
+    if found is None and take:
         return _take(state, scene, actor_id, take["item"] or take["item2"])
-    return item or used
+    return found
 
 
 def gear_intent(state: GameState, actor_id: str, text: str) -> UseIntent | None:
-    clean = _normalise(text)
+    clean = normalise(text)
     return use_intent(state, actor_id, clean) if clean else None
 
 
 def gear_phrase(text: str) -> tuple[str, bool] | None:
     """The gear a throw or use sentence names, and whether it is said as the hero's own."""
-    clean = _normalise(text)
+    clean = normalise(text)
     return item_phrase(clean) if clean else None
 
 

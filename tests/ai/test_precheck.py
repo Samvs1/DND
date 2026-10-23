@@ -2,11 +2,10 @@
 
 import pytest
 
+from aidm.dm.equip_intent import ItemAction, ItemIntent
 from aidm.dm.precheck import (
     BarredIntent,
     InventoryIntent,
-    ItemAction,
-    ItemIntent,
     LookIntent,
     RestIntent,
     RestKind,

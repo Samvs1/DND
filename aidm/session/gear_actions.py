@@ -5,7 +5,12 @@
   and the narrator tells them (`telling.conclude`; the engine lines of `dm.item_text` go out as
   they apply). A refused use returns False: the caller hands the words to the adjudicator, which
   tells the attempt (the model meets the same refusal through `use_item`). A put-out with no
-  light gets a notice. A long-rest use (herbalism) proposes the long rest WITH the crafting.
+  light gets a notice; M29.7a R17: a refused lighting ("Rook already carries a lit torch: it is
+  already lit.") is told as an engine line, never handed to the storyteller. A long-rest use
+  (herbalism) proposes the long rest WITH the crafting.
+- `first_act(core, player, intent) -> list[AnyEvent]` (M29.7a R17, the light or put-out of a
+  compound sentence): the events applied (not yet told: the caller tells them with the other
+  act), or the refusal told as above and nothing applied.
 - `rest_with_crafts(core, crafts) -> Job`: the long rest, then each `(hero, item)` long-rest use
   with `resting=True`; a craft the rules refuse after the rest (supplies spent by the rest, no
   proficiency) is told as a notice and nothing is made.
@@ -17,7 +22,7 @@
   returns False and keeps the fight's own path (the AI meets the same refusal). Anything else
   returns False.
 
-Public API: `use_intent`, `rest_with_crafts`, `fight_gear`.
+Public API: `use_intent`, `first_act`, `rest_with_crafts`, `fight_gear`.
 """
 
 import random
@@ -36,7 +41,7 @@ from aidm.rules.rests import RestRefused, long_rest, rest_refused_text
 from aidm.session import combat_flow, votes
 from aidm.session.declared import declare
 from aidm.session.table_core import Job, Player, TableCore
-from aidm.session.telling import conclude
+from aidm.session.telling import conclude, remember, tell_text
 from aidm.session.views import public_combat
 
 _LIGHT_VERBS = ("light", "ignite", "kindle")
@@ -70,12 +75,31 @@ async def use_intent(core: TableCore, player: Player, intent: UseIntent) -> bool
     events = _events(core, intent)
     refused = _refusal(events)
     if refused is not None:
-        if intent.put_out:
-            core.notice(player.id, NoticeKind.REFUSED, refused)
-        return intent.put_out
+        return await _refused(core, player, intent, refused)
     applied = core.apply_all(events)
     await conclude(core, None, applied, actor_id=intent.actor_id)
     return True
+
+
+async def _refused(core: TableCore, player: Player, intent: UseIntent, refused: str) -> bool:
+    """A put-out with no light is a notice, a refused lighting an engine line; any other
+    refusal goes back to the caller (False: the adjudicator tells the attempt)."""
+    if intent.put_out:
+        core.notice(player.id, NoticeKind.REFUSED, refused)
+        return True
+    if intent.verb in _LIGHT_VERBS:
+        await remember(core, await tell_text(core, refused))
+        return True
+    return False
+
+
+async def first_act(core: TableCore, player: Player, intent: UseIntent) -> list[AnyEvent]:
+    events = _events(core, intent)
+    refused = _refusal(events)
+    if refused is not None:
+        await _refused(core, player, intent, refused)
+        return []
+    return core.apply_all(events)
 
 
 def rest_with_crafts(core: TableCore, crafts: tuple[tuple[str, str], ...]) -> Job:

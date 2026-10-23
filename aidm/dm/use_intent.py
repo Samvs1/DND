@@ -4,8 +4,11 @@
 `use_intent(state, actor_id, clean)` reads the precheck's normalised sentence and returns a
 `UseIntent` when it plainly uses gear the actor carries (`aidm.dm.gear_words`):
 - "put out my torch", "douse the torch", "extinguish the lantern", "snuff out the candle",
-  "put my torch out", "put out my light": `put_out` (the hero's carried light; free);
+  "put my torch out", "put out my light" (M29.7a R17: also pinch out, blow out, quench, shutter
+  or cover the lantern): `put_out` (the hero's carried light; free);
 - "light my torch", "ignite the lantern", "light a candle": a use with that verb;
+  M29.7a: a purpose after the light ("light a candle to see", "douse the light so we can
+  creep") is dropped;
 - "throw the oil at Z", "scatter the caltrops at Z": a use with the verb, aimed at Z (M27.6:
   "throw my torch at Z" also finds the hero's lit torch; a verb that picks some of an item's
   several uses sets `use_id` to the one for the target: "light" vs "throw" the torch, at a
@@ -23,13 +26,17 @@ becomes its zone for gear that covers a zone); a target that names nothing known
 None and goes on to the adjudicator. The rules decide (`aidm.rules.item_use.use_item`,
 `aidm.rules.light.put_out`).
 
-Public API: `UseIntent(actor_id, item, target, verb, put_out, at_rest, use_id)`,
-`use_intent(state, actor_id, clean) -> UseIntent | None`,
+`light_first(state, actor_id, clean)` (M29.7a R17): a compound sentence ("light a candle to see,
+then look around", "pinch out the candle and we crouch low") whose FIRST act lights or puts out
+a light is that intent with `rest`, the other act (the session does both).
+
+Public API: `UseIntent(actor_id, item, target, verb, put_out, at_rest, use_id, rest)`,
+`use_intent(state, actor_id, clean) -> UseIntent | None`, `light_first(...) -> UseIntent | None`,
 `item_phrase(clean) -> (phrase, mine) | None`.
 """
 
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from aidm.data.item_uses import (
     CastSpell,
@@ -43,6 +50,7 @@ from aidm.data.item_uses import (
     uses_for_item,
 )
 from aidm.dm.gear_words import carried_entry, fits, held_gear, lock_named, words
+from aidm.dm.sentence import split_clause
 from aidm.models.encounter import EncounterStatus
 from aidm.models.state import Creature, GameState
 from aidm.rules.item_effects import gear_name
@@ -53,8 +61,9 @@ _THE = r"(?:my |the |a |an |our |this |that |some |his |her |their )?"
 _THING = r"(?P<item>[a-z0-9 ,'-]+?)"
 _AT = r"(?: (?:on|at|onto|into|against|to|toward|towards) (?:the |a |an |that |this )?"
 _PUT_OUT = re.compile(
-    rf"(?:put out|douse|extinguish|snuff out|snuff|blow out|smother) {_THE}{_THING}|"
-    rf"put {_THE}(?P<item2>[a-z0-9 ,'-]+?) out"
+    r"(?:put out|douse|extinguish|snuff out|snuff|blow out|smother|pinch out|pinch|quench|"
+    rf"shutter|cover|hood|close the shutter of|close the shutters of) {_THE}{_THING}|"
+    rf"(?:put|pinch|blow|snuff) {_THE}(?P<item2>[a-z0-9 ,'-]+?) out"
 )
 _LIGHT = re.compile(rf"(?P<verb>light|ignite|kindle) (?:up )?{_THE}{_THING}(?: up)?")
 _THROW = re.compile(
@@ -70,7 +79,9 @@ _CRAFT = re.compile(
     rf"(?P<verb>brew|craft) {_THE}(?P<what>[a-z0-9' -]+?)"
     rf"(?: (?:with|using) {_THE}(?P<item>[a-z0-9 ,'-]+))?"
 )
-_LIGHT_WORDS = frozenset({"light", "flame", "fire"})
+_LIGHT_WORDS = frozenset({"light", "flame", "fire", "wick"})
+_PURPOSE = re.compile(r" (?:so that|so|to|in order to|because|before|while|for) .+$")
+_LIGHTS = frozenset({"light", "ignite", "kindle"})
 _THROWS = frozenset({"throw", "hurl", "toss", "lob", "pour", "spill", "splash"})
 _TAKES = (ConditionUse, Stabilize, DamageUse, CastSpell)  # uses that take a creature
 _SAME_VERB = {
@@ -91,6 +102,7 @@ class UseIntent:
     put_out: bool = False
     at_rest: bool = False
     use_id: str | None = None  # M27.6: the use a verb picks ("throw" the torch, not "light")
+    rest: str | None = None  # M29.7a: the other act of a compound sentence
 
 
 def _fight(state: GameState) -> bool:
@@ -211,8 +223,11 @@ def use_intent(state: GameState, actor_id: str, clean: str) -> UseIntent | None:
     actor = state.creatures.get(actor_id)
     if actor is None or actor.pc is None:
         return None
-    if m := _PUT_OUT.fullmatch(clean):
+    aim = _PURPOSE.sub("", clean) if split_clause(clean) is None else clean
+    if m := _PUT_OUT.fullmatch(aim):
         return _put_out(state, actor, m["item"] or m["item2"])
+    if m := _LIGHT.fullmatch(aim):
+        return _with_verb(state, actor, held_gear(state, actor, m["item"]), m["verb"], None)
     for pattern in (_LIGHT, _THROW, _READ, _OPEN):
         if m := pattern.fullmatch(clean):
             target = m["target"] if "target" in pattern.groupindex else None
@@ -223,6 +238,16 @@ def use_intent(state: GameState, actor_id: str, clean: str) -> UseIntent | None:
         item = carried_entry(actor, m["item"]) if m["item"] else _crafter(actor, m["verb"])
         return _with_verb(state, actor, item, m["verb"], None)
     return None
+
+
+def light_first(state: GameState, actor_id: str, clean: str) -> UseIntent | None:
+    cut = split_clause(clean)
+    if cut is None:
+        return None
+    found = use_intent(state, actor_id, cut[0])
+    if found is None or not (found.put_out or found.verb in _LIGHTS):
+        return None
+    return replace(found, rest=cut[1])
 
 
 def item_phrase(clean: str) -> tuple[str, bool] | None:

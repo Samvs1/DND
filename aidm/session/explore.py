@@ -28,8 +28,11 @@ Public API: `submit_action`, `kick_resolver`, `resolve_next`, `resolve_action`,
 `adjudicated`, `confirm_hostile`, `cancel_hostile`, `inventory_text`.
 """
 
+from collections.abc import Sequence
+
 from aidm.dm.adjudicator import AdjudicationOptions, AdjudicationResult, adjudicate
 from aidm.dm.combat_intent import combat_move
+from aidm.dm.equip_intent import ItemIntent
 from aidm.dm.fight_intent import FightCommand, fight_command
 from aidm.dm.give_intent import GiveIntent
 from aidm.dm.hand_intent import HeroHandIntent
@@ -39,7 +42,6 @@ from aidm.dm.llm_types import ToolCall
 from aidm.dm.precheck import (
     BarredIntent,
     InventoryIntent,
-    ItemIntent,
     LookIntent,
     RestIntent,
     RestKind,
@@ -53,6 +55,7 @@ from aidm.dm.tool_context import ToolContext
 from aidm.dm.tool_exec import execute_tool
 from aidm.dm.use_intent import UseIntent
 from aidm.models.commands import DashCommand, MoveCommand
+from aidm.models.events import AnyEvent
 from aidm.models.protocol_client import SubmitAction
 from aidm.models.protocol_server import (
     ErrorCode,
@@ -240,8 +243,7 @@ async def resolve_action(core: TableCore, entry: QueueEntry) -> None:
     elif isinstance(intent, HeroHandIntent):
         await hand_over.hand_intent(core, player, intent)
     elif isinstance(intent, UseIntent):
-        if not await gear_actions.use_intent(core, player, intent):
-            await adjudicated(core, entry)
+        await _gear_use(core, player, entry, intent)
     elif isinstance(intent, HealIntent):
         await heal_actions.heal_intent(core, player, intent)
     elif isinstance(intent, TravelIntent):
@@ -257,6 +259,17 @@ async def resolve_action(core: TableCore, entry: QueueEntry) -> None:
         _shop_intent(core, player, entry, intent)
 
 
+async def _gear_use(core: TableCore, player: Player, entry: QueueEntry, intent: UseIntent) -> None:
+    """A typed gear use; M29.7a R17: "light a candle, then look around" lights it (or says why
+    not in an engine line) AND the other act goes to the adjudicator, told together."""
+    if intent.rest is None:
+        if not await gear_actions.use_intent(core, player, intent):
+            await adjudicated(core, entry)
+        return
+    prior = await gear_actions.first_act(core, player, intent)
+    await adjudicated(core, entry.model_copy(update={"text": intent.rest}), prior=prior)
+
+
 def _shop_intent(core: TableCore, player: Player, entry: QueueEntry, intent: ShopIntent) -> None:
     npc = core.state.world.npcs[intent.npc_id]
     job = party_actions.shop_job(core, entry.creature_id, intent.npc_id)
@@ -269,7 +282,11 @@ def _propose(core: TableCore, player: Player, kind: VoteKind, detail: str, job: 
 
 
 async def adjudicated(
-    core: TableCore, entry: QueueEntry, *, creative: bool = False
+    core: TableCore,
+    entry: QueueEntry,
+    *,
+    creative: bool = False,
+    prior: Sequence[AnyEvent] = (),
 ) -> AdjudicationResult:
     result = await adjudicate(
         core.state,
@@ -284,7 +301,7 @@ async def adjudicated(
     if result.pending is not None and result.pending_call is not None:
         await _hold(core, entry, result.pending_call, result.pending.prompt)
         return result
-    events = list(result.events)
+    events = [*prior, *result.events]
     for done in result.executed:  # M19.2: a fight opened with a weapon attack rolls it now
         events += strike_if_opening(core, done.call, entry.creature_id, done.result.events)
     events = await conclude(
