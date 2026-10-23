@@ -18,6 +18,7 @@ Public API: `unpaid_coin`, `claimed_items`, `unmade_handover`, `unlit_light`.
 
 import re
 
+from aidm.dm.guard_light import singular_light
 from aidm.dm.guard_scene import GuardScene, words_of
 from aidm.dm.guard_text import QUOTE_MARKS, Token, find_phrases, is_negated
 from aidm.dm.guard_types import Violation, ViolationKind
@@ -97,10 +98,14 @@ def unmade_handover(sentence: str, tokens: list[Token], scene: GuardScene) -> li
 
 def unlit_light(sentence: str, tokens: list[Token], scene: GuardScene) -> list[Violation]:
     truth, lex = scene.turn, scene.lexicon
-    if not truth.checked or truth.lit or not find_phrases(sentence, lex.light_nouns):
+    nouns = find_phrases(sentence, lex.light_nouns)
+    if not truth.checked or truth.lit or not nouns:
         return []
     claim = _first_unnegated(sentence, tokens, lex.light_claims, scene, span=2)
     if claim is None:
         return []
+    burning = any(singular_light(m.group(0)) in truth.burning for m in nouns)
+    if burning and claim.group(0).casefold() in lex.light_on_claims:
+        return []  # M29.7b: a light already burning is told burning, honestly
     detail = "no light was lit: no engine event kindled it"
     return [Violation(ViolationKind.UNLIT_LIGHT, claim.group(0), detail)]

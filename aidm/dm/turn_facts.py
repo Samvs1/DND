@@ -12,29 +12,29 @@ model tells attempts as attempts:
 - a thing the player used as the hero's own that the hero does not carry
   (`aidm.dm.guard_turn.claimed_things`): told as reached for and not found;
 - a payment, sale, hand-over or lighting the player's words asked for that no event made;
-- travel to a place the map does not know (G10): nobody goes anywhere, no other place stands in.
+- travel to a place the map does not know (G10): nobody goes anywhere, no other place stands in;
+- M29.7b: who acted at whom with what outcome and who did nothing (`aidm.dm.fight_ledger`), and
+  the world facts of `aidm.dm.turn_facts_world` (the place really reached, lights, pick-ups, the
+  party's size and who is still hurt).
 The same truth is enforced by THE guard (`aidm.dm.guard_turn`, `guard_truth`, `guard_goods`).
 
 Public API: `turn_facts(state, events, *, actor_id, player_text) -> list[str]`.
 """
 
-import re
 from collections import Counter
 from collections.abc import Sequence
 
 from aidm.data.guard_lexicon import guard_lexicon
+from aidm.dm.fight_ledger import fight_lines
 from aidm.dm.guard_text import find_phrases, plain
 from aidm.dm.guard_turn import TurnTruth, turn_truth
+from aidm.dm.turn_facts_world import world_facts
+from aidm.dm.turn_world import TRAVEL
 from aidm.dm.wording import attack_label, counted
 from aidm.models import events as ev
 from aidm.models.combat_events import AttackRolled
 from aidm.models.encounter import EncounterStatus, Side
 from aidm.models.state import GameState
-
-_TRAVEL = re.compile(
-    r"\b(?:go|goes|travel|travels|head|heads|walk|walks|journey|journeys|ride|rides)"
-    r"(?: back)? (?:to|towards?|into|for) (?:the )?(?P<dest>[a-z0-9' -]{3,})"
-)
 
 
 def _weapon_facts(state: GameState, events: Sequence[ev.AnyEvent]) -> list[str]:
@@ -88,6 +88,30 @@ def _foes_left(state: GameState) -> list[str]:
     return [f"Foes still standing in this fight (each is up and fighting): {told}."]
 
 
+def _actor_facts(state: GameState, truth: TurnTruth, events: Sequence[ev.AnyEvent]) -> list[str]:
+    """M29.7b (R19): who acted, at whom, with what outcome, and who did nothing this turn."""
+    ledger = truth.fight
+    if not ledger.active or not (truth.in_fight or ledger.acted):
+        return []
+    idle = sorted(
+        {
+            name
+            for cid, name in ledger.names.items()
+            if cid not in ledger.acted and cid in state.creatures and not state.creatures[cid].dead
+        }
+    )
+    out: list[str] = []
+    lines = fight_lines(state, ledger, events)
+    if lines:
+        out.append(f"Actions of these events, exactly as resolved: {'; '.join(lines)}.")
+    if idle and ledger.acted:
+        out.append(
+            f"Did nothing in these events (no swing, shot, charge, bite, spell or hit from them;"
+            f" tell no blow by them): {', '.join(idle)}."
+        )
+    return out
+
+
 def _fight_facts(truth: TurnTruth) -> list[str]:
     out: list[str] = []
     if truth.in_fight and not truth.blows:
@@ -124,13 +148,14 @@ def _goods_facts(state: GameState, truth: TurnTruth, actor_id: str | None, text:
             f"Nothing changed hands: {who} still holds everything they carried, and nobody"
             " took, accepted or now holds anything of theirs."
         )
-    if _asked(text, lex.kindle_words) and _asked(text, lex.light_nouns) and not truth.lit:
+    kindle = _asked(text, lex.kindle_words) and _asked(text, lex.light_nouns)
+    if kindle and not truth.lit:
         out.append("No new light was lit by this action: no torch, lantern or candle caught flame.")
     return out
 
 
 def _travel_facts(state: GameState, text: str, events: Sequence[ev.AnyEvent]) -> list[str]:
-    m = _TRAVEL.search(text)
+    m = TRAVEL.search(text)
     if m is None or any(e.type == "party_moved" for e in events):
         return []
     dest = m.group("dest").strip()
@@ -153,7 +178,8 @@ def turn_facts(
     truth = turn_truth(state, events, actor_id=actor_id, player_text=player_text)
     text = plain(player_text or "").casefold()
     out = [*_weapon_facts(state, events), *_hurt_facts(state, events), *_foes_left(state)]
-    out += _fight_facts(truth)
+    out += _actor_facts(state, truth, events) + _fight_facts(truth)
     if text:
         out += _goods_facts(state, truth, actor_id, text) + _travel_facts(state, text, events)
+    out += world_facts(state, truth, text, events)
     return out

@@ -5,7 +5,8 @@ Public API:
   ABSENT_NPC, INVENTED_CROWD, ERASED_PRESENT, SECRET_LEAK (M4.7), LIVING_DECLARED_DEAD and
   UNEARNED_REWARD (M4.8), UNHURT_DECLARED_DOWN (M19.1); M29.5c: UNRESOLVED_BLOW, WRONG_WEAPON,
   UNHURT_WOUNDED, UNPAID, CLAIMED_ITEM, UNMADE_HANDOVER, UNLIT_LIGHT, PLACEHOLDER,
-  INSTRUCTION_LEAK;
+  INSTRUCTION_LEAK; M29.7b: PHANTOM_BLOW, PHANTOM_HIT, FALSE_MISS, WRONG_KILLER, LIGHT_STATE,
+  SHORT_TRAVEL, UNMADE_PICKUP, WRONG_COUNT, HURT_TOLD_WHOLE, IDENTIFIER;
   `SCRUBBED_KINDS` (names removed from a retry).
 - `Violation(kind, span, detail)`: `span` is the offending text as written (a name, a phrase).
 - `GuardReport(violations)`: `ok`, `scrub_terms` (distinct offending names, removed from the
@@ -48,6 +49,16 @@ class ViolationKind(StrEnum):
     UNLIT_LIGHT = "unlit_light"
     PLACEHOLDER = "placeholder"
     INSTRUCTION_LEAK = "instruction_leak"
+    PHANTOM_BLOW = "phantom_blow"  # M29.7b: per creature, place, light, people
+    PHANTOM_HIT = "phantom_hit"
+    FALSE_MISS = "false_miss"
+    WRONG_KILLER = "wrong_killer"
+    LIGHT_STATE = "light_state"
+    SHORT_TRAVEL = "short_travel"
+    UNMADE_PICKUP = "unmade_pickup"
+    WRONG_COUNT = "wrong_count"
+    HURT_TOLD_WHOLE = "hurt_told_whole"
+    IDENTIFIER = "identifier"
 
 
 SCRUBBED_KINDS = frozenset({ViolationKind.UNKNOWN_NAME, ViolationKind.ABSENT_NPC})

@@ -10,7 +10,9 @@ narration (`aidm.dm.narrator.record_narration`) and, when True, applies `summari
 the SUMMARIZE context pack (manifest with ids, no NPC private data) plus the narrated turns to
 cover. The engine then disposes: the summary and title must pass THE guard
 (`aidm.dm.guard.prose_checker`, limited to `SUMMARY_GUARD_KINDS`: a past-tense recap legitimately
-names people of an earlier scene and creatures that died), at most `MAX_SUMMARY_SENTENCES`
+names people of an earlier scene and creatures that died; M29.7b adds the place not reached and,
+for a one-turn summary, hand-overs and pick-ups no event made: `ONE_TURN_GUARD_KINDS`), at most
+`MAX_SUMMARY_SENTENCES`
 sentences are kept, entity ids must be known (`aidm.dm.tool_exec_ledger.known_entity_ids`),
 a fact keeps only known ids and is dropped without any (or when its text fails the guard), at
 most `MAX_SUMMARY_FACTS` facts.
@@ -22,11 +24,12 @@ Retrieval: the context builder ranks facts with `aidm.dm.context_sections.releva
 (top-k by entity-id overlap, ties by recency): the ONE retrieval function.
 
 Public API: `SUMMARY_EVERY_TURNS`, `MAX_SUMMARY_SENTENCES`, `MAX_SUMMARY_FACTS`, `SUMMARY_TAG`,
-`SUMMARY_GUARD_KINDS`, `SummaryFact`, `SummaryDraft`, `summary_checker(state, events)`,
+`SUMMARY_GUARD_KINDS`, `ONE_TURN_GUARD_KINDS`, `SummaryFact`, `SummaryDraft`,
+`summary_checker(state, events, *, player_text)`,
 `SummaryOutcome(summary, events, failure, dropped)`,
 `scene_ended(state, events=())`, `should_summarise(state, events=())`,
 `summary_messages(state, events, budget_tokens)`, `async summarise(state, llm, *, events,
-budget_tokens) -> SummaryOutcome`.
+budget_tokens, player_text) -> SummaryOutcome`.
 """
 
 from collections.abc import Sequence
@@ -66,8 +69,13 @@ SUMMARY_GUARD_KINDS = frozenset(
         ViolationKind.ITEM_DESTROYED,
         ViolationKind.UNLISTED_FEATURE,
         ViolationKind.SECRET_LEAK,
+        ViolationKind.SHORT_TRAVEL,  # M29.7b R2: the place not reached this turn
+        ViolationKind.IDENTIFIER,
     }
 )
+# M29.7b R12: a one-turn summary covers exactly the events it is checked with, so a hand-over or
+# pick-up no event made is not recorded either (a longer one may recap an earlier turn's).
+ONE_TURN_GUARD_KINDS = frozenset({ViolationKind.UNMADE_HANDOVER, ViolationKind.UNMADE_PICKUP})
 SUMMARY_RULES = (
     "Summarise ONLY the narrated turns listed above in 2 to 4 plain past-tense sentences."
     " Name only entities listed in the manifest; invent nothing. title: 3 to 6 words in"
@@ -129,12 +137,16 @@ def summary_messages(
     return [*to_messages(pack), {"role": "user", "content": extra}]
 
 
-def summary_checker(state: GameState, events: Sequence[AnyEvent] = ()) -> ProseCheck:
-    base = prose_checker(state, events)
+def summary_checker(
+    state: GameState, events: Sequence[AnyEvent] = (), *, player_text: str | None = None
+) -> ProseCheck:
+    base = prose_checker(state, events, player_text=player_text)
+    one_turn = state.memory.turns_since_summary <= 1
+    kinds = SUMMARY_GUARD_KINDS | (ONE_TURN_GUARD_KINDS if one_turn else frozenset())
 
     def check(text: str) -> GuardReport:
         found = base(text).violations
-        return GuardReport(tuple(v for v in found if v.kind in SUMMARY_GUARD_KINDS))
+        return GuardReport(tuple(v for v in found if v.kind in kinds))
 
     return check
 
@@ -166,9 +178,9 @@ def _facts(
 
 
 def _from_draft(
-    state: GameState, draft: SummaryDraft, events: Sequence[AnyEvent]
+    state: GameState, draft: SummaryDraft, events: Sequence[AnyEvent], player_text: str | None
 ) -> SummaryOutcome | None:
-    check = summary_checker(state, events)
+    check = summary_checker(state, events, player_text=player_text)
     sentences = split_sentences(draft.summary)[:MAX_SUMMARY_SENTENCES]
     text = " ".join(sentences)
     if not text or not check(text).ok:
@@ -198,12 +210,13 @@ async def summarise(
     *,
     events: Sequence[AnyEvent] = (),
     budget_tokens: int = DEFAULT_BUDGET_TOKENS,
+    player_text: str | None = None,
 ) -> SummaryOutcome:
     messages = summary_messages(state, events, budget_tokens)
     draft = await llm.structured(messages, SummaryDraft, LlmRole.FAST)
     failure = draft if isinstance(draft, LlmFailure) else None
     if not isinstance(draft, LlmFailure):
-        built = _from_draft(state, draft, events)
+        built = _from_draft(state, draft, events, player_text)
         if built is not None:
             return built
     facts = fallback_facts(state, events)

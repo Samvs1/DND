@@ -100,12 +100,18 @@ async def tell_text(
     return text
 
 
-async def remember(core: TableCore, text: str, events: Sequence[AnyEvent] = ()) -> None:
+async def remember(
+    core: TableCore,
+    text: str,
+    events: Sequence[AnyEvent] = (),
+    *,
+    player_text: str | None = None,
+) -> None:
     recorded = record_narration(core.state, text)
     if recorded is not None:
         core.apply(recorded)
     if not core.combat_active() and should_summarise(core.state, events):
-        outcome = await summarise(core.state, core.llm, events=events)
+        outcome = await summarise(core.state, core.llm, events=events, player_text=player_text)
         core.apply_all(list(outcome.events))
 
 
@@ -156,7 +162,7 @@ async def conclude(
             events=every,
         )
         text = f"{text} {await tell(core, voice)}"
-    await remember(core, text, every)
+    await remember(core, text, every, player_text=player_text)
     offer = public_offer(core.state)
     if offer is not None and any(isinstance(e, EncounterOffered) for e in every):
         core.broadcast(EncounterOfferMsg(offer=offer))

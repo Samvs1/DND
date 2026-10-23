@@ -20,6 +20,7 @@ from dataclasses import dataclass, field
 from aidm.data.guard_lexicon import GuardLexicon, guard_lexicon
 from aidm.dm.entities import display_name, entity_registry
 from aidm.dm.guard_alive import downed_terms, living_terms, standing_terms
+from aidm.dm.guard_people import people_facts
 from aidm.dm.guard_rewards import rewarded
 from aidm.dm.guard_secrets import SecretKey, secret_keys
 from aidm.dm.guard_text import plain
@@ -71,6 +72,12 @@ class GuardScene:
     other_places: dict[str, str] = field(default_factory=dict[str, str])
     locked: dict[str, str] = field(default_factory=dict[str, str])  # M27.5: word -> feature
     turn: TurnTruth = field(default_factory=TurnTruth)  # M29.5c: what these events resolved
+    # M29.7b: the party's size, who is hurt, the races here, present names, engine ids
+    party_counts: frozenset[int] = frozenset()
+    hurt: dict[str, str] = field(default_factory=dict[str, str])
+    races_here: frozenset[str] = frozenset()
+    present_words: dict[str, str] = field(default_factory=dict[str, str])
+    known_ids: frozenset[str] = frozenset()
 
 
 def _lost_items(events: Sequence[ev.AnyEvent]) -> set[str]:
@@ -189,6 +196,7 @@ def guard_scene(
         other_places=_other_places(state),
         locked=_locked_terms(state, scene, lex),
         turn=turn_truth(state, events, actor_id=actor_id, player_text=player_text),
+        **people_facts(state, present_npcs, present_roles, lex),
     )
 
 

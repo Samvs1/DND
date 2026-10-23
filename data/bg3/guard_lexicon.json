@@ -88,7 +88,7 @@
     "longbow": ["bow"],
     "quarterstaff": ["staff"],
     "mail": ["armor", "armour"],
-    "leather": ["armor", "armour"]
+    "leather": ["armor", "armour"], "ledger": ["book", "tome"]
   },
   "feature_nouns_always": [
     "lever", "levers", "trapdoor", "trapdoors", "hatch", "hatches", "pressure plate",
@@ -147,7 +147,7 @@
     "unconscious", "knocked out", "out cold", "is dying", "lies dying", "lay dying", "beaten down",
     "senseless", "lies still", "lay still", "falls still", "fell still", "goes still",
     "went still", "lies motionless", "lay motionless", "crumples", "crumpled", "goes limp",
-    "went limp", "folds without a word", "pitches sideways", "drops face-first"
+    "went limp", "folds without a word", "pitches sideways", "drops face-first", "face-first"
   ],
   "blow_claims": [
     "slays", "slew", "slain", "kills", "killed", "cuts down", "cut down", "cuts it down",
@@ -218,7 +218,8 @@
   ],
   "promise_words": [
     "if", "will", "would", "could", "might", "may", "offer", "offers", "offered", "promise",
-    "promises", "promised", "once", "when you", "after you", "should you", "unless", "for a price"
+    "promises", "promised", "once you", "once they", "once it", "once she", "once he", "when you",
+    "after you", "should you", "unless", "for a price"
   ],
   "speech_verbs": [
     "says", "said", "replies", "replied", "answers", "answered", "mutters", "muttered", "murmurs",
@@ -315,7 +316,8 @@
     "accepted the", "folds her fingers around", "folds his fingers around", "closes her fingers around",
     "closes his fingers around", "tucks it", "tucked it", "holds both", "hands it", "hands the",
     "handed the", "passes the", "passes it", "extends it to", "gives it to", "gave it to",
-    "receives it", "received it", "receives the", "into her hands", "into his hands"
+    "receives it", "received it", "receives the", "into her hands", "into his hands", "returned the", "returns the",
+    "now in her hands", "now in his hands"
   ],
   "light_nouns": ["torch", "torches", "lantern", "candle", "candles", "lamp", "brand"],
   "light_claims": [
@@ -347,7 +349,7 @@
     "read", "reads", "fire", "fires", "use", "uses", "brandish", "brandishes", "produce",
     "produces", "take out", "takes out", "grab", "grabs", "ready", "readies", "unroll", "unrolls",
     "wave", "waves", "blow", "blows", "play", "plays", "hold up", "holds up", "strap on",
-    "straps on", "put on", "puts on", "pour", "pours"
+    "straps on", "put on", "puts on", "pour", "pours", "fill", "fills"
   ],
   "purchase_words": [
     "buy", "buys", "bought", "purchase", "purchases", "pay", "pays", "paid", "sell", "sells",
@@ -357,5 +359,85 @@
     "give", "gives", "hand", "hands", "pass", "passes", "offer", "offers", "present", "presents",
     "deliver", "delivers", "extend", "extends"
   ],
-  "kindle_words": ["light", "lights", "kindle", "kindles", "ignite", "ignites"]
+  "kindle_words": ["light", "lights", "kindle", "kindles", "ignite", "ignites"],
+  "strike_claims": [
+    "swings at", "swings the", "swings a", "swings an", "swings its", "swings his", "swings her",
+    "swings low", "swings wild", "swings again", "lashes at", "lashes out", "lashing out", "looses",
+    "loosed", "looses at",
+    "fires at", "shoots at", "hurls", "hurled", "clubs", "clubbed", "rake", "rakes", "rakes across",
+    "catches her across", "catches him across", "catches her", "catches him", "smashes", "smashed",
+    "slams", "slammed", "cleaves", "cleaving", "hacks", "chops", "batters", "follows with",
+    "draws and answers", "twangs", "punches through", "drives deep", "lodges in",
+    "finds its mark", "find their mark", "finds her mark", "finds his mark", "opens a cut",
+    "opens a shallow cut", "tears through", "sears through", "burns a", "takes it in",
+    "takes him in", "takes her in"
+  ],
+  "hit_claims": [
+    "finds its mark in", "find their mark in", "finds its mark", "find their mark", "clubs",
+    "clubbed", "catches her across", "catches him across", "rakes across", "rake across",
+    "smashes into", "slams into", "drives into", "punches through", "bites into", "opens a cut along",
+    "opens a shallow cut along", "lodges in", "tears through", "sears through", "hits"
+  ],
+  "blow_exclusions": [
+    "head", "gaze", "eyes", "around", "round", "toward", "towards", "aside", "itself", "himself",
+    "herself", "the air", "empty air", "nothing"
+  ],
+  "graze_nouns": ["graze", "cut", "gash", "wound", "blow", "hit"],
+  "miss_claims": [
+    "skips off", "goes wide", "went wide", "sails wide", "skitters wide", "flies wide", "goes astray",
+    "glances off", "misses", "missed", "clatters off", "shatters against", "only fans", "fans her hair",
+    "fans his hair", "whistles past", "rips past", "hisses past", "vanishes into", "snaps a dry reed",
+    "scrapes the stone", "falls short"
+  ],
+  "attack_nouns": [
+    "bolt", "bolts", "arrow", "arrows", "shaft", "shafts", "quarrel", "shot", "stone", "bullet",
+    "claws", "claw", "teeth", "jaws", "fangs", "talons", "spell", "flame", "fire bolt", "blast",
+    "ray", "eldritch blast", "guiding bolt", "sacred flame", "chill touch"
+  ],
+  "kill_claims": [
+    "folds around", "folds under", "falls to", "drops under", "dies on", "sprawls", "crumples",
+    "collapses", "falls dead", "drops dead", "lies still", "goes still", "slays", "kills", "fells"
+  ],
+  "past_markers": ["had", "earlier", "before", "once", "last"],
+  "passive_markers": ["is", "was", "were", "are", "be", "been", "being", "gets", "got"],
+  "light_out_claims": [
+    "stays dark", "stay dark", "stayed dark", "will not come", "won't come", "will not catch",
+    "won't catch", "refuses to catch", "refuses to light", "goes out", "went out", "gutters out",
+    "snuffs", "snuffed", "pinches the wick", "pinches out", "pinched out", "blows out", "blew out",
+    "dark comes up", "darkness comes up", "dies out", "died out", "black and cold"
+  ],
+  "light_on_claims": [
+    "already lit", "already burning", "still lit", "still burns", "still burning", "stays lit",
+    "burns on", "keeps burning", "burns bright", "now burns", "now burn", "is lit", "are lit"
+  ],
+  "travel_hedges": [
+    "toward", "towards", "for", "set out", "sets out", "on the way", "on your way", "on her way",
+    "on his way", "way to", "road to", "path to", "route to", "short of", "ahead", "not yet",
+    "never reached", "beyond", "farther", "further", "distant", "next"
+  ],
+  "pickup_claims": [
+    "picks up", "picked up", "picks it up", "picked it up", "scoops up", "scooped up",
+    "pulls it free", "pulled it free", "pockets the", "pocketed the", "lifted from", "lifts from",
+    "lifted it from", "lifts it from"
+  ],
+  "pickup_words": [
+    "pick up", "picks up", "take", "takes", "took", "grab", "grabs", "grabbed", "lift", "lifts",
+    "lifted", "collect", "collects", "pull", "pulls", "pulled", "pry", "prises", "pries"
+  ],
+  "absence_claims": [
+    "nowhere in sight", "nowhere to be seen", "is nowhere", "no sign of", "is gone", "has gone",
+    "is not here", "was not here", "not present", "has left", "is absent"
+  ],
+  "whole_claims": [
+    "whole", "unhurt", "unharmed", "unscathed", "unbloodied", "uninjured", "without a scratch",
+    "not a scratch", "no scratch"
+  ],
+  "group_phrases": [
+    "all of you", "every one of you", "each of you", "you all", "the party", "your party",
+    "everyone"
+  ],
+  "race_words": [
+    "dwarf", "elf", "halfling", "human", "gnome", "tiefling", "dragonborn", "half-orc", "half-elf",
+    "githyanki", "drow", "orc"
+  ]
 }

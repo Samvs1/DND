@@ -39,6 +39,7 @@ class PronounContext:
 
     last: dict[str, bool] = field(default_factory=dict[str, bool])
     standing: dict[str, bool] = field(default_factory=dict[str, bool])
+    last_foe: frozenset[str] = frozenset()  # M29.7b: the foe ids "it" means next (guard_blows)
 
 
 def _mentions(sentence: str, scene: GuardScene) -> list[tuple[int, str, bool]]:

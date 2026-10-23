@@ -36,11 +36,20 @@ import re
 from collections.abc import Sequence
 
 from aidm.dm.guard_alive import downed_rising, living_declared_dead, unhurt_declared_down
+from aidm.dm.guard_blows import fight_truth
 from aidm.dm.guard_claims import false_travel, invented_strangers, offer_blows, spoken_for
 from aidm.dm.guard_flow import MAX_SENTENCES, GuardedSentences
 from aidm.dm.guard_goods import claimed_items, unlit_light, unmade_handover, unpaid_coin
 from aidm.dm.guard_leaks import instructions, placeholders
+from aidm.dm.guard_light import light_state, short_travel, unmade_pickup
 from aidm.dm.guard_names import absent_people, crowds, erased_people, unknown_names, wrong_identity
+from aidm.dm.guard_party import (
+    hurt_told_whole,
+    identifiers,
+    told_absent,
+    wrong_count,
+    wrong_race,
+)
 from aidm.dm.guard_pronoun import PronounContext, pronoun_declared_dead
 from aidm.dm.guard_rewards import unearned_rewards
 from aidm.dm.guard_scene import GuardScene, guard_scene
@@ -114,6 +123,23 @@ def _honest(
         *claimed_items(sentence, tokens, scene),
         *unmade_handover(sentence, tokens, scene),
         *unlit_light(sentence, tokens, scene),
+        *fight_truth(sentence, tokens, scene, context),
+        *_round_two(sentence, tokens, scene),
+    ]
+
+
+def _round_two(sentence: str, tokens: list[Token], scene: GuardScene) -> list[Violation]:
+    """M29.7b: light state, the place reached, pick-ups, the party's count and health, races,
+    present people told absent, engine ids."""
+    return [
+        *light_state(sentence, tokens, scene),
+        *short_travel(sentence, scene),
+        *unmade_pickup(sentence, tokens, scene),
+        *wrong_count(sentence, scene),
+        *hurt_told_whole(sentence, tokens, scene),
+        *wrong_race(sentence, scene),
+        *told_absent(sentence, scene),
+        *identifiers(sentence, scene),
     ]
 
 

@@ -13,7 +13,10 @@ already applied to `state`:
 - `claimed`: the things the player's own words used as the hero's that the hero does not carry
   (`claimed_things`: "I drink my potion of giant strength" with no potion -> "potion"; "pulls
   fifty feet of silk rope" with only hempen rope -> "silk rope");
-- `unhurt`: hero term -> name for every hero at full HP whom no event touched.
+- `unhurt`: hero term -> name for every hero at full HP whom no event touched;
+- M29.7b: `fight` (`aidm.dm.fight_ledger`: who acted, was struck, missed, fell, killed), `burning`
+  (light noun -> bearer, `aidm.dm.turn_world`), `ended` (a light went out), `short_of` (the travel
+  destination not reached this turn), `picked` (a thing came into a hero's hands).
 `TurnTruth()` (`checked` False) switches these checks off, for prose about the past (epilogue).
 
 Public API: `TurnTruth`, `Claim`, `claimed_things(state, actor_id, text)`, `hero_terms(names)`,
@@ -26,13 +29,15 @@ from dataclasses import dataclass, field
 
 from aidm.data.guard_lexicon import GuardLexicon, guard_lexicon
 from aidm.dm.entities import display_name
+from aidm.dm.fight_ledger import FightLedger, fight_ledger
 from aidm.dm.guard_text import find_phrases, plain
+from aidm.dm.turn_world import burning, picked_up, short_of
 from aidm.models import events as ev
 from aidm.models import world_events as we
 from aidm.models.combat_events import AttackRolled, MonsterActionUsed, SpellCast
 from aidm.models.encounter import EncounterStatus
 from aidm.models.encounter_events import EncounterStarted
-from aidm.models.item_events import HandedOver, LightLit
+from aidm.models.item_events import HandedOver, ItemUsed, LightEnded, LightLit
 from aidm.models.quest_events import KeepsakeGiven
 from aidm.models.state import Creature, GameState
 
@@ -60,6 +65,11 @@ class TurnTruth:
     lit: bool = True
     claimed: tuple[Claim, ...] = ()
     unhurt: dict[str, str] = field(default_factory=dict[str, str])
+    fight: FightLedger = field(default_factory=FightLedger)
+    burning: dict[str, str] = field(default_factory=dict[str, str])
+    ended: bool = True
+    short_of: str = ""
+    picked: bool = True
 
 
 def hero_terms(names: Iterable[str], lex: GuardLexicon | None = None) -> dict[str, str]:
@@ -160,6 +170,17 @@ def _weapons(state: GameState, events: Sequence[ev.AnyEvent], lex: GuardLexicon)
     return out
 
 
+def _unspent(
+    claims: list[Claim], events: Sequence[ev.AnyEvent], lex: GuardLexicon
+) -> tuple[Claim, ...]:
+    """Claims minus the things these events used up (M29.7b: the last potion was drunk)."""
+    spent: set[str] = set()
+    for e in events:
+        if isinstance(e, ItemUsed) or (isinstance(e, ev.InventoryChanged) and e.delta < 0):
+            spent |= _name_words(display_name(e.item), lex)
+    return tuple(c for c in claims if not set(c.term.split()) <= spent)
+
+
 def _touched(events: Sequence[ev.AnyEvent]) -> set[str]:
     return {e.creature_id for e in events if isinstance(e, ev.HpChanged | ev.DamageTaken)}
 
@@ -195,6 +216,11 @@ def turn_truth(
             for e in events
         ),
         lit=any(isinstance(e, LightLit) for e in events),
-        claimed=tuple(claimed_things(state, actor_id, player_text)),
+        claimed=_unspent(claimed_things(state, actor_id, player_text), events, lex),
         unhurt=hero_terms(unhurt, lex),
+        fight=fight_ledger(state, events),
+        burning=burning(state),
+        ended=any(isinstance(e, LightEnded) for e in events),
+        short_of=short_of(state, events, player_text),
+        picked=picked_up(events),
     )
