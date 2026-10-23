@@ -34,6 +34,7 @@ type AnyClientMsg = (
     | c.ShopBuy
     | c.ShopSell
     | c.Give
+    | c.HandOver
     | c.Equip
     | c.Unequip
     | c.Drop

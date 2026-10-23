@@ -15,7 +15,9 @@ Public API:
   `TakeIntent(actor_id, item_id)` (M19.3: "pick up / take / grab <a visible item here>"),
   `HelpUpIntent(actor_id, target_id)` (M20.2: "help her up", "wake <a downed hero>";
   `aidm.dm.help_intent`), `GiveIntent(actor_id, npc_id, thing)` (M23.3: "give the <thing> to
-  <name>"; `aidm.dm.give_intent`), `BarredIntent(text)` (M23.8: "go to <a locked exit>"; the
+  <name>"; `aidm.dm.give_intent`), `HeroHandIntent` (M29.7a R7/R8: "hand the poultice to Elowen",
+  "give Elowen 30 gold": to another hero, before healing; `aidm.dm.hand_intent`),
+  `BarredIntent(text)` (M23.8: "go to <a locked exit>"; the
   world reason, `aidm.rules.gateway_lock`), `UseIntent` (M27.5: "light my torch", "use X on
   Y", "put out my torch"...; `aidm.dm.use_intent`, after the item commands), `HealIntent`
   (M29.5b: "drink my potion", "pour my potion into Rook", "cast cure wounds on Tamsin";
@@ -38,6 +40,7 @@ from enum import StrEnum
 
 from aidm.dm.entities import display_name
 from aidm.dm.give_intent import GiveIntent, give_intent
+from aidm.dm.hand_intent import HeroHandIntent, hand_intent
 from aidm.dm.heal_intent import HealIntent, heal_intent
 from aidm.dm.help_intent import HelpUpIntent, help_up_intent
 from aidm.dm.rest_words import wordy_rest
@@ -114,6 +117,7 @@ type Intent = (
     | TakeIntent
     | HelpUpIntent
     | GiveIntent
+    | HeroHandIntent
     | BarredIntent
     | UseIntent
     | HealIntent
@@ -311,6 +315,9 @@ def precheck(state: GameState, actor_id: str, text: str) -> Intent | None:
     given = give_intent(state, actor_id, clean)
     if given is not None:
         return given
+    handed = hand_intent(state, actor_id, clean)
+    if handed is not None:
+        return handed
     healed = heal_intent(state, actor_id, clean)
     if healed is not None:
         return healed

@@ -978,6 +978,56 @@
           "title": "Give",
           "type": "object"
         },
+        "HandOver": {
+          "additionalProperties": false,
+          "description": "Hand something to another hero (M29.7a): `item_id` an inventory item key (`qty` copies) or\nthe id of a keepsake the hero carries, and/or `gold` coins.",
+          "properties": {
+            "gold": {
+              "default": 0,
+              "maximum": 100000,
+              "minimum": 0,
+              "title": "Gold",
+              "type": "integer"
+            },
+            "item_id": {
+              "anyOf": [
+                {
+                  "maxLength": 120,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Item Id"
+            },
+            "qty": {
+              "default": 1,
+              "maximum": 99,
+              "minimum": 1,
+              "title": "Qty",
+              "type": "integer"
+            },
+            "to_id": {
+              "maxLength": 80,
+              "minLength": 1,
+              "title": "To Id",
+              "type": "string"
+            },
+            "type": {
+              "const": "hand_over",
+              "default": "hand_over",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "to_id"
+          ],
+          "title": "HandOver",
+          "type": "object"
+        },
         "Hello": {
           "additionalProperties": false,
           "properties": {
@@ -2170,6 +2220,7 @@
           "equip": "#/$defs/Equip",
           "export_character": "#/$defs/ExportCharacter",
           "give": "#/$defs/Give",
+          "hand_over": "#/$defs/HandOver",
           "hello": "#/$defs/Hello",
           "help_up": "#/$defs/HelpUp",
           "host_difficulty": "#/$defs/HostDifficulty",
@@ -2253,6 +2304,9 @@
         },
         {
           "$ref": "#/$defs/Give"
+        },
+        {
+          "$ref": "#/$defs/HandOver"
         },
         {
           "$ref": "#/$defs/Equip"
@@ -2373,6 +2427,7 @@
       "equip",
       "export_character",
       "give",
+      "hand_over",
       "hello",
       "help_up",
       "host_difficulty",

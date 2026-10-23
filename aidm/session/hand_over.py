@@ -8,17 +8,25 @@
   existing gift with its deed), then `telling.conclude` (follow-ups settle the quests, the
   narrator tells the hand-over). Refusals are typed and player-safe; nothing moves on one.
 
-Public API: `take_intent`, `give`, `give_intent`.
+- `hand` (the `hand_over` client command) and `hand_intent` (typed "hand the crowbar to Elowen",
+  M29.7a R8) share ONE path to another hero: `rules.hero_handing.hand_events`, then the engine
+  line of the hand-over is told (no model call); a refusal is the rules' plain reason.
+
+Public API: `take_intent`, `give`, `give_intent`, `hand`, `hand_intent`.
 """
 
+from aidm.dm.event_text import event_line
 from aidm.dm.give_intent import GiveIntent
+from aidm.dm.hand_intent import HeroHandIntent
 from aidm.dm.narration_templates import template_line
 from aidm.dm.precheck import TakeIntent
-from aidm.models.protocol_client import Give
+from aidm.models.item_events import HandedOver
+from aidm.models.protocol_client import Give, HandOver
 from aidm.models.protocol_server import ErrorCode
 from aidm.models.state import Creature
 from aidm.rules.equipment import EquipRefused, take_events
 from aidm.rules.handing import GiveRefused, give_events
+from aidm.rules.hero_handing import HandRefused, hand_events
 from aidm.session.table_core import Player, TableCore
 from aidm.session.telling import conclude, follow_ups, remember, tell_text
 
@@ -64,3 +72,36 @@ async def _give(core: TableCore, player: Player, pc: Creature, npc_id: str, thin
         return
     core.apply_all(events)
     await conclude(core, None, events, actor_id=pc.id)  # follow_ups settles regions and quests
+
+
+async def hand(core: TableCore, player: Player, msg: HandOver) -> None:
+    pc = core.living_pc(player)
+    if pc is None:
+        core.error(player.id, ErrorCode.NO_CHARACTER, "You need a living hero for that.")
+        return
+    await _hand(core, player, HeroHandIntent(pc.id, msg.to_id, msg.item_id, msg.qty, msg.gold))
+
+
+async def hand_intent(core: TableCore, player: Player, intent: HeroHandIntent) -> None:
+    await _hand(core, player, intent)
+
+
+async def _hand(core: TableCore, player: Player, intent: HeroHandIntent) -> None:
+    try:
+        events = hand_events(
+            core.state,
+            intent.actor_id,
+            intent.to_id,
+            core.regs.combat.chars,
+            thing=intent.thing,
+            qty=intent.qty,
+            gold=intent.gold,
+        )
+    except HandRefused as refused:
+        core.error(player.id, ErrorCode.REFUSED, refused.detail, "hand_refused")
+        return
+    applied = core.apply_all(events)
+    lines = [
+        line for e in applied if isinstance(e, HandedOver) and (line := event_line(core.state, e))
+    ]
+    await remember(core, await tell_text(core, " ".join(lines)), applied)

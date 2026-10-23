@@ -109,6 +109,7 @@ JOBS: dict[type, JobMaker] = {
     c.ShopBuy: lambda core, p, m: partial(party_actions.buy, core, p, m),
     c.ShopSell: lambda core, p, m: partial(party_actions.sell, core, p, m),
     c.Give: lambda core, p, m: partial(hand_over.give, core, p, m),
+    c.HandOver: lambda core, p, m: partial(hand_over.hand, core, p, m),
     c.Equip: lambda core, p, m: partial(party_actions.equip, core, p, m),
     c.Unequip: lambda core, p, m: partial(party_actions.unequip, core, p, m),
     c.Drop: lambda core, p, m: partial(party_actions.drop, core, p, m),

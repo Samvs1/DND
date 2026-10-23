@@ -29,6 +29,10 @@ Public API:
 - `FeatureUnlocked(feature_id, creature_id, method, item)` (M27.4): the feature's lock is gone
   (`WorldFeature.lock` becomes None): opened with the party's fitting key, picked or forced
   (`aidm.rules.locks`); `item` is the key or the gear that did it, if any.
+- `HandedOver(creature_id, to_id, item, keepsake_id, qty, gold)` (M29.7a R8): a hero handed
+  something to another hero: `qty` of the inventory item `item` or `gold` coins (moved by the
+  `InventoryChanged` / `GoldChanged` pair that comes with it; this event is their record), or
+  the keepsake `keepsake_id` (moved by this event, `aidm.rules.hero_handing`).
 - `ItemEvents`: the union of these classes.
 """
 
@@ -108,6 +112,16 @@ class FeatureUnlocked(_ItemEvent):
     item: str | None = None
 
 
+class HandedOver(_ItemEvent):
+    type: Literal["handed_over"] = "handed_over"
+    creature_id: str = Field(min_length=1)
+    to_id: str = Field(min_length=1)
+    item: str | None = None
+    keepsake_id: str | None = None
+    qty: int = Field(default=0, ge=0)
+    gold: int = Field(default=0, ge=0)
+
+
 ItemEvents = (
     ItemUsed
     | ItemUseRefused
@@ -118,4 +132,5 @@ ItemEvents = (
     | LightLit
     | LightEnded
     | FeatureUnlocked
+    | HandedOver
 )

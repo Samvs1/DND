@@ -24,6 +24,7 @@ Machine-readable schema: `aidm/web/protocol.json`.
 | client | `equip` | `item_id`: string, `type`: equip |
 | client | `export_character` | `type`: export_character |
 | client | `give` | `item_id`: string, `npc_id`: string, `type`: give |
+| client | `hand_over` | `gold`: integer (optional), `item_id`: string or null (optional), `qty`: integer (optional), `to_id`: string, `type`: hand_over |
 | client | `hello` | `last_seq`: integer or null (optional), `name`: string, `role`: DeviceRole (optional), `spectator`: boolean (optional), `token`: string or null (optional), `type`: hello |
 | client | `help_up` | `target_id`: string, `type`: help_up |
 | client | `host_difficulty` | `monster_damage`: number (optional), `monster_hp`: number (optional), `type`: host_difficulty |

@@ -32,7 +32,7 @@ from aidm.models import world_events as we
 from aidm.models.combat_events import AttackRolled, MonsterActionUsed, SpellCast
 from aidm.models.encounter import EncounterStatus
 from aidm.models.encounter_events import EncounterStarted
-from aidm.models.item_events import LightLit
+from aidm.models.item_events import HandedOver, LightLit
 from aidm.models.quest_events import KeepsakeGiven
 from aidm.models.state import Creature, GameState
 
@@ -140,7 +140,7 @@ def claimed_things(state: GameState, actor_id: str | None, text: str | None) -> 
 
 
 _BLOWS = (AttackRolled, ev.DamageTaken, SpellCast, MonsterActionUsed)
-_HANDED = (KeepsakeGiven, we.ItemsTraded, we.ItemPlaced)
+_HANDED = (KeepsakeGiven, we.ItemsTraded, we.ItemPlaced, HandedOver)
 
 
 def _weapons(state: GameState, events: Sequence[ev.AnyEvent], lex: GuardLexicon) -> dict:

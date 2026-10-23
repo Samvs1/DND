@@ -24,7 +24,8 @@ answered at once from the state, never a turn, `aidm.rules.quest_hints`); M23.9 
 "Are you sure? This ends the story", makes the choice, `aidm.rules.finale`); M26.3 `Presented`
 (a screen has finished showing every event line and dice roll up to `seq`; AI turns wait for it);
 M27.7 `CopyScroll` (the Spellbook tab: a wizard copies a carried scroll into the spellbook out of
-a fight, `aidm.rules.scrolls`).
+a fight, `aidm.rules.scrolls`); M29.7a `HandOver` (hand items, a keepsake or gold to another
+hero, `aidm.rules.hero_handing`).
 """
 
 from enum import StrEnum
@@ -157,6 +158,17 @@ class Give(_Client):
     type: Literal["give"] = "give"
     npc_id: str
     item_id: str
+
+
+class HandOver(_Client):
+    """Hand something to another hero (M29.7a): `item_id` an inventory item key (`qty` copies) or
+    the id of a keepsake the hero carries, and/or `gold` coins."""
+
+    type: Literal["hand_over"] = "hand_over"
+    to_id: str = Field(min_length=1, max_length=MAX_NAME * 2)
+    item_id: str | None = Field(default=None, max_length=MAX_NAME * 3)
+    qty: int = Field(default=1, ge=1, le=99)
+    gold: int = Field(default=0, ge=0, le=100_000)
 
 
 class Equip(_Client):

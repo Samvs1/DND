@@ -2,7 +2,8 @@
 
 Plain assignment of resolved values; `ReducerError` for an event that does not fit the state.
 
-`FeatureUnlocked` clears the feature's lock (M27.4).
+`FeatureUnlocked` clears the feature's lock (M27.4). `HandedOver` (M29.7a) moves a keepsake from
+one hero to the other; an item or gold moves in its `InventoryChanged` / `GoldChanged` pair.
 
 Public API: `ItemEvent` (the union), `ITEM_EVENT_TYPES`, `apply_item_event(state, event)`,
 `left_place(state)` (what a `PartyMoved` clears: the alert and the place-scoped boons; a
@@ -15,6 +16,7 @@ from aidm.models.item_events import (
     BoonEnded,
     BoonGained,
     FeatureUnlocked,
+    HandedOver,
     ItemUsed,
     ItemUseRefused,
     LightEnded,
@@ -36,6 +38,7 @@ type ItemEvent = (
     | LightLit
     | LightEnded
     | FeatureUnlocked
+    | HandedOver
 )
 
 ITEM_EVENT_TYPES = (
@@ -48,6 +51,7 @@ ITEM_EVENT_TYPES = (
     LightLit,
     LightEnded,
     FeatureUnlocked,
+    HandedOver,
 )
 
 
@@ -69,6 +73,21 @@ def _used(state: GameState, event: ItemUsed) -> None:
         entry.charges = event.charges_left
     if event.forage and event.node is not None and event.node not in state.world.foraged:
         state.world.foraged.append(event.node)
+
+
+def _handed(state: GameState, event: HandedOver) -> None:
+    giver = state.creatures.get(event.creature_id)
+    taker = state.creatures.get(event.to_id)
+    if giver is None or giver.pc is None or taker is None or taker.pc is None:
+        raise ReducerError(f"no heroes {event.creature_id!r} and {event.to_id!r} to hand between")
+    if event.keepsake_id is None:
+        return
+    held = giver.pc.keepsakes
+    keepsake = next((k for k in held if k.id == event.keepsake_id), None)
+    if keepsake is None:
+        raise ReducerError(f"hero {event.creature_id!r} has no keepsake {event.keepsake_id!r}")
+    held.remove(keepsake)
+    taker.pc.keepsakes.append(keepsake.model_copy())
 
 
 def apply_item_event(state: GameState, event: ItemEvent) -> None:
@@ -104,6 +123,8 @@ def apply_item_event(state: GameState, event: ItemEvent) -> None:
             if feature is None:
                 raise ReducerError(f"no feature {fid!r} to unlock")
             feature.lock = None
+        case HandedOver():
+            _handed(state, event)
         case ItemUseRefused():
             pass
         case _:

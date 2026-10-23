@@ -32,6 +32,7 @@ from aidm.dm.adjudicator import AdjudicationOptions, AdjudicationResult, adjudic
 from aidm.dm.combat_intent import combat_move
 from aidm.dm.fight_intent import FightCommand, fight_command
 from aidm.dm.give_intent import GiveIntent
+from aidm.dm.hand_intent import HeroHandIntent
 from aidm.dm.heal_intent import HealIntent
 from aidm.dm.help_intent import HelpUpIntent
 from aidm.dm.llm_types import ToolCall
@@ -236,6 +237,8 @@ async def resolve_action(core: TableCore, entry: QueueEntry) -> None:
         await party_actions.help_up_intent(core, player, intent)
     elif isinstance(intent, GiveIntent):
         await hand_over.give_intent(core, player, intent)
+    elif isinstance(intent, HeroHandIntent):
+        await hand_over.hand_intent(core, player, intent)
     elif isinstance(intent, UseIntent):
         if not await gear_actions.use_intent(core, player, intent):
             await adjudicated(core, entry)

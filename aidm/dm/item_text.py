@@ -7,6 +7,7 @@ the narrator's event list and the template narration all read the same words).
 - `ItemUsed`: who used which gear (a light's own line says it for a light; M27.6: a use that
   changed nothing says "no special effect").
 - `FeatureUnlocked`: the lock is open, and how; no line ever opens a lock without this event.
+- `HandedOver` (M29.7a R8): who handed what (an item, a keepsake or gold) to which hero.
 - `PlaceAlerted` by noise (M27.11: forcing a lock, a noisy use; the event fires once per place):
   `NOISE_WARNING`. A light's alert has no line of its own (`LIGHT_WARNING` says it).
 - `encounter_line(state)`: the fight-start line, plus `DARK_FIGHT` in a dark place (M27.8), plus
@@ -23,7 +24,14 @@ from typing import Any
 
 from aidm.data.item_uses import LightPlace, uses_for_item
 from aidm.models.encounter_events import EncounterStarted
-from aidm.models.item_events import FeatureUnlocked, ItemUsed, LightEnded, LightLit, PlaceAlerted
+from aidm.models.item_events import (
+    FeatureUnlocked,
+    HandedOver,
+    ItemUsed,
+    LightEnded,
+    LightLit,
+    PlaceAlerted,
+)
 from aidm.models.state import GameState
 from aidm.rules.item_effects import gear_name
 from aidm.rules.light import DOUSED, place_dark
@@ -67,6 +75,24 @@ def _unlocked(state: GameState, e: FeatureUnlocked) -> str:
     return f"{_who(state, e.creature_id)} {how} {name}."
 
 
+def _handed(state: GameState, e: HandedOver) -> str:
+    taker = _who(state, e.to_id)
+    if e.gold:
+        what = f"{e.gold} gold"
+    elif e.item is not None:
+        name = gear_name(e.item).lower()
+        what = f"{e.qty} x {name}" if e.qty > 1 else f"the {name}"
+    else:
+        held = [
+            k
+            for cid in (e.creature_id, e.to_id)
+            if (hero := state.creatures.get(cid)) is not None and hero.pc is not None
+            for k in hero.pc.keepsakes
+        ]
+        what = f"the {next((k.name for k in held if k.id == e.keepsake_id), 'keepsake')}"
+    return f"{_who(state, e.creature_id)} hands {what} to {taker}."
+
+
 def _alerted(state: GameState, e: PlaceAlerted) -> str | None:
     return NOISE_WARNING if e.reason == "noise" else None  # once per place: the event is
 
@@ -88,5 +114,6 @@ ITEM_EVENT_LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     ItemUsed: _used,
     FeatureUnlocked: _unlocked,
     PlaceAlerted: _alerted,
+    HandedOver: _handed,
     EncounterStarted: encounter_line,
 }

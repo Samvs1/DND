@@ -14,7 +14,7 @@ Taking (M19.3) is the reverse: a visible item lying at the current place leaves 
 object with no catalogue entry) as a keepsake; a quest item keeps its `quest_id` (M23.3).
 
 Public API: `EquipRefusal`, `EquipRefused`, `equip_events(creature, item, regs)`,
-`unequip_events(creature, item, regs)`, `release_events(creature, item, regs)`,
+`unequip_events(creature, item, regs)`, `release_events(creature, item, regs, qty=1)`,
 `drop_events(state, creature, item, regs)`,
 `take_events(state, creature, item_id)`.
 """
@@ -126,14 +126,19 @@ def unequip_events(creature: Creature, item: str, regs: CharacterRegistries) -> 
     return [_changed(creature, held, regs)]
 
 
-def release_events(creature: Creature, item: str, regs: CharacterRegistries) -> list[AnyEvent]:
-    """Free ONE slot holding `item` (the off hand first) when every carried copy is worn."""
+def release_events(
+    creature: Creature, item: str, regs: CharacterRegistries, qty: int = 1
+) -> list[AnyEvent]:
+    """Free the slots holding `item` (the off hand first) that `qty` fewer copies cannot fill
+    (M29.7a: handing several away; one copy for a drop or a throw)."""
     gear = _hero(creature)
     worn = [slot for slot in _SLOTS if getattr(gear, slot) == item]
-    if not worn or len(worn) < carried_qty(creature, item):
+    extra = len(worn) - max(0, carried_qty(creature, item) - qty)
+    if not worn or extra <= 0:
         return []
     held = gear.model_copy()
-    setattr(held, "off_hand" if "off_hand" in worn else worn[0], None)
+    for slot in sorted(worn, key=lambda s: s != "off_hand")[:extra]:
+        setattr(held, slot, None)
     return [_changed(creature, held, regs)]
 
 

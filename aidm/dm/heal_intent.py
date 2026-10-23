@@ -10,7 +10,8 @@ never made). A deterministic precheck, like `aidm.dm.give_intent`; the rules dec
   else the actor;
 - a healing consumable (data/bg3/consumables.json with `heal`): a drink verb ("drink", "quaff",
   "use", "apply" ...) heals the actor or the hero the sentence names; a giving verb ("pour",
-  "give", "feed", "bind" ...) needs a named hero. The draught is the actor's, else the named
+  "feed", "bind" ...) needs a named hero (M29.7a R7: "hand" / "give" with no drink word is a
+  hand-over, `aidm.dm.hand_intent`, read before this). The draught is the actor's, else the named
   hero's own ("pours his potion between Rook's lips"). The best word match wins ("my potion").
 Anything else is None and goes on as before (the adjudicator).
 
@@ -31,8 +32,8 @@ _SELF_VERBS = frozenset(
     | {"uses", "apply", "applies", "down", "downs"}
 )
 _GIVE_VERBS = frozenset(
-    {"pour", "pours", "give", "gives", "feed", "feeds", "tip", "tips", "bind", "binds"}
-    | {"press", "presses", "administer", "administers", "rub", "rubs", "hand", "hands"}
+    {"pour", "pours", "feed", "feeds", "tip", "tips", "bind", "binds"}
+    | {"press", "presses", "administer", "administers", "rub", "rubs"}
 )
 _SMALL = frozenset({"of", "the", "a", "an", "my", "his", "her"})
 

@@ -79,6 +79,7 @@ CLIENT_TYPES = {
     "shop_buy",
     "shop_sell",
     "give",
+    "hand_over",
     "equip",
     "unequip",
     "drop",
