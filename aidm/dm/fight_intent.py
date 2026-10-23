@@ -5,6 +5,8 @@ rules charge it exactly as the button would (action, bonus action, use, slot, dr
 it with their reason. Anything else is None and stays a creative action.
 
 `fight_command(state, actor_id, text)`:
+- M29.7a R22: a plain weapon attack on a foe ("I swing my longsword at Luth") ->
+  `AttackCommand` with that weapon (`aidm.dm.attack_intent`), rolled against AC;
 - a class or race feature the hotbar offers as a command (`rules.features.feature_actions`,
   `command=True`) whose name words all appear in the sentence and that aims at the hero itself
   (Second Wind, Action Surge...) -> `FeatureActionCommand`; the longest name wins. A feature
@@ -19,13 +21,19 @@ Public API: `fight_command(state, actor_id, text) -> FightCommand | None`.
 import re
 
 from aidm.data.combat_data import combat_registries
+from aidm.dm.attack_intent import attack_command
 from aidm.dm.heal_intent import heal_intent
-from aidm.models.commands import CastCommand, FeatureActionCommand, UseItemCommand
+from aidm.models.commands import (
+    AttackCommand,
+    CastCommand,
+    FeatureActionCommand,
+    UseItemCommand,
+)
 from aidm.models.encounter import EncounterStatus
 from aidm.models.state import Creature, GameState
 from aidm.rules.features import feature_actions
 
-type FightCommand = FeatureActionCommand | CastCommand | UseItemCommand
+type FightCommand = AttackCommand | FeatureActionCommand | CastCommand | UseItemCommand
 
 
 def _words(text: str) -> set[str]:
@@ -62,6 +70,9 @@ def fight_command(state: GameState, actor_id: str, text: str) -> FightCommand | 
         return None
     if actor_id not in enc.combatants:
         return None
+    attack = attack_command(state, actor_id, text)
+    if attack is not None:
+        return attack
     clean = " ".join(text.lower().replace("’", "'").split()).rstrip(".!?").strip()
     feature = _feature(actor, _words(clean))
     return feature if feature is not None else _healing(state, actor_id, clean)
