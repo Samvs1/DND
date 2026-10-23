@@ -7,7 +7,8 @@ allow-list of the world bible (`World.lore_names`), plus the finale's public tex
 final region is resolved (M23.9: its question and ending titles, the chosen ending's text).
 
 Public API:
-- `display_name(index) -> str`: a readable name for an SRD index ("chain-mail" -> "Chain Mail").
+- `display_name(index) -> str`: a readable name for an SRD index ("chain-mail" -> "Chain Mail";
+  "mord-s-coin" -> "Mord's Coin").
 - `EntityRegistry(party, npcs, monsters, dead, features, hidden_features, items, places, lore)`:
   frozensets of display names. `visible_names` is everything the narrator may name in the
   current scene's world (party, NPCs, living creatures, visible features, items, places, lore);
@@ -25,9 +26,14 @@ from aidm.models.state import Creature, GameState
 from aidm.rules.finale import finale_texts
 from aidm.rules.scene import current_scene, node_display_name
 
+_POSSESSIVE = re.compile(r"(?<=[a-z0-9])-s(?=[-_]|$)")
+
 
 def display_name(index: str) -> str:
-    return index.replace("-", " ").replace("_", " ").strip().title()
+    """A readable name for an index; a lone "s" word was a possessive ("tollmaster-s-ledger" ->
+    "Tollmaster's Ledger", M29.7c R10)."""
+    text = _POSSESSIVE.sub("'s", index.lower()).replace("-", " ").replace("_", " ")
+    return " ".join(w[:1].upper() + w[1:] for w in text.split())
 
 
 @dataclass(frozen=True)

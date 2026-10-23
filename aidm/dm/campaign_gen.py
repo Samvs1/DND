@@ -67,10 +67,12 @@ Rules the engine checks:
   the name of a place or a quest title: the party learns it by going there or finishing it).
 - A quest may work against an NPC (against = exact NPC name).
 - A boss may have an ally_path (how the party could turn them); fighting stays possible.
+  A boss is one person: never list them again among the NPCs under a shorter name.
 - Write short, evocative flavour. NPC motives and secrets are for the game master only.
 Quests (the engine checks every step itself; use the exact names you defined):
 - A step is a kind plus short player text (max 100 characters): visit (places: 1-3 places to
-  reach), clear (places: one place whose fight must be won; never the arrival), defeat (npc:
+  reach), clear (places: one place whose fight must be won; never the arrival; its text is that
+  fight against the place's encounter_themes, no other deed or creature), defeat (npc:
   who must fall), obtain (item: a short item name; places: where it lies; count: copies, 1-5;
   hidden: true if it must be searched for), deliver (item: obtained by an earlier step of the
   SAME quest or route; npc: who receives it), meet (npc: reach them alive and not hostile),
@@ -85,6 +87,9 @@ Quests (the engine checks every step itself; use the exact names you defined):
 - cunning (optional): 1-3 steps that weaken the boss fight; effect boss_alone (the boss's
   company deserts) or boss_surprised (the party arrives unseen).
 - 1-2 side quests per act, each with 1-4 steps and a giver living in that act's region.
+- One thing is one item: quests that need the same thing name the same item at the same place,
+  and only one of them delivers it. A reward_item is something new the giver gives, never an
+  item a step of that quest obtains or delivers.
 - finale: the last choice of the story: one short question (under 200 characters) and two
   clearly different endings."""
 

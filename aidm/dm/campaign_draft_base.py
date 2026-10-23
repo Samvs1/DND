@@ -8,7 +8,8 @@ name that holds the written words (a quest against "Skarn" finds "Skarn the Holl
 Public API:
 - `Draft`: the base model of every draft part (repairs over-long text and lists).
 - `trim_words(text, limit) -> str`; `fit_limits(data, limits) -> dict` (the repair step).
-- `name_key(name) -> str` (the lookup key of a display name);
+- `name_key(name) -> str` (the lookup key of a display name); `name_head(name) -> str` (the key
+  without an epithet after a comma or "the");
   `resolve_name(index, name, rivals=()) -> str | None` (lenient lookup in a key -> id index).
 - `slug_id(name, taken) -> str`: a plan id for a display name, unique among `taken`.
 """
@@ -80,6 +81,16 @@ def slug_id(name: str, taken: Iterable[str]) -> str:
 
 def name_key(name: str) -> str:
     return re.sub(r"[^a-z0-9]+", " ", name.lower()).strip()
+
+
+_EPITHET = re.compile(r",| the ")
+
+
+def name_head(name: str) -> str:
+    """The key of a name without its epithet: "Dusk Oron, Keeper of the Ledger" and "Gurn the
+    Tollkeeper" -> "dusk oron", "gurn" (M29.7c R16)."""
+    head = _EPITHET.split(name.lower(), maxsplit=1)[0]
+    return name_key(head) or name_key(name)
 
 
 def _contains(key: str, written: str) -> bool:

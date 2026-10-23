@@ -2,12 +2,15 @@
 
 Every `obtain` step of an act (the routes of its main quest and its side quests, read through
 `aidm.rules.quest_plan`) places `count` copies of its item over its places (copy i lies at
-`nodes[i % len(nodes)]`), visible or hidden; a hidden one is found by a search check meeting
-`dc_for_tier(HIDDEN_ITEM_DC_TIER)` (`aidm.rules.scene.discovery_events`). A placed item carries
-the id of the quest OWNING the step (`main-<region>` for route steps), so `aidm.rules.quest_steps`
-counts it once a hero carries it; picked up it becomes a keepsake with that `quest_id`
-(`aidm.rules.equipment.take_events`). Keepsakes cannot be sold or dropped, so neither can quest
-items.
+`nodes[i % len(nodes)]`), visible or hidden; a copy of an item (same `item_key`) an earlier step
+of the act already lays at that place is not placed again (M29.7c R11: one item per name and
+place, which every quest needing it counts, `aidm.rules.quest_steps`); a hidden one is found
+by a search check meeting `dc_for_tier(HIDDEN_ITEM_DC_TIER)`
+(`aidm.rules.scene.discovery_events`). A placed item carries the id of the quest OWNING the step
+(`main-<region>` for route steps; the first step placing a shared item owns it);
+`aidm.rules.quest_steps` counts it once a hero carries it; picked up it becomes a keepsake with
+that `quest_id` (`aidm.rules.equipment.take_events`). Keepsakes cannot be sold or dropped, so
+neither can quest items.
 
 Idempotent without new state: an item id (`plan_ids.quest_item_id`) is placed only when no
 world item, hero keepsake or NPC keepsake has it, so an item picked up or handed over is never
@@ -25,6 +28,7 @@ Public API: `HIDDEN_ITEM_DC_TIER`, `act_quest_items(plan, act_index) -> list[Wor
 `quest_item_named(state, name) -> QuestItemSpot | None` (a visible copy here first).
 """
 
+from collections import Counter
 from dataclasses import dataclass
 from enum import StrEnum
 
@@ -60,17 +64,31 @@ class QuestItemSpot:
     holder: str = ""  # the hero or NPC holding it (carried / given)
 
 
-def _items(quest_id: str, route_id: str | None, steps: tuple[QuestStep, ...]) -> list[WorldItem]:
+type _Placed = Counter[tuple[str, str]]
+
+
+def _items(
+    quest_id: str, route_id: str | None, steps: tuple[QuestStep, ...], placed: _Placed
+) -> list[WorldItem]:
+    """The copies the steps place; a copy an earlier step already lays at that place (same item
+    key) is not placed twice: one item per name and place, shared (M29.7c R11)."""
     out: list[WorldItem] = []
     for index, step in enumerate(steps):
         if step.kind is not StepKind.OBTAIN or step.item is None or not step.nodes:
             continue
+        before, here = Counter(placed), Counter[tuple[str, str]]()
         for copy in range(step.count):
+            node = step.nodes[copy % len(step.nodes)]
+            spot = (item_key(step.item), node)
+            here[spot] += 1
+            if here[spot] <= before[spot]:
+                continue
+            placed[spot] += 1
             out.append(
                 WorldItem(
                     id=quest_item_id(quest_id, route_id, index, copy),
                     name=step.item,
-                    node_id=step.nodes[copy % len(step.nodes)],
+                    node_id=node,
                     hidden=step.hidden,
                     discover_dc=dc_for_tier(HIDDEN_ITEM_DC_TIER) if step.hidden else None,
                     quest_id=quest_id,
@@ -81,10 +99,11 @@ def _items(quest_id: str, route_id: str | None, steps: tuple[QuestStep, ...]) ->
 
 def act_quest_items(plan: CampaignPlan, act_index: int) -> list[WorldItem]:
     main = main_quest(plan, act_index)
-    items = [i for route in main.routes for i in _items(main.id, route.id, route.steps)]
+    placed: _Placed = Counter()
+    items = [i for route in main.routes for i in _items(main.id, route.id, route.steps, placed)]
     for quest in plan.quests:
         if quest.act == act_index:
-            items += _items(quest.id, None, quest_steps(plan, quest))
+            items += _items(quest.id, None, quest_steps(plan, quest), placed)
     return items
 
 

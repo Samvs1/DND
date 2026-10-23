@@ -12,9 +12,11 @@ becomes None, a secret whose quest or item is unknown reveals at a friendly atti
 The quest parts (side quest steps, each act's Peace / Cunning route, the finale; M23.6) are
 joined by `aidm.dm.campaign_draft_quests.with_quests`, which repairs instead of rejecting and
 appends a note per repair to `repairs`. A cast member with a boss's name is that boss (M29.5b
-G30): it takes the boss's world id, so quests naming them reach the one record (the install
-merges the two, `aidm.rules.campaign_install`). A region without a trader gets a peddler
-(`aidm.dm.campaign_shops.with_traders`, M29.5b G34).
+G30), and so is one with the boss's name head who lives at its lair (M29.7c R16: "Dusk Oron" at
+the shrine of "Dusk Oron, Keeper of the Ledger"): it takes the boss's world id, so quests naming
+them reach the one record (the install merges the two, `aidm.rules.campaign_install`). A region
+without a trader gets a peddler (`aidm.dm.campaign_shops.with_traders`, M29.5b G34). Last, the
+plan repairs of `aidm.rules.plan_repair` (one item per name and place, rewards, clear texts).
 
 Public API:
 - Draft models: `NodeDraft`, `BossDraft`, `RegionDraft`, `ActDraft`, `SecretDraft`, `NpcDraft`,
@@ -28,7 +30,7 @@ from typing import Any
 
 from pydantic import Field, ValidationError
 
-from aidm.dm.campaign_draft_base import Draft, name_key, resolve_name, slug_id
+from aidm.dm.campaign_draft_base import Draft, name_head, name_key, resolve_name, slug_id
 from aidm.dm.campaign_draft_quests import FinaleDraft, QuestDrafts, RouteDraft, with_quests
 from aidm.dm.campaign_shops import with_traders
 from aidm.dm.campaign_steps import StepDraft, repair_note
@@ -36,6 +38,7 @@ from aidm.models.campaign import CampaignPlan, RevealKind, RewardTier
 from aidm.models.dm_tiers import AttitudeBand
 from aidm.models.problem import Problem
 from aidm.rules.plan_ids import boss_id_of
+from aidm.rules.plan_repair import repair_plan
 
 MAX_VALIDATION_PROBLEMS = 12
 
@@ -132,6 +135,7 @@ class _Ids:
         self.items: dict[str, str] = {}
         self.bosses: set[str] = set()
         self.boss_ids: dict[str, str] = {}
+        self.boss_heads: dict[str, tuple[str, str]] = {}  # name head -> (boss id, lair node id)
         self.problems: list[Problem] = []
 
     def new(self, name: str, index: dict[str, str] | None = None) -> str:
@@ -170,6 +174,7 @@ def _act(ids: _Ids, index: int, act: ActDraft) -> dict[str, Any]:
         boss["ally_path"] = reg.boss.ally_path
     region_id = ids.new(reg.name)
     ids.boss_ids.setdefault(name_key(reg.boss.name), boss_id_of(region_id))
+    ids.boss_heads.setdefault(name_head(reg.boss.name), (boss_id_of(region_id), nodes[-1]["id"]))
     region = {
         "id": region_id,
         "name": reg.name,
@@ -250,9 +255,25 @@ def _rival(ids: _Ids, draft: CampaignDraft) -> dict[str, Any] | None:
     return {"npc_id": npc_id, "hook": draft.rival_hook or "A rival of the party."}
 
 
-def _npc_id(ids: _Ids, npc: NpcDraft, repairs: list[Problem]) -> str:
-    """A cast member named like a boss IS that boss (M29.5b G30): one record, the boss's id."""
+def _twin_boss(ids: _Ids, npc: NpcDraft) -> str | None:
+    """The boss this cast member is: the same name (M29.5b G30), or the same name head living at
+    the boss's lair (M29.7c R16: NPC "Dusk Oron" at the shrine is the shrine's "Dusk Oron, Keeper
+    of the Ledger")."""
     boss_id = ids.boss_ids.pop(name_key(npc.name), None)
+    if boss_id is not None:
+        return boss_id
+    head = ids.boss_heads.get(name_head(npc.name))
+    if head is None or resolve_name(ids.nodes, npc.home_place) != head[1]:
+        return None
+    if head[0] not in ids.boss_ids.values():
+        return None
+    ids.boss_ids = {k: v for k, v in ids.boss_ids.items() if v != head[0]}
+    return head[0]
+
+
+def _npc_id(ids: _Ids, npc: NpcDraft, repairs: list[Problem]) -> str:
+    """A cast member who is a boss IS that boss: one record, the boss's id."""
+    boss_id = _twin_boss(ids, npc)
     if boss_id is None:
         return ids.new(npc.name, ids.npcs)
     ids.npcs.setdefault(name_key(npc.name), boss_id)
@@ -295,4 +316,5 @@ def assemble_plan(
         base = CampaignPlan.model_validate(raw)
     except ValidationError as exc:
         return _validation_problems(exc)
-    return with_traders(with_quests(base, _quest_drafts(draft), notes), notes)
+    with_all = with_traders(with_quests(base, _quest_drafts(draft), notes), notes)
+    return repair_plan(with_all, notes)

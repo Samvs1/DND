@@ -7,9 +7,9 @@ it is active. A step is met when its count reaches `QuestStep.goal()`:
   `CampaignState.milestones` (DECISIONS M23.2); a gateway counts once its boss is defeated;
 - defeat: the NPC is dead (`WorldNpc.dead`), or the step names a region boss and
   `progression.boss_defeated` holds (saves from before `dead`);
-- obtain: living heroes carry `count` copies: keepsakes of that name whose `quest_id` is the
-  quest owning the step (quest items placed by the engine; flavour keepsakes never count) plus
-  inventory entries with the item's key;
+- obtain: the party has `count` copies: engine quest items of that name (any quest's: one item
+  per name and place serves every quest needing it, M29.7c R11; flavour keepsakes never count)
+  that living heroes carry or have handed to someone, plus inventory entries with the item's key;
 - deliver: the NPC holds such a keepsake (`WorldNpc.keepsakes`, handed over by `KeepsakeGiven`);
   for a favour a flavour keepsake (no `quest_id`) of that name counts too (M23.5);
 - meet: the party stands where the NPC is, the NPC alive and not hostile;
@@ -76,30 +76,37 @@ def _defeat(state: GameState, step: QuestStep, owner: str) -> int:
     return int(region is not None and boss_defeated(state, region))
 
 
-def _carried(state: GameState, item: str, owner: str) -> int:
+def _carried(state: GameState, item: str) -> int:
+    """Copies of `item` the living heroes carry (engine quest items of any quest, M29.7c R11: one
+    item serves every quest that needs it; flavour keepsakes never count) or handed over to
+    someone (an obtained item stays obtained), plus inventory entries with the item's key."""
     wanted = item_key(item)
     count = 0
     for creature in state.creatures.values():
         if creature.pc is None or creature.dead:
             continue
         count += sum(
-            1 for k in creature.pc.keepsakes if k.quest_id == owner and item_key(k.name) == wanted
+            1
+            for k in creature.pc.keepsakes
+            if k.quest_id is not None and item_key(k.name) == wanted
         )
         count += sum(e.qty for e in creature.pc.inventory if item_key(e.item) == wanted)
+    for npc in state.world.npcs.values():
+        count += sum(
+            1 for k in npc.keepsakes if k.quest_id is not None and item_key(k.name) == wanted
+        )
     return count
 
 
 def _obtain(state: GameState, step: QuestStep, owner: str) -> int:
-    return min(step.goal(), _carried(state, step.item or "", owner))
+    return min(step.goal(), _carried(state, step.item or ""))
 
 
-def _owners(state: GameState, owner: str) -> frozenset[str | None]:
-    """Whose keepsakes count for a deliver step: the owning quest's; a favour also counts a
-    flavour keepsake (it asks for one the party already carries, M23.5)."""
+def _favour(state: GameState, owner: str) -> bool:
+    """A favour also counts a flavour keepsake (it asks for one the party already carries,
+    M23.5); every quest counts an engine quest item of that name (M29.7c R11)."""
     quest = state.world.quests.get(owner)
-    if quest is not None and quest.kind is QuestKind.FAVOUR:
-        return frozenset({owner, None})
-    return frozenset({owner})
+    return quest is not None and quest.kind is QuestKind.FAVOUR
 
 
 def _deliver(state: GameState, step: QuestStep, owner: str) -> int:
@@ -107,8 +114,12 @@ def _deliver(state: GameState, step: QuestStep, owner: str) -> int:
     if npc is None:
         return 0
     wanted = item_key(step.item or "")
-    owners = _owners(state, owner)
-    held = sum(1 for k in npc.keepsakes if k.quest_id in owners and item_key(k.name) == wanted)
+    flavour = _favour(state, owner)
+    held = sum(
+        1
+        for k in npc.keepsakes
+        if (k.quest_id is not None or flavour) and item_key(k.name) == wanted
+    )
     return min(step.goal(), held)
 
 

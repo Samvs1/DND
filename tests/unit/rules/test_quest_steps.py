@@ -66,7 +66,8 @@ def test_obtain_counts_quest_items_and_inventory_never_flavour() -> None:
     assert step_count(state, step, OWNER) == 2 and not step_met(state, step, OWNER)
     pc.inventory.append(InventoryItem(item="ember-stone", qty=1))
     assert step_met(state, step, OWNER)
-    assert step_count(state, step, "another-quest") == 1
+    # M29.7c R11: one quest item serves every quest that needs it (DECISIONS M29.7c)
+    assert step_count(state, step, "another-quest") == 3
 
 
 def test_deliver_needs_the_npc_to_hold_it() -> None:
