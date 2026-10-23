@@ -1,0 +1,56 @@
+{"seq": 0, "event": {"type": "creature_added", "creature": {"id": "pc-a", "kind": "pc", "pc": {"level": 1, "gold": 10}}}}
+{"seq": 1, "event": {"type": "creature_added", "creature": {"id": "pc-b", "kind": "pc", "pc": {"level": 1, "gold": 10}}}}
+{"seq": 2, "event": {"type": "encounter_offered", "offer": {"id": "offer-1", "boss_npc_id": null}}}
+{"seq": 3, "event": {"type": "offer_resolved", "offer_id": "offer-1", "choice": "fight", "success": true, "detail": ""}}
+{"seq": 4, "event": {"type": "encounter_started", "encounter": {"id": "enc-1"}}}
+{"seq": 5, "event": {"type": "turn_started", "creature_id": "pc-a", "round": 1, "active_index": 0, "economy": {}}}
+{"seq": 6, "event": {"type": "turn_started", "creature_id": "pc-a", "round": 2, "active_index": 0, "economy": {}}}
+{"seq": 7, "event": {"type": "hp_changed", "creature_id": "pc-a", "delta": -3, "new_hp": 5}}
+{"seq": 8, "event": {"type": "encounter_ended", "status": "victory", "xp_total": 50, "xp_each": 25, "recipients": ["pc-a", "pc-b"]}}
+{"seq": 9, "event": {"type": "xp_gained", "creature_id": "pc-a", "amount": 25, "xp": 25}}
+{"seq": 10, "event": {"type": "xp_gained", "creature_id": "pc-b", "amount": 25, "xp": 25}}
+{"seq": 11, "event": {"type": "reward_granted", "source": "loot:1", "kind": "loot", "xp_each": 0, "gold_each": 20, "items": []}}
+{"seq": 12, "event": {"type": "gold_changed", "creature_id": "pc-a", "delta": 20, "gold": 30}}
+{"seq": 13, "event": {"type": "gold_changed", "creature_id": "pc-b", "delta": 20, "gold": 30}}
+{"seq": 14, "event": {"type": "encounter_offered", "offer": {"id": "offer-2", "boss_npc_id": null}}}
+{"seq": 15, "event": {"type": "offer_resolved", "offer_id": "offer-2", "choice": "fight", "success": true, "detail": ""}}
+{"seq": 16, "event": {"type": "encounter_started", "encounter": {"id": "enc-2"}}}
+{"seq": 17, "event": {"type": "turn_started", "creature_id": "pc-a", "round": 1, "active_index": 0, "economy": {}}}
+{"seq": 18, "event": {"type": "turn_started", "creature_id": "pc-a", "round": 2, "active_index": 0, "economy": {}}}
+{"seq": 19, "event": {"type": "turn_started", "creature_id": "pc-a", "round": 3, "active_index": 0, "economy": {}}}
+{"seq": 20, "event": {"type": "hp_changed", "creature_id": "pc-a", "delta": -8, "new_hp": 0}}
+{"seq": 21, "event": {"type": "encounter_ended", "status": "victory", "xp_total": 50, "xp_each": 25, "recipients": ["pc-a", "pc-b"]}}
+{"seq": 22, "event": {"type": "xp_gained", "creature_id": "pc-a", "amount": 25, "xp": 25}}
+{"seq": 23, "event": {"type": "xp_gained", "creature_id": "pc-b", "amount": 25, "xp": 25}}
+{"seq": 24, "event": {"type": "short_rest_taken", "short_rests_used": 1}}
+{"seq": 25, "event": {"type": "gold_changed", "creature_id": "pc-a", "delta": -12, "gold": 18}}
+{"seq": 26, "event": {"type": "inventory_changed", "creature_id": "pc-a", "item": "rope", "delta": 1}}
+{"seq": 27, "event": {"type": "items_traded", "npc_id": "shopkeep", "creature_id": "pc-a", "item": "rope", "qty": 1, "gold": 12, "sold": false}}
+{"seq": 28, "event": {"type": "gold_changed", "creature_id": "pc-a", "delta": 5, "gold": 23}}
+{"seq": 29, "event": {"type": "items_traded", "npc_id": "shopkeep", "creature_id": "pc-a", "item": "dagger", "qty": 1, "gold": 5, "sold": true}}
+{"seq": 30, "event": {"type": "item_used", "creature_id": "pc-a", "item": "rope", "use_id": "climb"}}
+{"seq": 31, "event": {"type": "item_used", "creature_id": "pc-b", "item": "healing-potion", "use_id": "drink"}}
+{"seq": 32, "event": {"type": "item_used", "creature_id": "pc-b", "item": "healing-potion", "use_id": "drink"}}
+{"seq": 33, "event": {"type": "item_use_refused", "creature_id": "pc-b", "item": "torch", "use_id": "light", "reason": "no"}}
+{"seq": 34, "event": {"type": "narration_recorded", "text": "x", "scene_turn": 1}}
+{"seq": 35, "event": {"type": "narration_recorded", "text": "y", "scene_turn": 2}}
+{"seq": 36, "event": {"type": "encounter_offered", "offer": {"id": "offer-3", "boss_npc_id": "warden"}}}
+{"seq": 37, "event": {"type": "offer_resolved", "offer_id": "offer-3", "choice": "fight", "success": true, "detail": ""}}
+{"seq": 38, "event": {"type": "encounter_started", "encounter": {"id": "enc-3"}}}
+{"seq": 39, "event": {"type": "turn_started", "creature_id": "pc-a", "round": 1, "active_index": 0, "economy": {}}}
+{"seq": 40, "event": {"type": "turn_started", "creature_id": "pc-a", "round": 2, "active_index": 0, "economy": {}}}
+{"seq": 41, "event": {"type": "turn_started", "creature_id": "pc-a", "round": 3, "active_index": 0, "economy": {}}}
+{"seq": 42, "event": {"type": "turn_started", "creature_id": "pc-a", "round": 4, "active_index": 0, "economy": {}}}
+{"seq": 43, "event": {"type": "hp_changed", "creature_id": "pc-a", "delta": -10, "new_hp": 0}}
+{"seq": 44, "event": {"type": "encounter_ended", "status": "victory", "xp_total": 50, "xp_each": 25, "recipients": ["pc-a", "pc-b"]}}
+{"seq": 45, "event": {"type": "xp_gained", "creature_id": "pc-a", "amount": 25, "xp": 25}}
+{"seq": 46, "event": {"type": "xp_gained", "creature_id": "pc-b", "amount": 25, "xp": 25}}
+{"seq": 47, "event": {"type": "reward_granted", "source": "quest:q1", "kind": "quest", "xp_each": 0, "gold_each": 40, "items": []}}
+{"seq": 48, "event": {"type": "gold_changed", "creature_id": "pc-a", "delta": 40, "gold": 63}}
+{"seq": 49, "event": {"type": "gold_changed", "creature_id": "pc-b", "delta": 40, "gold": 70}}
+{"seq": 50, "event": {"type": "quest_updated", "quest": {"id": "q1", "title": "Q", "state": "done"}}}
+{"seq": 51, "event": {"type": "level_gained", "creature_id": "pc-a", "pc": {"level": 2}}}
+{"seq": 52, "event": {"type": "level_gained", "creature_id": "pc-b", "pc": {"level": 2}}}
+{"seq": 53, "event": {"type": "long_rest_taken"}}
+{"seq": 54, "event": {"type": "region_resolved", "region_id": "r1", "how": "defeat", "final": false}}
+{"seq": 55, "event": {"type": "creature_died", "creature_id": "pc-b"}}

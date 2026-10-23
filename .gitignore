@@ -10,3 +10,4 @@ __pycache__/
 .coverage
 *.egg-info/
 certs/
+!tests/fixtures/saves/
