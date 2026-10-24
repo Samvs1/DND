@@ -663,5 +663,80 @@
     "an errand", "a small errand", "small errand", "errand worth", "an errand for", "a run of",
     "a job for you", "a small job", "a task for you", "work for you", "some work for"
   ],
-  "stale_foe_skips": []
+  "stale_foe_skips": [],
+  "coin_placing_verbs": [
+    "slap", "slaps", "slapped", "slapping", "slam", "slams", "slammed", "set", "sets", "setting",
+    "lay", "lays", "laid", "laying", "drop", "drops", "dropped", "dropping", "place", "places",
+    "placed", "placing", "put", "puts", "putting", "stack", "stacks", "stacked", "stacking",
+    "pile", "piles", "piled", "push", "pushes", "pushed", "pushing", "slide", "slides", "slid",
+    "sliding", "toss", "tosses", "tossed", "tossing", "flip", "flips", "flipped", "flipping",
+    "plunk", "plunks", "plunked", "press", "presses", "pressed", "pressing", "hand", "hands",
+    "handed", "handing", "give", "gives", "gave", "giving"
+  ],
+  "coin_fillers": [
+    "the", "a", "an", "his", "her", "their", "its", "your", "our", "some", "few", "handful",
+    "of", "small", "little", "stack", "pile", "fistful", "two", "three", "four", "five", "six",
+    "seven", "eight", "nine", "ten", "twenty", "fifty", "hundred", "promised", "agreed", "full"
+  ],
+  "placed_coin_nouns": [
+    "coin", "coins", "gold", "silver", "coppers", "gold pieces", "gold coins", "silver pieces",
+    "silver coins", "copper pieces", "copper coins", "gp"
+  ],
+  "placed_coin_followers": [
+    "on", "onto", "upon", "into", "in", "before", "for", "across", "down", "beside", "at", "to",
+    "and", "between", "under", "over", "from", "out", "with", "back", "toward", "towards",
+    "near", "atop", "by", "as", "then", "but", "while", "there", "here", "too"
+  ],
+  "foe_feats": {
+    "split": {
+      "claims": ["splits into", "splitting into", "split into", "splits itself", "divides into",
+        "dividing into", "multiplies", "multiplying", "duplicates itself", "copies of itself"],
+      "support": ["split", "multipl", "duplicat", "mirror image"]
+    },
+    "summon": {
+      "claims": ["summons", "summoning", "calls forth", "calling forth", "conjures",
+        "conjuring", "calls up", "calls its kin", "calls for its kin"],
+      "support": ["summon", "conjur", "animate dead", "gate"]
+    },
+    "vanish": {
+      "claims": ["turns invisible", "turning invisible", "goes invisible", "becomes invisible",
+        "becoming invisible", "winks out of sight", "winks out of existence", "blinks out of sight",
+        "fades from sight", "fades from view", "fading from sight", "fades out of sight"],
+      "support": ["invisib", "blink", "ethereal", "incorporeal", "shadow stealth", "superior invisibility"]
+    },
+    "teleport": {
+      "claims": ["teleports", "teleporting", "blinks across", "blinks away", "steps through the shadows",
+        "steps through shadow", "vanishes and reappears", "reappears behind"],
+      "support": ["teleport", "misty step", "blink", "shadow step", "dimension door", "ethereal"]
+    },
+    "wing": {
+      "claims": ["takes wing", "taking wing", "soars", "soaring", "lifts into the air",
+        "lifting into the air", "rises into the air", "flies up", "flies over", "swoops", "swooping"],
+      "support": ["fly", "flyby", "levitat"]
+    },
+    "shape": {
+      "claims": ["transforms into", "transforming into", "changes shape", "changing shape",
+        "shifts into the shape", "takes the form of", "takes the shape of", "dissolves into mist",
+        "turns to mist", "turns into mist", "becomes mist"],
+      "support": ["shapechang", "change shape", "polymorph", "misty", "mist form", "alter self"]
+    },
+    "grow": {
+      "claims": ["grows to twice", "swells to twice", "doubles in size", "doubling in size",
+        "swells to giant", "grows to giant"],
+      "support": ["enlarge", "giant size"]
+    },
+    "regrow": {
+      "claims": ["regenerates", "regenerating", "heals itself", "healing itself",
+        "knits itself back", "knits back together", "pulls itself back together",
+        "its wounds knit", "its wounds close"],
+      "support": ["regenerat", "rejuvenat", "heal", "cure wounds"]
+    },
+    "breath": {
+      "claims": ["breathes fire", "breathes flame", "breathes frost", "breathes a gout",
+        "breathes a cone", "breathes a plume", "breathing fire", "breathes poison", "breathes lightning",
+        "breath weapon", "exhales a cone", "exhales a gout", "exhaling a gout", "spews fire",
+        "spews flame", "spews acid", "a cone of fire", "a cone of frost", "a cone of cold"],
+      "support": ["breath", "cone", "spew"]
+    }
+  }
 }

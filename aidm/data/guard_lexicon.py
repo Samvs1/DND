@@ -3,7 +3,7 @@
 Every list is lowercase; entries with a space are phrases. The guard (`aidm.dm.guard`) reads
 them through `guard_lexicon()`; nothing here holds logic.
 
-Public API: `GuardLexicon`, `load_guard_lexicon(path=None)`, `guard_lexicon()` (cached).
+Public API: `GuardLexicon`, `FoeFeat`, `load_guard_lexicon(path=None)`, `guard_lexicon()` (cached).
 """
 
 from __future__ import annotations
@@ -15,6 +15,16 @@ from pathlib import Path
 from pydantic import BaseModel, ConfigDict, model_validator
 
 DEFAULT_GUARD_LEXICON = Path(__file__).resolve().parents[2] / "data" / "bg3" / "guard_lexicon.json"
+
+
+class FoeFeat(BaseModel):
+    """M31.2b: a special ability told of a foe (`claims`) and the stems of its stat block or of
+    this turn's events that let it happen (`support`: "split", "fly", "invisib")."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    claims: frozenset[str]
+    support: tuple[str, ...]
 
 
 class GuardLexicon(BaseModel):
@@ -150,6 +160,12 @@ class GuardLexicon(BaseModel):
     coin_promises: frozenset[str] = frozenset()
     errand_offers: frozenset[str] = frozenset()
     stale_foe_skips: frozenset[str] = frozenset()
+    foe_feats: dict[str, FoeFeat] = {}  # M31.2b: abilities a foe's stat block must hold
+    # M31.2b (round 4 "Rook slaps the coins onto the table" with no gold moved)
+    coin_placing_verbs: frozenset[str] = frozenset()
+    coin_fillers: frozenset[str] = frozenset()
+    placed_coin_nouns: frozenset[str] = frozenset()
+    placed_coin_followers: frozenset[str] = frozenset()
 
     @model_validator(mode="after")
     def _check(self) -> GuardLexicon:
@@ -158,6 +174,9 @@ class GuardLexicon(BaseModel):
                 str(w) != str(w).lower() or not str(w).strip() for w in value
             ):
                 raise ValueError(f"{name}: lexicon entries must be lowercase and non-empty")
+        for name, feat in self.foe_feats.items():
+            if any(w != w.lower() or not w.strip() for w in (*feat.claims, *feat.support)):
+                raise ValueError(f"foe_feats.{name}: entries must be lowercase and non-empty")
         return self
 
 

@@ -12,10 +12,17 @@ another act told with it, `PayIntent.rest`; then the whole sentence):
   silver and copper round up to whole gold as the shop does (`rules.paying.gold_for`), a coin
   of no metal is gold, and no amount is 1. "Pay Rutter for a crossing" with no money pays what
   an open `pay` step asks of that NPC, else 1 gold (DECISIONS M29.9a);
-- `who` is a known NPC (`give_intent.named_npc`, a present one first); naming a hero is the
-  hero hand-over (`aidm.dm.hand_intent`), not this.
+- M31.2b (round 4 typed 44: "I slap 50 gold down on the table for Merre Wenslow" was told as
+  coins on the table while none moved): "<slap|set|put|leave|drop|...> [down] <money> [down]
+  [on the table] <for|before|in front of> <who>", "<press|put|tuck|...> <money> into <who>'s
+  hand" pay too;
+- `who` is a known NPC (`give_intent.named_npc`, a present one first); coins named for another
+  hero ("pay Brienne 10 gold", "slap 10 gold down for Brienne") are the hero hand-over of that
+  gold (`aidm.dm.hand_intent.HeroHandIntent`, the rules `aidm.rules.hero_handing`): one rule for
+  coins to anyone.
 None when no NPC is named (the next form is tried). The rules decide
-(`aidm.rules.paying.pay_events`).
+(`aidm.rules.paying.pay_events`): the coins move when the hero carries them, else the line is
+refused with the real purse ("Rook has only 15 gold.", DECISIONS M31.2b).
 
 Public API: `PayIntent(actor_id, npc_id, gold, rest)`, `RESOLVERS` (`pay`).
 """
@@ -23,6 +30,7 @@ Public API: `PayIntent(actor_id, npc_id, gold, rest)`, `RESOLVERS` (`pay`).
 from dataclasses import dataclass
 
 from aidm.dm.give_intent import named_npc
+from aidm.dm.hand_intent import HeroHandIntent
 from aidm.dm.intent_match import Found, Resolver
 from aidm.models.quests import StepKind
 from aidm.models.state import CreatureKind, GameState
@@ -55,27 +63,42 @@ def _asked(state: GameState, npc_id: str) -> int:
     return due[0] if due else 0
 
 
-def _is_hero(state: GameState, who: str) -> bool:
+def _hero(state: GameState, who: str) -> str | None:
     said = who.strip().removeprefix("the ")
-    return any(
-        c.kind is CreatureKind.PC and said in (c.name.lower(), c.name.lower().split()[0])
-        for c in state.creatures.values()
+    return next(
+        (
+            c.id
+            for c in sorted(state.creatures.values(), key=lambda c: c.id)
+            if c.kind is CreatureKind.PC and said in (c.name.lower(), c.name.lower().split()[0])
+        ),
+        None,
     )
 
 
-def pay(found: Found) -> PayIntent | None:
-    state, actor_id, who = found.state, found.actor_id, found.group("who") or ""
-    if actor_id not in state.creatures or _is_hero(state, who):
+def _gold(found: Found) -> int | None:
+    coin = found.group("coin")
+    if coin is None:
         return None
+    raw = found.group("n")
+    amount = int(raw) if raw is not None and raw.isdigit() else _NUMBERS.get(raw or "", 1)
+    return gold_for(amount, _METAL.get(coin, "gold"))
+
+
+def pay(found: Found) -> PayIntent | HeroHandIntent | None:
+    state, actor_id, who = found.state, found.actor_id, found.group("who") or ""
+    if actor_id not in state.creatures:
+        return None
+    gold = _gold(found)
+    hero = _hero(state, who)
+    if hero is not None:  # M31.2b: coins to a hero are that hero's hand-over
+        own = hero == actor_id or found.rest is not None
+        return None if gold is None or own else HeroHandIntent(actor_id, hero, None, gold=gold)
     npc_id = named_npc(state, who, anywhere=True)
     if npc_id is None:
         return None
-    coin = found.group("coin")
-    if coin is None:
+    if gold is None:
         return PayIntent(actor_id, npc_id, _asked(state, npc_id) or 1, found.rest)
-    raw = found.group("n")
-    amount = int(raw) if raw is not None and raw.isdigit() else _NUMBERS.get(raw or "", 1)
-    return PayIntent(actor_id, npc_id, gold_for(amount, _METAL.get(coin, "gold")), found.rest)
+    return PayIntent(actor_id, npc_id, gold, found.rest)
 
 
 RESOLVERS: dict[str, Resolver] = {"pay": pay}

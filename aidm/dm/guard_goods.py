@@ -5,7 +5,11 @@ check reads ONE sentence against the scene's `TurnTruth` (`aidm.dm.guard_turn`);
 data (data/bg3/guard_lexicon.json):
 - `unpaid_coin` (G1): a payment ("pays the ten gold", "counts out a gold piece", "passes over
   ... coin") when these events changed no gold; promises ("will you pay") and quoted speech
-  are not claims (M32.1b X11: the words outside the quote marks still are).
+  are not claims (M32.1b X11: the words outside the quote marks still are). M31.2b (round 4
+  typed 45: "Rook slaps the coins onto the table" while no gold moved): a `coin_placing_verbs`
+  verb with its coins as object ("sets two gold pieces", "drops a coin": up to three
+  `coin_fillers` words between, then a `placed_coin_nouns` noun that ends the phrase or is
+  followed by a `placed_coin_followers` word, so "drops the gold chain" is no payment).
 - `claimed_items` (G3): a thing the player used as the hero's own that the hero does not carry
   ("Brienne raises the potion", "Rook's silk rope", "Elowen's javelin"), unless the sentence tells
   it as absent ("no such potion", "finds nothing").
@@ -49,6 +53,29 @@ def _unquoted(sentence: str) -> str:
     return _QUOTED.sub(lambda m: " " * len(m.group(0)), sentence)
 
 
+def _alternatives(words: frozenset[str]) -> str:
+    return "|".join(re.escape(w) for w in sorted(words, key=len, reverse=True))
+
+
+def _placed_coin(sentence: str, scene: GuardScene) -> re.Match[str] | None:
+    """ "slaps the coins onto the table": coins put down or handed over, told as done."""
+    lex = scene.lexicon
+    if not lex.coin_placing_verbs or not lex.placed_coin_nouns:
+        return None
+    verbs, nouns = _alternatives(lex.coin_placing_verbs), _alternatives(lex.placed_coin_nouns)
+    fillers, follow = _alternatives(lex.coin_fillers), _alternatives(lex.placed_coin_followers)
+    pattern = (
+        rf"\b(?:{verbs})\s+(?:(?:{fillers}|\d+)\s+){{0,3}}(?:{nouns})"
+        rf"(?![\w'-])(?!\s+(?!(?:{follow})\b)[a-z])"
+    )
+    tokens = tokenize(sentence)
+    for m in re.finditer(pattern, sentence, re.IGNORECASE):
+        index = _index_at(tokens, m.start())
+        if index is None or not is_negated(tokens, index, lex.negations, span=3):
+            return m
+    return None
+
+
 def unpaid_coin(sentence: str, tokens: list[Token], scene: GuardScene) -> list[Violation]:
     """M32.1b X11: a sentence with speech in it ("'Fifteen silver, as agreed,' she says, and
     pays the full sum") is judged by its telling outside the quote marks."""
@@ -56,9 +83,15 @@ def unpaid_coin(sentence: str, tokens: list[Token], scene: GuardScene) -> list[V
     if not truth.checked or truth.paid or not find_phrases(sentence, lex.coin_nouns):
         return []
     told = _unquoted(sentence)
-    if find_phrases(told, lex.promise_words | lex.payment_refusals):
+    if find_phrases(told, lex.payment_refusals):
         return []
-    verb = _first_unnegated(told, tokenize(told), lex.payment_verbs, scene)
+    if find_phrases(told, lex.promise_words):  # "will you pay": a pay word is only a promise
+        placed = _placed_coin(told, scene)  # but coins put down before any "if" are told done
+        hedged = placed is None or find_phrases(told[: placed.start()], lex.promise_words)
+        verb = None if hedged else placed
+    else:
+        verb = _first_unnegated(told, tokenize(told), lex.payment_verbs, scene)
+        verb = verb or _placed_coin(told, scene)
     if verb is None:
         return []
     detail = "no gold changed hands: the engine made no sale or payment this turn"

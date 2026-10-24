@@ -18,6 +18,12 @@ miss: typed 1320) and "His next javelin takes Rook across the ribs" when nobody 
   one that hit;
 - `weapon_hits`: a weapon or attack noun right before an `armed_verbs` verb ("javelin takes")
   whose target lost no hit points in these events (a phantom hit; "his" hides the attacker).
+- M31.2b (round 3 items 908): `invented_feats`: a foe told doing a special ability or a
+  transformation (a `foe_feats` row's `claims`: "splitting into", "turns invisible", "takes
+  wing", "summons") that its stat block and this turn's events do not hold (none of the row's
+  `support` stems starts a word of `FightLedger.feats`, `aidm.dm.foe_feats`); the subject must be
+  the foe itself ("its growl splits into two notes" is about the growl), and a foe with no stat
+  block is not judged.
 Who a sentence names: `aidm.dm.guard_mentions`.
 
 Public API: `foe_truth(text, tokens, mentions, scene) -> list[Violation]`.
@@ -128,6 +134,32 @@ def _weapon_hits(text: str, mentions: list[Mention], scene: GuardScene) -> list[
     return []
 
 
+def _supported(ids: frozenset[str], stems: tuple[str, ...], feats: dict[str, str]) -> bool:
+    """Any of the foes `ids` may mean holds the ability (or has no stat block: fail open)."""
+    pattern = re.compile("|".join(rf"\b{re.escape(s)}" for s in stems))
+    return any(i not in feats or pattern.search(feats[i]) for i in ids)
+
+
+def _invented_feats(
+    text: str, tokens: list[Token], mentions: list[Mention], scene: GuardScene
+) -> list[Violation]:
+    ledger = scene.turn.fight
+    for feat in scene.lexicon.foe_feats.values():
+        for m in claims(text, tokens, feat.claims, scene):
+            who = subject_of(text, mentions, m.start(), m.end())
+            if who is None or not who.ids or not who.ids <= ledger.foes:
+                continue
+            said = text[who.start : who.end].casefold()
+            if said == "its" or said.endswith("'s"):
+                continue  # "its growl splits into two notes": the growl, not the foe
+            if _supported(who.ids, feat.support, ledger.feats):
+                continue
+            names = names_of(scene, who.ids)
+            detail = f"{names} has no such ability in its stat block or these events"
+            return blow(ViolationKind.INVENTED_FEAT, m.group(0), detail)
+    return []
+
+
 def foe_truth(
     text: str, tokens: list[Token], mentions: list[Mention], scene: GuardScene
 ) -> list[Violation]:
@@ -136,4 +168,5 @@ def foe_truth(
         *_helpless_acting(text, tokens, mentions, scene),
         *_wrong_order(text, mentions, scene),
         *_weapon_hits(text, mentions, scene),
+        *_invented_feats(text, tokens, mentions, scene),
     ]

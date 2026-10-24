@@ -1360,9 +1360,46 @@
         },
         {
           "re": "count out {money} (?:for|to) {hero:who}"
+        },
+        {
+          "re": "{verbs}(?: down)? {money}(?: down)?(?: (?:on|onto|upon|in|into|at|by|beside|across|over) [a-z0-9' ,-]+?)? (?:for|before|in front of|at the feet of) (?:the )?{hero:who}{for}",
+          "verbs": [
+            "slap",
+            "slam",
+            "set",
+            "put",
+            "place",
+            "lay",
+            "leave",
+            "drop",
+            "push",
+            "slide",
+            "flip",
+            "throw",
+            "toss",
+            "plunk",
+            "stack",
+            "pile",
+            "count",
+            "press",
+            "tuck"
+          ]
+        },
+        {
+          "re": "{verbs} {money} (?:in|into) {hero:who}'s (?:hand|hands|palm|purse|cup|lap|pocket)",
+          "verbs": [
+            "press",
+            "put",
+            "place",
+            "drop",
+            "tuck",
+            "slip",
+            "push",
+            "pour"
+          ]
         }
       ],
-      "note": "M29.9a T17: coins to an NPC, after a give of a carried thing"
+      "note": "M29.9a T17: coins to an NPC, after a give of a carried thing; M31.2b: coins put down for or before someone ('slap 50 gold down on the table for Merre'), pressed into their hand, and coins to a hero (a hero hand-over)"
     },
     {
       "id": "give_missing",

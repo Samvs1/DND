@@ -22,6 +22,8 @@ events already applied to `state`:
 - M32.1b (round 5 X12): `helpless` (ids alive with a `helpless_conditions` condition: asleep,
   unconscious, paralyzed...), `rolls` (attacker -> hit flags of its attacks in order, for
   attackers with two or more: Scorching Ray's three rays).
+- M31.2b (items 908): `feats` (foe id -> the text of what its stat block and this turn's events
+  let it do, `aidm.dm.foe_feats`: a mephit may breathe frost, never split into shards).
 Generic foe words (lexicon `foe_words`: "creature", "corpse") mean every foe.
 `FightLedger()` (empty `terms`) switches the per-creature checks off.
 
@@ -35,6 +37,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass, field
 
 from aidm.data.guard_lexicon import GuardLexicon, guard_lexicon
+from aidm.dm.foe_feats import feat_texts
 from aidm.dm.guard_text import plain
 from aidm.dm.wording import attack_label
 from aidm.models import events as ev
@@ -68,6 +71,7 @@ class FightLedger:
     kinds: dict[str, int] = field(default_factory=dict[str, int])
     helpless: frozenset[str] = frozenset()  # M32.1b X12: alive, asleep or otherwise helpless
     rolls: dict[str, tuple[bool, ...]] = field(default_factory=dict[str, tuple[bool, ...]])
+    feats: dict[str, str] = field(default_factory=dict[str, str])  # M31.2b: foe id -> abilities
 
     @property
     def active(self) -> bool:
@@ -284,6 +288,7 @@ def fight_ledger(state: GameState, events: Sequence[ev.AnyEvent]) -> FightLedger
         kinds=_kinds(state, fighters),
         helpless=_helpless(fighters, lex),
         rolls=_rolls(events),
+        feats=feat_texts(fighters, events),
     )
 
 

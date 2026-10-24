@@ -11,6 +11,7 @@ Public API:
   M30.2b UNCAST_SPELL; M31.1c: FOE_COUNT, IMMUNE_HARMED, HIT_TOLD_MISSED, MISS_HARM_UNTOLD,
   FOUND_TAKEN, WRONG_RECIPIENT, QUEST_ACCEPTED, ALLY_DEFEATED; M32.1b: EPILOGUE_PLACE,
   FLED_ALIVE, HELPLESS_ACTING, WRONG_ORDER, COIN_PROMISED, UNASKED_ERRAND, STALE_FOE;
+  M31.2b: INVENTED_FEAT;
   `SCRUBBED_KINDS` (names removed from a retry).
 - `Violation(kind, span, detail)`: `span` is the offending text as written (a name, a phrase).
 - `GuardReport(violations)`: `ok`, `scrub_terms` (distinct offending names, removed from the
@@ -85,6 +86,7 @@ class ViolationKind(StrEnum):
     COIN_PROMISED = "coin_promised"
     UNASKED_ERRAND = "unasked_errand"
     STALE_FOE = "stale_foe"
+    INVENTED_FEAT = "invented_feat"  # M31.2b: items 908, an ability the foe does not have
 
 
 SCRUBBED_KINDS = frozenset({ViolationKind.UNKNOWN_NAME, ViolationKind.ABSENT_NPC})
