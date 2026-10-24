@@ -15,6 +15,8 @@ Public API:
   session calls it after a fight ends and after attitude changes. M29.9a T15: no deed or quest
   step closes the master's waiting offer; it waits, shown as a sure parley, for the player's
   answer (`offer_answer.answer_offer` closes a settled master's offer peacefully, M29.5b G29).
+- `offer_closed(offer, choice, *, success, detail) -> OfferResolved`: the answer to an offer,
+  with its foes and its master (M33.2); `peaceful_close(offer)`: a parley answer, no fight.
 - `settled_offer(state) -> EncounterOffer | None`: the pending offer of a boss whose region is
   already resolved (such an offer is answered without a fight).
 - `campaign_complete(state) -> bool`: the story is over: the final region is resolved and, when
@@ -101,14 +103,22 @@ def region_resolution_events(state: GameState) -> list[AnyEvent]:
     return events
 
 
-def peaceful_close(offer: EncounterOffer) -> OfferResolved:
+def offer_closed(
+    offer: EncounterOffer, choice: OfferChoice, *, success: bool | None = None, detail: str = ""
+) -> OfferResolved:
+    """The answer to `offer`, naming who it was to: its monsters and its master (M33.2)."""
     return OfferResolved(
         offer_id=offer.id,
-        choice=OfferChoice.PARLEY,
-        success=True,
-        detail="no fight",
+        choice=choice,
+        success=success,
+        detail=detail,
         foes=offer.monster_ids,
+        boss_npc_id=offer.boss_npc_id,
     )
+
+
+def peaceful_close(offer: EncounterOffer) -> OfferResolved:
+    return offer_closed(offer, OfferChoice.PARLEY, success=True, detail="no fight")
 
 
 def settled_offer(state: GameState) -> EncounterOffer | None:

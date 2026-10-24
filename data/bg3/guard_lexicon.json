@@ -663,7 +663,16 @@
     "an errand", "a small errand", "small errand", "errand worth", "an errand for", "a run of",
     "a job for you", "a small job", "a task for you", "work for you", "some work for"
   ],
-  "stale_foe_skips": [],
+  "stale_foe_skips": [
+    "acolyte", "assassin", "gargoyle", "gladiator", "knight", "noble", "priest", "scout",
+    "skeleton", "veteran"
+  ],
+  "creature_determiners": [
+    "a", "an", "the", "this", "that", "these", "those", "another", "each", "every", "some",
+    "any", "several", "many", "few", "more", "other", "his", "her", "its", "their", "your",
+    "our", "my"
+  ],
+  "creature_noun_breaks": ["of"],
   "coin_placing_verbs": [
     "slap", "slaps", "slapped", "slapping", "slam", "slams", "slammed", "set", "sets", "setting",
     "lay", "lays", "laid", "laying", "drop", "drops", "dropped", "dropping", "place", "places",

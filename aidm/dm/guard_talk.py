@@ -13,7 +13,8 @@ speech alike (`GuardScene.talk`, `aidm.dm.guard_turn.TalkTruth`); vocabulary is 
   event happened and no open quest's giver stands here: errands exist only through the favour
   tool (`offer_favour`);
 - `stale_foe`: a foe kind of the encounter catalogue named while it is not in play and other
-  foes are (`GuardScene.stale_foes`, `aidm.dm.guard_present`).
+  foes are (`GuardScene.stale_foes`, `aidm.dm.guard_present`); a one-word kind counts only as
+  a creature noun (M33.2 finding 6, `creature_determiners`, `creature_noun_breaks`).
 
 Public API: `promised_coin`, `unasked_errand`, `stale_foe`.
 """
@@ -60,14 +61,39 @@ def unasked_errand(sentence: str, tokens: list[Token], scene: GuardScene) -> lis
     return [Violation(ViolationKind.UNASKED_ERRAND, claim.group(0), detail)]
 
 
+def _creature_noun(sentence: str, tokens: list[Token], m: re.Match[str], scene: GuardScene) -> bool:
+    """M33.2 finding 6: a one-word kind names a creature only as a noun with a determiner (an
+    article, count, ordinal or possessive up to two words before: "the scouts", "two hulking
+    zombies", "Vex's bandits") or as the sentence's first word ("Zombies lurch"); never before
+    "of" or a hyphen ("a skeleton of a boat", "zombie-like"), and never as a verb ("Rook scouts
+    the treeline")."""
+    if len(m.group(0).split()) > 1:
+        return True
+    lex = scene.lexicon
+    index = next((i for i, t in enumerate(tokens) if t.start >= m.start()), len(tokens))
+    after = tokens[index + 1].lower if index + 1 < len(tokens) else ""
+    if sentence[m.end() : m.end() + 1] == "-" or after in lex.creature_noun_breaks:
+        return False
+    if index == 0 or (index < len(tokens) and tokens[index].initial):
+        return True
+    marks = lex.creature_determiners | lex.count_words.keys() | lex.ordinal_words.keys()
+    before = tokens[max(0, index - 2) : index]
+    return any(t.lower in marks or t.lower.endswith("'s") for t in before)
+
+
 def stale_foe(sentence: str, tokens: list[Token], scene: GuardScene) -> list[Violation]:
     if not scene.stale_foes:
         return []
-    terms = scene.stale_foes.keys() | {f"{t}s" for t in scene.stale_foes}
-    claim = _unnegated(sentence, tokens, frozenset(terms), scene)
-    if claim is None:
-        return []
-    low = claim.group(0).casefold()
-    name = scene.stale_foes.get(low) or scene.stale_foes.get(low[:-1], claim.group(0))
-    detail = f"no {name} is here now: tell only the foes of this scene"
-    return [Violation(ViolationKind.STALE_FOE, claim.group(0), detail)]
+    terms = frozenset(scene.stale_foes.keys() | {f"{t}s" for t in scene.stale_foes})
+    negations = scene.lexicon.negations
+    for m in find_phrases(sentence, terms):
+        index = next((i for i, t in enumerate(tokens) if t.start >= m.start()), len(tokens))
+        if is_negated(tokens, index, negations, span=2):
+            continue
+        if not _creature_noun(sentence, tokens, m, scene):
+            continue
+        low = m.group(0).casefold()
+        name = scene.stale_foes.get(low) or scene.stale_foes.get(low[:-1], m.group(0))
+        detail = f"no {name} is here now: tell only the foes of this scene"
+        return [Violation(ViolationKind.STALE_FOE, m.group(0), detail)]
+    return []

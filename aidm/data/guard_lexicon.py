@@ -160,6 +160,8 @@ class GuardLexicon(BaseModel):
     coin_promises: frozenset[str] = frozenset()
     errand_offers: frozenset[str] = frozenset()
     stale_foe_skips: frozenset[str] = frozenset()
+    creature_determiners: frozenset[str] = frozenset()  # M33.2: "the scouts", not "scouts the"
+    creature_noun_breaks: frozenset[str] = frozenset()  # M33.2: "a skeleton of a boat"
     foe_feats: dict[str, FoeFeat] = {}  # M31.2b: abilities a foe's stat block must hold
     # M31.2b (round 4 "Rook slaps the coins onto the table" with no gold moved)
     coin_placing_verbs: frozenset[str] = frozenset()

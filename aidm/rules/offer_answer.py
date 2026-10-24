@@ -32,7 +32,6 @@ from collections import Counter
 from collections.abc import Sequence
 
 from aidm.models.abilities import Skill
-from aidm.models.campaign_events import OfferResolved
 from aidm.models.campaign_state import EncounterOffer, OfferChoice
 from aidm.models.checks import CheckResult
 from aidm.models.dm_tiers import DeltaTier
@@ -47,7 +46,7 @@ from aidm.rules.dice import Rng
 from aidm.rules.encounter_offer import offer_fight_events
 from aidm.rules.light import arrival_events
 from aidm.rules.offer_spokes import OfferData
-from aidm.rules.progression import peaceful_close, region_of, settled_offer
+from aidm.rules.progression import offer_closed, peaceful_close, region_of, settled_offer
 from aidm.rules.quest_plan import main_quest
 from aidm.rules.quest_progress import peace_ready
 from aidm.rules.social import social_attitude_events
@@ -190,27 +189,14 @@ def answer_offer(
     if settled_offer(state) is not None:  # M29.5b G29: the boss's region is already settled
         return [peaceful_close(offer)]
     if foes_gone(state, offer):
-        return [
-            OfferResolved(
-                offer_id=offer.id,
-                choice=choice,
-                detail="no foes are left",
-                foes=offer.monster_ids,
-            )
-        ]
+        return [offer_closed(offer, choice, detail="no foes are left")]
     sure = choice is OfferChoice.PARLEY and sure_parley(state, offer)
     success, checks, surprise = _resolve(state, offer, choice, rng, (actor_id, skill))
     detail = "the fight starts" if surprise is not None else "no fight"
     if success and choice is OfferChoice.PARLEY and not sure:
         detail = master_waits(state, offer) or detail
     events: list[AnyEvent] = [
-        OfferResolved(
-            offer_id=offer.id,
-            choice=choice,
-            success=success,
-            detail=detail,
-            foes=offer.monster_ids,
-        ),
+        offer_closed(offer, choice, success=success, detail=detail),
         *checks,
     ]
     if surprise is not None:

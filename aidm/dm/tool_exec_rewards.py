@@ -31,7 +31,6 @@ from aidm.dm.tool_exec_common import (
     require_npc,
 )
 from aidm.dm.tools import GrantItemArgs, GrantXpArgs, StartEncounterArgs
-from aidm.models.campaign_events import OfferResolved
 from aidm.models.campaign_state import EncounterOffer, OfferChoice
 from aidm.models.encounter import (
     EncounterSetup,
@@ -51,7 +50,7 @@ from aidm.rules.encounter_offer import offer_fight_events
 from aidm.rules.item_grants import gain_item_events
 from aidm.rules.leveling import gain_xp
 from aidm.rules.offer_answer import foes_gone
-from aidm.rules.progression import node_plan
+from aidm.rules.progression import node_plan, offer_closed
 from aidm.rules.social import hostile_attitude_events
 from aidm.rules.zone_gen import generate_zone_map
 from aidm.rules.zones import zone_neighbors
@@ -161,15 +160,7 @@ def _answer_offer(
     state: GameState, offer: EncounterOffer, npcs: list[WorldNpc], rng: Rng, regs: ToolRegistries
 ) -> list[AnyEvent]:
     """M31.1b V10: the fight answers the waiting offer and fields every one of its foes."""
-    detail = "the fight starts"
-    closed = OfferResolved(
-        offer_id=offer.id,
-        choice=OfferChoice.FIGHT,
-        success=None,
-        detail=detail,
-        foes=offer.monster_ids,
-    )
-    events: list[AnyEvent] = [closed]
+    events: list[AnyEvent] = [offer_closed(offer, OfferChoice.FIGHT, detail="the fight starts")]
     extra = [n for n in npcs if n.id != offer.boss_npc_id]
     for npc in non_hostile(extra):
         events.extend(hostile_attitude_events(npc, "the party attacked"))

@@ -255,8 +255,9 @@ def _warmed(state: GameState, events: Sequence[ev.AnyEvent], lex: GuardLexicon) 
 @dataclass(frozen=True)
 class TalkTruth:
     """M32.1b X10 X11: what anyone may promise this turn, narration and NPC speech alike.
-    `coin_ok`: a shop is at work, or a quest other than a favour is asked or held by a giver
-    standing here (its reward is the engine's); `errand_ok`: a quest event happened, or an open
+    `coin_ok`: a shop is at work, the engine moved gold this turn (`_gold_moved`, M33.2), or a
+    quest other than a favour is asked or held by a giver standing here (its reward is the
+    engine's); `errand_ok`: a quest event happened, or an open
     quest's giver stands here. `TalkTruth()` (`checked` False) switches the checks off."""
 
     checked: bool = False
@@ -279,11 +280,22 @@ def _givers_here(state: GameState) -> list[Quest]:
     ]
 
 
+def _gold_moved(events: Sequence[ev.AnyEvent]) -> bool:
+    """M33.2 finding 8: the engine moved coin this turn: a sale, any `GoldChanged` (a payment,
+    a quest's or a milestone's payout), a hand-over with gold or a reward paying gold."""
+    return any(
+        isinstance(e, ev.GoldChanged | we.ItemsTraded)
+        or (isinstance(e, HandedOver) and e.gold > 0)
+        or (isinstance(e, we.RewardGranted) and e.gold_each > 0)
+        for e in events
+    )
+
+
 def talk_truth(state: GameState, events: Sequence[ev.AnyEvent]) -> TalkTruth:
     quests = state.world.quests
     asked = [quests.get(e.ask.quest_id) for e in events if isinstance(e, QuestAsked)]
     held = [*(q for q in asked if q is not None), *_givers_here(state)]
-    shop = any(isinstance(e, we.ShopOpened | we.ItemsTraded) for e in events)
+    shop = any(isinstance(e, we.ShopOpened) for e in events) or _gold_moved(events)
     coin_ok = shop or any(q.kind is not QuestKind.FAVOUR for q in held)
     errand_ok = bool(held) or any(isinstance(e, _QUEST_TALK) for e in events)
     return TalkTruth(checked=True, coin_ok=coin_ok, errand_ok=errand_ok)
@@ -314,7 +326,7 @@ def turn_truth(
         in_fight=_fighting(state, events),
         blows=any(isinstance(e, _BLOWS) for e in events),
         weapons=_weapons(state, events, lex),
-        paid=any(isinstance(e, ev.GoldChanged | we.ItemsTraded) for e in events),
+        paid=_gold_moved(events),
         handed=any(
             isinstance(e, _HANDED) or (isinstance(e, ev.InventoryChanged) and e.delta < 0)
             for e in events

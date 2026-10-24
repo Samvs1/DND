@@ -6,10 +6,17 @@ lazily, only on the first real render; with no key or no voice nothing is import
 called (zero cost). Any exception or timeout logs the exception class (never a message or key) and
 returns None, so the caller shows text only. The file name is the sha1 of `model|voice|tone|text`;
 `tts_hook` adapts the adapter to the table's `TtsHook` (a `/tts/<hash>.mp3` URL or None).
-The synchronous SDK call runs on a worker thread so the event loop is never blocked.
+The synchronous SDK call runs on the adapter's OWN small thread pool (M33.2 finding 10:
+`render_workers`, env `TTS_RENDER_WORKERS`, default 2), never the loop's default executor that
+DNS and httpx for the LLM share, so a stalling provider cannot starve the table. With every
+worker busy a sentence skips synthesis at once (text only, logged once per busy spell). The
+worker renders AND caches, so a render that ends after its waiter gave up (`timeout_s`) still
+fills the cache. fish-audio-sdk 1.3.0's legacy `Session` takes no timeout and builds its httpx
+client with `timeout=None`; the adapter gives that client a `timeout_s` timeout (connect, read,
+write and pool) and closes it after the render.
 
 Public API: `FishSettings`, `fish_settings_from_env`, `FishTts`, `cache_key`, `valid_tts_name`,
-`tts_hook`, `DEFAULT_MODEL`, `DEFAULT_CACHE_DIR`.
+`tts_hook`, `DEFAULT_MODEL`, `DEFAULT_CACHE_DIR`, `DEFAULT_WORKERS`.
 """
 
 import asyncio
@@ -17,10 +24,14 @@ import hashlib
 import logging
 import os
 import re
+import threading
 from collections.abc import Callable, Mapping
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
+
+import httpx
 
 from aidm.data.tts_tones import ToneParams, tts_tones
 from aidm.models.narration import NarrationTone
@@ -28,6 +39,7 @@ from aidm.session.table_core import TtsHook
 
 DEFAULT_MODEL = "s1"
 DEFAULT_CACHE_DIR = Path("logs") / "tts_cache"
+DEFAULT_WORKERS = 2
 _NAME = re.compile(r"^[0-9a-f]{40}\.mp3$")
 _LOG = logging.getLogger(__name__)
 
@@ -40,6 +52,7 @@ class FishSettings:
     voice_name: str | None = None
     cache_dir: Path = DEFAULT_CACHE_DIR
     timeout_s: float = 25.0
+    render_workers: int = DEFAULT_WORKERS
 
     @property
     def has_key(self) -> bool:
@@ -65,7 +78,15 @@ def fish_settings_from_env(environ: Mapping[str, str]) -> FishSettings:
         model=get("FISH_MODEL") or DEFAULT_MODEL,
         voice_name=get("FISH_VOICE_NAME"),
         cache_dir=Path(cache) if cache else DEFAULT_CACHE_DIR,
+        render_workers=_workers(get("TTS_RENDER_WORKERS")),
     )
+
+
+def _workers(raw: str | None) -> int:
+    try:
+        return max(1, int(raw)) if raw else DEFAULT_WORKERS
+    except ValueError:
+        return DEFAULT_WORKERS
 
 
 def cache_key(model: str, voice: str, tone: str, text: str) -> str:
@@ -82,6 +103,16 @@ def _import_sdk() -> Any:
     return fish_audio_sdk
 
 
+def _bound_client(session: Any, seconds: float) -> httpx.Client | None:
+    """The legacy SDK session's sync httpx client (fish-audio-sdk 1.3.0 `RemoteCall`), given a
+    `seconds` timeout: the SDK offers no timeout argument and builds it with none."""
+    client = getattr(session, "_sync_client", None)
+    if not isinstance(client, httpx.Client):
+        return None
+    client.timeout = httpx.Timeout(seconds)
+    return client
+
+
 class FishTts:
     def __init__(
         self, settings: FishSettings, *, sdk_loader: Callable[[], Any] = _import_sdk
@@ -89,6 +120,10 @@ class FishTts:
         self.settings = settings
         self._sdk_loader = sdk_loader
         self._sdk_failed = False
+        self._workers = max(1, settings.render_workers)
+        self._slots = threading.BoundedSemaphore(self._workers)
+        self._pool: ThreadPoolExecutor | None = None
+        self._busy_told = False
 
     @property
     def ready(self) -> bool:
@@ -98,6 +133,26 @@ class FishTts:
         key = cache_key(self.settings.model, self.settings.voice_id or "", tone, text)
         return self.settings.cache_dir / f"{key}.mp3"
 
+    def close(self) -> None:
+        """Stop the render pool without waiting (a stalled render ends on its own timeout)."""
+        if self._pool is not None:
+            self._pool.shutdown(wait=False, cancel_futures=True)
+            self._pool = None
+
+    def _executor(self) -> ThreadPoolExecutor:
+        if self._pool is None:
+            self._pool = ThreadPoolExecutor(self._workers, thread_name_prefix="tts")
+        return self._pool
+
+    def _take_slot(self) -> bool:
+        if self._slots.acquire(blocking=False):
+            self._busy_told = False
+            return True
+        if not self._busy_told:
+            self._busy_told = True
+            _LOG.warning("tts: every render worker is busy, text only")
+        return False
+
     async def synthesize(self, text: str, tone: NarrationTone | str) -> Path | None:
         clean = text.strip()
         if not clean or not self.ready:
@@ -106,22 +161,40 @@ class FishTts:
         path = self.path_for(clean, name)
         if path.is_file():
             return path
+        if not self._take_slot():
+            return None
+        params = tts_tones().params(name)
         try:
-            data = await asyncio.wait_for(
-                asyncio.to_thread(self._render, clean, tts_tones().params(name)),
-                self.settings.timeout_s,
+            job = asyncio.get_running_loop().run_in_executor(
+                self._executor(), self._render_store, path, clean, params
             )
+        except RuntimeError:  # the pool was closed: text only
+            self._slots.release()
+            return None
+        try:  # shielded: a waiter that gives up never cancels the render, which still caches
+            done = await asyncio.wait_for(asyncio.shield(job), self.settings.timeout_s)
+        except TimeoutError:
+            _LOG.warning("tts failed: TimeoutError")
+            return None
+        return path if done else None
+
+    def _render_store(self, path: Path, text: str, params: ToneParams) -> bool:
+        """On a render worker: render and cache the sentence, then free the worker's slot."""
+        try:
+            data = self._render(text, params)
             if not data:
                 _LOG.warning("tts: no audio, text only")
-                return None
+                return False
             self._store(path, data)
+            return True
         except Exception as exc:
             status = getattr(exc, "status", None)
             _LOG.warning(
                 "tts failed: %s%s", type(exc).__name__, f" status={status}" if status else ""
             )
-            return None
-        return path
+            return False
+        finally:
+            self._slots.release()
 
     def _render(self, text: str, params: ToneParams) -> bytes:
         try:
@@ -131,6 +204,7 @@ class FishTts:
             _LOG.warning("tts: fish-audio-sdk is not installed, narration stays text only")
             return b""
         session = sdk.Session(self.settings.api_key)
+        client = _bound_client(session, self.settings.timeout_s)
         request = sdk.TTSRequest(
             text=text,
             reference_id=self.settings.voice_id,
@@ -139,14 +213,18 @@ class FishTts:
             temperature=params.temperature,
         )
         buf = bytearray()
-        for chunk in session.tts(request, backend=self.settings.model):
-            buf.extend(chunk)
+        try:
+            for chunk in session.tts(request, backend=self.settings.model):
+                buf.extend(chunk)
+        finally:
+            if client is not None:
+                client.close()
         return bytes(buf)
 
     @staticmethod
     def _store(path: Path, data: bytes) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
-        tmp = path.with_name(f"{path.name}.{os.getpid()}.tmp")
+        tmp = path.with_name(f"{path.name}.{os.getpid()}.{threading.get_ident()}.tmp")
         tmp.write_bytes(data)
         os.replace(tmp, path)
 

@@ -35,10 +35,11 @@ class TableRegistry:
     ) -> None:
         self.llm = llm
         self.store = CampaignStore(settings.saves_dir)
+        self._tts = FishTts(settings.fish)
         self._config = config or TableConfig(
             store=self.store,
             tts_enabled=settings.tts_enabled,
-            tts=tts_hook(FishTts(settings.fish)),
+            tts=tts_hook(self._tts),
             session_log=FileLog(Path(settings.saves_dir).parent / "logs" / "session.jsonl"),
             ai_turn_pause_s=settings.ai_turn_pause_s,
             show_wait_cap_s=settings.show_wait_cap_s,
@@ -57,6 +58,7 @@ class TableRegistry:
 
     async def stop(self) -> None:
         await self.table.stop()
+        self._tts.close()
         await self.llm.aclose()
 
     def list_saves(self) -> list[SaveInfo]:

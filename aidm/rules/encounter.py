@@ -52,7 +52,6 @@ from string import ascii_uppercase
 from aidm.data.registry import Registry
 from aidm.data.srd_monsters import SrdMonster
 from aidm.models.abilities import Ability
-from aidm.models.campaign_events import OfferResolved
 from aidm.models.campaign_state import OfferChoice
 from aidm.models.encounter import (
     Combatant,
@@ -78,6 +77,7 @@ from aidm.rules.harm_ends import befriended_by_party, yielded_to_party
 from aidm.rules.leveling import gain_xp
 from aidm.rules.monster_keys import LEGENDARY_KEY, legendary_pool
 from aidm.rules.monster_stats import creature_from_monster
+from aidm.rules.progression import offer_closed
 
 INITIATIVE_DIE = "1d4"
 SURPRISED = "surprised"
@@ -192,15 +192,7 @@ def _offer_closed_by_fight(state: GameState, setup: EncounterSetup) -> list[AnyE
     offer = state.campaign.offer if state.campaign is not None else None
     if offer is None or offer.id == setup.offer_id or offer.node_id != state.world.current_node:
         return []
-    detail = "the fight starts"
-    closed = OfferResolved(
-        offer_id=offer.id,
-        choice=OfferChoice.FIGHT,
-        success=None,
-        detail=detail,
-        foes=offer.monster_ids,
-    )
-    return [closed]
+    return [offer_closed(offer, OfferChoice.FIGHT, detail="the fight starts")]
 
 
 def _marked(creature: Creature, spawn: MonsterSpawn) -> Creature:
