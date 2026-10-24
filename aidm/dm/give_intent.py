@@ -19,10 +19,14 @@ storyteller gift; that row (`give_missing`) ranks after paying (M29.9a T17). The
 gave one): a counted keepsake ("the three whole salt-lanterns", "all the salt we have
 gathered": a number, or a word of the lexicon's `give_all_words`) is every fitting keepsake up
 to the count (`more`); `said` keeps the count asked, so the table can say how many there were.
+M33.1 (ultrareview 2: "give two arrows to Bram" gave one arrow and said "had only 1"): a counted
+give of a stacked inventory item is that many units, up to the stack held (`more` repeats the
+item key, one gift per unit through the same gift path).
 
 Public API: `GiveIntent(actor_id, npc_id, thing, more=(), said=1)` (`thing` a keepsake id, an
-inventory key, or "" for nothing carried; `more` further keepsakes of a counted hand-over;
-`said` the count asked, `GIVE_ALL` for "all"), `RESOLVERS` (`give_carried`, `give_missing`),
+inventory key, or "" for nothing carried; `more` further keepsakes, or further units of the
+inventory item, of a counted hand-over; `said` the count asked, `GIVE_ALL` for "all"),
+`RESOLVERS` (`give_carried`, `give_missing`),
 `give_intent(state, actor_id, clean) -> GiveIntent | None` (the give rows alone),
 `named_npc(state, who, anywhere)`.
 """
@@ -169,6 +173,9 @@ def _resolve(found: Found) -> GiveIntent | None:
         return None
     if said == 1 or actor.pc is None:
         return GiveIntent(actor.id, npc_id, thing)
+    held = next((e.qty for e in actor.pc.inventory if e.item == thing), 0)
+    if held:  # a stacked item: one unit per gift, up to the stack held
+        return GiveIntent(actor.id, npc_id, thing, (thing,) * (min(said, held) - 1), said)
     more = [k for k in _keepsakes(state, actor, _words(name), npc_id) if k != thing]
     return GiveIntent(actor.id, npc_id, thing, tuple(more[: said - 1]), said)
 

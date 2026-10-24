@@ -49,7 +49,7 @@ from aidm.rules.campaign_install import install_campaign
 from aidm.rules.character_io import CharacterImportInvalid, export_character, import_character
 from aidm.rules.creation import build_character, validate_creation
 from aidm.rules.sheet import build_sheet
-from aidm.session import combat_flow, host_seat, scribe_voice, turn_clock, votes
+from aidm.session import combat_flow, host_seat, scribe_voice, turn_clock, votes, waiting_line
 from aidm.session.stats import send_host_stats
 from aidm.session.table_core import Player, TableCore
 from aidm.session.telling import conclude
@@ -95,6 +95,7 @@ def hello(core: TableCore, conn_id: str, msg: Hello) -> None:
     core.conn_player[conn_id] = player.id
     if was_away:
         turn_clock.resume(core, player)  # M15.1: back within the grace, the turn is theirs
+        waiting_line.on_return(core, player)  # M33.1: the line held for that turn plays now
     welcome = Welcome(player_id=player.id, token=player.token, is_host=player.is_host)
     core.send_conn(conn_id, welcome)
     core.send_conn(conn_id, core.snapshot())

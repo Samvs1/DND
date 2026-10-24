@@ -57,7 +57,7 @@ from aidm.session.scribe_picker import ScribeMemory
 from aidm.session.session_log import SessionLog
 from aidm.session.show_board import ShowBoard
 from aidm.session.table_clock import Clock, LoopClock, TimerHandle
-from aidm.session.table_records import OpenVote, PendingHostile, TurnClock
+from aidm.session.table_records import HeldLine, OpenVote, PendingHostile, TurnClock
 from aidm.session.views import public_floor, public_state
 
 type TtsHook = Callable[[str, NarrationTone], Awaitable[str | None]]
@@ -103,7 +103,7 @@ class Player:
     creature_id: str | None = None
     conns: set[str] = field(default_factory=set[str])
     left_at: float | None = None  # clock time the last connection closed (M15.1 grace)
-    waiting_line: str | None = None  # M32.1a X3: typed at an offer, played on the hero's turn
+    waiting_line: HeldLine | None = None  # M32.1a X3: typed at an offer, played on its turn
 
     @property
     def connected(self) -> bool:

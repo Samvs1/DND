@@ -42,7 +42,7 @@ from aidm.models.protocol_server import (
 )
 from aidm.models.protocol_views import TablePhase
 from aidm.models.world_events import PartyMoved
-from aidm.session import scribe_voice
+from aidm.session import asides, scribe_voice
 from aidm.session.narration_pipe import NarrationPipe
 from aidm.session.quest_flow import settle_after
 from aidm.session.table_core import TableCore
@@ -138,7 +138,11 @@ async def conclude(
     actor_id: str | None = None,
     player_text: str | None = None,
 ) -> list[AnyEvent]:
-    """Narrate applied mechanics (see the module docstring); returns every event of the turn."""
+    """Narrate applied mechanics (see the module docstring); returns every event of the turn.
+    M33.1: scene-setting words of the turn's line (`asides.take`) are told with it."""
+    lead = asides.take()
+    if lead is not None:
+        player_text = f"{lead}, then {player_text}" if player_text else lead
     every = [*events, *await follow_ups(core, events)]
     source = replace(result, events=tuple(every)) if result is not None else every
     target = voice_target(core.state, result, player_text) if player_text else None

@@ -83,8 +83,9 @@ def _plan(state: GameState, actor_id: str, text: str, whole: FightIntent | None)
     if len(acts) >= 2:
         return acts
     if isinstance(whole, list) and len(acts) == 1:  # a move, then words no row reads
-        said = [p for p, r in zip(parts, routed, strict=True) if r is None and not is_lead_in(p)]
-        return [*acts, (" and ".join(said), None)] if said else []
+        unread = [p for p, r in zip(parts, routed, strict=True) if r is None]
+        said = [p for p in unread if not is_lead_in(p)]  # M33.1: a gesture goes with the rest
+        return [*acts, (" and ".join(unread), None)] if said else []
     return []
 
 

@@ -22,10 +22,10 @@ import re
 from aidm.data.combat_data import combat_registries
 from aidm.data.intent_phrases import intent_phrases
 from aidm.dm.entities import display_name
-from aidm.dm.fight_names import tokens
 from aidm.dm.intent_match import text_match
 from aidm.dm.sentence import normalise, own_reading
 from aidm.dm.strike_intent import said_weapon
+from aidm.dm.strike_words import marked
 from aidm.dm.tool_context import ToolRefused, ToolRegistries, ToolResult
 from aidm.dm.tools import CreativeEffectArgs
 from aidm.models.combat_events import AttackRolled
@@ -96,7 +96,7 @@ def weapon_outcome(
     if not _in_fight(state, actor.id, target):
         return None
     weapon = _weapon(gear)
-    said = said_weapon(actor, tokens(text))  # M32.1a X1: "an arrow in its chest" is the bow
+    said = said_weapon(actor, marked(text))  # M32.1a X1: "an arrow in its chest" is the bow
     if weapon is None and said is None and not _shaped(actor, text):
         return None
     throws = bool(_words(text) & intent_phrases().lexicon["throw_verbs"])

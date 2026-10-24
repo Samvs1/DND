@@ -4,11 +4,15 @@ M32.1a; SPEC 6.1, 6.2).
 `resolve_line(core, player, actor, entry)`: the one router reads the line (`dm.precheck`); the
 words are declared to the table (not for the private inventory listing); then
 - a compound line (M32.1a X6, `dm.compound_lines`) plays every act in order, each routed again
-  on the state the acts before it left: the pick-up, then the hand-over; parts that only set the
-  scene ("step forward") are told with the rest, and the parts no row reads go to the storyteller
-  together after the others. A compound line is played this way only when the whole line routes
-  to one of its acts (or to nothing) and a vote, a held parley or a fight-starting act is its
-  last part;
+  on the state the acts before it left: the pick-up, then the hand-over; the parts no row reads
+  go to the storyteller together after the others. M33.1 (ultrareview 5): a part that only sets
+  the scene ("step forward", `compound_lines.is_lead_in`) is never ruled on by itself and never
+  dropped: its words go with the next act's telling (`session.asides`), else with the
+  storyteller's parts, else they are told on their own after the acts. A movement that may
+  deserve a check (climb, jump, leap, vault, dash, charge ...) is no lead-in: it goes to the
+  storyteller with the other parts. A compound line is played this way only when the whole
+  line routes to one of its acts (or to nothing) and a vote, a held parley or a fight-starting
+  act is its last part;
 - one act: `run_intent` (the deterministic intents of `explore`'s docstring), or the storyteller
   (`held.adjudicated`) when nothing routes.
 M32.1a: an attack at the waiting offer starts the fight and waits for the hero's turn
@@ -60,6 +64,7 @@ from aidm.session import (
     quest_people,
     scene_votes,
 )
+from aidm.session.asides import Aside, told_with
 from aidm.session.declared import declare
 from aidm.session.held import adjudicated, hold_parley
 from aidm.session.lore_turn import lore_turn
@@ -114,16 +119,24 @@ async def _play_parts(
     core: TableCore, player: Player, actor: Creature, entry: QueueEntry, parts: list[str]
 ) -> None:
     left: list[str] = []
-    for part in parts:
-        intent = precheck(core.state, actor.id, part)  # on the state the acts before it left
-        if intent is None:
-            left += [] if is_lead_in(part) else [part]
-            continue
-        await run_intent(core, player, actor, entry.model_copy(update={"text": part}), intent)
-        if core.combat_active():
-            return
+    said: list[str] = []  # scene-setting parts not told yet (M33.1, ultrareview 5)
+    aside = Aside()
+    with told_with(aside):
+        for part in parts:
+            intent = precheck(core.state, actor.id, part)  # on the state the acts before it left
+            if intent is None:
+                (said if is_lead_in(part) else left).append(part)
+                continue
+            aside.text, aside.told = " and ".join(said), False
+            await run_intent(core, player, actor, entry.model_copy(update={"text": part}), intent)
+            if aside.told:
+                said.clear()
+            if core.combat_active():
+                return
     if left:
-        await adjudicated(core, entry.model_copy(update={"text": " and ".join(left)}))
+        await adjudicated(core, entry.model_copy(update={"text": " and ".join([*said, *left])}))
+    elif said:  # told by engine lines only: the story tells the rest of the turn's words
+        await conclude(core, None, [], actor_id=actor.id, player_text=" and ".join(said))
 
 
 async def run_intent(

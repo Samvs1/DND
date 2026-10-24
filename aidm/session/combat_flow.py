@@ -21,9 +21,11 @@ until every show-capable screen presented the turn (`show_pace`, capped at `show
 and a hero's turn clock starts only once the screens presented what came before (same cap).
 Every mid-fight segment narration is recorded too (`narration_recorded`, M20.1). M32.1a X3: a
 line typed at the offer that started the fight is played when its hero's turn opens
-(`waiting_line`); the fight's end drops any still waiting. M32.1b: a segment of turn bookkeeping
-only (a turn opened, nothing done: its template is the stock filler line) is not told, so no
-filler line is shown and the model is never asked to fill a beat where nobody acted.
+(`waiting_line`; M33.1: an away hero's line plays when the player is back in that turn, and an
+auto-played turn or the fight's end tells the table it lapsed). M32.1b: a segment of turn
+bookkeeping only (a turn opened, nothing done: its template is the stock filler line) is not
+told, so no filler line is shown and the model is never asked to fill a beat where nobody
+acted.
 A lost fight that wiped the party is turned into the DEFEATED phase right after the job by
 `defeat_flow.after_job` (M11.1); the fight start was marked as a retry checkpoint.
 
@@ -138,6 +140,7 @@ async def _ai_turn(core: TableCore, run: CombatRunner, active: str) -> None:
     if state.creatures[active].pc is not None:
         why = "downed" if state.creatures[active].hp <= 0 else "away"
         core.diag("auto_turn", creature_id=active, reason=why)
+        waiting_line.lapse(core, active)  # M33.1: a line held for this turn is said to lapse
         autoplay_safe(core, run, active)
     else:
         run.play_turn(active)
@@ -266,6 +269,7 @@ async def turn_timeout(core: TableCore, key: str, reason: str | None = None) -> 
     core.diag("auto_turn", creature_id=active, reason=reason)
     name = core.state.creatures[active].name
     core.notice(None, NoticeKind.INFO, f"{name} hesitates and takes a careful, defensive turn.")
+    waiting_line.lapse(core, active)
     run = runner(core)
     autoplay_safe(core, run, active)
     if encounter_outcome(core.state) is None:

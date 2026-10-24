@@ -7,6 +7,9 @@ M32.1a X6 (round 5: "back to Hollowgate Cross, then on to the Barrow" stopped at
 place): a `TravelIntent` with a `goal` further on is walked road by road (`_route_job`); the walk
 stops where something needs the party (a fight, an encounter offer, a crossing that asks first,
 a road that is shut) and says plainly where it stopped, why, and that the goal lies further on.
+M33.1 (ultrareview 4: the next road withdrew a giver's Accept / Not now card): it also stops
+at every other state that holds the party (`rules.quest_offers` "busy"): a quest asked here,
+an open finale card.
 
 Public API: `propose_intent`, `STOPPED`.
 """
@@ -14,6 +17,7 @@ Public API: `propose_intent`, `STOPPED`.
 from aidm.dm.precheck import RestIntent, RestKind, ShopIntent, TravelIntent
 from aidm.models.protocol_server import NoticeKind
 from aidm.models.protocol_views import QueueEntry, VoteKind
+from aidm.rules.finale import finale_open
 from aidm.rules.scene import node_display_name
 from aidm.rules.world_graph import travel_route
 from aidm.session import party_actions, votes
@@ -23,6 +27,8 @@ STOPPED = "The party stops at {here}: {why}. {goal} lies further on: travel on w
 _WHY_OFFER = "something waits here for your answer"
 _WHY_SHUT = "the road on is shut"
 _WHY_ASKS = "the next crossing asks you first"
+_WHY_QUEST = "{name} asks for your help here"
+_WHY_FINALE = "the last choice waits here for your answer"
 
 
 type VoteIntent = TravelIntent | RestIntent | ShopIntent
@@ -60,7 +66,13 @@ def _stop_reason(core: TableCore, hop: str, last: bool) -> str | None:
     if core.state.world.current_node != hop:
         return _WHY_SHUT
     offer = core.state.campaign.offer if core.state.campaign is not None else None
-    return _WHY_OFFER if offer is not None and offer.node_id == hop else None
+    if offer is not None and offer.node_id == hop:
+        return _WHY_OFFER
+    ask = core.state.world.quest_ask
+    if ask is not None:
+        npc = core.state.world.npcs.get(ask.npc_id)
+        return _WHY_QUEST.format(name=npc.name if npc is not None else "Someone")
+    return _WHY_FINALE if finale_open(core.state) is not None else None
 
 
 def _route_job(core: TableCore, actor_id: str, intent: TravelIntent) -> Job:

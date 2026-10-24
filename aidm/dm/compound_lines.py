@@ -13,7 +13,9 @@ that verb stands for the earlier part's object when that part starts with a verb
 salt and hand it to Gran Tevin" -> "hand the salt to gran tevin"; "attack the thug before it
 moves" keeps its "it").
 `is_lead_in(part)`: a part that only sets the scene (a first word of `lead_in_verbs`: "step
-forward", "kneel", "hold out the ring") is told, never ruled on by itself.
+forward", "kneel", "hold out the ring") is never ruled on by itself; the callers tell it with
+the turn's other words (M33.1). A movement that may deserve a check (climb, jump, leap, vault,
+dash, charge, rush, scramble, slip) is in `act_verbs`, never a lead-in.
 
 The callers (`session.intent_turn`, `session.fight_text`) route every part through the one
 router and run each in order; this module decides nothing about intents.

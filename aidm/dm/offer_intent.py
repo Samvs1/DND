@@ -9,7 +9,10 @@ returns `OfferStrikeIntent` when the line strikes (a sneak or an ambush, the row
 `strike_intent.said_weapon`), a strike word of the lexicon's `strike_verbs`, or a harmful spell
 the hero names (`spell_names.named_spell`, `rules.ai_spells.is_hostile_spell`). The session
 starts the fight as the offer's Fight answer and plays the same line as the hero's own turn
-(`session.offer_strike`).
+(`session.offer_strike`). M33.1 (ultrareview 3): the words are read by position
+(`dm.strike_words`): a weapon word only as a weapon ("my bow", not "I bow to the captain"), a
+strike word only as the line's act (not "by the fire"), and a negated act or spell ("I won't
+attack the bandit") strikes nothing, so a courtesy or a refusal never answers the offer as Fight.
 
 X5 ("Drop your weapons and yield!" to a risen zombie rolled Intimidation and the story said it
 obeyed): the `offer_surrender` row reads the surrender words; when every foe of the offer is a
@@ -25,11 +28,11 @@ from dataclasses import dataclass
 from aidm.data.combat_data import combat_registries
 from aidm.data.intent_phrases import intent_phrases
 from aidm.dm.fight_cast_intent import RefusedIntent
-from aidm.dm.fight_names import tokens
 from aidm.dm.intent_match import Found, Resolver
 from aidm.dm.parley_intent import ParleyIntent
 from aidm.dm.spell_names import named_spell
 from aidm.dm.strike_intent import said_weapon
+from aidm.dm.strike_words import marked, negated, strikes
 from aidm.models.abilities import Skill
 from aidm.models.state import Creature
 from aidm.rules.ai_spells import is_hostile_spell
@@ -43,7 +46,7 @@ class OfferStrikeIntent:
 
 def _harmful_spell(actor: Creature, words: list[str]) -> bool:
     said = named_spell(actor, words)
-    if said is None:
+    if said is None or negated(words, said[2][0]):
         return False
     if said[3]:  # a targeted ability (Turn Undead) aims at others
         return True
@@ -55,10 +58,8 @@ def offer_strike(found: Found) -> OfferStrikeIntent | None:
     actor = found.state.creatures.get(found.actor_id)
     if actor is None or actor.pc is None:
         return None
-    words = tokens(found.text)
-    plain = {w.removesuffix("'s") for w in words}
-    strikes = bool(plain & intent_phrases().lexicon["strike_verbs"])
-    if strikes or said_weapon(actor, words) is not None or _harmful_spell(actor, words):
+    words = marked(found.text)
+    if strikes(words) or said_weapon(actor, words) is not None or _harmful_spell(actor, words):
         return OfferStrikeIntent(actor.id)
     return None
 

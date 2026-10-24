@@ -4,9 +4,11 @@
 (`held.confirm_hostile`), or (M31.1a V4, `offer`) a typed parley that would answer the waiting
 encounter offer. `OpenVote`: the open ready vote (`votes`) and its public view.
 `TurnClock`: the running combat turn clock (`session.turn_clock`, M15.1): the end timer, the
-30 s warning timer and the deadline the countdown is shown from.
+30 s warning timer and the deadline the countdown is shown from. `HeldLine` (M32.1a X3, M33.1):
+a line typed at an encounter offer, waiting on the seat for its hero's turn (`waiting_line`);
+`due` is the turn key it came due in while the player was away.
 
-Public API: `PendingHostile`, `OpenVote`, `TurnClock`.
+Public API: `PendingHostile`, `OpenVote`, `TurnClock`, `HeldLine`.
 """
 
 from collections.abc import Awaitable, Callable
@@ -67,3 +69,9 @@ class TurnClock:
             if timer is not None:
                 timer.cancel()
         self.end = self.warn = self.deadline = None  # restored_at stays
+
+
+@dataclass
+class HeldLine:
+    text: str
+    due: str | None = None

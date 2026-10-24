@@ -8,7 +8,8 @@
   existing gift with its deed), then `telling.conclude` (follow-ups settle the quests, the
   narrator tells the hand-over). Refusals are typed and player-safe; nothing moves on one.
   M32.1a X6: a counted typed give hands every keepsake of the count and says plainly when
-  there were fewer (`ONLY`).
+  there were fewer (`ONLY`); M33.1: of a stacked item, that many units (one gift each), and
+  `ONLY` only when the hero holds fewer than asked.
 
 - `hand` (the `hand_over` client command) and `hand_intent` (typed "hand the crowbar to Elowen",
   M29.7a R8) share ONE path to another hero: `rules.hero_handing.hand_events`, then the engine
@@ -90,7 +91,7 @@ async def _give(
 ) -> bool:
     events: list[AnyEvent] = []
     try:
-        for thing in things:  # one hand-over per keepsake of a counted give (M32.1a X6)
+        for thing in things:  # one hand-over per keepsake or unit of a counted give (M32.1a X6)
             events += core.apply_all(give_events(core.state, pc.id, npc_id, thing, core.regs.tiers))
     except GiveRefused as refused:
         core.error(player.id, ErrorCode.REFUSED, refused.detail, refused.reason.value)
