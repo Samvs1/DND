@@ -19,8 +19,8 @@ Public API:
   `TravelIntent(node_id)`, `InventoryIntent(actor_id)`, `LookIntent(text)`, `TakeIntent`,
   `BarredIntent(text)` (`aidm.dm.scene_intent`), `ItemIntent`, `ItemIntents`
   (`aidm.dm.equip_intent`), `HelpUpIntent`, `GiveIntent`, `HeroHandIntent`, `LiftIntent`,
-  `PayIntent`, `ParleyIntent`, `UseIntent`, `HealIntent`, `CastIntent`, `QuestAnswerIntent`
-  (their `*_intent` modules);
+  `PayIntent`, `ParleyIntent`, `UseIntent`, `HealIntent`, `CastIntent`, `QuestAnswerIntent`,
+  `SearchIntent` (their `*_intent` modules);
 - `Intent` (the union), `precheck(state, actor_id, text) -> Intent | None`;
 - `gear_intent(state, actor_id, text) -> UseIntent | None`: the gear rows alone, for the typed
   actions of a fight (M27.5: putting a light out is free, lighting one a bonus action);
@@ -56,6 +56,7 @@ from aidm.dm.scene_intent import (
     is_shop,
     look_around_text,
 )
+from aidm.dm.search_intent import SearchIntent
 from aidm.dm.sentence import normalise
 from aidm.dm.use_intent import UseIntent, item_phrase, use_intent
 from aidm.models.state import GameState
@@ -101,6 +102,7 @@ type Intent = (
     | HealIntent
     | CastIntent
     | QuestAnswerIntent
+    | SearchIntent
 )
 _INTENTS = (
     RestIntent,
@@ -122,6 +124,7 @@ _INTENTS = (
     HealIntent,
     CastIntent,
     QuestAnswerIntent,
+    SearchIntent,
 )
 
 

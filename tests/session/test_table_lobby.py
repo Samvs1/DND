@@ -162,7 +162,7 @@ async def test_cancelled_hostile_act_changes_nothing(tmp_path: Path) -> None:
 async def test_hello_with_last_seq_resends_only_missed_events(tmp_path: Path) -> None:
     async with running(disabled_llm(tmp_path)) as (table, _):
         host = await join(table, "Ann", "fighter")
-        for text in ("we take a short rest", "I search behind the hearth", "we take a short rest"):
+        for text in ("we take a short rest", "I warm my hands", "we take a short rest"):
             host.send(SubmitAction(text=text))
             await table.settle()
         public = table.public.events

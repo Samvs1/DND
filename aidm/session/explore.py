@@ -53,6 +53,7 @@ from aidm.dm.precheck import (
     precheck,
 )
 from aidm.dm.quest_answer_intent import QuestAnswerIntent
+from aidm.dm.search_intent import SearchIntent
 from aidm.dm.use_intent import UseIntent
 from aidm.models.protocol_client import AnswerQuestOffer, SubmitAction
 from aidm.models.protocol_server import (
@@ -75,6 +76,7 @@ from aidm.session import (
 )
 from aidm.session.declared import declare
 from aidm.session.held import adjudicated, hold_parley
+from aidm.session.search_turn import search_turn
 from aidm.session.table_core import Job, Player, TableCore
 from aidm.session.telling import conclude, remember, tell_text
 
@@ -167,6 +169,8 @@ async def resolve_action(core: TableCore, entry: QueueEntry) -> None:
         hold_parley(core, player, intent.actor_id, intent.skill)
     elif isinstance(intent, UseIntent):
         await _gear_use(core, player, entry, intent)
+    elif isinstance(intent, SearchIntent):  # M31.1a V9: one discovery check at the hidden DC
+        await search_turn(core, entry, intent)
     elif isinstance(intent, HealIntent | CastIntent):  # M30.0b T7: a typed spell out of a fight
         await heal_actions.heal_intent(core, player, intent)
     elif isinstance(intent, TravelIntent):
@@ -201,6 +205,10 @@ async def _gear_use(core: TableCore, player: Player, entry: QueueEntry, intent: 
             await adjudicated(core, entry)
         return
     prior = await gear_actions.first_act(core, player, intent)
+    follow = precheck(core.state, entry.creature_id, intent.rest)
+    if isinstance(follow, SearchIntent):  # M31.1a V9: the light never replaces the search
+        await search_turn(core, entry, follow, prior=prior)
+        return
     await adjudicated(core, entry.model_copy(update={"text": intent.rest}), prior=prior)
 
 

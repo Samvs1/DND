@@ -11,6 +11,7 @@ scope depends on, evaluated here and only here (`aidm.dm.intent_match` calls the
   filler like "the", "old"); naming a present non-foe NPC is a normal talk turn;
 - `foe_named` (M31.1a V4): the sentence names a foe of the offer or its master;
 - `no_offer_waits`: no encounter offer waits (travel is the offer's buttons then);
+- `hidden_here` (M31.1a V9): something is hidden in the current place;
 - `quest_ask_here` (M31.1a V8): a quest offer waits from a living person standing here.
 
 Public API: `Condition`, `CONDITIONS`, `foe_words(state)`.
@@ -24,6 +25,7 @@ from aidm.data.intent_phrases import intent_phrases
 from aidm.models.campaign_state import EncounterOffer, OfferChoice
 from aidm.models.encounter import EncounterStatus
 from aidm.models.state import CreatureKind, GameState
+from aidm.rules.scene import hidden_dc
 
 if TYPE_CHECKING:
     from aidm.dm.intent_match import Found
@@ -104,6 +106,11 @@ def foe_named(found: "Found") -> bool:
     return bool(found.words & foe_words(found.state))
 
 
+def hidden_here(found: "Found") -> bool:
+    """M31.1a V9: something is hidden in the current place (a search can find it)."""
+    return hidden_dc(found.state) is not None
+
+
 def no_offer_waits(found: "Found") -> bool:
     return _offer(found.state) is None
 
@@ -123,6 +130,7 @@ CONDITIONS: dict[str, Condition] = {
     "no_friend_named": no_friend_named,
     "foe_or_no_bystander": foe_or_no_bystander,
     "foe_named": foe_named,
+    "hidden_here": hidden_here,
     "no_offer_waits": no_offer_waits,
     "quest_ask_here": quest_ask_here,
 }

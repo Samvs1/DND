@@ -20,6 +20,10 @@ climbing, searching...) where none of that gear has a fitting use, the AI's adva
 dropped (the plain check still rolls); elsewhere the AI's call stands.
 M29.6b: a check's DC tier is at most the region tier's `dm_tiers.check_dc_tier_cap` (act 1:
 medium), so an improvised gate never asks DC 20 of level-1 heroes; saves keep their tier.
+M31.1a V9: a search check in a place where something is hidden rolls against the lowest DC of
+what is hidden (`rules.scene.hidden_dc`), whatever tier the AI asked, so a failed search never
+finds and a successful one always does (round 4: a 13 "failed" against DC 15 and found a DC 10
+item).
 M30.1: a check sent with `impossible` (the AI's "this cannot be done: <why>") rolls NO dice, so
 no natural 20 rescues it; it returns one `ActionImpossible` event. A lock check still goes to the
 lock rules first (a lock can always be forced or picked). `request_save` has no such option: a
@@ -48,7 +52,8 @@ from aidm.rules.dm_tiers import capped_dc_tier
 from aidm.rules.gear_checks import gear_check
 from aidm.rules.gear_fit import misfit
 from aidm.rules.locks import lock_check, locked_here
-from aidm.rules.scene import discovery_events
+from aidm.rules.scene import discovery_events, hidden_dc, is_search_check
+from aidm.rules.searching import dc_tier
 
 
 def _outcome(name: str, label: str, result: CheckResult) -> str:
@@ -118,6 +123,9 @@ def run_request_check(
         return _impossible(creature, args, ctx, args.impossible.strip())
     tier = capped_dc_tier(regs.tiers, args.dc_tier, state.world.region_tier)
     dc = dc_for_tier(tier)
+    hidden = hidden_dc(state) if is_search_check(args.ability_or_skill) else None
+    if hidden is not None:  # M31.1a V9: a search where something is hidden rolls against its DC
+        dc, tier = hidden, dc_tier(hidden) or tier
     adv = int(args.advantage is AdvState.ADVANTAGE)
     dropped = bool(adv) and _gear_misfit(state, args, creature, ctx)
     adv = 0 if dropped else adv

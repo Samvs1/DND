@@ -414,6 +414,36 @@
       "swallow",
       "swallowing",
       "swallows"
+    ],
+    "search_follow_verbs": [
+      "ask",
+      "bring",
+      "call",
+      "carry",
+      "examine",
+      "give",
+      "go",
+      "grab",
+      "hand",
+      "head",
+      "keep",
+      "leave",
+      "light",
+      "open",
+      "pick",
+      "pocket",
+      "put",
+      "read",
+      "return",
+      "say",
+      "shout",
+      "show",
+      "stash",
+      "study",
+      "take",
+      "tell",
+      "use",
+      "wave"
     ]
   },
   "patterns": {
@@ -768,6 +798,37 @@
           "re": "look|look around|look about|glance around|(?:look|glance) around (?:the )?(?:room|area|place)|survey (?:the )?(?:area|room|surroundings|scene)|take in (?:the|my|our) surroundings|what do (?:i|we) see|where am i|where are we|describe (?:the )?(?:room|area|place|scene|surroundings)"
         }
       ]
+    },
+    {
+      "id": "search",
+      "scopes": [
+        "explore"
+      ],
+      "family": "search",
+      "precedence": 1225,
+      "resolver": "search",
+      "readings": [
+        "base"
+      ],
+      "when": [
+        "hidden_here",
+        "no_offer_waits"
+      ],
+      "patterns": [
+        {
+          "re": "{try}(?:search|rummage(?: through| in| around)?|comb(?: through)?|scour|sift through|hunt through|dig through|go through|poke through|poke around(?: in)?|feel around(?: in| for)?|pat down|turn over) .+",
+          "params": {
+            "skill": "investigation"
+          }
+        },
+        {
+          "re": "{try}(?:look|hunt|watch|listen|peer) (?:around |about |closely |carefully )?(?:for|out for) .+",
+          "params": {
+            "skill": "perception"
+          }
+        }
+      ],
+      "note": "M31.1a V9: a typed search where something is hidden rolls ONE discovery check at the hidden things' own DC (never replaced by lighting a light); the rest of the line goes on to the storyteller"
     },
     {
       "id": "inventory",

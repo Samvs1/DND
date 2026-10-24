@@ -30,6 +30,7 @@ from aidm.dm import (
     pay_intent,
     quest_answer_intent,
     scene_intent,
+    search_intent,
     surrender_intent,
     use_intent,
 )
@@ -73,6 +74,7 @@ for _module in (
     pay_intent,
     quest_answer_intent,
     scene_intent,
+    search_intent,
     surrender_intent,
     use_intent,
 ):

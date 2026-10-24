@@ -40,7 +40,7 @@ def test_submit_action_streams_events_then_narration(tmp_path: Path) -> None:
         hello(ws, "Ann")
         welcome = read_until(ws, "snapshot")[0]
         registry_of(app).table.players[welcome["player_id"]].creature_id = "fighter"
-        ws.send_json({"type": "submit_action", "text": "I search behind the hearth"})
+        ws.send_json({"type": "submit_action", "text": "I warm my hands by the hearth"})
         msgs = read_until(ws, "narration_done")
         kinds = [m["type"] for m in msgs]
         assert "narration_chunk" in kinds and kinds[-1] == "narration_done"
@@ -50,7 +50,7 @@ def test_submit_action_streams_events_then_narration(tmp_path: Path) -> None:
         assert tail[-1]["seq"] == registry_of(app).table.state.event_count
 
 
-REST_ACTIONS = ("we take a short rest", "I search behind the hearth", "we take a short rest")
+REST_ACTIONS = ("we take a short rest", "I warm my hands by the hearth", "we take a short rest")
 
 
 def test_reconnect_with_last_seq_gets_only_missed_events(tmp_path: Path) -> None:

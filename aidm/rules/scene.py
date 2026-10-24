@@ -18,6 +18,9 @@ Public API:
   feature in the current place whose `discover_dc` is at most the roll total
   (`FeatureDiscovered`), then every hidden item there whose `discover_dc` it meets
   (`ItemDiscovered`, M23.3: hidden quest items).
+- `hidden_dc(state) -> int | None` (M31.1a V9): the lowest discover DC of what is hidden here, the
+  ONE DC a search check rolls against when something is hidden (the storyteller's and the
+  typed search's alike), so the verdict and the find always agree.
 """
 
 from dataclasses import dataclass
@@ -110,6 +113,23 @@ def _is_search(result: CheckResult) -> bool:
     if result.kind is CheckKind.SKILL:
         return result.skill is not None and is_search_check(result.skill)
     return result.kind is CheckKind.ABILITY and result.ability in _SEARCH_ABILITIES
+
+
+def hidden_dc(state: GameState) -> int | None:
+    """The lowest discover DC of the hidden, undiscovered features and the hidden items of the
+    current place (M31.1a V9: one search check, one DC); None when nothing is hidden here."""
+    node = state.world.current_node
+    dcs = [
+        f.discover_dc
+        for f in state.world.features.values()
+        if f.node_id == node and f.hidden and not f.discovered and f.discover_dc is not None
+    ]
+    dcs += [
+        i.discover_dc
+        for i in state.world.items.values()
+        if i.node_id == node and i.hidden and i.discover_dc is not None
+    ]
+    return min(dcs, default=None)
 
 
 def discovery_events(

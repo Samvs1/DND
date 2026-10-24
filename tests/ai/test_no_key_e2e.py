@@ -20,12 +20,14 @@ from aidm.dm.memory import should_summarise, summarise
 from aidm.dm.narration_stream import NarrationSource
 from aidm.dm.narrator import NarrationInput, narrate, narrate_round_segment, record_narration
 from aidm.dm.precheck import LookIntent, RestIntent, RestKind, TravelIntent, precheck
+from aidm.dm.search_intent import SearchIntent
 from aidm.dm.tool_exec import execute_tool
 from aidm.models.encounter import EncounterStatus
 from aidm.models.events import AnyEvent, TurnEnded
 from aidm.models.memory import SummarySource
 from aidm.models.state import GameState
 from aidm.rules.rests import short_rest
+from aidm.rules.searching import search_events
 from aidm.session.combat_runner import CombatRunner
 from aidm.session.reducer import apply
 from tests.ai.guard_fixtures import inn_state
@@ -76,6 +78,10 @@ class NoKeyTable:
             return await self.tell(events, events)
         if isinstance(intent, RestIntent) and intent.kind is RestKind.SHORT:
             events = short_rest(self.state)
+            self.apply(events)
+            return await self.tell(events, events)
+        if isinstance(intent, SearchIntent):  # M31.1a V9: one engine search check
+            events = search_events(self.rng, self.state, "fighter", intent.skill)
             self.apply(events)
             return await self.tell(events, events)
         assert intent is None, intent
