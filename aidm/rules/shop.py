@@ -95,8 +95,8 @@ def sell_price(value_gp: float, qty: int, table: ShopTable) -> int:
 
 
 def bulk_note(unit_gp: float) -> str:
-    if not 0 < unit_gp < 1:
-        return ""
+    if unit_gp <= 0 or abs(unit_gp - round(unit_gp)) < 1e-9:
+        return ""  # a whole-gold price needs no lot note (M31.1e: 1.5 gp each is "2 for 3 gp")
     for qty in range(2, 101):
         total = unit_gp * qty
         if abs(total - round(total)) < 1e-9:

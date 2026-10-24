@@ -338,6 +338,8 @@ def digest(messages: list[Msg]) -> str:
             out.append(f"* {tag}{m['line']}")
         elif kind == "level_up_available":
             out.append(f"LEVEL UP available for {m['creature_id']} (level {m['level']}): levelup")
+        elif kind == "what_now_answer":
+            out.append("What now? (open steps):\n" + "\n".join(f"  - {x}" for x in m["lines"]))
         elif kind == "epilogue":
             out.append("EPILOGUE reached: " + str(m.get("text", "")).strip())
     if chunks:

@@ -175,16 +175,24 @@ async def _report(link: Link, player: Msg, said: list[Msg], note: str = "") -> s
 async def cmd_look(root: Path, run: str | None, as_name: str | None) -> str:
     link, player = await _actor(_session(root, run), as_name)
     try:
-        return await _report(link, player, [])
+        asked = await link.what_now() if _has_active_quest(link.state) else []
+        return await _report(link, player, asked)
     finally:
         await link.close()
+
+
+def _has_active_quest(state: Msg) -> bool:
+    return any(q.get("state") == "active" for q in state.get("quests", []))
 
 
 async def cmd_act(root: Path, run: str | None, as_name: str | None, text: str) -> str:
     link, player = await _actor(_session(root, run), as_name)
     try:
         said = await link.send({"type": "submit_action", "text": text})
-        return await _report(link, player, said, f"{player['name']} acts: {text[:100]}")
+        note = f"{player['name']} acts: {text[:100]}"
+        if not digest(said):
+            note += "\n(the table said nothing for this line: no narration, roll or notice)"
+        return await _report(link, player, said, note)
     finally:
         await link.close()
 

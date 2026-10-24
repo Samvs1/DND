@@ -100,9 +100,12 @@ def match_line(lines: list[Msg], text: str, id_key: str, name_key: str) -> Msg:
 
 
 def _price(s: Msg) -> str:
-    """The true price: a bulk note ("2 for 1 gp") when one costs under 1 gp, else the price."""
+    """The true price: a bulk note ("2 for 1 gp") when one costs under 1 gp; one that costs a
+    fraction over 1 gp shows the price of one and the lot note ("2gp (2 for 3 gp)")."""
     bulk = s.get("bulk")
-    return str(bulk) if bulk else f"{s['price_gp']}gp"
+    if bulk and float(s.get("unit_gp") or 0) < 1:
+        return str(bulk)
+    return f"{s['price_gp']}gp ({bulk})" if bulk else f"{s['price_gp']}gp"
 
 
 def stock_text(stock: Msg, gold: int | None) -> str:

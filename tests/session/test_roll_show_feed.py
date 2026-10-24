@@ -10,7 +10,8 @@ from aidm.models.abilities import Ability, Skill
 from aidm.models.checks import CheckKind, DcTier
 from aidm.models.combat_events import AttackRolled
 from aidm.models.commands import AttackCommand
-from aidm.models.dice import AdvState, D20Roll, RollKind, RollPart
+from aidm.models.damage import DamagePart, DamageType
+from aidm.models.dice import AdvState, D20Roll, Roll, RollKind, RollPart
 from aidm.models.encounter import Side
 from aidm.models.events import (
     AnyEvent,
@@ -127,3 +128,37 @@ def test_an_old_event_log_still_replays_to_the_same_snapshot() -> None:
 
 def test_roll_part_is_a_plain_named_number() -> None:
     assert RollPart(name="DEX", value=3).model_dump() == {"name": "DEX", "value": 3}
+
+
+def test_m31_heal_line_shows_die_and_bonus_and_damage_line_says_immune() -> None:
+    state = fight(
+        [
+            (make_pc("a"), Side.PARTY, "gate"),
+            (monster("gob", hp=40, ac=12), Side.HOSTILE, "gate"),
+        ]
+    )
+    feed = PublicFeed()
+    roll = DiceRolled(
+        roll=Roll(expression="1d4+2", dice=(), modifier=2, total=5),
+        roller_id="a",
+        label="Healing Word",
+        kind=RollKind.HEAL,
+        target_id="a",
+    )
+    feed.add_roll(1, roll)
+    msg = feed.add_event(state, 2, HpChanged(creature_id="a", delta=8, new_hp=8))
+    assert isinstance(msg, EventMsg) and msg.line.endswith("(die 5 + bonus 3).")
+    hit = DamageTaken(
+        creature_id="gob",
+        parts=(DamagePart(damage_type=DamageType.ACID, rolled=10, taken=0),),
+        total=0,
+    )
+    msg = feed.add_event(state, 3, hit)
+    assert isinstance(msg, EventMsg) and "is immune to acid damage (10 rolled, 0 taken)" in msg.line
+    half = DamageTaken(
+        creature_id="gob",
+        parts=(DamagePart(damage_type=DamageType.SLASHING, rolled=15, taken=7),),
+        total=7,
+    )
+    msg = feed.add_event(state, 4, half)
+    assert isinstance(msg, EventMsg) and "resists slashing damage (15 rolled, 7 taken)" in msg.line

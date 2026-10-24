@@ -11,6 +11,7 @@ from scripts.agent.commands import UsageError, answer_message, build_command, ta
 from scripts.agent.session import Session, alive, current_run, port_open
 from scripts.agent.text import digest, footer, look_text, option_lines
 from scripts.agent_play import build_parser
+from scripts.sim.client import Conn
 from scripts.sim.server import free_port
 
 Msg = dict[str, Any]
@@ -215,3 +216,16 @@ def test_server_start_reuse_and_stop_with_the_fake_storyteller(tmp_path: Path) -
     assert not port_open(port)
     with pytest.raises(SystemExit):
         asyncio.run(ops.cmd_look(tmp_path, "t1", None))
+
+
+def test_m31_digest_shows_what_now_lines_and_foe_turn_is_busy() -> None:
+    out = digest([{"type": "what_now_answer", "lines": ["Find the key", "Ask Wren"]}])
+    assert "What now? (open steps):" in out and "  - Find the key" in out
+    link = ops.Link.__new__(ops.Link)
+    foe = {"creature_id": "rat-1", "side": "hostile", "dead": False}
+    hero = {"creature_id": "pc-p2", "side": "party", "dead": False}
+    link.conn = Conn("tester", "ws://localhost:1")
+    link.conn.state = {"combat": {"active_id": "rat-1", "tokens": [foe, hero]}}
+    assert link._busy() is True
+    link.conn.state = {"combat": {"active_id": "pc-p2", "tokens": [foe, hero]}}
+    assert link._busy() is False

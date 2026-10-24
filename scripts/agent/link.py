@@ -59,7 +59,17 @@ class Link:
         queue = next((m for m in reversed(self.conn.log) if m["type"] == "queue_state"), None)
         if queue is not None and queue.get("resolving") is not None:
             return True
-        return bool(self.state.get("resolving"))
+        return bool(self.state.get("resolving")) or self._foe_turn()
+
+    def _foe_turn(self) -> bool:
+        """A foe's turn is running: its narration is still to come (M31.1e: an `act` in a fight
+        returned in the pause between the hero's line and the foes' turns, so the footer lagged)."""
+        combat = self.state.get("combat") or {}
+        active = next(
+            (t for t in combat.get("tokens", []) if t["creature_id"] == combat.get("active_id")),
+            None,
+        )
+        return bool(active) and active["side"] not in ("party", "neutral") and not active["dead"]
 
     def _told(self, mark: int) -> bool:
         """The narration for the acted turn arrived (or nothing was acted, so none is due)."""
@@ -90,6 +100,18 @@ class Link:
         await self.conn.send(msg)
         await asyncio.sleep(0.4)  # let a queued turn show as resolving before we test for idle
         return await self.settle(mark)
+
+    async def what_now(self) -> list[Msg]:
+        """Ask What now? (the engine's next-step lines; a read-only reply, not a turn)."""
+        mark = self.conn.mark()
+        await self.conn.send({"type": "what_now"})
+        try:
+            await self.conn.wait_for(
+                lambda m: m["type"] in ("what_now_answer", "error"), 10.0, mark
+            )
+        except TimeoutError:
+            return []
+        return self.conn.log[mark:]
 
     def last_roll(self) -> Msg | None:
         """The newest dice roll this link heard (live, or the recent ones sent on connect)."""

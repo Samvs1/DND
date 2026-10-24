@@ -70,7 +70,8 @@ def _what(actor: Creature, to_id: str, phrase: str) -> HeroHandIntent | None:
     table = intent_phrases()
     if words(phrase) & table.lexicon["abstract_gifts"]:
         return None
-    gold = re.fullmatch(table.patterns["gold_amount"], phrase)
+    # M31.1e: "toss Brienne 10 gold for her trouble" is gold with a reason, not an item to find
+    gold = re.fullmatch(table.patterns["gold_amount"] + r"(?: for .+)?", phrase)
     if gold is not None:
         return HeroHandIntent(actor.id, to_id, None, gold=int(gold["n"]))
     qty, count = 1, re.fullmatch(table.patterns["counted"], phrase)

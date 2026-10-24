@@ -34,7 +34,8 @@ from dataclasses import dataclass, field
 from aidm.dm.event_text import event_line
 from aidm.dm.guard_leaks import instruction_free
 from aidm.dm.narration_templates import template_line
-from aidm.models.events import AnyEvent, DamageTaken, LoggedEvent
+from aidm.models.dice import RollKind
+from aidm.models.events import AnyEvent, DamageTaken, DiceRolled, HpChanged, LoggedEvent
 from aidm.models.narration import NarrationTone
 from aidm.models.protocol_server import EventMsg, PlayerActionMsg, StoryHistory
 from aidm.models.protocol_views import DiceView, RollEntry, StoryEntry
@@ -126,6 +127,7 @@ class PublicFeed:
         default_factory=lambda: deque[StoryEntry](maxlen=MAX_ACTIONS)
     )
     spell: SpellLine = field(default_factory=SpellLine)
+    heal_roll: tuple[str | None, int] | None = None  # (target, rolled total) of the last heal die
 
     def spell_before(self, state: GameState, event: AnyEvent) -> EventMsg | None:
         """M27.11: the summary of a roll-less spell, once `event` shows the cast is over."""
@@ -155,13 +157,27 @@ class PublicFeed:
             line = ""  # the dice show needs who took how much; the HP line tells it
         if line is None:
             return None
+        line = self._with_heal_bonus(event, line)
         subject, amount = event_subject(event)
         msg = EventMsg(seq=seq, kind=event.type, line=line, subject_id=subject, amount=amount)
         self.events.append(msg)
         return msg
 
+    def _with_heal_bonus(self, event: AnyEvent, line: str) -> str:
+        """M31.1e: a heal that adds a bonus to its die (the Life domain) shows both numbers."""
+        roll = self.heal_roll
+        if not isinstance(event, HpChanged) or roll is None or event.delta <= 0:
+            return line
+        self.heal_roll = None
+        target, total = roll
+        if target != event.creature_id or event.delta <= total:
+            return line
+        return f"{line.rstrip('.')} (die {total} + bonus {event.delta - total})."
+
     def add_roll(self, seq: int, event: AnyEvent) -> DiceView | None:
         """Keep the dice of one applied event (every roll is public); returns its view."""
+        if isinstance(event, DiceRolled) and event.kind is RollKind.HEAL:
+            self.heal_roll = (event.target_id, event.roll.total)
         dice = dice_view(event)
         if dice is not None:
             self.rolls.append(RollEntry(seq=seq, dice=dice))

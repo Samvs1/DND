@@ -153,3 +153,9 @@ def test_secret_item_and_quest_titles_resolve_leniently() -> None:
     first, second = (s.reveal for s in plan.npcs[0].secrets)
     assert first.kind is RevealKind.ITEM_SHOWN and first.item == reward
     assert second.kind is RevealKind.QUEST_COMPLETED and second.quest_id == plan.quests[0].id
+
+
+def test_trim_words_prefers_a_whole_sentence_and_drops_a_dangling_article() -> None:
+    text = "The well refills clear. The vale greens slowly, but that one heart is forever a scar"
+    assert trim_words(text, 55) == "The well refills clear."
+    assert trim_words("one two three four of the", 21) == "one two three four"

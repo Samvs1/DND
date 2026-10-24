@@ -71,7 +71,7 @@ claim against its save before listing it here. Findings are numbered V1.. (round
 - `look` shows no open step text, only one-line quest summaries.
 - `act` sometimes returns before the turn's narration is written, so the footer lags (typed 141, 160; full 426-455).
 - `act "what now"` prints nothing; the finale description was cut ("forever a The campaign is complete.").
-- Damage lines do not say "immune" or "resisted" (full 1260, 1392); the shop shows the Hearty Meal Basket at 2 gp but charges 1.5.
+- (fixed in M31.1e) Damage lines now say immune, resists or vulnerable; the shop shows lot notes for fractional prices.
 - Ammunition never runs down (arrow x20 after many shots). No RULES_DECISIONS line says so; BG3 does not track basic ammunition.
 - "I toss Brienne 10 gold for her trouble" was refused as "does not carry that"; "I slap 50 gold down for Merre" (15 gold carried) was told as coins on the table with no refusal.
 
@@ -101,4 +101,6 @@ to the ending and the typed run used 262 commands.
 - **M31.1a H typed actions:** V1-V9.
 - **M31.1b H encounters and quests:** V10-V16.
 - **M31.1c H storyteller:** V17-V21.
-- **M31.1d M harness and low items**, then the FULL gate and the commit `M31: Round 4`.
+- **M31.1d H tougher masters:** done (1c2b6d8, 932ec90).
+- **M31.1e M harness and low items:** fixed in M31.1e: `look` shows the open steps (What now? lines), `act` waits through the foes' turns (a foe's turn counts as busy), `act "what now"` prints the answer (or a note when the table said nothing), the finale text is cut at a whole sentence (`trim_words`), heal lines show die and bonus, damage lines say immune, resists or vulnerable, the shop shows lot notes for fractional prices ("2 for 3 gp"), the ammunition decision is in RULES_DECISIONS, and a gold toss with a reason ("10 gold for her trouble") is a gold hand-over.
+- **M31.1f H master walls**, then the FULL gate and the commit `M31: Round 4`.

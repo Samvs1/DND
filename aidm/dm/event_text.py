@@ -71,6 +71,23 @@ def _hp(state: GameState, e: ev.HpChanged) -> str:
     return f"{_who(state, e.creature_id)} {verb} {abs(e.delta)} HP (now {e.new_hp})."
 
 
+def _damage_modifiers(state: GameState, e: ev.DamageTaken) -> str | None:
+    """M31.1e: say when immunity, resistance or vulnerability changed a damage packet (the facts
+    are the packet's rolled and taken numbers: 0 taken, half rounded down, or double)."""
+    who = _who(state, e.creature_id)
+    bits: list[str] = []
+    for p in e.parts:
+        count = f"{p.rolled} rolled, {p.taken} taken"
+        kind = p.damage_type.value
+        if p.rolled > 1 and p.taken == 0:
+            bits.append(f"{who} is immune to {kind} damage ({count})")
+        elif p.rolled > 0 and p.taken == p.rolled // 2:
+            bits.append(f"{who} resists {kind} damage ({count})")
+        elif p.taken > p.rolled:
+            bits.append(f"{who} is vulnerable to {kind} damage ({count})")
+    return "; ".join(bits) + "." if bits else None
+
+
 def _secret(state: GameState, e: we.SecretRevealed) -> str:
     npc = state.world.npcs.get(e.npc_id)
     if npc is None:
@@ -134,6 +151,7 @@ def _kept(state: GameState, e: we.KeepsakeGained) -> str:
 _LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     ev.CheckResolved: _check,
     ev.HpChanged: _hp,
+    ev.DamageTaken: _damage_modifiers,
     ev.ConditionApplied: lambda s, e: applied_line(_who(s, e.creature_id), e.condition.name),
     ev.ConditionRemoved: lambda s, e: removed_line(_who(s, e.creature_id), e.name),
     ev.CreatureDied: lambda s, e: f"{_who(s, e.creature_id)} is dead.",

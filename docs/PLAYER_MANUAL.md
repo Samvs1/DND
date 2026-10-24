@@ -323,7 +323,7 @@ When the table agrees to browse a shop, your phone opens the shop. Every player 
 - Every region has at least one trader who sells weapons, armour and healing. When a story has no such trader in a region, a peddler (a general store) waits at its first, safe place.
 - A general store always has camp food, a Herbal Poultice (10 gp), a Traveller's Tonic (25 gp), a Potion of Healing (50 gp) and a Healer's Kit, and at least one weapon and one piece of armour. A smith always has a Herbal Poultice and at least one potion.
 - You cannot sell what you are wearing or wielding: take it off first.
-- Gold comes only in whole coins. An item worth less than 1 gp costs 1 gp on its own, but a lot costs its true price rounded up: a camp ration is worth half a gold piece, so one costs 1 gp and ten cost 5 gp. The shop shows the price of the quantity you picked and, for such cheap goods, a note like **2 for 1 gp**.
+- Gold comes only in whole coins. An item worth less than 1 gp costs 1 gp on its own, but a lot costs its true price rounded up: a camp ration is worth half a gold piece, so one costs 1 gp and ten cost 5 gp. The shop shows the price of the quantity you picked and, for such cheap goods, a note like **2 for 1 gp**. Goods worth a part of a gold piece above 1 gp show the same note: a Hearty Meal Basket is worth 1.5 gp, so one costs 2 gp and the note reads **2 for 3 gp**.
 - A trader pays half an item's value in whole gold, so an item worth less than 2 gp (a hammer, a rope, incense) fetches nothing and the trader says so.
 
 <!-- generated:shop_rules -->
@@ -449,6 +449,8 @@ The reaction is shown for completeness, but no reaction abilities work in this v
 - Sections: **Attacks**, **Spells**, **Actions**, **Bonus actions**, **Items** and **Class features**.
 
 ### Attacks
+
+Arrows and bolts are not counted: a bow or crossbow never runs out of ammunition (as in the video game this table is modelled on). Damage lines say so when immunity, resistance or vulnerability changed a hit (*is immune to acid damage (10 rolled, 0 taken)*), and a heal that adds a bonus to its die shows both (*regains 8 HP (now 8) (die 5 + bonus 3)*, the Life domain bonus).
 An attack roll is a d20 plus your attack bonus against the target's armour class (AC). A natural 1 always misses. A natural 20 is a critical hit and doubles the damage dice. A fighter with Improved Critical crits on a lower number.
 - Fighters and rangers attack more than once per action once they have **Extra Attack** (level 5). Your first attack spends the action and leaves the others available.
 - An **off-hand attack** with a second weapon is a bonus action. It adds no positive ability bonus to damage unless you have the Two-Weapon Fighting style.

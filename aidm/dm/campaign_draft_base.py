@@ -27,13 +27,56 @@ TRIM_TAIL = " \t\n,;:-"
 _LAST_SPACE = re.compile(r"\s\S*$")
 
 
+_SENTENCE_END = re.compile(r"[.!?][\"')]*(?=\s|$)")
+_DANGLING = frozenset(
+    [
+        "a",
+        "an",
+        "the",
+        "of",
+        "and",
+        "or",
+        "but",
+        "to",
+        "in",
+        "on",
+        "at",
+        "for",
+        "with",
+        "by",
+        "from",
+        "as",
+        "that",
+        "which",
+        "his",
+        "her",
+        "its",
+    ]
+)
+MIN_SENTENCE_SHARE = 0.4
+
+
+def _whole_sentence(head: str, limit: int) -> str | None:
+    """`head` cut after its last full sentence when that keeps at least 40% of the room."""
+    ends = [m.end() for m in _SENTENCE_END.finditer(head)]
+    keep = [e for e in ends if e >= limit * MIN_SENTENCE_SHARE]
+    return head[: keep[-1]] if keep else None
+
+
 def trim_words(text: str, limit: int) -> str:
-    """`text` cut to at most `limit` characters at the last word boundary (hard cut if none)."""
+    """`text` cut to at most `limit` characters: after the last whole sentence when one fits
+    (M31.1e: "forever a" was a cut ending), else at a word boundary without a dangling article."""
     if len(text) <= limit:
         return text
+    whole = _whole_sentence(text[: limit + 1][:limit], limit)
+    if whole is not None:
+        return whole
     space = _LAST_SPACE.search(text[: limit + 1])
     head = text[: space.start()] if space is not None and space.start() > 0 else text[:limit]
-    return head.rstrip(TRIM_TAIL) or text[:limit]
+    words = head.rstrip(TRIM_TAIL).split(" ")
+    while len(words) > 2 and words[-1].lower() in _DANGLING:
+        words.pop()
+    return " ".join(words).rstrip(TRIM_TAIL) or text[:limit]
 
 
 def fit_limits(data: Mapping[str, Any], limits: Mapping[str, int]) -> dict[str, Any]:

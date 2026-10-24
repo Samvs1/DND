@@ -165,7 +165,12 @@ def test_m29_sub_gold_prices_are_shown_as_charged() -> None:
     ration = CAT.get("camp-ration")
     assert (buy_price(ration.value_gp, 1, TABLE), buy_price(ration.value_gp, 10, TABLE)) == (1, 5)
     assert bulk_note(0.5) == "2 for 1 gp" and bulk_note(0.4) == "5 for 2 gp"
-    assert bulk_note(0.01) == "100 for 1 gp" and bulk_note(1.0) == "" and bulk_note(2.5) == ""
+    assert (
+        bulk_note(0.01) == "100 for 1 gp"
+        and bulk_note(1.0) == ""
+        and bulk_note(2.5) == "2 for 5 gp"
+    )
+    assert bulk_note(1.5) == "2 for 3 gp"  # M31.1e: the Hearty Meal Basket
     stock = shop_stock(CAT, TABLE, "general", 1, random.Random(1))
     line = next(e for e in stock if e.item == "camp-ration")
     assert (line.price_gp, line.unit_gp, line.bulk) == (1, 0.5, "2 for 1 gp")

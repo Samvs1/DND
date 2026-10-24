@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from aidm.data.combat_data import combat_registries
+from aidm.dm.hand_intent import HeroHandIntent
 from aidm.dm.heal_intent import HealIntent
 from aidm.dm.precheck import precheck
 from aidm.models.character import Keepsake, PcData
@@ -99,3 +100,11 @@ def test_m29_hand_over_refuses_only_the_impossible() -> None:
     for event in hand_events(state, "pc-p2", "pc-p4", chars, gold=1):
         apply(state, event)
     assert _pc(state, "pc-p4").gold == 16
+
+
+def test_m31_toss_gold_with_a_reason_is_a_gold_hand_over() -> None:
+    """r4 (M31.1e): "I toss Elowen 10 gold for her trouble" was refused as an item not carried."""
+    state = replay_until("r2-p7", 289)
+    intent = precheck(state, "pc-p2", "I toss Elowen 10 gold for her trouble")
+    assert isinstance(intent, HeroHandIntent)
+    assert (intent.gold, intent.to_id, intent.thing) == (10, "pc-p4", None)
