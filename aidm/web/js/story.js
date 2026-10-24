@@ -71,6 +71,7 @@ const FEED_EVENTS = new Set([
   'light_ended',
   'item_used',
   'feature_unlocked',
+  'action_impossible', // M30.3: "<hero> cannot do that: <why>.", no dice card
 ]);
 
 function actionItem(entry) {
