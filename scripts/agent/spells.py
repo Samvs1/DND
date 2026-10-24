@@ -5,7 +5,8 @@ the real client shows both, so the harness does too. A spell needs a zone when i
 `target_kind` is `area` (unless it is centred on the caster with no aimed shape) or `point`;
 an aimed self cone or line (`area_shape`/`area_feet`, M29.7d) takes the zone it is aimed at,
 the caster's own or a neighbour within its length; the `(zones: ...)` list marks the
-ones in reach (edge feet from the combat message, summed along the shortest path). Creature spells take foes or allies.
+ones in reach (edge feet from the combat message, summed along the shortest path).
+Creature spells take foes or allies.
 
 Public API: `find_spell`, `spell_lines`, `needs_zone`, `needs_creature`.
 """
