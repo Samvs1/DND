@@ -44,6 +44,36 @@ def _ready() -> tuple[GameState, list[AnyEvent]]:
     return state, log
 
 
+def _back_at_the_asker(state: GameState) -> None:
+    """M31.1b V14: the party came back to the asker after accepting (the report step)."""
+    here = state.world.current_node
+    assert here is not None and state.world.npcs[ASKER].node_id == here
+    state.world.arrived[here] = state.event_count + 1
+
+
+def test_m31_a_favour_visit_goes_where_its_words_say() -> None:
+    """M31.1b V15: a visit of the party's own place (or a place its words do not name) goes to
+    the place the favour's words name; with none left it is the report to the asker alone."""
+    state, _ = _ready()
+    here = run_tool(state, "offer_favour", **{**VISIT, "place": "gullmere-quay-docks"})
+    assert here.error is None, here.error
+    favour = next(e for e in here.events if isinstance(e, QuestUpdated)).quest
+    assert [(s.kind, s.nodes, s.npc) for s in favour.steps] == [
+        (StepKind.VISIT, (SPOKE,), None),
+        (StepKind.MEET, (), ASKER),
+    ]
+    words = {
+        **VISIT,
+        "title": "Watch the quay",
+        "text": "Look around the quay docks",
+        "place": "heron-marsh-causeway",
+    }
+    alone = run_tool(state, "offer_favour", **words)
+    assert alone.error is None, alone.error
+    favour = next(e for e in alone.events if isinstance(e, QuestUpdated)).quest
+    assert [(s.kind, s.npc) for s in favour.steps] == [(StepKind.MEET, ASKER)]
+
+
 def _favour(state: GameState, log: list[AnyEvent], **args: Any) -> list[AnyEvent]:
     result = run_tool(state, "offer_favour", **{**VISIT, **args})
     assert result.error is None, result.error
@@ -57,8 +87,10 @@ def test_a_favour_is_asked_through_the_quest_card() -> None:
     favour = state.world.quests["favour-1"]
     assert favour.kind is QuestKind.FAVOUR and favour.state is QuestState.OFFERED
     assert favour.giver_npc_id == ASKER and favour.objective == VISIT["text"]
-    assert [s.kind for s in favour.steps] == [StepKind.VISIT]
+    # M31.1b V14: a favour ends with a report to the asker
+    assert [s.kind for s in favour.steps] == [StepKind.VISIT, StepKind.MEET]
     assert favour.steps[0].text == "Go to Rotting Boathouse"  # M29.9b T3: the engine's line
+    assert (favour.steps[1].npc, favour.steps[1].text) == (ASKER, "Meet Dessa Orrin")
     assert state.world.quest_ask is not None and state.world.quest_ask.quest_id == "favour-1"
 
 
@@ -68,7 +100,6 @@ def test_a_favour_is_asked_through_the_quest_card() -> None:
         ({"npc": "wren-calloway"}, "not here"),  # at a spoke
         ({"npc": "nobody"}, "unknown"),
         ({"place": "harrowmere-bridge"}, "not a place of this region"),  # act 2
-        ({"place": "gullmere-quay-docks"}, "already done"),  # the party stands there
         ({"kind": "clear", "place": "gullmere-quay-docks"}, "arrival"),
         ({"kind": "meet", "place": None, "target_npc": ASKER}, "other than the asker"),
         ({"kind": "meet", "place": None, "target_npc": "tobin-marrow"}, "already done"),
@@ -139,6 +170,7 @@ def test_a_done_favour_pays_goodwill_only() -> None:
     accept(state, "favour-1", log)
     before = state.world.npcs[ASKER].deeds
     state.world.arrived[SPOKE] = state.event_count  # done (a move would also roll an offer)
+    _back_at_the_asker(state)
     out = settle(state, [], log)
     assert state.world.quests["favour-1"].state is QuestState.COMPLETED
     paid = (XpGained, GoldChanged, RewardGranted, InventoryChanged)
@@ -203,6 +235,7 @@ def test_favour_lines_for_the_model_and_the_players() -> None:
     assert template_line(state, events[0]) is None  # the ask line says it
     accept(state, "favour-1", log)
     state.world.arrived[SPOKE] = state.event_count  # M29.9b: an arrival after acceptance
+    _back_at_the_asker(state)
     done = next(e for e in settle(state, [], log) if isinstance(e, QuestUpdated))
     assert "grateful (no reward)" in (event_line(state, done) or "")
     assert "They will remember it." in (template_line(state, done) or "")

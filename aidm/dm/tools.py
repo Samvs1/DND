@@ -236,8 +236,8 @@ class OfferFavourArgs(_Args):
     step the engine can check: visit or clear a place (place), defeat, meet or win over an NPC
     (target_npc; win_over also band), deliver a keepsake a hero carries to an NPC (item,
     target_npc), learn something (tag), or pay an NPC, the asker too (target_npc, gold).
-    Ids from this region only. The players accept or not;
-    it earns that NPC's goodwill, never gold or XP."""
+    Ids from this region only. The players accept or not; the engine adds the report back to
+    the asker. It earns that NPC's goodwill, never gold or XP: the asker promises no reward."""
 
     npc: str = _id()
     title: str = Field(min_length=1, max_length=60)

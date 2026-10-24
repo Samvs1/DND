@@ -64,10 +64,13 @@ def test_full_draft_assembles_with_steps_routes_and_finale() -> None:
 
 def test_draft_without_quest_parts_still_assembles() -> None:
     plan, notes = _assemble(draft_from_plan(quests=False))
-    assert all(q.steps == () for q in plan.quests) and plan.finale is None
+    # M31.1b V16: a quest without steps is no unchecked task: it meets its giver
+    meets = [QuestStep(kind=StepKind.MEET, text="-", npc=q.giver_npc_id) for q in plan.quests]
+    assert [q.steps[0].model_copy(update={"text": "-"}) for q in plan.quests] == meets
+    assert all(len(q.steps) == 1 for q in plan.quests) and plan.finale is None
     assert all(a.main is None for a in plan.acts)
     assert [r.kind for r in main_quest(plan, 1).routes] == [RouteKind.FORCE, RouteKind.PEACE]
-    assert [n.subject for n in notes] == ["finale"]
+    assert [n.subject for n in notes][0] == "finale"
 
 
 def test_unresolvable_step_becomes_free_with_its_text() -> None:
@@ -75,10 +78,17 @@ def test_unresolvable_step_becomes_free_with_its_text() -> None:
     draft["quests"][0]["steps"][1]["npc"] = "Nobody Anyone Knows"
     draft["quests"][1]["steps"][0]["places"] = ["The Dark Lantern Room"]  # an act-3 place
     plan, notes = _assemble(draft)
-    ledger = _quest(plan, "The Missing Ledger").steps[1]
-    assert ledger == QuestStep(kind=StepKind.FREE, text="Meet Tobin Marrow")
-    assert _quest(plan, "Break the Smugglers").steps[0].kind is StepKind.FREE
-    assert len(notes) == 2 and "became a free step" in _messages(notes)
+    # M31.1b V16: the unresolvable step is dropped (nothing could check it); "Recover ..." asks
+    # the party to come back, so the ledger quest still ends with Tobin (V14)
+    ledger = _quest(plan, "The Missing Ledger").steps
+    assert [(s.kind, s.npc) for s in ledger] == [
+        (StepKind.CLEAR, None),
+        (StepKind.MEET, "tobin-marrow"),
+    ]
+    smugglers = _quest(plan, "Break the Smugglers").steps
+    assert [s.kind for s in smugglers] == [StepKind.MEET]
+    assert "became a free step" in _messages(notes)
+    assert "a step the engine cannot check" in _messages(notes)
     assert check_plan_quests(plan) == []
 
 
@@ -125,7 +135,9 @@ def test_deliver_without_obtain_gets_one_inserted_or_becomes_free() -> None:
     full = [{"kind": "free", "text": f"Ask around ({n})"} for n in range(3)] + kindle["steps"]
     kindle["steps"] = full
     plan, notes = _assemble(draft)
-    assert [s.kind for s in _quest(plan, "Kindle the Stair").steps] == [StepKind.FREE] * 4
+    # M31.1b V16: every unchecked step is dropped; the task left meets its giver
+    kept = _quest(plan, "Kindle the Stair").steps
+    assert [(s.kind, s.npc) for s in kept] == [(StepKind.MEET, "warden-alder-quill")]
     assert "the step became free" in _messages(notes)
     assert check_plan_quests(plan) == []
 
@@ -164,16 +176,15 @@ def test_unplayable_steps_are_repaired() -> None:
     steps.append({"kind": "learn", "text": "Learn of the tunnels", "tag": "Saltcellar"})
     plan, notes = _assemble(draft)
     got = _quest(plan, "The Missing Ledger").steps
-    kinds = [StepKind.FREE, StepKind.LEARN, StepKind.FREE, StepKind.LEARN]
+    # M31.1b: the unchecked steps are dropped (V16); the giver teaches a side quest's tag when
+    # asked (V13a), so "dragon" needs no clue; "saltcellar" only its place teaches, so it is a
+    # visit (V13c); "Recover ..." ends with the giver (V14)
+    kinds = [StepKind.LEARN, StepKind.VISIT, StepKind.MEET]
     assert [s.kind for s in got] == kinds
-    # M29.9b: a tag nothing in the act teaches gets an engine clue (it is no longer free)
-    assert (got[1].tag, got[1].item, got[1].text) == (
-        "dragon",
-        "Notes on Dragon",
-        "Learn about dragon from the Notes on Dragon",
-    )
-    assert got[3].tag == "saltcellar" and got[3].item is None
-    assert "a tag nothing in the act can teach" in _messages(notes)
+    assert (got[0].tag, got[0].item, got[0].text) == ("dragon", None, "Learn about dragon")
+    assert (got[1].nodes, got[1].text) == (("saltcellar-tunnels",), "Go to Saltcellar Tunnels")
+    assert got[2].npc == "tobin-marrow"
+    assert "a step the engine cannot check" in _messages(notes)
     assert check_plan_quests(plan) == []
 
 

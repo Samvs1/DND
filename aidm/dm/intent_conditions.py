@@ -11,10 +11,12 @@ scope depends on, evaluated here and only here (`aidm.dm.intent_match` calls the
   filler like "the", "old"); naming a present non-foe NPC is a normal talk turn;
 - `foe_named` (M31.1a V4): the sentence names a foe of the offer or its master;
 - `no_offer_waits`: no encounter offer waits (travel is the offer's buttons then);
-- `hidden_here` (M31.1a V9): something is hidden in the current place;
+- `hidden_here` (M31.1a V9): something is hidden in the current place (M31.1b: or the place
+  teaches an open learn tag);
 - `quest_ask_here` (M31.1a V8): a quest offer waits from a living person standing here.
 
-Public API: `Condition`, `CONDITIONS`, `foe_words(state)`.
+Public API: `Condition`, `CONDITIONS`, `foe_words(state)`, `name_words(name)` (the words that name
+a person: letters, filler such as "the" and "old" left out).
 """
 
 import re
@@ -25,6 +27,7 @@ from aidm.data.intent_phrases import intent_phrases
 from aidm.models.campaign_state import EncounterOffer, OfferChoice
 from aidm.models.encounter import EncounterStatus
 from aidm.models.state import CreatureKind, GameState
+from aidm.rules.lore import place_lore_events
 from aidm.rules.scene import hidden_dc
 
 if TYPE_CHECKING:
@@ -70,7 +73,7 @@ def no_friend_named(found: "Found") -> bool:
     )
 
 
-def _name_words(name: str) -> set[str]:
+def name_words(name: str) -> set[str]:
     return set(re.findall(r"[a-z]+", name.lower())) - _FILLER
 
 
@@ -82,7 +85,7 @@ def foe_words(state: GameState) -> set[str]:
         return set()
     words = {w for m in offer.monster_ids for w in m.split("-") if not w.isdigit()}
     boss = state.world.npcs.get(offer.boss_npc_id or "")
-    return words | _name_words(boss.name) if boss is not None else words
+    return words | name_words(boss.name) if boss is not None else words
 
 
 def foe_or_no_bystander(found: "Found") -> bool:
@@ -95,7 +98,7 @@ def foe_or_no_bystander(found: "Found") -> bool:
         return True
     here = state.world.current_node
     return not any(
-        words & (_name_words(n.name) - foes)
+        words & (name_words(n.name) - foes)
         for n in state.world.npcs.values()
         if n.node_id == here and not n.dead and n.id != offer.boss_npc_id
     )
@@ -107,8 +110,10 @@ def foe_named(found: "Found") -> bool:
 
 
 def hidden_here(found: "Found") -> bool:
-    """M31.1a V9: something is hidden in the current place (a search can find it)."""
-    return hidden_dc(found.state) is not None
+    """M31.1a V9: something is hidden in the current place (a search can find it); M31.1b V13c:
+    or the place teaches an open learn tag (a search there records it)."""
+    found_lore = place_lore_events(found.state, found.actor_id)
+    return hidden_dc(found.state) is not None or bool(found_lore)
 
 
 def no_offer_waits(found: "Found") -> bool:

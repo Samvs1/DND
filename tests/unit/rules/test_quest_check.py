@@ -28,8 +28,16 @@ def test_learn_tag_must_be_learnable_in_its_act() -> None:
     good = QuestStep(kind=StepKind.LEARN, text="Learn of the tunnels", tag="saltcellar")
     assert check_plan_quests(_with_steps(plan, "missing-ledger", good)) == []
     far = QuestStep(kind=StepKind.LEARN, text="Learn of the cistern", tag="cistern")
-    codes = [p.code for p in check_plan_quests(_with_steps(plan, "missing-ledger", far))]
-    assert codes == ["step_tag"]
+    # M31.1b V13: a side quest's giver teaches its tag; a main route still needs a source
+    assert check_plan_quests(_with_steps(plan, "missing-ledger", far)) == []
+    act = plan.acts[0]
+    assert act.main is not None
+    route = act.main.routes[0].model_copy(update={"steps": (far,)})
+    main = act.main.model_copy(update={"routes": (route, *act.main.routes[1:])})
+    routed = plan.model_copy(
+        update={"acts": (act.model_copy(update={"main": main}), *plan.acts[1:])}
+    )
+    assert [p.code for p in check_plan_quests(routed)] == ["step_tag"]
 
 
 def test_deliver_counts_only_items_obtained_by_the_same_quest() -> None:

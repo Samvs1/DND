@@ -38,6 +38,7 @@ from aidm.dm.hand_intent import HeroHandIntent
 from aidm.dm.heal_intent import HealIntent
 from aidm.dm.help_intent import HelpUpIntent
 from aidm.dm.lift_intent import LiftIntent
+from aidm.dm.lore_intent import AskIntent
 from aidm.dm.parley_intent import ParleyIntent
 from aidm.dm.pay_intent import PayIntent
 from aidm.dm.precheck import (
@@ -63,6 +64,7 @@ from aidm.models.protocol_server import (
 )
 from aidm.models.protocol_views import QueueEntry, TablePhase, VoteKind
 from aidm.models.state import Creature
+from aidm.rules.lore import place_lore_events
 from aidm.rules.scene import node_display_name
 from aidm.session import (
     fight_text,
@@ -76,6 +78,7 @@ from aidm.session import (
 )
 from aidm.session.declared import declare
 from aidm.session.held import adjudicated, hold_parley
+from aidm.session.lore_turn import lore_turn
 from aidm.session.search_turn import search_turn
 from aidm.session.table_core import Job, Player, TableCore
 from aidm.session.telling import conclude, remember, tell_text
@@ -145,7 +148,14 @@ async def resolve_action(core: TableCore, entry: QueueEntry) -> None:
     if intent is None:
         await adjudicated(core, entry)
     elif isinstance(intent, LookIntent | BarredIntent):
+        lore = (
+            place_lore_events(core.state, entry.creature_id)
+            if isinstance(intent, LookIntent)
+            else []
+        )
         await remember(core, await tell_text(core, intent.text))
+        if lore:  # M31.1b V13c: looking around the place teaches what its name holds
+            await conclude(core, None, core.apply_all(lore), actor_id=entry.creature_id)
     elif isinstance(intent, InventoryIntent):
         core.notice(player.id, NoticeKind.INFO, inventory_text(actor))
     elif isinstance(intent, ItemIntent | ItemIntents):
@@ -171,6 +181,8 @@ async def resolve_action(core: TableCore, entry: QueueEntry) -> None:
         await _gear_use(core, player, entry, intent)
     elif isinstance(intent, SearchIntent):  # M31.1a V9: one discovery check at the hidden DC
         await search_turn(core, entry, intent)
+    elif isinstance(intent, AskIntent):  # M31.1b V13: what the person teaches, then the telling
+        await lore_turn(core, entry, intent)
     elif isinstance(intent, HealIntent | CastIntent):  # M30.0b T7: a typed spell out of a fight
         await heal_actions.heal_intent(core, player, intent)
     elif isinstance(intent, TravelIntent):

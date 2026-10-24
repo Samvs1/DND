@@ -9,10 +9,11 @@ adjudicator. Nothing here runs during a fight (combat uses structured commands a
 `intent_router.fight_intent`). Intents carry ids only; the session executes them through the
 rules. M30.0b: the one router (`aidm.dm.intent_router`, scope `explore`) decides; which
 intent wins is the rows' `precedence`, never call order: help up, parley (while an offer
-waits), short and long rest, look, inventory, lift, give a carried thing (M30.0b T5: also set
-before an NPC here), pay, give a thing not carried, hand to a hero, heal, cast a known spell
-(M30.0b T7), a rest in a longer sentence, shop, travel, a locked way, equip / unequip / drop,
-light first, gear use, take.
+waits), a question to a person who has something to teach (M31.1b), short and long rest,
+look, inventory, lift, give a carried thing (M30.0b T5: also set before an NPC here), pay,
+give a thing not carried, hand to a hero, heal, cast a known spell (M30.0b T7), a rest in a
+longer sentence, shop, travel, a locked way, equip / unequip / drop, light first, gear use,
+take.
 
 Public API:
 - Intents (frozen): `RestIntent(kind)` (`RestKind` SHORT/LONG), `ShopIntent(npc_id)`,
@@ -20,7 +21,8 @@ Public API:
   `BarredIntent(text)` (`aidm.dm.scene_intent`), `ItemIntent`, `ItemIntents`
   (`aidm.dm.equip_intent`), `HelpUpIntent`, `GiveIntent`, `HeroHandIntent`, `LiftIntent`,
   `PayIntent`, `ParleyIntent`, `UseIntent`, `HealIntent`, `CastIntent`, `QuestAnswerIntent`,
-  `SearchIntent` (their `*_intent` modules);
+  `SearchIntent`, `AskIntent` (M31.1b: a question to a person who can teach) (their `*_intent`
+  modules);
 - `Intent` (the union), `precheck(state, actor_id, text) -> Intent | None`;
 - `gear_intent(state, actor_id, text) -> UseIntent | None`: the gear rows alone, for the typed
   actions of a fight (M27.5: putting a light out is free, lighting one a bonus action);
@@ -39,6 +41,7 @@ from aidm.dm.heal_intent import HealIntent
 from aidm.dm.help_intent import HelpUpIntent
 from aidm.dm.intent_router import ask_intent, explore_intent
 from aidm.dm.lift_intent import LiftIntent
+from aidm.dm.lore_intent import AskIntent
 from aidm.dm.parley_intent import ParleyIntent
 from aidm.dm.pay_intent import PayIntent
 from aidm.dm.quest_answer_intent import QuestAnswerIntent
@@ -103,6 +106,7 @@ type Intent = (
     | CastIntent
     | QuestAnswerIntent
     | SearchIntent
+    | AskIntent
 )
 _INTENTS = (
     RestIntent,
@@ -125,6 +129,7 @@ _INTENTS = (
     CastIntent,
     QuestAnswerIntent,
     SearchIntent,
+    AskIntent,
 )
 
 

@@ -19,7 +19,8 @@ Public API:
   the NPC holds (`aidm.rules.lifting`); it leaves `WorldNpc.keepsakes` and joins the hero.
 - `LoreLearned(creature_id, item, tag)` (M29.9b T13): the hero took up or read a clue keepsake
   that teaches `tag`; `World.learned[tag]` records the seq (a learn step counts it while its
-  quest is active, `aidm.rules.quest_steps`).
+  quest is active, `aidm.rules.quest_steps`). M31.1b V13: `npc_id` set when a person taught it
+  by being asked (`aidm.rules.lore_talk`; `item` is then their name).
 - `QuestEvents`: the union of these classes.
 """
 
@@ -90,6 +91,7 @@ class LoreLearned(_QuestEvent):
     creature_id: str = Field(min_length=1)
     item: str = Field(min_length=1)
     tag: str = Field(min_length=1)
+    npc_id: str | None = None
 
 
 QuestEvents = (

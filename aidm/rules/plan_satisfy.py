@@ -9,7 +9,11 @@ Pure. `unsatisfiable(plan)` lists each step nobody could finish (codes):
 - `give_item`: a `deliver` step's item is obtained by no step of the same quest (the routes of a
   main quest share one owner, the rule `aidm.rules.quest_steps` counts by);
 - `step_person`: a step names a person who is neither an NPC of the plan nor a region master;
-- `step_place`: a step names a place that is no place of its act.
+- `step_place`: a step names a place that is no place of its act;
+- `free_step` (M31.1b V16): a step kind the engine cannot check (`free`): it is dropped, and a
+  task left without steps meets its anchor (a side quest's giver, a route's master).
+M31.1b V13: a side quest's own giver teaches its learn tags when asked (`rules.lore_talk`), so
+a side quest never needs a clue.
 `satisfy_plan(plan, notes)` repairs each one onto registered things, or registers the thing
 through the quest-item path (each repair a `quest_repair` note): a missing place is dropped (no
 place left: the act's first spoke); a missing person becomes the owner's anchor (a side quest's
@@ -18,7 +22,8 @@ obtains gets an `obtain` at the first spoke (no room: the step meets its person)
 a source gets a clue "Notes on <Tag>" lying at the act's first spoke.
 
 Public API: `unsatisfiable(plan) -> list[Problem]`, `satisfy_plan(plan, notes) -> CampaignPlan`,
-`learnable(plan, act, owner, step) -> bool`, `CLUE_NAME`.
+`learnable(plan, act, owner, step) -> bool`, `learn_sources(plan, act, owner, step) ->
+frozenset[str]`, `CLUE_NAME`.
 """
 
 from aidm.models.campaign import Act, CampaignPlan
@@ -47,20 +52,42 @@ def _clues(plan: CampaignPlan, act: Act) -> set[str]:
     return {s.tag for s in _act_steps(plan, act) if s.kind is StepKind.LEARN and s.item and s.tag}
 
 
-def learnable(plan: CampaignPlan, act: Act, owner: str, step: QuestStep) -> bool:
-    """A source can teach `step`'s tag in `act` (see the module doc)."""
+def learn_sources(plan: CampaignPlan, act: Act, owner: str, step: QuestStep) -> frozenset[str]:
+    """What can teach `step`'s tag in `act`: `clue` (its own or another clue of the act),
+    `place` (a place of the act whose id or name holds every tag word), `person` (an NPC living
+    in the act whose name or secret holds them: asking them teaches it, `rules.lore_talk`) and
+    `quest` (another quest of that act or before whose id or title holds them)."""
     wanted = fact_words(step.tag or "")
     if not wanted:
-        return False
+        return frozenset()
+    found: set[str] = set()
     if step.item or step.tag in _clues(plan, act):
-        return True
+        found.add("clue")
+    if any(wanted <= fact_words(n.id, n.name) for n in act.region.nodes()):
+        found.add("place")
     homes = {n.id for n in act.region.nodes()}
-    groups = [(n.id, n.name) for n in act.region.nodes()]
-    groups += [(s.text,) for n in plan.npcs if n.home_node in homes for s in n.secrets]
-    groups += [
-        (q.id, q.title) for q in plan.quests if q.act <= act.index and q.id != _quest_of(owner)
+    people = [n for n in plan.npcs if n.home_node in homes]
+    told = [fact_words(n.name) for n in people] + [
+        fact_words(s.text) for n in people for s in n.secrets
     ]
-    return any(wanted <= fact_words(*group) for group in groups)
+    if any(wanted <= words for words in told):
+        found.add("person")
+    quests = [q for q in plan.quests if q.act <= act.index and q.id != _quest_of(owner)]
+    if any(wanted <= fact_words(q.id, q.title) for q in quests):
+        found.add("quest")
+    return frozenset(found)
+
+
+def _side(plan: CampaignPlan, owner: str) -> bool:
+    return any(q.id == owner for q in plan.quests)
+
+
+def learnable(plan: CampaignPlan, act: Act, owner: str, step: QuestStep) -> bool:
+    """A source can teach `step`'s tag in `act` (see the module doc); M31.1b V13: a side
+    quest's giver teaches their own task when asked, so a side quest's tag always has one."""
+    if not fact_words(step.tag or ""):
+        return False
+    return bool(learn_sources(plan, act, owner, step)) or _side(plan, owner)
 
 
 class _World:
@@ -90,6 +117,8 @@ class _World:
             out.append("give_item")
         if step.kind is StepKind.LEARN and not learnable(self.plan, act, owner, step):
             out.append("learn_source")
+        if step.kind is StepKind.FREE:
+            out.append("free_step")
         return out
 
 
@@ -98,6 +127,7 @@ _MESSAGES = {
     "step_person": "a step names a person nobody registered",
     "give_item": "an item is given that no step of the quest obtains",
     "learn_source": "a tag nothing in the act can teach",
+    "free_step": "a step the engine cannot check",
 }
 
 
@@ -163,7 +193,12 @@ def _fix_steps(
             else:
                 step = QuestStep(kind=StepKind.MEET, text=step.text, npc=step.npc)
         notes.extend(note(owner, f"repaired: {_MESSAGES[c]}") for c in codes)
+        if step.kind is StepKind.FREE:  # V16: nothing could check it; the step is dropped
+            continue
         out.append(step)
+    if not out:  # V15 V16: never an empty or unchecked task: it meets its owner's anchor
+        out.append(QuestStep(kind=StepKind.MEET, text="-", npc=_anchor(world.plan, act, owner)))
+        notes.append(note(owner, "the task is to meet its giver"))
     return tuple(out)
 
 

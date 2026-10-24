@@ -13,19 +13,27 @@ per-item branch: every clue works the same way.
   of an active main quest (`wanted_tags`). The plan's clue items are placed by
   `rules.quest_items`.
 
-Public API: `wanted_tags(state) -> frozenset[str]`, `lore_events(creature_id, keepsake)`,
+M31.1b V13c: a place whose id or name holds an open learn tag teaches it when the party looks
+around or searches there while the quest is active (`place_lore_events`: ONE `LoreLearned`,
+`item` the place's name), never by the arrival alone.
+
+Public API: `place_lore_events(state, actor_id) -> list[AnyEvent]` (`LoreLearned` only),
+`open_learn_steps(state) -> list[(Quest, QuestStep)]` (the learn steps not done yet, with their
+quest), `learned_for(state, quest, tag) -> bool` (recorded while the quest is active),
+`wanted_tags(state) -> frozenset[str]`, `lore_events(creature_id, keepsake)`,
 `carried_clue(state, actor_id, item) -> Keepsake | None`, `read_events(state, actor_id, item)
 -> list[LoreLearned]` (empty: no clue of that name is carried).
 """
 
 from aidm.models.character import Keepsake
+from aidm.models.events import AnyEvent
 from aidm.models.quest_events import LoreLearned
 from aidm.models.quests import QuestKind, QuestStep, StepKind
 from aidm.models.state import GameState
 from aidm.models.world import Quest, QuestState
 from aidm.rules.plan_ids import main_quest_id
 from aidm.rules.quest_plan import main_quest
-from aidm.rules.secrets import item_key
+from aidm.rules.secrets import fact_words, item_key
 
 
 def _route_steps(state: GameState, quest: Quest) -> list[QuestStep]:
@@ -43,20 +51,48 @@ def _route_steps(state: GameState, quest: Quest) -> list[QuestStep]:
     return steps
 
 
-def _open_steps(state: GameState) -> list[QuestStep]:
-    steps: list[QuestStep] = []
+def _open_steps(state: GameState) -> list[tuple[Quest, QuestStep]]:
+    steps: list[tuple[Quest, QuestStep]] = []
     for quest in state.world.quests.values():
         if quest.state is not QuestState.ACTIVE:
             continue
-        if quest.kind is QuestKind.MAIN:
-            steps += _route_steps(state, quest)
-        else:
-            steps += quest.steps[quest.steps_done :]
+        own = _route_steps(state, quest) if quest.kind is QuestKind.MAIN else None
+        own = own if own is not None else list(quest.steps[quest.steps_done :])
+        steps += [(quest, step) for step in own]
     return steps
 
 
+def open_learn_steps(state: GameState) -> list[tuple[Quest, QuestStep]]:
+    return [(q, s) for q, s in _open_steps(state) if s.kind is StepKind.LEARN and s.tag]
+
+
+def learned_for(state: GameState, quest: Quest, tag: str) -> bool:
+    learned = state.world.learned.get(tag)
+    since = quest.active_since
+    return learned is not None and (since is None or learned > since)
+
+
+def place_lore_events(state: GameState, actor_id: str) -> list[AnyEvent]:
+    here = state.world.current_node
+    if here is None:
+        return []
+    name = state.world.node_names.get(here, "") or here
+    words = fact_words(here, name)
+    out: list[AnyEvent] = []
+    taught: set[str] = set()
+    for quest, step in open_learn_steps(state):
+        tag = step.tag or ""
+        wanted = fact_words(tag)
+        if not wanted or not wanted <= words or learned_for(state, quest, tag):
+            continue
+        if tag not in taught:
+            taught.add(tag)
+            out.append(LoreLearned(creature_id=actor_id, item=name, tag=tag))
+    return out
+
+
 def wanted_tags(state: GameState) -> frozenset[str]:
-    return frozenset(s.tag for s in _open_steps(state) if s.kind is StepKind.LEARN and s.tag)
+    return frozenset(s.tag for _, s in open_learn_steps(state) if s.tag)
 
 
 def lore_events(creature_id: str, keepsake: Keepsake) -> list[LoreLearned]:

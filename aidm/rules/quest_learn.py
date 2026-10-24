@@ -3,7 +3,8 @@
 A learn step needs a fact the party learned for it, never any older fact with the tag (p5 244: a
 "learn ashmede" step completed from a visit to Ashmede Mill long before). Steps are checked only
 while current (`aidm.rules.quest_steps.steps_met`), so a source that is true NOW is learned for
-the step: the party stands at a place whose name holds the tag (it went there to learn it), a
+the step: (M31.1b V13c: a place whose name holds the tag no longer teaches on arrival; a look
+around or a search there records it, `rules.lore.place_lore_events`) a
 discovered feature here holds it, a revealed secret of someone here holds it, or a finished
 quest's title holds it (a deed done once, named in the step's line), or (M29.9b T13) a living
 hero carries a clue keepsake that teaches the tag. A visit long ago no longer
@@ -16,7 +17,6 @@ party's place, M29.9b: those count only after an arrival made while the quest is
 
 from aidm.models.state import GameState
 from aidm.models.world import QuestState
-from aidm.rules.scene import node_display_name
 from aidm.rules.secrets import fact_words
 
 
@@ -38,11 +38,9 @@ def learn_source(state: GameState, tag: str, *, here_counts: bool = True) -> str
 
 
 def _here_source(state: GameState, wanted: set[str]) -> str | None:
-    """The sources bound to the party's place: its name, a feature or a told secret here."""
+    """The sources bound to the party's place: a feature or a told secret here."""
     world = state.world
     here = world.current_node
-    if here is not None and _holds(wanted, here, world.node_names.get(here, "")):
-        return f"the party is at {node_display_name(state, here)}"
     for feature in world.features.values():
         seen = not feature.hidden or feature.discovered
         if feature.node_id == here and seen and _holds(wanted, feature.id, feature.name):

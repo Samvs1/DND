@@ -34,6 +34,7 @@ from aidm.rules.offer_answer import sure_parley
 from aidm.rules.plan_ids import main_quest_id
 from aidm.rules.quest_plan import main_quest
 from aidm.rules.quest_reasons import step_reason
+from aidm.rules.step_text import the_item
 
 _QUESTS = {
     QuestState.OFFERED: "A new task is offered: {title}.",
@@ -97,6 +98,11 @@ def _peace_waits(state: GameState) -> bool:
     return offer is not None and sure_parley(state, offer)
 
 
+# M31.1b V14, model-only: favours never pay (M23.5), so the asker promises nothing for one
+FAVOUR_ASK_NOTE = (
+    "A favour pays nothing but goodwill: the asker promises no coin, payment or reward of any"
+    " kind, and asks the party to come back and tell them when it is done."
+)
 STEP_NOTE = (
     "Describe no new deed for a quest step marked done: what the party did or carries met it."
 )
@@ -145,7 +151,9 @@ def _lore(state: GameState, e: LoreLearned) -> str:
     """M29.9b T13: what the clue told, as a plain fact (the tag, never a secret)."""
     hero = state.creatures.get(e.creature_id)
     who = hero.name if hero is not None else "Someone"
-    return f"{who} learns about {e.tag} from the {e.item}."
+    if e.npc_id is not None:  # M31.1b V13: a person taught it when asked
+        return f"{who} learns about {e.tag} from {e.item}."
+    return f"{who} learns about {e.tag} from {the_item(e.item)}."
 
 
 def _left(e: QuestUpdated) -> bool:
@@ -257,6 +265,7 @@ QUEST_EVENT_LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
 QUEST_EVENT_NOTES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     QuestStepDone: lambda s, e: STEP_NOTE,
     QuestUpdated: _updated_note,
+    QuestAsked: lambda s, e: FAVOUR_ASK_NOTE if _is_favour(s, e.ask.quest_id) else None,
 }
 
 QUEST_TEMPLATE_LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {

@@ -20,7 +20,10 @@ def test_m29_learn_step_needs_its_own_fact_p5_ashmede() -> None:
     assert learn_source(state, "ashmede") is None
     assert not step_met(state, LEARN_ASHMEDE, "main-hollowhymn-vale")
     state.world.current_node = "ashmede-mill"
-    assert learn_source(state, "ashmede") == "the party is at Ashmede Mill"
+    # M31.1b V13c: standing there no longer teaches it; a look around there records it
+    assert learn_source(state, "ashmede") is None
+    assert not step_met(state, LEARN_ASHMEDE, "main-hollowhymn-vale")
+    state.world.learned["ashmede"] = state.event_count
     assert step_met(state, LEARN_ASHMEDE, "main-hollowhymn-vale")
 
 

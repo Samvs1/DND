@@ -73,16 +73,30 @@ def _ledger(p: CampaignPlan) -> QuestPlan:
     return next(q for q in p.quests if q.id == "missing-ledger")
 
 
+def _with_route(base: CampaignPlan, *steps: QuestStep) -> CampaignPlan:
+    """The sample plan with act 1's stored Peace route steps replaced."""
+    act = base.acts[0]
+    assert act.main is not None
+    route = act.main.routes[0].model_copy(update={"steps": steps})
+    main = act.main.model_copy(update={"routes": (route, *act.main.routes[1:])})
+    acts = (act.model_copy(update={"main": main}), *base.acts[1:])
+    return base.model_copy(update={"acts": acts})
+
+
 def test_m29_unsatisfiable_learn_tag_gets_a_clue() -> None:
-    p = _with_quest(plan(), _step(StepKind.LEARN, tag="dragon"))
+    # M31.1b V13: a side quest's giver teaches its tag, so the clue repair is a main route's
+    assert _codes(_with_quest(plan(), _step(StepKind.LEARN, tag="dragon"))) == []
+    p = _with_route(plan(), _step(StepKind.LEARN, tag="dragon"))
     assert _codes(p) == ["learn_source"]
     fixed = satisfy_plan(p, notes := [])
-    clue = _ledger(fixed).steps[0]
+    act = fixed.acts[0]
+    assert act.main is not None
+    clue = act.main.routes[0].steps[0]
     assert (clue.item, clue.nodes) == ("Notes on Dragon", ("rotting-boathouse",))
     assert _codes(fixed) == [] and notes
     placed = [i for i in act_quest_items(fixed, 1) if i.name == "Notes on Dragon"]
     assert [(i.node_id, i.teaches, i.quest_id) for i in placed] == [
-        ("rotting-boathouse", "dragon", "missing-ledger")
+        ("rotting-boathouse", "dragon", "main-gullmere-quay")
     ]
 
 
@@ -100,7 +114,8 @@ def test_m29_unsatisfiable_person_becomes_the_giver() -> None:
     fixed = satisfy_plan(p, [])
     assert _ledger(fixed).steps[0].npc == "tobin-marrow" and _codes(fixed) == []
     gone = _with_quest(plan(), _step(StepKind.DEFEAT, npc="piper-nobody"))
-    assert _ledger(satisfy_plan(gone, [])).steps[0].kind is StepKind.FREE
+    left = _ledger(satisfy_plan(gone, [])).steps  # M31.1b V16: never a free step
+    assert [(s.kind, s.npc) for s in left] == [(StepKind.MEET, "tobin-marrow")]
 
 
 def test_m29_unsatisfiable_place_is_dropped() -> None:
@@ -116,7 +131,8 @@ def test_m29_round_three_plans_are_satisfiable() -> None:
         state = replay_until(run, 40)
         assert state.campaign is not None
         raw = state.campaign.plan
-        assert unsatisfiable(raw) == [], run
+        # M31.1b V16: their free steps are the one thing left to repair
+        assert {p.code for p in unsatisfiable(raw)} <= {"free_step"}, run
         assert unsatisfiable(repair_plan(raw, [])) == [], run
 
 

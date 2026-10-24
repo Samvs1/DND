@@ -5,11 +5,11 @@ Run by `aidm.rules.plan_repair.repair_plan`, each repair a `quest_repair` note:
   Piper to her mother" was a meet with the master and paid 1600 XP for walking into her fight
   offer, which only the main quest answers, M29.9a T15). The step meets the quest's giver
   instead ("Meet <giver>": the party comes back to tell them); as the FIRST step (the giver
-  stands there at acceptance) it becomes a `free` step with the model's words.
+  stands there at acceptance) it is dropped (M31.1b V16: never a `free` step).
 - `home_visits`: a side quest's `visit` never names its giver's home (the quest is asked there,
   and only arrivals after acceptance count, `aidm.rules.quest_steps`): that place is dropped
-  from the step, and a step left without places goes to the act's first spoke the quest does
-  not name yet (DECISIONS M29.9b: no return trip for the players).
+  from the step, and a step left without places is dropped (M31.1b V15: a step never moves to
+  a place it does not name; a quest left without steps meets its giver, `rules.plan_satisfy`).
 - `engine_texts`: the text of every checked step is the engine's (`rules.step_text`), last.
 
 Public API: `master_meets(plan, notes)`, `home_visits(plan, notes)`, `engine_texts(plan)`,
@@ -69,20 +69,13 @@ def master_meets(plan: CampaignPlan, notes: list[Problem]) -> CampaignPlan:
                 out.append(step)
                 continue
             giver = quest.giver_npc_id
-            if i == 0:
-                out.append(QuestStep(kind=StepKind.FREE, text=step.text))
-            else:
+            if i > 0:
                 out.append(QuestStep(kind=StepKind.MEET, text=step.text, npc=giver))
-            who = "a free step" if i == 0 else f"a meet with {names.person(giver)}"
+            who = "nothing (dropped)" if i == 0 else f"a meet with {names.person(giver)}"
             notes.append(note(owner, f"meeting {names.person(master)} became {who}"))
         return tuple(out)
 
     return map_steps(plan, fix)
-
-
-def _new_place(act: Act, used: set[str], home: str) -> str | None:
-    spokes = [s.id for s in act.region.spokes]
-    return next((n for n in spokes if n not in used and n != home), None)
 
 
 def home_visits(plan: CampaignPlan, notes: list[Problem]) -> CampaignPlan:
@@ -94,23 +87,15 @@ def home_visits(plan: CampaignPlan, notes: list[Problem]) -> CampaignPlan:
         home = homes.get(quest.giver_npc_id) if quest is not None else None
         if home is None:
             return steps
-        used = {n for s in steps for n in s.nodes}
         out: list[QuestStep] = []
         for step in steps:
             if step.kind is not StepKind.VISIT or home not in step.nodes:
                 out.append(step)
                 continue
             nodes = tuple(n for n in step.nodes if n != home)
-            moved = _new_place(act, used, home) if not nodes else None
-            nodes = nodes or ((moved,) if moved is not None else ())
-            if not nodes:
-                out.append(QuestStep(kind=StepKind.FREE, text=step.text))
-                notes.append(note(owner, "a visit of the giver's home became a free step"))
-                continue
-            used.update(nodes)
-            out.append(step.model_copy(update={"nodes": nodes}))
-            where = f"; it goes to {names.place(moved)}" if moved is not None else ""
-            notes.append(note(owner, f"{names.place(home)} is the giver's home{where}"))
+            notes.append(note(owner, f"{names.place(home)} is the giver's home"))
+            if nodes:
+                out.append(step.model_copy(update={"nodes": nodes}))
         return tuple(out)
 
     return map_steps(plan, fix)

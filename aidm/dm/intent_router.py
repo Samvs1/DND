@@ -4,7 +4,8 @@ goes through here before the storyteller sees it.
 It joins the resolvers of every intent (each `aidm.dm.*_intent` module keeps only its state
 lookups and exports `RESOLVERS`) and routes a sentence through the phrase table
 (data/bg3/intent_phrases.json, read by `aidm.dm.intent_match`) for one scope:
-- `explore_intent` (scope `explore`, out of a fight: help up, parley, rests, look, inventory,
+- `explore_intent` (scope `explore`, out of a fight: help up, parley, M31.1b a question to a
+  person with something to teach, rests, look, inventory,
   lift, give, pay, hand, heal, cast, shop, travel, locked ways, equip, gear use, take);
 - `fight_intent` (scope `fight`: move, attack, feature, healing, M31.1a casts of ready spells
   and targeted features, surrender);
@@ -26,6 +27,7 @@ from aidm.dm import (
     heal_intent,
     help_intent,
     lift_intent,
+    lore_intent,
     parley_intent,
     pay_intent,
     quest_answer_intent,
@@ -70,6 +72,7 @@ for _module in (
     heal_intent,
     help_intent,
     lift_intent,
+    lore_intent,
     parley_intent,
     pay_intent,
     quest_answer_intent,

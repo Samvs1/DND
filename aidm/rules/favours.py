@@ -1,7 +1,9 @@
 """Favours: small tasks a present NPC asks in play (M23.5, GOAL "Kinds of quest"). Pure.
 
 A favour is the only quest the AI may register (`offer_favour`); plan quests come from the plan.
-It is asked through the SAME card as a side quest (`QuestAsked`), has exactly one typed step and
+It is asked through the SAME card as a side quest (`QuestAsked`), has one typed step, then
+(M31.1b V14) a `meet` of the asker ("come back and tell them": the party reports to the giver,
+unless the step already ends with them: meet, deliver to, pay or win them over), and
 pays only goodwill with the NPC who asked (`social_deeds.quest_deed_events`, a minor deed; never
 XP, gold or items, `quest_rewards`). Rules (`favour_events`, each refusal a `FavourRefused`):
 - not during a fight, nor while an encounter offer or another quest card waits for the players;
@@ -15,6 +17,10 @@ XP, gold or items, `quest_rewards`). Rules (`favour_events`, each refusal a `Fav
   visit never names the place the party stands at, as only later arrivals count). M29.9a T17:
   `pay` names the NPC to pay (the asker too) and the price; its `gold` is stored as the total
   that NPC must have been paid (what they had before plus the price), so old coins never count.
+M31.1b V15: a visit or clear stays at a place the favour's own words name (title and step
+words; a name word of four letters or more): a place they do not name is moved to the first one
+they do name; with none that fits (a visit of the place the party stands at) the favour is the
+report alone (meet the asker). A learn tag is a slug (`item_key`).
 The id is `favour-<n>`; title and objective are the model's words, shown as written; the step
 line is the engine's (`rules.step_text`, M29.9b T3). Not now withdraws a favour (failed +
 `withdrawn`, no deed, `rules.quest_offers`); an offered favour whose card is gone (the party
@@ -36,9 +42,10 @@ from aidm.models.world import MAX_QUEST_LOG, ClosedReason, Quest, QuestAsk, Ques
 from aidm.models.world_events import QuestUpdated
 from aidm.rules.finale import finale_open
 from aidm.rules.plan_ids import boss_npc_id
+from aidm.rules.plan_tasks import ends_at, report_step
 from aidm.rules.progression import region_of
 from aidm.rules.quest_steps import step_met
-from aidm.rules.secrets import item_key
+from aidm.rules.secrets import fact_words, item_key
 from aidm.rules.social import npc_is_hostile
 from aidm.rules.step_text import state_names, step_text
 
@@ -161,8 +168,7 @@ def _check_step(state: GameState, step: QuestStep, asker: WorldNpc, owner: str) 
         _check_npc(state, step.npc, asker, step.kind)
     if step.kind is StepKind.DELIVER and not _carried_flavour(state, step.item or ""):
         raise FavourRefused("a favour delivers a keepsake a hero carries now (not a quest item)")
-    here = state.world.current_node
-    done = here in step.nodes if step.kind is StepKind.VISIT else step_met(state, step, owner)
+    done = step.kind is not StepKind.VISIT and step_met(state, step, owner)  # V15: `_placed`
     if done:
         raise FavourRefused("that is already done; a favour asks for something still to do")
 
@@ -174,16 +180,52 @@ def _favour_id(state: GameState) -> str:
     return f"favour-{n}"
 
 
+def _named_places(state: GameState, words: set[str]) -> list[str]:
+    region = _region(state)
+    nodes = region.nodes() if region is not None else ()
+    return [n.id for n in nodes if any(len(w) >= 4 and w in words for w in fact_words(n.name))]
+
+
+def _placed(state: GameState, step: QuestStep, title: str) -> QuestStep | None:
+    """V15: the step at a place its words name; None when no place fits (the report alone)."""
+    if step.kind not in (StepKind.VISIT, StepKind.CLEAR) or not step.nodes:
+        return step
+    region = _region(state)
+    shut = {state.world.current_node if step.kind is StepKind.VISIT else None}
+    shut.add(region.arrival.id if region is not None and step.kind is StepKind.CLEAR else None)
+    named = _named_places(state, fact_words(title, step.text))
+    if (not named or step.nodes[0] in named) and step.nodes[0] not in shut:
+        return step
+    fits = [n for n in named if n not in shut]
+    return step.model_copy(update={"nodes": (fits[0],)}) if fits else None
+
+
+def _steps(state: GameState, step: QuestStep, asker: WorldNpc) -> tuple[QuestStep, ...]:
+    names = state_names(state)
+    report = report_step(asker.id)
+    if step.kind is StepKind.LEARN and step.tag:
+        step = step.model_copy(update={"tag": item_key(step.tag) or step.tag})
+    step = step.model_copy(update={"text": step_text(step, names)})
+    payee = state.world.npcs.get(step.npc or "")
+    if step.kind is StepKind.PAY and payee is not None:  # the price on top of earlier coins
+        step = step.model_copy(update={"gold": step.gold + payee.paid})
+    report = report.model_copy(update={"text": step_text(report, names)})
+    return (step,) if ends_at((step,), asker.id) else (step, report)
+
+
 def favour_events(state: GameState, npc_id: str, title: str, step: QuestStep) -> list[AnyEvent]:
     _check_moment(state)
     asker = _asker(state, npc_id)
     quest_id = _favour_id(state)
+    asked = step.text  # the model's words: the objective; the step lines are the engine's
     _check_step(state, step, asker, quest_id)
-    asked = step.text  # the model's words: the objective; the step line is the engine's
-    step = step.model_copy(update={"text": step_text(step, state_names(state))})
-    payee = state.world.npcs.get(step.npc or "")
-    if step.kind is StepKind.PAY and payee is not None:  # the price on top of earlier coins
-        step = step.model_copy(update={"gold": step.gold + payee.paid})
+    placed = _placed(state, step, title)
+    if placed is not None:
+        _check_step(state, placed, asker, quest_id)
+        steps = _steps(state, placed, asker)
+    else:
+        report = report_step(asker.id)
+        steps = (report.model_copy(update={"text": step_text(report, state_names(state))}),)
     node = asker.node_id
     assert node is not None  # `_asker`: they stand at the party's place
     quest = Quest(
@@ -193,7 +235,7 @@ def favour_events(state: GameState, npc_id: str, title: str, step: QuestStep) ->
         giver_npc_id=asker.id,
         kind=QuestKind.FAVOUR,
         objective=asked,
-        steps=(step,),
+        steps=steps,
     )
     ask = QuestAsk(quest_id=quest_id, npc_id=asker.id, node_id=node)
     return [QuestUpdated(quest=quest), QuestAsked(ask=ask)]

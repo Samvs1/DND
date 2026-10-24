@@ -444,6 +444,16 @@
       "tell",
       "use",
       "wave"
+    ],
+    "come_back_words": [
+      "back",
+      "bring",
+      "recover",
+      "report",
+      "retrieve",
+      "return",
+      "returns",
+      "fetch"
     ]
   },
   "patterns": {
@@ -750,6 +760,23 @@
         }
       ],
       "note": "M31.1a V4: a question put to a named foe or master is a parley (a question to a bystander stays talk, T16)"
+    },
+    {
+      "id": "ask_lore",
+      "scopes": [
+        "explore"
+      ],
+      "family": "ask_lore",
+      "precedence": 1160,
+      "resolver": "ask_lore",
+      "tokens": "letters",
+      "match": "search",
+      "patterns": [
+        {
+          "re": "[?]|\\b(?:ask|asks|asked|asking|tell|tells|who|whom|whose|what|where|why|how|whether|explain|explains|story|truth|know|knew|remember|speak of|talk of|talk about)\\b"
+        }
+      ],
+      "note": "M31.1b V13: a question to a person here who can teach an open learn topic, or who may reveal a secret now (a friendly person opens up when asked), records it through the engine (LoreLearned, SecretRevealed); the line then goes on to the storyteller with those events"
     },
     {
       "id": "rest_short",

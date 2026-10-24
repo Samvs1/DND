@@ -134,6 +134,8 @@ def test_learn_reads_what_the_engine_knows_never_ledger_facts() -> None:
     state.world.current_node = SPOKES[1]
     assert not step_met(state, step, OWNER)  # M29.9b: there at acceptance, no arrival since
     state.world.arrived[SPOKES[1]] = state.event_count + 1
+    assert not step_met(state, step, OWNER)  # M31.1b V13c: the arrival alone teaches nothing
+    state.world.learned["saltcellar"] = state.event_count + 2  # a look there recorded it
     assert step_met(state, step, OWNER)
 
 
