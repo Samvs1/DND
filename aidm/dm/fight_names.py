@@ -2,7 +2,8 @@
 fight that the words say, in the order they are first said.
 
 - a combatant is named by a word of its name (a hero by the first name), plural "s"/"es"
-  allowed ("the zombies"); the speaker only by a self word ("me", "myself");
+  and the possessive allowed ("the zombies", M32.1a "the zombie's chest"); the speaker only
+  by a self word ("me", "myself");
 - a zone by every word of its name or of its id ("the Dry Hummock", "hummock").
 Small words ("the", "of", "at" ...) never name anything; neither do the words of a span the
 caller already read (a spell's own name: "fire bolt" names no Fire Beetle).
@@ -49,7 +50,7 @@ class Named:
 
 def _says(words: list[str], name_word: str) -> int | None:
     for i, w in enumerate(words):
-        if w in (name_word, f"{name_word}s", f"{name_word}es"):
+        if w.removesuffix("'s").rstrip("'") in (name_word, f"{name_word}s", f"{name_word}es"):
             return i
     return None
 

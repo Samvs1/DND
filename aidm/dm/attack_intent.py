@@ -21,7 +21,8 @@ attacks: `DrawAttack(item, attack)`. A named weapon the hero does not carry, or 
 ("swing from the chandelier into him", "kick the brazier at it") is None: it stays a creative
 action.
 
-Public API: `DrawAttack(item, attack)`, `RESOLVERS` (`attack`).
+Public API: `DrawAttack(item, attack)`, `RESOLVERS` (`attack`), `draw_attack(actor, weapon,
+actor_id, target)` (M32.1a: the weapon-strike row draws the same way).
 """
 
 import re
@@ -135,11 +136,17 @@ def attack(found: Found) -> AttackCommand | DrawAttack | None:
     option = _option(actor, weapon, found.group("verb"), found.params.get("ranged") is True)
     if option is not None:
         return AttackCommand(actor_id=found.actor_id, target_id=target, option=option)
-    drawn = _draw(actor, weapon) if weapon is not None else None
+    return draw_attack(actor, weapon, found.actor_id, target) if weapon is not None else None
+
+
+def draw_attack(actor: Creature, weapon: str, actor_id: str, target: str) -> DrawAttack | None:
+    """The free draw of the stowed weapon `weapon` names, then the attack with it (None: the
+    hero carries no such weapon)."""
+    drawn = _draw(actor, weapon)
     if drawn is None:
         return None
     item, key = drawn
-    return DrawAttack(item, AttackCommand(actor_id=found.actor_id, target_id=target, option=key))
+    return DrawAttack(item, AttackCommand(actor_id=actor_id, target_id=target, option=key))
 
 
 RESOLVERS: dict[str, Resolver] = {"attack": attack}

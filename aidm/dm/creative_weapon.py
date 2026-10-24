@@ -5,7 +5,8 @@ of 11, with no roll against armour).
 The rule, in ONE place (`run_creative_effect` asks it before any creative damage): creative
 damage aimed at a creature of the fight, when the effect leans on a weapon the hero carries or
 the player's line reads as a weapon attack (the `attack` phrase row's shapes,
-`dm.intent_match.text_match`), is the engine's own attack instead:
+`dm.intent_match.text_match`, or M32.1a X1 a weapon the line names, `strike_intent.said_weapon`:
+"an arrow" is the ranged option), is the engine's own attack instead:
 - a throw word of the lexicon's `throw_verbs` with a weapon: `ThrowCommand` with that weapon;
 - otherwise `AttackCommand` with the attack option whose name fits the weapon (the main hand
   when no option fits, the unarmed strike with nothing in hand).
@@ -21,8 +22,10 @@ import re
 from aidm.data.combat_data import combat_registries
 from aidm.data.intent_phrases import intent_phrases
 from aidm.dm.entities import display_name
+from aidm.dm.fight_names import tokens
 from aidm.dm.intent_match import text_match
 from aidm.dm.sentence import normalise, own_reading
+from aidm.dm.strike_intent import said_weapon
 from aidm.dm.tool_context import ToolRefused, ToolRegistries, ToolResult
 from aidm.dm.tools import CreativeEffectArgs
 from aidm.models.combat_events import AttackRolled
@@ -93,13 +96,15 @@ def weapon_outcome(
     if not _in_fight(state, actor.id, target):
         return None
     weapon = _weapon(gear)
-    if weapon is None and not _shaped(actor, text):
+    said = said_weapon(actor, tokens(text))  # M32.1a X1: "an arrow in its chest" is the bow
+    if weapon is None and said is None and not _shaped(actor, text):
         return None
     throws = bool(_words(text) & intent_phrases().lexicon["throw_verbs"])
+    option = said if weapon is None and said is not None else _option(actor, weapon)
     command = (
         ThrowCommand(actor_id=actor.id, target_id=target, item=weapon)
         if throws and weapon is not None
-        else AttackCommand(actor_id=actor.id, target_id=target, option=_option(actor, weapon))
+        else AttackCommand(actor_id=actor.id, target_id=target, option=option)
     )
     try:
         events = execute_command(state, command, regs.combat, rng)

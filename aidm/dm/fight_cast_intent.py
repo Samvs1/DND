@@ -27,11 +27,10 @@ from dataclasses import dataclass
 
 from aidm.data.combat_data import combat_registries
 from aidm.data.feature_hooks import ActiveAbilityHook
-from aidm.data.intent_phrases import intent_phrases
 from aidm.data.spell_defs import SpellDef
 from aidm.dm.fight_names import Named, named_in_fight, tokens
 from aidm.dm.intent_match import Found, Resolver
-from aidm.dm.spell_names import Option, ready_spells, said_name, targeted_features
+from aidm.dm.spell_names import named_spell
 from aidm.models.commands import CastCommand, FeatureActionCommand
 from aidm.models.state import Creature, GameState
 from aidm.rules.feature_commands import ability_spell
@@ -48,10 +47,6 @@ type _Aim = tuple[tuple[str, ...], str | None]
 class RefusedIntent:
     actor_id: str
     text: str
-
-
-def _all_spells() -> list[Option]:
-    return [(s.index, s.name) for s in combat_registries().chars.spells.all()]
 
 
 def _feature_spell(actor: Creature, feature_id: str) -> SpellDef | None:
@@ -86,26 +81,13 @@ def _command(
     return CastCommand(actor_id=found.actor_id, spell_id=key, target_ids=targets, target_zone=zone)
 
 
-def _said(actor: Creature, words: list[str]) -> tuple[str, str, tuple[int, int], bool] | None:
-    said = said_name(words, ready_spells(actor))
-    if said is not None:
-        return (*said, False)
-    feature = said_name(words, targeted_features(actor))
-    if feature is not None:
-        return (*feature, True)
-    if not set(words) & intent_phrases().lexicon["cast_words"]:
-        return None
-    other = said_name(words, _all_spells())
-    return (*other, False) if other is not None else None
-
-
 def fight_cast(found: Found) -> CastCommand | FeatureActionCommand | RefusedIntent | None:
     actor = found.state.creatures.get(found.actor_id)
     enc = found.state.encounter
     if actor is None or actor.pc is None or enc is None or actor.id not in enc.combatants:
         return None
     words = tokens(found.text)
-    said = _said(actor, words)
+    said = named_spell(actor, words)
     if said is None:
         return None
     key, name, (start, end), feature = said

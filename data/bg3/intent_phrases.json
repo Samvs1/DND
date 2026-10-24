@@ -454,6 +454,113 @@
       "return",
       "returns",
       "fetch"
+    ],
+    "weapon_ranged_words": [
+      "arrow",
+      "arrows",
+      "bolt",
+      "bolts",
+      "bow",
+      "bowstring",
+      "crossbow",
+      "quarrel",
+      "quarrels",
+      "shaft",
+      "shafts",
+      "shot"
+    ],
+    "weapon_melee_words": [
+      "axe",
+      "axes",
+      "blade",
+      "blades",
+      "club",
+      "dagger",
+      "daggers",
+      "hilt",
+      "knife",
+      "knives",
+      "mace",
+      "pommel",
+      "spear",
+      "staff",
+      "steel",
+      "sword",
+      "swords"
+    ],
+    "strike_vetoes": [
+      "block",
+      "blocks",
+      "brandish",
+      "brandishes",
+      "clean",
+      "cleans",
+      "defend",
+      "defends",
+      "disarm",
+      "disarms",
+      "drop",
+      "drops",
+      "examine",
+      "examines",
+      "give",
+      "gives",
+      "grapple",
+      "grapples",
+      "guard",
+      "guards",
+      "hand",
+      "hands",
+      "hold",
+      "holds",
+      "holster",
+      "holsters",
+      "inspect",
+      "inspects",
+      "knock",
+      "knocks",
+      "lower",
+      "lowers",
+      "menace",
+      "menaces",
+      "offer",
+      "offers",
+      "parries",
+      "parry",
+      "point",
+      "points",
+      "polish",
+      "polishes",
+      "protect",
+      "protects",
+      "push",
+      "pushes",
+      "readies",
+      "ready",
+      "sharpen",
+      "sharpens",
+      "sheathe",
+      "sheathes",
+      "shove",
+      "shoves",
+      "show",
+      "shows",
+      "stow",
+      "stows",
+      "tackle",
+      "tackles",
+      "threaten",
+      "threatens",
+      "trip",
+      "trips",
+      "wait",
+      "waits",
+      "wave",
+      "waves",
+      "wipe",
+      "wipes",
+      "wrestle",
+      "wrestles"
     ]
   },
   "patterns": {
@@ -1773,7 +1880,8 @@
         "own"
       ],
       "when": [
-        "in_fight"
+        "in_fight",
+        "no_spell_named"
       ],
       "patterns": [
         {
@@ -1854,7 +1962,7 @@
           ]
         }
       ],
-      "note": "M29.7a R22: the hotbar's AttackCommand; M30.0b T9: 'bring my mace down on X', a stowed weapon carried is drawn; M31.1a V3: longest verb first ('cut down' before 'cut'), 'jab X in the ribs', 'loose an arrow at X' (ranged)"
+      "note": "M29.7a R22: the hotbar's AttackCommand; M30.0b T9: 'bring my mace down on X', a stowed weapon carried is drawn; M31.1a V3: longest verb first ('cut down' before 'cut'), 'jab X in the ribs', 'loose an arrow at X' (ranged); M32.1a X2: a named spell is a cast, never this row"
     },
     {
       "id": "feature",
@@ -1986,6 +2094,28 @@
       "params": {
         "skill": "intimidation"
       }
+    },
+    {
+      "id": "weapon_strike",
+      "scopes": [
+        "fight"
+      ],
+      "family": "strike",
+      "precedence": 3500,
+      "resolver": "weapon_strike",
+      "readings": [
+        "named_cut"
+      ],
+      "tokens": "letters",
+      "when": [
+        "in_fight",
+        "no_spell_named"
+      ],
+      "unless": [
+        "strike_vetoes",
+        "throw_verbs"
+      ],
+      "note": "M32.1a X1: any line naming a living foe and a weapon (one of the hero's, or a weapon kind word) is that weapon's attack; a shove, trip, throw, a weapon shown or put away stays creative"
     }
   ]
 }

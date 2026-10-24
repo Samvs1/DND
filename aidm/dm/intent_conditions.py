@@ -13,7 +13,9 @@ scope depends on, evaluated here and only here (`aidm.dm.intent_match` calls the
 - `no_offer_waits`: no encounter offer waits (travel is the offer's buttons then);
 - `hidden_here` (M31.1a V9): something is hidden in the current place (M31.1b: or the place
   teaches an open learn tag);
-- `quest_ask_here` (M31.1a V8): a quest offer waits from a living person standing here.
+- `quest_ask_here` (M31.1a V8): a quest offer waits from a living person standing here;
+- `no_spell_named` (M32.1a X2): the line names no spell (`dm.spell_names.names_spell`: "hits the
+  zombie with a Guiding Bolt" is a cast, never a weapon blow).
 
 Public API: `Condition`, `CONDITIONS`, `foe_words(state)`, `name_words(name)` (the words that name
 a person: letters, filler such as "the" and "old" left out).
@@ -24,6 +26,8 @@ from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 from aidm.data.intent_phrases import intent_phrases
+from aidm.dm.fight_names import tokens
+from aidm.dm.spell_names import names_spell
 from aidm.models.campaign_state import EncounterOffer, OfferChoice
 from aidm.models.encounter import EncounterStatus
 from aidm.models.state import CreatureKind, GameState
@@ -128,6 +132,11 @@ def quest_ask_here(found: "Found") -> bool:
     return npc is not None and not npc.dead and npc.node_id == world.current_node
 
 
+def no_spell_named(found: "Found") -> bool:
+    actor = found.state.creatures.get(found.actor_id)
+    return actor is None or not names_spell(actor, tokens(found.text))
+
+
 CONDITIONS: dict[str, Condition] = {
     "out_of_fight": out_of_fight,
     "in_fight": in_fight,
@@ -138,4 +147,5 @@ CONDITIONS: dict[str, Condition] = {
     "hidden_here": hidden_here,
     "no_offer_waits": no_offer_waits,
     "quest_ask_here": quest_ask_here,
+    "no_spell_named": no_spell_named,
 }

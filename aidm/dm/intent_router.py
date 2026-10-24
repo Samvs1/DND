@@ -8,7 +8,7 @@ lookups and exports `RESOLVERS`) and routes a sentence through the phrase table
   person with something to teach, rests, look, inventory,
   lift, give, pay, hand, heal, cast, shop, travel, locked ways, equip, gear use, take);
 - `fight_intent` (scope `fight`: move, attack, feature, healing, M31.1a casts of ready spells
-  and targeted features, surrender);
+  and targeted features, surrender, M32.1a any line naming a weapon and a foe);
 - `ask_intent` (scope `ask`: "what now?", unless the line helps a downed hero up).
 Which intent wins is the rows' `precedence` field, never call order; the conditions a row
 needs are named in the table and evaluated in `aidm.dm.intent_conditions`.
@@ -33,6 +33,7 @@ from aidm.dm import (
     quest_answer_intent,
     scene_intent,
     search_intent,
+    strike_intent,
     surrender_intent,
     use_intent,
 )
@@ -78,6 +79,7 @@ for _module in (
     quest_answer_intent,
     scene_intent,
     search_intent,
+    strike_intent,
     surrender_intent,
     use_intent,
 ):
