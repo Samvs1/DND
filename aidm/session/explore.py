@@ -52,9 +52,10 @@ from aidm.dm.precheck import (
     asks_what_now,
     precheck,
 )
+from aidm.dm.quest_answer_intent import QuestAnswerIntent
 from aidm.dm.use_intent import UseIntent
 from aidm.models.campaign_state import OfferChoice
-from aidm.models.protocol_client import AnswerOffer, SubmitAction
+from aidm.models.protocol_client import AnswerOffer, AnswerQuestOffer, SubmitAction
 from aidm.models.protocol_server import (
     ErrorCode,
     NoticeKind,
@@ -69,6 +70,7 @@ from aidm.session import (
     hand_over,
     heal_actions,
     party_actions,
+    quest_people,
     votes,
     what_now,
 )
@@ -159,6 +161,9 @@ async def resolve_action(core: TableCore, entry: QueueEntry) -> None:
         await _pay(core, player, entry, intent)
     elif isinstance(intent, LiftIntent):
         await hand_over.lift_intent(core, player, intent)
+    elif isinstance(intent, QuestAnswerIntent):  # M31.1a V8: the card's Accept / Not now
+        answer = AnswerQuestOffer(quest_id=intent.quest_id, accept=intent.accept)
+        await quest_people.answer_quest(core, player, answer)
     elif isinstance(intent, ParleyIntent):  # M29.7a R4: one roll answers the waiting offer
         await party_actions.answer(
             core, player, AnswerOffer(choice=OfferChoice.PARLEY, skill=intent.skill)

@@ -9,7 +9,8 @@ scope depends on, evaluated here and only here (`aidm.dm.intent_match` calls the
 - `foe_or_no_bystander` (M29.9a T16): the sentence names one of the offer's foes (a word of a
   monster id or of the master's name), or names no other NPC standing here (name words minus
   filler like "the", "old"); naming a present non-foe NPC is a normal talk turn;
-- `no_offer_waits`: no encounter offer waits (travel is the offer's buttons then).
+- `no_offer_waits`: no encounter offer waits (travel is the offer's buttons then);
+- `quest_ask_here` (M31.1a V8): a quest offer waits from a living person standing here.
 
 Public API: `Condition`, `CONDITIONS`, `foe_words(state)`.
 """
@@ -101,6 +102,14 @@ def no_offer_waits(found: "Found") -> bool:
     return _offer(found.state) is None
 
 
+def quest_ask_here(found: "Found") -> bool:
+    """M31.1a V8: a quest offer waits from a living person who stands here."""
+    world = found.state.world
+    ask = world.quest_ask
+    npc = world.npcs.get(ask.npc_id) if ask is not None else None
+    return npc is not None and not npc.dead and npc.node_id == world.current_node
+
+
 CONDITIONS: dict[str, Condition] = {
     "out_of_fight": out_of_fight,
     "in_fight": in_fight,
@@ -108,4 +117,5 @@ CONDITIONS: dict[str, Condition] = {
     "no_friend_named": no_friend_named,
     "foe_or_no_bystander": foe_or_no_bystander,
     "no_offer_waits": no_offer_waits,
+    "quest_ask_here": quest_ask_here,
 }

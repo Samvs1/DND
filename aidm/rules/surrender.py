@@ -15,7 +15,15 @@ ends as a victory, and surrendered foes count as defeated (kill XP, loot, a mast
 boss table when a region master stands among the foes), `surrender_unbeaten_steps` tiers harder
 while no foe has fallen and the foes keep more than half their hit points.
 
-Public API: `SURRENDER_SKILLS`, `SURRENDERED`, `surrender_dc`, `demand_surrender`.
+M31.1a V5 (round 4: a demand made of the undead Tithekeeper rolled a natural 20 that did
+nothing): when every standing foe is of a kind the condition spares (`spares_types`: undead,
+constructs, oozes, plants), `demand_surrender` raises `NoneYield` with a plain line before
+anything is spent ("The Tithekeeper will not yield: the dead do not surrender.", the reason from
+the condition's `spares_why`); when only some never yield, the roll covers the others and
+`never_yield_line` names the rest.
+
+Public API: `SURRENDER_SKILLS`, `SURRENDERED`, `NoneYield`, `surrender_dc`, `never_yield_line`,
+`demand_surrender`.
 """
 
 from aidm.data.dm_tiers import DmTiers
@@ -23,13 +31,14 @@ from aidm.models.abilities import Skill
 from aidm.models.checks import DcTier
 from aidm.models.encounter import Combatant, Side
 from aidm.models.events import AnyEvent, CheckResolved
-from aidm.models.state import GameState
+from aidm.models.state import Creature, GameState
 from aidm.rules.checks import dc_for_tier
 from aidm.rules.condition_timing import apply_condition, new_condition
-from aidm.rules.conditions import skill_check_with_conditions
+from aidm.rules.conditions import condition_def, skill_check_with_conditions
 from aidm.rules.dice import Rng
 from aidm.rules.encounter import active_encounter, is_standing
 from aidm.rules.harm_ends import befriended_by_party
+from aidm.rules.monster_stats import creature_type_of
 from aidm.rules.plan_ids import boss_npc_id
 from aidm.rules.turns import spend_action
 
@@ -70,11 +79,51 @@ def surrender_dc(state: GameState, tiers: DmTiers) -> int:
     return dc_for_tier(tier)
 
 
+class NoneYield(Exception):
+    """Every standing foe is of a kind that never yields: no roll, the action is kept."""
+
+    def __init__(self, line: str) -> None:
+        super().__init__(line)
+        self.line = line
+
+
+def _standing_foes(state: GameState) -> list[Creature]:
+    return [
+        state.creatures[c.creature_id]
+        for c in _hostiles(state)
+        if is_standing(state, c) and not befriended_by_party(state, c.creature_id)
+    ]
+
+
+def _yields(creature: Creature, actor_id: str) -> bool:
+    return bool(apply_condition(creature, new_condition(SURRENDERED, source_id=actor_id)))
+
+
+def _called(creature: Creature) -> str:
+    return creature.name if creature.npc_id else f"the {creature.name.lower()}"
+
+
+def never_yield_line(state: GameState, actor_id: str) -> str | None:
+    """The plain line for the standing foes that never yield (M31.1a V5): "The Tithekeeper will
+    not yield: the dead do not surrender." None when every standing foe can yield."""
+    stubborn = [c for c in _standing_foes(state) if not _yields(c, actor_id)]
+    if not stubborn:
+        return None
+    names = [_called(c) for c in stubborn]
+    who = names[0] if len(names) == 1 else ", ".join(names[:-1]) + " and " + names[-1]
+    why = condition_def(SURRENDERED).spares_why.get(creature_type_of(stubborn[0]))
+    line = f"{who[:1].upper()}{who[1:]} will not yield"
+    return f"{line}: {why}." if why else f"{line}."
+
+
 def demand_surrender(
     rng: Rng, state: GameState, actor_id: str, skill: Skill, tiers: DmTiers
 ) -> list[AnyEvent]:
     if skill not in SURRENDER_SKILLS:
         raise ValueError(f"a surrender is demanded with {SURRENDER_SKILLS}, not {skill}")
+    foes = _standing_foes(state)
+    if foes and not any(_yields(c, actor_id) for c in foes):
+        raise NoneYield(never_yield_line(state, actor_id) or "")
     events: list[AnyEvent] = spend_action(state, actor_id, reason="demand surrender")
     result = skill_check_with_conditions(
         rng, state.creatures[actor_id], skill, surrender_dc(state, tiers)
@@ -82,9 +131,6 @@ def demand_surrender(
     events.append(CheckResolved(creature_id=actor_id, result=result, reason="surrender"))
     if not result.success:
         return events
-    for combatant in _hostiles(state):
-        if not is_standing(state, combatant) or befriended_by_party(state, combatant.creature_id):
-            continue
-        mark = new_condition(SURRENDERED, source_id=actor_id)
-        events.extend(apply_condition(state.creatures[combatant.creature_id], mark))
+    for foe in foes:
+        events.extend(apply_condition(foe, new_condition(SURRENDERED, source_id=actor_id)))
     return events

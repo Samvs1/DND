@@ -25,7 +25,8 @@ Fields of `ConditionDef` (all but index/name/source default to "no effect"):
   M29.9a (surrender): `harm_must_be_direct` limits that to a blow (an attack, spell or action),
   never a surface or a lasting condition already burning; `counts_as_defeated` makes a hostile
   so held by the party count as defeated (kill XP, loot, a master beaten); `spares_types` lists
-  creature types the condition never takes hold of (the mindless do not yield).
+  creature types the condition never takes hold of (the mindless do not yield); `spares_why`
+  (M31.1a V5) the plain reason per spared type ("the dead do not surrender").
 - `unseen` / `sightless` (M29.7d): others cannot see the bearer (invisible, hidden) / the
   bearer cannot see (blinded); read by "Ranged Attacks in Close Combat" (`rules.hit_chance`).
 - `speed_bonus`: feet added to the bearer's speed while it can move (Longstrider).
@@ -140,6 +141,7 @@ class ConditionDef(BaseModel):
     harm_must_be_direct: bool = False
     counts_as_defeated: bool = False
     spares_types: tuple[str, ...] = ()
+    spares_why: dict[str, str] = {}
     unseen: bool = False
     sightless: bool = False
     speed_bonus: int = Field(default=0, ge=0)
@@ -161,6 +163,8 @@ class ConditionDef(BaseModel):
             raise ValueError("turn_start_damage and turn_start_damage_type go together")
         if (self.turn_end_damage is None) != (self.turn_end_damage_type is None):
             raise ValueError("turn_end_damage and turn_end_damage_type go together")
+        if not set(self.spares_why) <= set(self.spares_types):
+            raise ValueError("spares_why names a creature type spares_types does not list")
         return self
 
 

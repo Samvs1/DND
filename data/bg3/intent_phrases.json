@@ -426,7 +426,8 @@
     "pick_up": "\\bpick(?:s|ing)? (?:\\S+ ){0,3}up\\b",
     "loose_money": "(?:\\d+|some|a few|a|an|one|two|three|a handful of|a bit of|a little)? ?(?:gold|silver|copper|coin|coins|gold coins?|silver coins?|copper coins?|gp|sp|cp|money)(?: pieces?| coins?)?",
     "gold_amount": "(?P<n>\\d+) (?:gold(?: pieces| coins)?|gp|coins?)",
-    "counted": "(?P<n>\\d+|two|three|four|five|six|seven|eight|nine|ten) (?P<rest>.+)"
+    "counted": "(?P<n>\\d+|two|three|four|five|six|seven|eight|nine|ten) (?P<rest>.+)",
+    "quest_refusal": "^(?:no|nope|nay)[,.!]|^(?:no thanks|no thank you|not now|not yet|not today)\\b|(?:^|\\b(?:we|i)(?:'ll| will)? )(?:decline|refuse|pass on)\\b|\\b(?:we|i)(?:'ll| will) pass\\b|^pass$|\\b(?:we|i) (?:can't|cannot|won't|will not) (?:take|accept|help|do) (?:it|this|that|the|your|you)\\b"
   },
   "scopes": {
     "explore": {
@@ -490,6 +491,59 @@
         }
       ],
       "note": "M20.2: help a downed hero up; a pronoun while exactly one is down"
+    },
+    {
+      "id": "quest_accept",
+      "scopes": [
+        "explore"
+      ],
+      "family": "quest_answer",
+      "precedence": 1060,
+      "resolver": "quest_answer",
+      "match": "search",
+      "when": [
+        "quest_ask_here"
+      ],
+      "unless": [
+        "quest_refusal"
+      ],
+      "patterns": [
+        {
+          "re": "^(?:yes|yeah|yep|aye|sure|agreed|deal|gladly|of course|very well|all right|alright|okay|ok|certainly|absolutely|done)\\b(?!,? (?:no|not)\\b)"
+        },
+        {
+          "re": "(?:^|\\b(?:we|i)(?:'ll| will| shall)? )(?:gladly |happily |gratefully )?(?:take|accept) (?:on )?(?:the|this|your|that)(?: [a-z'-]+)? (?:job|task|work|quest|offer|favou?r|request|contract|errand|deal)\\b"
+        },
+        {
+          "re": "(?:^|\\b(?:we|i) )(?:accept|agree)\\b|\\bcount (?:us|me) in\\b|\\bwe(?:'re| are) in\\b|(?:^|\\b(?:we|i)(?:'ll| will) )do it\\b"
+        }
+      ],
+      "params": {
+        "accept": true
+      },
+      "note": "M31.1a V8: a typed yes or acceptance while a quest offer from someone here waits: the card's Accept"
+    },
+    {
+      "id": "quest_decline",
+      "scopes": [
+        "explore"
+      ],
+      "family": "quest_answer",
+      "precedence": 1070,
+      "resolver": "quest_answer",
+      "match": "search",
+      "when": [
+        "quest_ask_here"
+      ],
+      "patterns": [
+        {
+          "ref": "quest_refusal"
+        }
+      ],
+      "params": {
+        "accept": false
+      },
+      "note": "M31.1a V8: a typed no or refusal: the card's Not now"
     },
     {
       "id": "what_now",
