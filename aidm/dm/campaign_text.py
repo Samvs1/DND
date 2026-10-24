@@ -22,6 +22,7 @@ from aidm.models.campaign_state import EncounterOffer, RegionResolution
 from aidm.models.quests import FinalePlan
 from aidm.models.state import GameState
 from aidm.rules.finale import chosen_ending
+from aidm.rules.gateway_lock import gateway_need
 from aidm.rules.scene import node_display_name
 
 CHOICES_LINE = "Fight, strike first, slip away, or try to talk?"
@@ -67,8 +68,17 @@ def _resolved_fact(state: GameState, e: ce.RegionResolved) -> str:
             f"Region {e.region_id} resolved by {e.how.value}. The last region is resolved. "
             f'The party must now choose: {finale.question} The two endings: "{a}" or "{b}".'
         )
-    end = " The campaign is complete." if e.final else " The way to the next region is open."
+    way = _gate_need(state, e) or "The way to the next region is open."
+    end = " The campaign is complete." if e.final else f" {way}"
     return f"Region {e.region_id} resolved by {e.how.value}.{end}"
+
+
+def _gate_need(state: GameState, e: ce.RegionResolved) -> str | None:
+    """M31.1b V12: what the gate still needs (None: open), from the rule the lock itself uses."""
+    campaign = state.campaign
+    regions = campaign.plan.all_regions() if campaign is not None else ()
+    region = next((r for r in regions if r.id == e.region_id), None)
+    return gateway_need(state, region) if region is not None else None
 
 
 def _resolved_story(state: GameState, e: ce.RegionResolved) -> str:
@@ -77,9 +87,13 @@ def _resolved_story(state: GameState, e: ce.RegionResolved) -> str:
         return f"The last shadow lifts, and one choice remains. {finale.question}"
     if e.final:
         return "The last shadow lifts, and your tale draws to its close."
-    if e.how is RegionResolution.ALLIANCE:
-        return "An uneasy alliance is struck, and the way onward opens."
-    return "With its master fallen, the land breathes again, and the way onward opens."
+    how = (
+        "An uneasy alliance is struck"
+        if e.how is RegionResolution.ALLIANCE
+        else "With its master fallen, the land breathes again"
+    )
+    shut = _gate_need(state, e)
+    return f"{how}. {shut}" if shut is not None else f"{how}, and the way onward opens."
 
 
 def _chosen_fact(state: GameState, e: ce.FinaleChosen) -> str | None:
@@ -109,7 +123,8 @@ def _answer_story(state: GameState, e: ce.OfferResolved) -> str | None:
     if e.success and e.choice.value == "escape":
         return "You slip away before the danger can close in."
     if e.success and e.choice.value == "parley":
-        return "Words win out, and no blade is drawn."
+        waits = "" if e.detail == "no fight" else f" {e.detail.rstrip('.')}."
+        return "Words win out, and no blade is drawn." + waits
     return None
 
 
@@ -118,7 +133,7 @@ CAMPAIGN_EVENT_LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = 
     ce.OfferResolved: lambda s, e: (
         f"The party chose {e.choice.value}"
         + ("" if e.success is None else f" ({'success' if e.success else 'failure'})")
-        + f": {e.detail}."
+        + f": {e.detail.rstrip('.')}."
     ),
     ce.RegionResolved: _resolved_fact,
     ce.FinaleChosen: _chosen_fact,

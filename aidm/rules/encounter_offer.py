@@ -32,11 +32,14 @@ Public API:
 - `arrival_offer_events(state, data, retreat_node) -> list[AnyEvent]`: `[EncounterOffered]` or [].
 - `boss_hp_scale(state, data, monster) -> float`: the boss spawn's hit point scale (M29.6).
 - `hero_hp(state) -> float`: the living heroes' average hit point maximum (M29.6b).
-- `offer_fight_events(state, offer, data, rng, surprise) -> list[AnyEvent]`: the boss turns
-  hostile if needed, then `rules.encounter.start_encounter` on a zone map from the node terrain.
+- `offer_fight_events(state, offer, data, rng, surprise, extra=()) -> list[AnyEvent]`: the boss
+  turns hostile if needed, then `rules.encounter.start_encounter` on a zone map from the node
+  terrain. M31.1b V10: `extra` are the other people the party attacked (they stand next to the
+  heroes, as in `dm.tool_exec_rewards`); the caller turns them hostile.
 """
 
 import random
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 
 from aidm.data.dm_tiers import DmTiers
@@ -314,12 +317,21 @@ def _foes_zone(zone_map: ZoneMap) -> str:
 
 
 def _setup(
-    state: GameState, offer: EncounterOffer, data: OfferData, surprise: SurpriseKind
+    state: GameState,
+    offer: EncounterOffer,
+    data: OfferData,
+    surprise: SurpriseKind,
+    extra: Sequence[WorldNpc],
 ) -> EncounterSetup:
     zone_map = fight_map(state, node_plan(state, offer.node_id), offer.id, data.terrains)
     start = zone_map.zones[0].id
     foes = _foes_zone(zone_map)
     spawns = [MonsterSpawn(monster=m, zone_id=foes) for m in offer.monster_ids]
+    spawns += [
+        MonsterSpawn(monster=n.archetype_id, zone_id=start, name=n.name, npc_id=n.id)
+        for n in extra
+        if n.id != offer.boss_npc_id
+    ]
     boss = state.world.npcs.get(offer.boss_npc_id or "")
     if boss is not None:
         boss_spawn = MonsterSpawn(
@@ -342,7 +354,12 @@ def _setup(
 
 
 def offer_fight_events(
-    state: GameState, offer: EncounterOffer, data: OfferData, rng: Rng, surprise: SurpriseKind
+    state: GameState,
+    offer: EncounterOffer,
+    data: OfferData,
+    rng: Rng,
+    surprise: SurpriseKind,
+    extra: Sequence[WorldNpc] = (),
 ) -> list[AnyEvent]:
     events: list[AnyEvent] = []
     boss = state.world.npcs.get(offer.boss_npc_id or "")
@@ -351,6 +368,6 @@ def offer_fight_events(
     region = region_of(state, offer.node_id)
     if boss is not None and region is not None and "boss_surprised" in route_effects(state, region):
         surprise = SurpriseKind.HOSTILE
-    setup = _setup(state, offer, data, surprise)
+    setup = _setup(state, offer, data, surprise, extra)
     events.extend(start_encounter(rng, state, setup, data.monsters))
     return events

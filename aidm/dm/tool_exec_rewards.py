@@ -13,9 +13,14 @@ Public API: `run_grant_item`, `run_grant_xp`, `run_start_encounter` -> `ToolResu
 `fight_npcs(state, npcs, rng, regs, why) -> ToolResult` (M29.7c R15: a confirmed attack on
 people here starts the fight with them, no danger budget);
 `catalog_value_gp(regs, catalog_id) -> float | None` (None: not a grantable catalogue item).
+M31.1b V10: a fight started where an encounter offer still waits answers that offer with ALL its
+foes (`rules.encounter_offer.offer_fight_events`: its monsters and its master), plus any other
+person the party attacked; the model's own monster list is not used then (the offer owns the
+foes), so a typed "I stab the zombie" never fields the zombie without the cultist.
 """
 
 from aidm.data.item_uses import uses_for_item
+from aidm.dm.arrival import offer_data
 from aidm.dm.tool_context import ToolContext, ToolRefused, ToolRegistries, ToolResult
 from aidm.dm.tool_exec_common import (
     hostile_pending,
@@ -26,16 +31,26 @@ from aidm.dm.tool_exec_common import (
     require_npc,
 )
 from aidm.dm.tools import GrantItemArgs, GrantXpArgs, StartEncounterArgs
-from aidm.models.encounter import EncounterSetup, EncounterStatus, MonsterSpawn, PartyPlacement
-from aidm.models.events import AnyEvent
+from aidm.models.campaign_events import OfferResolved
+from aidm.models.campaign_state import EncounterOffer, OfferChoice
+from aidm.models.encounter import (
+    EncounterSetup,
+    EncounterStatus,
+    MonsterSpawn,
+    PartyPlacement,
+    SurpriseKind,
+)
+from aidm.models.events import AnyEvent, CreatureAdded
 from aidm.models.state import GameState
 from aidm.models.world import WorldNpc
 from aidm.rules.dice import Rng
 from aidm.rules.dm_tiers import item_value_cap, party_level, party_levels, xp_award
 from aidm.rules.encounter import EncounterRefused, start_encounter
 from aidm.rules.encounter_budget import check_encounter_budget
+from aidm.rules.encounter_offer import offer_fight_events
 from aidm.rules.item_grants import gain_item_events
 from aidm.rules.leveling import gain_xp
+from aidm.rules.offer_answer import foes_gone
 from aidm.rules.progression import node_plan
 from aidm.rules.social import hostile_attitude_events
 from aidm.rules.zone_gen import generate_zone_map
@@ -134,6 +149,29 @@ def _setup(
     )
 
 
+def offer_here(state: GameState) -> EncounterOffer | None:
+    """The encounter offer waiting at the party's place whose foes are still there (V10)."""
+    offer = state.campaign.offer if state.campaign is not None else None
+    if offer is None or offer.node_id != state.world.current_node or foes_gone(state, offer):
+        return None
+    return offer
+
+
+def _answer_offer(
+    state: GameState, offer: EncounterOffer, npcs: list[WorldNpc], rng: Rng, regs: ToolRegistries
+) -> list[AnyEvent]:
+    """M31.1b V10: the fight answers the waiting offer and fields every one of its foes."""
+    detail = "the fight starts"
+    closed = OfferResolved(offer_id=offer.id, choice=OfferChoice.FIGHT, success=None, detail=detail)
+    events: list[AnyEvent] = [closed]
+    extra = [n for n in npcs if n.id != offer.boss_npc_id]
+    for npc in non_hostile(extra):
+        events.extend(hostile_attitude_events(npc, "the party attacked"))
+    surprise = SurpriseKind.NONE
+    events.extend(offer_fight_events(state, offer, offer_data(regs), rng, surprise, extra))
+    return events
+
+
 def _start(
     state: GameState,
     args: StartEncounterArgs,
@@ -142,15 +180,22 @@ def _start(
     regs: ToolRegistries,
     why: str,
 ) -> list[AnyEvent]:
-    events: list[AnyEvent] = []
-    for npc in non_hostile(npcs):
-        events.extend(hostile_attitude_events(npc, why))
+    offer = offer_here(state)
     try:
+        if offer is not None:
+            return _answer_offer(state, offer, npcs, rng, regs)
+        events: list[AnyEvent] = []
+        for npc in non_hostile(npcs):
+            events.extend(hostile_attitude_events(npc, why))
         setup = _setup(state, args, npcs, rng, regs)
         events.extend(start_encounter(rng, state, setup, regs.combat.monsters))
     except EncounterRefused as exc:
         raise ToolRefused(str(exc)) from None
     return events
+
+
+def _fielded(events: list[AnyEvent]) -> str:
+    return ", ".join(e.creature.name for e in events if isinstance(e, CreatureAdded))
 
 
 def fight_npcs(
@@ -167,8 +212,8 @@ def fight_npcs(
     terrain = list(node.terrain_tags) if node is not None else []
     args = StartEncounterArgs(against_npcs=[n.id for n in npcs], terrain_tags=terrain)
     events = _start(state, args, npcs, rng, regs, why)
-    names = ", ".join(n.name for n in npcs)
-    summary = f"the fight starts: {names}; the hero's blow is struck in the fight, by turns"
+    fielded = _fielded(events)
+    summary = f"the fight starts: {fielded}; the hero's blow is struck in the fight, by turns"
     return ToolResult(events=tuple(events), summary=summary)
 
 
@@ -177,12 +222,15 @@ def run_start_encounter(
 ) -> ToolResult:
     if state.encounter is not None and state.encounter.status is EncounterStatus.ACTIVE:
         raise ToolRefused("a fight is already under way")
-    _check_monsters(state, args, regs)
     npcs = _foes(state, args)
-    difficulty = _check_budget(state, [*args.monster_ids, *(n.archetype_id for n in npcs)], regs)
+    difficulty = "the waiting encounter"
+    if offer_here(state) is None:
+        _check_monsters(state, args, regs)
+        archetypes = [*args.monster_ids, *(n.archetype_id for n in npcs)]
+        difficulty = _check_budget(state, archetypes, regs)
     peaceful = non_hostile(npcs)
     if peaceful and not ctx.confirm_hostile:
         return hostile_pending(ctx, peaceful, "start_encounter")
     events = _start(state, args, npcs, rng, regs, "the party attacked")
-    names = ", ".join([*args.monster_ids, *(n.name for n in npcs)])
-    return ToolResult(events=tuple(events), summary=f"fight starts ({difficulty}): {names}")
+    summary = f"fight starts ({difficulty}): {_fielded(events)}"
+    return ToolResult(events=tuple(events), summary=summary)

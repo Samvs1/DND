@@ -10,7 +10,9 @@ A locked node is a world fact, not a hint, so the refusal says why in world term
 - anything else locked: "The way to <place> is barred for now."
 
 Public API: `locked_reason(state, node_id) -> str | None` (None: the node is not locked),
-`short_reason(state, node_id) -> str` (the few words for an exit label in the AI context).
+`short_reason(state, node_id) -> str` (the few words for an exit label in the AI context),
+`gateway_need(state, region) -> str | None` (M31.1b V12: the gateway line while its spokes are
+unseen, the same rule the lock uses; None: the gateway is open to the party).
 """
 
 from aidm.models.campaign import RegionPlan
@@ -48,6 +50,14 @@ def _unseen(state: GameState, region: RegionPlan) -> str:
     return f"{count} ({names})"
 
 
+def gateway_need(state: GameState, region: RegionPlan) -> str | None:
+    """The gateway of `region` stays shut while it has spokes the party has not seen."""
+    if all(s.id in state.world.visited for s in region.spokes):
+        return None
+    gateway = node_display_name(state, region.gateway.id)
+    return GATEWAY_SHUT.format(gateway=gateway, region=region.name, left=_unseen(state, region))
+
+
 def locked_reason(state: GameState, node_id: str) -> str | None:
     world = state.world
     if node_id not in world.locked_nodes:
@@ -55,12 +65,9 @@ def locked_reason(state: GameState, node_id: str) -> str | None:
     region = region_of(state, world.current_node)
     campaign = state.campaign
     if region is not None and campaign is not None:
-        spokes_left = any(s.id not in world.visited for s in region.spokes)
-        if node_id == region.gateway.id and spokes_left:
-            gateway = node_display_name(state, node_id)
-            return GATEWAY_SHUT.format(
-                gateway=gateway, region=region.name, left=_unseen(state, region)
-            )
+        need = gateway_need(state, region)
+        if node_id == region.gateway.id and need is not None:
+            return need
         unresolved = region.id not in campaign.resolved
         if node_id == _next_arrival(state, region) and unresolved:
             return WAY_ON_SHUT.format(region=region.name)
