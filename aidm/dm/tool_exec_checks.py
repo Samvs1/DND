@@ -20,6 +20,10 @@ climbing, searching...) where none of that gear has a fitting use, the AI's adva
 dropped (the plain check still rolls); elsewhere the AI's call stands.
 M29.6b: a check's DC tier is at most the region tier's `dm_tiers.check_dc_tier_cap` (act 1:
 medium), so an improvised gate never asks DC 20 of level-1 heroes; saves keep their tier.
+M30.1: a check sent with `impossible` (the AI's "this cannot be done: <why>") rolls NO dice, so
+no natural 20 rescues it; it returns one `ActionImpossible` event. A lock check still goes to the
+lock rules first (a lock can always be forced or picked). `request_save` has no such option: a
+save resists what happens to the creature, and a natural 20 never wins a save (DECISIONS M30.1).
 
 Public API: `run_request_check(state, args, ctx, rng, regs)`,
 `run_request_save(state, args, ctx, rng, regs)` -> `ToolResult`.
@@ -33,6 +37,7 @@ from aidm.models.abilities import Skill
 from aidm.models.checks import CheckResult
 from aidm.models.dice import AdvState
 from aidm.models.events import AnyEvent, CheckResolved
+from aidm.models.impossible import MAX_IMPOSSIBLE_TEXT, ActionImpossible
 from aidm.models.item_events import FeatureUnlocked, PlaceAlerted
 from aidm.models.state import Creature, GameState
 from aidm.models.world_events import FeatureDiscovered
@@ -90,6 +95,18 @@ def _on_lock(
     return ToolResult(events=tuple(outcome), summary=_lock_summary(state, creature, outcome))
 
 
+def _impossible(
+    creature: Creature, args: RequestCheckArgs, ctx: ToolContext, why: str
+) -> ToolResult:
+    text = (args.reason or ctx.player_text).strip()[:MAX_IMPOSSIBLE_TEXT]
+    event = ActionImpossible(creature_id=creature.id, text=text, reason=why)
+    summary = (
+        f"{creature.name} cannot do this: {why}. No roll was made. Tell the attempt failing or"
+        " never getting started, never as done; ask no other check for it."
+    )
+    return ToolResult(events=(event,), summary=summary)
+
+
 def run_request_check(
     state: GameState, args: RequestCheckArgs, ctx: ToolContext, rng: Rng, regs: ToolRegistries
 ) -> ToolResult:
@@ -97,6 +114,8 @@ def run_request_check(
     on_lock = _on_lock(state, args, creature, rng) if args.feature else None
     if on_lock is not None:
         return on_lock
+    if args.impossible is not None and args.impossible.strip():
+        return _impossible(creature, args, ctx, args.impossible.strip())
     tier = capped_dc_tier(regs.tiers, args.dc_tier, state.world.region_tier)
     dc = dc_for_tier(tier)
     adv = int(args.advantage is AdvState.ADVANTAGE)

@@ -20,6 +20,8 @@ already applied to `state`:
 - M29.9c (round 3 T10 T11): `given` (names of the NPCs who received a keepsake, item or coin
   in these events: they took it), `outcomes` (the quest states reached in these events:
   "completed", "failed").
+- M30.1: `impossible` (`aidm.dm.guard_impossible.attempt_forms`: the forms of each impossible
+  attempt's verb; None when nothing was impossible this turn).
 `TurnTruth()` (`checked` False) switches these checks off, for prose about the past (epilogue).
 
 Public API: `TurnTruth`, `Claim`, `claimed_things(state, actor_id, text)`, `hero_terms(names)`,
@@ -33,6 +35,7 @@ from dataclasses import dataclass, field
 from aidm.data.guard_lexicon import GuardLexicon, guard_lexicon
 from aidm.dm.entities import display_name
 from aidm.dm.fight_ledger import FightLedger, fight_ledger
+from aidm.dm.guard_impossible import attempt_forms
 from aidm.dm.guard_text import find_phrases, plain
 from aidm.dm.turn_world import burning, picked_up, short_of
 from aidm.models import events as ev
@@ -76,6 +79,7 @@ class TurnTruth:
     picked: bool = True
     given: frozenset[str] = frozenset()
     outcomes: frozenset[str] = frozenset()
+    impossible: frozenset[str] | None = None
 
 
 def hero_terms(names: Iterable[str], lex: GuardLexicon | None = None) -> dict[str, str]:
@@ -247,4 +251,5 @@ def turn_truth(
             for e in events
             if isinstance(e, we.QuestUpdated) and e.quest.state in _OUTCOMES
         ),
+        impossible=attempt_forms(state, events, lex),
     )

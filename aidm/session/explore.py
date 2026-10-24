@@ -159,7 +159,7 @@ def _combat_text(core: TableCore, player: Player, pc: Creature, text: str) -> No
         await combat_flow.tell_segment(core)
         declare(core, entry)
         result = await adjudicated(core, entry, creative=True)
-        if result.executed:
+        if result.spends_action:  # M30.1: an impossible verdict alone is free
             _spend_action(core, pc.id)
         core.segment = []
         await combat_flow.after_player_step(core, pc.id)

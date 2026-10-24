@@ -19,6 +19,7 @@ from enum import StrEnum
 
 from aidm.models.combat_events import AttackRolled
 from aidm.models.events import AnyEvent, CheckResolved
+from aidm.models.impossible import ActionImpossible
 from aidm.models.world_events import QuestUpdated
 
 
@@ -104,9 +105,9 @@ def _types(events: Sequence[AnyEvent]) -> list[str]:
 
 
 def _only_setbacks(events: Sequence[AnyEvent]) -> bool:
-    """True when every outcome is a failed check or a missed attack."""
+    """True when every outcome is a failed check, a missed attack or an impossible attempt."""
     for event in events:
-        if event.type in _BOOKKEEPING:
+        if event.type in _BOOKKEEPING or isinstance(event, ActionImpossible):
             continue
         if isinstance(event, CheckResolved) and not event.result.success:
             continue

@@ -49,6 +49,7 @@ from aidm.dm.tool_context import PendingConfirmation, ToolContext, ToolRegistrie
 from aidm.dm.tool_exec import execute_tool
 from aidm.dm.tools import DM_TOOLS, dm_tool
 from aidm.models.events import AnyEvent
+from aidm.models.impossible import ActionImpossible
 from aidm.models.state import GameState
 from aidm.rules.dice import Rng
 from aidm.rules.scene import current_scene
@@ -122,8 +123,18 @@ class AdjudicationResult:
         return tuple(r for r in self.calls if r.result.ok and r.call.name != "no_mechanics")
 
     @property
+    def spends_action(self) -> bool:
+        """M30.1: a call the engine ruled impossible did nothing, so alone it costs no action
+        in a fight (DECISIONS M30.1); any other executed call does."""
+        return any(not _only_impossible(r.result) for r in self.executed)
+
+    @property
     def narration_only(self) -> bool:
         return not self.executed and self.pending is None
+
+
+def _only_impossible(result: ToolResult) -> bool:
+    return bool(result.events) and all(isinstance(e, ActionImpossible) for e in result.events)
 
 
 @dataclass

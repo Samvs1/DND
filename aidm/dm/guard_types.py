@@ -65,6 +65,7 @@ class ViolationKind(StrEnum):
     UNMADE_OUTCOME = "unmade_outcome"
     DENIED_OUTCOME = "denied_outcome"
     JOINED_PARTY = "joined_party"
+    IMPOSSIBLE_DONE = "impossible_done"  # M30.1: an impossible action told as working
 
 
 SCRUBBED_KINDS = frozenset({ViolationKind.UNKNOWN_NAME, ViolationKind.ABSENT_NPC})

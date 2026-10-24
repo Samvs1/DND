@@ -30,6 +30,7 @@ from aidm.models.damage import DamageType
 from aidm.models.dice import AdvState
 from aidm.models.dm_tiers import AttitudeBand, DeltaTier, EffectKind, Severity, XpTier
 from aidm.models.encounter import SurpriseKind
+from aidm.models.impossible import MAX_IMPOSSIBLE_REASON
 from aidm.models.quests import MAX_STEP_GOLD, MAX_STEP_TEXT, MAX_TAG
 from aidm.models.world import FeatureKind
 
@@ -47,7 +48,8 @@ class _Args(BaseModel):
 
 
 class RequestCheckArgs(_Args):
-    """Ask one character for an ability or skill check; the engine sets the DC from the tier."""
+    """Ask one character for an ability or skill check; the engine sets the DC from the tier.
+    Or declare the attempt physically impossible (`impossible`): the engine then rolls nothing."""
 
     actor: str = _id()
     ability_or_skill: Skill | Ability
@@ -60,6 +62,16 @@ class RequestCheckArgs(_Args):
         description=(
             "a LOCKED feature id the check is made on: Athletics forces it (loud), Sleight of"
             " Hand picks it with thieves' tools, a fitting key opens it; the engine sets the DC"
+        ),
+    )
+    impossible: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=MAX_IMPOSSIBLE_REASON,
+        description=(
+            "ONLY when no one could do this with what is at hand (no spell, item or feature of"
+            " the hero allows it): why, in a few words. Then no dice roll and dc_tier is"
+            " ignored. Hard but possible is a high dc_tier, never this."
         ),
     )
 

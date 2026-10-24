@@ -20,6 +20,7 @@ and the current scene (`aidm.dm.guard_scene`):
 - M29.9c: a foe's attempt or near miss with no attack, a saved spell told as a hit, a fled or
   standing foe told fallen (`aidm.dm.guard_blows`), a hand-over told refused, a quest told done,
   failed or undone against the events, an NPC told joining the party (`aidm.dm.guard_quests`).
+- M30.1: an action the engine ruled impossible told as working (`aidm.dm.guard_impossible`).
 Vocabulary is data (data/bg3/guard_lexicon.json); matching uses word boundaries and negation
 windows, so "unbroken" and "no hidden door" are not flagged.
 
@@ -43,6 +44,7 @@ from aidm.dm.guard_blows import fight_truth
 from aidm.dm.guard_claims import false_travel, invented_strangers, offer_blows, spoken_for
 from aidm.dm.guard_flow import MAX_SENTENCES, GuardedSentences
 from aidm.dm.guard_goods import claimed_items, unlit_light, unmade_handover, unpaid_coin
+from aidm.dm.guard_impossible import told_possible
 from aidm.dm.guard_leaks import instructions, placeholders
 from aidm.dm.guard_light import light_state, short_travel, unmade_pickup
 from aidm.dm.guard_names import absent_people, crowds, erased_people, unknown_names, wrong_identity
@@ -135,7 +137,8 @@ def _honest(
 def _round_two(sentence: str, tokens: list[Token], scene: GuardScene) -> list[Violation]:
     """M29.7b: light state, the place reached, pick-ups, the party's count and health, races,
     present people told absent, engine ids; M29.9c: hand-overs and quest outcomes both ways, an
-    NPC told joining the party (`aidm.dm.guard_quests`)."""
+    NPC told joining the party (`aidm.dm.guard_quests`); M30.1: an impossible action told as
+    working (`aidm.dm.guard_impossible`)."""
     return [
         *light_state(sentence, tokens, scene),
         *short_travel(sentence, scene),
@@ -149,6 +152,7 @@ def _round_two(sentence: str, tokens: list[Token], scene: GuardScene) -> list[Vi
         *unmade_outcome(sentence, tokens, scene),
         *denied_outcome(sentence, tokens, scene),
         *joined_party(sentence, tokens, scene),
+        *told_possible(sentence, tokens, scene.turn.impossible, scene.lexicon),
     ]
 
 

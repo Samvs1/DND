@@ -112,6 +112,10 @@ class GuardLexicon(BaseModel):
     quest_failed_claims: frozenset[str] = frozenset()
     quest_undone_claims: frozenset[str] = frozenset()
     join_claims: frozenset[str] = frozenset()
+    # M30.1: an impossible action told as working (aidm.dm.guard_impossible)
+    impossible_claims: frozenset[str] = frozenset()
+    impossible_hedges: frozenset[str] = frozenset()
+    impossible_skips: frozenset[str] = frozenset()
 
     @model_validator(mode="after")
     def _check(self) -> GuardLexicon:

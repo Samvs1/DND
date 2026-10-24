@@ -494,5 +494,25 @@
     "joined the company", "joins the company", "joined your company", "joined the heroes",
     "joins the heroes", "joined their ranks", "joins their ranks", "joined your ranks",
     "became one of the party", "now travels with the party", "travelled on with the party"
+  ],
+  "impossible_claims": [
+    "manages to", "manage to", "managed to", "succeeds", "succeed", "succeeded", "successfully",
+    "pulls it off", "pull it off", "pulled it off", "makes it", "made it", "land on", "land atop", "lands on",
+    "lands atop", "landing on", "landed on", "landed atop", "with ease", "effortlessly",
+    "accomplishes", "accomplished", "achieves", "achieved", "does it", "did it", "pulls off",
+    "pulled off"
+  ],
+  "impossible_hedges": [
+    "but", "fails", "fail", "failed", "failing", "cannot", "can't", "could not", "couldn't",
+    "tries", "try", "tried", "trying", "attempt", "attempts", "attempted", "falls short",
+    "fall short", "fell short", "in vain", "no use", "out of reach", "too high", "too far",
+    "too heavy", "impossible", "not possible", "no way", "only to", "would", "if only", "beyond",
+    "refuses", "won't", "will not", "nothing happens", "slides back", "falls back", "dream of",
+    "wish", "wishes", "imagine", "imagines"
+  ],
+  "impossible_skips": [
+    "i", "i'll", "i'm", "you", "we", "he", "she", "they", "my", "to", "try", "tries", "attempt",
+    "attempts", "want", "wants", "will", "would", "just", "then", "and", "now", "quickly",
+    "simply", "carefully", "boldly", "the", "a", "an", "hero", "let", "me"
   ]
 }

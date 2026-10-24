@@ -26,7 +26,7 @@ Public API:
   `CreatureRevived`, `MonsterActionUsed`, `FeatureUsed`), the world events of
   `aidm.models.world_events` (`WorldEvents`) and the campaign events of
   `aidm.models.campaign_events` (`CampaignEvents`), `PartyDefeated` (`aidm.models.defeat`),
-  `CharacterRewritten` (`aidm.models.scribe`, M13.1).
+  `CharacterRewritten` (`aidm.models.scribe`), `ActionImpossible` (`aidm.models.impossible`).
 - `AnyEvent` (plain union), `Event` (union annotated with the `type` discriminator),
   `EVENT_TYPES` (every event class, derived from the union), `event_adapter` (`TypeAdapter`
   for validate/dump of `Event`).
@@ -39,6 +39,7 @@ from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
 
 from aidm.models import campaign_events as ce
 from aidm.models import defeat as de
+from aidm.models import impossible as ix
 from aidm.models import scribe as sc
 from aidm.models import world_events as we
 from aidm.models.abilities import Ability, Skill
@@ -380,6 +381,7 @@ type AnyEvent = (
     | ce.CampaignEvents
     | de.DefeatEvents
     | sc.ScribeEvents
+    | ix.ImpossibleEvents
 )
 
 Event = Annotated[AnyEvent, Field(discriminator="type")]

@@ -73,6 +73,7 @@ from aidm.models.events import (
     TempHpSet,
     XpGained,
 )
+from aidm.models.impossible import ActionImpossible
 from aidm.models.scribe import CharacterRewritten
 from aidm.models.state import ActiveCondition, Creature, GameState
 from aidm.session.campaign_apply import CAMPAIGN_EVENT_TYPES, CampaignEvent, apply_campaign_event
@@ -317,7 +318,7 @@ def apply(state: GameState, event: AnyEvent) -> GameState:
             | ZoneSurfaceTicked()
         ):
             apply_encounter_event(state, event)
-        case DiceRolled() | CheckResolved() | DamageTaken():
+        case DiceRolled() | CheckResolved() | DamageTaken() | ActionImpossible():
             pass
         case AttackRolled() | SpellCast() | MonsterActionUsed() | FeatureUsed():
             pass

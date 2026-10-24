@@ -9,6 +9,7 @@ bookkeeping events (turn economy, resources, dice already shown in a check) rend
 Conditions read by display name in plain words (`aidm.dm.condition_text`, M20.7). Gear lines
 (light lit/put out, a gear use, a lock opened, the fight start a light gave away) come from
 `aidm.dm.item_text` (M27.5).
+An impossible action (M30.1) reads "<hero> cannot do that: <why>." (`aidm.dm.impossible_text`).
 
 Lines are facts only, since the public feed shows them too; the instructions that go with some
 of them (do not choose the finale for the party, tell no new deed for a step) are
@@ -24,6 +25,7 @@ from typing import Any
 from aidm.dm.campaign_text import CAMPAIGN_EVENT_LINES, CAMPAIGN_EVENT_NOTES
 from aidm.dm.condition_text import applied_line, removed_line
 from aidm.dm.entities import display_name
+from aidm.dm.impossible_text import IMPOSSIBLE_EVENT_LINES, IMPOSSIBLE_EVENT_NOTES
 from aidm.dm.item_text import ITEM_EVENT_LINES
 from aidm.dm.quest_text import QUEST_EVENT_LINES, QUEST_EVENT_NOTES
 from aidm.dm.wording import attack_label, check_subject, with_article
@@ -156,6 +158,7 @@ _LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     **CAMPAIGN_EVENT_LINES,
     **QUEST_EVENT_LINES,
     **ITEM_EVENT_LINES,
+    **IMPOSSIBLE_EVENT_LINES,
 }
 
 
@@ -176,6 +179,7 @@ def event_lines(state: GameState, events: Sequence[ev.AnyEvent]) -> list[str]:
 _NOTES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     **CAMPAIGN_EVENT_NOTES,
     **QUEST_EVENT_NOTES,
+    **IMPOSSIBLE_EVENT_NOTES,
 }
 
 
