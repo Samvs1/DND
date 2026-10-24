@@ -1,4 +1,4 @@
-NEXT: Next: FULL gate (orchestrator) + commit `M31: Round 4`, then round 5 if needed. M31.1g done (85c90dc): shares t1 1.0 / t2 0.8 / t3 0.5 with the round-4 guard; martial passes the master bounds, casters the band only, classic 1.69 still over the cap (tier-3 gladiator kept at SRD 112 HP by the guard at level 5). Files in flight: none. Last gate: M31.1g scoped green (3664 unit/ai/session/property, 27 sim, simulate 3 OK, lint/format/pyright/imports/structure/secrets/protocol/manual ok).
+NEXT: Next: M31 round 5 (orchestrator, owner OK 2026-10-24 "Ok for round 5 if necessary", aim <= 931 calls): r5-typed, r5-quests, r5-full verifying V1-V21 and M31.1d-g live, findings in docs/playtests/M31_round5.md; then M31.2 backlog, M26.11. M31 closed (`M31: Round 4`). Files in flight: none. Last gate: FULL PASS 12/12 at 6a9f692 (gate17).
 
 # PROGRESS
 

@@ -103,4 +103,6 @@ to the ending and the typed run used 262 commands.
 - **M31.1c H storyteller:** V17-V21.
 - **M31.1d H tougher masters:** done (1c2b6d8, 932ec90).
 - **M31.1e M harness and low items:** fixed in M31.1e: `look` shows the open steps (What now? lines), `act` waits through the foes' turns (a foe's turn counts as busy), `act "what now"` prints the answer (or a note when the table said nothing), the finale text is cut at a whole sentence (`trim_words`), heal lines show die and bonus, damage lines say immune, resists or vulnerable, the shop shows lot notes for fractional prices ("2 for 3 gp"), the ammunition decision is in RULES_DECISIONS, and a gold toss with a reason ("10 gold for her trouble") is a gold hand-over.
-- **M31.1f H master walls**, then the FULL gate and the commit `M31: Round 4`.
+- **M31.1f H master walls:** done (26223fe): fireball and kin count in the `boss_area` plan check, the sample's act-3 master is a gladiator, the grid bots spread out and pick damage types.
+- **M31.1g H masters tuned to the cap** (owner 2026-10-24 "Tune HP to the cap"): done (85c90dc): a full party's master spawns with tier 1 1.0 / tier 2 0.8 / tier 3 0.5 of its hit points, never below what round 4 met; grid heroes down per master: casters 0.73, martial 0.87, classic 1.69 (the act-3 gladiator at full HP for level-5 heroes under the round-4 guard).
+- FULL gate 12/12 and the commit `M31: Round 4`; round 5 verifies live.
