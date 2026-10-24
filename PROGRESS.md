@@ -1,4 +1,4 @@
-NEXT: Next: FULL gate on the M29.9 tree (orchestrator) and commit `WIP M29.9: round 3 fixed`, then M30.0b one intent router (hard-engineer). Last gate (M29.9d, scoped): pytest tests/unit/scripts 88 passed, ruff, format, pyright, structure, secrets green.
+NEXT: Next: M30.0b one intent router (hard-engineer; 14 typed parsers now, incl. M29.9a pay_intent and surrender_intent, plus M29.9b use_intent.clue_read; typed-intent findings T5 T7 T9 go there), then M30.1. M29.9 round 3 fixed (9a engine and rules, 9b campaign plan, 9c honesty, 9d harness). A round 4 or any live DeepSeek probe needs a fresh owner OK. Files in flight: none. Last gate: FULL `GATE: PASS (12/12)` on 1c7eec9 (M29.9d).
 
 # PROGRESS
 
