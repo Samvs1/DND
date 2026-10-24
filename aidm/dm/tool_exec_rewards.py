@@ -162,7 +162,13 @@ def _answer_offer(
 ) -> list[AnyEvent]:
     """M31.1b V10: the fight answers the waiting offer and fields every one of its foes."""
     detail = "the fight starts"
-    closed = OfferResolved(offer_id=offer.id, choice=OfferChoice.FIGHT, success=None, detail=detail)
+    closed = OfferResolved(
+        offer_id=offer.id,
+        choice=OfferChoice.FIGHT,
+        success=None,
+        detail=detail,
+        foes=offer.monster_ids,
+    )
     events: list[AnyEvent] = [closed]
     extra = [n for n in npcs if n.id != offer.boss_npc_id]
     for npc in non_hostile(extra):

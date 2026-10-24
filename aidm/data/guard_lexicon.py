@@ -131,6 +131,25 @@ class GuardLexicon(BaseModel):
     aimed_claims: frozenset[str] = frozenset()
     ally_defeat_claims: frozenset[str] = frozenset()
     ally_defeat_skips: frozenset[str] = frozenset()
+    # M32.1b (round 5 X10-X16): endings, foes fled or asleep, ordered blows, gifts, promises
+    full_circle_claims: frozenset[str] = frozenset()
+    began_words: frozenset[str] = frozenset()
+    ended_words: frozenset[str] = frozenset()
+    armed_verbs: frozenset[str] = frozenset()
+    flee_claims: frozenset[str] = frozenset()
+    scatter_claims: frozenset[str] = frozenset()
+    flight_directions: frozenset[str] = frozenset()
+    helpless_conditions: frozenset[str] = frozenset()
+    alert_claims: frozenset[str] = frozenset()
+    ordinal_words: dict[str, int] = {}
+    ray_hit_claims: frozenset[str] = frozenset()
+    ray_miss_claims: frozenset[str] = frozenset()
+    cooling_claims: frozenset[str] = frozenset()
+    gift_words: frozenset[str] = frozenset()
+    figure_words: frozenset[str] = frozenset()
+    coin_promises: frozenset[str] = frozenset()
+    errand_offers: frozenset[str] = frozenset()
+    stale_foe_skips: frozenset[str] = frozenset()
 
     @model_validator(mode="after")
     def _check(self) -> GuardLexicon:

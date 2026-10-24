@@ -26,6 +26,11 @@ and the current scene (`aidm.dm.guard_scene`):
   told accepted (`aidm.dm.guard_deeds`); more foes of a kind than the fight holds, a hit told
   as a miss, harm on an immune foe, a damaging miss told as a clean one (`guard_blows`,
   `guard_counts`).
+- M32.1b (round 5 X10-X16): coin promised or an errand told outside the quest system, a foe kind
+  of an earlier scene, more unnamed figures than foes (`aidm.dm.guard_talk`, `guard_counts`);
+  foes told fleeing or helpless foes acting, blows out of order (`aidm.dm.guard_foes`); a gift
+  told refused by an NPC it won over (`guard_quests`); a payment told around quoted speech
+  (`guard_goods`); the epilogue's start and end places (`guard_epilogue`).
 Vocabulary is data (data/bg3/guard_lexicon.json); matching uses word boundaries and negation
 windows, so "unbroken" and "no hidden door" are not flagged.
 
@@ -49,6 +54,7 @@ from aidm.dm.guard_alive import downed_rising, living_declared_dead, unhurt_decl
 from aidm.dm.guard_blows import fight_truth
 from aidm.dm.guard_cast import untold_cast
 from aidm.dm.guard_claims import false_travel, invented_strangers, offer_blows, spoken_for
+from aidm.dm.guard_counts import figure_counts
 from aidm.dm.guard_deeds import found_taken, quest_accepted, wrong_recipient
 from aidm.dm.guard_flow import MAX_SENTENCES, GuardedSentences
 from aidm.dm.guard_goods import claimed_items, unlit_light, unmade_handover, unpaid_coin
@@ -68,6 +74,7 @@ from aidm.dm.guard_quests import denied_outcome, joined_party, refused_handover,
 from aidm.dm.guard_rewards import unearned_rewards
 from aidm.dm.guard_scene import GuardScene, guard_scene
 from aidm.dm.guard_secrets import leaked_secrets
+from aidm.dm.guard_talk import promised_coin, stale_foe, unasked_errand
 from aidm.dm.guard_text import Token, plain, tokenize
 from aidm.dm.guard_truth import (
     dead_alive,
@@ -166,6 +173,18 @@ def _round_two(sentence: str, tokens: list[Token], scene: GuardScene) -> list[Vi
         *found_taken(sentence, tokens, scene),
         *wrong_recipient(sentence, tokens, scene),
         *quest_accepted(sentence, tokens, scene),
+        *_round_five(sentence, tokens, scene),
+    ]
+
+
+def _round_five(sentence: str, tokens: list[Token], scene: GuardScene) -> list[Violation]:
+    """M32.1b: coin promised or an errand told outside the quest system, a foe of an earlier
+    scene, more unnamed figures than foes (`aidm.dm.guard_talk`, `guard_counts`)."""
+    return [
+        *promised_coin(sentence, tokens, scene),
+        *unasked_errand(sentence, tokens, scene),
+        *stale_foe(sentence, tokens, scene),
+        *figure_counts(sentence, scene),
     ]
 
 

@@ -14,7 +14,9 @@ blow, coin and hand-over checks are off (the epilogue tells the past). M31.1c V2
 the quest list are ENGINE-WRITTEN lines after the prose (`epilogue_record`), never left to it; a
 mixed ending gets no "the scene waits" filler; an NPC who sided with the party is never told
 defeated (`aidm.dm.guard_epilogue.ally_defeated`), and a finale question that told an ally laid
-low (written before the party chose) is left out of the facts (`honest_facts`).
+low (written before the party chose) is left out of the facts (`honest_facts`). M32.1b X15: the
+facts say where the tale began and ended, and the guard flags another place told for either
+(`aidm.dm.guard_epilogue.wrong_ends`).
 
 Public API:
 - `EPILOGUE_STYLE`, `epilogue_ready(state) -> bool`, `epilogue_messages(facts) -> list[Message]`.
@@ -38,10 +40,10 @@ from aidm.dm.epilogue_facts import (
     epilogue_story,
 )
 from aidm.dm.guard import check_prose, guarded_narration
-from aidm.dm.guard_epilogue import allies, ally_defeated
+from aidm.dm.guard_epilogue import allies, ally_defeated, tale_ends, wrong_ends
 from aidm.dm.guard_flow import NarrationSource
 from aidm.dm.guard_scene import guard_scene, words_of
-from aidm.dm.guard_turn import TurnTruth
+from aidm.dm.guard_turn import TalkTruth, TurnTruth
 from aidm.dm.guard_types import GuardReport, ProseCheck
 from aidm.dm.llm_backend import Message
 from aidm.dm.llm_client import LlmClient
@@ -99,13 +101,16 @@ def honest_facts(state: GameState) -> EpilogueFacts:
 def epilogue_checker(state: GameState, facts: EpilogueFacts | None = None) -> ProseCheck:
     """THE guard with the scene-local checks relaxed: every word of the facts is known; an
     ally told defeated is flagged (M31.1c V20)."""
-    base = facts_checker(state, (facts or honest_facts(state)).lines(), past_deaths=True)
+    told = facts or honest_facts(state)
+    base = facts_checker(state, told.lines(), past_deaths=True)
     lex = guard_scene(state).lexicon
     terms = allies(state, lex)
+    ends = tale_ends(state, told.began, told.ended)
 
     def check(text: str) -> GuardReport:
         report = base(text)
-        return GuardReport((*report.violations, *ally_defeated(text, terms, lex)))
+        extra = (*ally_defeated(text, terms, lex), *wrong_ends(text, ends, lex))
+        return GuardReport((*report.violations, *extra))
 
     return check
 
@@ -128,6 +133,7 @@ def facts_checker(
         known_words=base.known_words | listed,
         feature_words=base.feature_words | listed,
         turn=TurnTruth(),
+        talk=TalkTruth(),
     )
     return lambda text: check_prose(text, state, scene=scene)
 

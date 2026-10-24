@@ -103,7 +103,11 @@ def region_resolution_events(state: GameState) -> list[AnyEvent]:
 
 def peaceful_close(offer: EncounterOffer) -> OfferResolved:
     return OfferResolved(
-        offer_id=offer.id, choice=OfferChoice.PARLEY, success=True, detail="no fight"
+        offer_id=offer.id,
+        choice=OfferChoice.PARLEY,
+        success=True,
+        detail="no fight",
+        foes=offer.monster_ids,
     )
 
 

@@ -9,7 +9,8 @@ claims about this turn.
 
 Public API: `Mention`, `BOUNDARY`, `AFTER_REACH`, `read_mentions(text, ledger, scene, ctx)`,
 `claims(text, tokens, phrases, scene, *, past)`, `attacker(text, mentions, start)`,
-`target(text, end, mentions)`, `names_of(scene, ids)`, `blow(kind, span, detail)`.
+`target(text, end, mentions)`, `subject_of(text, mentions, start, end)` (who a fall or flight
+phrase is about), `names_of(scene, ids)`, `blow(kind, span, detail)`.
 """
 
 import re
@@ -134,6 +135,22 @@ def attacker(text: str, found: list[Mention], start: int) -> Mention | None:
     """The subject (or "X's bolt") the phrase at `start` belongs to: in its own clause, or
     across "and"/"then" only when the verb follows right after ("and swings")."""
     before = [n for n in found if n.end <= start and (n.subject or n.weapon)]
+    if not before:
+        return None
+    who = before[-1]
+    cut = max((m.end() for m in BOUNDARY.finditer(text, who.end, start)), default=None)
+    if cut is not None and len(re.findall(r"[a-z']+", text[cut:start].casefold())) > 1:
+        return None
+    return who
+
+
+def subject_of(text: str, found: list[Mention], start: int, end: int) -> Mention | None:
+    """Who a state phrase is about: a creature inside it ("sends it crashing"), else the
+    clause's subject (never "X's bolt": the weapon does not fall or flee)."""
+    inside = [n for n in found if start <= n.start < end and n.ids]
+    if inside:
+        return inside[0]
+    before = [n for n in found if n.end <= start and n.subject and not n.weapon]
     if not before:
         return None
     who = before[-1]

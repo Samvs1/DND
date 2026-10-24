@@ -237,7 +237,9 @@ class OfferFavourArgs(_Args):
     (target_npc; win_over also band), deliver a keepsake a hero carries to an NPC (item,
     target_npc), learn something (tag), or pay an NPC, the asker too (target_npc, gold).
     Ids from this region only. The players accept or not; the engine adds the report back to
-    the asker. It earns that NPC's goodwill, never gold or XP: the asker promises no reward."""
+    the asker. It earns that NPC's goodwill, never gold or XP: the asker promises no reward.
+    Any errand, job or task an NPC sets is this tool, never prose alone (a parcel to carry:
+    give_keepsake it, then a deliver favour)."""
 
     npc: str = _id()
     title: str = Field(min_length=1, max_length=60)

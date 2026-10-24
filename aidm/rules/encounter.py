@@ -193,7 +193,14 @@ def _offer_closed_by_fight(state: GameState, setup: EncounterSetup) -> list[AnyE
     if offer is None or offer.id == setup.offer_id or offer.node_id != state.world.current_node:
         return []
     detail = "the fight starts"
-    return [OfferResolved(offer_id=offer.id, choice=OfferChoice.FIGHT, success=None, detail=detail)]
+    closed = OfferResolved(
+        offer_id=offer.id,
+        choice=OfferChoice.FIGHT,
+        success=None,
+        detail=detail,
+        foes=offer.monster_ids,
+    )
+    return [closed]
 
 
 def _marked(creature: Creature, spawn: MonsterSpawn) -> Creature:

@@ -24,6 +24,8 @@ against the turn's `FightLedger` (`aidm.dm.fight_ledger`); vocabulary is data
   snaps toward the sound"); the result checks of `aidm.dm.guard_results` (a hit
   told as a miss, harm on an immune foe, a damaging miss told clean) and the foe count of
   `aidm.dm.guard_counts` run here too.
+- M32.1b (round 5 X12): a living foe told fleeing, a helpless foe told acting, blows told in the
+  wrong order and a weapon told hitting someone unhurt (`aidm.dm.guard_foes`).
 Who a sentence names and which claims it makes: `aidm.dm.guard_mentions`.
 
 Public API: `fight_truth(sentence, tokens, scene, context) -> list[Violation]`.
@@ -32,15 +34,16 @@ Public API: `fight_truth(sentence, tokens, scene, context) -> list[Violation]`.
 import re
 
 from aidm.dm.guard_counts import foe_counts
+from aidm.dm.guard_foes import foe_truth
 from aidm.dm.guard_mentions import (
     AFTER_REACH,
-    BOUNDARY,
     Mention,
     attacker,
     blow,
     claims,
     names_of,
     read_mentions,
+    subject_of,
     target,
 )
 from aidm.dm.guard_pronoun import PronounContext
@@ -151,26 +154,10 @@ def _wrong_killers(text: str, mentions: list[Mention], scene: GuardScene) -> lis
     return []
 
 
-def _faller(text: str, mentions: list[Mention], start: int, end: int) -> Mention | None:
-    """Who a fall phrase is about: a creature inside it ("sends it crashing"), else the clause's
-    subject (never "X's bolt": the weapon does not fall)."""
-    inside = [n for n in mentions if start <= n.start < end and n.ids]
-    if inside:
-        return inside[0]
-    before = [n for n in mentions if n.end <= start and n.subject and not n.weapon]
-    if not before:
-        return None
-    who = before[-1]
-    cut = max((m.end() for m in BOUNDARY.finditer(text, who.end, start)), default=None)
-    if cut is not None and len(re.findall(r"[a-z']+", text[cut:start].casefold())) > 1:
-        return None
-    return who
-
-
 def _phantom_falls(text: str, tokens, mentions, scene: GuardScene) -> list[Violation]:
     ledger = scene.turn.fight
     for m in claims(text, tokens, scene.lexicon.fall_claims, scene, past=False):
-        who = _faller(text, mentions, m.start(), m.end())
+        who = subject_of(text, mentions, m.start(), m.end())
         if who is None or not who.ids or who.ids & ledger.downed:
             continue
         if not who.ids <= ledger.fled | ledger.standing:
@@ -205,5 +192,6 @@ def fight_truth(
         *_wrong_killers(text, found, scene),
         *_phantom_falls(text, tokens, found, scene),
         *result_truth(text, tokens, found, scene),
+        *foe_truth(text, tokens, found, scene),
         *counted,
     ]

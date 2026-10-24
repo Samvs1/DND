@@ -7,7 +7,9 @@ names and classes, the nouns of items the party may not see destroyed, and the w
 and description of the current place, and the keys of every unrevealed NPC secret
 (`aidm.dm.guard_secrets`), the names of the living (`aidm.dm.guard_alive`) and whether the events
 granted a reward (`aidm.dm.guard_rewards`), and the words of the features still locked here
-(M27.5, `aidm.dm.guard_world.opened_locks`). Recent `events` (already applied to `state`) mark items
+(M27.5, `aidm.dm.guard_world.opened_locks`); M32.1b: what may be promised (`talk`,
+`aidm.dm.guard_turn.TalkTruth`), how many foes an offer holds and the foe kinds not in play
+(`aidm.dm.guard_present`). Recent `events` (already applied to `state`) mark items
 that really were lost (`InventoryChanged` with a negative delta, a removed world item is no longer
 in the scene), so describing those as gone is allowed.
 
@@ -17,16 +19,18 @@ Public API: `GuardScene`, `guard_scene(state, events=()) -> GuardScene`, `words_
 import re
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
+from typing import Any
 
 from aidm.data.guard_lexicon import GuardLexicon, guard_lexicon
 from aidm.dm.entities import display_name, entity_registry
 from aidm.dm.guard_alive import downed_terms, living_terms, standing_terms
 from aidm.dm.guard_cast import known_spells
 from aidm.dm.guard_people import people_facts
+from aidm.dm.guard_present import foes_here, stale_terms
 from aidm.dm.guard_rewards import rewarded
 from aidm.dm.guard_secrets import SecretKey, secret_keys
 from aidm.dm.guard_text import plain
-from aidm.dm.guard_turn import TurnTruth, turn_truth
+from aidm.dm.guard_turn import TalkTruth, TurnTruth, talk_truth, turn_truth
 from aidm.models import events as ev
 from aidm.models.encounter import EncounterStatus
 from aidm.models.state import GameState
@@ -84,6 +88,10 @@ class GuardScene:
     # M29.9c: the things quests ask for (an ember nobody holds yet), every NPC's name words
     quest_nouns: dict[str, str] = field(default_factory=dict[str, str])
     npc_terms: dict[str, str] = field(default_factory=dict[str, str])
+    # M32.1b X10 X11 X14: promises (binds NPC speech too), foes in play, stale foe kinds
+    talk: TalkTruth = field(default_factory=TalkTruth)
+    foes_here: int = 0
+    stale_foes: dict[str, str] = field(default_factory=dict[str, str])
 
 
 def _lost_items(events: Sequence[ev.AnyEvent]) -> set[str]:
@@ -207,8 +215,18 @@ def guard_scene(
         npc_terms=_absent_terms(
             {plain(n.name) for n in state.world.npcs.values()}, set(party), lex
         ),
+        **_round_five(state, events),
         **people_facts(state, present_npcs, present_roles, lex),
     )
+
+
+def _round_five(state: GameState, events: Sequence[ev.AnyEvent]) -> dict[str, Any]:
+    """M32.1b: what may be promised, how many foes an offer holds, foe kinds not in play."""
+    return {
+        "talk": talk_truth(state, events),
+        "foes_here": foes_here(state, events),
+        "stale_foes": stale_terms(state, events),
+    }
 
 
 def _quest_items(state: GameState) -> set[str]:

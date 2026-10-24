@@ -21,7 +21,9 @@ until every show-capable screen presented the turn (`show_pace`, capped at `show
 and a hero's turn clock starts only once the screens presented what came before (same cap).
 Every mid-fight segment narration is recorded too (`narration_recorded`, M20.1). M32.1a X3: a
 line typed at the offer that started the fight is played when its hero's turn opens
-(`waiting_line`); the fight's end drops any still waiting.
+(`waiting_line`); the fight's end drops any still waiting. M32.1b: a segment of turn bookkeeping
+only (a turn opened, nothing done: its template is the stock filler line) is not told, so no
+filler line is shown and the model is never asked to fill a beat where nobody acted.
 A lost fight that wiped the party is turned into the DEFEATED phase right after the job by
 `defeat_flow.after_job` (M11.1); the fight start was marked as a retry checkpoint.
 
@@ -32,6 +34,7 @@ Public API: `MAX_COMBAT_STEPS`, `runner`, `after_resolution`, `begin_combat`, `a
 
 from collections.abc import Sequence
 
+from aidm.dm.narration_templates import QUIET_LINE, template_narration
 from aidm.dm.narrator import narrate_round_segment, record_narration
 from aidm.models.commands import AnyCommand, EndTurnCommand, MonsterActionCommand
 from aidm.models.encounter import EncounterStatus
@@ -179,6 +182,8 @@ async def tell_segment(core: TableCore, *, record: bool = True) -> str:
     if not core.segment:
         return ""
     events, core.segment = core.segment, []
+    if template_narration(events, core.state) == [QUIET_LINE]:
+        return ""  # M32.1b X12 X15: only turn bookkeeping: nothing to tell, no invented blows
     text = await tell(core, narrate_round_segment(core.state, events, core.llm))
     recorded = record_narration(core.state, text) if record else None
     if recorded is not None:

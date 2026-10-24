@@ -30,7 +30,8 @@ not to speak for them (`VOICE_NEXT`), the guard flags spoken words or their repl
 (`aidm.dm.guard_claims.spoken_for`), and the template drops its stock `QUIET_LINE` (the reply
 follows, so a narration with nothing to tell stays silent). M32.1a X7: a turn with no events
 whose tool call the engine refused carries the refusal as its notice (`dm.refusal_text`), so
-its template fallback says why instead of the stock filler line.
+its template fallback says why instead of the stock filler line. M32.1b X15: the telling of the
+chosen finale passes no `closing` filler ("the scene waits on your next move").
 
 Public API: `NUMBERS_ALLOWED`, `VOICE_NEXT`, `TRIED`, `NarrationInput`,
 `unpack_source(source) -> (events, facts, notice)` (what the narrator is told),
@@ -52,7 +53,7 @@ from aidm.dm.guard import guarded_narration, prose_checker
 from aidm.dm.guard_types import ProseCheck
 from aidm.dm.llm_client import LlmClient
 from aidm.dm.narration_stream import NarrationStream
-from aidm.dm.narration_templates import QUIET_LINE, template_narration
+from aidm.dm.narration_templates import CLOSING_LINE, QUIET_LINE, template_narration
 from aidm.dm.narration_weight import (
     NarrationWeight,
     max_tokens_for,
@@ -63,6 +64,7 @@ from aidm.dm.narration_weight import (
 )
 from aidm.dm.refusal_text import refusal_line
 from aidm.dm.turn_facts import turn_facts
+from aidm.models.campaign_events import FinaleChosen
 from aidm.models.encounter import EncounterStatus
 from aidm.models.encounter_events import EncounterEnded, EncounterStarted
 from aidm.models.events import AnyEvent
@@ -200,8 +202,14 @@ def narrate(
         fallback,
         max_tokens=max_tokens_for(weight),
         player_text=player_text,
+        closing=() if _ending(events) else (CLOSING_LINE,),
     )
     return NarrationStream(tone or tone_for(state, events), sentences)
+
+
+def _ending(events: Sequence[AnyEvent]) -> bool:
+    """M32.1b X15: the finale's telling is an ending: it never closes on the filler line."""
+    return any(isinstance(e, FinaleChosen) for e in events)
 
 
 def narrate_round_segment(

@@ -5,7 +5,7 @@ check reads ONE sentence against the scene's `TurnTruth` (`aidm.dm.guard_turn`);
 data (data/bg3/guard_lexicon.json):
 - `unpaid_coin` (G1): a payment ("pays the ten gold", "counts out a gold piece", "passes over
   ... coin") when these events changed no gold; promises ("will you pay") and quoted speech
-  are not claims.
+  are not claims (M32.1b X11: the words outside the quote marks still are).
 - `claimed_items` (G3): a thing the player used as the hero's own that the hero does not carry
   ("Brienne raises the potion", "Rook's silk rope", "Elowen's javelin"), unless the sentence tells
   it as absent ("no such potion", "finds nothing").
@@ -21,7 +21,7 @@ import re
 
 from aidm.dm.guard_light import singular_light
 from aidm.dm.guard_scene import GuardScene, words_of
-from aidm.dm.guard_text import QUOTE_MARKS, Token, find_phrases, is_negated
+from aidm.dm.guard_text import QUOTE_MARKS, Token, find_phrases, is_negated, tokenize
 from aidm.dm.guard_types import Violation, ViolationKind
 
 _MIN_NAME_WORD = 4
@@ -41,15 +41,24 @@ def _first_unnegated(
     return None
 
 
+_QUOTED = re.compile(rf"[{QUOTE_MARKS}][^{QUOTE_MARKS}]*(?:[{QUOTE_MARKS}]|$)")
+
+
+def _unquoted(sentence: str) -> str:
+    """The sentence with its quoted words blanked (same length): only the telling is a claim."""
+    return _QUOTED.sub(lambda m: " " * len(m.group(0)), sentence)
+
+
 def unpaid_coin(sentence: str, tokens: list[Token], scene: GuardScene) -> list[Violation]:
+    """M32.1b X11: a sentence with speech in it ("'Fifteen silver, as agreed,' she says, and
+    pays the full sum") is judged by its telling outside the quote marks."""
     truth, lex = scene.turn, scene.lexicon
-    if not truth.checked or truth.paid or any(q in sentence for q in QUOTE_MARKS):
+    if not truth.checked or truth.paid or not find_phrases(sentence, lex.coin_nouns):
         return []
-    if not find_phrases(sentence, lex.coin_nouns) or find_phrases(
-        sentence, lex.promise_words | lex.payment_refusals
-    ):
+    told = _unquoted(sentence)
+    if find_phrases(told, lex.promise_words | lex.payment_refusals):
         return []
-    verb = _first_unnegated(sentence, tokens, lex.payment_verbs, scene)
+    verb = _first_unnegated(told, tokenize(told), lex.payment_verbs, scene)
     if verb is None:
         return []
     detail = "no gold changed hands: the engine made no sale or payment this turn"

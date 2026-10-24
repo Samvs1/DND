@@ -190,14 +190,27 @@ def answer_offer(
     if settled_offer(state) is not None:  # M29.5b G29: the boss's region is already settled
         return [peaceful_close(offer)]
     if foes_gone(state, offer):
-        return [OfferResolved(offer_id=offer.id, choice=choice, detail="no foes are left")]
+        return [
+            OfferResolved(
+                offer_id=offer.id,
+                choice=choice,
+                detail="no foes are left",
+                foes=offer.monster_ids,
+            )
+        ]
     sure = choice is OfferChoice.PARLEY and sure_parley(state, offer)
     success, checks, surprise = _resolve(state, offer, choice, rng, (actor_id, skill))
     detail = "the fight starts" if surprise is not None else "no fight"
     if success and choice is OfferChoice.PARLEY and not sure:
         detail = master_waits(state, offer) or detail
     events: list[AnyEvent] = [
-        OfferResolved(offer_id=offer.id, choice=choice, success=success, detail=detail),
+        OfferResolved(
+            offer_id=offer.id,
+            choice=choice,
+            success=success,
+            detail=detail,
+            foes=offer.monster_ids,
+        ),
         *checks,
     ]
     if surprise is not None:

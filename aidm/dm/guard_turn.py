@@ -26,10 +26,16 @@ already applied to `state`:
 - M31.1c (round 4 V17 V18): `found` (names of the things a search turned up in these events that
   nobody took: they still lie there), `asked` (the giver's name while a quest offer waits for the
   players' answer), and `given` also holds the NPC who received a gift (`AttitudeChanged.gift`).
+- M32.1b X13: `warmed` (names of the NPCs a gift won over: a gift deed, or an attitude change
+  whose reason holds a `gift_words` word).
 `TurnTruth()` (`checked` False) switches these checks off, for prose about the past (epilogue).
 
-Public API: `TurnTruth`, `Claim`, `claimed_things(state, actor_id, text)`, `hero_terms(names)`,
-`turn_truth(state, events, *, actor_id, player_text) -> TurnTruth`.
+M32.1b X10 X11: `TalkTruth` / `talk_truth(state, events)`: whether coin may be promised and an
+errand told this turn; unlike `TurnTruth` it also binds an NPC's own speech.
+
+Public API: `TurnTruth`, `TalkTruth`, `Claim`, `claimed_things(state, actor_id, text)`,
+`hero_terms(names)`, `turn_truth(state, events, *, actor_id, player_text) -> TurnTruth`,
+`talk_truth(state, events) -> TalkTruth`.
 """
 
 import re
@@ -49,9 +55,10 @@ from aidm.models.combat_events import AttackRolled, MonsterActionUsed, SpellCast
 from aidm.models.encounter import EncounterStatus
 from aidm.models.encounter_events import EncounterStarted
 from aidm.models.item_events import HandedOver, ItemUsed, LightEnded, LightLit
-from aidm.models.quest_events import KeepsakeGiven
+from aidm.models.quest_events import KeepsakeGiven, QuestAsked, QuestStepDone
+from aidm.models.quests import QuestKind
 from aidm.models.state import Creature, GameState
-from aidm.models.world import QuestState
+from aidm.models.world import Quest, QuestState
 
 _WORD = re.compile(r"[a-z]+(?:-[a-z]+)*")
 _MIN_TERM = 4
@@ -88,6 +95,7 @@ class TurnTruth:
     cast: frozenset[str] | None = None
     found: frozenset[str] = frozenset()
     asked: str = ""
+    warmed: frozenset[str] = frozenset()  # M32.1b X13: NPCs a gift or kindness won over
 
 
 def hero_terms(names: Iterable[str], lex: GuardLexicon | None = None) -> dict[str, str]:
@@ -231,6 +239,56 @@ def _found(state: GameState, events: Sequence[ev.AnyEvent]) -> frozenset[str]:
     return frozenset(items[i].name for i in found if i not in taken and i in items)
 
 
+def _warmed(state: GameState, events: Sequence[ev.AnyEvent], lex: GuardLexicon) -> frozenset[str]:
+    """M32.1b X13: names of the NPCs a gift won over in these events (the engine's gift deed,
+    or the model's own attitude change for a gift: its reason says so)."""
+    ids = [
+        e.npc_id
+        for e in events
+        if isinstance(e, we.AttitudeChanged)
+        and not e.hostile
+        and (e.gift or find_phrases(e.reason, lex.gift_words))
+    ]
+    return frozenset(plain(state.world.npcs[i].name) for i in ids if i in state.world.npcs)
+
+
+@dataclass(frozen=True)
+class TalkTruth:
+    """M32.1b X10 X11: what anyone may promise this turn, narration and NPC speech alike.
+    `coin_ok`: a shop is at work, or a quest other than a favour is asked or held by a giver
+    standing here (its reward is the engine's); `errand_ok`: a quest event happened, or an open
+    quest's giver stands here. `TalkTruth()` (`checked` False) switches the checks off."""
+
+    checked: bool = False
+    coin_ok: bool = True
+    errand_ok: bool = True
+
+
+_QUEST_TALK = (QuestAsked, we.QuestUpdated, QuestStepDone, we.ShopOpened, we.ItemsTraded)
+
+
+def _givers_here(state: GameState) -> list[Quest]:
+    here = state.world.current_node
+    open_states = (QuestState.OFFERED, QuestState.ACTIVE)
+    return [
+        q
+        for q in state.world.quests.values()
+        if q.state in open_states
+        and (npc := state.world.npcs.get(q.giver_npc_id or "")) is not None
+        and npc.node_id == here
+    ]
+
+
+def talk_truth(state: GameState, events: Sequence[ev.AnyEvent]) -> TalkTruth:
+    quests = state.world.quests
+    asked = [quests.get(e.ask.quest_id) for e in events if isinstance(e, QuestAsked)]
+    held = [*(q for q in asked if q is not None), *_givers_here(state)]
+    shop = any(isinstance(e, we.ShopOpened | we.ItemsTraded) for e in events)
+    coin_ok = shop or any(q.kind is not QuestKind.FAVOUR for q in held)
+    errand_ok = bool(held) or any(isinstance(e, _QUEST_TALK) for e in events)
+    return TalkTruth(checked=True, coin_ok=coin_ok, errand_ok=errand_ok)
+
+
 def _asked(state: GameState) -> str:
     ask = state.world.quest_ask
     npc = state.world.npcs.get(ask.npc_id) if ask is not None else None
@@ -279,4 +337,5 @@ def turn_truth(
         cast=cast_spells(events),
         found=_found(state, events),
         asked=_asked(state),
+        warmed=_warmed(state, events, lex),
     )

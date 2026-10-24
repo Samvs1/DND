@@ -34,7 +34,7 @@ from aidm.rules.offer_answer import sure_parley
 from aidm.rules.plan_ids import main_quest_id
 from aidm.rules.quest_plan import main_quest
 from aidm.rules.quest_reasons import step_reason
-from aidm.rules.step_text import the_item
+from aidm.rules.step_text import state_names, the_item
 
 _QUESTS = {
     QuestState.OFFERED: "A new task is offered: {title}.",
@@ -151,9 +151,10 @@ def _lore(state: GameState, e: LoreLearned) -> str:
     """M29.9b T13: what the clue told, as a plain fact (the tag, never a secret)."""
     hero = state.creatures.get(e.creature_id)
     who = hero.name if hero is not None else "Someone"
+    topic = state_names(state).topic(e.tag)  # M32.1b X9: world words, never the slug
     if e.npc_id is not None:  # M31.1b V13: a person taught it when asked
-        return f"{who} learns about {e.tag} from {e.item}."
-    return f"{who} learns about {e.tag} from {the_item(e.item)}."
+        return f"{who} learns about {topic} from {e.item}."
+    return f"{who} learns about {topic} from {the_item(e.item)}."
 
 
 def _left(e: QuestUpdated) -> bool:

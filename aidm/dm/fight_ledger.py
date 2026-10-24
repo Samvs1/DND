@@ -19,6 +19,9 @@ events already applied to `state`:
   damage: half damage on a miss), `dodged` (ids that evaded something: the target of a missed
   attack, or a save that took no harm), `kinds` (each foe kind's head noun -> how many of it the
   fight holds, dead or alive, with the present NPCs whose name or role holds that word).
+- M32.1b (round 5 X12): `helpless` (ids alive with a `helpless_conditions` condition: asleep,
+  unconscious, paralyzed...), `rolls` (attacker -> hit flags of its attacks in order, for
+  attackers with two or more: Scorching Ray's three rays).
 Generic foe words (lexicon `foe_words`: "creature", "corpse") mean every foe.
 `FightLedger()` (empty `terms`) switches the per-creature checks off.
 
@@ -63,6 +66,8 @@ class FightLedger:
     grazed: frozenset[str] = frozenset()
     dodged: frozenset[str] = frozenset()
     kinds: dict[str, int] = field(default_factory=dict[str, int])
+    helpless: frozenset[str] = frozenset()  # M32.1b X12: alive, asleep or otherwise helpless
+    rolls: dict[str, tuple[bool, ...]] = field(default_factory=dict[str, tuple[bool, ...]])
 
     @property
     def active(self) -> bool:
@@ -190,6 +195,23 @@ def _standing(fighters: list[Creature], fled: set[str], lex: GuardLexicon) -> fr
     )
 
 
+def _helpless(fighters: list[Creature], lex: GuardLexicon) -> frozenset[str]:
+    return frozenset(
+        c.id
+        for c in fighters
+        if not c.dead and c.hp > 0 and {k.name for k in c.conditions} & lex.helpless_conditions
+    )
+
+
+def _rolls(events: Sequence[ev.AnyEvent]) -> dict[str, tuple[bool, ...]]:
+    """Attacker -> hit or miss of each of its attacks, in order, when it made two or more."""
+    out: dict[str, list[bool]] = {}
+    for e in events:
+        if isinstance(e, AttackRolled):
+            out.setdefault(e.attacker_id, []).append(e.hit)
+    return {k: tuple(v) for k, v in out.items() if len(v) >= 2}
+
+
 def _immune(events: Sequence[ev.AnyEvent]) -> dict[str, str]:
     out: dict[str, str] = {}
     for e in events:
@@ -260,6 +282,8 @@ def fight_ledger(state: GameState, events: Sequence[ev.AnyEvent]) -> FightLedger
         grazed=grazed,
         dodged=dodged,
         kinds=_kinds(state, fighters),
+        helpless=_helpless(fighters, lex),
+        rolls=_rolls(events),
     )
 
 

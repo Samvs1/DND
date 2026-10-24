@@ -9,7 +9,8 @@ Public API:
   SHORT_TRAVEL, UNMADE_PICKUP, WRONG_COUNT, HURT_TOLD_WHOLE, IDENTIFIER; M29.9c: FLED_TOLD_DEAD,
   REFUSED_HANDOVER, UNMADE_OUTCOME, DENIED_OUTCOME, JOINED_PARTY; M30.1 IMPOSSIBLE_DONE;
   M30.2b UNCAST_SPELL; M31.1c: FOE_COUNT, IMMUNE_HARMED, HIT_TOLD_MISSED, MISS_HARM_UNTOLD,
-  FOUND_TAKEN, WRONG_RECIPIENT, QUEST_ACCEPTED, ALLY_DEFEATED;
+  FOUND_TAKEN, WRONG_RECIPIENT, QUEST_ACCEPTED, ALLY_DEFEATED; M32.1b: EPILOGUE_PLACE,
+  FLED_ALIVE, HELPLESS_ACTING, WRONG_ORDER, COIN_PROMISED, UNASKED_ERRAND, STALE_FOE;
   `SCRUBBED_KINDS` (names removed from a retry).
 - `Violation(kind, span, detail)`: `span` is the offending text as written (a name, a phrase).
 - `GuardReport(violations)`: `ok`, `scrub_terms` (distinct offending names, removed from the
@@ -77,6 +78,13 @@ class ViolationKind(StrEnum):
     WRONG_RECIPIENT = "wrong_recipient"
     QUEST_ACCEPTED = "quest_accepted"
     ALLY_DEFEATED = "ally_defeated"
+    EPILOGUE_PLACE = "epilogue_place"  # M32.1b: round 5 X10-X16
+    FLED_ALIVE = "fled_alive"
+    HELPLESS_ACTING = "helpless_acting"
+    WRONG_ORDER = "wrong_order"
+    COIN_PROMISED = "coin_promised"
+    UNASKED_ERRAND = "unasked_errand"
+    STALE_FOE = "stale_foe"
 
 
 SCRUBBED_KINDS = frozenset({ViolationKind.UNKNOWN_NAME, ViolationKind.ABSENT_NPC})

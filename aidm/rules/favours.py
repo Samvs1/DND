@@ -20,7 +20,8 @@ XP, gold or items, `quest_rewards`). Rules (`favour_events`, each refusal a `Fav
 M31.1b V15: a visit or clear stays at a place the favour's own words name (title and step
 words; a name word of four letters or more): a place they do not name is moved to the first one
 they do name; with none that fits (a visit of the place the party stands at) the favour is the
-report alone (meet the asker). A learn tag is a slug (`item_key`).
+report alone (meet the asker). A learn tag is a slug (`item_key`). M32.1b X9: a learn favour
+needs a source in the region other than the asker's own word (`lore_talk.learnable_here`).
 The id is `favour-<n>`; title and objective are the model's words, shown as written; the step
 line is the engine's (`rules.step_text`, M29.9b T3). Not now withdraws a favour (failed +
 `withdrawn`, no deed, `rules.quest_offers`); an offered favour whose card is gone (the party
@@ -41,6 +42,7 @@ from aidm.models.state import GameState
 from aidm.models.world import MAX_QUEST_LOG, ClosedReason, Quest, QuestAsk, QuestState, WorldNpc
 from aidm.models.world_events import QuestUpdated
 from aidm.rules.finale import finale_open
+from aidm.rules.lore_talk import learnable_here
 from aidm.rules.plan_ids import boss_npc_id
 from aidm.rules.plan_tasks import ends_at, report_step
 from aidm.rules.progression import region_of
@@ -121,6 +123,13 @@ def _region(state: GameState) -> RegionPlan | None:
     return region_of(state, state.world.current_node)
 
 
+def _region_nodes(state: GameState) -> list[str]:
+    region = _region(state)
+    if region is not None:
+        return [n.id for n in region.nodes()]
+    return [*state.world.node_names]
+
+
 def _check_place(state: GameState, node: str, kind: StepKind) -> None:
     region = _region(state)
     if region is not None:
@@ -168,6 +177,13 @@ def _check_step(state: GameState, step: QuestStep, asker: WorldNpc, owner: str) 
         _check_npc(state, step.npc, asker, step.kind)
     if step.kind is StepKind.DELIVER and not _carried_flavour(state, step.item or ""):
         raise FavourRefused("a favour delivers a keepsake a hero carries now (not a quest item)")
+    if step.kind is StepKind.LEARN and not learnable_here(
+        state, item_key(step.tag or ""), asker, _region_nodes(state)
+    ):
+        raise FavourRefused(
+            f"nothing in this region but {asker.name}'s own word can teach {step.tag!r}: a learn"
+            " favour's tag names a place, a person or a secret here; else ask another kind"
+        )
     done = step.kind is not StepKind.VISIT and step_met(state, step, owner)  # V15: `_placed`
     if done:
         raise FavourRefused("that is already done; a favour asks for something still to do")

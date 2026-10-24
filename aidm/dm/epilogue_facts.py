@@ -13,7 +13,9 @@ band only), the secrets the party really learned, and every entry of the fact le
 `template_epilogue` is the safe fallback: it lists the same facts in plain past-tense sentences,
 and a defeated boss is only ever "defeated". M29.5c G35: each boss's fate comes from the final
 state (`RegionOutcome.fate`: an ally who later died, or one who turned on the party and lives,
-is told so, and every boss gets an "At the end, X is dead/alive." fact).
+is told so, and every boss gets an "At the end, X is dead/alive." fact). M32.1b X15: where the
+tale began (the first act's arrival) and ended (where the party stands) come from the state
+(`began`, `ended`; the guard checks the prose against them, `guard_epilogue.wrong_ends`).
 
 Public API:
 - `RegionOutcome`, `QuestOutcome`, `FinaleOutcome`, `EpilogueFacts` (frozen; `lines()` is the
@@ -37,6 +39,7 @@ from aidm.rules.finale import chosen_ending
 from aidm.rules.plan_ids import main_quest_id
 from aidm.rules.progression import boss_defeated, boss_npc
 from aidm.rules.quest_plan import main_quest
+from aidm.rules.scene import node_display_name
 from aidm.rules.social import public_npc_view
 from aidm.rules.step_text import state_names, step_deed
 
@@ -84,9 +87,13 @@ class EpilogueFacts:
     attitudes: tuple[tuple[str, str, str], ...]
     revealed: tuple[str, ...]
     ledger: tuple[str, ...]
+    began: str = ""  # M32.1b X15: where the tale began and ended, from the state
+    ended: str = ""
 
     def lines(self) -> list[str]:
         out = [f"The campaign was called {self.title}."]
+        if self.began and self.ended:
+            out.append(f"The tale began at {self.began} and ended at {self.ended}.")
         for r in self.regions:
             out.append(_region_line(r))
         out.extend(_fate_line(r) for r in self.regions)
@@ -228,6 +235,10 @@ def epilogue_facts(state: GameState) -> EpilogueFacts:
         )[:MAX_ATTITUDES],
         revealed=revealed,
         ledger=tuple(f.text for f in state.world.facts[-MAX_LEDGER_FACTS:]),
+        began=node_display_name(state, campaign.plan.acts[0].region.arrival.id)
+        if campaign.plan.acts
+        else "",
+        ended=node_display_name(state, state.world.current_node),
     )
 
 

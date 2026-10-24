@@ -13,11 +13,13 @@ there is told only by the actual offer.
 - `step_deed(step, names)`: the same deed in the past tense, for the ending ("won the fight at
   The Slag Warren").
 - `StepNames(places, people)`: display names by id (an unknown id reads as its words);
-  `plan_names(plan)` from a campaign plan, `state_names(state)` from the world.
+  `plan_names(plan)` from a campaign plan, `state_names(state)` from the world; M32.1b X9:
+  `topic(tag)` writes a learn tag as world words, never the raw slug.
 
 Public API: `StepNames`, `plan_names`, `state_names`, `step_text`, `step_deed`, `the_item`.
 """
 
+import re
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 
@@ -34,6 +36,10 @@ def _words(ref: str) -> str:
     return ref.replace("-", " ").replace("_", " ").title()
 
 
+def _slug(name: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
+
+
 @dataclass(frozen=True)
 class StepNames:
     places: Mapping[str, str] = field(default_factory=dict[str, str])
@@ -44,6 +50,15 @@ class StepNames:
 
     def person(self, npc_id: str | None) -> str:
         return self.people.get(npc_id or "") or _words(npc_id or "someone")
+
+    def topic(self, tag: str | None) -> str:
+        """M32.1b X9: a learn tag in world words: the name of the place or person it is the
+        slug of, else its words ("fog-leaves-standing" -> "fog leaves standing"), never a slug."""
+        slug = (tag or "").strip().lower()
+        for name in (*self.places.values(), *self.people.values()):
+            if _slug(name) == slug:
+                return name
+        return " ".join(re.findall(r"[a-z0-9']+", slug)) or "it"
 
 
 def plan_names(plan: CampaignPlan) -> StepNames:
@@ -100,7 +115,7 @@ def _obtain(step: QuestStep, names: StepNames, past: bool) -> str:
 def _learn(step: QuestStep, names: StepNames, past: bool) -> str:
     verb = "learned" if past else "Learn"
     clue = f" from {the_item(step.item)}" if step.item else ""
-    return f"{verb} about {step.tag}{clue}"
+    return f"{verb} about {names.topic(step.tag)}{clue}"
 
 
 def _win_over(step: QuestStep, names: StepNames, past: bool) -> str:

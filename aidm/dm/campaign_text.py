@@ -119,6 +119,13 @@ def _chosen_story(state: GameState, e: ce.FinaleChosen) -> str | None:
     return f"{ending.title}. {ending.text}" if ending is not None else None
 
 
+def _facing(e: ce.OfferResolved) -> str:
+    """M32.1b X14: who the answer was to (a parley with the ghast here, not an earlier foe)."""
+    counts = Counter(e.foes)
+    names = [counted(display_name(m).lower(), n, digits=True) for m, n in counts.items()]
+    return f" facing {', '.join(names)}" if names else ""
+
+
 def _answer_story(state: GameState, e: ce.OfferResolved) -> str | None:
     if e.success and e.choice.value == "escape":
         return "You slip away before the danger can close in."
@@ -133,6 +140,7 @@ CAMPAIGN_EVENT_LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = 
     ce.OfferResolved: lambda s, e: (
         f"The party chose {e.choice.value}"
         + ("" if e.success is None else f" ({'success' if e.success else 'failure'})")
+        + _facing(e)
         + f": {e.detail.rstrip('.')}."
     ),
     ce.RegionResolved: _resolved_fact,

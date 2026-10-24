@@ -35,7 +35,7 @@ LEARN: dict[str, Any] = {
     "title": "The lamp oath",
     "kind": "learn",
     "text": "Learn the words of the old lamp oath",
-    "tag": "obsidian vow",
+    "tag": R1.spokes[0].name,  # M32.1b X9: a learn favour's tag has a source here (a place)
 }
 
 

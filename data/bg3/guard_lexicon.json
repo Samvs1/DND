@@ -245,7 +245,9 @@
     "slashes", "slashed", "stabs", "stabbed", "gouging", "gouges", "gouged", "rakes", "raked",
     "claws at", "sinks its teeth", "teeth sinking", "jaws close", "closes its jaws", "smashes into",
     "crunches into", "hammers into", "slams into", "drives into", "hits", "wounds", "reopens",
-    "biting into", "lunging at", "lashes out", "lash out", "swing at"
+    "biting into", "lunging at", "lashes out", "lash out", "swing at",
+    "slashes low", "slashes at", "jabs at", "stabs at", "thrusts at", "hacks at", "cuts at",
+    "hisses past", "whistles past", "at her knees", "at his knees", "at her legs", "at his legs"
   ],
   "attack_hedges": [
     "ready to", "about to", "poised to", "as if to", "threatens to", "threatening to",
@@ -284,7 +286,8 @@
     "slides the coins", "slides the coin", "pass over", "passes over", "settles the price", "settles up", "pressed into his palm", "presses into his palm"
   ],
   "coin_nouns": [
-    "gold", "coin", "coins", "gp", "silver", "copper", "platinum", "purse", "payment"
+    "gold", "coin", "coins", "gp", "silver", "copper", "platinum", "purse", "payment",
+    "sum", "fee", "wages"
   ],
   "gear_nouns": [
     "potion", "vial", "flask", "elixir", "draught", "rope", "javelin", "spear", "sword", "blade",
@@ -456,7 +459,10 @@
     "swings its fist", "fists landing", "fists crash into", "tries to hit", "nearly hits",
     "almost hits", "nearly catches", "barely misses",
     "drives its", "swipes at", "swipes blindly at", "swipes wildly at", "swiping at",
-    "driving you back", "drives you back", "slashes a", "slashes at", "catch only", "catches only"
+    "driving you back", "drives you back", "slashes a", "slashes at", "catch only", "catches only",
+    "slashes low", "slashes high", "slashes wide", "slashes with", "slashes across",
+    "jabs at", "stabs at", "thrusts at", "cuts at", "hacks at", "hammers at", "flails at", "hisses past",
+    "whistles past", "whips past", "sings past"
   ],
   "harm_claims": [
     "scorching", "scorches", "scorch", "chars", "charring", "sears", "blisters", "blistering",
@@ -478,7 +484,8 @@
     "passes it back", "slides it back", "returns it to", "refuses it", "refuses the", "declines it",
     "declines the", "won't take", "will not take", "doesn't take", "does not take", "waves it away",
     "waves it off", "turns it down", "shakes her head at the offered", "shakes his head at the offered",
-    "at the offered", "lies unanswered", "goes unanswered"
+    "at the offered", "lies unanswered", "goes unanswered", "makes no move to take",
+    "no move to take"
   ],
   "quest_done_claims": [
     "quest is complete", "quest is done", "task is done", "task is complete", "job is done",
@@ -568,7 +575,9 @@
     "pockets", "pocketed", "comes up with", "came up with", "draws both", "pinches a", "plucks",
     "dangling from his fingers", "dangling from her fingers", "in his hand", "in her hand",
     "takes it", "takes them", "took it", "took them", "picks up", "picked up", "picks it up",
-    "scoops up", "pulls it free", "now carries", "now holds"
+    "scoops up", "pulls it free", "now carries", "now holds", "fingers close on",
+    "fingers close around", "fingers closing on", "fingers closing around", "in her open palm",
+    "in his open palm", "in her palm", "in his palm", "in their palm"
   ],
   "recipient_verbs": [
     "gives", "gave", "hands", "handed", "presses", "pressed", "passes", "passed", "offers",
@@ -598,5 +607,61 @@
   "accept_hedges": [
     "whether", "if", "would", "could", "might", "may", "until", "unless", "yet to", "decide",
     "still yours", "waits for", "waiting for", "before you"
-  ]
+  ],
+  "full_circle_claims": [
+    "where it began", "where it all began", "where they began", "where it had begun",
+    "where it started", "where they started", "where it all started", "back where it began",
+    "came full circle", "come full circle", "full circle"
+  ],
+  "began_words": ["began", "begun", "begins", "started", "starts", "first set out", "set out from"],
+  "ended_words": ["ended", "ends", "came to an end", "came to its end", "drew to a close", "closed"],
+  "armed_verbs": [
+    "takes", "catches", "bites", "strikes", "hits", "slams into", "thuds into", "buries itself",
+    "punches into", "sinks into", "rips into", "opens"
+  ],
+  "flee_claims": [
+    "flee", "flees", "fled", "fleeing", "breaks and runs", "break and run", "turns tail",
+    "turn tail", "scurries away", "scurry away", "scuttles away", "scuttle away", "melts away",
+    "melt away", "routs", "routed", "takes flight", "take flight", "bolts for", "flies off",
+    "fly off", "retreats into the dark", "vanishes into the dark"
+  ],
+  "scatter_claims": ["scatter", "scatters", "scattered", "scattering", "disperse", "disperses"],
+  "flight_directions": ["into", "away", "off", "out", "toward", "towards", "for", "through"],
+  "helpless_conditions": ["asleep", "unconscious", "paralyzed", "petrified", "stunned", "incapacitated"],
+  "alert_claims": [
+    "tracks", "watches", "watching", "holds his ground", "holds her ground", "holds its ground",
+    "sets his feet", "sets her feet", "sets its feet", "lifts his blade", "lifts her blade",
+    "raises his blade", "raises her blade", "levels his", "levels her", "readies", "readying",
+    "circles", "advances", "glares", "snarls", "steps forward", "steps toward", "eyes you",
+    "grips his", "grips her", "tightens his grip", "tightens her grip"
+  ],
+  "ordinal_words": {"first": 1, "second": 2, "third": 3, "fourth": 4},
+  "ray_hit_claims": [
+    "splashes across", "melts", "furrow", "sears", "burns", "scorches", "strikes", "hits",
+    "slams into", "punches through", "tears through", "lances through", "finds its mark",
+    "catches her", "catches him", "catches it", "takes her", "takes him", "takes it"
+  ],
+  "ray_miss_claims": [
+    "hisses into the", "into the water", "into the dark", "harmlessly", "goes wide", "went wide",
+    "sails wide", "flies wide", "misses", "missed", "skips off", "glances off", "spends itself",
+    "fizzles", "gutters out"
+  ],
+  "cooling_claims": [
+    "warmth cools", "warmth fades", "warmth drains", "cools into", "grows cold", "grows colder",
+    "turns cold", "goes cold", "his face hardens", "her face hardens", "something merely polite"
+  ],
+  "gift_words": ["gift", "gifts", "gifted", "offering", "a present", "presented"],
+  "figure_words": ["shapes", "figures", "silhouettes", "men"],
+  "coin_promises": [
+    "i will pay", "i'll pay", "will pay", "would pay", "pay you", "pay fair coin", "pay well",
+    "pays well", "paid well", "good coin", "fair coin", "a few coins", "a coin or two",
+    "a copper or two", "a silver or two", "worth a few", "for your trouble", "as payment",
+    "in payment", "your payment", "reward you", "a reward", "your reward", "will be paid",
+    "be paid", "you'll still have", "you will still have"
+  ],
+  "errand_offers": [
+    "an errand", "a small errand", "small errand", "errand worth", "an errand for", "a run of",
+    "a job for you", "a small job", "a task for you", "work for you", "some work for"
+  ],
+  "stale_foe_skips": []
 }
