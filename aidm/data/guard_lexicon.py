@@ -127,6 +127,8 @@ class GuardLexicon(BaseModel):
     keep_claims: frozenset[str] = frozenset()
     recipient_verbs: frozenset[str] = frozenset()
     accept_claims: frozenset[str] = frozenset()
+    accept_hedges: frozenset[str] = frozenset()
+    aimed_claims: frozenset[str] = frozenset()
     ally_defeat_claims: frozenset[str] = frozenset()
     ally_defeat_skips: frozenset[str] = frozenset()
 

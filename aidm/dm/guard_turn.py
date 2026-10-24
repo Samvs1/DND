@@ -23,6 +23,9 @@ already applied to `state`:
 - M30.1: `impossible` (`aidm.dm.guard_impossible.attempt_forms`: the forms of each impossible
   attempt's verb; None when nothing was impossible this turn).
 - M30.2b: `cast` (`aidm.dm.guard_cast.cast_spells`: the spells these events cast; None unchecked).
+- M31.1c (round 4 V17 V18): `found` (names of the things a search turned up in these events that
+  nobody took: they still lie there), `asked` (the giver's name while a quest offer waits for the
+  players' answer), and `given` also holds the NPC who received a gift (`AttitudeChanged.gift`).
 `TurnTruth()` (`checked` False) switches these checks off, for prose about the past (epilogue).
 
 Public API: `TurnTruth`, `Claim`, `claimed_things(state, actor_id, text)`, `hero_terms(names)`,
@@ -83,6 +86,8 @@ class TurnTruth:
     outcomes: frozenset[str] = frozenset()
     impossible: frozenset[str] | None = None
     cast: frozenset[str] | None = None
+    found: frozenset[str] = frozenset()
+    asked: str = ""
 
 
 def hero_terms(names: Iterable[str], lex: GuardLexicon | None = None) -> dict[str, str]:
@@ -208,12 +213,28 @@ def _given(state: GameState, events: Sequence[ev.AnyEvent]) -> frozenset[str]:
     """Names of the NPCs (or creatures) who received something in these events."""
     ids = [e.npc_id for e in events if isinstance(e, KeepsakeGiven)]
     ids += [e.to_id for e in events if isinstance(e, HandedOver)]
+    ids += [e.npc_id for e in events if isinstance(e, we.AttitudeChanged) and e.gift]
     names = {state.world.npcs[i].name for i in ids if i in state.world.npcs}
     names |= {state.creatures[i].name for i in ids if i in state.creatures}
     return frozenset(plain(n) for n in names)
 
 
 _OUTCOMES = (QuestState.COMPLETED, QuestState.FAILED)
+
+
+def _found(state: GameState, events: Sequence[ev.AnyEvent]) -> frozenset[str]:
+    """Names of the things these events discovered that no event of them took."""
+    taken = {e.item_id for e in events if isinstance(e, we.ItemRemoved)}
+    taken |= {e.keepsake.id for e in events if isinstance(e, we.KeepsakeGained)}
+    found = [e.item_id for e in events if isinstance(e, we.ItemDiscovered)]
+    items = state.world.items
+    return frozenset(items[i].name for i in found if i not in taken and i in items)
+
+
+def _asked(state: GameState) -> str:
+    ask = state.world.quest_ask
+    npc = state.world.npcs.get(ask.npc_id) if ask is not None else None
+    return npc.name if npc is not None else ""
 
 
 def turn_truth(
@@ -256,4 +277,6 @@ def turn_truth(
         ),
         impossible=attempt_forms(state, events, lex),
         cast=cast_spells(events),
+        found=_found(state, events),
+        asked=_asked(state),
     )

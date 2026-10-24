@@ -109,10 +109,26 @@ def _item_found(state: GameState, e: we.ItemDiscovered) -> str:
     name = item.name if item is not None else "something hidden"
     # M29.5b G19: a hidden thing is found against its OWN DC, so the search may find it while
     # the check missed its stated goal; the model is told so, and that it is an object.
+    # M31.1c V17: found is not taken (round 4: searched things told tucked away)
     return (
         f"{_who(state, e.creature_id)}'s search turns up the {name}, an object that lies here"
-        " ready to pick up (found even if the check missed its own goal)."
+        " ready to pick up (found even if the check missed its own goal); it still lies where"
+        " it was found: nobody has picked it up, pocketed it or carries it yet."
     )
+
+
+def _attitude(state: GameState, e: we.AttitudeChanged) -> str:
+    who = _who(state, e.npc_id)
+    if e.hostile:
+        return f"{who} turned hostile."
+    if e.gift:  # M31.1c V17: the gift went to THIS person (round 4: told as to the peddler)
+        return f"{who} received the gift ({display_name(e.gift)}) and holds it now; nobody else."
+    return f"{who}'s attitude changed."
+
+
+def _kept(state: GameState, e: we.KeepsakeGained) -> str:
+    who = _who(state, e.creature_id)
+    return f"{who} keeps the {e.keepsake.name}: it is in {who}'s hands now."
 
 
 _LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
@@ -139,11 +155,7 @@ _LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     we.NpcIntroduced: _npc,
     we.FeatureIntroduced: _feature,
     we.FeatureDiscovered: _discovered,
-    we.AttitudeChanged: lambda s, e: (
-        f"{_who(s, e.npc_id)} turned hostile."
-        if e.hostile
-        else f"{_who(s, e.npc_id)}'s attitude changed."
-    ),
+    we.AttitudeChanged: _attitude,
     we.SecretRevealed: _secret,
     we.PartyMoved: lambda s, e: f"The party travelled to {node_display_name(s, e.to_node)}.",
     we.FactRecorded: lambda s, e: None,
@@ -155,7 +167,7 @@ _LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     ),
     we.ItemDiscovered: _item_found,
     we.ItemRemoved: lambda s, e: None,
-    we.KeepsakeGained: lambda s, e: f"{_who(s, e.creature_id)} keeps the {e.keepsake.name}.",
+    we.KeepsakeGained: _kept,
     CharacterRewritten: lambda s, e: f"The Scribe rewrites {_who(s, e.target_id)} into the story.",
     **CAMPAIGN_EVENT_LINES,
     **QUEST_EVENT_LINES,
@@ -180,6 +192,9 @@ def event_lines(state: GameState, events: Sequence[ev.AnyEvent]) -> list[str]:
 
 
 _NOTES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
+    we.KeepsakeGained: lambda s, e: (  # M31.1c V19: a keepsake hand-over is always told
+        f"Tell the {e.keepsake.name} reaching {_who(s, e.creature_id)} in this narration."
+    ),
     **CAMPAIGN_EVENT_NOTES,
     **QUEST_EVENT_NOTES,
     **IMPOSSIBLE_EVENT_NOTES,

@@ -146,9 +146,10 @@ async def test_batched_monster_turns_use_one_call(tmp_path: Path) -> None:
     for event in events:
         apply(state, event)
     turns = _check_events() * 3
-    client, fake = fake_client(tmp_path, [fake_text("The goblins surge. Blades flash.")])
+    # M31.1c: one goblin is in this fight, so the prose says "goblin" (FOE_COUNT, round 4 V17)
+    client, fake = fake_client(tmp_path, [fake_text("The goblin surges. Blades flash.")])
     stream = narrate_round_segment(state, turns, client)
-    assert await stream.collect() == "The goblins surge. Blades flash."
+    assert await stream.collect() == "The goblin surges. Blades flash."
     assert len(fake.requests) == 1 and stream.tone is NarrationTone.COMBAT
     assert "consecutive enemy turns" in str(fake.requests[0].messages[-1]["content"])
 

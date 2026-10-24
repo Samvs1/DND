@@ -232,8 +232,8 @@ def _asked_fact(state: GameState, e: QuestAsked) -> str:
     goal = (quest.objective or quest.title) if quest is not None else "a task"
     asks = "asks the party a favour: " if _is_favour(state, e.ask.quest_id) else "asks the party: "
     return (
-        f"{_giver(state, e)} {asks}{goal.rstrip('.')}. The players answer it"
-        " themselves (Accept or Not now); invent no other quest."
+        f"{_giver(state, e)} {asks}{goal.rstrip('.')}. The offer is waiting for the players'"
+        " answer (Accept or Not now): nobody has accepted or agreed yet; invent no other quest."
     )
 
 
@@ -266,6 +266,7 @@ QUEST_EVENT_NOTES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     QuestStepDone: lambda s, e: STEP_NOTE,
     QuestUpdated: _updated_note,
     QuestAsked: lambda s, e: FAVOUR_ASK_NOTE if _is_favour(s, e.ask.quest_id) else None,
+    KeepsakeGiven: lambda s, e: f"Tell this hand-over in the narration: {_given(s, e)}",
 }
 
 QUEST_TEMPLATE_LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {

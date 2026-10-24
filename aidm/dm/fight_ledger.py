@@ -14,6 +14,11 @@ events already applied to `state`:
 - M29.9c (round 3 T4): `saved` (id -> spell: a save against that spell succeeded), `fled` (ids
   that fled the fight, alive), `standing` (ids alive above 0 HP, in the fight, with no
   `down_conditions` condition: they may not be told fallen).
+- M31.1c (round 4 V17): `immune` (id -> the damage types it took nothing from, though rolled:
+  Acid Arrow on the acid-immune mimic), `grazed` (attackers whose MISSED attack still dealt
+  damage: half damage on a miss), `dodged` (ids that evaded something: the target of a missed
+  attack, or a save that took no harm), `kinds` (each foe kind's head noun -> how many of it the
+  fight holds, dead or alive, with the present NPCs whose name or role holds that word).
 Generic foe words (lexicon `foe_words`: "creature", "corpse") mean every foe.
 `FightLedger()` (empty `terms`) switches the per-creature checks off.
 
@@ -22,6 +27,7 @@ Public API: `FightLedger`, `fight_ledger(state, events) -> FightLedger`,
 """
 
 import re
+from collections import Counter
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 
@@ -53,6 +59,10 @@ class FightLedger:
     saved: dict[str, str] = field(default_factory=dict[str, str])  # id -> spell id
     fled: frozenset[str] = frozenset()
     standing: frozenset[str] = frozenset()
+    immune: dict[str, str] = field(default_factory=dict[str, str])
+    grazed: frozenset[str] = frozenset()
+    dodged: frozenset[str] = frozenset()
+    kinds: dict[str, int] = field(default_factory=dict[str, int])
 
     @property
     def active(self) -> bool:
@@ -180,6 +190,48 @@ def _standing(fighters: list[Creature], fled: set[str], lex: GuardLexicon) -> fr
     )
 
 
+def _immune(events: Sequence[ev.AnyEvent]) -> dict[str, str]:
+    out: dict[str, str] = {}
+    for e in events:
+        if isinstance(e, ev.DamageTaken) and e.hp_lost == 0 and e.temp_absorbed == 0:
+            types = [p.damage_type.value for p in e.parts if p.rolled > 0 and p.taken == 0]
+            if types:
+                out[e.creature_id] = ", ".join(dict.fromkeys(types))
+    return out
+
+
+def _misses(events: Sequence[ev.AnyEvent], saved: dict[str, str], struck: set[str]):
+    """(grazed attackers, dodging targets): a miss that still dealt damage, and who evaded."""
+    grazed: set[str] = set()
+    dodged = {cid for cid in saved if cid not in struck}
+    missed: dict[str, str] = {}  # attacker -> target of its last missed attack
+    for e in events:
+        if isinstance(e, AttackRolled):
+            missed.pop(e.attacker_id, None)
+            if not e.hit:
+                missed[e.attacker_id] = e.target_id
+                dodged.add(e.target_id)
+        elif isinstance(e, ev.DamageTaken) and e.source_id in missed and e.hp_lost > 0:
+            grazed.add(e.source_id)
+    return frozenset(grazed), frozenset(dodged)
+
+
+def _head(creature: Creature) -> str:
+    kind = (creature.monster_index or creature.name).replace("-", " ").casefold()
+    return kind.split()[-1] if kind.split() else ""
+
+
+def _kinds(state: GameState, fighters: list[Creature]) -> dict[str, int]:
+    heads = Counter(_head(c) for c in fighters if c.pc is None)
+    node = state.world.current_node
+    for npc in state.world.npcs.values():
+        if npc.node_id == node and not npc.dead:
+            words = set(re.findall(r"[a-z]+", f"{npc.name} {npc.role}".casefold()))
+            for head in words & set(heads):
+                heads[head] += 1
+    return {head: n for head, n in heads.items() if len(head) >= _MIN_WORD - 1}
+
+
 def fight_ledger(state: GameState, events: Sequence[ev.AnyEvent]) -> FightLedger:
     lex = guard_lexicon()
     fighters = _fighters(state, events)
@@ -188,6 +240,8 @@ def fight_ledger(state: GameState, events: Sequence[ev.AnyEvent]) -> FightLedger
     acted, hit, missed = _blows(events)
     struck, downed, killers = _falls(events)
     fled = _fled(state, events)
+    saved = _saves(events)
+    grazed, dodged = _misses(events, saved, struck)
     return FightLedger(
         acted=frozenset(acted),
         struck=frozenset(struck),
@@ -199,9 +253,13 @@ def fight_ledger(state: GameState, events: Sequence[ev.AnyEvent]) -> FightLedger
         terms=_terms(fighters, lex),
         foes=frozenset(c.id for c in fighters if c.pc is None),
         names={c.id: c.name for c in fighters},
-        saved=_saves(events),
+        saved=saved,
         fled=frozenset(fled),
         standing=_standing(fighters, fled, lex),
+        immune=_immune(events),
+        grazed=grazed,
+        dodged=dodged,
+        kinds=_kinds(state, fighters),
     )
 
 
@@ -216,6 +274,8 @@ def fight_lines(state: GameState, ledger: FightLedger, events: Sequence[ev.AnyEv
     for e in events:
         if isinstance(e, AttackRolled):
             outcome = "hit" if e.hit else "missed"
+            if not e.hit and e.attacker_id in ledger.grazed and e.target_id in ledger.struck:
+                outcome = "missed, but the miss still dealt half damage: the target is hurt"
             line = f"{_name(state, e.attacker_id)}: {attack_label(e.attack)} at"
             out.append(f"{line} {_name(state, e.target_id)}, {outcome}")
         elif isinstance(e, SpellCast):
@@ -224,6 +284,10 @@ def fight_lines(state: GameState, ledger: FightLedger, events: Sequence[ev.AnyEv
     for cid, spell in sorted(ledger.saved.items()):
         harm = "partial harm only" if cid in ledger.struck else "no harm: not hit, not burned"
         out.append(f"{_name(state, cid)} saved against {spell.replace('-', ' ')}: {harm}")
+    out += [
+        f"{_name(state, cid)} is immune to {kinds}: it took no harm, no wound and no burn from it"
+        for cid, kinds in sorted(ledger.immune.items())
+    ]
     out += [
         f"{_name(state, e.creature_id)} fled the fight alive (not dead, not down)"
         for e in events

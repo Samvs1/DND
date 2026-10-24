@@ -52,8 +52,13 @@ def _weapon_facts(state: GameState, events: Sequence[ev.AnyEvent]) -> list[str]:
 
 
 def _hurt_facts(state: GameState, events: Sequence[ev.AnyEvent], fled: frozenset[str]) -> list[str]:
-    touched = list(
-        dict.fromkeys(e.creature_id for e in events if isinstance(e, ev.HpChanged | ev.DamageTaken))
+    touched = list(  # M31.1c V17: a hit that did no harm (immune) hurts nobody
+        dict.fromkeys(
+            e.creature_id
+            for e in events
+            if (isinstance(e, ev.HpChanged) and e.delta < 0)
+            or (isinstance(e, ev.DamageTaken) and e.hp_lost > 0)
+        )
     )
     alive = [state.creatures[c] for c in touched if c in state.creatures and c not in fled]
     standing = [c.name for c in alive if not c.dead and c.hp > 0]
@@ -85,7 +90,10 @@ def _foes_left(state: GameState) -> list[str]:
     if not names:
         return []
     told = ", ".join(counted(name, n, digits=True) for name, n in sorted(names.items()))
-    return [f"Foes still standing in this fight (each is up and fighting): {told}."]
+    return [  # M31.1c V17: exactly these; round 4 told "robed cultists" beside one cultist
+        f"Foes still standing in this fight (each is up and fighting): {told}; no other foe of"
+        " any kind is here."
+    ]
 
 
 def _actor_facts(state: GameState, truth: TurnTruth, events: Sequence[ev.AnyEvent]) -> list[str]:

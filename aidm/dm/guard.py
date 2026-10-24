@@ -22,6 +22,10 @@ and the current scene (`aidm.dm.guard_scene`):
   failed or undone against the events, an NPC told joining the party (`aidm.dm.guard_quests`).
 - M30.1: an action the engine ruled impossible told as working (`aidm.dm.guard_impossible`).
 - M30.2b: a spell told cast when the events cast no such spell (`aidm.dm.guard_cast`).
+- M31.1c: a found thing told taken, a gift told going to someone else, a waiting quest offer
+  told accepted (`aidm.dm.guard_deeds`); more foes of a kind than the fight holds, a hit told
+  as a miss, harm on an immune foe, a damaging miss told as a clean one (`guard_blows`,
+  `guard_counts`).
 Vocabulary is data (data/bg3/guard_lexicon.json); matching uses word boundaries and negation
 windows, so "unbroken" and "no hidden door" are not flagged.
 
@@ -45,6 +49,7 @@ from aidm.dm.guard_alive import downed_rising, living_declared_dead, unhurt_decl
 from aidm.dm.guard_blows import fight_truth
 from aidm.dm.guard_cast import untold_cast
 from aidm.dm.guard_claims import false_travel, invented_strangers, offer_blows, spoken_for
+from aidm.dm.guard_deeds import found_taken, quest_accepted, wrong_recipient
 from aidm.dm.guard_flow import MAX_SENTENCES, GuardedSentences
 from aidm.dm.guard_goods import claimed_items, unlit_light, unmade_handover, unpaid_coin
 from aidm.dm.guard_impossible import told_possible
@@ -158,6 +163,9 @@ def _round_two(sentence: str, tokens: list[Token], scene: GuardScene) -> list[Vi
         *joined_party(sentence, tokens, scene),
         *told_possible(sentence, tokens, scene.turn.impossible, scene.lexicon),
         *untold_cast(sentence, tokens, scene.turn.cast, scene.lexicon),
+        *found_taken(sentence, tokens, scene),
+        *wrong_recipient(sentence, tokens, scene),
+        *quest_accepted(sentence, tokens, scene),
     ]
 
 

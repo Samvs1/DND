@@ -389,7 +389,8 @@
     "skips off", "goes wide", "went wide", "sails wide", "skitters wide", "flies wide", "goes astray",
     "glances off", "misses", "missed", "clatters off", "shatters against", "only fans", "fans her hair",
     "fans his hair", "whistles past", "rips past", "hisses past", "vanishes into", "snaps a dry reed",
-    "scrapes the stone", "falls short"
+    "scrapes the stone", "falls short",
+    "hisses wide", "streaks wide", "spatters against", "splashes against"
   ],
   "attack_nouns": [
     "bolt", "bolts", "arrow", "arrows", "shaft", "shafts", "quarrel", "shot", "stone", "bullet",
@@ -455,9 +456,7 @@
     "swings its fist", "fists landing", "fists crash into", "tries to hit", "nearly hits",
     "almost hits", "nearly catches", "barely misses",
     "drives its", "swipes at", "swipes blindly at", "swipes wildly at", "swiping at",
-    "feints toward", "feints at", "feinting toward", "claws raking", "raking toward",
-    "rakes toward", "snap toward", "snaps toward", "snapping toward", "driving you back",
-    "drives you back", "slashes a", "slashes at", "catch only", "catches only"
+    "driving you back", "drives you back", "slashes a", "slashes at", "catch only", "catches only"
   ],
   "harm_claims": [
     "scorching", "scorches", "scorch", "chars", "charring", "sears", "blisters", "blistering",
@@ -560,7 +559,7 @@
     "springs aside", "barely missed", "untouched by", "unharmed by", "unscathed"
   ],
   "partial_harm_claims": [
-    "still", "splash", "splashes", "spatters across", "spattering across", "burns", "burning",
+    "still", "splashes over", "splashes across", "spatters across", "spattering across", "burns", "burning",
     "stings", "stinging", "sears", "searing", "scalds", "catches", "clips", "grazes", "half"
   ],
   "keep_claims": [
@@ -591,5 +590,13 @@
   "ally_defeat_skips": [
     "fell silent", "fell quiet", "fell still", "fell asleep", "fell away", "fell into step",
     "fell in beside", "fell in with", "fell back", "fell to the party", "fell to you", "fell from"
+  ],
+  "aimed_claims": [
+    "feints toward", "feints at", "feinting toward", "snap toward", "snaps toward",
+    "snapping toward", "raking toward", "rakes toward"
+  ],
+  "accept_hedges": [
+    "whether", "if", "would", "could", "might", "may", "until", "unless", "yet to", "decide",
+    "still yours", "waits for", "waiting for", "before you"
   ]
 }
