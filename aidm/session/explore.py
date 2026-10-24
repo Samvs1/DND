@@ -25,24 +25,19 @@ adjudicator); in a fight a typed put-out or light is `gear_actions.fight_gear`. 
 feature or heal in a fight is the hotbar's command (`dm.fight_intent`). M30.0b: typed lines in
 and out of a fight go through the one router (`dm.intent_router`).
 
-Public API: `submit_action`, `kick_resolver`, `resolve_next`, `resolve_action`,
-`adjudicated`, `confirm_hostile`, `cancel_hostile`, `inventory_text`.
+M31.1a: the storyteller's turn, the held acts and their confirm / cancel are `session.held`; a
+typed line in a fight is `session.fight_text`.
+
+Public API: `submit_action`, `kick_resolver`, `resolve_next`, `resolve_action`, `inventory_text`.
 """
 
-from collections.abc import Sequence
-
-from aidm.dm.adjudicator import AdjudicationOptions, AdjudicationResult, adjudicate
-from aidm.dm.attack_intent import DrawAttack
 from aidm.dm.cast_intent import CastIntent
 from aidm.dm.equip_intent import ItemIntent
-from aidm.dm.fight_intent import FightCommand
 from aidm.dm.give_intent import GiveIntent
 from aidm.dm.hand_intent import HeroHandIntent
 from aidm.dm.heal_intent import HealIntent
 from aidm.dm.help_intent import HelpUpIntent
-from aidm.dm.intent_router import fight_intent
 from aidm.dm.lift_intent import LiftIntent
-from aidm.dm.llm_types import ToolCall
 from aidm.dm.parley_intent import ParleyIntent
 from aidm.dm.pay_intent import PayIntent
 from aidm.dm.precheck import (
@@ -57,13 +52,8 @@ from aidm.dm.precheck import (
     asks_what_now,
     precheck,
 )
-from aidm.dm.surrender_intent import SurrenderIntent
-from aidm.dm.tool_context import ToolContext
-from aidm.dm.tool_exec import execute_tool
 from aidm.dm.use_intent import UseIntent
 from aidm.models.campaign_state import OfferChoice
-from aidm.models.commands import DashCommand, MoveCommand
-from aidm.models.events import AnyEvent
 from aidm.models.protocol_client import AnswerOffer, SubmitAction
 from aidm.models.protocol_server import (
     ErrorCode,
@@ -73,9 +63,8 @@ from aidm.models.protocol_server import (
 from aidm.models.protocol_views import QueueEntry, TablePhase, VoteKind
 from aidm.models.state import Creature
 from aidm.rules.scene import node_display_name
-from aidm.rules.turns import EconomyRefused, spend_action
 from aidm.session import (
-    combat_flow,
+    fight_text,
     gear_actions,
     hand_over,
     heal_actions,
@@ -84,14 +73,9 @@ from aidm.session import (
     what_now,
 )
 from aidm.session.declared import declare
-from aidm.session.opening import strike_if_opening
-from aidm.session.quest_people import CROSS_STAY, hold
-from aidm.session.surrender_turn import ACTION_SPENT, surrender_turn
+from aidm.session.held import adjudicated
 from aidm.session.table_core import Job, Player, TableCore
 from aidm.session.telling import conclude, remember, tell_text
-
-HOLD = "{name} stands on the brink of violence. {why}"  # M29.5c G11: the reason, too
-STAY_HAND = "You stay your hand, and the moment passes without bloodshed."
 
 
 def submit_action(core: TableCore, player: Player, msg: SubmitAction) -> None:
@@ -113,7 +97,7 @@ def submit_action(core: TableCore, player: Player, msg: SubmitAction) -> None:
     if core.pending is not None and core.pending.player_id == player.id:
         core.pending = None  # a new action answers the open "Are you sure?" with no (M15.1)
     if core.combat_active():
-        _combat_text(core, player, pc, msg.text)
+        fight_text.combat_text(core, player, pc, msg.text)
         return
     if any(e.player_id == player.id for e in core.queue):
         core.error(player.id, ErrorCode.ALREADY_QUEUED, "Your next action is already waiting.")
@@ -121,92 +105,6 @@ def submit_action(core: TableCore, player: Player, msg: SubmitAction) -> None:
     core.queue.append(QueueEntry(player_id=player.id, creature_id=pc.id, text=msg.text))
     core.broadcast_queue()
     kick_resolver(core)
-
-
-def _combat_text(core: TableCore, player: Player, pc: Creature, text: str) -> None:
-    entry = QueueEntry(player_id=player.id, creature_id=pc.id, text=text)
-    if gear_actions.fight_gear(core, player, entry):  # M27.5: put out (free) or light (bonus)
-        return
-    enc = core.state.encounter
-    if enc is None or enc.active_id() != pc.id or core.turn_key is None:
-        core.error(player.id, ErrorCode.NOT_YOUR_TURN, "It is not your turn.")
-        return
-    found = fight_intent(core.state, pc.id, text)  # M30.0b: the one router's fight rows
-    if isinstance(found, list):  # M19.4: "I move to the ravine" moves (no action spent)
-        moves = found
-        core.schedule(lambda: _typed_move(core, player, entry, moves))
-        return
-    if isinstance(found, SurrenderIntent):  # M29.9a T12: one engine check, not a story roll
-        demand = found
-        core.schedule(lambda: surrender_turn(core, player, entry, demand))
-        return
-    if found is not None:  # M29.5b: "I use Second Wind", "I drink my potion": the hotbar's way
-        command = found
-        core.schedule(lambda: _typed_command(core, player, entry, command))
-        return
-    if not _action_left(core, pc.id):
-        core.error(player.id, ErrorCode.REFUSED, ACTION_SPENT)
-        return
-
-    async def job() -> None:
-        now = core.state.encounter
-        if now is None or now.active_id() != pc.id or core.turn_key is None:
-            core.error(player.id, ErrorCode.NOT_YOUR_TURN, "It is not your turn.")
-            return
-        if not _action_left(core, pc.id):
-            core.error(player.id, ErrorCode.REFUSED, ACTION_SPENT)
-            return
-        await combat_flow.tell_segment(core)
-        declare(core, entry)
-        result = await adjudicated(core, entry, creative=True)
-        if result.spends_action:  # M30.1: an impossible verdict alone is free
-            _spend_action(core, pc.id)
-        core.segment = []
-        await combat_flow.after_player_step(core, pc.id)
-
-    core.schedule(job)
-
-
-async def _typed_command(
-    core: TableCore, player: Player, entry: QueueEntry, command: FightCommand | DrawAttack
-) -> None:
-    """A typed feature or heal runs as the hotbar command (a refusal says the rules' reason)."""
-    declare(core, entry)
-    if isinstance(command, DrawAttack):  # M30.0b T9: the free draw of a stowed weapon first
-        if not gear_actions.draw_weapon(core, player, command):
-            return
-        command = command.attack
-    await combat_flow.player_command(core, player, command)
-
-
-async def _typed_move(
-    core: TableCore, player: Player, entry: QueueEntry, moves: list[MoveCommand | DashCommand]
-) -> None:
-    """The commands the phone's Move list sends; a refusal is answered the same way."""
-    creature_id = entry.creature_id
-    declare(core, entry)
-    for command in moves:
-        await combat_flow.player_command(core, player, command)
-    goal = next((m.zone_id for m in moves if isinstance(m, MoveCommand)), None)
-    enc = core.state.encounter
-    here = enc.combatants.get(creature_id) if enc is not None else None
-    if enc is not None and here is not None and here.zone_id == goal:
-        zone = next(z.name for z in enc.zone_map.zones if z.id == goal)
-        core.notice(player.id, NoticeKind.INFO, f"You move to {zone}.")
-
-
-def _action_left(core: TableCore, creature_id: str) -> bool:
-    """A creative action costs the hero's action (SPEC 6.1; DECISIONS M9.5 QA-01)."""
-    enc = core.state.encounter
-    combatant = enc.combatants.get(creature_id) if enc is not None else None
-    return combatant is not None and combatant.economy.action
-
-
-def _spend_action(core: TableCore, creature_id: str) -> None:
-    try:
-        core.apply_all(spend_action(core.state, creature_id, reason="creative action"))
-    except EconomyRefused:
-        return  # the effect ended the fight or the hero's turn: nothing left to spend
 
 
 def kick_resolver(core: TableCore) -> None:
@@ -313,78 +211,6 @@ def _shop_intent(core: TableCore, player: Player, entry: QueueEntry, intent: Sho
 def _propose(core: TableCore, player: Player, kind: VoteKind, detail: str, job: Job) -> None:
     if votes.open_vote(core, kind, detail, player, job):
         core.notice(None, NoticeKind.INFO, f"{player.name} proposes to {detail}.")
-
-
-async def adjudicated(
-    core: TableCore,
-    entry: QueueEntry,
-    *,
-    creative: bool = False,
-    prior: Sequence[AnyEvent] = (),
-) -> AdjudicationResult:
-    result = await adjudicate(
-        core.state,
-        entry.creature_id,
-        entry.text,
-        core.llm,
-        AdjudicationOptions(creative_action=creative),
-        core.rng,
-        core.regs,
-        core.apply,
-    )
-    if result.pending is not None and result.pending_call is not None:
-        await _hold(core, entry, result.pending_call, result.pending.prompt)
-        return result
-    events = [*prior, *result.events]
-    for done in result.executed:  # M19.2: a fight opened with a weapon attack rolls it now
-        events += strike_if_opening(core, done.call, entry.creature_id, done.result.events)
-    events = await conclude(
-        core,
-        result,
-        events,
-        actor_id=entry.creature_id,
-        player_text=entry.text,
-    )
-    if not creative:
-        await combat_flow.after_resolution(core, events)
-    return result
-
-
-async def _hold(core: TableCore, entry: QueueEntry, call: ToolCall, prompt: str) -> None:
-    """A point-of-no-return act waits for its player (M15.1 playtest): the narrator never tells
-    it as done (one engine hold line instead), and the question goes out AFTER that line."""
-    if call.name != "move_party":  # M23.4: a crossing only asks, nothing violent is held
-        actor = core.state.creatures.get(entry.creature_id)
-        name = actor.name if actor is not None else "The hero"
-        await tell_text(core, HOLD.format(name=name, why=prompt).strip())
-    hold(core, entry.player_id, entry.creature_id, call, prompt)
-
-
-async def confirm_hostile(core: TableCore, player: Player) -> None:
-    pending = core.pending
-    if pending is None or pending.player_id != player.id:
-        core.error(player.id, ErrorCode.REFUSED, "Nothing is waiting for your confirmation.")
-        return
-    core.pending = None
-    ctx = ToolContext(actor_id=pending.actor_id, confirm_hostile=True)
-    result = execute_tool(core.state, pending.call, ctx, core.rng, core.regs)
-    if not result.ok:
-        core.notice(player.id, NoticeKind.REFUSED, "The moment has passed.")
-        return
-    events = core.apply_all(list(result.events))
-    events += strike_if_opening(core, pending.call, pending.actor_id, events)
-    events = await conclude(core, None, events, actor_id=pending.actor_id)
-    await combat_flow.after_resolution(core, events)
-
-
-async def cancel_hostile(core: TableCore, player: Player) -> None:
-    pending = core.pending
-    if pending is None or pending.player_id != player.id:
-        core.error(player.id, ErrorCode.REFUSED, "Nothing is waiting for your confirmation.")
-        return
-    core.pending = None
-    line = CROSS_STAY if pending.call.name == "move_party" else STAY_HAND
-    await remember(core, await tell_text(core, line))
 
 
 def inventory_text(creature: Creature) -> str:

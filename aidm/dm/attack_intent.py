@@ -7,7 +7,10 @@ advantage, the weapon's own damage dice and the turn economy all apply (the rule
 their reason: out of reach, no attack left). The first of its forms that matches decides. Read
 forms (the hero's own name with a third-person verb reads the same):
 - "<verb> [at] <foe> [with my <weapon>]": attack, strike, hit, swing at, slash, stab, shoot ...;
-- "<verb> my <weapon> at/into <foe>": swing, thrust, drive, fire, loose ...
+- "<verb> my <weapon> at/into <foe>": swing, thrust, drive, fire, loose ...;
+- M31.1a V3: "<verb> an arrow at <foe> [with my <weapon>]" (loose, fire, shoot, let fly: the
+  ranged option), "jab <foe> in the ribs with my rapier" (a body part after the foe), and the
+  longest verb first ("cut down the spider" is "cut down", never "cut" at "down the spider").
 The foe is a living creature of the fight on another side whose name words fit the words said.
 The weapon is the attack option (`rules.attack_profiles.attack_options`) whose name words fit
 the weapon words; no weapon named: the ranged option for shoot / fire / loose (the lexicon's
@@ -72,7 +75,7 @@ def _weapon_fits(wanted: frozenset[str], name: str) -> bool:
     return _fits(wanted, name) or any(w in h for w in wanted for h in have if len(w) > 2)
 
 
-def _option(actor: Creature, weapon: str | None, verb: str | None) -> str | None:
+def _option(actor: Creature, weapon: str | None, verb: str | None, ranged: bool) -> str | None:
     options = attack_options(actor, combat_registries().chars)
     if weapon is not None:
         wanted = _words(weapon)
@@ -80,7 +83,7 @@ def _option(actor: Creature, weapon: str | None, verb: str | None) -> str | None
             return UNARMED_KEY
         named = [o for o in options if o.key != UNARMED_KEY and _weapon_fits(wanted, o.name)]
         return named[0].key if named else None
-    if verb in intent_phrases().lexicon["ranged_attack_verbs"]:
+    if ranged or verb in intent_phrases().lexicon["ranged_attack_verbs"]:
         return next((o.key for o in options if o.ranged), None)
     return "main_hand" if any(o.key == "main_hand" for o in options) else UNARMED_KEY
 
@@ -129,7 +132,7 @@ def attack(found: Found) -> AttackCommand | DrawAttack | None:
     if target is None:
         return None
     weapon = found.group("weapon")
-    option = _option(actor, weapon, found.group("verb"))
+    option = _option(actor, weapon, found.group("verb"), found.params.get("ranged") is True)
     if option is not None:
         return AttackCommand(actor_id=found.actor_id, target_id=target, option=option)
     drawn = _draw(actor, weapon) if weapon is not None else None

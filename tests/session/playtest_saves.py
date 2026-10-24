@@ -1,7 +1,8 @@
 """The M29 round 1 playtest saves as fixtures (owner rule: real saves stay as fixtures).
 
 tests/fixtures/saves/m29-<run>/ holds the run's `initial.json` and a gzipped prefix of its
-`events.jsonl` (live DeepSeek runs, docs/playtests/M29_round1.md). `replay_until(run, seq)`
+`events.jsonl` (live DeepSeek runs, docs/playtests/M29_round1.md). Later rounds keep their full
+folder name (`m31-r4-typed`, docs/playtests/M31_round4.md). `replay_until(run, seq)`
 replays every event before `seq` through the one reducer, so a test starts exactly where the
 playtester stood. `told_turn(run, seq)` rebuilds what the narration at `seq` was told about
 (M29.5c: the state, the turn's events, the typed action and the prose the live model wrote).
@@ -27,7 +28,7 @@ FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "saves"
 
 @cache
 def _log(run: str) -> tuple[GameState, tuple[LoggedEvent, ...]]:
-    folder = FIXTURES / f"m29-{run}"
+    folder = FIXTURES / run if run.startswith("m3") else FIXTURES / f"m29-{run}"
     initial = GameState.model_validate_json((folder / "initial.json").read_text("utf-8"))
     with gzip.open(folder / "events.jsonl.gz", "rt", encoding="utf-8") as raw:
         log = tuple(LoggedEvent.model_validate_json(line) for line in raw if line.strip())

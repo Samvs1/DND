@@ -359,6 +359,26 @@
       "tips",
       "use",
       "uses"
+    ],
+    "spell_name_vetoes": [
+      "about",
+      "ask",
+      "asks",
+      "describe",
+      "describes",
+      "explain",
+      "explains",
+      "if",
+      "know",
+      "knows",
+      "recall",
+      "recalls",
+      "regarding",
+      "remember",
+      "remembers",
+      "tell",
+      "tells",
+      "whether"
     ]
   },
   "patterns": {
@@ -1514,31 +1534,50 @@
       ],
       "patterns": [
         {
-          "re": "{verbs:verb} (?:the )?{foe:target}(?: with {mine} {foe:weapon})?",
+          "re": "{verbs:verb} (?:the )?{foe:target}(?: (?:in|on|across|at|through|into) (?:the|its|his|her|their) [a-z]+)?(?: with {mine} {foe:weapon})?",
           "verbs": [
-            "attack",
-            "strike",
+            "run through",
             "strike at",
-            "hit",
+            "thrust at",
             "swing at",
-            "slash",
             "slash at",
-            "stab",
-            "stab at",
-            "cut",
-            "cut at",
             "cut down",
+            "lunge at",
+            "shoot at",
+            "loose at",
+            "stab at",
             "hack at",
             "chop at",
-            "lunge at",
-            "thrust at",
-            "smash",
-            "bash",
-            "shoot",
-            "shoot at",
             "fire at",
-            "loose at"
+            "poke at",
+            "attack",
+            "strike",
+            "cut at",
+            "jab at",
+            "skewer",
+            "slash",
+            "smash",
+            "shoot",
+            "stab",
+            "bash",
+            "hit",
+            "cut",
+            "jab"
           ]
+        },
+        {
+          "re": "{verbs:verb} (?:an? |my |one |another )?(?:arrow|bolt|shot|quarrel|dart)s? (?:at|into|toward|towards|on) (?:the )?{foe:target}(?: with {mine} {foe:weapon})?",
+          "verbs": [
+            "let fly",
+            "launch",
+            "loose",
+            "shoot",
+            "fire",
+            "send"
+          ],
+          "params": {
+            "ranged": true
+          }
         },
         {
           "re": "{verbs:verb} {mine} {foe:weapon} (?:at|into|toward|towards|against|on|down on) (?:the )?{foe:target}",
@@ -1572,7 +1611,7 @@
           ]
         }
       ],
-      "note": "M29.7a R22: the hotbar's AttackCommand; M30.0b T9: 'bring my mace down on X', a stowed weapon carried is drawn"
+      "note": "M29.7a R22: the hotbar's AttackCommand; M30.0b T9: 'bring my mace down on X', a stowed weapon carried is drawn; M31.1a V3: longest verb first ('cut down' before 'cut'), 'jab X in the ribs', 'loose an arrow at X' (ranged)"
     },
     {
       "id": "feature",
@@ -1628,6 +1667,22 @@
       "has_words": [
         "heal_item_verbs"
       ]
+    },
+    {
+      "id": "fight_cast",
+      "scopes": [
+        "fight"
+      ],
+      "family": "fight_cast",
+      "precedence": 3320,
+      "resolver": "fight_cast",
+      "readings": [
+        "named_cut"
+      ],
+      "when": [
+        "in_fight"
+      ],
+      "note": "M31.1a V1: a ready spell or a targeted feature named (with or without a cast word), or any spell after a cast word: the hotbar's CastCommand / FeatureActionCommand; no valid target is a plain refusal"
     },
     {
       "id": "surrender_kind",

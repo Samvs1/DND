@@ -6,7 +6,8 @@ lookups and exports `RESOLVERS`) and routes a sentence through the phrase table
 (data/bg3/intent_phrases.json, read by `aidm.dm.intent_match`) for one scope:
 - `explore_intent` (scope `explore`, out of a fight: help up, parley, rests, look, inventory,
   lift, give, pay, hand, heal, cast, shop, travel, locked ways, equip, gear use, take);
-- `fight_intent` (scope `fight`: move, attack, feature, healing, surrender);
+- `fight_intent` (scope `fight`: move, attack, feature, healing, M31.1a casts of ready spells
+  and targeted features, surrender);
 - `ask_intent` (scope `ask`: "what now?", unless the line helps a downed hero up).
 Which intent wins is the rows' `precedence` field, never call order; the conditions a row
 needs are named in the table and evaluated in `aidm.dm.intent_conditions`.
@@ -19,6 +20,7 @@ from aidm.dm import (
     cast_intent,
     combat_intent,
     equip_intent,
+    fight_cast_intent,
     give_intent,
     hand_intent,
     heal_intent,
@@ -35,15 +37,17 @@ from aidm.dm import (
 )
 from aidm.dm.attack_intent import DrawAttack
 from aidm.dm.combat_intent import MoveCommands
+from aidm.dm.fight_cast_intent import RefusedIntent
 from aidm.dm.fight_intent import FightCommand
 from aidm.dm.intent_match import Resolver, route
 from aidm.dm.surrender_intent import SurrenderIntent
 from aidm.models.commands import AttackCommand, CastCommand, FeatureActionCommand, UseItemCommand
 from aidm.models.state import GameState
 
-type FightIntent = MoveCommands | FightCommand | DrawAttack | SurrenderIntent
+type FightIntent = MoveCommands | FightCommand | DrawAttack | SurrenderIntent | RefusedIntent
 _FIGHT = (
     list,
+    RefusedIntent,
     SurrenderIntent,
     DrawAttack,
     AttackCommand,
@@ -57,6 +61,7 @@ for _module in (
     cast_intent,
     combat_intent,
     equip_intent,
+    fight_cast_intent,
     fight_rows,
     give_intent,
     hand_intent,

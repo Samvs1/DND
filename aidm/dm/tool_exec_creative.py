@@ -11,11 +11,14 @@ M27.6: an effect that leans on gear (`item`, or the gear the player's words name
 `aidm.dm.creative_gear`: gear the hero lacks (or a keepsake) is refused and told as an attempt;
 carried gear thrown at a creature of the fight is THE item interpreter's use, a substance the
 target is weak to is THE weakness rule; otherwise the creative effect runs and the gear is kept.
+M31.1a V3: creative damage never stands in for a weapon attack: with a weapon, or a line that
+reads as a weapon attack, it is the engine's attack (`aidm.dm.creative_weapon`).
 
 Public API: `run_creative_effect(state, args, ctx, rng, regs) -> ToolResult`.
 """
 
 from aidm.dm.creative_gear import gear_outcome, leaned_gear
+from aidm.dm.creative_weapon import weapon_outcome
 from aidm.dm.tool_context import ToolContext, ToolRefused, ToolRegistries, ToolResult
 from aidm.dm.tool_exec_common import hostile_pending, npc_is_present, require_creature
 from aidm.dm.tool_exec_rewards import fight_npcs
@@ -175,6 +178,9 @@ def run_creative_effect(
     outcome = gear_outcome(state, args, gear, rng, regs) if gear is not None else None
     if outcome is not None:
         return outcome
+    blow = weapon_outcome(state, args, gear, ctx.player_text, rng, regs)  # M31.1a V3
+    if blow is not None:
+        return blow
     run: _Run = (state, args, rng, regs)
     kind = args.effect_kind
     if kind in _ZONE:
