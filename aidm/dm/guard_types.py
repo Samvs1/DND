@@ -7,7 +7,8 @@ Public API:
   UNHURT_WOUNDED, UNPAID, CLAIMED_ITEM, UNMADE_HANDOVER, UNLIT_LIGHT, PLACEHOLDER,
   INSTRUCTION_LEAK; M29.7b: PHANTOM_BLOW, PHANTOM_HIT, FALSE_MISS, WRONG_KILLER, LIGHT_STATE,
   SHORT_TRAVEL, UNMADE_PICKUP, WRONG_COUNT, HURT_TOLD_WHOLE, IDENTIFIER; M29.9c: FLED_TOLD_DEAD,
-  REFUSED_HANDOVER, UNMADE_OUTCOME, DENIED_OUTCOME, JOINED_PARTY;
+  REFUSED_HANDOVER, UNMADE_OUTCOME, DENIED_OUTCOME, JOINED_PARTY; M30.1 IMPOSSIBLE_DONE;
+  M30.2b UNCAST_SPELL;
   `SCRUBBED_KINDS` (names removed from a retry).
 - `Violation(kind, span, detail)`: `span` is the offending text as written (a name, a phrase).
 - `GuardReport(violations)`: `ok`, `scrub_terms` (distinct offending names, removed from the
@@ -66,6 +67,7 @@ class ViolationKind(StrEnum):
     DENIED_OUTCOME = "denied_outcome"
     JOINED_PARTY = "joined_party"
     IMPOSSIBLE_DONE = "impossible_done"  # M30.1: an impossible action told as working
+    UNCAST_SPELL = "uncast_spell"  # M30.2b: a spell told cast that the engine never cast
 
 
 SCRUBBED_KINDS = frozenset({ViolationKind.UNKNOWN_NAME, ViolationKind.ABSENT_NPC})

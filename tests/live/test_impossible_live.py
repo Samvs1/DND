@@ -7,8 +7,8 @@ path (`aidm.dm.adjudicator.adjudicate`, THE one context builder, THE one LLM cli
 - "jump straight up onto the roof in one leap" (fighter): `ActionImpossible`, no dice;
 - "climb the sheer wall to the roof" (fighter, hard but possible): a check or another resolution,
   never impossible;
-- "cast misty step to reach the roof" (wizard with Misty Step prepared): resolved, never
-  impossible (a spell the hero has makes it possible).
+- "cast misty step to reach the roof" (wizard with Misty Step prepared): never impossible, and
+  (M30.2b) cast by the engine on the real table, the 2nd-level slot spent; the model narrates.
 
 Assertions are on engine events only. Spend stays small: one adjudication per case, no retries.
 Each case records one ASCII line through `live_say`: the model's tool calls (name and full
@@ -30,11 +30,14 @@ from aidm.dm.llm_factory import make_llm_client
 from aidm.dm.llm_settings import llm_settings_from_env
 from aidm.dm.llm_types import LlmMode
 from aidm.dm.tool_context import ToolContext
-from aidm.models.events import CheckResolved, DiceRolled
+from aidm.models.combat_events import SpellCast
+from aidm.models.events import CheckResolved, DiceRolled, ResourceSet
 from aidm.models.impossible import ActionImpossible
+from aidm.models.protocol_client import SubmitAction
 from aidm.models.state import GameState
 from aidm.session.reducer import apply
 from tests.ai.tool_fixtures import REGS, apply_result, run_tool
+from tests.session.table_fixtures import join, running
 from tests.sim.sim_setup import build_party
 from tests.unit.rules.item_fixtures import DOCKS, at
 
@@ -144,6 +147,18 @@ async def test_live_m30_hard_climb_is_a_check(client: LlmClient, live_say: Say) 
 
 
 async def test_live_m30_misty_step_is_possible(client: LlmClient, live_say: Say) -> None:
-    result = await _probe(client, live_say, "blink", "wizard", BLINK)
-    assert not result.fallback
-    assert not any(isinstance(e, ActionImpossible) for e in result.events)
+    """M30.2b: the typed cast goes through the engine on the real table before the model (the
+    first probe got `no_mechanics`: a free spell); the live model only narrates the cast."""
+    state = _warehouse()
+    before = len(_log_lines())
+    async with running(client, state) as (table, _):
+        seat = await join(table, "Ann", "wizard")
+        start = table.state.event_count
+        seat.send(SubmitAction(text=BLINK))
+        await table.settle()
+        events = [e.event for e in table.log if e.seq >= start]
+    kinds = sorted({e.type for e in events})
+    live_say(f"LIVE m30 blink: events={kinds} {_spend(_log_lines()[before:])}")
+    assert [e.spell_id for e in events if isinstance(e, SpellCast)] == ["misty-step"]
+    assert any(isinstance(e, ResourceSet) and e.key == "spell-slot-2" for e in events)
+    assert not any(isinstance(e, ActionImpossible) for e in events)

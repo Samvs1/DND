@@ -8,7 +8,8 @@ not on the sheet, no slot or a bad target is refused before any event). The even
 the storyteller tells them (`telling.conclude`). A refusal is told as the plain engine reason
 (`tell_text`): never a heal that did not happen. M30.0b T7: a `CastIntent` (any other typed spell
 out of a fight, `dm.cast_intent`) is cast the same way: the same sheet, slot and target checks
-of `cast_spell`.
+of `cast_spell`. M30.2b: a `CastIntent` at the scene (a spell aimed at no creature) is cast
+through `rules.spells.scene_cast`: the same checks, the slot spent, nothing moved or covered.
 
 Public API: `heal_intent(core, player, intent)` (a `HealIntent` or a `CastIntent`).
 """
@@ -18,7 +19,7 @@ from aidm.dm.heal_intent import HealIntent
 from aidm.models.events import AnyEvent
 from aidm.rules.command_checks import CommandRefused
 from aidm.rules.items import use_item_events
-from aidm.rules.spells import cast_spell
+from aidm.rules.spells import cast_spell, scene_cast
 from aidm.session.table_core import Player, TableCore
 from aidm.session.telling import conclude, remember, tell_text
 
@@ -38,6 +39,8 @@ def _events(core: TableCore, intent: HealIntent) -> list[AnyEvent]:
 def _cast_events(core: TableCore, intent: CastIntent) -> list[AnyEvent]:
     regs = core.regs.combat
     spell = regs.spells.get(intent.spell)
+    if intent.at_scene:
+        return scene_cast(core.state, intent.actor_id, spell, regs)
     return cast_spell(
         core.state, intent.actor_id, spell, None, intent.target_ids, None, core.rng, regs
     )

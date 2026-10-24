@@ -22,6 +22,8 @@ Public API:
   and an aimed self `shape` (M29.7d: cone, line, cube) also reaches a neighbouring zone whose
   edge is no longer than the shape (Burning Hands 15 ft over a 15-ft edge, Fear 30 ft over 25).
 - `needs_battlefield(spell) -> bool`: the spell cannot resolve outside a fight (below).
+- `strikes_creatures(spell) -> bool` (M30.2b): a hostile spell, one with an attack roll, a save,
+  damage or an HP pool (Sleep) at its top level: aimed at someone it is an attack.
 - `area_creatures(state, zone_id, area, exclude) -> tuple[str, ...]`: living, present
   combatants in the zone (and its neighbours for "zone_and_adjacent").
 - `SpellTargets(instances, zone, chosen)`; `resolve_targets(state, caster_id, spell, cast_level,
@@ -45,6 +47,7 @@ from aidm.data.spell_defs import (
     AttackRollEffect,
     DamageEffect,
     Effect,
+    HpPoolEffect,
     SaveEffect,
     SpellDef,
     Targeting,
@@ -184,6 +187,11 @@ def needs_battlefield(spell: SpellDef) -> bool:
     """Outside a fight this spell is refused by `resolve_targets` (an attack, a save, damage, an
     area or a point: M27.7 reads it as an attack when aimed at someone)."""
     return spell.targeting.kind in ("area", "point") or _needs_fight(spell.effects)
+
+
+def strikes_creatures(spell: SpellDef) -> bool:
+    """A hostile spell: an attack roll, a save, damage or an HP pool among its effects."""
+    return _needs_fight(spell.effects) or any(isinstance(e, HpPoolEffect) for e in spell.effects)
 
 
 def spell_can_affect(creature: Creature, targeting: Targeting) -> bool:

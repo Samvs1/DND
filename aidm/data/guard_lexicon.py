@@ -116,6 +116,10 @@ class GuardLexicon(BaseModel):
     impossible_claims: frozenset[str] = frozenset()
     impossible_hedges: frozenset[str] = frozenset()
     impossible_skips: frozenset[str] = frozenset()
+    # M30.2b: a spell told cast with no cast event (aidm.dm.guard_cast)
+    cast_verbs: frozenset[str] = frozenset()
+    cast_hedges: frozenset[str] = frozenset()
+    cast_gap_stops: frozenset[str] = frozenset()
 
     @model_validator(mode="after")
     def _check(self) -> GuardLexicon:

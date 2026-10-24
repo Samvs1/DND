@@ -26,6 +26,13 @@ innate per-day uses, at-will innate spells free; a spell outside the kit is not 
 Public API:
 - `cast_spell(state, caster_id, spell, slot_level, target_ids, target_zone, rng, regs) ->
   list[AnyEvent]` (no economy; usable outside a fight for non-attack, non-area spells).
+- `scene_cast(state, caster_id, spell, regs) -> list[AnyEvent]` (M30.2b): out of a fight, a
+  spell aimed at no creature (a point or area spell, or a hostile spell with no one to strike):
+  the same caster, readiness, verbal and slot checks as `cast_spell`, then the paying events
+  and one `SpellCast(at_scene=True)`. Nothing else is recorded: outside a fight there is no zone
+  to move into or cover and no combatant to strike, so a teleport moves nobody between places
+  (travel stays travel), a surface lies nowhere, and no concentration starts or ends (there is
+  nothing to hold; docs/RULES_DECISIONS.md M30.2b).
 - `scroll_cast(state, reader_id, spell, numbers, (target_ids, target_zone), rng, regs)` (M27.7):
   a spell read from a scroll with the scroll's numbers at the spell's own level, no slot
   (`aidm.rules.scroll_read`).
@@ -188,6 +195,21 @@ def cast_spell(
     cast_level, paid = cast_slot(caster, spell, slot_level, numbers.resource)
     plan = (numbers, cast_level, char_level, paid)
     return _resolve_cast(state, caster_id, spell, plan, (target_ids, target_zone), rng, regs)
+
+
+def scene_cast(
+    state: GameState, caster_id: str, spell: SpellDef, regs: CombatRegistries
+) -> list[AnyEvent]:
+    enc = state.encounter
+    if enc is not None and enc.status is EncounterStatus.ACTIVE and caster_id in enc.combatants:
+        raise CommandRefused(RefusalCode.CANNOT_ACT, "In a fight, cast it from your spells.")
+    caster = _caster(state, caster_id, spell, regs)
+    numbers, _ = _numbers(caster, spell, regs)
+    cast_level, paid = cast_slot(caster, spell, None, numbers.resource)
+    cast = SpellCast(
+        caster_id=caster_id, spell_id=spell.index, cast_level=cast_level, at_scene=True
+    )
+    return [*paid, cast]
 
 
 def scroll_cast(

@@ -514,5 +514,21 @@
     "i", "i'll", "i'm", "you", "we", "he", "she", "they", "my", "to", "try", "tries", "attempt",
     "attempts", "want", "wants", "will", "would", "just", "then", "and", "now", "quickly",
     "simply", "carefully", "boldly", "the", "a", "an", "hero", "let", "me"
+  ],
+  "cast_verbs": [
+    "cast", "casts", "casting", "recast", "recasts", "invoke", "invokes", "invoking", "invoked",
+    "intone", "intones", "intoned", "intoning", "conjure", "conjures", "conjured", "conjuring",
+    "weave", "weaves", "wove", "weaving"
+  ],
+  "cast_hedges": [
+    "try to", "tries to", "tried to", "trying to", "attempt to", "attempts to", "prepare to",
+    "prepares to", "preparing to", "begin to", "begins to", "about to", "ready to", "readies",
+    "would", "could", "cannot", "can't", "could not", "couldn't", "fails to", "failed to",
+    "want to", "wants to", "means to", "intend to", "intends to", "no slot", "not ready",
+    "if you", "if she", "if he", "if they", "if i", "unless", "before you", "instead of"
+  ],
+  "cast_gap_stops": [
+    "on", "upon", "over", "across", "into", "onto", "through", "at", "in", "from", "by", "off",
+    "about", "around", "along", "against", "toward", "towards", "under", "behind", "like", "as"
   ]
 }

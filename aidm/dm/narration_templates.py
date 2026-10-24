@@ -19,6 +19,7 @@ from collections.abc import Callable, Sequence
 from typing import Any
 
 from aidm.dm.campaign_text import CAMPAIGN_TEMPLATE_LINES
+from aidm.dm.cast_text import CAST_TEMPLATE_LINES
 from aidm.dm.condition_text import applied_line, group_line, removed_line
 from aidm.dm.entities import display_name
 from aidm.dm.impossible_text import IMPOSSIBLE_TEMPLATE_LINES
@@ -32,7 +33,6 @@ from aidm.models.combat_events import (
     CreatureRevived,
     FeatureUsed,
     MonsterActionUsed,
-    SpellCast,
 )
 from aidm.models.encounter import EncounterStatus, WithdrawReason
 from aidm.models.encounter_events import CombatantWithdrew, EncounterEnded, EncounterStarted
@@ -153,7 +153,6 @@ _LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     ev.CreatureDied: lambda s, e: f"{_who(s, e.creature_id)} falls and does not rise again.",
     ev.Stabilized: lambda s, e: f"{_who(s, e.creature_id)} steadies, no longer slipping away.",
     CreatureRevived: lambda s, e: f"{_who(s, e.creature_id)} gasps back to life.",
-    SpellCast: lambda s, e: f"{_who(s, e.caster_id)} casts {display_name(e.spell_id)}.",
     MonsterActionUsed: lambda s, e: f"{_who(s, e.creature_id)} unleashes {e.name}.",
     FeatureUsed: lambda s, e: f"{_who(s, e.creature_id)} uses {e.name}.",
     CombatantMoved: _moved,
@@ -182,6 +181,7 @@ _LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     **CAMPAIGN_TEMPLATE_LINES,
     **QUEST_TEMPLATE_LINES,
     **IMPOSSIBLE_TEMPLATE_LINES,
+    **CAST_TEMPLATE_LINES,
 }
 
 

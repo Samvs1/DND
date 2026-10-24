@@ -9,8 +9,10 @@ Public API:
 - `CombatantMoved(creature_id, from_zone, to_zone, path, feet, reason)`: the combatant now
   stands in `to_zone` ("move", "jump", "shoved"); `path` lists the zones from start to goal and
   `feet` the movement it cost (0 when pushed). Applied by `aidm.session.encounter_apply`.
-- `SpellCast(caster_id, spell_id, cast_level, target_ids, target_zone)`: a spell was cast (log
-  only; the slot, effects and concentration events follow). `cast_level` 0 for a cantrip.
+- `SpellCast(caster_id, spell_id, cast_level, target_ids, target_zone, at_scene)`: a spell was
+  cast (log only; the slot, effects and concentration events follow). `cast_level` 0 for a
+  cantrip. `at_scene` (M30.2b): cast outside a fight at no creature and no zone (a point or area
+  spell, or a hostile one with no one to strike): the slot is spent and nothing else happens.
 - `ZoneSurfaceAdded(zone_id, surface)`: a surface now lies in the zone, replacing one of the same
   kind (its effects: `aidm.rules.surfaces`).
 - `ZoneSurfaceRemoved(zone_id, kind, reason)`: the surface of that kind is gone from the zone.
@@ -67,6 +69,7 @@ class SpellCast(_CombatEvent):
     cast_level: int = Field(default=0, ge=0, le=9)
     target_ids: tuple[str, ...] = ()
     target_zone: str | None = None
+    at_scene: bool = False
 
 
 class ZoneSurfaceAdded(_CombatEvent):

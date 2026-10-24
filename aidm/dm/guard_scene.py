@@ -1,7 +1,8 @@
 """What the prose guard knows about the scene, computed once per narration (SPEC 6.5).
 
 `guard_scene(state, events)` freezes the facts every check needs: the known name words (the entity
-registry, `aidm.dm.entities`), who is present, who is dead, which absent NPCs exist, the party's
+registry, `aidm.dm.entities`; M30.2b: the heroes' ready spells and the spells cast, `guard_cast`),
+who is present, who is dead, which absent NPCs exist, the party's
 names and classes, the nouns of items the party may not see destroyed, and the words of the features
 and description of the current place, and the keys of every unrevealed NPC secret
 (`aidm.dm.guard_secrets`), the names of the living (`aidm.dm.guard_alive`) and whether the events
@@ -20,6 +21,7 @@ from dataclasses import dataclass, field
 from aidm.data.guard_lexicon import GuardLexicon, guard_lexicon
 from aidm.dm.entities import display_name, entity_registry
 from aidm.dm.guard_alive import downed_terms, living_terms, standing_terms
+from aidm.dm.guard_cast import known_spells
 from aidm.dm.guard_people import people_facts
 from aidm.dm.guard_rewards import rewarded
 from aidm.dm.guard_secrets import SecretKey, secret_keys
@@ -168,6 +170,7 @@ def guard_scene(
     present_roles = _role_words(state, present_ids) | words_of(" ".join(monsters))
     known = set().union(*(words_of(n) for n in reg.all_names - reg.hidden_features))
     known |= set().union(*(words_of(n) for n in _carried(state)))  # M29.5c G22: keepsakes too
+    known |= set().union(*(words_of(n) for n in known_spells(state, events)))  # M30.2b
     party = {plain(c.name): c.pc.class_index for c in state.creatures.values() if c.pc is not None}
     slain = {n.name for n in state.world.npcs.values() if n.dead}  # M20.5
     dead = frozenset(plain(n) for n in reg.dead | slain) - living

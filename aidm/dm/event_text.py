@@ -10,6 +10,8 @@ Conditions read by display name in plain words (`aidm.dm.condition_text`, M20.7)
 (light lit/put out, a gear use, a lock opened, the fight start a light gave away) come from
 `aidm.dm.item_text` (M27.5).
 An impossible action (M30.1) reads "<hero> cannot do that: <why>." (`aidm.dm.impossible_text`).
+A spell cast at the scene (M30.2b) reads "<hero> casts <spell> (outside a fight: <what it cannot
+do>)." with a model-only note (`aidm.dm.cast_text`); other casts render None (their effects tell).
 
 Lines are facts only, since the public feed shows them too; the instructions that go with some
 of them (do not choose the finale for the party, tell no new deed for a step) are
@@ -23,6 +25,7 @@ from collections.abc import Callable, Sequence
 from typing import Any
 
 from aidm.dm.campaign_text import CAMPAIGN_EVENT_LINES, CAMPAIGN_EVENT_NOTES
+from aidm.dm.cast_text import CAST_EVENT_LINES, CAST_EVENT_NOTES
 from aidm.dm.condition_text import applied_line, removed_line
 from aidm.dm.entities import display_name
 from aidm.dm.impossible_text import IMPOSSIBLE_EVENT_LINES, IMPOSSIBLE_EVENT_NOTES
@@ -31,7 +34,7 @@ from aidm.dm.quest_text import QUEST_EVENT_LINES, QUEST_EVENT_NOTES
 from aidm.dm.wording import attack_label, check_subject, with_article
 from aidm.models import events as ev
 from aidm.models import world_events as we
-from aidm.models.combat_events import AttackRolled, CombatantMoved, FeatureUsed, SpellCast
+from aidm.models.combat_events import AttackRolled, CombatantMoved, FeatureUsed
 from aidm.models.encounter_events import CombatantWithdrew, EncounterEnded
 from aidm.models.scribe import CharacterRewritten
 from aidm.models.state import GameState
@@ -132,7 +135,6 @@ _LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     CombatantWithdrew: lambda s, e: f"{_who(s, e.creature_id)} {e.reason.value}.",
     AttackRolled: _attack,
     CombatantMoved: lambda s, e: None,
-    SpellCast: lambda s, e: None,
     FeatureUsed: lambda s, e: f"{_who(s, e.creature_id)} uses {e.name}.",
     we.NpcIntroduced: _npc,
     we.FeatureIntroduced: _feature,
@@ -159,6 +161,7 @@ _LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     **QUEST_EVENT_LINES,
     **ITEM_EVENT_LINES,
     **IMPOSSIBLE_EVENT_LINES,
+    **CAST_EVENT_LINES,
 }
 
 
@@ -180,6 +183,7 @@ _NOTES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     **CAMPAIGN_EVENT_NOTES,
     **QUEST_EVENT_NOTES,
     **IMPOSSIBLE_EVENT_NOTES,
+    **CAST_EVENT_NOTES,
 }
 
 
