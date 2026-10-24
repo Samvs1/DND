@@ -99,16 +99,10 @@ M3.7 surface triggers | only the destination zone of a move, jump or push trigge
 M3.7 obscurement | fog, magical darkness and the cloud spells give "blinded" (own attacks at disadvantage, attacks against at advantage) while the creature is inside, re-applied each turn start and ended on leaving or when the surface goes; Devil's Sight and lightly obscured areas are not modelled | BG3 applies Blinded inside fog and darkness; SRD heavily obscured = effectively blinded
 M3.7 web and grease | Grease and Web are zone surfaces: grease saves at turn start (BG3; SRD: end of turn); a webbed creature re-saves DEX at each turn start inside (its escape; SRD: an action STR check) and is freed when the web burns or the concentration ends | BG3 surfaces; DSL keeps one save path
 
+M31.2a utility cantrips | Light, Dancing Lights, Mage Hand, Prestidigitation, Thaumaturgy, Minor Illusion, Mending and Message ship as data (SRD 5.1 wizard, cleric, warlock lists; Druidcraft, Produce Flame, Shillelagh and Vicious Mockery are druid or bard only, and the game has no such class). All are self-targeted casts; Light and Dancing Lights carry a lit light until the next long rest (`light_source`, a torch's rules: they alert a dark place), the rest are `utility` (no engine change, the story decides). SRD Light is a touch spell on an object with a hostile DEX save, here it lights its caster or the hero named; Dancing Lights keeps its concentration but the light outlasts it, until the long rest; Mending is a minutes spell outside a fight | one generic interpreter, never refuse a possible action; a light lit in the dark gives the party away exactly like a torch (owner rule)
+
 ## Unsupported spells (hidden from pickers)
 Spells on the wizard, cleric, warlock or ranger SRD lists that the effect DSL cannot express are NOT shipped (SPEC 7.4); `tests/unit/data/test_spell_coverage.py` checks that every in-scope SRD spell is shipped or listed here. Format: `- <srd-index> (L<level>) | reason`.
-- dancing-lights (L0) | utility light effect, no combat mechanics
-- light (L0) | utility light effect on an object, no combat mechanics
-- mage-hand (L0) | utility exploration effect, summons no combat actor
-- mending (L0) | utility repair effect, no combat mechanics
-- message (L0) | utility communication effect, no combat mechanics
-- minor-illusion (L0) | illusion, needs DM adjudication of belief
-- prestidigitation (L0) | utility exploration effect, no combat mechanics
-- thaumaturgy (L0) | flavour effect, no combat mechanics
 - alarm (L1) | ritual exploration ward, no combat mechanics
 - comprehend-languages (L1) | language utility, no combat mechanics
 - create-or-destroy-water (L1) | utility water effect, no combat mechanics

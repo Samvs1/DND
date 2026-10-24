@@ -34,6 +34,7 @@ CASTING_TIME = {
     "1 action": "action",
     "1 bonus action": "bonus_action",
     "1 reaction": "reaction",
+    "1 minute": "minutes",
     "10 minutes": "minutes",
 }
 

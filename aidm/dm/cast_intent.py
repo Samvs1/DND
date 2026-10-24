@@ -33,6 +33,9 @@ M31.1a V2: the `named_spell` row reads a READY spell named without a cast word (
 healing word over Rook", `dm.spell_names`): a healing spell is the typed-healing path
 (`heal_intent.heal_spell`), any other the cast above, its name counting as said.
 
+M31.2a: a utility cantrip (Light, Mage Hand, Prestidigitation ...: no dice, no buff) is read
+only after a cast word (`_plain_word_spell`), so "I light the torch" is still the torch.
+
 Public API: `CastIntent(actor_id, spell, target_ids, at_scene)`, `RESOLVERS` (`cast_spell`,
 `named_spell`).
 """
@@ -42,7 +45,7 @@ from dataclasses import dataclass
 
 from aidm.data.combat_data import combat_registries
 from aidm.data.intent_phrases import intent_phrases
-from aidm.data.spell_defs import HealEffect, SpellDef
+from aidm.data.spell_defs import HealEffect, LightSourceEffect, SpellDef, UtilityEffect
 from aidm.dm.fight_names import tokens
 from aidm.dm.heal_intent import HealIntent, heal_spell, named_heroes
 from aidm.dm.intent_conditions import foe_words
@@ -98,6 +101,12 @@ def _said_after_cast(text: str, spell: SpellDef) -> bool:
     return re.search(rf"\bcast(?:s|ing)?\s+(?:[a-z]+\s+){{0,2}}?{name}\b", low) is not None
 
 
+def _plain_word_spell(spell: SpellDef) -> bool:
+    """A utility spell with no dice or buff (Light, Mage Hand: M31.2a): its name is an everyday
+    word ("I light the torch"), so it is cast only after a cast word ("I cast light on ...")."""
+    return all(isinstance(e, LightSourceEffect | UtilityEffect) for e in spell.effects)
+
+
 def _at_scene(found: Found, spell: SpellDef, named: bool) -> bool | None:
     """True: cast at the scene; False: aimed at heroes; None: the storyteller's. `named`: the
     spell's name was read as a ready spell's (no cast word needed)."""
@@ -105,6 +114,8 @@ def _at_scene(found: Found, spell: SpellDef, named: bool) -> bool | None:
         return None
     if strikes_creatures(spell) or spell.targeting.kind in _SCENE_KINDS:
         return True if named or _said_after_cast(found.text, spell) else None
+    if _plain_word_spell(spell) and not _said_after_cast(found.text, spell):
+        return None
     return False
 
 

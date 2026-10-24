@@ -115,7 +115,7 @@ def use_regs(ctx: UseCtx) -> CombatRegistries:
 def gear_name(item_id: str) -> str:
     """The catalogue name without its qualifier: "Rope, hempen (50 feet)" -> "Rope"."""
     found = item_catalogue().find(item_id)
-    name = found.name if found is not None else item_id
+    name = found.name if found is not None else item_id.replace("-", " ")
     return name.split(" (")[0].split(",")[0].strip()
 
 

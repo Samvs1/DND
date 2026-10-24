@@ -110,7 +110,7 @@ There are 18 skills, each tied to an ability. Your background gives you two. You
 You get the gear your background lists and your class's starting kit, and your class lets you choose between a few packages. The wizard shows what each choice contains. You can change your equipment later on the Hero tab (outside fights). An equipment pack (a dungeoneer's, explorer's, burglar's or priest's pack...) comes opened: its torches, rope, oil, candles and the rest are in your inventory one by one, ready to use.
 
 ### Spells
-Casters pick their cantrips and first spells in the wizard. Only spells the game can run are offered (the full list is in the Reference part).
+Casters pick their cantrips and first spells in the wizard. Only spells the game can run are offered (the full list is in the Reference part). The small utility cantrips are among them (Light, Dancing Lights, Mage Hand, Prestidigitation, Thaumaturgy, Minor Illusion, Mending, Message): they have no dice, the engine spends the cast and the story decides what the magic does, so use them creatively (*I cast prestidigitation to clean my cloak*, *I cast mage hand to pull the lever*). **Light** and **Dancing Lights** light a dark place like a torch does, until the next long rest, and like a torch they give you away: foes in a dark place see your light coming.
 - **Wizard**: a spellbook of 6 first-level spells, and you prepare spells from it. Prepared spells are your spellcasting modifier plus your wizard level, at least 1.
 - **Cleric**: you prepare from the whole cleric list, with the same limit. Your Life domain spells are always prepared and do not count against it.
 - **Ranger**: starts casting at level 2 and knows a fixed number of spells.
@@ -674,15 +674,23 @@ Casters get more cantrips, spells and slots as they level up.
 | --- | --- | --- | --- | --- | --- | --- |
 | Acid Splash | Cantrip | conjuration | action | 60 ft | no | wizard |
 | Chill Touch | Cantrip | necromancy | action | 120 ft | no | warlock, wizard |
+| Dancing Lights | Cantrip | evocation | action | self | yes | wizard |
 | Eldritch Blast | Cantrip | evocation | action | 120 ft | no | warlock |
 | Fire Bolt | Cantrip | evocation | action | 120 ft | no | wizard |
 | Guidance | Cantrip | divination | action | touch | yes | cleric |
+| Light | Cantrip | evocation | action | self | no | cleric, wizard |
+| Mage Hand | Cantrip | conjuration | action | self | no | warlock, wizard |
+| Mending | Cantrip | transmutation | minutes | self | no | cleric, wizard |
+| Message | Cantrip | transmutation | action | self | no | wizard |
+| Minor Illusion | Cantrip | illusion | action | self | no | warlock, wizard |
 | Poison Spray | Cantrip | conjuration | action | 10 ft | no | warlock, wizard |
+| Prestidigitation | Cantrip | transmutation | action | self | no | warlock, wizard |
 | Ray of Frost | Cantrip | evocation | action | 60 ft | no | wizard |
 | Resistance | Cantrip | abjuration | action | touch | yes | cleric |
 | Sacred Flame | Cantrip | evocation | action | 60 ft | no | cleric |
 | Shocking Grasp | Cantrip | evocation | action | touch | no | wizard |
 | Spare the Dying | Cantrip | necromancy | action | touch | no | cleric |
+| Thaumaturgy | Cantrip | transmutation | action | self | no | cleric |
 | True Strike | Cantrip | divination | action | self | yes | warlock, wizard |
 | Animal Friendship | 1 | enchantment | action | 30 ft | no | ranger |
 | Bane | 1 | enchantment | action | 30 ft | yes | cleric |

@@ -1,0 +1,24 @@
+{
+  "index": "minor-illusion",
+  "level": 0,
+  "school": "illusion",
+  "classes": [
+    "bard",
+    "sorcerer",
+    "warlock",
+    "wizard"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "self"
+  },
+  "targeting": {
+    "kind": "self"
+  },
+  "effects": [
+    {
+      "type": "utility",
+      "note": "a sound or a still image of an object, for a minute; a look closer may see through it"
+    }
+  ]
+}

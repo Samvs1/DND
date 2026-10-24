@@ -80,8 +80,6 @@
   ],
   "role": "caster",
   "cosmetic_unsupported": [
-   "spell light",
-   "spell thaumaturgy",
    "spell sanctuary"
   ]
  },
@@ -96,7 +94,6 @@
   ],
   "role": "caster",
   "cosmetic_unsupported": [
-   "spell dancing-lights",
    "spell faerie-fire"
   ]
  },
@@ -488,8 +485,6 @@
   ],
   "role": "caster",
   "cosmetic_unsupported": [
-   "spell light",
-   "spell thaumaturgy",
    "spell command",
    "spell spiritual-weapon"
   ]
@@ -613,8 +608,6 @@
   ],
   "role": "caster",
   "cosmetic_unsupported": [
-   "spell light",
-   "spell thaumaturgy",
    "spell sanctuary",
    "spell spiritual-weapon",
    "spell dispel-magic"
@@ -919,9 +912,6 @@
   ],
   "role": "caster",
   "cosmetic_unsupported": [
-   "spell light",
-   "spell mage-hand",
-   "spell prestidigitation",
    "spell detect-magic",
    "spell shield",
    "spell suggestion",

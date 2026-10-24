@@ -1,0 +1,25 @@
+{
+  "index": "mending",
+  "level": 0,
+  "school": "transmutation",
+  "classes": [
+    "bard",
+    "cleric",
+    "druid",
+    "sorcerer",
+    "wizard"
+  ],
+  "casting_time": "minutes",
+  "range": {
+    "kind": "self"
+  },
+  "targeting": {
+    "kind": "self"
+  },
+  "effects": [
+    {
+      "type": "utility",
+      "note": "mends a single break or tear in an object, as a minute of work"
+    }
+  ]
+}

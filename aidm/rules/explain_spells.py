@@ -16,6 +16,7 @@ from aidm.data.spell_defs import (
     Effect,
     HealEffect,
     HpPoolEffect,
+    LightSourceEffect,
     MultiTargetEffect,
     RemoveConditionEffect,
     ReviveEffect,
@@ -25,6 +26,7 @@ from aidm.data.spell_defs import (
     SurfaceEffect,
     TeleportEffect,
     TempHpEffect,
+    UtilityEffect,
 )
 from aidm.data.srd import srd
 from aidm.data.surface_defs import surface_defs
@@ -83,6 +85,10 @@ def _simple(e: Effect) -> str | None:
         return "stabilizes a dying creature"
     if isinstance(e, ReviveEffect):
         return f"returns a dead creature to life with {e.hp} hit point{'s' if e.hp != 1 else ''}"
+    if isinstance(e, LightSourceEffect):
+        return "sheds light like a torch until the next long rest (it gives you away in the dark)"
+    if isinstance(e, UtilityEffect):
+        return e.note or None
     if isinstance(e, TeleportEffect):
         return "moves you to the chosen zone"
     return None

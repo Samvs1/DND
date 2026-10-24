@@ -58,6 +58,11 @@ Effects (`type` tag):
   `effects` (Sleep, Color Spray; combine with `order` "hp_ascending").
 - `stabilize`: a dying target becomes stable (Spare the Dying).
 - `revive(hp)`: a dead target returns to life with `hp` hit points (Revivify).
+- `light_source(reach)` (M31.2a): the target instance carries a lit light (`LightLit`, item = the
+  spell index; "touching" or "zone" reach as a torch or candle) and a light lit in a dark place
+  alerts it (`PlaceAlerted` "light"), exactly as a torch does (Light, Dancing Lights).
+- `utility(note)` (M31.2a): no engine change at all: the cast is spent and told, the story
+  decides what the magic does (Mage Hand, Prestidigitation: never refused, never forbidden).
 - `teleport`: the target instance (the caster) moves to the chosen zone without spending
   movement; entering it triggers its surfaces (Misty Step).
 
@@ -84,6 +89,7 @@ DEFAULT_SPELL_DIR = Path(__file__).resolve().parents[2] / "data" / "bg3" / "spel
 
 type AreaKey = Literal["zone", "zone_and_adjacent"]
 type CastingTime = Literal["action", "bonus_action", "reaction", "minutes"]
+type LightReach = Literal["zone", "touching"]  # mirrors aidm.models.world.LightReach
 
 
 class _Strict(BaseModel):
@@ -210,6 +216,16 @@ class TeleportEffect(_Strict):
     type: Literal["teleport"] = "teleport"
 
 
+class LightSourceEffect(_Strict):
+    type: Literal["light_source"] = "light_source"
+    reach: LightReach = "touching"
+
+
+class UtilityEffect(_Strict):
+    type: Literal["utility"] = "utility"
+    note: str = ""
+
+
 class MultiTargetEffect(_Strict):
     type: Literal["multi_target"] = "multi_target"
     area: AreaKey = "zone"
@@ -231,7 +247,9 @@ Effect = Annotated[
     | HpPoolEffect
     | StabilizeEffect
     | ReviveEffect
-    | TeleportEffect,
+    | TeleportEffect
+    | LightSourceEffect
+    | UtilityEffect,
     Field(discriminator="type"),
 ]
 

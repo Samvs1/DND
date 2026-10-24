@@ -1,0 +1,23 @@
+{
+  "index": "message",
+  "level": 0,
+  "school": "transmutation",
+  "classes": [
+    "bard",
+    "sorcerer",
+    "wizard"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "self"
+  },
+  "targeting": {
+    "kind": "self"
+  },
+  "effects": [
+    {
+      "type": "utility",
+      "note": "a whispered message only the chosen creature in 120 ft can hear and answer"
+    }
+  ]
+}

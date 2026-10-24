@@ -27,8 +27,9 @@ Semantics (SRD 5.1 unless noted):
   and damage type per cast (fire into oil ignites); area spells hit their zone even when empty.
 - multi_target: the sub-effects run on every other creature of the current target's zone (or
   zone and neighbours), sharing rolls.
-- hp_pool, stabilize, revive, teleport: `rules.spell_special` (the pool decides who its
-  sub-effects reach). The cast state itself (`CastContext`, dice, shared rolls) lives in
+- light_source, utility (M31.2a): a carried light like a torch's; a no-op the story fills.
+- hp_pool, stabilize, revive, teleport, light_source: `rules.spell_special` (the pool decides
+  who its sub-effects reach). The cast state itself (`CastContext`, dice, shared rolls) lives in
   `rules.spell_context`.
 
 Public API: `run_effects(ctx, effects, target_id, *, crit=False, half=False, shared=False) -> None`,
@@ -46,6 +47,7 @@ from aidm.data.spell_defs import (
     Effect,
     HealEffect,
     HpPoolEffect,
+    LightSourceEffect,
     MultiTargetEffect,
     RemoveConditionEffect,
     ReviveEffect,
@@ -54,6 +56,7 @@ from aidm.data.spell_defs import (
     SurfaceEffect,
     TeleportEffect,
     TempHpEffect,
+    UtilityEffect,
 )
 from aidm.models.abilities import Ability
 from aidm.models.conditions import ConditionLink, SaveEnds
@@ -76,6 +79,7 @@ from aidm.rules.spell_context import (
     spell_attack_profile,
 )
 from aidm.rules.spell_special import (
+    light_target,
     pool_admits,
     revive_target,
     stabilize_target,
@@ -297,3 +301,7 @@ def run_effects(
                 revive_target(ctx, effect, target_id)
             case TeleportEffect():
                 teleport_target(ctx, target_id)
+            case LightSourceEffect():
+                light_target(ctx, effect, target_id)
+            case UtilityEffect():
+                pass  # the story decides what the magic does (never refused)

@@ -7,7 +7,57 @@ file) at the exact `file` path, then run `python scripts/build_manifest.py` and
 `python scripts/gen_assets_todo.py`. Prompts start with the style bible
 (`docs/STYLE_BIBLE.md`). Never overwrite a real or v1 asset.
 
-10 placeholder entries: condition_icon 3, music 1, sfx 6
+18 placeholder entries: spell_icon 8, condition_icon 3, music 1, sfx 6
+
+## spell_icon (8)
+
+### spell_icon.dancing-lights
+- file: aidm/web/static/img/spells/dancing-lights.png
+- size: 128x128
+- transparent: yes
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The spell Dancing Lights (evocation, cantrip) shown as evocation magic. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.
+
+### spell_icon.light
+- file: aidm/web/static/img/spells/light.png
+- size: 128x128
+- transparent: yes
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The spell Light (evocation, cantrip) shown as evocation magic. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.
+
+### spell_icon.mage-hand
+- file: aidm/web/static/img/spells/mage-hand.png
+- size: 128x128
+- transparent: yes
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The spell Mage Hand (conjuration, cantrip) shown as conjuration magic. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.
+
+### spell_icon.mending
+- file: aidm/web/static/img/spells/mending.png
+- size: 128x128
+- transparent: yes
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The spell Mending (transmutation, cantrip) shown as transmutation magic. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.
+
+### spell_icon.message
+- file: aidm/web/static/img/spells/message.png
+- size: 128x128
+- transparent: yes
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The spell Message (transmutation, cantrip) shown as transmutation magic. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.
+
+### spell_icon.minor-illusion
+- file: aidm/web/static/img/spells/minor-illusion.png
+- size: 128x128
+- transparent: yes
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The spell Minor Illusion (illusion, cantrip) shown as illusion magic. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.
+
+### spell_icon.prestidigitation
+- file: aidm/web/static/img/spells/prestidigitation.png
+- size: 128x128
+- transparent: yes
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The spell Prestidigitation (transmutation, cantrip) shown as transmutation magic. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.
+
+### spell_icon.thaumaturgy
+- file: aidm/web/static/img/spells/thaumaturgy.png
+- size: 128x128
+- transparent: yes
+- prompt: Retro 16-bit pixel art in a grounded low-fantasy style, hand-placed pixels with crisp stair-stepped edges, limited palette of dusky slate blue, teal, weathered stone grey, warm torch amber and mossy green with deep brown-black shadows, warm low torchlight against cool ambient fill, selective dark outline, quietly dangerous lived-in mood. No text, no letters, no watermark, no logo, no border, no photorealism, no 3D render, no anime. Subject: The spell Thaumaturgy (transmutation, cantrip) shown as transmutation magic. One emblem-like magical effect or object, centred, glowing in the school colour, plain transparent background, one cell of a 4x4 icon sheet. Target size 128x128. Transparent background.
 
 ## condition_icon (3)
 

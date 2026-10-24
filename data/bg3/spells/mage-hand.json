@@ -1,0 +1,24 @@
+{
+  "index": "mage-hand",
+  "level": 0,
+  "school": "conjuration",
+  "classes": [
+    "bard",
+    "sorcerer",
+    "warlock",
+    "wizard"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "self"
+  },
+  "targeting": {
+    "kind": "self"
+  },
+  "effects": [
+    {
+      "type": "utility",
+      "note": "a spectral hand that lifts, pulls or carries a light thing within 30 ft"
+    }
+  ]
+}

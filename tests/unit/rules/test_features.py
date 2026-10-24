@@ -326,5 +326,6 @@ def test_fiend_expanded_list_and_domain_grants() -> None:
     tiefling = _build("fighter", "tiefling")
     assert tiefling.pc is not None
     spells = [g.spell for g in granted_spells(tiefling.pc.traits, 5, None, FEATS)]
-    assert spells == ["darkness"]  # M3.6b: unshipped Thaumaturgy and Hellish Rebuke not granted
+    # M3.6b: unshipped Hellish Rebuke not granted; M31.2a shipped Thaumaturgy (SRD Infernal Legacy)
+    assert spells == ["thaumaturgy", "darkness"]
     assert "infernal-legacy-hellish-rebuke" not in tiefling.resources

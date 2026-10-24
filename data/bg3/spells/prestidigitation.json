@@ -1,0 +1,24 @@
+{
+  "index": "prestidigitation",
+  "level": 0,
+  "school": "transmutation",
+  "classes": [
+    "bard",
+    "sorcerer",
+    "warlock",
+    "wizard"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "self"
+  },
+  "targeting": {
+    "kind": "self"
+  },
+  "effects": [
+    {
+      "type": "utility",
+      "note": "a small harmless magical trick: clean, soil, warm, chill, flavour, a mark or a small sign"
+    }
+  ]
+}

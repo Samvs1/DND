@@ -122,7 +122,7 @@ def test_innate_spell_spends_its_per_day_use() -> None:
         11,
         3,
     )
-    assert "spell dancing-lights" in catalog.unsupported
+    assert "spell dancing-lights" not in catalog.unsupported  # shipped in M31.2a
     state = fight(
         [(srd_monster("drow", "d1"), Side.HOSTILE, "gate"), (make_pc("p1"), Side.PARTY, "yard")]
     )

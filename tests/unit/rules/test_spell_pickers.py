@@ -43,15 +43,17 @@ def test_pickers_offer_only_shipped_spells() -> None:
     shipped = shipped_spell_ids()
     for cls in ("cleric", "warlock", "wizard", "ranger"):
         assert class_spell_indexes(REGS.spells, cls, 0, 3) <= shipped
-    assert "light" not in class_spell_indexes(REGS.spells, "cleric", 0, 0)
+    assert "shillelagh" not in class_spell_indexes(REGS.spells, "cleric", 0, 0)
     choices = default_choices("cleric", "human", None)
-    unshipped = choices.model_copy(update={"cantrips": [*choices.cantrips[:2], "light"]})
+    unshipped = choices.model_copy(update={"cantrips": [*choices.cantrips[:2], "shillelagh"]})
     assert (E.PICK_NOT_ALLOWED, "cantrips") in _codes(validate_creation(unshipped, REGS))
 
 
 def test_cleric_cantrips_shrink_to_the_shipped_count(monkeypatch: pytest.MonkeyPatch) -> None:
     # The table asks for 3 cantrips; with only Sacred Flame shipped the cleric picks 1.
-    _ship_without(monkeypatch, "guidance", "resistance", "spare-the-dying")
+    _ship_without(
+        monkeypatch, "guidance", "resistance", "spare-the-dying", "light", "mending", "thaumaturgy"
+    )
     choices = default_choices("cleric", "human", None)
     assert choices.cantrips == ["sacred-flame"]
     assert validate_creation(choices, REGS) == []

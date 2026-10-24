@@ -1,0 +1,25 @@
+{
+  "index": "dancing-lights",
+  "level": 0,
+  "school": "evocation",
+  "classes": [
+    "bard",
+    "sorcerer",
+    "wizard"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "self"
+  },
+  "concentration": true,
+  "duration_rounds": 10,
+  "targeting": {
+    "kind": "self"
+  },
+  "effects": [
+    {
+      "type": "light_source",
+      "reach": "zone"
+    }
+  ]
+}

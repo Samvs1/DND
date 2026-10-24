@@ -1,0 +1,24 @@
+{
+  "index": "light",
+  "level": 0,
+  "school": "evocation",
+  "classes": [
+    "bard",
+    "cleric",
+    "sorcerer",
+    "wizard"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "self"
+  },
+  "targeting": {
+    "kind": "self"
+  },
+  "effects": [
+    {
+      "type": "light_source",
+      "reach": "touching"
+    }
+  ]
+}

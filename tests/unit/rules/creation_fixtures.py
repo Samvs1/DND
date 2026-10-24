@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from aidm.data.character_data import CharacterRegistries, character_registries
+from aidm.data.spell_defs import LightSourceEffect, UtilityEffect, spell_defs
 from aidm.models.abilities import ABILITIES, Ability
 from aidm.models.creation import AbilityMethod, CreationChoices
 from aidm.rules.ability_gen import STANDARD_ARRAY
@@ -29,8 +30,17 @@ def _first(options: tuple[str, ...] | list[str], n: int, exclude: list[str]) -> 
     return [o for o in options if o not in exclude][:n]
 
 
+def _utility(index: str) -> bool:
+    """M31.2a: a utility cantrip (no strike, no buff) sorts after the rest, so the default picks
+    stay the combat spells the older tests were written around."""
+    found = spell_defs().find(index)
+    return found is not None and all(
+        isinstance(e, LightSourceEffect | UtilityEffect) for e in found.effects
+    )
+
+
 def _sorted_spells(regs: CharacterRegistries, cls: str, lo: int, hi: int) -> list[str]:
-    return sorted(class_spell_indexes(regs.spells, cls, lo, hi))
+    return sorted(class_spell_indexes(regs.spells, cls, lo, hi), key=lambda i: (_utility(i), i))
 
 
 def _spell_picks(regs: CharacterRegistries, refs: CreationRefs) -> dict[str, list[str]]:

@@ -1,0 +1,21 @@
+{
+  "index": "thaumaturgy",
+  "level": 0,
+  "school": "transmutation",
+  "classes": [
+    "cleric"
+  ],
+  "casting_time": "action",
+  "range": {
+    "kind": "self"
+  },
+  "targeting": {
+    "kind": "self"
+  },
+  "effects": [
+    {
+      "type": "utility",
+      "note": "a minor wonder: a booming voice, flickering flames, a tremor, a changed eye"
+    }
+  ]
+}
