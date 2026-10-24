@@ -16,25 +16,27 @@ the feature at its level (NO_FEATURE), its resource (ABILITY_SPENT), the economy
 Events: `EconomyChanged` (Action Surge: the restored action), the resource `ResourceSet`,
 `FeatureUsed`, then the effect events.
 
-Public API: `feature_action_command`, `ability_spell(hook, feature_id) -> SpellDef`,
-`PSEUDO_SCHOOL`.
+Public API: `feature_action_command`, `resolve_feature_id` (a short id such as
+`action-surge` to the full one), `ability_spell(hook, feature_id) -> SpellDef`, `PSEUDO_SCHOOL`.
 """
 
 from aidm.data.combat_data import CombatRegistries
+from aidm.data.feature_defs import FeatureDef
 from aidm.data.feature_hooks import ActiveAbilityHook, BonusActionHook, ExtraActionHook
+from aidm.data.registry import Registry
 from aidm.data.spell_defs import SpellDef
 from aidm.models.abilities import Ability
 from aidm.models.combat_events import FeatureUsed
 from aidm.models.commands import FeatureActionCommand, RefusalCode
 from aidm.models.dice import RollKind
 from aidm.models.events import AnyEvent, DiceRolled
-from aidm.models.state import GameState
+from aidm.models.state import Creature, GameState
 from aidm.rules.abilities import ability_modifier
 from aidm.rules.command_checks import Actor, CommandRefused, acting, changed, spend
 from aidm.rules.conditions import can_take_actions
 from aidm.rules.damage import resolve_healing
 from aidm.rules.dice import Rng, roll
-from aidm.rules.features import LEVEL_PLACEHOLDER, character_level, command_hook
+from aidm.rules.features import LEVEL_PLACEHOLDER, character_level, command_hook, creature_hooks
 from aidm.rules.projection import project_state
 from aidm.rules.resources import resource_left, spend_resource
 from aidm.rules.spell_context import CastContext
@@ -156,10 +158,29 @@ def _ability(
     return run_cast(ctx, targets)
 
 
+def resolve_feature_id(creature: Creature, feats: Registry[FeatureDef], feature_id: str) -> str:
+    """The full feature id for a short one (M32.1d X17): an exact id stays; else the one id of the
+    creature's command features that starts with `feature_id + "-"` (`action-surge` for
+    `action-surge-1-use`). Several or none: the id unchanged."""
+    owners = {o for o, h in creature_hooks(creature, feats) if _has_command(h)}
+    if feature_id in owners:
+        return feature_id
+    near = [o for o in owners if o.startswith(feature_id + "-")]
+    return near[0] if len(near) == 1 else feature_id
+
+
+def _has_command(hook: object) -> bool:
+    if isinstance(hook, (ExtraActionHook, ActiveAbilityHook)):
+        return True
+    return isinstance(hook, BonusActionHook) and bool(hook.heal)
+
+
 def feature_action_command(
     state: GameState, cmd: FeatureActionCommand, regs: CombatRegistries, rng: Rng
 ) -> list[AnyEvent]:
     actor = acting(state, cmd.actor_id)
+    full = resolve_feature_id(actor.creature, regs.chars.features, cmd.feature_id)
+    cmd = cmd.model_copy(update={"feature_id": full})
     hook = command_hook(actor.creature, regs.chars.features, cmd.feature_id)
     if hook is None:
         raise CommandRefused(RefusalCode.NO_FEATURE, "You have no such ability to use.")

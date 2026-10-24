@@ -43,4 +43,14 @@ def pick_option(chances: list[Msg], attacks: list[Msg]) -> str:
     pool = [c for c in weapons if c.get("in_range", True)] or weapons
     if not pool:
         return "main_hand"
-    return str(max(pool, key=lambda c: expected_damage(c, attacks))["option"])
+    best = max(round(expected_damage(c, attacks), 6) for c in pool)
+    tied = [c for c in pool if round(expected_damage(c, attacks), 6) == best]
+    return str(min(tied, key=lambda c: _is_ranged(str(c["option"]), attacks))["option"])
+
+
+def _is_ranged(option: str, attacks: list[Msg]) -> bool:
+    """A tie goes to the melee weapon (M32.1d X17): False sorts first."""
+    for a in attacks:
+        if option in (a.get("hand"), a.get("item"), a.get("name")):
+            return a.get("range_band") == "ranged" or a.get("hand") == "ranged"
+    return option == "ranged"

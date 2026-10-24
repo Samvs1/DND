@@ -203,3 +203,14 @@ def test_golden_arcane_recovery_on_short_rest() -> None:
     assert resource_left(state.creatures["hero"], "arcane-recovery") == 0
     events = short_rest(state, REGS.chars.features)
     assert not [e for e in events if isinstance(e, ResourceSet) and e.key in (one, two)]
+
+
+def test_m32_short_feature_id_names_the_one_full_id() -> None:
+    # M32.1d X17: `action-surge` resolves to `action-surge-1-use`; an unknown name still refuses.
+    ogre = _foe("ogre", hp=500)
+    state = fight([(_hero("fighter", 2), Side.PARTY, "gate"), (ogre, Side.HOSTILE, "gate")])
+    rng = random.Random(3)
+    _attack(state, rng)
+    surge = do(state, _use("action-surge"), rng)
+    assert of(surge, FeatureUsed)[0].name == "Action Surge"
+    assert _refused(state, _use("surge")) is RefusalCode.NO_FEATURE

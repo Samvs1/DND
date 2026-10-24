@@ -971,6 +971,8 @@ spoke floor and the solo/duo scaling are unchanged. Same slices and seeds as M31
 | 3 | gladiator (112) | 4 | 56 | **112** | hard -> hard |
 | 3 | gladiator (112) | 5 | 112 | 112 | hard -> hard |
 
+The "after" words were recomputed in M32.1d: `arrival_offer_events` at each master's gateway for four heroes (`tests/session/test_encounter_scaling._offer_at`, which runs `rules.offer_label.danger_label`) gave wight L3 medium, gladiator L4 hard, gladiator L5 hard, so the gladiator rows stand as written (the "before" words were not recomputed).
+
 ## Grid, before (M31.1g i2) -> after (heroes down per master; party HP lost in brackets)
 | slice | M31.1g i2 | M32.1c |
 |---|---|---|

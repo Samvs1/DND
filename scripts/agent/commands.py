@@ -117,6 +117,9 @@ def _cast(rest: list[str], base: Msg, foes: list[Msg], sheet: Msg | None, combat
 
 def _feature(rest: list[str], base: Msg, foes: list[Msg], sheet: Msg | None) -> Msg:
     feats = {f["feature"]: f for f in (sheet or {}).get("feature_actions", [])}
+    near = [k for k in feats if rest and k.startswith(rest[0] + "-")]
+    if rest and rest[0] not in feats and len(near) == 1:
+        rest = [near[0], *rest[1:]]  # M32.1d: a short id (`action-surge`) names the one full id
     if not rest or rest[0] not in feats:
         raise UsageError(f"do feature <id> [target] (yours: {', '.join(sorted(feats)) or 'none'})")
     kind = feats[rest[0]].get("target_kind", "self")

@@ -20,7 +20,7 @@ Msg = dict[str, Any]
 QUIET_FAKE_S = 0.8
 QUIET_LIVE_S = 2.0
 GRACE_FAKE_S = 1.5
-GRACE_LIVE_S = 15.0
+GRACE_LIVE_S = 60.0  # M32.1d X17: the live storyteller can be silent a long while
 FAKE_WAIT_S = 90.0
 LIVE_WAIT_S = 300.0
 

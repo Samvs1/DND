@@ -3,7 +3,7 @@ roll's advantage reasons, each hero's slots, spells, camp supplies and what a le
 
 Pure functions over the public state and sheet dicts (only what the server sends a client).
 
-Public API: `zone_lines`, `roll_why`, `hero_lines`, `learned`, `supplies_line`.
+Public API: `zone_lines`, `roll_why`, `hero_lines`, `gear_lines`, `learned`, `supplies_line`.
 """
 
 from typing import Any
@@ -76,6 +76,21 @@ def _spell_names(sheet: Msg) -> list[str]:
     return names
 
 
+def gear_lines(sheet: Msg) -> list[str]:
+    """Wielded gear by slot (main hand, off hand, ranged, worn) and the pack (M32.1d X17)."""
+    worn: list[str] = []
+    pack: list[str] = []
+    for it in sheet.get("inventory", []):
+        qty = f" x{it['qty']}" if it.get("qty", 1) > 1 else ""
+        if it.get("equipped_slot"):
+            worn.append(f"{it['equipped_slot']}: {it['name']}")
+        else:
+            pack.append(f"{it['name']}{qty}")
+    out = ["    wielding: " + (", ".join(worn) or "nothing")]
+    out.append("    pack: " + (", ".join(pack) or "empty"))
+    return out
+
+
 def hero_lines(sheet: Msg, in_fight: bool) -> list[str]:
     """Slots, the spell list (out of a fight; the fight's Options list them) and resources."""
     out = [f"  {sheet['name']}: L{sheet['level']} {sheet['class_index']}"]
@@ -87,7 +102,7 @@ def hero_lines(sheet: Msg, in_fight: bool) -> list[str]:
     res = [f"{r['key']} {r['current']}/{r['maximum']}" for r in sheet.get("resources", [])]
     if res:
         out.append("    resources: " + ", ".join(res))
-    return out
+    return out + (gear_lines(sheet) if "inventory" in sheet else [])
 
 
 def _gained(before: list[str], after: list[str]) -> list[str]:

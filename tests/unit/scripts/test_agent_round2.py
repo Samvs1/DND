@@ -252,3 +252,32 @@ def test_m29_r26_harness_aims_a_self_cone_at_a_zone() -> None:
     text = "\n".join(spell_lines(sheet, combat, ECO))
     assert "do cast burning-hands <zone id|name> (15-ft cone from your zone)" in text
     assert "do cast aura   (level 1)" in text and "(zones: z1=Gate, z2=Yard)" in text
+
+
+def test_m32_tie_goes_to_the_melee_weapon_and_look_shows_gear() -> None:
+    attacks = [
+        {"hand": "main_hand", "name": "Longsword", "damage": "1d8+3", "range_band": "melee"},
+        {"hand": "ranged", "name": "Light Crossbow", "damage": "1d8+3", "range_band": "ranged"},
+    ]
+    chances = [
+        {"option": "ranged", "probability": 0.5, "in_range": True},
+        {"option": "main_hand", "probability": 0.5, "in_range": True},
+    ]
+    assert pick_option(chances, attacks) == "main_hand"
+    sheet = {
+        "name": "Ana",
+        "level": 1,
+        "class_index": "fighter",
+        "inventory": [
+            {"name": "Longsword", "qty": 1, "equipped_slot": "main_hand"},
+            {"name": "Rope", "qty": 2, "equipped_slot": None},
+        ],
+    }
+    out = hero_lines(sheet, in_fight=True)
+    assert "    wielding: main_hand: Longsword" in out and "    pack: Rope x2" in out
+
+
+def test_m32_do_feature_takes_the_short_id() -> None:
+    sheet = {"feature_actions": [{"feature": "action-surge-1-use", "target_kind": "self"}]}
+    cmd = build_command(["feature", "action-surge"], "pc-1", [], sheet, None)
+    assert cmd["feature_id"] == "action-surge-1-use"

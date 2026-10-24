@@ -42,6 +42,7 @@ from aidm.rules.world_graph import legal_neighbours, travel_route
 MAX_LINES = 6
 NOTHING = "Nothing presses right now: look around and talk to the people here."
 FIGHTING = "First win this fight, or get away."
+ONE_ROUTE = "Finishing any ONE of these ways settles the master of this region."
 FINALE_LINE = "Choose how the story ends on the finale card (Play tab)."
 DANGER = "Danger bars the way here: choose what to do on the encounter card."
 _NUMBERS = {2: "two", 3: "three", 4: "four", 5: "five", 6: "six", 7: "seven"}
@@ -215,6 +216,8 @@ def _main_lines(state: GameState, region: RegionPlan, act_index: int) -> tuple[l
         other = other or route.id != FORCE_ROUTE_ID
         title = _safe(state, route.title.rstrip(". "))
         lines.append(f"{title}: {_step_line(state, owner, route.steps[done])}")
+    if len(lines) > 1:
+        lines.append(ONE_ROUTE)
     return lines, other
 
 

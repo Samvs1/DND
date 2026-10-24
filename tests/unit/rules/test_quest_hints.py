@@ -4,7 +4,7 @@ and undiscovered-route rules, travel hops, and why a locked way is shut (`rules.
 from aidm.models.state import GameState
 from aidm.models.world import RouteProgress
 from aidm.rules.gateway_lock import locked_reason, short_reason
-from aidm.rules.quest_hints import FIGHTING, MAX_LINES, NOTHING, what_now
+from aidm.rules.quest_hints import FIGHTING, MAX_LINES, NOTHING, ONE_ROUTE, what_now
 from aidm.rules.world_graph import travel_route
 from tests.session.quest_offer_fixtures import (
     R1,
@@ -39,6 +39,7 @@ def test_golden_what_now_sample_fresh_act_one() -> None:
     assert what_now(state) == (
         FORCE_LINE,
         PEACE_LINE,
+        ONE_ROUTE,
         "Tobin Marrow is waiting for your answer: The Missing Ledger (Play tab).",
     )
 
@@ -46,7 +47,7 @@ def test_golden_what_now_sample_fresh_act_one() -> None:
 def test_golden_what_now_after_accepting_the_ledger() -> None:
     _, state, log = fresh()
     accept(state, LEDGER, log)
-    assert what_now(state)[2] == (
+    assert what_now(state)[3] == (
         "The Missing Ledger (for Tobin Marrow): Win the fight at Saltcellar Tunnels."
         " Where: Saltcellar Tunnels."
     )
