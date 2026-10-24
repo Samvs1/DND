@@ -7,6 +7,9 @@
   the kind stocks, `always` are item ids it always has, `size` the number of stocked items;
   `one_of_each` (M29.6b) are categories it always has at least one item of (a general store's
   weapon and armour), picked like the rest of its shelf.
+- `premium` (M31.2c): region tier -> number of shelf slots reserved for the dearest goods (items
+  above the tier 1 price band, at most the region's tier) of the kind's categories plus
+  `premium_categories`; a tier with no entry reserves none (tier 1 shelves are unchanged).
 - `basics` (M29.6b): the categories every region's trader must sell (`stocks_basics`); a region
   whose cast has no trader of such a kind gets a peddler (`aidm.dm.campaign_shops`).
 
@@ -34,6 +37,11 @@ class ShopKind(BaseModel):
     always: tuple[str, ...] = ()
     one_of_each: tuple[ItemCategory, ...] = ()
     size: int = Field(ge=1, le=40)
+    premium: dict[int, int] = Field(default_factory=dict)
+    premium_categories: tuple[ItemCategory, ...] = ()
+
+    def premium_picks(self, region_tier: int) -> int:
+        return self.premium.get(region_tier, 0)
 
     def sells(self, category: ItemCategory) -> bool:
         return category in self.categories or category in self.one_of_each

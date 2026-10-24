@@ -1,5 +1,5 @@
 {
-  "source": "House shop rules (docs/RULES_DECISIONS.md M5.6): buy at value x buy_markup (rounded up, at least 1 gp), sell at half value (5e PHB 'Selling Treasure' and BG3 vendors).",
+  "source": "House shop rules (docs/RULES_DECISIONS.md M5.6): buy at value x buy_markup (rounded up, at least 1 gp), sell at half value (5e PHB 'Selling Treasure' and BG3 vendors). Premium picks (M31.2c): at region tier 2+ a kind reserves slots for the dearest items its tier allows.",
   "buy_markup": 1.0,
   "sell_fraction": 0.5,
   "max_qty": 10,
@@ -34,6 +34,13 @@
       "one_of_each": [
         "weapon",
         "armor"
+      ],
+      "premium": {
+        "2": 2,
+        "3": 3
+      },
+      "premium_categories": [
+        "scroll"
       ]
     },
     "smith": {
@@ -57,6 +64,13 @@
       "size": 14,
       "one_of_each": [
         "potion"
+      ],
+      "premium": {
+        "2": 2,
+        "3": 4
+      },
+      "premium_categories": [
+        "potion"
       ]
     },
     "alchemist": {
@@ -77,7 +91,11 @@
         "potion-of-healing",
         "herbal-poultice"
       ],
-      "size": 8
+      "size": 8,
+      "premium": {
+        "2": 2,
+        "3": 3
+      }
     },
     "scribe": {
       "keywords": [
@@ -94,7 +112,11 @@
         "scroll"
       ],
       "always": [],
-      "size": 10
+      "size": 10,
+      "premium": {
+        "2": 2,
+        "3": 3
+      }
     },
     "provisioner": {
       "keywords": [

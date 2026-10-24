@@ -35,7 +35,7 @@ from enum import StrEnum
 
 from aidm.data.item_catalogue import CatalogueItem
 from aidm.data.registry import Registry
-from aidm.data.shop_defs import ShopTable
+from aidm.data.shop_defs import ShopKind, ShopTable
 from aidm.models.events import AnyEvent, GoldChanged, InventoryChanged
 from aidm.models.state import Creature, GameState
 from aidm.models.world import WorldNpc
@@ -110,6 +110,27 @@ def _entry(item: CatalogueItem, table: ShopTable) -> StockEntry:
     return StockEntry(item=item.id, price_gp=price, unit_gp=unit, bulk=bulk_note(unit))
 
 
+def _premium_picks(
+    catalogue: Registry[CatalogueItem],
+    shape: ShopKind,
+    region_tier: int,
+    rng: Rng,
+    chosen: list[str],
+) -> None:
+    """M31.2c: a later-region shop keeps its best goods on the shelf (gold buys something)."""
+    cats = (*shape.categories, *shape.premium_categories)
+    best = sorted(
+        i.id
+        for i in catalogue.all()
+        if i.category in cats
+        and 2 <= i.tier <= region_tier
+        and i.value_gp > 0
+        and i.id not in chosen
+    )
+    for _ in range(min(shape.premium_picks(region_tier), len(best), shape.size - len(chosen))):
+        chosen.append(best.pop(rng.randint(0, len(best) - 1)))
+
+
 def shop_stock(
     catalogue: Registry[CatalogueItem],
     table: ShopTable,
@@ -127,6 +148,7 @@ def shop_stock(
         ),
         key=lambda item: item.id,
     )
+    _premium_picks(catalogue, shape, region_tier, rng, chosen)
     for category in shape.one_of_each:  # M29.6b: a general store always has a weapon and armour
         some = [i.id for i in shelf if i.category == category and i.id not in chosen]
         if some:
