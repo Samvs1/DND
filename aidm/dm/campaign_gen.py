@@ -122,8 +122,10 @@ def _candidate_text() -> str:
         listed = ", ".join(f"{m.index} [{' '.join(m.tags)}]" for m in entries)
         lines.append(f"tier {tier}: {listed}")
         unfit = [m.index for m in entries if master_too_dangerous(m.index, tier)]
-        if unfit:  # M29.6b: their breath downs a hero of that act in one blast
-            lines.append(f"tier {tier}, never a boss (area attack too strong): {', '.join(unfit)}")
+        if unfit:  # M29.6b, M31.1f: their breath or area spell downs a hero in one blast
+            lines.append(
+                f"tier {tier}, never a boss (area attack or spell too strong): {', '.join(unfit)}"
+            )
     humanoids = sorted(
         m.index
         for m in srd().monsters.all()

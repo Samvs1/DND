@@ -798,3 +798,81 @@ HEAD already ran solo at 3.8).
   answer resistant undead with fire, oil or radiant), the master pick (count a master's area spells
   like breath weapons in the `boss_area` plan check), or a per-tier full-party hit point floor below
   SRD (against this checkpoint's rule).
+
+# M31.1f: master walls (2026-10-24)
+
+Orchestrator default for the M31.1d owner call: levers 1 (bot tactics) and 2 (count a master's area
+spells in the `boss_area` plan check) first, then report. Same slice and seeds as M31.1d: balanced x
+classic, martial (`saves/balance/M31f_<run>_a`), balanced x casters, duo, solo (`_b`) and aggressive
+x classic (`_c`), seeds 1-5, 30 full campaigns on the fake storyteller, 3 detached processes, about
+12 minutes a grid; 0 runs failed a check. Report: `python scripts/balance_report.py
+saves/balance/M31f_after_a saves/balance/M31f_after_b saves/balance/M31f_after_c --markdown`.
+Before = M31.1d after (`M31d_after_*`). The runs are deterministic per seed, so a change between two
+grids is caused by the change between them.
+
+## What changed
+- **`boss_area` counts area spells** (`rules.encounter_danger`, one rule): with the spell registry,
+  `area_damage` also takes the strongest shipped area damage spell the monster's kit can cast (a
+  slot of its level or higher, an innate use or at will), at its base dice. Only the plan check
+  (`campaign_check.master_too_dangerous`) passes the registry; the offer word and the spoke filter
+  are unchanged. Plan picks: tier 1 and 2 are unchanged (the priest's Spirit Guardians lays a
+  surface and rolls no damage); tier 3 loses the **mage** (Fireball 8d6 = 28 against the tier's
+  29 reference hit points: deadly, above the medium cap). The generator's prompt lists it under
+  "never a boss (area attack or spell too strong)". The check runs when a plan is made, never on
+  load: round 4's quests save (a mage master) still replays (test).
+- **The built-in sample campaign** (the fallback the fake storyteller plays) had the mage as its
+  act-3 master and would no longer validate, so Magister Orsolo Venk is now a **gladiator** (CR 5,
+  1800 XP, 112 SRD hit points, three spear attacks, Parry): the tier-3 humanoid leader of the lair's
+  terrain (keep); the plan's text is unchanged. This, not the tactics, moves the act-3 numbers.
+- **Bot tactics** (`scripts/sim/tactics.py`, campaign bots only, from the foe token's
+  `monster_index` stat block, never its name or hidden numbers): spread one step into a free
+  touching zone against a foe with an area blast (the same `area_damage` rule) when sharing a zone
+  with an ally, not in a foe's zone and able to strike from afar; against the target's defences
+  (THE `damage_after_defenses` check) the weapon option with the most expected damage, a cantrip
+  the target takes more of (a caster's fire bolt on a fire elemental becomes ray of frost; a hero
+  whose every weapon is resisted casts a known damaging cantrip), the leveled damage spell it takes
+  most of (never one it is immune to), and carried damage gear (holy water, alchemist's fire, acid)
+  that beats the best weapon after defences.
+
+## Iterations
+| run | change | classic | casters | martial | aggressive classic | duo | solo |
+|---|---|---|---|---|---|---|---|
+| M31.1d after | (mage master, no tactics) | 1.61 | 1.63 | 2.32 | 1.94 | 0.55 | 0.74 |
+| i1 | `boss_area` spells, sample master gladiator, tactics off | 2.50 | 0.93 | 2.26 | 3.23 | 1.04 | 0.74 |
+| after | i1 + bot tactics (shipped) | 2.50 | 0.93 | 2.33 | 3.23 | 1.04 | 0.74 |
+Heroes down per master. i1 and after are identical run for run except the martial slice: no area
+foe was ever met once the mage left (spokes never field a breath above their cap), so the spread
+rule never fired; the classic party's defence-aware picks (about 40 a run, mostly at the wight) chose
+the same weapon as before, and its cleric and wizard already cast radiant and fire.
+
+## Before -> after
+| slice | clean-win | heroes down per master | party HP lost in master fights | wipes/run | epilogues |
+|---|---|---|---|---|---|
+| balanced classic | 0.82 -> 0.82 | 1.61 -> **2.50** | 0.43 -> 0.47 | 0.6 -> 0.6 | 4 -> 5 |
+| balanced casters | 0.84 -> 0.84 | 1.63 -> **0.93** | 0.44 -> **0.28** | 0.8 -> 0 | 4 -> 5 |
+| balanced martial | 0.897 -> **0.905** | 2.32 -> **2.33** | 0.62 -> 0.61 | 1.2 -> 1.4 | 3 -> 3 |
+| balanced duo | 1.00 -> 1.00 | 0.55 -> **1.04** | 0.60 -> 0.74 | 1.0 -> **2.2** | 5 -> 4 |
+| balanced solo | 0.89 -> 0.89 | 0.74 -> 0.74 | 0.91 -> 0.91 | 3.8 -> 3.8 | 0 -> 0 |
+| aggressive classic | 0.64 -> 0.64 | 1.94 -> **3.23** | 0.59 -> 0.63 | 0.6 -> 1.4 | 5 -> 5 |
+Bounds: heroes down per master 0.6..1.0, party HP lost >= 0.4, clean-win 0.75..0.90 (balanced).
+Per act (heroes down per master, retried wipes included): act 3 classic 2.25 -> 4.25, casters
+3.22 -> 2.40, martial 0.67 (3 fights) -> 3.25 (8), duo 0.57 -> 1.54, aggressive 2.14 -> 4.64; act 2
+martial 3.64 -> 2.50 (wight wipes 6 -> 3, the tactics); acts 1 and 2 otherwise unchanged.
+
+## Reading
+- **The four-hero cap still misses** for classic 2.50, martial 2.33 and aggressive classic 3.23;
+  casters pass the band (0.93) but drop under the HP floor (0.28: they kill the gladiator from range
+  before it reaches them). Not tuned further (checkpoint rule).
+- **Walls left**: (1) the act-3 master at SRD strength. The mage's Fireball wall is gone from plans,
+  but every other tier-3 master is a 78-127 hit point brute (the mage at 40 was the outlier), and
+  the gladiator alone (112 HP, AC 16, three attacks of 11) downs 4.25 heroes per fight for classic;
+  (2) the act-2 wight against weapons: the tactics cut martial's wight downs (3.64 -> 2.50) by
+  picking the better weapon, but no party carries what it does not resist (the martial party has
+  only torches; holy water, alchemist's fire or silvered arms would need shopping).
+- **Normal fights**: the 75-90% band is unchanged except martial, 0.897 -> 0.905 (just over 0.90):
+  the parties that now survive the wight play act 3's spokes.
+- **Solo and duo**: the scaling is untouched; solo is identical; duo now meets the gladiator (scaled,
+  at least half its hit points) in act 3: 8 wipes there, 2.2 wipes per run, over the M31.1d margin
+  (<= 1.3), and heroes down per master 1.04 (cap 1.0).
+- **Owner call** (unchanged levers): a per-tier full-party hit point floor below SRD, accept harder
+  masters (SRD strength, today's numbers), or a different act-3 master for the built-in campaign.

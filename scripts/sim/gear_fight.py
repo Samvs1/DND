@@ -18,6 +18,7 @@ Public API: `gear_command(plan, combat, party, gear, target)`, `gear_key(cmd)`, 
 
 from scripts.sim.client import Msg
 from scripts.sim.combat import Plan, foes_of, token_of
+from scripts.sim.tactics import touching
 
 KIT_USE = "healers-kit-stabilize"
 COMBAT_ITEM_USES = frozenset(
@@ -40,11 +41,6 @@ def _use(plan: Plan, use: Msg, **fields: str) -> Msg:
         "use_id": use["use_id"],
         **fields,
     }
-
-
-def _touching(combat: Msg, zone: str) -> set[str]:
-    edges = combat.get("edges") or []
-    return {e["b"] for e in edges if e["a"] == zone} | {e["a"] for e in edges if e["b"] == zone}
 
 
 def _zone(combat: Msg, zone_id: str) -> Msg:
@@ -79,7 +75,7 @@ def _kit(plan: Plan, combat: Msg, party: list[Msg], uses: dict[str, Msg], me: Ms
 
 
 def _oily_foe_zones(combat: Msg, plan: Plan, me: Msg) -> list[str]:
-    near = _touching(combat, me["zone_id"]) & _foe_zones(combat, plan)
+    near = touching(combat, me["zone_id"]) & _foe_zones(combat, plan)
     return sorted(z for z in near if _has_oil(_zone(combat, z)))
 
 
@@ -108,7 +104,7 @@ def _ignite(plan: Plan, combat: Msg, mine: Msg, uses: dict[str, Msg], me: Msg) -
 
 def _thrown(plan: Plan, combat: Msg, uses: dict[str, Msg], me: Msg, target: Msg) -> Msg | None:
     fire = uses.get("alchemists-fire-throw")
-    reach = {me["zone_id"], *_touching(combat, me["zone_id"])}
+    reach = {me["zone_id"], *touching(combat, me["zone_id"])}
     if fire is not None and target["zone_id"] in reach:
         return _use(plan, fire, target_id=target["creature_id"])
     oil = uses.get("oil-flask-throw")
@@ -116,7 +112,7 @@ def _thrown(plan: Plan, combat: Msg, uses: dict[str, Msg], me: Msg, target: Msg)
         return None
     if any(_has_oil(z) for z in combat.get("zones", [])):
         return None
-    near = sorted(_touching(combat, me["zone_id"]) & _foe_zones(combat, plan))
+    near = sorted(touching(combat, me["zone_id"]) & _foe_zones(combat, plan))
     plan.fight_used.add("oil")
     return _use(plan, oil, target_zone=near[0] if near else target["zone_id"])
 

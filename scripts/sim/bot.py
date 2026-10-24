@@ -16,6 +16,7 @@ from scripts.sim.combat import MAX_STEPS, Plan, choose_command, foes_of, pick_ta
 from scripts.sim.gear_fight import gear_command, gear_key
 from scripts.sim.report import Report
 from scripts.sim.spells import spell_command
+from scripts.sim.tactics import attack_option, cantrip_for, resist_gear, spread_command
 
 # What a player sees as "my action was handled".
 TERMINAL = frozenset(
@@ -175,6 +176,7 @@ class Bot:
     async def play_turn(self) -> None:
         """One hero turn: up to MAX_STEPS safe commands (gear first, M27.10), then end_turn."""
         self.plan.refused = set()
+        self.plan.spread_to = None
         gear = await self.gear_uses()
         for _ in range(MAX_STEPS):
             combat = self.conn.state.get("combat")
@@ -184,13 +186,7 @@ class Bot:
             if not foes:
                 return
             target = pick_target(self.plan, combat, foes)
-            party = list(self.conn.state.get("party", []))
-            cmd = gear_command(self.plan, combat, party, gear, target)
-            if cmd is None:
-                cmd = spell_command(self.plan, combat, party, self.sheet, target)
-            if cmd is None:
-                chances = await self._chances(target["creature_id"])
-                cmd = choose_command(self.plan, combat, chances, target)
+            cmd = await self._next_command(combat, foes, gear, target)
             outcome = await self._command(cmd)
             self.report.say(f"{self.name} {cmd['type']} {cmd.get('target_id', '')} -> {outcome}")
             if outcome.startswith("refused"):
@@ -202,11 +198,46 @@ class Bot:
                 return
         await self._command({"type": "end_turn", "actor_id": self.hero_id})
 
+    async def _next_command(
+        self, combat: Msg, foes: list[Msg], gear: list[Msg], target: Msg
+    ) -> Msg:
+        """Gear, then (campaign bots, M31.1f) the careful-table tactics, spells, the attack."""
+        plan, party = self.plan, list(self.conn.state.get("party", []))
+        cmd = gear_command(plan, combat, party, gear, target)
+        if cmd is None and plan.smart:
+            cmd = spread_command(plan, combat, foes, self.sheet)
+            self._tactic("spread", cmd is not None)
+        if cmd is None and plan.smart:
+            cmd = resist_gear(plan, combat, gear, self.sheet, target)
+            if cmd is not None and gear_key(cmd) in plan.refused | plan.fight_refused:
+                cmd = None
+            self._tactic("gear", cmd is not None)
+        if cmd is None:
+            cmd = spell_command(plan, combat, party, self.sheet, target)
+        if cmd is not None:
+            return cmd
+        chances = await self._chances(target["creature_id"])
+        cantrip = cantrip_for(plan, self.sheet, target) if plan.smart else None
+        option = attack_option(chances, self.sheet, target) if plan.smart else None
+        self._tactic("resist", cantrip is not None or option is not None)
+        return choose_command(plan, combat, chances, target, cantrip=cantrip, option=option)
+
+    def _tactic(self, name: str, used: bool) -> None:
+        if used:  # M31.1f: counted only when a tactic named the command
+            self.report.gear[f"tactic_{name}"] += 1
+
     def _spent(self, cmd: Msg) -> bool:
-        """A leveled spell was cast (M29.2): the sheet's slots changed."""
-        return cmd["type"] == "cast" and cmd.get("spell_id") != self.plan.cantrip
+        """A leveled spell was cast (M29.2): the sheet's slots changed. M31.1f: any cantrip the
+        sheet lists is no slot."""
+        if cmd["type"] != "cast":
+            return False
+        casting = (self.sheet or {}).get("spellcasting") or {}
+        cantrips = {c["index"] for c in casting.get("cantrips", [])} | {self.plan.cantrip}
+        return cmd.get("spell_id") not in cantrips
 
     def _refused(self, cmd: Msg) -> None:
+        if cmd["type"] == "move" and cmd.get("zone_id") == self.plan.spread_to:
+            return  # M31.1f: a refused step apart leaves the walk to the target open
         if self._spent(cmd):
             self.plan.refused.add(f"cast:{cmd['spell_id']}")
             return

@@ -2,9 +2,10 @@
 
 Pure helpers over the `combat_state` / snapshot dicts plus the `hit_chances` the server sent.
 Roles: the fighter closes in and attacks (charges); the caster uses its first cantrip, falling
-back to a weapon; the rogue attacks and dodges when hurt while another hero still stands (the
-last hero standing fights on instead of dodging until the foes win). Anything refused falls
-back toward `end_turn`, so a turn always ends.
+back to a weapon (M31.1f: `scripts.sim.tactics` may name a cantrip or weapon option the target
+takes more damage from); the rogue attacks and dodges when hurt while another hero still
+stands (the last hero standing fights on instead of dodging until the foes win). Anything
+refused falls back toward `end_turn`, so a turn always ends.
 
 Public API: `Plan`, `choose_command`, `foes_of`, `token_of`, `MAX_STEPS`.
 """
@@ -32,6 +33,8 @@ class Plan:
     fight_refused: set[str] = field(default_factory=set[str])
     kit_chances: int = 0
     smart: bool = False  # M29.2 campaign bots: spells and potions (`scripts.sim.spells`)
+    # M31.1f tactics (`scripts.sim.tactics`): the zone stepped to this turn (one step a turn).
+    spread_to: str | None = None
 
 
 def token_of(combat: Msg, creature_id: str) -> Msg | None:
@@ -80,8 +83,17 @@ def _cmd(kind: str, plan: Plan, **fields: Any) -> Msg:
     return {"type": kind, "actor_id": plan.hero_id, **fields}
 
 
-def choose_command(plan: Plan, combat: Msg, chances: list[Msg], target: Msg) -> Msg:
-    """The next command for a hero that can still act (see the module docstring)."""
+def choose_command(
+    plan: Plan,
+    combat: Msg,
+    chances: list[Msg],
+    target: Msg,
+    *,
+    cantrip: str | None = None,
+    option: str | None = None,
+) -> Msg:
+    """The next command for a hero that can still act (see the module docstring). M31.1f:
+    `cantrip` (any role) replaces the caster's first cantrip, `option` the best hit chance."""
     eco = combat["economy"] or {}
     if not (eco.get("action") or eco.get("attacks_left", 0) > 0):
         return _cmd("end_turn", plan)
@@ -89,9 +101,11 @@ def choose_command(plan: Plan, combat: Msg, chances: list[Msg], target: Msg) -> 
     if plan.role == "rogue" and hurt and "dodge" not in plan.refused:
         plan.refused.add("dodge")  # dodge at most once per turn
         return _cmd("dodge", plan)
-    if plan.role == "caster" and plan.cantrip and "cast" not in plan.refused:
-        return _cmd("cast", plan, spell_id=plan.cantrip, target_ids=[target["creature_id"]])
-    best = _best_in_range(chances)
+    spell = cantrip or (plan.cantrip if plan.role == "caster" else None)
+    if spell and "cast" not in plan.refused:
+        return _cmd("cast", plan, spell_id=spell, target_ids=[target["creature_id"]])
+    picked = next((c for c in chances if c["option"] == option), None)
+    best = picked or _best_in_range(chances)
     if best is not None and "attack" not in plan.refused:
         return _cmd("attack", plan, target_id=target["creature_id"], option=best["option"])
     if eco.get("movement_left", 0) > 0 and "move" not in plan.refused:

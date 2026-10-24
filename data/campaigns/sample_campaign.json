@@ -233,7 +233,7 @@
           "encounter_themes": ["shield-guardian"]
         },
         "boss": {
-          "monster_id": "mage",
+          "monster_id": "gladiator",
           "name": "Magister Orsolo Venk",
           "lair_node": "dark-lantern-room",
           "ally_path": "Give Venk the salt-stained letter of his drowned daughter from the Cistern of Echoes; grief breaks his pact and he snuffs the dark lantern himself."

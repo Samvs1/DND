@@ -4,7 +4,8 @@ The M9.1 bots only ever cast their first cantrip. A campaign bot (`Plan.smart`) 
 slots and potions like a plain table would, which is what makes rests and shopping matter:
 - a potion: my hero is below `POTION_BELOW` of its hit points and carries a healing potion;
 - a heal: an ally lies dying (or is badly hurt) and I have a healing spell and a slot for it;
-- a damage spell: a single-target damage spell with a slot left, at the bot's target.
+- a damage spell: a single-target damage spell with a slot left, at the bot's target (M31.1f: the
+  one the target takes most damage from, never one it is immune to).
 `PREFERRED` orders the spell picks at creation and level-up (the healers and the damage first).
 Everything is bot knowledge (scripts/, not the engine): the engine still refuses what is not
 legal, and a refusal puts the key in `plan.refused` so the turn falls back to the weapon.
@@ -15,6 +16,7 @@ target)`, `castable(sheet)`.
 
 from scripts.sim.client import Msg
 from scripts.sim.combat import Plan, token_of
+from scripts.sim.tactics import best_damage_spell
 
 HEALS = ("healing-word", "cure-wounds")
 DAMAGE = ("guiding-bolt", "magic-missile", "inflict-wounds", "scorching-ray", "acid-arrow")
@@ -123,5 +125,6 @@ def spell_command(
         return heal
     if not eco.get("action"):
         return None
-    spell = next((s for s in DAMAGE if s in spells and f"cast:{s}" not in plan.refused), None)
+    options = [s for s in DAMAGE if s in spells and f"cast:{s}" not in plan.refused]
+    spell = best_damage_spell(options, target)
     return None if spell is None else _cast(plan, spell, spells[spell], target["creature_id"])

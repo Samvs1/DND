@@ -42,10 +42,12 @@ class Report:
 
     def campaign_line(self) -> str:
         status = "ok" if self.ok else f"FAILED({len(self.failures)})"
+        used = sorted((k[7:], n) for k, n in self.gear.items() if k.startswith("tactic_") and n)
+        tactics = f" tactics={','.join(f'{k}:{n}' for k, n in used)}" if used else ""
         return (
             f"{self.style}/{self.shape} seed {self.seed}: {status} outcome={self.outcome or '-'} "
             f"level={self.level} combats={self.combats} retries={self.retries} "
-            f"turns={self.turns} {self.seconds:.0f}s"
+            f"turns={self.turns} {self.seconds:.0f}s{tactics}"
         )
 
     def summary(self) -> str:
