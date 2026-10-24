@@ -21,22 +21,33 @@ spell is cast without the engine. A spell aimed at no creature is cast AT THE SC
 `rules.spells.scene_cast`: the slot or resource is spent, nothing moves, nothing is covered),
 decided from the spell's data only:
 - a point or area spell that strikes no one (`strikes_creatures` false: Misty Step, Fog Cloud);
-- a hostile spell (`strikes_creatures`: an attack, a save, damage, an HP pool) when nobody it
-  could be aimed at is here: no living NPC stands in the scene and no encounter offer waits.
-  With someone here it is None: an attack, or the start of a fight, is the storyteller's call.
+- a hostile spell (`strikes_creatures`: an attack, a save, damage, an HP pool) aimed at nothing
+  or at scenery. M31.1a V2 (round 4: Burning Hands at reeds and Thunderwave over water spent no
+  slot because NPCs stood near): only a hostile spell aimed AT someone, a line naming an NPC
+  standing here or a foe of the waiting offer, is None (an attack, or the start of a fight, is
+  the storyteller's call); people standing near do not make it one.
 A scene cast needs the spell's name right after the cast word (`cast`, `casts`, `casting`, at
 most two words between: "I cast a quick misty step"), so "I cast a glance at the web" is no Web.
 
-Public API: `CastIntent(actor_id, spell, target_ids, at_scene)`, `RESOLVERS` (`cast_spell`).
+M31.1a V2: the `named_spell` row reads a READY spell named without a cast word ("I murmur a
+healing word over Rook", `dm.spell_names`): a healing spell is the typed-healing path
+(`heal_intent.heal_spell`), any other the cast above, its name counting as said.
+
+Public API: `CastIntent(actor_id, spell, target_ids, at_scene)`, `RESOLVERS` (`cast_spell`,
+`named_spell`).
 """
 
 import re
 from dataclasses import dataclass
 
 from aidm.data.combat_data import combat_registries
-from aidm.data.spell_defs import SpellDef
-from aidm.dm.heal_intent import named_heroes
+from aidm.data.intent_phrases import intent_phrases
+from aidm.data.spell_defs import HealEffect, SpellDef
+from aidm.dm.fight_names import tokens
+from aidm.dm.heal_intent import HealIntent, heal_spell, named_heroes
+from aidm.dm.intent_conditions import foe_words
 from aidm.dm.intent_match import Found, Resolver
+from aidm.dm.spell_names import ready_spells, said_name
 from aidm.models.state import GameState
 from aidm.rules.scene import current_scene
 from aidm.rules.spell_targets import strikes_creatures
@@ -64,15 +75,21 @@ def _named_spell(words: frozenset[str]) -> SpellDef | None:
 
 
 def _names_npc_here(state: GameState, words: frozenset[str]) -> bool:
-    npcs = (state.world.npcs[i] for i in current_scene(state).npc_ids)
-    return any(words & (set(re.findall(r"[a-z]+", n.name.lower())) - _FILLER) for n in npcs)
+    """A word of the name or role of an NPC standing here (M31.1a: "the ferryman")."""
+    npcs = [state.world.npcs[i] for i in current_scene(state).npc_ids]
+    return any(
+        words & (set(re.findall(r"[a-z]+", f"{n.name} {n.role}".lower())) - _FILLER) for n in npcs
+    )
 
 
-def _someone_here(state: GameState) -> bool:
-    if state.campaign is not None and state.campaign.offer is not None:
+def _aimed_at_someone(state: GameState, words: frozenset[str]) -> bool:
+    """The line names a person standing here (or says "him", "her", "the man" with someone here)
+    or a foe of the waiting offer (M31.1a V2)."""
+    if words & foe_words(state) or _names_npc_here(state, words):
         return True
-    npcs = (state.world.npcs.get(i) for i in current_scene(state).npc_ids)
-    return any(n is not None and not n.dead for n in npcs)
+    here = [state.world.npcs[i] for i in current_scene(state).npc_ids]
+    people = intent_phrases().lexicon["person_words"]
+    return bool(words & people) and any(not n.dead for n in here)
 
 
 def _said_after_cast(text: str, spell: SpellDef) -> bool:
@@ -81,12 +98,13 @@ def _said_after_cast(text: str, spell: SpellDef) -> bool:
     return re.search(rf"\bcast(?:s|ing)?\s+(?:[a-z]+\s+){{0,2}}?{name}\b", low) is not None
 
 
-def _at_scene(found: Found, spell: SpellDef) -> bool | None:
-    """True: cast at the scene; False: aimed at heroes; None: the storyteller's."""
-    if strikes_creatures(spell) and _someone_here(found.state):
+def _at_scene(found: Found, spell: SpellDef, named: bool) -> bool | None:
+    """True: cast at the scene; False: aimed at heroes; None: the storyteller's. `named`: the
+    spell's name was read as a ready spell's (no cast word needed)."""
+    if strikes_creatures(spell) and _aimed_at_someone(found.state, found.words):
         return None
     if strikes_creatures(spell) or spell.targeting.kind in _SCENE_KINDS:
-        return True if _said_after_cast(found.text, spell) else None
+        return True if named or _said_after_cast(found.text, spell) else None
     return False
 
 
@@ -102,13 +120,12 @@ def _targets(found: Found, spell: SpellDef) -> tuple[str, ...] | None:
     return (named[-1],) if kind == "creature" else tuple(dict.fromkeys(named))
 
 
-def _cast(found: Found) -> CastIntent | None:
+def _intent(found: Found, spell: SpellDef | None, named: bool) -> CastIntent | None:
     actor = found.state.creatures.get(found.actor_id)
-    if actor is None or actor.pc is None:
+    if actor is None or actor.pc is None or spell is None:
         return None
-    spell = _named_spell(found.words)
-    scene = None if spell is None else _at_scene(found, spell)
-    if spell is None or scene is None:
+    scene = _at_scene(found, spell, named)
+    if scene is None:
         return None
     if scene:
         return CastIntent(actor.id, spell.index, (), at_scene=True)
@@ -116,4 +133,21 @@ def _cast(found: Found) -> CastIntent | None:
     return CastIntent(actor.id, spell.index, targets) if targets is not None else None
 
 
-RESOLVERS: dict[str, Resolver] = {"cast_spell": _cast}
+def _cast(found: Found) -> CastIntent | None:
+    return _intent(found, _named_spell(found.words), named=False)
+
+
+def _ready_named(found: Found) -> CastIntent | HealIntent | None:
+    """M31.1a V2: a ready spell named without a cast word ("I murmur a healing word over Rook")
+    is a cast of it; a healing spell is the typed-healing path."""
+    actor = found.state.creatures.get(found.actor_id)
+    said = said_name(tokens(found.text), ready_spells(actor)) if actor is not None else None
+    spell = combat_registries().spells.find(said[0]) if said is not None else None
+    if spell is None:
+        return None
+    if any(isinstance(e, HealEffect) for e in spell.effects):
+        return heal_spell(found)
+    return _intent(found, spell, named=True)
+
+
+RESOLVERS: dict[str, Resolver] = {"cast_spell": _cast, "named_spell": _ready_named}

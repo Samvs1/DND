@@ -16,6 +16,8 @@ The resolvers read the sentence:
   hero (M29.7a R7: "hand" / "give" with no drink word is a
   hand-over, `aidm.dm.hand_intent`, read before this). The draught is the actor's, else the named
   hero's own ("pours his potion between Rook's lips"). The best word match wins ("my potion").
+  M31.1a V6: a drink word (`drink_verbs`: drink, quaff, swallow ...) always means the speaker
+  drinks, whatever names come later in the line.
 Anything else is None and goes on as before (the adjudicator).
 
 Public API: `HealIntent(actor_id, target_ids, item, owner_id, spell)`, `RESOLVERS`
@@ -100,10 +102,19 @@ def _heal_items(hero: Creature, words: frozenset[str]) -> tuple[int, str] | None
     return max(scored, default=None)
 
 
+def _before_drink(clean: str) -> str:
+    """M31.1a V6: a drink word makes the speaker the drinker, whatever names come after it
+    ("I drink the herbal poultice Brienne gave me"); only a hero named before it drinks
+    ("I help Rook drink my potion")."""
+    drinks = intent_phrases().lexicon["drink_verbs"]
+    found = [m.start() for m in re.finditer(r"[a-z]+", clean) if m.group() in drinks]
+    return clean[: found[0]] if found else clean
+
+
 def _item_intent(
     state: GameState, actor: Creature, clean: str, words: frozenset[str]
 ) -> HealIntent | None:
-    named = named_heroes(state, actor.id, clean)
+    named = named_heroes(state, actor.id, _before_drink(clean))
     lexicon = intent_phrases().lexicon
     if not words & lexicon["heal_self_verbs"] and not (
         words & lexicon["heal_give_verbs"] and named

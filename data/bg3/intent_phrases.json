@@ -379,6 +379,41 @@
       "tell",
       "tells",
       "whether"
+    ],
+    "person_words": [
+      "boy",
+      "child",
+      "figure",
+      "folk",
+      "girl",
+      "guard",
+      "guards",
+      "her",
+      "him",
+      "man",
+      "men",
+      "people",
+      "person",
+      "stranger",
+      "them",
+      "woman",
+      "women"
+    ],
+    "drink_verbs": [
+      "downs",
+      "drink",
+      "drinking",
+      "drinks",
+      "gulp",
+      "gulps",
+      "quaff",
+      "quaffing",
+      "quaffs",
+      "sip",
+      "sips",
+      "swallow",
+      "swallowing",
+      "swallows"
     ]
   },
   "patterns": {
@@ -387,7 +422,7 @@
     "long_rest_named": "\\b(?:take|takes|taking|have|has|having|get|gets) (?:a |an |our |their |his |her )?long rest\\b",
     "self_surrender": "^(i|we|let us|let's)( all)? (surrender|yield|give up)\\b",
     "purpose": " (?:so that|so|to|in order to|because|before|while|for) .+$",
-    "item_tail": " (?:instead(?: of .*)?|in place of .*|in its place|for now)$",
+    "item_tail": " (?:instead(?: of .*)?|in place of .*|in its place|for now|(?:on|onto|over|across|at|to|behind|into|in) (?:my|his|her|their|its|the) (?:back|shoulders?|hips?|side|belt|pack|sheath|scabbard|holster|quiver)|away)$",
     "pick_up": "\\bpick(?:s|ing)? (?:\\S+ ){0,3}up\\b",
     "loose_money": "(?:\\d+|some|a few|a|an|one|two|three|a handful of|a bit of|a little)? ?(?:gold|silver|copper|coin|coins|gold coins?|silver coins?|copper coins?|gp|sp|cp|money)(?: pieces?| coins?)?",
     "gold_amount": "(?P<n>\\d+) (?:gold(?: pieces| coins)?|gp|coins?)",
@@ -933,6 +968,19 @@
       "note": "M30.0b T7: a known spell cast outside a fight on the hero or other heroes (the healing rows rank first)"
     },
     {
+      "id": "named_spell",
+      "scopes": [
+        "explore"
+      ],
+      "family": "cast",
+      "precedence": 1366,
+      "resolver": "named_spell",
+      "readings": [
+        "base"
+      ],
+      "note": "M31.1a V2: a READY spell named without a cast word ('I murmur a healing word over Rook'): healing is the typed-healing path, any other spell the cast_spell rules"
+    },
+    {
       "id": "rest_named_short",
       "scopes": [
         "explore"
@@ -1190,7 +1238,10 @@
             "unstrap",
             "unhook",
             "unbuckle",
-            "unsling"
+            "unsling",
+            "sling",
+            "holster",
+            "tuck away"
           ]
         }
       ]

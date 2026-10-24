@@ -18,8 +18,14 @@ item whose name words are all in the phrase, the others only spare words (the le
 `spare_item_words`: new, old, spare ...; an exact name first). Anything else is None. The rules
 decide (`aidm.rules.equipment`).
 
+M31.1a V7 ("I sheathe my longsword and sling my shield on my back" changed nothing): sling,
+holster and tuck away stow too, and a place to stow it ("on my back", "at my hip", "away") is
+cut like "instead"; an unequip may name a carried item that is not in hand (the rules then say
+it is already put away); a compound gear line is both acts (`ItemIntents`), so a half already
+done is a note and the other half still happens.
+
 Public API: `ItemAction` (EQUIP/UNEQUIP/DROP), `ItemIntent(actor_id, action, item)` (`item` the
-inventory index), `RESOLVERS` (`item`, `item_pair`).
+inventory index), `ItemIntents(acts)`, `RESOLVERS` (`item`, `item_pair`).
 """
 
 import re
@@ -28,7 +34,7 @@ from enum import StrEnum
 
 from aidm.data.intent_phrases import intent_phrases
 from aidm.dm.entities import display_name
-from aidm.dm.intent_match import Found, Resolver, route
+from aidm.dm.intent_match import Found, Resolver, route, text_match
 from aidm.dm.sentence import plain_verb
 from aidm.models.state import Creature, GameState
 
@@ -46,6 +52,13 @@ class ItemIntent:
     item: str
 
 
+@dataclass(frozen=True)
+class ItemIntents:
+    """Both halves of a compound gear line, in the order said (M31.1a V7)."""
+
+    acts: tuple[ItemIntent, ...]
+
+
 def _words(name: str) -> frozenset[str]:
     return frozenset(re.findall(r"[a-z0-9']+", name.lower().replace("-", " "))) - {"the"}
 
@@ -59,9 +72,8 @@ def _equipped(pc: Creature) -> list[str]:
 def _item(actor: Creature, action: ItemAction, name: str) -> ItemIntent | None:
     if actor.pc is None:
         return None
-    pool = (
-        _equipped(actor) if action is ItemAction.UNEQUIP else [i.item for i in actor.pc.inventory]
-    )
+    carried = [i.item for i in actor.pc.inventory]
+    pool = [*_equipped(actor), *carried] if action is ItemAction.UNEQUIP else carried
     wanted = _words(name)
     names = [(index, (_words(index), _words(display_name(index)))) for index in pool]
     exact = next((i for i, have in names if wanted in have), None)
@@ -91,15 +103,29 @@ def _plain(text: str) -> str:
     return f"{plain_verb(verb)} {rest}".strip()
 
 
-def item_pair(found: Found) -> ItemIntent | None:
-    """Both acts of "<unequip X> and <equip Y>" are item commands: the equip, else the first."""
+def item_pair(found: Found) -> ItemIntent | ItemIntents | None:
+    """Two gear acts in one line: "<unequip X> and <equip Y>" is the equip (the rules free the
+    slot); any other pair is both acts in order (M31.1a V7), so a half already done is only a
+    note and the other half still happens; a half that names nothing carried leaves the other."""
     if found.rest is None:
         return None
     first = _one(found.state, found.actor_id, found.text)
     second = _one(found.state, found.actor_id, _plain(found.rest))
     if first is None or second is None:
-        return None
-    return second if second.action is ItemAction.EQUIP else first
+        return first or second if (first or second) and _gear_half(found) else None
+    swap = first.action is ItemAction.UNEQUIP and second.action is ItemAction.EQUIP
+    return second if swap else ItemIntents((first, second))
+
+
+def _tail(text: str) -> str:
+    return re.sub(intent_phrases().patterns["item_tail"], "", text).strip()
+
+
+def _gear_half(found: Found) -> bool:
+    """Both halves read as gear lines (the phrase shapes alone)."""
+    rows = ("item_equip", "item_unequip", "item_drop")
+    halves = (found.text, _plain(found.rest or ""))
+    return all(text_match(rows, _tail(h)) is not None for h in halves)
 
 
 RESOLVERS: dict[str, Resolver] = {"item": item, "item_pair": item_pair}

@@ -6,7 +6,8 @@ proposer first, `quest_people.hold`, M23.4), `rest_job` (`rules.rests`), `shop_j
 `open_shop` tool, then `shop_stock` to everyone). Hero jobs: `answer` (the pending encounter
 offer, first answer wins), `buy`/`sell` (`rules.shop`), `level` (`rules.leveling.level_up`; not
 in a fight, M20.4), `equip`/`unequip`/`drop` and the equip/drop pre-check intents
-(`rules.equipment`), `use_item` (M7.5b: a potion outside a fight on the hero or another living hero,
+(`rules.equipment`; M31.1a V7: both acts of a compound line, one already so is an `ALREADY`
+note), `use_item` (M7.5b: a potion outside a fight on the hero or another living hero,
 `rules.items.use_item_events`; at full HP it is drunk for nothing, M27.7),
 `copy_scroll` (M27.7: the Spellbook tab, a wizard copies a carried scroll into the spellbook out
 of a fight, `rules.scrolls`; refusal codes `scroll_<reason>`),
@@ -21,7 +22,7 @@ Public API: `travel_job`, `rest_job`, `shop_job`, `item_intent`, `answer`, `buy`
 """
 
 from aidm.dm.arrival import offer_data
-from aidm.dm.equip_intent import ItemAction, ItemIntent
+from aidm.dm.equip_intent import ItemAction, ItemIntent, ItemIntents
 from aidm.dm.help_intent import HelpUpIntent
 from aidm.dm.llm_types import ToolCall
 from aidm.dm.precheck import RestKind
@@ -48,6 +49,7 @@ from aidm.models.state import Creature, CreatureKind
 from aidm.rules.command_checks import CommandRefused
 from aidm.rules.downed import HelpUpRefused, help_up_events
 from aidm.rules.equipment import (
+    EquipRefusal,
     EquipRefused,
     drop_events,
     equip_events,
@@ -64,6 +66,11 @@ from aidm.session.quest_people import hold
 from aidm.session.table_core import Job, Player, TableCore
 from aidm.session.telling import conclude, remember, tell_text
 from aidm.session.views import stock_lines
+
+ALREADY = {  # M31.1a V7: a gear act already so is a note, never a refusal of the whole line
+    EquipRefusal.NOT_EQUIPPED: "{name}'s {item} is already put away.",
+    EquipRefusal.ALREADY_EQUIPPED: "{name} already has the {item} ready.",
+}
 
 
 def _tool(name: str, **args: str) -> ToolCall:
@@ -289,10 +296,12 @@ async def copy_scroll(core: TableCore, player: Player, msg: CopyScroll) -> None:
     _gear(core, player, events, f"{pc.name} copies {name} into the spellbook for {gold} gold.")
 
 
-async def item_intent(core: TableCore, player: Player, intent: ItemIntent) -> None:
-    pc = core.state.creatures.get(intent.actor_id)
-    if pc is not None:
-        await _item(core, player, pc, intent.action, intent.item)
+async def item_intent(core: TableCore, player: Player, intent: ItemIntent | ItemIntents) -> None:
+    """A typed gear act; M31.1a V7: both halves of a compound line, each on its own."""
+    for act in intent.acts if isinstance(intent, ItemIntents) else (intent,):
+        pc = core.state.creatures.get(act.actor_id)
+        if pc is not None:
+            await _item(core, player, pc, act.action, act.item)
 
 
 async def _item(
@@ -312,6 +321,10 @@ async def _item(
             events = drop_events(core.state, pc, item, chars)
             _gear(core, player, events, f"{pc.name} sets down the {name}.")
     except EquipRefused as refused:
+        done = ALREADY.get(refused.reason)
+        if done is not None:  # M31.1a V7: already so, a note and nothing else
+            core.notice(player.id, NoticeKind.INFO, done.format(name=pc.name, item=name))
+            return
         core.error(
             player.id, ErrorCode.REFUSED, refused.detail.capitalize() + ".", refused.reason.value
         )

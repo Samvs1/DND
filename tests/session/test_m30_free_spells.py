@@ -96,10 +96,13 @@ async def test_m30_typed_unready_scene_spell_is_refused_plainly(tmp_path: Path) 
     assert _told(events) == ["You cannot cast spells."]
 
 
-def test_m30_hostile_spell_with_an_npc_here_keeps_the_old_path() -> None:
+def test_m30_hostile_spell_aimed_at_an_npc_keeps_the_old_path() -> None:
     state = _docks()  # Dessa, Odalys and Tobin stand on the docks
     assert precheck(state, "wizard", "I cast fire bolt at Tobin") is None
-    assert precheck(state, "wizard", "I cast fire bolt at the crates") is None
+    # M31.1a V2: people standing near do not stop a cast at scenery (round 4, typed 79)
+    assert precheck(state, "wizard", "I cast fire bolt at the crates") == CastIntent(
+        "wizard", "fire-bolt", (), True
+    )
     # with nobody here a hostile spell has no one to strike: it is cast at the scene
     empty = party_state(3)
     assert precheck(empty, "wizard", "I cast fire bolt at the crates") == CastIntent(

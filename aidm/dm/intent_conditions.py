@@ -11,7 +11,7 @@ scope depends on, evaluated here and only here (`aidm.dm.intent_match` calls the
   filler like "the", "old"); naming a present non-foe NPC is a normal talk turn;
 - `no_offer_waits`: no encounter offer waits (travel is the offer's buttons then).
 
-Public API: `Condition`, `CONDITIONS`.
+Public API: `Condition`, `CONDITIONS`, `foe_words(state)`.
 """
 
 import re
@@ -70,20 +70,28 @@ def _name_words(name: str) -> set[str]:
     return set(re.findall(r"[a-z]+", name.lower())) - _FILLER
 
 
+def foe_words(state: GameState) -> set[str]:
+    """The words that name the waiting offer's foes: a word of a monster id or of the master's
+    name (empty with no offer)."""
+    offer = _offer(state)
+    if offer is None:
+        return set()
+    words = {w for m in offer.monster_ids for w in m.split("-") if not w.isdigit()}
+    boss = state.world.npcs.get(offer.boss_npc_id or "")
+    return words | _name_words(boss.name) if boss is not None else words
+
+
 def foe_or_no_bystander(found: "Found") -> bool:
     state, words = found.state, found.words
     offer = _offer(state)
     if offer is None:
         return True
-    foe_words = {w for m in offer.monster_ids for w in m.split("-")}
-    boss = state.world.npcs.get(offer.boss_npc_id or "")
-    if boss is not None:
-        foe_words |= _name_words(boss.name)
-    if words & foe_words:
+    foes = foe_words(state)
+    if words & foes:
         return True
     here = state.world.current_node
     return not any(
-        words & (_name_words(n.name) - foe_words)
+        words & (_name_words(n.name) - foes)
         for n in state.world.npcs.values()
         if n.node_id == here and not n.dead and n.id != offer.boss_npc_id
     )

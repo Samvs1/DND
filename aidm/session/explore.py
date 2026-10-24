@@ -32,7 +32,7 @@ Public API: `submit_action`, `kick_resolver`, `resolve_next`, `resolve_action`, 
 """
 
 from aidm.dm.cast_intent import CastIntent
-from aidm.dm.equip_intent import ItemIntent
+from aidm.dm.equip_intent import ItemIntent, ItemIntents
 from aidm.dm.give_intent import GiveIntent
 from aidm.dm.hand_intent import HeroHandIntent
 from aidm.dm.heal_intent import HealIntent
@@ -145,7 +145,7 @@ async def resolve_action(core: TableCore, entry: QueueEntry) -> None:
         await remember(core, await tell_text(core, intent.text))
     elif isinstance(intent, InventoryIntent):
         core.notice(player.id, NoticeKind.INFO, inventory_text(actor))
-    elif isinstance(intent, ItemIntent):
+    elif isinstance(intent, ItemIntent | ItemIntents):
         await party_actions.item_intent(core, player, intent)
     elif isinstance(intent, TakeIntent):
         await hand_over.take_intent(core, player, intent)

@@ -17,9 +17,10 @@ light first, gear use, take.
 Public API:
 - Intents (frozen): `RestIntent(kind)` (`RestKind` SHORT/LONG), `ShopIntent(npc_id)`,
   `TravelIntent(node_id)`, `InventoryIntent(actor_id)`, `LookIntent(text)`, `TakeIntent`,
-  `BarredIntent(text)` (`aidm.dm.scene_intent`), `ItemIntent` (`aidm.dm.equip_intent`),
-  `HelpUpIntent`, `GiveIntent`, `HeroHandIntent`, `LiftIntent`, `PayIntent`, `ParleyIntent`,
-  `UseIntent`, `HealIntent`, `CastIntent` (their `*_intent` modules);
+  `BarredIntent(text)` (`aidm.dm.scene_intent`), `ItemIntent`, `ItemIntents`
+  (`aidm.dm.equip_intent`), `HelpUpIntent`, `GiveIntent`, `HeroHandIntent`, `LiftIntent`,
+  `PayIntent`, `ParleyIntent`, `UseIntent`, `HealIntent`, `CastIntent` (their `*_intent`
+  modules);
 - `Intent` (the union), `precheck(state, actor_id, text) -> Intent | None`;
 - `gear_intent(state, actor_id, text) -> UseIntent | None`: the gear rows alone, for the typed
   actions of a fight (M27.5: putting a light out is free, lighting one a bonus action);
@@ -31,7 +32,7 @@ Public API:
 """
 
 from aidm.dm.cast_intent import CastIntent
-from aidm.dm.equip_intent import ItemIntent
+from aidm.dm.equip_intent import ItemIntent, ItemIntents
 from aidm.dm.give_intent import GiveIntent
 from aidm.dm.hand_intent import HeroHandIntent
 from aidm.dm.heal_intent import HealIntent
@@ -64,6 +65,7 @@ __all__ = [
     "Intent",
     "InventoryIntent",
     "ItemIntent",
+    "ItemIntents",
     "LookIntent",
     "RestIntent",
     "RestKind",
@@ -83,6 +85,7 @@ type Intent = (
     | ShopIntent
     | TravelIntent
     | ItemIntent
+    | ItemIntents
     | InventoryIntent
     | LookIntent
     | TakeIntent
@@ -102,6 +105,7 @@ _INTENTS = (
     ShopIntent,
     TravelIntent,
     ItemIntent,
+    ItemIntents,
     InventoryIntent,
     LookIntent,
     TakeIntent,
