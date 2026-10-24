@@ -112,6 +112,8 @@ How it happens:
 
 ## 6. `aidm/dm/guard_present.py`, lines 92-99
 
+**Status:** fixed in M33.2 (6e28730)
+
 - **File:** aidm/dm/guard_present.py
 - **Lines:** 92-99
 - **Severity:** normal
@@ -152,6 +154,8 @@ How it happens: offer_strike.py:45-46 stores the text with `waiting_line.keep(pl
 
 ## 8. `aidm/dm/guard_turn.py`, lines 282-289
 
+**Status:** fixed in M33.2 (6e28730)
+
 - **File:** aidm/dm/guard_turn.py
 - **Lines:** 282-289
 - **Severity:** normal
@@ -172,6 +176,8 @@ Mechanism, checked in aidm/dm/guard_turn.py:282-289:
 
 ## 9. `aidm/dm/guard_present.py`, lines 48-110
 
+**Status:** fixed in M33.2 (6e28730)
+
 - **File:** aidm/dm/guard_present.py
 - **Lines:** 48-110
 - **Severity:** normal
@@ -190,6 +196,8 @@ Why the master is left out:
 - aidm/rules/encounter_offer.py builds the master's company with `_company(rng, data, themes, cap, [boss.archetype_id], len(levels))[1:]`. `_company` starts `picked = list(lead)`, so the `[1:]` drops the master. The offer then stores `monster_ids=tuple(monsters)` and keeps the master only as `boss_npc_id=boss.id`.
 
 ## 10. `aidm/server/tts.py`, lines 110-113
+
+**Status:** fixed in M33.2 (6e28730)
 
 - **File:** aidm/server/tts.py
 - **Lines:** 110-113
