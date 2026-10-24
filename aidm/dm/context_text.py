@@ -4,6 +4,7 @@ Public API:
 - `ContextPurpose`: ADJUDICATE / NARRATE / NPC_VOICE / SUMMARIZE (what the pack is for).
 - `CLOSED_WORLD`: the statement that ends every scene manifest.
 - `PLAYER_TAG`: the delimiter tag that wraps player text as data.
+- `IMPOSSIBLE_RULE`: when the adjudicator may declare an attempt impossible (M30.2; rare).
 - `system_text(purpose) -> str`: the DM rules (section 1), incl. the closed list of quests (M23.5).
 - `task_text(purpose, npc_name) -> str`: the closing instruction after the context.
 """
@@ -22,6 +23,13 @@ CLOSED_WORLD = (
     "Anything not listed here does not exist. To make something exist, call a creation tool."
 )
 PLAYER_TAG = "player_action"
+IMPOSSIBLE_RULE = (  # M30.2 owner rule: never refuse a physically possible action
+    "Impossible is rare: set impossible on request_check only when no person's body could do it"
+    " in the fiction (such as leaping from the ground onto a rooftop) and nothing at hand allows"
+    " it; a natural 20 wins any check, even nearly_impossible, so never use a check for that."
+    " Hard but possible is a check at a high dc_tier. If a spell, item or feature the hero has"
+    " makes it possible, it is never impossible. When unsure, use a check."
+)
 
 _RULES = (
     "You are the Dungeon Master of a D&D 5e game played with BG3 rules.",
@@ -42,7 +50,7 @@ _ROLE = {
         " Use only ids from the manifest. Call no_mechanics when nothing needs the rules."
         " When a hero uses gear they carry (a torch, rope, crowbar, thieves' tools, a kit),"
         " call use_item: gear advantage comes only from use_item, never from the advantage"
-        " flag of request_check. Usable gear here is listed under the manifest."
+        " flag of request_check. Usable gear here is listed under the manifest. " + IMPOSSIBLE_RULE
     ),
     ContextPurpose.NARRATE: (
         "Your job now: narrate what happened, as briefly as the STYLE below asks, second person"

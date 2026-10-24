@@ -117,6 +117,15 @@ def _gear(c: Creature) -> list[str]:
     return [display_name(i) for i in dict.fromkeys(w for w in worn if w)]
 
 
+def _spells(c: Creature) -> list[str]:
+    """The spells the hero can cast now (M30.2: so the model never calls magic impossible)."""
+    if c.pc is None:
+        return []
+    pc = c.pc
+    ready = [*pc.cantrips, *pc.race_cantrips, *pc.spells_known, *pc.prepared]
+    return [display_name(i) for i in dict.fromkeys(ready)]
+
+
 def _backstory(c: Creature) -> str:
     text = (c.pc.backstory if c.pc is not None else "").strip().replace("\n", " ")
     first = text.split(". ")[0]
@@ -135,6 +144,9 @@ def _sheet(c: Creature, short: bool) -> str:
     gear = _gear(c)
     if gear:
         line += f", gear: {', '.join(gear)}"
+    spells = _spells(c)
+    if spells:
+        line += f", spells: {', '.join(spells)}"
     if pc.keepsakes:  # M19.3: story objects the hero really carries
         line += f", keepsakes: {', '.join(k.name for k in pc.keepsakes)}"
     story = _backstory(c)
