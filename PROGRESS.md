@@ -1,4 +1,4 @@
-NEXT: Next: FULL gate (detached) + commit `M32: Round 5`; round 6 needs a fresh owner OK; then M31.2 backlog, M26.11. M32.1d done (3a7d54b, plus this docs commit): X17 harness (live wait 60 s, melee wins damage ties, look shows gear and pack, short feature ids), What now? one-route line, milestone XP traced as designed (unchanged), gladiator words recomputed (hard, hard). Files in flight: none. Last gate: M32.1d scoped green (3711 passed unit+ai+session+property, ruff/format/pyright/imports/structure/secrets/protocol/manual ok).
+NEXT: Next: M31.2 backlog (mechanical: SRD utility cantrips as data rows, shop price display, harness heal lines, invented foe abilities, the overpay line; balance items wait on owner calls: milestone XP vs fight XP, gold sinks, darkness), then M26.11. Round 6 only with a fresh owner OK. M32 closed (`M32: Round 5`, X1-X17 fixed, masters at full HP). Files in flight: none. Last gate: FULL PASS 12/12 at dd8dec8 (gate18).
 
 # PROGRESS
 
