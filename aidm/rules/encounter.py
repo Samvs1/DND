@@ -60,6 +60,7 @@ from aidm.models.encounter import (
     EncounterSetup,
     EncounterStatus,
     InitiativeEntry,
+    MonsterSpawn,
     Side,
     SurpriseKind,
     TurnEconomy,
@@ -75,6 +76,7 @@ from aidm.rules.dice import Rng, roll
 from aidm.rules.difficulty import scale_spawn
 from aidm.rules.harm_ends import befriended_by_party, yielded_to_party
 from aidm.rules.leveling import gain_xp
+from aidm.rules.monster_keys import LEGENDARY_KEY, legendary_pool
 from aidm.rules.monster_stats import creature_from_monster
 
 INITIATIVE_DIE = "1d4"
@@ -194,6 +196,18 @@ def _offer_closed_by_fight(state: GameState, setup: EncounterSetup) -> list[AnyE
     return [OfferResolved(offer_id=offer.id, choice=OfferChoice.FIGHT, success=None, detail=detail)]
 
 
+def _marked(creature: Creature, spawn: MonsterSpawn) -> Creature:
+    """M31.1d: the spawn's extra traits and its master's-turn points (a creature with its own
+    legendary actions keeps its SRD pool)."""
+    if not spawn.traits and spawn.legendary_points <= 0:
+        return creature
+    traits = list(dict.fromkeys([*creature.traits, *spawn.traits]))
+    pools = dict(creature.resources)
+    if spawn.legendary_points > 0 and LEGENDARY_KEY not in pools:
+        pools[LEGENDARY_KEY] = legendary_pool(spawn.legendary_points, spawn.legendary_recharge)
+    return creature.model_copy(update={"traits": traits, "resources": dict(sorted(pools.items()))})
+
+
 def start_encounter(
     rng: Rng, state: GameState, setup: EncounterSetup, monsters: Registry[SrdMonster]
 ) -> list[AnyEvent]:
@@ -208,6 +222,7 @@ def start_encounter(
             creature = creature.model_copy(update={"npc_id": spawn.npc_id})
         if spawn.side is Side.HOSTILE:
             creature = scale_spawn(creature, state.difficulty.monster_hp * spawn.hp_scale)
+        creature = _marked(creature, spawn)
         spawned.append((creature, spawn.side, spawn.zone_id, block.xp))
     spawned = _lettered(spawned)
     joined = [(state.creatures[p.creature_id], p.side, p.zone_id, 0) for p in setup.party]

@@ -31,9 +31,14 @@ State model (all mutable state models, changed only by the reducer, new fields n
 Setup inputs (frozen, built by the DM tool or the session):
 - `SurpriseKind`: NONE / PARTY (the party is ambushed) / HOSTILE (the party ambushes).
 - `PartyPlacement(creature_id, zone_id, side)`: an existing creature joining the fight.
-- `MonsterSpawn(monster, zone_id, side, name, npc_id, hp_scale)`: an SRD monster index to
-  instantiate; `hp_scale` (M29.6, at most 1) scales its hit points on top of the host
-  difficulty (a boss too strong alone for a small party, `aidm.rules.encounter_offer`).
+- `MonsterSpawn(monster, zone_id, side, name, npc_id, hp_scale, legendary_points,
+  legendary_recharge, traits)`: an
+  SRD monster index to instantiate; `hp_scale` scales its hit points on top of the host
+  difficulty (M29.6: below 1 for a master too strong alone for a solo or duo; M31.1d: above 1
+  for a full party's master, `aidm.rules.master_boost`); `legendary_points` (M31.1d) gives a
+  creature without legendary actions a pool of that many points a round for its own single
+  attacks (a master's turn), refilled at its turn's start on a d6 of at least
+  `legendary_recharge` (1: always); `traits` are feature ids added to its stat block's traits.
 - `EncounterSetup(encounter_id, zone_map, party, monsters, surprise, offer_id)`: `offer_id`
   names the waiting offer this fight answers (its `OfferResolved` is already emitted).
 - `Difficulty`: EASY / MEDIUM / HARD / DEADLY (the encounter budget tiers).
@@ -148,6 +153,9 @@ class PartyPlacement(BaseModel):
     side: Side = Side.PARTY
 
 
+MAX_SPAWN_HP_SCALE = 4.0  # M31.1d: the most a spawn's hit points are multiplied
+
+
 class MonsterSpawn(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
@@ -156,7 +164,10 @@ class MonsterSpawn(BaseModel):
     side: Side = Side.HOSTILE
     name: str | None = None
     npc_id: str | None = None  # M20.5: the world NPC this creature is (its death is theirs)
-    hp_scale: float = Field(default=1.0, gt=0, le=1.0)
+    hp_scale: float = Field(default=1.0, gt=0, le=MAX_SPAWN_HP_SCALE)
+    legendary_points: int = Field(default=0, ge=0, le=3)
+    legendary_recharge: int = Field(default=1, ge=1, le=6)
+    traits: tuple[str, ...] = ()
 
 
 class EncounterSetup(BaseModel):

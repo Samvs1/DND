@@ -22,7 +22,10 @@ it). Unshipped spells appear as "spell <index>".
 
 Public API: `MultiattackStep`, `MonsterOption`, `MonsterSpell`, `MonsterCatalog` (`option(key)`,
 `legendary_option(key)`, `spell(index)`), `monster_catalog(monster, overlay, shipped)`,
-`monster_spells(monster) -> tuple[MonsterSpell, ...]`, `SPELL_PREFIX` ("spell:").
+`monster_spells(monster) -> tuple[MonsterSpell, ...]`, `SPELL_PREFIX` ("spell:"),
+`with_masters_turn(catalog) -> MonsterCatalog` (M31.1d: a catalog without legendary actions gets
+its own single attacks as one-point legendary options, the master's turn of
+`aidm.rules.master_boost`).
 """
 
 from collections.abc import Container, Sequence
@@ -303,3 +306,12 @@ def monster_catalog(
         spells=spells,
         unsupported=(*unsupported, *missing),
     )
+
+
+def with_masters_turn(catalog: MonsterCatalog) -> MonsterCatalog:
+    if catalog.legendary:
+        return catalog
+    turn = tuple(
+        replace(o, cost=1) for o in catalog.options if o.shape == "attack" and o.resource is None
+    )
+    return replace(catalog, legendary=turn)

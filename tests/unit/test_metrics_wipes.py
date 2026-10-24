@@ -73,6 +73,7 @@ def test_m29_metrics_count_a_retried_wipe_as_a_lost_fight(tmp_path: Path) -> Non
             "level": 2,
             "heroes_down": 4,
             "hp_lost": 40,
+            "party_hp": 0,  # M31.1d: the synthetic heroes carry no hit point maximum
             "rounds": 0,
             "status": "defeat",
         }

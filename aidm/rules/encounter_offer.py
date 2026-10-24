@@ -26,12 +26,13 @@ M29.7d: the word also counts each foe's expected damage per round and a shooter'
 (`rules.offer_label`); the fight map is fixed by the seed, the node and the offer id
 (`fight_map`), so the card already knows the zone the foes stand in.
 
+M31.1d: the registries (`OfferData`) and the spoke pick live in `rules.offer_spokes`; the
+master's hit points, master's turn, trait and rated XP come from `rules.master_boost` (the
+master template), so the offer's word and the spawned master agree.
+
 Public API:
-- `OfferData(monsters, tables, terrains, tiers, encounter, overlay, spells)`: the registries.
 - `fight_map(state, node, offer_id, terrains) -> ZoneMap`: the offer's fight map.
 - `arrival_offer_events(state, data, retreat_node) -> list[AnyEvent]`: `[EncounterOffered]` or [].
-- `boss_hp_scale(state, data, monster) -> float`: the boss spawn's hit point scale (M29.6).
-- `hero_hp(state) -> float`: the living heroes' average hit point maximum (M29.6b).
 - `offer_fight_events(state, offer, data, rng, surprise, extra=()) -> list[AnyEvent]`: the boss
   turns hostile if needed, then `rules.encounter.start_encounter` on a zone map from the node
   terrain. M31.1b V10: `extra` are the other people the party attacked (they stand next to the
@@ -40,15 +41,8 @@ Public API:
 
 import random
 from collections.abc import Sequence
-from dataclasses import dataclass, field
 
-from aidm.data.dm_tiers import DmTiers
-from aidm.data.encounter_monsters import EncounterMonster
-from aidm.data.encounter_tables import EncounterTables
-from aidm.data.monster_overlay import MonsterOverlay
 from aidm.data.registry import Registry
-from aidm.data.spell_defs import SpellDef
-from aidm.data.srd_monsters import SrdMonster
 from aidm.data.zone_templates import TerrainTemplate
 from aidm.models.campaign import NodePlan, RegionPlan
 from aidm.models.campaign_events import EncounterOffered
@@ -71,26 +65,16 @@ from aidm.rules.checks import dc_for_tier
 from aidm.rules.dice import Rng
 from aidm.rules.dm_tiers import party_levels
 from aidm.rules.encounter import start_encounter
-from aidm.rules.encounter_budget import adjusted_xp, pick_monsters, rate_encounter, rating_cap_xp
-from aidm.rules.encounter_danger import too_dangerous
+from aidm.rules.encounter_budget import adjusted_xp, rate_encounter
 from aidm.rules.finale import finale_open
+from aidm.rules.master_boost import MasterBoost, boss_cap_xp, master_boost
 from aidm.rules.offer_label import LabelContext, danger_label, heroes_ac
+from aidm.rules.offer_spokes import OfferData, hero_hp, safe_monsters, spoke_monsters, xp_of
 from aidm.rules.progression import boss_defeated, boss_npc, node_plan, region_of
 from aidm.rules.quest_progress import route_effects
 from aidm.rules.social import attitude_band, attitude_score, hostile_attitude_events
 from aidm.rules.zone_gen import generate_zone_map
 from aidm.rules.zones import zone_neighbors
-
-
-@dataclass(frozen=True)
-class OfferData:
-    monsters: Registry[SrdMonster]
-    tables: EncounterTables
-    terrains: Registry[TerrainTemplate]
-    tiers: DmTiers
-    encounter: Registry[EncounterMonster]
-    overlay: MonsterOverlay = field(default_factory=MonsterOverlay)
-    spells: Registry[SpellDef] | None = None
 
 
 def _boss_waits(state: GameState, region: RegionPlan) -> WorldNpc | None:
@@ -105,22 +89,6 @@ def _boss_waits(state: GameState, region: RegionPlan) -> WorldNpc | None:
     return npc
 
 
-def _xp(data: OfferData, monster: str) -> int:
-    return data.monsters.get(monster).xp
-
-
-def hero_hp(state: GameState) -> float:
-    """The living heroes' average hit point maximum (0 with none)."""
-    pcs = [c.max_hp for c in state.creatures.values() if c.pc is not None and not c.dead]
-    return sum(pcs) / len(pcs) if pcs else 0.0
-
-
-def _safe(state: GameState, data: OfferData, monsters: list[str], cap: Difficulty) -> list[str]:
-    """M29.6b: the monsters whose area blast alone does not rate above `cap`."""
-    hp = hero_hp(state)
-    return [m for m in monsters if not too_dangerous(data.monsters.get(m), hp, cap, data.tables)]
-
-
 def _company(
     rng: Rng, data: OfferData, themes: tuple[str, ...], budget: int, lead: list[str], size: int
 ) -> list[str]:
@@ -133,8 +101,8 @@ def _company(
     if per_pc is not None:
         limit = min(limit, len(lead) + per_pc * size)
     while len(picked) < limit and pool:
-        xps = [_xp(data, m) for m in picked]
-        fits = [m for m in pool if adjusted_xp([*xps, _xp(data, m)], size, data.tables) <= budget]
+        xps = [xp_of(data, m) for m in picked]
+        fits = [m for m in pool if adjusted_xp([*xps, xp_of(data, m)], size, data.tables) <= budget]
         if not fits:
             break
         picked.append(fits[rng.randint(0, len(fits) - 1)])
@@ -149,15 +117,6 @@ def _boss_themes(region: RegionPlan, node: NodePlan) -> tuple[str, ...]:
     return tuple(sorted({m for n in region.nodes() for m in n.encounter_themes}))
 
 
-def _spoke_tables(data: OfferData, tier: int, size: int) -> EncounterTables:
-    per_pc = data.tables.spoke_max_monsters_per_pc.get(tier)
-    if per_pc is None:
-        return data.tables
-    return data.tables.model_copy(
-        update={"max_monsters": min(data.tables.max_monsters, per_pc * size)}
-    )
-
-
 def _monsters(
     state: GameState,
     data: OfferData,
@@ -166,72 +125,16 @@ def _monsters(
     rng: Rng,
 ) -> list[str]:
     region, node = where
+    if boss is None:
+        return spoke_monsters(state, data, region, node, rng)
     levels = party_levels(state)
-    size = len(levels)
-    if boss is not None:
-        rating = Difficulty(data.tables.boss_rating_cap)
-        cap = _boss_cap_xp(levels, data, region.tier)
-        alone = not _safe(state, data, [boss.archetype_id], rating)
-        if alone or "boss_alone" in route_effects(state, region):
-            return []
-        themes = tuple(_safe(state, data, list(_boss_themes(region, node)), rating))
-        return _company(rng, data, themes, cap, [boss.archetype_id], size)[1:]
-    rating = Difficulty(data.tables.spoke_rating_cap.get(region.tier, Difficulty.MEDIUM.value))
-    scale = data.tables.spoke_budget_scale.get(region.tier, 1.0)
-    cap = int(rating_cap_xp(levels, rating, data.tables) * scale)
-    themes = _safe(state, data, list(node.encounter_themes), rating)
-    xps = {m: _xp(data, m) for m in themes}
-    tables = _spoke_tables(data, region.tier, size)
-    picked = pick_monsters(rng, cap, xps, size, tables)
-    if not picked and data.tables.spoke_stand_ins:
-        picked = _stand_ins(rng, (state, data), node.encounter_themes, (cap, size, rating), tables)
-    every = xps or {m: _xp(data, m) for m in node.encounter_themes}
-    return picked or [min(sorted(every), key=lambda m: every[m])]
-
-
-def _stand_ins(
-    rng: Rng,
-    where: tuple[GameState, OfferData],
-    themes: tuple[str, ...],
-    budget: tuple[int, int, Difficulty],
-    tables: EncounterTables,
-) -> list[str]:
-    """M29.6: no theme monster fits the party's budget (a small or low-level party) -> the
-    encounter-ready monsters sharing a terrain with the themes, at the highest XP one of them
-    fits alone, picked within the budget (M29.6b: and whose area blast is within the spoke cap).
-    [] when none fits (the cheapest theme monster stays)."""
-    state, data = where
-    cap, size, rating = budget
-    tags = {t for m in themes if (e := data.encounter.find(m)) is not None for t in e.tags}
-    near = [e.index for e in data.encounter.all() if tags & set(e.tags)]
-    fits = {
-        m: _xp(data, m)
-        for m in _safe(state, data, near, rating)
-        if adjusted_xp([_xp(data, m)], size, tables) <= cap
-    }
-    if not fits:
+    rating = Difficulty(data.tables.boss_rating_cap)
+    cap = boss_cap_xp(levels, data, region.tier)
+    alone = not safe_monsters(state, data, [boss.archetype_id], rating)
+    if alone or "boss_alone" in route_effects(state, region):
         return []
-    top = max(fits.values())
-    return pick_monsters(rng, cap, {m: x for m, x in fits.items() if x == top}, size, tables)
-
-
-def _boss_cap_xp(levels: list[int], data: OfferData, tier: int) -> int:
-    """The most adjusted XP a master's fight may have (M29.6b: x `boss_budget_scale[tier]`)."""
-    cap = rating_cap_xp(levels, Difficulty(data.tables.boss_rating_cap), data.tables)
-    return int(cap * data.tables.boss_budget_scale.get(tier, 1.0))
-
-
-def boss_hp_scale(state: GameState, data: OfferData, monster: str) -> float:
-    """M29.6: a boss whose own adjusted XP is over the boss cap for this party (a solo or duo;
-    M29.6b: the cap x `boss_budget_scale`) gets its hit points scaled by cap / adjusted XP,
-    floored at `boss_hp_scale_floor`."""
-    floor = data.tables.boss_hp_scale_floor
-    levels = party_levels(state)
-    if floor is None or not levels:
-        return 1.0
-    cap = _boss_cap_xp(levels, data, state.world.region_tier)
-    alone = adjusted_xp([_xp(data, monster)], len(levels), data.tables)
-    return 1.0 if alone <= cap else max(floor, cap / alone)
+    themes = tuple(safe_monsters(state, data, list(_boss_themes(region, node)), rating))
+    return _company(rng, data, themes, cap, [boss.archetype_id], len(levels))[1:]
 
 
 def _dc(table: dict[str, str], tier: int) -> int:
@@ -250,9 +153,11 @@ def _offer(
     seed = campaign.seed if campaign is not None else state.seed
     rng = random.Random(f"{seed}:{node.id}:{state.world.scene_index}")
     monsters = _monsters(state, data, where, boss, rng)
-    xps = [_xp(data, m) for m in monsters]
+    xps = [xp_of(data, m) for m in monsters]
+    boost = MasterBoost()
     if boss is not None:
-        xps.append(_xp(data, boss.archetype_id))
+        boost = master_boost(state, data, boss.archetype_id, region)
+        xps.append(round(xp_of(data, boss.archetype_id) * boost.rating_factor))
     rated = rate_encounter(xps, party_levels(state), data.tables)
     offer_id = f"offer-{state.event_count}"
     zone_map = fight_map(state, node, offer_id, data.terrains)
@@ -261,7 +166,8 @@ def _offer(
         data.tables, data.overlay, data.spells, hero_hp(state), heroes_ac(state), cover
     )
     foes = [data.monsters.get(m) for m in [*monsters, *([boss.archetype_id] if boss else [])]]
-    rated = danger_label(rated, foes, ctx)
+    extra = [0.0] * len(monsters) + ([boost.extra_attacks] if boss else [])
+    rated = danger_label(rated, foes, ctx, extra)
     common = _dc(data.tiers.offer_dc_tiers, region.tier)
     parley = _dc(data.tiers.boss_parley_dc_tiers, region.tier) if boss else common
     return EncounterOffer(
@@ -334,12 +240,16 @@ def _setup(
     ]
     boss = state.world.npcs.get(offer.boss_npc_id or "")
     if boss is not None:
+        boost = master_boost(state, data, boss.archetype_id, region_of(state, offer.node_id))
         boss_spawn = MonsterSpawn(
             monster=boss.archetype_id,
             zone_id=foes,
             name=boss.name,
             npc_id=boss.id,
-            hp_scale=boss_hp_scale(state, data, boss.archetype_id),
+            hp_scale=boost.hp_scale,
+            legendary_points=boost.legendary_points,
+            legendary_recharge=boost.legendary_recharge,
+            traits=boost.traits,
         )
         spawns.insert(0, boss_spawn)
     pcs = sorted(c.id for c in state.creatures.values() if c.pc is not None and not c.dead)

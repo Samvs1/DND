@@ -44,8 +44,9 @@ from aidm.models.world_events import PartyMoved
 from aidm.rules.checks import skill_bonus
 from aidm.rules.conditions import skill_check_with_conditions
 from aidm.rules.dice import Rng
-from aidm.rules.encounter_offer import OfferData, offer_fight_events
+from aidm.rules.encounter_offer import offer_fight_events
 from aidm.rules.light import arrival_events
+from aidm.rules.offer_spokes import OfferData
 from aidm.rules.progression import peaceful_close, region_of, settled_offer
 from aidm.rules.quest_plan import main_quest
 from aidm.rules.quest_progress import peace_ready

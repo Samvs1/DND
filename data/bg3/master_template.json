@@ -1,0 +1,9 @@
+{
+  "note": "M31.1d master template (aidm.data.master_template, read by aidm.rules.master_boost). Applies to a region master facing party_min heroes or more; solo and duo keep the M29.6 small-party hit point scale (owner rule). hit_dice_share: 0 = SRD average hit points, 1 = hit dice maximum. legendary_points: a master's turn, that many single attacks a round at the end of other creatures' turns, refilled on a d6 of at least legendary_recharge. trait: a features.json trait. floor_hp_scale_max: the most a master's hit points rise to reach the region's strongest spoke fight. Tuned with the scripted sim grid (docs/playtests/M29_tuning.md, M31.1d): the SRD hit point floor alone already puts four-hero parties over the one-hero cap, so the hit dice share and the master's turn stay at 0 (docs/DECISIONS.md M31.1d).",
+  "party_min": 3,
+  "hit_dice_share": 0.0,
+  "legendary_points": 0,
+  "trait": "masters-resolve",
+  "floor_hp_scale_max": 2.0,
+  "legendary_recharge": 1
+}

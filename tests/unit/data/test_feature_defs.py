@@ -22,6 +22,7 @@ from aidm.data.feature_hooks import (
     ToggleHook,
     UnsupportedHook,
 )
+from aidm.data.master_template import master_template
 from aidm.data.race_defs import race_defs
 from aidm.data.srd import srd
 from aidm.models.abilities import Skill
@@ -44,7 +45,10 @@ def _referenced_ids() -> set[str]:
 
 
 def _monster_traits() -> set[str]:
-    return {ability_slug(a.name) for m in srd().monsters.all() for a in m.special_abilities}
+    """Stat block traits, plus the M31.1d master template's trait (stamped on masters)."""
+    found = {ability_slug(a.name) for m in srd().monsters.all() for a in m.special_abilities}
+    trait = master_template().trait
+    return found | ({trait} if trait else set[str]())
 
 
 def test_every_referenced_feature_has_an_entry() -> None:

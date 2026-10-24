@@ -33,7 +33,8 @@ from aidm.rules.campaign_check import check_plan_refs
 from aidm.rules.campaign_install import install_campaign
 from aidm.rules.encounter_budget import rate_encounter
 from aidm.rules.encounter_danger import area_damage, area_rating
-from aidm.rules.encounter_offer import arrival_offer_events, boss_hp_scale
+from aidm.rules.encounter_offer import arrival_offer_events
+from aidm.rules.master_boost import boss_hp_scale
 from aidm.rules.shop import shop_stock
 from aidm.rules.social_deeds import gift_events
 from aidm.session.reducer import apply
@@ -180,8 +181,14 @@ def test_m29_breathing_master_is_told_deadly_and_comes_alone() -> None:
 def test_golden_m29_act_two_master_is_scaled_at_the_planned_level() -> None:
     # M29.6b boss_budget_scale[2] 0.45: four level-3 heroes, medium cap 4 x 225 - 1 = 899 (hard
     # threshold 225 per hero) x 0.45 = 404; the wight (SRD CR 3, 700 XP, 45 hit points) alone is
-    # 700 -> hit points x 404 / 700 = 0.577 (the act-2 master met at level 3 downed 1.8 heroes).
+    # 700 -> hit points x 404 / 700 = 0.577 until M31.1d. M31.1d: a party of three or more keeps
+    # at least the SRD hit points (round 4 met this wight with 26 HP), so only a solo or duo is
+    # scaled: two level-3 heroes, 2 x 225 - 1 = 449 x 0.45 = 202 against 700 x 1.5 = 1050 ->
+    # max(0.5, 0.19) = 0.5.
     state = GameState(campaign_id="scale", seed=SEED)
-    build_party(state, 3)
+    ids = build_party(state, 3)
     state.world.region_tier = 2
-    assert round(boss_hp_scale(state, DATA, "wight"), 3) == 0.577
+    assert boss_hp_scale(state, DATA, "wight") >= 1.0
+    for dropped in ids[2:]:
+        del state.creatures[dropped]
+    assert boss_hp_scale(state, DATA, "wight") == 0.5

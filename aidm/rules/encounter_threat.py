@@ -12,6 +12,8 @@ cover adds `EncounterTables.cover_rating_step[cover]` steps (data). Limited-use 
 
 Public API:
 - `round_damage(catalog, spells, hero_ac) -> float`: the foe's expected damage in one round.
+- `attack_damage(catalog, hero_ac) -> float`: M31.1d, its best single attack's expected damage
+  (what a master's turn adds, `rules.master_boost`).
 - `round_rating(damage, hero_hp, tables) -> Difficulty | None`.
 - `shoots(catalog, spells) -> bool`: the foe has a ranged attack or a ranged attack-roll spell.
 - `stepped(rated, steps) -> Difficulty | None`: `rated` raised by `steps` (None counts as below
@@ -101,6 +103,15 @@ def round_damage(catalog: MonsterCatalog, spells: Registry[SpellDef] | None, her
         if spell is not None:
             best = max(best, _effects(spell.effects, kit, hero_ac))
     return best
+
+
+def attack_damage(catalog: MonsterCatalog, hero_ac: int) -> float:
+    found = [
+        _best_attack(o, hero_ac)
+        for o in catalog.options
+        if o.shape == "attack" and o.resource is None
+    ]
+    return max(found, default=0.0)
 
 
 def round_rating(damage: float, hero_hp: float, tables: EncounterTables) -> Difficulty | None:

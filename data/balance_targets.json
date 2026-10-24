@@ -1,9 +1,11 @@
 {
   "version": 1,
-  "note": "GOAL_BALANCE targets. styles/parties null = every group. Gold and planned-level bounds are placeholders to tune in M29.2/M29.3 (data only). M29.6b: master_level_* (the level when each master is first met, fight or talk) keeps the XP curve on the plan from both sides.",
+  "note": "GOAL_BALANCE targets. styles/parties null = every group. Gold and planned-level bounds are placeholders to tune in M29.2/M29.3 (data only). M29.6b: master_level_* (the level when each master is first met, fight or talk) keeps the XP curve on the plan from both sides. M31.1d: master_heroes_down_floor bounds the same metric as boss_heroes_down_avg from below for the balanced and aggressive styles (the scripted grid), and boss_hp_lost_share asks master fights to cost the party HP.",
   "targets": [
     {"id": "normal_clean_win_rate", "text": "Normal fights won with no hero falling", "min": 0.75, "max": 0.90, "styles": ["balanced"], "parties": null},
     {"id": "boss_heroes_down_avg", "text": "Boss fights: heroes down on average", "min": null, "max": 1.0, "styles": null, "parties": null},
+    {"id": "master_heroes_down_floor", "metric": "boss_heroes_down_avg", "text": "M31.1d master floor: heroes down per master fight, about one, never over the cap above", "min": 0.6, "max": 1.0, "styles": ["balanced", "aggressive"], "parties": null},
+    {"id": "boss_hp_lost_share", "text": "M31.1d: share of the party's hit point maximum lost per master fight (the party clearly spends)", "min": 0.4, "max": null, "styles": ["balanced", "aggressive"], "parties": null},
     {"id": "boss_level_act1", "text": "Party level at the act 1 boss (planned level)", "min": 2, "max": null, "styles": null, "parties": null},
     {"id": "boss_level_act2", "text": "Party level at the act 2 boss (planned level)", "min": 3, "max": null, "styles": null, "parties": null},
     {"id": "boss_level_act3", "text": "Party level at the act 3 boss (planned level)", "min": 4, "max": null, "styles": null, "parties": null},

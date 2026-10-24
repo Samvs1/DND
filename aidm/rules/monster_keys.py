@@ -15,6 +15,8 @@ can never disagree. Pure string and data helpers; no dice.
   the monster's own turn (`turn_recharge` 1).
 - Spells: the SRD spell index is the last segment of the spell URL (`spell_index`); per-day
   innate spells spend `innate-<index>`; `AT_WILL` marks an innate spell that costs nothing.
+- `legendary_pool(points) -> Resource`: a legendary points pool refilled each own turn (M31.1d:
+  also a master's turn, `rules.master_boost`).
 - `legendary_cost(name) -> int`: the "(Costs N Actions)" number, else 1.
 - `monster_resources(monster) -> dict[str, Resource]`: every pool the stat block needs (usage
   pools, legendary points, `spell-slot-<n>` slots, innate per-day spells).
@@ -94,6 +96,14 @@ def _spell_resources(monster: SrdMonster) -> dict[str, Resource]:
     return pools
 
 
+def legendary_pool(points: int, recharge: int = 1) -> Resource:
+    """`points` legendary points, refilled at the start of the creature's own turn (on a d6 of
+    at least `recharge`; 1: always)."""
+    return Resource(
+        current=points, maximum=points, recharge=RechargeKind.SHORT_REST, turn_recharge=recharge
+    )
+
+
 def monster_resources(monster: SrdMonster) -> dict[str, Resource]:
     pools: dict[str, Resource] = {}
     for action in monster.actions:
@@ -101,11 +111,6 @@ def monster_resources(monster: SrdMonster) -> dict[str, Resource]:
         if found is not None:
             pools[found[0]] = found[1]
     if monster.legendary_actions:
-        pools[LEGENDARY_KEY] = Resource(
-            current=LEGENDARY_PER_ROUND,
-            maximum=LEGENDARY_PER_ROUND,
-            recharge=RechargeKind.SHORT_REST,
-            turn_recharge=1,
-        )
+        pools[LEGENDARY_KEY] = legendary_pool(LEGENDARY_PER_ROUND)
     pools.update(_spell_resources(monster))
     return dict(sorted(pools.items()))

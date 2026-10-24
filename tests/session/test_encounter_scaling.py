@@ -14,6 +14,7 @@ from __future__ import annotations
 import random
 from dataclasses import replace
 
+from aidm.data.master_template import MasterTemplate
 from aidm.models.campaign_state import EncounterOffer, OfferChoice
 from aidm.models.encounter import Difficulty
 from aidm.models.state import GameState
@@ -21,8 +22,10 @@ from aidm.models.world_events import PartyMoved
 from aidm.rules.campaign_install import install_campaign
 from aidm.rules.dm_tiers import party_levels
 from aidm.rules.encounter_budget import adjusted_xp, rating_cap_xp
-from aidm.rules.encounter_offer import OfferData, arrival_offer_events, boss_hp_scale
+from aidm.rules.encounter_offer import arrival_offer_events
+from aidm.rules.master_boost import boss_hp_scale
 from aidm.rules.offer_answer import answer_offer
+from aidm.rules.offer_spokes import OfferData
 from aidm.rules.plan_ids import boss_npc_id
 from aidm.session.reducer import apply
 from tests.session.progression_fixtures import DATA, SEED, plan
@@ -136,10 +139,12 @@ def test_master_company_scales_with_party_size() -> None:
 def test_golden_lone_boss_hit_points_scale_for_a_solo_hero() -> None:
     # Solo level 2, medium cap 150 - 1 = 149 (x boss_budget_scale 0.8 = 119); the bugbear (SRD:
     # CR 1, 200 XP, 27 hit points) alone is 200 x 1.5 = 300 -> scale max(0.5, 119 / 300) = 0.5
-    # -> 27 x 0.5 = 13.5 -> 14 HP. Four level-2 heroes: 200 <= 479, no scaling.
+    # -> 27 x 0.5 = 13.5 -> 14 HP. Four level-2 heroes: 200 <= 479, no scaling (M31.1d: and a
+    # party of three or more never gets the small-party scale; with the master template off it
+    # keeps its SRD hit points, the template's boost is tests/session/test_m31_masters.py's).
     monster = R1.boss.monster_id
     assert boss_hp_scale(_state(2, 1), DATA, monster) == 0.5
-    assert boss_hp_scale(_state(2, 4), DATA, monster) == 1.0
+    assert boss_hp_scale(_state(2, 4), replace(DATA, master=MasterTemplate()), monster) == 1.0
     state = _state(2, 1)
     apply(state, PartyMoved(from_node=None, to_node=R1.gateway.id, scene_index=1))
     for event in arrival_offer_events(state, DATA, None):

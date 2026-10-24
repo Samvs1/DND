@@ -1535,5 +1535,23 @@
     ]
    }
   ]
+ },
+ {
+  "index": "masters-resolve",
+  "name": "Master's Resolve",
+  "summary": "A region's master shakes off holds and fear: advantage on saves against being stunned, paralysed, charmed, frightened or held fast.",
+  "hooks": [
+   {
+    "kind": "advantage_on",
+    "saves_against": [
+     "stunned",
+     "paralyzed",
+     "charmed",
+     "frightened",
+     "incapacitated",
+     "restrained"
+    ]
+   }
+  ]
  }
 ]

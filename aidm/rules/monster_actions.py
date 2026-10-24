@@ -48,7 +48,9 @@ from aidm.rules.monster_catalog import (
     MultiattackStep,
     StepMode,
     monster_catalog,
+    with_masters_turn,
 )
+from aidm.rules.monster_keys import LEGENDARY_KEY
 from aidm.rules.monster_stats import creature_tags
 from aidm.rules.projection import project_state
 from aidm.rules.resources import resource_left, spend_resource
@@ -80,7 +82,10 @@ def monster_catalog_of(creature: Creature, regs: CombatRegistries) -> MonsterCat
     block = regs.monsters.find(creature.monster_index) if creature.monster_index else None
     if block is None:
         raise _refuse(RefusalCode.NOT_A_MONSTER, "Only monsters use stat block actions.")
-    return monster_catalog(block, regs.monster_overlay, regs.spells)
+    catalog = monster_catalog(block, regs.monster_overlay, regs.spells)
+    if LEGENDARY_KEY in creature.resources:  # M31.1d: a master's turn
+        return with_masters_turn(catalog)
+    return catalog
 
 
 def _profiles(option: MonsterOption, mode: StepMode) -> list[AttackProfile]:

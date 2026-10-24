@@ -71,6 +71,8 @@ class _Run:
         self.act = 1
         self.pcs: set[str] = set()
         self.levels: dict[str, int] = {}
+        self.max_hp: dict[str, int] = {}
+        self.fallen: set[str] = set()
         self.offers: dict[str, Event] = {}
         self.boss_offer = False
         self.fight: Event | None = None
@@ -95,6 +97,7 @@ class _Run:
         if c.get("kind") == "pc":
             self.pcs.add(c["id"])
             self.levels[c["id"]] = (c.get("pc") or {}).get("level", 1)
+            self.max_hp[c["id"]] = c.get("max_hp", 0)
             self.purse[c["id"]] = (c.get("pc") or {}).get("gold", 0)
 
     def hp(self, e: Event) -> None:
@@ -115,6 +118,7 @@ class _Run:
             "hp_lost": 0,
             "heroes_down": 0,
             "level": self.min_level(),
+            "party_hp": sum(self.max_hp.get(p, 0) for p in self.pcs - self.fallen),
             "status": "open",
         }
 
@@ -134,6 +138,9 @@ class _Run:
             self.creature_added(e)
         elif t == "level_gained" and e["creature_id"] in self.pcs:
             self.levels[e["creature_id"]] = e["pc"]["level"]
+            self.max_hp[e["creature_id"]] = e.get("max_hp", self.max_hp.get(e["creature_id"], 0))
+        elif t == "creature_died" and e["creature_id"] in self.pcs:
+            self.fallen.add(e["creature_id"])
         elif t == "encounter_offered":
             self.offers[e["offer"]["id"]] = e["offer"]
             if e["offer"].get("boss_npc_id") is not None:
@@ -199,7 +206,7 @@ def _lost_fight(events: list[Event], cut: int, tail: list[Event]) -> Event | Non
     last = run.fight or (run.fights[-1] if run.fights else None)
     if last is None:
         return None
-    keep = ("act", "boss", "level", "heroes_down", "hp_lost", "rounds")
+    keep = ("act", "boss", "level", "heroes_down", "hp_lost", "party_hp", "rounds")
     return {**{k: last[k] for k in keep}, "status": "defeat"}
 
 
@@ -239,6 +246,7 @@ def compute_metrics(
         "boss_fights": [
             {"act": b["act"], "level": b["level"], "heroes_down": b["heroes_down"]} for b in bosses
         ],
+        "boss_hp_shares": [x for b in bosses if (x := hp_share(b)) is not None],
         "master_levels": {str(a): v for a, v in sorted(run.master_levels.items())},
         "xp_each_by_source": _xp_sources(run),
         "wipes": _wipes(events, tails or []),
@@ -250,6 +258,13 @@ def compute_metrics(
             "unrecorded": ["fallbacks", "exceptions"],
         },
     }
+
+
+def hp_share(fight: Event) -> float | None:
+    """M31.1d: the share of the party's hit point maximum lost in a fight (at most 1); None when
+    the log does not know the heroes' maximums."""
+    party = fight.get("party_hp", 0)
+    return min(1.0, fight["hp_lost"] / party) if party > 0 else None
 
 
 def _xp_sources(run: _Run) -> dict[str, int]:

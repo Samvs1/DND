@@ -11,10 +11,10 @@ from aidm.data.encounter_tables import encounter_tables
 from aidm.models.campaign_events import EncounterOffered
 from aidm.models.encounter import Difficulty
 from aidm.models.zones import CoverLevel
-from aidm.rules.encounter_offer import hero_hp
 from aidm.rules.encounter_threat import round_damage, round_rating, stepped
 from aidm.rules.monster_catalog import monster_catalog
 from aidm.rules.offer_label import LabelContext, danger_label, heroes_ac
+from aidm.rules.offer_spokes import hero_hp
 from tests.session.playtest_saves import logged, replay_until
 
 R = combat_registries()

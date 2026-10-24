@@ -17,8 +17,9 @@ from aidm.models.world_events import PartyMoved, QuestUpdated
 from aidm.rules.campaign_install import install_campaign
 from aidm.rules.dice import Rng
 from aidm.rules.encounter import encounter_outcome, end_encounter
-from aidm.rules.encounter_offer import OfferData, arrival_offer_events
+from aidm.rules.encounter_offer import arrival_offer_events
 from aidm.rules.offer_answer import answer_offer
+from aidm.rules.offer_spokes import OfferData
 from aidm.rules.progression import region_resolution_events
 from aidm.rules.quest_plan import side_world_quest
 from aidm.rules.quest_rewards import quest_reward_events

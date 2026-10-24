@@ -13,7 +13,7 @@ from statistics import median
 from typing import Any
 
 from aidm.data.balance_targets import BalanceTargets
-from aidm.session.metrics import compute_metrics, load_defeat_tails, load_events
+from aidm.session.metrics import compute_metrics, hp_share, load_defeat_tails, load_events
 
 Metrics = dict[str, Any]
 
@@ -45,7 +45,9 @@ def load_runs(root: Path) -> list[tuple[str, str, Metrics]]:
 def aggregate(runs: list[Metrics]) -> dict[str, float]:
     """Target id -> value over the runs; ids with no data are left out (reported N/A).
     M29.2: a retried wipe counts as a lost fight (normal) or a boss fight with its downs.
-    M29.6b: `master_level_act<n>` is the median level when the act's master is first offered."""
+    M29.6b: `master_level_act<n>` is the median level when the act's master is first offered.
+    M31.1d: `boss_hp_lost_share` is the mean share of the party's hit point maximum lost in a
+    master fight (a lost one too)."""
     out: dict[str, float] = {}
     lost = [f for r in runs for f in r.get("wipes", {}).get("fights", [])]
     normal = [f for r in runs for f in r["fights"]["list"] if not f["boss"]]
@@ -57,6 +59,10 @@ def aggregate(runs: list[Metrics]) -> dict[str, float]:
     bosses += [{k: f[k] for k in ("act", "level", "heroes_down")} for f in lost if f["boss"]]
     if bosses:
         out["boss_heroes_down_avg"] = sum(b["heroes_down"] for b in bosses) / len(bosses)
+    shares = [x for r in runs for x in r.get("boss_hp_shares", [])]
+    shares += [x for f in lost if f["boss"] and (x := hp_share(f)) is not None]
+    if shares:
+        out["boss_hp_lost_share"] = sum(shares) / len(shares)
     for act in ("1", "2", "3"):
         levels = [b["level"] for b in bosses if str(b["act"]) == act]
         if levels:
@@ -81,7 +87,7 @@ def evaluate(runs: list[tuple[str, str, Metrics]], targets: BalanceTargets) -> l
         for t in targets.targets:
             if not t.applies(style, party):
                 continue
-            value = values.get(t.id)
+            value = values.get(t.metric_id)
             verdict = "N/A" if value is None else ("PASS" if t.holds(value) else "MISS")
             rows.append(
                 {

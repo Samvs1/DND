@@ -16,6 +16,7 @@ node_id) -> str`, `async describe_place(state, llm, node_id=None) -> list[AnyEve
 
 from collections.abc import Callable
 
+from aidm.data.master_template import master_template
 from aidm.dm.guard import guarded_narration, prose_checker
 from aidm.dm.llm_backend import Message
 from aidm.dm.llm_client import LlmClient
@@ -25,7 +26,8 @@ from aidm.dm.tool_context import ToolRegistries
 from aidm.models.events import AnyEvent
 from aidm.models.state import GameState
 from aidm.models.world_events import NodeDescribed
-from aidm.rules.encounter_offer import OfferData, arrival_offer_events
+from aidm.rules.encounter_offer import arrival_offer_events
+from aidm.rules.offer_spokes import OfferData
 from aidm.rules.progression import node_plan, region_of
 
 DESCRIPTION_MAX_TOKENS = 220
@@ -89,6 +91,7 @@ def offer_data(regs: ToolRegistries) -> OfferData:
         encounter=regs.encounter_monsters,
         overlay=regs.combat.monster_overlay,
         spells=regs.combat.spells,
+        master=master_template(),
     )
 
 
