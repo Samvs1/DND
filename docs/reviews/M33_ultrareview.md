@@ -6,6 +6,8 @@ reasoning sections stop partway through their trace; that is how the review deli
 
 ## 1. `aidm/dm/spell_names.py`, lines 68-85
 
+**Status:** fixed in M33.1 (8853559)
+
 - **File:** aidm/dm/spell_names.py
 - **Lines:** 68-85
 - **Severity:** normal
@@ -24,6 +26,8 @@ How it happens:
 1. Tokenising and matching. `fight_names.tokens` splits "I attack the goblin with my light crossbow" into words that include "light".
 
 ## 2. `aidm/dm/give_intent.py`, lines 166-173
+
+**Status:** fixed in M33.1 (8853559)
 
 - **File:** aidm/dm/give_intent.py
 - **Lines:** 166-173
@@ -44,6 +48,8 @@ A counted give of a stacked inventory item ("give two arrows to Bram", "give 3 p
 
 ## 3. `aidm/dm/offer_intent.py`, lines 51-60
 
+**Status:** fixed in M33.1 (8853559)
+
 - **File:** aidm/dm/offer_intent.py
 - **Lines:** 51-60
 - **Severity:** normal
@@ -62,6 +68,8 @@ How it happens:
 - The `offer_strike` row (data/bg3/intent_phrases.json:2394-2418) has no patterns. In `intent_match._matches`, a row with no patterns gives `[(-1, None)]`, so it matches any line. Its only gates are the `offer_waits_here` and `foe_named` conditions, plus vetoes from the `parley_*`, `strike_vetoes`, `self_surrender` and `stealth_words` sets.
 
 ## 4. `aidm/session/scene_votes.py`, lines 54-63
+
+**Status:** fixed in M33.1 (8853559)
 
 - **File:** aidm/session/scene_votes.py
 - **Lines:** 54-63
@@ -82,6 +90,8 @@ How it happens:
 - `conclude` calls `follow_ups` (telling.py:129), which calls `settle_after` (quest_flow.py:56), which calls `ask_events`.
 
 ## 5. `aidm/session/intent_turn.py`, lines 116-120
+
+**Status:** fixed in M33.1 (8853559)
 
 - **File:** aidm/session/intent_turn.py
 - **Lines:** 116-120
@@ -121,6 +131,8 @@ How it happens:
 - `stale_terms` (lines 92-99) then adds every encounter_monsters entry that is not one of the present foes.
 
 ## 7. `aidm/session/waiting_line.py`, lines 23-25
+
+**Status:** fixed in M33.1 (8853559)
 
 - **File:** aidm/session/waiting_line.py
 - **Lines:** 23-25
