@@ -4,7 +4,8 @@ The sheet's `spellcasting` block lists cantrips apart from the levelled spells; 
 the real client shows both, so the harness does too. A spell needs a zone when its
 `target_kind` is `area` (unless it is centred on the caster with no aimed shape) or `point`;
 an aimed self cone or line (`area_shape`/`area_feet`, M29.7d) takes the zone it is aimed at,
-the caster's own or a neighbour within its length. Creature spells take foes or allies.
+the caster's own or a neighbour within its length; the `(zones: ...)` list marks the
+ones in reach (edge feet from the combat message, summed along the shortest path). Creature spells take foes or allies.
 
 Public API: `find_spell`, `spell_lines`, `needs_zone`, `needs_creature`.
 """
@@ -49,6 +50,11 @@ def _slots_left(sheet: Msg | None, level: int) -> int:
     )
 
 
+def _resource_left(sheet: Msg | None, key: str) -> int:
+    """Uses left of the feature resource a spell is cast from (`SpellLine.resource`)."""
+    return sum(r["current"] for r in (sheet or {}).get("resources", []) if r["key"] == key)
+
+
 def _blocked(spell: Msg, sheet: Msg | None, eco: Msg) -> str:
     """Why the spell cannot be cast now ("" when it can)."""
     time = spell.get("casting_time", "action")
@@ -57,6 +63,8 @@ def _blocked(spell: Msg, sheet: Msg | None, eco: Msg) -> str:
     if time == "bonus_action" and not eco.get("bonus_action"):
         return "no bonus action left"
     if spell["level"] > 0 and _slots_left(sheet, spell["level"]) <= 0:
+        if spell.get("resource"):
+            return "" if _resource_left(sheet, spell["resource"]) > 0 else "no uses left"
         return "no slot left"
     return ""
 
@@ -70,6 +78,35 @@ def _aim(spell: Msg) -> str:
     if needs_creature(spell):
         return " <foe#|ally id|ally name>"
     return ""
+
+
+def _reach(combat: Msg, feet: int) -> set[str]:
+    """Zones within `feet` of the caster's zone by summed edge lengths (the combat message's
+    `edges`); with no edges, only the caster's own zone. Dijkstra over a handful of zones."""
+    me = next((t for t in combat["tokens"] if t["creature_id"] == combat.get("active_id")), None)
+    if me is None:
+        return set()
+    dist = {me["zone_id"]: 0}
+    todo = [me["zone_id"]]
+    while todo:
+        here = todo.pop()
+        for e in combat.get("edges", []):
+            for a, b in ((e["a"], e["b"]), (e["b"], e["a"])):
+                step = dist[here] + e.get("feet", 30)
+                if a == here and step <= feet and step < dist.get(b, feet + 1):
+                    dist[b] = step
+                    todo.append(b)
+    return set(dist)
+
+
+def _cone_reach(shown: list[Msg], combat: Msg) -> set[str]:
+    """Zones an aimed self cone or line can reach (the longest shown one); empty if none."""
+    feet = [
+        sp["area_feet"]
+        for sp in shown
+        if sp.get("area_feet") and sp.get("range_kind") == "self" and needs_zone(sp)
+    ]
+    return _reach(combat, max(feet)) if feet else set()
 
 
 def spell_lines(sheet: Msg | None, combat: Msg, eco: Msg) -> list[str]:
@@ -94,6 +131,10 @@ def spell_lines(sheet: Msg | None, combat: Msg, eco: Msg) -> list[str]:
             "(allies: " + ", ".join(f"{t['creature_id']}={t['name']}" for t in allies) + ")"
         )
     if any(needs_zone(sp) for sp in shown):
-        zones = ", ".join(f"{z['id']}={z['name']}" for z in combat.get("zones", []))
+        reach = _cone_reach(shown, combat)
+        zones = ", ".join(
+            f"{z['id']}={z['name']}" + (" [in reach]" if z["id"] in reach else "")
+            for z in combat.get("zones", [])
+        )
         lines.append(f"(zones: {zones})")
     return lines

@@ -288,6 +288,19 @@ async def cmd_levelup(root: Path, run: str | None, as_name: str | None) -> str:
         await link.close()
 
 
+def _took(picks: Msg) -> str:
+    """The level-up choices the harness made for the player, in one line."""
+    bits = [f"subclass {picks['subclass']}"] if picks.get("subclass") else []
+    if picks.get("asi"):
+        bits.append(
+            "ability score increase " + ", ".join(f"{k}+{v}" for k, v in picks["asi"].items())
+        )
+    for key in ("class_choices", "feature_choices"):
+        for gid, got in (picks.get(key) or {}).items():
+            bits.append(f"{gid} {got}")
+    return "; ".join(bits) or "none needed"
+
+
 async def _level_options(link: Link) -> Msg | None:
     mark = link.conn.mark()
     await link.conn.send({"type": "request_sheet"})

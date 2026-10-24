@@ -199,7 +199,11 @@ def waiting_lines(state: Msg, pending: str | None = None) -> list[str]:
         foes = ", ".join(o.get("foes", [])) or o.get("boss_name") or "?"
         choices = [str(c) for c in o["options"]]
         extra = f" [{'|'.join(PARLEY_WORDS)}]" if "parley" in choices else ""
-        out.append(f"OFFER {o['id']}: {foes} ({o.get('difficulty')}). answer {'|'.join(choices)}")
+        sure = [str(c) for c in o.get("sure", [])]
+        hold = f" ({', '.join(sure)} sure to hold)" if sure else ""
+        out.append(
+            f"OFFER {o['id']}: {foes} ({o.get('difficulty')}). answer {'|'.join(choices)}{hold}"
+        )
         if extra:
             out.append(f"  parley takes a skill the engine accepts: answer parley{extra}")
     if state.get("quest_offer"):
@@ -292,6 +296,10 @@ def look_text(
     if options:
         lines.append("Options:")
         lines += [f"  {o}" for o in options]
+    elif combat and combat.get("active_id") not in (None, hero_id):
+        names = {t["creature_id"]: t["name"] for t in combat.get("tokens", [])}
+        who = names.get(combat["active_id"], combat["active_id"])
+        lines += ["Options:", f"  (not your turn: {who} acts; run with --as {who})"]
     else:
         lines.append('What now? act "<text>" | move <place> | answer <choice>')
     lines.append(footer(state["campaign_id"], seq))

@@ -176,14 +176,26 @@ def answer_message(state: Msg, words: list[str], pending: str | None = None) -> 
     if state.get("quest_offer"):
         return [_yes_no("answer_quest_offer", choice, quest_id=state["quest_offer"]["quest_id"])]
     if state.get("finale") and state["finale"].get("chosen") is None:
-        confirm = len(words) > 1 and words[1].lower() == "confirm"
-        return [{"type": "choose_finale", "option_id": words[0], "confirm": confirm}]
+        return [_finale(state["finale"], words)]
     if state.get("vote"):
         return [_yes_no("vote", choice, vote_id=state["vote"]["vote_id"])]
     waiting = waiting_lines(state, pending)
     if not waiting:
         raise UsageError("nothing is waiting for an answer")
     raise UsageError(f"that answer fits no waiting card. Waiting now: {'; '.join(waiting)}")
+
+
+def _finale(finale: Msg, words: list[str]) -> Msg:
+    """`answer <id> [confirm]` or `answer finale [<id>]` (the kind word means confirm; with one
+    option the id may be left out)."""
+    named = words[0].lower() == "finale"
+    rest = words[1:] if named else words
+    ids = [str(o["id"]) for o in finale.get("options", [])]
+    option = rest[0] if rest else (ids[0] if len(ids) == 1 else "")
+    if not option:
+        raise UsageError(f"answer finale <id>. Options: {', '.join(ids)}")
+    confirm = named or (len(rest) > 1 and rest[1].lower() == "confirm")
+    return {"type": "choose_finale", "option_id": option, "confirm": confirm}
 
 
 def _defeat(state: Msg, choice: str, words: list[str]) -> Msg:
