@@ -8,17 +8,18 @@ item the actor carries). "Look around for traps" or "draw a map" therefore go to
 adjudicator. Nothing here runs during a fight (combat uses structured commands and
 `intent_router.fight_intent`). Intents carry ids only; the session executes them through the
 rules. M30.0b: the one router (`aidm.dm.intent_router`, scope `explore`) decides; which
-intent wins is the rows' `precedence`, never call order:
-help up, parley (while an offer waits), short and long rest, look, inventory, lift, give a
-carried thing, pay, give a thing not carried, hand to a hero, heal, a rest in a longer
-sentence, shop, travel, a locked way, equip / unequip / drop, light first, gear use, take.
+intent wins is the rows' `precedence`, never call order: help up, parley (while an offer
+waits), short and long rest, look, inventory, lift, give a carried thing (M30.0b T5: also set
+before an NPC here), pay, give a thing not carried, hand to a hero, heal, cast a known spell
+(M30.0b T7), a rest in a longer sentence, shop, travel, a locked way, equip / unequip / drop,
+light first, gear use, take.
 
 Public API:
 - Intents (frozen): `RestIntent(kind)` (`RestKind` SHORT/LONG), `ShopIntent(npc_id)`,
   `TravelIntent(node_id)`, `InventoryIntent(actor_id)`, `LookIntent(text)`, `TakeIntent`,
   `BarredIntent(text)` (`aidm.dm.scene_intent`), `ItemIntent` (`aidm.dm.equip_intent`),
   `HelpUpIntent`, `GiveIntent`, `HeroHandIntent`, `LiftIntent`, `PayIntent`, `ParleyIntent`,
-  `UseIntent`, `HealIntent` (their `*_intent` modules);
+  `UseIntent`, `HealIntent`, `CastIntent` (their `*_intent` modules);
 - `Intent` (the union), `precheck(state, actor_id, text) -> Intent | None`;
 - `gear_intent(state, actor_id, text) -> UseIntent | None`: the gear rows alone, for the typed
   actions of a fight (M27.5: putting a light out is free, lighting one a bonus action);
@@ -29,6 +30,7 @@ Public API:
 - `look_around_text(state) -> str`, `SHOP_ROLES`, `is_shop` (`aidm.dm.scene_intent`).
 """
 
+from aidm.dm.cast_intent import CastIntent
 from aidm.dm.equip_intent import ItemIntent
 from aidm.dm.give_intent import GiveIntent
 from aidm.dm.hand_intent import HeroHandIntent
@@ -93,6 +95,7 @@ type Intent = (
     | BarredIntent
     | UseIntent
     | HealIntent
+    | CastIntent
 )
 _INTENTS = (
     RestIntent,
@@ -111,6 +114,7 @@ _INTENTS = (
     BarredIntent,
     UseIntent,
     HealIntent,
+    CastIntent,
 )
 
 

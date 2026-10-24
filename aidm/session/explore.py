@@ -32,6 +32,8 @@ Public API: `submit_action`, `kick_resolver`, `resolve_next`, `resolve_action`,
 from collections.abc import Sequence
 
 from aidm.dm.adjudicator import AdjudicationOptions, AdjudicationResult, adjudicate
+from aidm.dm.attack_intent import DrawAttack
+from aidm.dm.cast_intent import CastIntent
 from aidm.dm.equip_intent import ItemIntent
 from aidm.dm.fight_intent import FightCommand
 from aidm.dm.give_intent import GiveIntent
@@ -166,10 +168,14 @@ def _combat_text(core: TableCore, player: Player, pc: Creature, text: str) -> No
 
 
 async def _typed_command(
-    core: TableCore, player: Player, entry: QueueEntry, command: FightCommand
+    core: TableCore, player: Player, entry: QueueEntry, command: FightCommand | DrawAttack
 ) -> None:
     """A typed feature or heal runs as the hotbar command (a refusal says the rules' reason)."""
     declare(core, entry)
+    if isinstance(command, DrawAttack):  # M30.0b T9: the free draw of a stowed weapon first
+        if not gear_actions.draw_weapon(core, player, command):
+            return
+        command = command.attack
     await combat_flow.player_command(core, player, command)
 
 
@@ -261,7 +267,7 @@ async def resolve_action(core: TableCore, entry: QueueEntry) -> None:
         )
     elif isinstance(intent, UseIntent):
         await _gear_use(core, player, entry, intent)
-    elif isinstance(intent, HealIntent):
+    elif isinstance(intent, HealIntent | CastIntent):  # M30.0b T7: a typed spell out of a fight
         await heal_actions.heal_intent(core, player, intent)
     elif isinstance(intent, TravelIntent):
         detail = f"travel to {node_display_name(core.state, intent.node_id)}"

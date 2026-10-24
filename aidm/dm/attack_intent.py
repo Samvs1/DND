@@ -11,14 +11,18 @@ forms (the hero's own name with a third-person verb reads the same):
 The foe is a living creature of the fight on another side whose name words fit the words said.
 The weapon is the attack option (`rules.attack_profiles.attack_options`) whose name words fit
 the weapon words; no weapon named: the ranged option for shoot / fire / loose (the lexicon's
-`ranged_attack_verbs`), else the main hand. A named weapon that is no option of the hero (not
-in hand) or anything more ("swing from the chandelier into him", "kick the brazier at it") is
-None: it stays a creative action.
+`ranged_attack_verbs`), else the main hand. M30.0b T9 (round 3: "I stab the ice mephit with my
+rapier" after `equip dagger` became a Dex check): a named weapon the hero carries but has stowed
+is drawn as the free object interaction of the attack (`rules.equipment.draw_events`), then
+attacks: `DrawAttack(item, attack)`. A named weapon the hero does not carry, or anything more
+("swing from the chandelier into him", "kick the brazier at it") is None: it stays a creative
+action.
 
-Public API: `RESOLVERS` (`attack`).
+Public API: `DrawAttack(item, attack)`, `RESOLVERS` (`attack`).
 """
 
 import re
+from dataclasses import dataclass
 
 from aidm.data.combat_data import combat_registries
 from aidm.data.intent_phrases import intent_phrases
@@ -26,9 +30,19 @@ from aidm.dm.intent_match import Found, Resolver
 from aidm.models.commands import AttackCommand
 from aidm.models.encounter import Encounter
 from aidm.models.state import Creature, GameState
+from aidm.models.world_events import EquipmentChanged
 from aidm.rules.attack_profiles import UNARMED_KEY, attack_options
+from aidm.rules.equipment import EquipRefused, draw_events
 
 _SMALL = frozenset({"the", "a", "an", "of", "my", "his", "her", "their", "our"})
+
+
+@dataclass(frozen=True)
+class DrawAttack:
+    """A stowed weapon the hero carries, drawn for free, then the attack with it."""
+
+    item: str
+    attack: AttackCommand
 
 
 def _words(text: str) -> frozenset[str]:
@@ -71,7 +85,42 @@ def _option(actor: Creature, weapon: str | None, verb: str | None) -> str | None
     return "main_hand" if any(o.key == "main_hand" for o in options) else UNARMED_KEY
 
 
-def attack(found: Found) -> AttackCommand | None:
+def _drawn_option(actor: Creature, item: str, wanted: frozenset[str]) -> str | None:
+    """The attack option the carried weapon `item` gives once drawn (None: it cannot be)."""
+    chars = combat_registries().chars
+    try:
+        events = draw_events(actor, item, chars)
+    except EquipRefused:
+        return None
+    changed = next((e for e in events if isinstance(e, EquipmentChanged)), None)
+    if changed is None or actor.pc is None:
+        return None
+    pc = actor.pc.model_copy(update={"equipped": changed.equipped})
+    drawn = actor.model_copy(update={"pc": pc})
+    options = attack_options(drawn, chars)
+    named = [o for o in options if o.key != UNARMED_KEY and _weapon_fits(wanted, o.name)]
+    return named[0].key if named else None
+
+
+def _draw(actor: Creature, weapon: str) -> tuple[str, str] | None:
+    """(item, option) of a carried, stowed weapon the words name."""
+    if actor.pc is None:
+        return None
+    wanted = _words(weapon)
+    equipment = combat_registries().chars.equipment
+    for row in actor.pc.inventory:
+        entry = equipment.find(row.item)
+        if entry is None or entry.weapon_category is None or row.qty < 1:
+            continue
+        if not _weapon_fits(wanted, entry.name):
+            continue
+        option = _drawn_option(actor, row.item, wanted)
+        if option is not None:
+            return row.item, option
+    return None
+
+
+def attack(found: Found) -> AttackCommand | DrawAttack | None:
     enc = found.state.encounter
     actor = found.state.creatures.get(found.actor_id)
     if enc is None or actor is None or actor.pc is None:
@@ -79,10 +128,15 @@ def attack(found: Found) -> AttackCommand | None:
     target = _foe(found.state, enc, found.actor_id, found.group("target") or "")
     if target is None:
         return None
-    option = _option(actor, found.group("weapon"), found.group("verb"))
-    if option is None:
+    weapon = found.group("weapon")
+    option = _option(actor, weapon, found.group("verb"))
+    if option is not None:
+        return AttackCommand(actor_id=found.actor_id, target_id=target, option=option)
+    drawn = _draw(actor, weapon) if weapon is not None else None
+    if drawn is None:
         return None
-    return AttackCommand(actor_id=found.actor_id, target_id=target, option=option)
+    item, key = drawn
+    return DrawAttack(item, AttackCommand(actor_id=found.actor_id, target_id=target, option=key))
 
 
 RESOLVERS: dict[str, Resolver] = {"attack": attack}

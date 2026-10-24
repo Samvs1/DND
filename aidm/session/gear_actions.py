@@ -21,19 +21,23 @@
   interpreter too when it fits (checked first with a throwaway RNG); a use the rules refuse
   returns False and keeps the fight's own path (the AI meets the same refusal). Anything else
   returns False.
+- `draw_weapon(core, player, intent) -> bool` (M30.0b T9): the free draw of a typed attack with
+  a stowed weapon (`rules.equipment.draw_events`); a refusal is a notice and returns False.
 
-Public API: `use_intent`, `first_act`, `rest_with_crafts`, `fight_gear`.
+Public API: `use_intent`, `first_act`, `rest_with_crafts`, `fight_gear`, `draw_weapon`.
 """
 
 import random
 
+from aidm.dm.attack_intent import DrawAttack
 from aidm.dm.precheck import gear_intent
 from aidm.dm.use_intent import UseIntent
 from aidm.models.events import AnyEvent
 from aidm.models.item_events import ItemUseRefused
-from aidm.models.protocol_server import CombatState, NoticeKind
+from aidm.models.protocol_server import CombatState, ErrorCode, NoticeKind
 from aidm.models.protocol_views import QueueEntry, VoteKind
 from aidm.rules.dice import Rng
+from aidm.rules.equipment import EquipRefused, draw_events
 from aidm.rules.item_effects import gear_name
 from aidm.rules.item_use import use_item
 from aidm.rules.light import put_out
@@ -148,4 +152,17 @@ def fight_gear(core: TableCore, player: Player, entry: QueueEntry) -> bool:
         await combat_flow.after_player_step(core, entry.creature_id)  # a throw may end the fight
 
     core.schedule(job)
+    return True
+
+
+def draw_weapon(core: TableCore, player: Player, intent: DrawAttack) -> bool:
+    hero = core.state.creatures.get(intent.attack.actor_id)
+    if hero is None:
+        return False
+    try:
+        events = draw_events(hero, intent.item, core.regs.combat.chars)
+    except EquipRefused as refused:
+        core.error(player.id, ErrorCode.REFUSED, refused.detail)
+        return False
+    core.apply_all(events)
     return True

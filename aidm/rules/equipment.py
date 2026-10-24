@@ -13,7 +13,12 @@ Taking (M19.3) is the reverse: a visible item lying at the current place leaves 
 (`ItemRemoved`) and joins the hero: a catalogue item into the inventory, anything else (a story
 object with no catalogue entry) as a keepsake; a quest item keeps its `quest_id` (M23.3).
 
+M30.0b T9: `draw_events` is the free object interaction of an attack (SRD 5.1 "Other Activity
+on Your Turn": draw a weapon as part of the attack; BG3 swaps weapons freely): a carried weapon
+goes to its hand as with equip, mid-fight too; one already in hand needs nothing.
+
 Public API: `EquipRefusal`, `EquipRefused`, `equip_events(creature, item, regs)`,
+`draw_events(creature, item, regs)`,
 `unequip_events(creature, item, regs)`, `release_events(creature, item, regs, qty=1)`,
 `drop_events(state, creature, item, regs)`,
 `take_events(state, creature, item_id)`.
@@ -114,6 +119,18 @@ def equip_events(creature: Creature, item: str, regs: CharacterRegistries) -> li
     if new == gear:
         raise EquipRefused(EquipRefusal.ALREADY_EQUIPPED, f"{entry.name} is already in hand")
     return [_changed(creature, new, regs)]
+
+
+def draw_events(creature: Creature, item: str, regs: CharacterRegistries) -> list[AnyEvent]:
+    entry = regs.equipment.find(item)
+    if entry is None or entry.weapon_category is None:
+        raise EquipRefused(EquipRefusal.NOT_EQUIPMENT, f"{item} is not a weapon")
+    try:
+        return equip_events(creature, item, regs)
+    except EquipRefused as refused:
+        if refused.reason is EquipRefusal.ALREADY_EQUIPPED:
+            return []
+        raise
 
 
 def unequip_events(creature: Creature, item: str, regs: CharacterRegistries) -> list[AnyEvent]:

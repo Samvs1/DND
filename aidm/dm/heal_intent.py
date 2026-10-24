@@ -19,7 +19,8 @@ The resolvers read the sentence:
 Anything else is None and goes on as before (the adjudicator).
 
 Public API: `HealIntent(actor_id, target_ids, item, owner_id, spell)`, `RESOLVERS`
-(`heal_spell`, `heal_item`).
+(`heal_spell`, `heal_item`), `named_heroes(state, actor_id, text)` (the heroes a sentence names,
+in the order they appear last).
 """
 
 import re
@@ -47,7 +48,7 @@ def _words(text: str) -> list[str]:
     return re.findall(r"[a-z0-9]+", text.lower().replace("-", " "))
 
 
-def _named_heroes(state: GameState, actor_id: str, text: str) -> list[str]:
+def named_heroes(state: GameState, actor_id: str, text: str) -> list[str]:
     """The heroes (not the actor; the dead too, so the rules can refuse) the sentence names, in
     the order they appear last."""
     found: list[tuple[int, str]] = []
@@ -74,7 +75,7 @@ def _spell(words: frozenset[str]) -> str | None:
 
 def _spell_intent(state: GameState, actor_id: str, clean: str, words: frozenset[str]) -> HealIntent:
     spell = _spell(words)
-    named = _named_heroes(state, actor_id, clean)
+    named = named_heroes(state, actor_id, clean)
     one = spell is not None and combat_registries().spells.get(spell).targeting.kind == "creature"
     if not named:
         party = [c.id for c in state.creatures.values() if c.kind is CreatureKind.PC and not c.dead]
@@ -102,7 +103,7 @@ def _heal_items(hero: Creature, words: frozenset[str]) -> tuple[int, str] | None
 def _item_intent(
     state: GameState, actor: Creature, clean: str, words: frozenset[str]
 ) -> HealIntent | None:
-    named = _named_heroes(state, actor.id, clean)
+    named = named_heroes(state, actor.id, clean)
     lexicon = intent_phrases().lexicon
     if not words & lexicon["heal_self_verbs"] and not (
         words & lexicon["heal_give_verbs"] and named

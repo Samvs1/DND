@@ -395,7 +395,7 @@
         "ask"
       ],
       "family": "help",
-      "precedence": 100,
+      "precedence": 1000,
       "resolver": "help_up",
       "patterns": [
         {
@@ -442,7 +442,7 @@
         "ask"
       ],
       "family": "what_now",
-      "precedence": 105,
+      "precedence": 1050,
       "resolver": "what_now",
       "readings": [
         "strip"
@@ -460,7 +460,7 @@
         "explore"
       ],
       "family": "parley",
-      "precedence": 110,
+      "precedence": 1100,
       "resolver": "parley",
       "tokens": "letters",
       "when": [
@@ -481,7 +481,7 @@
         "explore"
       ],
       "family": "parley",
-      "precedence": 111,
+      "precedence": 1110,
       "resolver": "parley",
       "tokens": "letters",
       "when": [
@@ -502,7 +502,7 @@
         "explore"
       ],
       "family": "parley",
-      "precedence": 112,
+      "precedence": 1120,
       "resolver": "parley",
       "tokens": "letters",
       "when": [
@@ -526,7 +526,7 @@
         "explore"
       ],
       "family": "parley",
-      "precedence": 113,
+      "precedence": 1130,
       "resolver": "parley",
       "tokens": "letters",
       "when": [
@@ -547,7 +547,7 @@
         "explore"
       ],
       "family": "parley",
-      "precedence": 114,
+      "precedence": 1140,
       "resolver": "parley",
       "tokens": "letters",
       "when": [
@@ -568,7 +568,7 @@
         "explore"
       ],
       "family": "rest",
-      "precedence": 120,
+      "precedence": 1200,
       "resolver": "rest",
       "patterns": [
         {
@@ -585,7 +585,7 @@
         "explore"
       ],
       "family": "rest",
-      "precedence": 121,
+      "precedence": 1210,
       "resolver": "rest",
       "patterns": [
         {
@@ -602,7 +602,7 @@
         "explore"
       ],
       "family": "look",
-      "precedence": 122,
+      "precedence": 1220,
       "resolver": "look",
       "patterns": [
         {
@@ -616,7 +616,7 @@
         "explore"
       ],
       "family": "inventory",
-      "precedence": 123,
+      "precedence": 1230,
       "resolver": "inventory",
       "patterns": [
         {
@@ -630,7 +630,7 @@
         "explore"
       ],
       "family": "lift",
-      "precedence": 130,
+      "precedence": 1300,
       "resolver": "lift",
       "match": "search",
       "patterns": [
@@ -646,7 +646,7 @@
         "explore"
       ],
       "family": "give",
-      "precedence": 131,
+      "precedence": 1310,
       "resolver": "give_carried",
       "readings": [
         "base",
@@ -686,12 +686,61 @@
       "note": "M23.3: a thing the hero carries, to a known NPC"
     },
     {
+      "id": "give_placed",
+      "scopes": [
+        "explore"
+      ],
+      "family": "give",
+      "precedence": 1315,
+      "resolver": "give_carried",
+      "readings": [
+        "base",
+        "comma_head",
+        "and_head"
+      ],
+      "patterns": [
+        {
+          "re": "{verbs}(?: down)? {give_art}{thing:item}(?: down)?(?: (?:on|onto|upon|in|into|at|by|beside|across) [a-z0-9' ,-]+?)? (?:before|in front of|at the feet of) (?:the )?{someone:who}",
+          "verbs": [
+            "set",
+            "place",
+            "put",
+            "lay",
+            "leave",
+            "rest",
+            "deposit",
+            "lower"
+          ],
+          "params": {
+            "anywhere": false
+          }
+        },
+        {
+          "re": "{verbs}(?: down)? {give_art}{thing:item}(?: down)? at (?:the )?{someone:who}'s feet",
+          "verbs": [
+            "set",
+            "place",
+            "put",
+            "lay",
+            "leave",
+            "rest",
+            "deposit",
+            "lower"
+          ],
+          "params": {
+            "anywhere": false
+          }
+        }
+      ],
+      "note": "M30.0b T5: a carried thing set before, in front of or at the feet of an NPC here is a give to them"
+    },
+    {
       "id": "pay",
       "scopes": [
         "explore"
       ],
       "family": "pay",
-      "precedence": 132,
+      "precedence": 1320,
       "resolver": "pay",
       "readings": [
         "clause_head",
@@ -738,7 +787,7 @@
         "explore"
       ],
       "family": "give",
-      "precedence": 133,
+      "precedence": 1330,
       "resolver": "give_missing",
       "readings": [
         "base",
@@ -783,7 +832,7 @@
         "explore"
       ],
       "family": "hand",
-      "precedence": 134,
+      "precedence": 1340,
       "resolver": "hand",
       "readings": [
         "base",
@@ -828,7 +877,7 @@
         "explore"
       ],
       "family": "heal",
-      "precedence": 135,
+      "precedence": 1350,
       "resolver": "heal_spell",
       "tokens": "alnum",
       "has_words": [
@@ -842,7 +891,7 @@
         "explore"
       ],
       "family": "heal",
-      "precedence": 136,
+      "precedence": 1360,
       "resolver": "heal_item",
       "tokens": "alnum",
       "has_words": [
@@ -850,12 +899,26 @@
       ]
     },
     {
+      "id": "cast_spell",
+      "scopes": [
+        "explore"
+      ],
+      "family": "cast",
+      "precedence": 1365,
+      "resolver": "cast_spell",
+      "tokens": "alnum",
+      "has_words": [
+        "cast_words"
+      ],
+      "note": "M30.0b T7: a known spell cast outside a fight on the hero or other heroes (the healing rows rank first)"
+    },
+    {
       "id": "rest_named_short",
       "scopes": [
         "explore"
       ],
       "family": "wordy_rest",
-      "precedence": 140,
+      "precedence": 1400,
       "resolver": "rest",
       "match": "search",
       "patterns": [
@@ -877,7 +940,7 @@
         "explore"
       ],
       "family": "wordy_rest",
-      "precedence": 141,
+      "precedence": 1410,
       "resolver": "rest",
       "match": "search",
       "patterns": [
@@ -899,7 +962,7 @@
         "explore"
       ],
       "family": "wordy_rest",
-      "precedence": 142,
+      "precedence": 1420,
       "resolver": "rest",
       "match": "search",
       "patterns": [
@@ -922,7 +985,7 @@
         "explore"
       ],
       "family": "wordy_rest",
-      "precedence": 143,
+      "precedence": 1430,
       "resolver": "rest",
       "match": "search",
       "patterns": [
@@ -945,7 +1008,7 @@
         "explore"
       ],
       "family": "shop",
-      "precedence": 150,
+      "precedence": 1500,
       "resolver": "shop",
       "on_match": "stop",
       "patterns": [
@@ -960,7 +1023,7 @@
         "explore"
       ],
       "family": "travel",
-      "precedence": 151,
+      "precedence": 1510,
       "resolver": "travel",
       "on_match": "stop",
       "when": [
@@ -992,7 +1055,7 @@
         "explore"
       ],
       "family": "lock",
-      "precedence": 152,
+      "precedence": 1520,
       "resolver": "barred_lock",
       "readings": [
         "no_pick_up"
@@ -1008,7 +1071,7 @@
         "explore"
       ],
       "family": "lock",
-      "precedence": 153,
+      "precedence": 1530,
       "resolver": "barred_lock",
       "readings": [
         "no_pick_up"
@@ -1024,7 +1087,7 @@
         "explore"
       ],
       "family": "item_pair",
-      "precedence": 160,
+      "precedence": 1600,
       "resolver": "item_pair",
       "readings": [
         "clause_head"
@@ -1037,7 +1100,7 @@
         "explore"
       ],
       "family": "item",
-      "precedence": 161,
+      "precedence": 1610,
       "resolver": "item",
       "readings": [
         "item_tail"
@@ -1083,7 +1146,7 @@
         "explore"
       ],
       "family": "item",
-      "precedence": 162,
+      "precedence": 1620,
       "resolver": "item",
       "readings": [
         "item_tail"
@@ -1118,7 +1181,7 @@
         "explore"
       ],
       "family": "item",
-      "precedence": 163,
+      "precedence": 1630,
       "resolver": "item",
       "readings": [
         "item_tail"
@@ -1144,7 +1207,7 @@
         "explore"
       ],
       "family": "light_first",
-      "precedence": 170,
+      "precedence": 1700,
       "resolver": "light_first",
       "readings": [
         "clause_head"
@@ -1157,7 +1220,7 @@
         "explore"
       ],
       "family": "use",
-      "precedence": 180,
+      "precedence": 1800,
       "resolver": "clue_read",
       "readings": [
         "head_or_whole"
@@ -1187,7 +1250,7 @@
         "explore"
       ],
       "family": "use",
-      "precedence": 181,
+      "precedence": 1810,
       "resolver": "put_out",
       "readings": [
         "aim"
@@ -1231,7 +1294,7 @@
         "explore"
       ],
       "family": "use",
-      "precedence": 182,
+      "precedence": 1820,
       "resolver": "use_held",
       "readings": [
         "aim"
@@ -1254,7 +1317,7 @@
         "explore"
       ],
       "family": "use",
-      "precedence": 183,
+      "precedence": 1830,
       "resolver": "use_held",
       "on_match": "stop_family",
       "patterns": [
@@ -1274,7 +1337,7 @@
         "explore"
       ],
       "family": "use",
-      "precedence": 184,
+      "precedence": 1840,
       "resolver": "use_held",
       "on_match": "stop_family",
       "patterns": [
@@ -1299,7 +1362,7 @@
         "explore"
       ],
       "family": "use",
-      "precedence": 185,
+      "precedence": 1850,
       "resolver": "use_held",
       "on_match": "stop_family",
       "patterns": [
@@ -1317,7 +1380,7 @@
         "explore"
       ],
       "family": "use",
-      "precedence": 186,
+      "precedence": 1860,
       "resolver": "use_held",
       "on_match": "stop_family",
       "patterns": [
@@ -1337,7 +1400,7 @@
         "explore"
       ],
       "family": "use",
-      "precedence": 187,
+      "precedence": 1870,
       "resolver": "use_carried",
       "on_match": "stop_family",
       "patterns": [
@@ -1352,7 +1415,7 @@
         "explore"
       ],
       "family": "use",
-      "precedence": 188,
+      "precedence": 1880,
       "resolver": "craft",
       "on_match": "stop_family",
       "patterns": [
@@ -1371,7 +1434,7 @@
         "explore"
       ],
       "family": "take",
-      "precedence": 190,
+      "precedence": 1900,
       "resolver": "take",
       "patterns": [
         {
@@ -1400,7 +1463,7 @@
         "fight"
       ],
       "family": "move",
-      "precedence": 300,
+      "precedence": 3000,
       "resolver": "move",
       "readings": [
         "plain"
@@ -1441,7 +1504,7 @@
         "fight"
       ],
       "family": "attack",
-      "precedence": 310,
+      "precedence": 3100,
       "resolver": "attack",
       "readings": [
         "own"
@@ -1464,6 +1527,7 @@
             "stab at",
             "cut",
             "cut at",
+            "cut down",
             "hack at",
             "chop at",
             "lunge at",
@@ -1492,9 +1556,23 @@
             "aim",
             "point"
           ]
+        },
+        {
+          "re": "{verbs:verb} {mine} {foe:weapon} down (?:on|upon|onto|into|across) (?:the )?{foe:target}",
+          "verbs": [
+            "bring",
+            "slam",
+            "smash",
+            "crash",
+            "swing",
+            "drive",
+            "hammer",
+            "chop",
+            "hack"
+          ]
         }
       ],
-      "note": "M29.7a R22: the hotbar's AttackCommand"
+      "note": "M29.7a R22: the hotbar's AttackCommand; M30.0b T9: 'bring my mace down on X', a stowed weapon carried is drawn"
     },
     {
       "id": "feature",
@@ -1502,7 +1580,7 @@
         "fight"
       ],
       "family": "feature",
-      "precedence": 320,
+      "precedence": 3200,
       "resolver": "feature",
       "readings": [
         "plain"
@@ -1518,7 +1596,7 @@
         "fight"
       ],
       "family": "fight_heal",
-      "precedence": 330,
+      "precedence": 3300,
       "resolver": "fight_heal_spell",
       "readings": [
         "plain"
@@ -1538,7 +1616,7 @@
         "fight"
       ],
       "family": "fight_heal",
-      "precedence": 331,
+      "precedence": 3310,
       "resolver": "fight_heal_item",
       "readings": [
         "plain"
@@ -1557,7 +1635,7 @@
         "fight"
       ],
       "family": "surrender",
-      "precedence": 340,
+      "precedence": 3400,
       "resolver": "surrender",
       "readings": [
         "named_cut"
@@ -1589,7 +1667,7 @@
         "fight"
       ],
       "family": "surrender",
-      "precedence": 341,
+      "precedence": 3410,
       "resolver": "surrender",
       "readings": [
         "named_cut"

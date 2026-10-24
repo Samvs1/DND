@@ -5,7 +5,7 @@ It joins the resolvers of every intent (each `aidm.dm.*_intent` module keeps onl
 lookups and exports `RESOLVERS`) and routes a sentence through the phrase table
 (data/bg3/intent_phrases.json, read by `aidm.dm.intent_match`) for one scope:
 - `explore_intent` (scope `explore`, out of a fight: help up, parley, rests, look, inventory,
-  lift, give, pay, hand, heal, shop, travel, locked ways, equip, gear use, take);
+  lift, give, pay, hand, heal, cast, shop, travel, locked ways, equip, gear use, take);
 - `fight_intent` (scope `fight`: move, attack, feature, healing, surrender);
 - `ask_intent` (scope `ask`: "what now?", unless the line helps a downed hero up).
 Which intent wins is the rows' `precedence` field, never call order; the conditions a row
@@ -16,6 +16,7 @@ Public API: `RESOLVERS`, `FightIntent`, `explore_intent`, `fight_intent`, `ask_i
 """
 
 from aidm.dm import (
+    cast_intent,
     combat_intent,
     equip_intent,
     give_intent,
@@ -32,6 +33,7 @@ from aidm.dm import (
 from aidm.dm import (
     fight_intent as fight_rows,
 )
+from aidm.dm.attack_intent import DrawAttack
 from aidm.dm.combat_intent import MoveCommands
 from aidm.dm.fight_intent import FightCommand
 from aidm.dm.intent_match import Resolver, route
@@ -39,11 +41,20 @@ from aidm.dm.surrender_intent import SurrenderIntent
 from aidm.models.commands import AttackCommand, CastCommand, FeatureActionCommand, UseItemCommand
 from aidm.models.state import GameState
 
-type FightIntent = MoveCommands | FightCommand | SurrenderIntent
-_FIGHT = (list, SurrenderIntent, AttackCommand, FeatureActionCommand, CastCommand, UseItemCommand)
+type FightIntent = MoveCommands | FightCommand | DrawAttack | SurrenderIntent
+_FIGHT = (
+    list,
+    SurrenderIntent,
+    DrawAttack,
+    AttackCommand,
+    FeatureActionCommand,
+    CastCommand,
+    UseItemCommand,
+)
 
 RESOLVERS: dict[str, Resolver] = {}
 for _module in (
+    cast_intent,
     combat_intent,
     equip_intent,
     fight_rows,

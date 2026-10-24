@@ -19,14 +19,15 @@ The fight rows of data/bg3/intent_phrases.json, in precedence order:
 - `surrender_*` (`aidm.dm.surrender_intent`).
 
 Public API: `FightCommand`, `RESOLVERS` (`feature`, `fight_heal_spell`, `fight_heal_item`),
-`fight_command(state, actor_id, text) -> FightCommand | None` (the attack, feature and
-healing rows).
+`fight_command(state, actor_id, text) -> FightCommand | DrawAttack | None` (the attack, feature
+and healing rows; M30.0b T9: `DrawAttack` draws a stowed weapon, then attacks).
 """
 
 import re
 
 from aidm.data.combat_data import combat_registries
 from aidm.dm.attack_intent import RESOLVERS as ATTACK_RESOLVERS
+from aidm.dm.attack_intent import DrawAttack
 from aidm.dm.heal_intent import HealIntent, heal_item, heal_spell
 from aidm.dm.intent_match import Found, Resolver, route
 from aidm.models.commands import (
@@ -83,10 +84,10 @@ RESOLVERS: dict[str, Resolver] = ATTACK_RESOLVERS | {
     "fight_heal_spell": fight_heal_spell,
     "fight_heal_item": fight_heal_item,
 }
-_COMMANDS = (AttackCommand, FeatureActionCommand, CastCommand, UseItemCommand)
+_COMMANDS = (AttackCommand, FeatureActionCommand, CastCommand, UseItemCommand, DrawAttack)
 
 
-def fight_command(state: GameState, actor_id: str, text: str) -> FightCommand | None:
+def fight_command(state: GameState, actor_id: str, text: str) -> FightCommand | DrawAttack | None:
     families = ("attack", "feature", "fight_heal")
     found = route(state, actor_id, text, RESOLVERS, families=families, base="as_is")
     return found if isinstance(found, _COMMANDS) else None

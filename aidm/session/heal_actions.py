@@ -6,11 +6,14 @@ carrier's draught is used up, the target heals, a dead target is refused and not
 a healing spell through `rules.spells.cast_spell` (the lowest fitting slot is spent; a spell
 not on the sheet, no slot or a bad target is refused before any event). The events apply and
 the storyteller tells them (`telling.conclude`). A refusal is told as the plain engine reason
-(`tell_text`): never a heal that did not happen.
+(`tell_text`): never a heal that did not happen. M30.0b T7: a `CastIntent` (any other typed spell
+out of a fight, `dm.cast_intent`) is cast the same way: the same sheet, slot and target checks
+of `cast_spell`.
 
-Public API: `heal_intent(core, player, intent)`.
+Public API: `heal_intent(core, player, intent)` (a `HealIntent` or a `CastIntent`).
 """
 
+from aidm.dm.cast_intent import CastIntent
 from aidm.dm.heal_intent import HealIntent
 from aidm.models.events import AnyEvent
 from aidm.rules.command_checks import CommandRefused
@@ -32,10 +35,20 @@ def _events(core: TableCore, intent: HealIntent) -> list[AnyEvent]:
     return use_item_events(core.rng, core.state, intent.owner_id, intent.item, target, regs)
 
 
-async def heal_intent(core: TableCore, player: Player, intent: HealIntent) -> None:
+def _cast_events(core: TableCore, intent: CastIntent) -> list[AnyEvent]:
+    regs = core.regs.combat
+    spell = regs.spells.get(intent.spell)
+    return cast_spell(
+        core.state, intent.actor_id, spell, None, intent.target_ids, None, core.rng, regs
+    )
+
+
+async def heal_intent(core: TableCore, player: Player, intent: HealIntent | CastIntent) -> None:
     del player  # the seat already declared the action; the line is public
     try:
-        events = _events(core, intent)
+        events = (
+            _cast_events(core, intent) if isinstance(intent, CastIntent) else _events(core, intent)
+        )
     except CommandRefused as refused:
         await remember(core, await tell_text(core, refused.reason))
         return
