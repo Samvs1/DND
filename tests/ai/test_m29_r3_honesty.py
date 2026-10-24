@@ -7,7 +7,7 @@ from pathlib import Path
 
 from aidm.dm.epilogue import epilogue_checker
 from aidm.dm.epilogue_facts import epilogue_facts
-from aidm.dm.event_text import event_line
+from aidm.dm.event_text import event_line, event_notes
 from aidm.dm.fake_llm import fake_text
 from aidm.dm.guard import prose_checker
 from aidm.dm.guard_flow import NarrationSource
@@ -142,15 +142,17 @@ def test_m29_gift_told_refused() -> None:
 def test_m29_accepted_quest_told_done() -> None:
     """T11 (items 32-34): taking on Beska's errand was told as handing her the sun-ember ("takes
     your sun-ember", "takes the cold ember from your hands") while nobody held one. The facts
-    now say the quest is accepted only."""
+    now say the quest is accepted only, in a model-only note that never reaches the feed."""
     for seq, span in ((32, "takes your"), (34, "takes the")):
         turn = told_turn("r3-items", seq)
         check = prose_checker(turn.state, turn.events)
         found = {(v.kind, v.span) for v in check(turn.prose).violations}
         assert (K.UNMADE_HANDOVER, span) in found
     accepted = told_turn("r3-items", 34)
-    lines = [event_line(accepted.state, e) for e in accepted.events]
-    assert any("accepted only: nothing handed over or done yet" in (x or "") for x in lines)
+    notes = event_notes(accepted.state, accepted.events)
+    assert any("accepted only: nothing handed over or done yet" in x for x in notes)
+    lines = [event_line(accepted.state, e) or "" for e in accepted.events]
+    assert not any("accepted only" in x for x in lines)
     honest = (
         "Beska nods, relief in her pale knuckles: the ember must come from Wrenfall's cold altar,"
         " and the lantern will wait for it."

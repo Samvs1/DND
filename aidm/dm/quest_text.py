@@ -159,10 +159,7 @@ def _favour_fact(state: GameState, quest: Quest) -> str:
     if quest.state is QuestState.COMPLETED:
         return f"The favour '{quest.title}' for {giver} is done: they are grateful (no reward)."
     if quest.state is QuestState.ACTIVE:
-        return (
-            f"The party agreed to do {giver} a favour (agreed only: nothing paid, handed over or"
-            f" done yet): {quest.objective or quest.title}"
-        )
+        return f"The party agreed to do {giver} a favour: {quest.objective or quest.title}"
     return f"Favour '{quest.title}' is now {quest.state.value}."
 
 
@@ -186,11 +183,18 @@ def _updated_fact(state: GameState, e: QuestUpdated) -> str | None:
     if quest.kind is QuestKind.FAVOUR:
         return _favour_fact(state, quest)
     if quest.state is QuestState.ACTIVE and quest.objective:
-        return (
-            f"The party took on the quest '{quest.title}' (accepted only: nothing handed over or"
-            f" done yet): {quest.objective}"
-        )
+        return f"The party took on the quest '{quest.title}': {quest.objective}"
     return f"Quest '{quest.title}' is now {quest.state.value}."
+
+
+def _updated_note(state: GameState, e: QuestUpdated) -> str | None:
+    """M29.9c T11, model-only: taking a quest or favour on is not doing it."""
+    quest = e.quest
+    if _left(e) or quest.state is not QuestState.ACTIVE:
+        return None
+    if quest.kind is QuestKind.FAVOUR:
+        return f"The favour '{quest.title}' is agreed only: nothing paid, handed over or done yet."
+    return f"The quest '{quest.title}' is accepted only: nothing handed over or done yet."
 
 
 def _updated_story(state: GameState, e: QuestUpdated) -> str | None:
@@ -252,6 +256,7 @@ QUEST_EVENT_LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
 # M29.5c G36: model-only instructions, kept out of the lines players can see
 QUEST_EVENT_NOTES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     QuestStepDone: lambda s, e: STEP_NOTE,
+    QuestUpdated: _updated_note,
 }
 
 QUEST_TEMPLATE_LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {

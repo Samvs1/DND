@@ -1,4 +1,4 @@
-NEXT: Next: keep the model-only 'accepted only' / 'agreed only' quest notes out of the player feed (M29.9c put them in QUEST_EVENT_LINES; move them to QUEST_EVENT_NOTES; seen in the M30 shot), then M31.0 round 4 playtest (owner approved 2026-10-24 'if necessary'), then M26.11. M30 Impossible actions DONE (M30.0b router, 30.1 engine, 30.2 rule + live probe, 30.2b no free spells, 30.3 feed + manual). Files in flight: none. Last gate: FULL `GATE: PASS (12/12)` on 0563ea5 (M30).
+NEXT: Next: M31.0 round 4 playtest (orchestrator; 3 playtester runs, budget at or under 746 calls), then M31.1 fixes, M31.2 backlog, M26.11. M30 DONE (d218d2c); the 'accepted only' quest notes are now model-only (QUEST_EVENT_NOTES). Files in flight: none. Last gate: FULL `GATE: PASS (12/12)` on 0563ea5 (M30); note fix scoped green (unit+ai+session+property 3561 passed, ruff, format, pyright, structure, secrets).
 
 # PROGRESS
 
@@ -326,6 +326,12 @@ Owner answers: option 1 only. The model can declare an action impossible; the en
 - [x] M30.2 **H** Prompt rule in `dm/context_text.py` and the adjudicate context; FakeLLM cases (impossible, hard but possible, magic that allows it); RUN_LIVE probe with three typed actions. Gate: tests/ai + live probe. (commit c70dd61)
 - [x] M30.2b **H** No free spells by typing (found by the M30.2 live probe: "I cast misty step to reach the roof" outside a fight got `no_mechanics`, so no slot was spent). A typed cast of a spell the hero has ready, outside a fight, always goes through the engine: the M30.0b `cast_spell` row also takes spells that `needs_battlefield` refuses today (point, teleport, area), spends the slot or resource through `cast_spell` rules, and records what the engine can (a teleport outside a fight moves nobody between places); the effect is told from the event, and the narrator never tells a cast that has no cast event. A damaging spell aimed at a present NPC keeps today's path (it is an attack). Tests `test_m30_typed_misty_step_spends_the_slot`, `test_m30_no_mechanics_never_casts_free`. Gate: tests/unit + tests/ai + tests/session + tests/property, tests/sim, ruff, format, pyright, lint-imports, structure, secrets, protocol, manual. (commit 711099e)
 - [x] M30.3 **M** Player side: in-fiction line without a dice card, manual section, RULES_DECISIONS line. Commit `M30: Impossible actions` after the FULL gate.
+
+## M31 Round 4 (owner 2026-10-24: "You may run a fourth play test if necessary")
+Verifies M29.9a-d and M30 on live DeepSeek: 3 runs at or under round 3 (746 calls), reports as text, every claim checked against its save (findings V1..). Harness: scripts/agent_play.py.
+- [ ] M31.0 **ORCH** Play round 4: `r4-typed` (Sonnet, acts 1-2, a mixed four that TYPES every action: gives, pays, surrender demands, attacks with stowed weapons, items set before NPCs, impossible attempts, spells typed outside fights incl. point spells); `r4-quests` (Haiku, acts 1-2, accepts every quest and favour and audits each payout, offer and master answer against what was done); `r4-full` (Sonnet, full campaign, a four with a half-orc and a wizard, to the ending: epilogue facts, surrender, Sleep vs undead, Acid Arrow, Relentless Endurance). Write docs/playtests/M31_round4.md with the guard rate table (round 2 / 3 / 4) and the spend.
+- [ ] M31.1 **H** Fix what round 4 finds (split by family like M29.9), then the FULL gate and the commit `M31: Round 4`.
+- [ ] M31.2 **M** Backlog from M29/M30: the SRD utility cantrips missing from data (Light, Mage Hand, Prestidigitation, ...: data rows only, one generic interpreter), shop price shown rounded for 1-2 gp items (manual says 1.5), harness heal lines (die and bonus), invented foe abilities with no attack verb (items 908).
 
 ---
 
