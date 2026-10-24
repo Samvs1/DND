@@ -18,7 +18,9 @@
     "mine": "(?:my|the|his|her|their|our)",
     "money": "(?:(?P<n>\\d+|an?|one|two|three|four|five|six|seven|eight|nine|ten|some|a few) )?(?P<coin>gold|silver|copper|gp|sp|cp|coins?)(?: (?:gold |silver |copper )?(?:pieces?|coins?))?",
     "for": "(?: for .+)?",
-    "at_target": "(?: (?:on|at|onto|into|against|to|toward|towards) (?:the |a |an |that |this )?(?P<target>[a-z0-9' -]+))?"
+    "at_target": "(?: (?:on|at|onto|into|against|to|toward|towards) (?:the |a |an |that |this )?(?P<target>[a-z0-9' -]+))?",
+    "immovable": "(?:bridge|building|castle|chapel|church|cliff|forest|gatehouse|grove|hall|hill|house|keep|lake|manor|mill|mountain|palisade|river|ship|shrine|temple|thicket|tower|wall|windmill)",
+    "places": "[a-z0-9' ,-]+"
   },
   "lexicon": {
     "parley_intimidation": [
@@ -509,8 +511,6 @@
       "grapples",
       "guard",
       "guards",
-      "hand",
-      "hands",
       "hold",
       "holds",
       "holster",
@@ -561,6 +561,232 @@
       "wipes",
       "wrestle",
       "wrestles"
+    ],
+    "strike_verbs": [
+      "attack",
+      "attacks",
+      "bash",
+      "bashes",
+      "cleave",
+      "cleaves",
+      "cut",
+      "cuts",
+      "fire",
+      "fires",
+      "hack",
+      "hacks",
+      "hit",
+      "hits",
+      "jab",
+      "jabs",
+      "kill",
+      "kills",
+      "loose",
+      "looses",
+      "lunge",
+      "lunges",
+      "shoot",
+      "shoots",
+      "skewer",
+      "skewers",
+      "slash",
+      "slashes",
+      "slay",
+      "slays",
+      "smash",
+      "smashes",
+      "smite",
+      "smites",
+      "stab",
+      "stabs",
+      "strike",
+      "strikes",
+      "swing",
+      "swings"
+    ],
+    "lead_in_verbs": [
+      "approach",
+      "bow",
+      "breathe",
+      "charge",
+      "clear",
+      "climb",
+      "come",
+      "crouch",
+      "dash",
+      "draw",
+      "frown",
+      "glance",
+      "go",
+      "grin",
+      "head",
+      "hold",
+      "hurry",
+      "jump",
+      "keep",
+      "kneel",
+      "laugh",
+      "lean",
+      "leap",
+      "move",
+      "nod",
+      "pause",
+      "pocket",
+      "put",
+      "raise",
+      "reach",
+      "rise",
+      "run",
+      "rush",
+      "scramble",
+      "secure",
+      "shrug",
+      "sigh",
+      "slip",
+      "smile",
+      "stand",
+      "stash",
+      "step",
+      "store",
+      "straighten",
+      "stride",
+      "take",
+      "tuck",
+      "turn",
+      "vault",
+      "wait",
+      "walk",
+      "wave"
+    ],
+    "stealth_words": [
+      "ambush",
+      "ambushes",
+      "creep",
+      "creeps",
+      "hidden",
+      "hide",
+      "hides",
+      "quietly",
+      "shadows",
+      "silently",
+      "slink",
+      "slinks",
+      "sneak",
+      "sneaks",
+      "stalk",
+      "stalks",
+      "surprise",
+      "tiptoe",
+      "tiptoes",
+      "unnoticed",
+      "unseen"
+    ],
+    "act_verbs": [
+      "ask",
+      "attack",
+      "bind",
+      "break",
+      "bring",
+      "burn",
+      "buy",
+      "call",
+      "carry",
+      "cast",
+      "chase",
+      "check",
+      "cleave",
+      "climb",
+      "close",
+      "collect",
+      "creep",
+      "cut",
+      "dig",
+      "douse",
+      "draw",
+      "drink",
+      "drop",
+      "eat",
+      "equip",
+      "examine",
+      "fetch",
+      "fight",
+      "find",
+      "flee",
+      "follow",
+      "gather",
+      "give",
+      "grab",
+      "greet",
+      "guard",
+      "hand",
+      "heal",
+      "help",
+      "hide",
+      "hit",
+      "hum",
+      "inspect",
+      "jump",
+      "kill",
+      "lead",
+      "leave",
+      "lift",
+      "light",
+      "listen",
+      "look",
+      "offer",
+      "open",
+      "pass",
+      "pay",
+      "pick",
+      "place",
+      "pray",
+      "pull",
+      "push",
+      "read",
+      "rest",
+      "return",
+      "run",
+      "say",
+      "search",
+      "sell",
+      "set",
+      "sheathe",
+      "shoot",
+      "shout",
+      "show",
+      "sing",
+      "slash",
+      "sleep",
+      "smash",
+      "smell",
+      "sneak",
+      "stab",
+      "steal",
+      "stow",
+      "strike",
+      "study",
+      "swim",
+      "swing",
+      "taste",
+      "tell",
+      "tend",
+      "thank",
+      "touch",
+      "trade",
+      "use",
+      "wait",
+      "wake",
+      "walk",
+      "watch",
+      "wear",
+      "whisper",
+      "wield"
+    ],
+    "give_all_words": [
+      "all",
+      "both",
+      "each",
+      "every"
     ]
   },
   "patterns": {
@@ -574,7 +800,8 @@
     "loose_money": "(?:\\d+|some|a few|a|an|one|two|three|a handful of|a bit of|a little)? ?(?:gold|silver|copper|coin|coins|gold coins?|silver coins?|copper coins?|gp|sp|cp|money)(?: pieces?| coins?)?",
     "gold_amount": "(?P<n>\\d+) (?:gold(?: pieces| coins)?|gp|coins?)",
     "counted": "(?P<n>\\d+|two|three|four|five|six|seven|eight|nine|ten) (?P<rest>.+)",
-    "quest_refusal": "^(?:no|nope|nay)[,.!]|^(?:no thanks|no thank you|not now|not yet|not today)\\b|(?:^|\\b(?:we|i)(?:'ll| will)? )(?:decline|refuse|pass on)\\b|\\b(?:we|i)(?:'ll| will) pass\\b|^pass$|\\b(?:we|i) (?:can't|cannot|won't|will not) (?:take|accept|help|do) (?:it|this|that|the|your|you)\\b"
+    "quest_refusal": "^(?:no|nope|nay)[,.!]|^(?:no thanks|no thank you|not now|not yet|not today)\\b|(?:^|\\b(?:we|i)(?:'ll| will)? )(?:decline|refuse|pass on)\\b|\\b(?:we|i)(?:'ll| will) pass\\b|^pass$|\\b(?:we|i) (?:can't|cannot|won't|will not) (?:take|accept|help|do) (?:it|this|that|the|your|you)\\b",
+    "surrender_demand": "\\b(surrender|yield|give up|stand down|(lay|put|drop|throw|cast) down (your|their|his|her|the) (weapons?|arms|blades?)|(drop|lower) (your|their|his|her) (weapons?|arms|blades?))\\b"
   },
   "scopes": {
     "explore": {
@@ -1009,7 +1236,7 @@
       ],
       "patterns": [
         {
-          "re": "{verbs}(?: over| back)? {give_art}{thing:item}(?: over| back)? to (?:the )?{someone:who}",
+          "re": "{verbs}(?: over| back)? {give_art}{thing:item}(?: over| back)? to (?:the )?{someone:who}(?: as (?:an? |my |our |the )?[a-z' -]+)?",
           "verbs": [
             "give",
             "hand",
@@ -1017,7 +1244,9 @@
             "offer",
             "present",
             "deliver",
-            "return"
+            "return",
+            "hold out",
+            "holds out"
           ],
           "params": {
             "anywhere": true
@@ -1037,7 +1266,7 @@
           }
         }
       ],
-      "note": "M23.3: a thing the hero carries, to a known NPC"
+      "note": "M23.3: a thing the hero carries, to a known NPC; M32.1a X7: 'hold out X to Y as an offering'"
     },
     {
       "id": "give_placed",
@@ -1150,7 +1379,7 @@
       ],
       "patterns": [
         {
-          "re": "{verbs}(?: over| back)? {give_art}{thing:item}(?: over| back)? to (?:the )?{someone:who}",
+          "re": "{verbs}(?: over| back)? {give_art}{thing:item}(?: over| back)? to (?:the )?{someone:who}(?: as (?:an? |my |our |the )?[a-z' -]+)?",
           "verbs": [
             "give",
             "hand",
@@ -1158,7 +1387,9 @@
             "offer",
             "present",
             "deliver",
-            "return"
+            "return",
+            "hold out",
+            "holds out"
           ],
           "params": {
             "anywhere": true
@@ -1178,7 +1409,7 @@
           }
         }
       ],
-      "note": "M29.7a R23: a concrete thing not carried, after paying"
+      "note": "M29.7a R23: a concrete thing not carried, after paying; M32.1a X7: 'hold out X to Y as an offering'"
     },
     {
       "id": "hand",
@@ -1398,7 +1629,7 @@
       ],
       "patterns": [
         {
-          "re": "{verbs}(?: back)? (?:to|towards?|into|for) (?:the )?{place:dest}",
+          "re": "{verbs}(?: back)?(?: out| over| on| down| up)? (?:to|towards?|into|for) (?:the )?{places:dest}",
           "verbs": [
             "go",
             "travel",
@@ -1414,7 +1645,8 @@
             "make (?:our|my) way"
           ]
         }
-      ]
+      ],
+      "note": "M32.1a X6: a place further on, or 'A, then on to B', is walked road by road"
     },
     {
       "id": "lock_pick",
@@ -1862,11 +2094,15 @@
             "jump down",
             "descend",
             "cross",
-            "make (?:my|our) way"
+            "make (?:my|our) way",
+            "scramble",
+            "clamber",
+            "vault",
+            "wade"
           ]
         }
       ],
-      "note": "M19.4: a zone or a creature of the fight"
+      "note": "M19.4: a zone or a creature of the fight; M32.1a X6: scramble, clamber, vault, wade"
     },
     {
       "id": "attack",
@@ -2059,7 +2295,7 @@
       ],
       "patterns": [
         {
-          "re": "\\b(surrender|yield|give up|stand down|(lay|put|drop|throw|cast) down (your|their|his|her|the) (weapons?|arms|blades?)|(drop|lower) (your|their|his|her) (weapons?|arms|blades?))\\b"
+          "ref": "surrender_demand"
         }
       ],
       "params": {
@@ -2088,7 +2324,7 @@
       ],
       "patterns": [
         {
-          "re": "\\b(surrender|yield|give up|stand down|(lay|put|drop|throw|cast) down (your|their|his|her|the) (weapons?|arms|blades?)|(drop|lower) (your|their|his|her) (weapons?|arms|blades?))\\b"
+          "ref": "surrender_demand"
         }
       ],
       "params": {
@@ -2116,6 +2352,109 @@
         "throw_verbs"
       ],
       "note": "M32.1a X1: any line naming a living foe and a weapon (one of the hero's, or a weapon kind word) is that weapon's attack; a shove, trip, throw, a weapon shown or put away stays creative"
+    },
+    {
+      "id": "offer_strike",
+      "scopes": [
+        "explore"
+      ],
+      "family": "offer_strike",
+      "precedence": 1090,
+      "resolver": "offer_strike",
+      "readings": [
+        "named_cut"
+      ],
+      "tokens": "letters",
+      "when": [
+        "offer_waits_here",
+        "foe_named"
+      ],
+      "unless": [
+        "parley_intimidation",
+        "parley_deception",
+        "parley_persuasion",
+        "strike_vetoes",
+        "self_surrender",
+        "stealth_words"
+      ],
+      "note": "M32.1a X3: a typed attack (a weapon or strike word) or a harmful spell at a foe of the waiting offer starts the fight and the line waits for the hero's turn; a sneak or ambush is the offer's surprise (stealth words veto)"
+    },
+    {
+      "id": "offer_surrender",
+      "scopes": [
+        "explore"
+      ],
+      "family": "offer_surrender",
+      "precedence": 1095,
+      "resolver": "offer_surrender",
+      "readings": [
+        "named_cut"
+      ],
+      "match": "search",
+      "tokens": "letters",
+      "when": [
+        "offer_waits_here"
+      ],
+      "unless": [
+        "self_surrender"
+      ],
+      "patterns": [
+        {
+          "ref": "surrender_demand"
+        }
+      ],
+      "params": {
+        "skill": "intimidation"
+      },
+      "note": "M32.1a X5: a surrender demand while the offer waits: foes that never yield get the plain line (no roll, the offer waits), others are a parley"
+    },
+    {
+      "id": "impossible_feat",
+      "scopes": [
+        "explore",
+        "fight"
+      ],
+      "family": "impossible",
+      "precedence": 1290,
+      "resolver": "impossible_feat",
+      "readings": [
+        "named_cut"
+      ],
+      "tokens": "letters",
+      "params": {
+        "reason": "no person's strength can lift or hurl a whole {thing}"
+      },
+      "note": "M32.1a X8: lifting or hurling something no body can move (a thicket, a bridge, a house: the slot `immovable`) is impossible: no dice; the thing must be what is lifted, so 'throw a rock into the river' stays a throw",
+      "match": "search",
+      "verbs": [
+        "pick up",
+        "picks up",
+        "carries",
+        "carry",
+        "fling",
+        "flings",
+        "heave",
+        "heaves",
+        "hoist",
+        "hoists",
+        "hurl",
+        "hurls",
+        "lift",
+        "lifts",
+        "pluck",
+        "plucks",
+        "throw",
+        "throws",
+        "toss",
+        "tosses",
+        "uproot",
+        "uproots"
+      ],
+      "patterns": [
+        {
+          "re": "\\b{verbs}(?: up| out| over)? (?:the |a |an |this |that |his |her |their )?(?:whole |entire )?(?:[a-z'-]+ ){0,2}?{immovable:thing}s?(?= (?:out|off|up|over|into|onto|from|and|then|with|to|across|above|high|aloft|clear|free)\\b|[,.!?]|$)"
+        }
+      ]
     }
   ]
 }

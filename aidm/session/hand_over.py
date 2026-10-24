@@ -7,6 +7,8 @@
   `rules.handing.give_events` (a keepsake -> `KeepsakeGiven`; an inventory item -> the
   existing gift with its deed), then `telling.conclude` (follow-ups settle the quests, the
   narrator tells the hand-over). Refusals are typed and player-safe; nothing moves on one.
+  M32.1a X6: a counted typed give hands every keepsake of the count and says plainly when
+  there were fewer (`ONLY`).
 
 - `hand` (the `hand_over` client command) and `hand_intent` (typed "hand the crowbar to Elowen",
   M29.7a R8) share ONE path to another hero: `rules.hero_handing.hand_events`, then the engine
@@ -24,7 +26,7 @@ Public API: `take_intent`, `give`, `give_intent`, `hand`, `hand_intent`, `pay_fi
 """
 
 from aidm.dm.event_text import event_line
-from aidm.dm.give_intent import GiveIntent
+from aidm.dm.give_intent import GIVE_ALL, GiveIntent
 from aidm.dm.hand_intent import HeroHandIntent
 from aidm.dm.lift_intent import LiftIntent
 from aidm.dm.narration_templates import template_line
@@ -33,7 +35,7 @@ from aidm.dm.precheck import TakeIntent
 from aidm.models.events import AnyEvent
 from aidm.models.item_events import HandedOver
 from aidm.models.protocol_client import Give, HandOver
-from aidm.models.protocol_server import ErrorCode
+from aidm.models.protocol_server import ErrorCode, NoticeKind
 from aidm.models.state import Creature
 from aidm.rules.equipment import EquipRefused, take_events
 from aidm.rules.handing import GiveRefused, give_events
@@ -42,6 +44,8 @@ from aidm.rules.lifting import LiftRefused, lift_events
 from aidm.rules.paying import PayRefused, pay_events
 from aidm.session.table_core import Player, TableCore
 from aidm.session.telling import conclude, follow_ups, remember, tell_text
+
+ONLY = "{name} had only {n} of those to give."
 
 
 async def take_intent(core: TableCore, player: Player, intent: TakeIntent) -> None:
@@ -68,23 +72,32 @@ async def give(core: TableCore, player: Player, msg: Give) -> None:
     if pc is None:
         core.error(player.id, ErrorCode.NO_CHARACTER, "You need a living hero for that.")
         return
-    await _give(core, player, pc, msg.npc_id, msg.item_id)
+    await _give(core, player, pc, msg.npc_id, (msg.item_id,))
 
 
 async def give_intent(core: TableCore, player: Player, intent: GiveIntent) -> None:
     pc = core.state.creatures.get(intent.actor_id)
-    if pc is not None:
-        await _give(core, player, pc, intent.npc_id, intent.thing)
+    if pc is None:
+        return
+    things = (intent.thing, *intent.more)
+    given = await _give(core, player, pc, intent.npc_id, things)
+    if given and GIVE_ALL > intent.said > len(things):  # M32.1a X6: say how many there were
+        core.notice(player.id, NoticeKind.INFO, ONLY.format(name=pc.name, n=len(things)))
 
 
-async def _give(core: TableCore, player: Player, pc: Creature, npc_id: str, thing: str) -> None:
+async def _give(
+    core: TableCore, player: Player, pc: Creature, npc_id: str, things: tuple[str, ...]
+) -> bool:
+    events: list[AnyEvent] = []
     try:
-        events = give_events(core.state, pc.id, npc_id, thing, core.regs.tiers)
+        for thing in things:  # one hand-over per keepsake of a counted give (M32.1a X6)
+            events += core.apply_all(give_events(core.state, pc.id, npc_id, thing, core.regs.tiers))
     except GiveRefused as refused:
         core.error(player.id, ErrorCode.REFUSED, refused.detail, refused.reason.value)
-        return
-    core.apply_all(events)
+        if not events:
+            return False
     await conclude(core, None, events, actor_id=pc.id)  # follow_ups settles regions and quests
+    return True
 
 
 async def hand(core: TableCore, player: Player, msg: HandOver) -> None:

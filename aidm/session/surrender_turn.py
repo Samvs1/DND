@@ -27,7 +27,7 @@ ACTION_SPENT = (
 
 
 async def surrender_turn(
-    core: TableCore, player: Player, entry: QueueEntry, demand: SurrenderIntent
+    core: TableCore, player: Player, entry: QueueEntry, demand: SurrenderIntent, *, say: bool = True
 ) -> None:
     enc = core.state.encounter
     if enc is None or enc.active_id() != demand.actor_id or core.turn_key is None:
@@ -45,7 +45,8 @@ async def surrender_turn(
         core.notice(player.id, NoticeKind.REFUSED, none.line)
         return
     await combat_flow.tell_segment(core)
-    declare(core, entry)
+    if say:  # M32.1a: a later act of a compound line was declared with the whole line
+        declare(core, entry)
     core.apply_all(events)
     if stubborn is not None:  # the roll covered only the foes that can yield
         core.notice(player.id, NoticeKind.INFO, stubborn)

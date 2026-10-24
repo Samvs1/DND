@@ -19,7 +19,9 @@ Every AI turn sends `combat_state` as it begins and with its results, then holds
 `TableConfig.ai_turn_pause_s` so the table sees whose turn it is (M20.3); M26.3: it also waits
 until every show-capable screen presented the turn (`show_pace`, capped at `show_wait_cap_s`),
 and a hero's turn clock starts only once the screens presented what came before (same cap).
-Every mid-fight segment narration is recorded too (`narration_recorded`, M20.1).
+Every mid-fight segment narration is recorded too (`narration_recorded`, M20.1). M32.1a X3: a
+line typed at the offer that started the fight is played when its hero's turn opens
+(`waiting_line`); the fight's end drops any still waiting.
 A lost fight that wiped the party is turned into the DEFEATED phase right after the job by
 `defeat_flow.after_job` (M11.1); the fight start was marked as a retry checkpoint.
 
@@ -43,7 +45,7 @@ from aidm.rules.loot import end_encounter_with_loot, loot_rng
 from aidm.rules.party_ai import safe_default_turn
 from aidm.rules.social_deeds import combat_help_deed_events
 from aidm.rules.turns import begin_turn, next_turn
-from aidm.session import checkpoints, show_pace, turn_clock, votes
+from aidm.session import checkpoints, show_pace, turn_clock, votes, waiting_line
 from aidm.session.combat_runner import CombatRunner
 from aidm.session.quest_flow import settle_after
 from aidm.session.table_core import Player, TableCore
@@ -168,6 +170,7 @@ async def _prompt(core: TableCore, creature_id: str, owner: Player) -> None:
     core.broadcast(TurnPrompt(creature_id=creature_id, player_id=owner.id, seconds=seconds))
     core.diag("turn_prompt", creature_id=creature_id, player_id=owner.id, seconds=seconds)
     await tell_segment(core)
+    waiting_line.play(core, owner)  # M32.1a X3: the attack typed at the offer is played now
 
 
 async def tell_segment(core: TableCore, *, record: bool = True) -> str:
@@ -267,6 +270,7 @@ async def turn_timeout(core: TableCore, key: str, reason: str | None = None) -> 
 
 async def finish_fight(core: TableCore, status: EncounterStatus) -> None:
     end_player_turn(core)
+    waiting_line.drop_all(core)
     state, regs = core.state, core.regs
     rng = loot_rng(state)
     events = core.apply_all(end_encounter_with_loot(state, status, regs.loot, regs.catalogue, rng))

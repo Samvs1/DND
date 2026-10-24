@@ -103,6 +103,7 @@ class Player:
     creature_id: str | None = None
     conns: set[str] = field(default_factory=set[str])
     left_at: float | None = None  # clock time the last connection closed (M15.1 grace)
+    waiting_line: str | None = None  # M32.1a X3: typed at an offer, played on the hero's turn
 
     @property
     def connected(self) -> bool:

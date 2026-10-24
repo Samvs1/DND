@@ -15,10 +15,14 @@ one. An abstract gift or coin ("give my thanks to Yeva", "give him a coin": the 
 `abstract_gifts`, the `loose_money` pattern) is None. M29.7a R23: a concrete thing the actor
 does not carry is still an intent (`thing` ""), so the rules say so plainly instead of a
 storyteller gift; that row (`give_missing`) ranks after paying (M29.9a T17). The rules decide
-(`aidm.rules.handing.give_events`).
+(`aidm.rules.handing.give_events`). M32.1a X6 (round 5: "hands the three salt-lanterns to Bram"
+gave one): a counted keepsake ("the three whole salt-lanterns", "all the salt we have
+gathered": a number, or a word of the lexicon's `give_all_words`) is every fitting keepsake up
+to the count (`more`); `said` keeps the count asked, so the table can say how many there were.
 
-Public API: `GiveIntent(actor_id, npc_id, thing)` (`thing` a keepsake id, an inventory key,
-or "" for nothing carried), `RESOLVERS` (`give_carried`, `give_missing`),
+Public API: `GiveIntent(actor_id, npc_id, thing, more=(), said=1)` (`thing` a keepsake id, an
+inventory key, or "" for nothing carried; `more` further keepsakes of a counted hand-over;
+`said` the count asked, `GIVE_ALL` for "all"), `RESOLVERS` (`give_carried`, `give_missing`),
 `give_intent(state, actor_id, clean) -> GiveIntent | None` (the give rows alone),
 `named_npc(state, who, anywhere)`.
 """
@@ -32,11 +36,15 @@ from aidm.dm.intent_match import Found, Resolver, route
 from aidm.models.quests import StepKind
 from aidm.models.state import Creature, GameState
 from aidm.models.world import QuestState, WorldNpc
+from aidm.rules.handing import delivers_to
 from aidm.rules.quest_items import item_words
 from aidm.rules.quest_plan import main_quests
 from aidm.rules.scene import current_scene
 
 _PRONOUNS = frozenset({"it", "them", "this", "that", "these", "those", "one", "him", "her"})
+_NUMBERS = {"two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8}
+_NUMBERS |= {"nine": 9, "ten": 10}
+GIVE_ALL = 99
 
 
 @dataclass(frozen=True)
@@ -44,6 +52,8 @@ class GiveIntent:
     actor_id: str
     npc_id: str
     thing: str
+    more: tuple[str, ...] = ()
+    said: int = 1
 
 
 def _words(text: str) -> frozenset[str]:
@@ -55,30 +65,34 @@ def _fits(wanted: frozenset[str], name: str) -> bool:
     return bool(wanted) and bool(have) and (wanted <= have or have <= wanted)
 
 
-def _delivers_to(state: GameState, quest_id: str | None, npc_id: str) -> bool:
-    """A quest (side, favour or main route) whose deliver step names this NPC."""
-    if quest_id is None:
-        return False
-    quest = state.world.quests.get(quest_id)
-    steps = list(quest.steps) if quest is not None else []
-    if state.campaign is not None:
-        mains = main_quests(state.campaign.plan)
-        steps += [s for m in mains if m.id == quest_id for r in m.routes for s in r.steps]
-    return any(s.kind is StepKind.DELIVER and s.npc == npc_id for s in steps)
-
-
-def _keepsake(state: GameState, actor: Creature, wanted: frozenset[str], npc_id: str) -> str | None:
+def _keepsakes(state: GameState, actor: Creature, wanted: frozenset[str], npc_id: str) -> list[str]:
+    """Every carried keepsake the words name: by name, then by description, then one its
+    quest's deliver step owes this NPC that shares a word."""
     assert actor.pc is not None
     held = actor.pc.keepsakes
-    named = next((k.id for k in held if _fits(wanted, k.name)), None)
-    described = next((k.id for k in held if k.description and _fits(wanted, k.description)), None)
+    named = [k.id for k in held if _fits(wanted, k.name)]
+    described = [k.id for k in held if k.description and _fits(wanted, k.description)]
     owed = [
         k.id
         for k in held
-        if _delivers_to(state, k.quest_id, npc_id)
+        if delivers_to(state, k.quest_id, npc_id)
         and wanted & (_words(k.name) | _words(k.description))
     ]
-    return named or described or (owed[0] if owed else None)
+    return list(dict.fromkeys(named or described or owed))
+
+
+def _count(phrase: str) -> tuple[int, str]:
+    """(how many the words ask for, the words without the count): 1 when none is said."""
+    table = intent_phrases()
+    plain = phrase.strip().removeprefix("the ")
+    first, _, rest = plain.partition(" ")
+    if first in table.lexicon["give_all_words"]:
+        return GIVE_ALL, rest.removeprefix("of ").removeprefix("the ")
+    counted = re.fullmatch(table.patterns["counted"], plain)
+    if counted is None:
+        return 1, phrase
+    n = counted["n"]
+    return (int(n) if n.isdigit() else _NUMBERS[n]), counted["rest"]
 
 
 def _thing(state: GameState, actor: Creature, name: str, npc_id: str) -> str | None:
@@ -87,9 +101,9 @@ def _thing(state: GameState, actor: Creature, name: str, npc_id: str) -> str | N
     if actor.pc is None:
         return None
     wanted = _words(name)
-    keepsake = _keepsake(state, actor, wanted, npc_id)
-    if keepsake is not None:
-        return keepsake
+    keepsakes = _keepsakes(state, actor, wanted, npc_id)
+    if keepsakes:
+        return keepsakes[0]
     item = next(
         (
             e.item
@@ -149,8 +163,14 @@ def _resolve(found: Found) -> GiveIntent | None:
     npc_id = named_npc(state, found.group("who") or "", anywhere=found.params["anywhere"] is True)
     if npc_id is None:
         return None
-    thing = _thing(state, actor, found.group("item") or "", npc_id)
-    return GiveIntent(actor.id, npc_id, thing) if thing is not None else None
+    said, name = _count(found.group("item") or "")
+    thing = _thing(state, actor, name, npc_id)
+    if thing is None:
+        return None
+    if said == 1 or actor.pc is None:
+        return GiveIntent(actor.id, npc_id, thing)
+    more = [k for k in _keepsakes(state, actor, _words(name), npc_id) if k != thing]
+    return GiveIntent(actor.id, npc_id, thing, tuple(more[: said - 1]), said)
 
 
 def give_carried(found: Found) -> GiveIntent | None:

@@ -136,7 +136,7 @@ def _item_found(state: GameState, e: we.ItemDiscovered) -> str:
 
 def _attitude(state: GameState, e: we.AttitudeChanged) -> str:
     who = _who(state, e.npc_id)
-    if e.hostile:
+    if e.turned:  # M32.1a X7: a change while already hostile is no turn
         return f"{who} turned hostile."
     if e.gift:  # M31.1c V17: the gift went to THIS person (round 4: told as to the peddler)
         return f"{who} received the gift ({display_name(e.gift)}) and holds it now; nobody else."

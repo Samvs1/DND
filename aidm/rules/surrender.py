@@ -22,11 +22,18 @@ anything is spent ("The Tithekeeper will not yield: the dead do not surrender.",
 the condition's `spares_why`); when only some never yield, the roll covers the others and
 `never_yield_line` names the rest.
 
+M32.1a X5 (round 5: "Drop your weapons and yield!" to a risen zombie while its offer waited rolled
+Intimidation and was told obeyed): `offer_never_yield_line(state, monsters)` is the same plain
+line for the foes of the waiting encounter offer before any fight (their SRD type, or the
+master's archetype), None when any of them could yield.
+
 Public API: `SURRENDER_SKILLS`, `SURRENDERED`, `NoneYield`, `surrender_dc`, `never_yield_line`,
-`demand_surrender`.
+`offer_never_yield_line`, `demand_surrender`.
 """
 
 from aidm.data.dm_tiers import DmTiers
+from aidm.data.registry import Registry
+from aidm.data.srd_monsters import SrdMonster
 from aidm.models.abilities import Skill
 from aidm.models.checks import DcTier
 from aidm.models.encounter import Combatant, Side
@@ -103,17 +110,41 @@ def _called(creature: Creature) -> str:
     return creature.name if creature.npc_id else f"the {creature.name.lower()}"
 
 
+def _line(names: list[str], kind: str) -> str:
+    who = names[0] if len(names) == 1 else ", ".join(names[:-1]) + " and " + names[-1]
+    why = condition_def(SURRENDERED).spares_why.get(kind)
+    line = f"{who[:1].upper()}{who[1:]} will not yield"
+    return f"{line}: {why}." if why else f"{line}."
+
+
 def never_yield_line(state: GameState, actor_id: str) -> str | None:
     """The plain line for the standing foes that never yield (M31.1a V5): "The Tithekeeper will
     not yield: the dead do not surrender." None when every standing foe can yield."""
     stubborn = [c for c in _standing_foes(state) if not _yields(c, actor_id)]
     if not stubborn:
         return None
-    names = [_called(c) for c in stubborn]
-    who = names[0] if len(names) == 1 else ", ".join(names[:-1]) + " and " + names[-1]
-    why = condition_def(SURRENDERED).spares_why.get(creature_type_of(stubborn[0]))
-    line = f"{who[:1].upper()}{who[1:]} will not yield"
-    return f"{line}: {why}." if why else f"{line}."
+    return _line([_called(c) for c in stubborn], creature_type_of(stubborn[0]))
+
+
+def offer_never_yield_line(state: GameState, monsters: Registry[SrdMonster]) -> str | None:
+    """The plain line when every foe of the waiting offer is of a kind that never yields."""
+    offer = state.campaign.offer if state.campaign is not None else None
+    if offer is None:
+        return None
+    foes = [
+        (f"the {m.name.lower()}", m.type.lower())
+        for i in offer.monster_ids
+        if (m := monsters.find(i))
+    ]
+    boss = state.world.npcs.get(offer.boss_npc_id or "")
+    master = monsters.find(boss.archetype_id) if boss is not None and boss.archetype_id else None
+    if boss is not None and master is not None:
+        foes.append((boss.name, master.type.lower()))
+    spared = condition_def(SURRENDERED).spares_types
+    if not foes or any(kind not in spared for _, kind in foes):
+        return None
+    names = list(dict.fromkeys(name for name, _ in foes))
+    return _line(names, foes[0][1])
 
 
 def demand_surrender(

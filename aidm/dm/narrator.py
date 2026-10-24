@@ -28,7 +28,9 @@ The narration is recorded into memory by applying `record_narration(state, text)
 `voice_next` names the NPC whose voice answers right after (M20.7): the style tells the model
 not to speak for them (`VOICE_NEXT`), the guard flags spoken words or their reply
 (`aidm.dm.guard_claims.spoken_for`), and the template drops its stock `QUIET_LINE` (the reply
-follows, so a narration with nothing to tell stays silent).
+follows, so a narration with nothing to tell stays silent). M32.1a X7: a turn with no events
+whose tool call the engine refused carries the refusal as its notice (`dm.refusal_text`), so
+its template fallback says why instead of the stock filler line.
 
 Public API: `NUMBERS_ALLOWED`, `VOICE_NEXT`, `TRIED`, `NarrationInput`,
 `unpack_source(source) -> (events, facts, notice)` (what the narrator is told),
@@ -59,6 +61,7 @@ from aidm.dm.narration_weight import (
     truth_notes,
     weight_for,
 )
+from aidm.dm.refusal_text import refusal_line
 from aidm.dm.turn_facts import turn_facts
 from aidm.models.encounter import EncounterStatus
 from aidm.models.encounter_events import EncounterEnded, EncounterStarted
@@ -120,6 +123,13 @@ def unpack_source(source: NarrationInput) -> tuple[list[AnyEvent], list[str], st
     return list(source.events), facts, source.notice
 
 
+def _refused(state: GameState, source: NarrationInput) -> str | None:
+    """M32.1a X7: a turn with no events whose tool call the engine refused says why."""
+    if not isinstance(source, AdjudicationResult) or source.events:
+        return None
+    return refusal_line(state, (r.result.error for r in source.calls if r.result.error))
+
+
 def narration_messages(
     state: GameState,
     events: Sequence[AnyEvent],
@@ -157,6 +167,7 @@ def narrate(
     voice_next: str | None = None,
 ) -> NarrationStream:
     events, facts, notice = unpack_source(source)
+    notice = notice or _refused(state, source)
     weight = (
         NarrationWeight.MINOR
         if isinstance(source, AdjudicationResult) and source.pending

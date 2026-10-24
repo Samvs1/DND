@@ -86,6 +86,7 @@ class AttitudeChanged(_WorldEvent):
     hostile: bool = False
     reason: str = ""
     gift: str = ""  # M29.6b: the item key of a gift that earned this deed (WorldNpc.gifts)
+    turned: bool = False  # M32.1a X7: THIS event made the NPC hostile (not a change while hostile)
 
 
 class SecretRevealed(_WorldEvent):

@@ -9,7 +9,9 @@ Each is a phrase row of data/bg3/intent_phrases.json; the resolvers here are the
 - `inventory`: `InventoryIntent(actor_id)`;
 - `shop`: a present, friendly shop NPC (by name or role when named) -> `ShopIntent`;
 - `travel`: a listed exit by name words -> `TravelIntent`, or a locked one -> `BarredIntent`
-  with the world reason; only while no encounter offer waits (`no_offer_waits`);
+  with the world reason; M32.1a X6: a place further on (or "A, then on to B") is the first
+  road of the way there with the `goal` (`dm.far_travel`), a place no open road reaches the
+  plain reason; only while no encounter offer waits (`no_offer_waits`);
 - `barred_lock` (M29.7c R24: "pick the lock on <a locked exit>"): a locked exit (a progress
   gate, not a lock) whose every name word is said gets no check, only the world reason that says
   what opens the way (`aidm.rules.gateway_lock.locked_reason`);
@@ -25,6 +27,7 @@ import re
 from dataclasses import dataclass
 from enum import StrEnum
 
+from aidm.dm.far_travel import far_route
 from aidm.dm.intent_match import Found, Resolver
 from aidm.models.state import GameState
 from aidm.models.world import WorldNpc
@@ -51,6 +54,7 @@ class ShopIntent:
 @dataclass(frozen=True)
 class TravelIntent:
     node_id: str
+    goal: str | None = None  # M32.1a X6: a place further on, walked hop by hop
 
 
 @dataclass(frozen=True)
@@ -145,7 +149,10 @@ def travel(found: Found) -> TravelIntent | BarredIntent | None:
             return TravelIntent(node)
         reason = locked_reason(state, node)
         return BarredIntent(reason) if reason is not None else None
-    return None
+    far = far_route(state, found.group("dest") or "")  # M32.1a X6: further on, or "A, then B"
+    if far is None or isinstance(far, str):
+        return BarredIntent(far) if far is not None else None
+    return TravelIntent(far[0], goal=far[-1] if len(far) > 1 else None)
 
 
 def barred_lock(found: Found) -> BarredIntent | None:

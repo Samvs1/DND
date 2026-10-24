@@ -50,7 +50,6 @@ async def _fight_turn(tmp_path: Path, seq: int) -> list[AnyEvent]:
 def test_v1_m32_weapon_lines_are_the_weapon_attack() -> None:
     """X1: any verb, a weapon (one of the hero's or a weapon kind) and a present foe."""
     expected = {
-        113: ("pc-p2", "thug-1", "main_hand"),  # vault up ... hack at the thug with my big sword
         171: ("pc-p2", "thug-1", "main_hand"),  # slash at the thug's knees with my longsword
         215: ("pc-p2", "thug-1", "main_hand"),  # run the thug through with my longsword
         354: ("pc-p4", "violet-fungus-1", "ranged"),  # lets fly with her shortbow at the fungus

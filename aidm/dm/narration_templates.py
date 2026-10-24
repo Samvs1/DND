@@ -135,7 +135,7 @@ def _withdrew(state: GameState, e: CombatantWithdrew) -> str:
 
 def _attitude(state: GameState, e: we.AttitudeChanged) -> str:
     who = _who(state, e.npc_id)
-    return f"{who} turns hostile." if e.hostile else f"{who}'s manner toward you shifts."
+    return f"{who} turns hostile." if e.turned else f"{who}'s manner toward you shifts."
 
 
 def _item_found(state: GameState, e: we.ItemDiscovered) -> str:

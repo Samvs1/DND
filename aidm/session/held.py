@@ -10,10 +10,11 @@ M31.1a; SPEC 6.1, M15.1, M22.1).
   waiting encounter offer as a parley asks first, with the same confirm/cancel card
   (`PARLEY_ASK`): one roll, and a failure starts the fight.
 - `confirm_hostile` re-runs the held call with `confirm_hostile=True` (no second model call) or
-  answers the offer as the held parley; `cancel_hostile` drops it with one line.
+  answers the offer as the held parley; `cancel_hostile` drops it with one line. M32.1a X4: a
+  confirm or cancel from another seat changes nothing and names whose card it is (`NOT_YOURS`).
 
 Public API: `adjudicated`, `hold_parley`, `confirm_hostile`, `cancel_hostile`, `HOLD`,
-`STAY_HAND`, `PARLEY_ASK`, `PARLEY_STAY`.
+`STAY_HAND`, `PARLEY_ASK`, `PARLEY_STAY`, `NOTHING_WAITS`, `NOT_YOURS`.
 """
 
 from collections.abc import Sequence
@@ -41,6 +42,8 @@ PARLEY_ASK = (
     "This answers the fight offer as a parley: one roll, a failure starts the fight. Confirm?"
 )
 PARLEY_STAY = "You hold your words for now; the standoff still waits."
+NOTHING_WAITS = "Nothing is waiting for your confirmation."
+NOT_YOURS = "Nothing is waiting for your confirmation: the card waits for {name}'s player."
 
 
 async def adjudicated(
@@ -95,10 +98,16 @@ def hold_parley(core: TableCore, player: Player, actor_id: str, skill: Skill) ->
 def _taken(core: TableCore, player: Player) -> PendingHostile | None:
     pending = core.pending
     if pending is None or pending.player_id != player.id:
-        core.error(player.id, ErrorCode.REFUSED, "Nothing is waiting for your confirmation.")
+        core.error(player.id, ErrorCode.REFUSED, _nothing_waits(core, pending))
         return None
     core.pending = None
     return pending
+
+
+def _nothing_waits(core: TableCore, pending: PendingHostile | None) -> str:
+    """M32.1a X4: a card held for another seat is named, so its own player can answer it."""
+    hero = core.state.creatures.get(pending.actor_id) if pending is not None else None
+    return NOT_YOURS.format(name=hero.name) if hero is not None else NOTHING_WAITS
 
 
 async def confirm_hostile(core: TableCore, player: Player) -> None:

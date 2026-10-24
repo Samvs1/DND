@@ -3,6 +3,8 @@
 Each returns the text the playtester reads: a short digest of what the table said, then the
 `look` view ending in the `[save <id> | event <n>]` footer. Errors a player could make come back
 as a plain line (never a traceback); the footer is still printed so a report can point at it.
+M32.1a X4: `answer confirm` / `answer cancel` without `--as` answer for the seat whose card waits
+(`confirm_seat`), never the host's by default.
 
 Public API: `cmd_new`, `cmd_look`, `cmd_act`, `cmd_do`, `cmd_move`, `cmd_answer`, `cmd_levelup`,
 `cmd_stop`, `cmd_trade`, `parse_party`.
@@ -13,6 +15,7 @@ import time
 from pathlib import Path
 
 from scripts.agent.commands import UsageError, answer_message, build_command
+from scripts.agent.confirm_seat import confirm_seat
 from scripts.agent.hero_view import learned, roll_why
 from scripts.agent.link import Link, Msg, open_link
 from scripts.agent.party import heroes_block
@@ -238,6 +241,8 @@ async def cmd_move(root: Path, run: str | None, as_name: str | None, where: str)
 
 async def cmd_answer(root: Path, run: str | None, as_name: str | None, words: list[str]) -> str:
     session = _session(root, run)
+    if not as_name and words and words[0].lower() in ("confirm", "cancel"):
+        as_name = await confirm_seat(session)  # M32.1a X4: the card's own seat answers it
     link, player = await _actor(session, as_name)
     try:
         try:

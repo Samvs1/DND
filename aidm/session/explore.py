@@ -26,62 +26,23 @@ feature or heal in a fight is the hotbar's command (`dm.fight_intent`). M30.0b: 
 and out of a fight go through the one router (`dm.intent_router`).
 
 M31.1a: the storyteller's turn, the held acts and their confirm / cancel are `session.held`; a
-typed line in a fight is `session.fight_text`.
+typed line in a fight is `session.fight_text`. M32.1a: one routed line (and the acts of a
+compound line) is played by `session.intent_turn`; the votes it opens are `session.scene_votes`.
 
-Public API: `submit_action`, `kick_resolver`, `resolve_next`, `resolve_action`, `inventory_text`.
+Public API: `submit_action`, `kick_resolver`, `resolve_next`, `resolve_action`.
 """
 
-from aidm.dm.cast_intent import CastIntent
-from aidm.dm.equip_intent import ItemIntent, ItemIntents
-from aidm.dm.give_intent import GiveIntent
-from aidm.dm.hand_intent import HeroHandIntent
-from aidm.dm.heal_intent import HealIntent
-from aidm.dm.help_intent import HelpUpIntent
-from aidm.dm.lift_intent import LiftIntent
-from aidm.dm.lore_intent import AskIntent
-from aidm.dm.parley_intent import ParleyIntent
-from aidm.dm.pay_intent import PayIntent
-from aidm.dm.precheck import (
-    BarredIntent,
-    InventoryIntent,
-    LookIntent,
-    RestIntent,
-    RestKind,
-    ShopIntent,
-    TakeIntent,
-    TravelIntent,
-    asks_what_now,
-    precheck,
-)
-from aidm.dm.quest_answer_intent import QuestAnswerIntent
-from aidm.dm.search_intent import SearchIntent
-from aidm.dm.use_intent import UseIntent
-from aidm.models.protocol_client import AnswerQuestOffer, SubmitAction
+from aidm.dm.precheck import asks_what_now
+from aidm.models.protocol_client import SubmitAction
 from aidm.models.protocol_server import (
     ErrorCode,
     NoticeKind,
     Resolving,
 )
-from aidm.models.protocol_views import QueueEntry, TablePhase, VoteKind
-from aidm.models.state import Creature
-from aidm.rules.lore import place_lore_events
-from aidm.rules.scene import node_display_name
-from aidm.session import (
-    fight_text,
-    gear_actions,
-    hand_over,
-    heal_actions,
-    party_actions,
-    quest_people,
-    votes,
-    what_now,
-)
-from aidm.session.declared import declare
-from aidm.session.held import adjudicated, hold_parley
-from aidm.session.lore_turn import lore_turn
-from aidm.session.search_turn import search_turn
-from aidm.session.table_core import Job, Player, TableCore
-from aidm.session.telling import conclude, remember, tell_text
+from aidm.models.protocol_views import QueueEntry, TablePhase
+from aidm.session import fight_text, what_now
+from aidm.session.intent_turn import resolve_line
+from aidm.session.table_core import Player, TableCore
 
 
 def submit_action(core: TableCore, player: Player, msg: SubmitAction) -> None:
@@ -142,105 +103,4 @@ async def resolve_action(core: TableCore, entry: QueueEntry) -> None:
     if player is None or actor is None or actor.dead:
         core.notice(entry.player_id, NoticeKind.REFUSED, "Your hero can no longer act.")
         return
-    intent = precheck(core.state, entry.creature_id, entry.text)
-    if not isinstance(intent, InventoryIntent):  # the listing is private: nothing to tell
-        declare(core, entry)
-    if intent is None:
-        await adjudicated(core, entry)
-    elif isinstance(intent, LookIntent | BarredIntent):
-        lore = (
-            place_lore_events(core.state, entry.creature_id)
-            if isinstance(intent, LookIntent)
-            else []
-        )
-        await remember(core, await tell_text(core, intent.text))
-        if lore:  # M31.1b V13c: looking around the place teaches what its name holds
-            await conclude(core, None, core.apply_all(lore), actor_id=entry.creature_id)
-    elif isinstance(intent, InventoryIntent):
-        core.notice(player.id, NoticeKind.INFO, inventory_text(actor))
-    elif isinstance(intent, ItemIntent | ItemIntents):
-        await party_actions.item_intent(core, player, intent)
-    elif isinstance(intent, TakeIntent):
-        await hand_over.take_intent(core, player, intent)
-    elif isinstance(intent, HelpUpIntent):
-        await party_actions.help_up_intent(core, player, intent)
-    elif isinstance(intent, GiveIntent):
-        await hand_over.give_intent(core, player, intent)
-    elif isinstance(intent, HeroHandIntent):
-        await hand_over.hand_intent(core, player, intent)
-    elif isinstance(intent, PayIntent):
-        await _pay(core, player, entry, intent)
-    elif isinstance(intent, LiftIntent):
-        await hand_over.lift_intent(core, player, intent)
-    elif isinstance(intent, QuestAnswerIntent):  # M31.1a V8: the card's Accept / Not now
-        answer = AnswerQuestOffer(quest_id=intent.quest_id, accept=intent.accept)
-        await quest_people.answer_quest(core, player, answer)
-    elif isinstance(intent, ParleyIntent):  # M31.1a V4: asked first, then one roll answers
-        hold_parley(core, player, intent.actor_id, intent.skill)
-    elif isinstance(intent, UseIntent):
-        await _gear_use(core, player, entry, intent)
-    elif isinstance(intent, SearchIntent):  # M31.1a V9: one discovery check at the hidden DC
-        await search_turn(core, entry, intent)
-    elif isinstance(intent, AskIntent):  # M31.1b V13: what the person teaches, then the telling
-        await lore_turn(core, entry, intent)
-    elif isinstance(intent, HealIntent | CastIntent):  # M30.0b T7: a typed spell out of a fight
-        await heal_actions.heal_intent(core, player, intent)
-    elif isinstance(intent, TravelIntent):
-        detail = f"travel to {node_display_name(core.state, intent.node_id)}"
-        job = party_actions.travel_job(core, entry.creature_id, intent.node_id)
-        _propose(core, player, VoteKind.TRAVEL, detail, job)
-    elif isinstance(intent, RestIntent):
-        short = intent.kind is RestKind.SHORT
-        kind = VoteKind.SHORT_REST if short else VoteKind.LONG_REST
-        detail = "take a short rest" if short else "make camp for a long rest"
-        _propose(core, player, kind, detail, party_actions.rest_job(core, intent.kind))
-    else:
-        _shop_intent(core, player, entry, intent)
-
-
-async def _pay(core: TableCore, player: Player, entry: QueueEntry, intent: PayIntent) -> None:
-    """M29.9a T17: the coins move first; "pay Rutter and ask him about the girl" then asks."""
-    paid = hand_over.pay_first(core, player, intent)
-    if paid is None:
-        return
-    if intent.rest is None:
-        await conclude(core, None, paid, actor_id=intent.actor_id)
-        return
-    await adjudicated(core, entry.model_copy(update={"text": intent.rest}), prior=paid)
-
-
-async def _gear_use(core: TableCore, player: Player, entry: QueueEntry, intent: UseIntent) -> None:
-    """A typed gear use; M29.7a R17: "light a candle, then look around" lights it (or says why
-    not in an engine line) AND the other act goes to the adjudicator, told together."""
-    if intent.rest is None:
-        if not await gear_actions.use_intent(core, player, intent):
-            await adjudicated(core, entry)
-        return
-    prior = await gear_actions.first_act(core, player, intent)
-    follow = precheck(core.state, entry.creature_id, intent.rest)
-    if isinstance(follow, SearchIntent):  # M31.1a V9: the light never replaces the search
-        await search_turn(core, entry, follow, prior=prior)
-        return
-    await adjudicated(core, entry.model_copy(update={"text": intent.rest}), prior=prior)
-
-
-def _shop_intent(core: TableCore, player: Player, entry: QueueEntry, intent: ShopIntent) -> None:
-    npc = core.state.world.npcs[intent.npc_id]
-    job = party_actions.shop_job(core, entry.creature_id, intent.npc_id)
-    _propose(core, player, VoteKind.SHOP, f"trade with {npc.name}", job)
-
-
-def _propose(core: TableCore, player: Player, kind: VoteKind, detail: str, job: Job) -> None:
-    if votes.open_vote(core, kind, detail, player, job):
-        core.notice(None, NoticeKind.INFO, f"{player.name} proposes to {detail}.")
-
-
-def inventory_text(creature: Creature) -> str:
-    pc = creature.pc
-    if pc is None or not pc.inventory:
-        return f"{creature.name} carries nothing of note."
-    items = ", ".join(
-        f"{row.item.replace('-', ' ')} x{row.qty}" if row.qty > 1 else row.item.replace("-", " ")
-        for row in pc.inventory
-    )
-    return f"{creature.name} carries: {items}. Gold: {pc.gold}."
+    await resolve_line(core, player, actor, entry)  # M32.1a: the routed intent, or the story

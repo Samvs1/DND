@@ -11,6 +11,7 @@ scope depends on, evaluated here and only here (`aidm.dm.intent_match` calls the
   filler like "the", "old"); naming a present non-foe NPC is a normal talk turn;
 - `foe_named` (M31.1a V4): the sentence names a foe of the offer or its master;
 - `no_offer_waits`: no encounter offer waits (travel is the offer's buttons then);
+- `offer_waits_here` (M32.1a X3, X5): the encounter offer waits at the party's place;
 - `hidden_here` (M31.1a V9): something is hidden in the current place (M31.1b: or the place
   teaches an open learn tag);
 - `quest_ask_here` (M31.1a V8): a quest offer waits from a living person standing here;
@@ -120,6 +121,11 @@ def hidden_here(found: "Found") -> bool:
     return hidden_dc(found.state) is not None or bool(found_lore)
 
 
+def offer_waits_here(found: "Found") -> bool:
+    offer = _offer(found.state)
+    return offer is not None and offer.node_id == found.state.world.current_node
+
+
 def no_offer_waits(found: "Found") -> bool:
     return _offer(found.state) is None
 
@@ -146,6 +152,7 @@ CONDITIONS: dict[str, Condition] = {
     "foe_named": foe_named,
     "hidden_here": hidden_here,
     "no_offer_waits": no_offer_waits,
+    "offer_waits_here": offer_waits_here,
     "quest_ask_here": quest_ask_here,
     "no_spell_named": no_spell_named,
 }

@@ -22,7 +22,9 @@ M31.1a V7 ("I sheathe my longsword and sling my shield on my back" changed nothi
 holster and tuck away stow too, and a place to stow it ("on my back", "at my hip", "away") is
 cut like "instead"; an unequip may name a carried item that is not in hand (the rules then say
 it is already put away); a compound gear line is both acts (`ItemIntents`), so a half already
-done is a note and the other half still happens.
+done is a note and the other half still happens. M32.1a X6 (round 5: the sword half of "I sheathe
+my sword and sling my shield on my back" was dropped): a said word inside a name word fits when
+nothing fits better ("sword" is the Longsword).
 
 Public API: `ItemAction` (EQUIP/UNEQUIP/DROP), `ItemIntent(actor_id, action, item)` (`item` the
 inventory index), `ItemIntents(acts)`, `RESOLVERS` (`item`, `item_pair`).
@@ -82,8 +84,16 @@ def _item(actor: Creature, action: ItemAction, name: str) -> ItemIntent | None:
         (i for i, have in names if any(h and h <= wanted and wanted - h <= spare for h in have)),
         None,
     )
-    found = exact or loose
+    inside = next(  # M32.1a X6: "my sword" is the longsword, a said word inside a name word
+        (i for i, have in names if wanted and all(_inside(w, have[0] | have[1]) for w in wanted)),
+        None,
+    )
+    found = exact or loose or inside
     return ItemIntent(actor.id, action, found) if found is not None else None
+
+
+def _inside(word: str, have: frozenset[str]) -> bool:
+    return word in have or (len(word) > 3 and any(word in h for h in have))
 
 
 def item(found: Found) -> ItemIntent | None:

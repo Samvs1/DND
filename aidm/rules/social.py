@@ -89,8 +89,11 @@ def npc_is_hostile(npc: WorldNpc) -> bool:
 def _changed(npc: WorldNpc, social: int, deeds: int, hostile: bool, reason: str) -> list[AnyEvent]:
     if (social, deeds, hostile) == (npc.social, npc.deeds, npc.hostile):
         return []
+    turned = hostile and not npc.hostile  # M32.1a X7: only a flip is told as turning hostile
     return [
-        AttitudeChanged(npc_id=npc.id, social=social, deeds=deeds, hostile=hostile, reason=reason)
+        AttitudeChanged(
+            npc_id=npc.id, social=social, deeds=deeds, hostile=hostile, reason=reason, turned=turned
+        )
     ]
 
 

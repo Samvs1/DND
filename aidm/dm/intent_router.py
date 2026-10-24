@@ -4,11 +4,13 @@ goes through here before the storyteller sees it.
 It joins the resolvers of every intent (each `aidm.dm.*_intent` module keeps only its state
 lookups and exports `RESOLVERS`) and routes a sentence through the phrase table
 (data/bg3/intent_phrases.json, read by `aidm.dm.intent_match`) for one scope:
-- `explore_intent` (scope `explore`, out of a fight: help up, parley, M31.1b a question to a
+- `explore_intent` (scope `explore`, out of a fight: help up, M32.1a an attack or a surrender
+  demand while the encounter offer waits, parley, M31.1b a question to a
   person with something to teach, rests, look, inventory,
   lift, give, pay, hand, heal, cast, shop, travel, locked ways, equip, gear use, take);
 - `fight_intent` (scope `fight`: move, attack, feature, healing, M31.1a casts of ready spells
-  and targeted features, surrender, M32.1a any line naming a weapon and a foe);
+  and targeted features, surrender, M32.1a any line naming a weapon and a foe; in both scopes
+  M32.1a a feat no body could do is impossible);
 - `ask_intent` (scope `ask`: "what now?", unless the line helps a downed hero up).
 Which intent wins is the rows' `precedence` field, never call order; the conditions a row
 needs are named in the table and evaluated in `aidm.dm.intent_conditions`.
@@ -26,8 +28,10 @@ from aidm.dm import (
     hand_intent,
     heal_intent,
     help_intent,
+    impossible_intent,
     lift_intent,
     lore_intent,
+    offer_intent,
     parley_intent,
     pay_intent,
     quest_answer_intent,
@@ -44,14 +48,18 @@ from aidm.dm.attack_intent import DrawAttack
 from aidm.dm.combat_intent import MoveCommands
 from aidm.dm.fight_cast_intent import RefusedIntent
 from aidm.dm.fight_intent import FightCommand
+from aidm.dm.impossible_intent import ImpossibleIntent
 from aidm.dm.intent_match import Resolver, route
 from aidm.dm.surrender_intent import SurrenderIntent
 from aidm.models.commands import AttackCommand, CastCommand, FeatureActionCommand, UseItemCommand
 from aidm.models.state import GameState
 
-type FightIntent = MoveCommands | FightCommand | DrawAttack | SurrenderIntent | RefusedIntent
+type FightIntent = (
+    MoveCommands | FightCommand | DrawAttack | SurrenderIntent | RefusedIntent | ImpossibleIntent
+)
 _FIGHT = (
     list,
+    ImpossibleIntent,
     RefusedIntent,
     SurrenderIntent,
     DrawAttack,
@@ -72,8 +80,10 @@ for _module in (
     hand_intent,
     heal_intent,
     help_intent,
+    impossible_intent,
     lift_intent,
     lore_intent,
+    offer_intent,
     parley_intent,
     pay_intent,
     quest_answer_intent,

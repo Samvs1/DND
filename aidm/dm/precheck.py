@@ -21,7 +21,9 @@ Public API:
   `BarredIntent(text)` (`aidm.dm.scene_intent`), `ItemIntent`, `ItemIntents`
   (`aidm.dm.equip_intent`), `HelpUpIntent`, `GiveIntent`, `HeroHandIntent`, `LiftIntent`,
   `PayIntent`, `ParleyIntent`, `UseIntent`, `HealIntent`, `CastIntent`, `QuestAnswerIntent`,
-  `SearchIntent`, `AskIntent` (M31.1b: a question to a person who can teach) (their `*_intent`
+  `SearchIntent`, `AskIntent` (M31.1b: a question to a person who can teach),
+  `OfferStrikeIntent` (M32.1a: an attack while the offer waits), `RefusedIntent` (a plain
+  no-roll answer), `ImpossibleIntent` (M32.1a: a feat no body could do) (their `*_intent`
   modules);
 - `Intent` (the union), `precheck(state, actor_id, text) -> Intent | None`;
 - `gear_intent(state, actor_id, text) -> UseIntent | None`: the gear rows alone, for the typed
@@ -35,13 +37,16 @@ Public API:
 
 from aidm.dm.cast_intent import CastIntent
 from aidm.dm.equip_intent import ItemIntent, ItemIntents
+from aidm.dm.fight_cast_intent import RefusedIntent
 from aidm.dm.give_intent import GiveIntent
 from aidm.dm.hand_intent import HeroHandIntent
 from aidm.dm.heal_intent import HealIntent
 from aidm.dm.help_intent import HelpUpIntent
+from aidm.dm.impossible_intent import ImpossibleIntent
 from aidm.dm.intent_router import ask_intent, explore_intent
 from aidm.dm.lift_intent import LiftIntent
 from aidm.dm.lore_intent import AskIntent
+from aidm.dm.offer_intent import OfferStrikeIntent
 from aidm.dm.parley_intent import ParleyIntent
 from aidm.dm.pay_intent import PayIntent
 from aidm.dm.quest_answer_intent import QuestAnswerIntent
@@ -107,6 +112,9 @@ type Intent = (
     | QuestAnswerIntent
     | SearchIntent
     | AskIntent
+    | OfferStrikeIntent
+    | RefusedIntent
+    | ImpossibleIntent
 )
 _INTENTS = (
     RestIntent,
@@ -130,6 +138,9 @@ _INTENTS = (
     QuestAnswerIntent,
     SearchIntent,
     AskIntent,
+    OfferStrikeIntent,
+    RefusedIntent,
+    ImpossibleIntent,
 )
 
 
