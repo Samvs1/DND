@@ -953,3 +953,37 @@ Bounds: heroes down per master 0.6..1.0, party HP lost >= 0.4, clean-win 0.75..0
   master at full HP for four level-5 heroes; round 4's weak masters were a hobgoblin, a ghoul and
   the act-2 wight), a less damaging act-3 master for the built-in campaign, or accepting classic at
   about 1.7.
+
+# M32.1c: masters at full HP (owner, 2026-10-24)
+
+Owner call after live round 5 (docs/playtests/M31_round5.md, Balance: 1 hero down in 5 master fights,
+each 1-3 rounds): "Full HP again". `full_party_hp_share` is 1.0 for every tier in
+`data/bg3/master_template.json` (the field and code path stay, so a later call is a data edit); the
+spoke floor and the solo/duo scaling are unchanged. Same slices and seeds as M31.1g, saves in
+`saves/balance/M32c_a` (balanced classic, martial), `_b` (balanced casters, duo, solo), `_c`
+(aggressive classic), seeds 1-5, 30 campaigns on the fake storyteller; 0 runs failed a check.
+
+## Hit points of the sample campaign's masters (four heroes)
+| act | master (SRD) | level | M31.1g | M32.1c | offer word before -> after |
+|---|---|---|---|---|---|
+| 1 | bugbear (27) | 2 | 32 (spoke floor) | 32 (spoke floor) | easy -> easy |
+| 2 | wight (45) | 3 | 36 | **45** | easy -> **medium** (700 XP vs medium 600) |
+| 3 | gladiator (112) | 4 | 56 | **112** | hard -> hard |
+| 3 | gladiator (112) | 5 | 112 | 112 | hard -> hard |
+
+## Grid, before (M31.1g i2) -> after (heroes down per master; party HP lost in brackets)
+| slice | M31.1g i2 | M32.1c |
+|---|---|---|
+| balanced classic | 1.69 (0.38) | 2.50 (0.47) |
+| balanced casters | 0.73 (0.23) | 0.93 (0.28) |
+| balanced martial | 0.87 (0.40) | 2.33 (0.61) |
+| aggressive classic | 1.40 (0.35) | 3.23 (0.63) |
+| balanced duo | 1.04 (0.74) | 1.04 (0.74) |
+| balanced solo | 0.74 (0.91) | 0.74 (0.91) |
+Wipes per run: classic 0.2 -> 0.6, martial 0 -> 1.4, aggressive classic 0.2 -> 1.4, casters 0 -> 0.
+
+These numbers equal the M31.1f "SRD floor" grid run for run (full SRD hit points either way). The
+grid's cap misses (heroes down per master above 1.0 for classic, martial and aggressive classic)
+are expected and accepted: the bots do not play like the live table (live round 5 had 0.2 heroes
+down per master fight). Live play rules over the scripted grid for masters; the targets in
+`data/balance_targets.json` are unchanged.

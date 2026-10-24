@@ -100,6 +100,7 @@ def test_v1_m31_full_party_wight_never_meets_round_4_scaling() -> None:
     state.world.region_tier = 2
     assert boss_hp_scale(state, OFF, "wight") == 1.0
     assert boss_hp_scale(state, ON, "wight") == 66 / 45
+    assert boss_hp_scale(state, DATA, "wight") == 1.0  # shipped: full SRD (M32.1c)
     shared = replace(DATA, master=MasterTemplate(full_party_hp_share={2: 0.8}))
     assert boss_hp_scale(state, shared, "wight") == 0.8
     low = replace(DATA, master=MasterTemplate(full_party_hp_share={2: 0.3}))

@@ -68,22 +68,34 @@ def test_m31g_shipped_shares_cover_every_tier() -> None:
 
 
 def test_golden_m31g_tier_two_share() -> None:
-    # Shipped tier 2 share 0.8: four level-3 heroes meet the wight (SRD 45 HP, 700 XP) with
-    # 45 x 0.8 = 36 HP; the guard is 404 / 700 = 0.577 (medium cap 4 x 225 - 1 = 899 x 0.45),
-    # round 4's 26 HP. Rated 700 x 0.8 = 560 XP.
+    # Shipped tier 2 share (M32.1c, owner 'Full HP again'): 1.0. Four level-3 heroes meet the wight
+    # (SRD 45 HP, 700 XP) with its full 45 HP (the M31.1g 0.8 gave 36), rated at 700 XP.
+    # The 0.8 share stays testable through the template object.
     state = _party(3)
     state.world.region_tier = 2
     boost = master_boost(state, DATA, "wight", None)
-    assert boost.hp_scale == 0.8 and round(45 * boost.hp_scale) == 36
-    assert round(700 * boost.rating_factor) == 560
+    assert boost.hp_scale == 1.0 and round(45 * boost.hp_scale) == 45
+    assert round(700 * boost.rating_factor) == 700
 
 
 def test_golden_m31g_tier_three_guard() -> None:
-    # Shipped tier 3 share 0.5. The gladiator (SRD CR 5, 1800 XP, 112 HP): four level-4 heroes,
-    # medium cap 4 x 375 - 1 = 1499 x boss_budget_scale 0.6 = 899 -> old scale max(0.5, 0.499)
-    # = 0.5 = the share (56 HP); four level-5 heroes, 4 x 750 - 1 = 2999 x 0.6 = 1799 -> the
-    # guard keeps 1799 / 1800 (112 HP), above the share.
-    for level, scale in ((4, 0.5), (5, 1799 / 1800)):
+    # Shipped tier 3 share 1.0 (M32.1c): the gladiator (SRD CR 5, 1800 XP, 112 HP) keeps its full
+    # 112 HP against four level-4 and four level-5 heroes. The guard (never below the old M29.6
+    # scale, 0.5 at level 4, 1799 / 1800 at level 5) is tested with an explicit 0.5 share.
+    half = replace(DATA, master=MasterTemplate(full_party_hp_share={3: 0.5}))
+    for level, guard in ((4, 0.5), (5, 1799 / 1800)):
         state = _party(level)
         state.world.region_tier = 3
-        assert boss_hp_scale(state, DATA, "gladiator") == scale
+        assert boss_hp_scale(state, DATA, "gladiator") == 1.0
+        assert boss_hp_scale(state, half, "gladiator") == max(0.5, guard)
+
+
+def test_v1_m32_full_party_master_spawns_at_full_srd_hit_points() -> None:
+    # SRD 5.1 hit points: bugbear 27, wight 45, gladiator 112. Four heroes at the level each region
+    # meets its master at: the scale is 1.0 (the spoke floor may only raise it).
+    for tier, level, monster, srd in ((2, 3, "wight", 45), (3, 4, "gladiator", 112)):
+        state = _party(level)
+        state.world.region_tier = tier
+        scale = boss_hp_scale(state, DATA, monster)
+        assert scale >= 1.0 and round(srd * scale) >= srd
+        assert master_boost(state, DATA, monster, None).hp_scale == 1.0

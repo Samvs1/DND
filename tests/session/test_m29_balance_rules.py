@@ -189,7 +189,7 @@ def test_golden_m29_act_two_master_is_scaled_at_the_planned_level() -> None:
     state = GameState(campaign_id="scale", seed=SEED)
     ids = build_party(state, 3)
     state.world.region_tier = 2
-    assert boss_hp_scale(state, DATA, "wight") >= 404 / 700
+    assert boss_hp_scale(state, DATA, "wight") == 1.0  # M32.1c: shipped share 1.0, 45 HP
     for dropped in ids[2:]:
         del state.creatures[dropped]
     assert boss_hp_scale(state, DATA, "wight") == 0.5
