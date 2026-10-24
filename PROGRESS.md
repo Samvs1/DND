@@ -1,4 +1,4 @@
-NEXT: Next: FULL gate (detached) + commit `M31: Backlog`, then PAUSE for the owner (owner 2026-10-24: "Lets pause after this before a round 6 otherwise we keep perpetually running": no round 6, no new milestone or backlog until the owner says so). M31.2a-c done (01e64b3, a740fc4, d0e3461), M26.11 closed. Files in flight: none. Last gate: M31.2c scoped green (3767 passed unit+ai+session+property, lint/format/pyright/imports/structure/secrets/protocol/manual/manifest/assets ok).
+NEXT: PAUSED for the owner (owner 2026-10-24: "Lets pause after this before a round 6 otherwise we keep perpetually running"). Do not start a round 6, a new milestone or backlog work until the owner says what comes next. Open for the owner: round 6 (needs an OK), the ultrareview in ..\Dnd2-review, effect potions (Potion of Resistance needs a potion effect kind), class-matched scrolls in shops. M32 and M31.2 closed (`M32: Round 5`, `M31: Backlog`), M26.11 closed. Files in flight: none. Last gate: FULL PASS 12/12 at dff5937 (gate19).
 
 # PROGRESS
 
