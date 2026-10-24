@@ -42,8 +42,8 @@ claim against its save before listing it here. Findings are numbered T1.. (round
 - "I wrote 'Tamsin asks' and Brienne rolled": the hero acting is the `--as` hero by design (one hero per player).
 
 **Harness, low:**
-- A cone's zone list still shows zones it cannot reach (the refusal is clear). fixed in M29.9d (HASH)
-- `levelup` takes the ability score increase, pact boon and subclass defaults without saying so. fixed in M29.9d (HASH)
+- A cone's zone list still shows zones it cannot reach (the refusal is clear). fixed in M29.9d (eb9716c)
+- `levelup` takes the ability score increase, pact boon and subclass defaults without saying so. fixed in M29.9d (eb9716c)
 - Healing Word prints the die and then the total healed.
 
 **Balance:**
@@ -130,10 +130,10 @@ claim against its save before listing it here. Findings are numbered T1.. (round
 | T4+ | More: a fled cultist told as killed (97); the berserker "slumping into the cinders" at 6/67 (1195); animated armour and a death dog "strike" with no roll (633, 882); Sacred Flame saved against but told as scorching (119, 359, 1380). | various | honesty | fixed in M29.9c (bc7bf6f) |
 
 **Harness, low:**
-- The offer line lacks "(sure to hold)", though the client message carries `sure`. fixed in M29.9d (HASH)
-- Racial Darkness (Infernal Legacy) is listed as "no slot left" but casts from its own resource. fixed in M29.9d (HASH)
-- `answer finale <id>` fails; only `answer <id> confirm` works. fixed in M29.9d (HASH)
-- `do end` often prints no Options. fixed in M29.9d (HASH)
+- The offer line lacks "(sure to hold)", though the client message carries `sure`. fixed in M29.9d (eb9716c)
+- Racial Darkness (Infernal Legacy) is listed as "no slot left" but casts from its own resource. fixed in M29.9d (eb9716c)
+- `answer finale <id>` fails; only `answer <id> confirm` works. fixed in M29.9d (eb9716c)
+- `do end` often prints no Options. fixed in M29.9d (eb9716c)
 - Heal rolls show the die and not the domain bonus.
 
 **Low:**
