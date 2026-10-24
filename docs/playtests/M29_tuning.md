@@ -715,3 +715,86 @@ Target for clean-win: 0.75-0.90 (balanced only). For heroes down per master: <= 
   though: next to the fighter the wight's bow rolls at disadvantage, but it may step out of the zone
   first, since leaving a zone provokes no attack. So a real effect cannot be ruled out. The lever is
   still a per-size boss scale (data); round 3 and the next wide grid decide.
+
+# M31.1d: tougher masters (2026-10-24)
+
+Owner (2026-10-24): "Yes make them tougher as part of m31." Round 4 met Grinner Voss (a hobgoblin,
+11 HP), Brother Mallow (a ghoul, 22 HP, never acted) and the Tithekeeper (a wight, 26 HP against the
+SRD 45). Same slice as M29.7d: balanced x classic, martial (`saves/balance/M31d_<run>_a`), balanced
+x casters, duo, solo (`_b`) and aggressive x classic (`_c`), 5 seeds each, 30 full campaigns on the
+fake storyteller, 3 detached processes, about 12 minutes a grid; 0 runs failed a check. Report:
+`python scripts/balance_report.py saves/balance/M31d_after_a saves/balance/M31d_after_b
+saves/balance/M31d_after_c --markdown`. Before = HEAD 0e0d3e9 (`M31d_before_*`).
+
+## Cause of the weak masters
+- **Hit points scaled for full parties.** The M29.6 small-party scale (`boss_hp_scale_floor`)
+  compares the lone master's adjusted XP with the boss cap x `boss_budget_scale` (M29.6b). For four
+  level-3 heroes that cap is 899 x 0.45 = 404, below one CR 3 monster (700 XP), so the act-2 wight
+  spawned with 45 x 404 / 700 = 26 HP (r4-typed event 1098). The same held for the act-3 mage (40 ->
+  31 HP at level 5). The rule meant for solo and duo hit every party size.
+- **The master's stat block is the plan's pick, checked only for tier.** Tier 1 accepts any CR up
+  to 1, so a CR 1/2 hobgoblin (11 SRD HP) can be a master while the region's spokes field up to
+  239 adjusted XP for four level-2 heroes; nothing compared the master with the region's own fights.
+  The ghoul "never acted": 22 HP died to four heroes before its first turn.
+
+## What changed
+- `rules.master_boost` (the one interpreter) and `data/bg3/master_template.json` (typed loader
+  `aidm.data.master_template`): a party of `small_party_max` (2) or fewer keeps the M29.6 scale (owner
+  rule); a party of `party_min` (3) or more never gets it and receives the template: hit points
+  towards the hit dice maximum (`hit_dice_share`), a master's turn (`legendary_points`: one-point
+  legendary single attacks after other creatures' turns, refilled on a d6 >= `legendary_recharge`)
+  and a features.json trait (`masters-resolve`: advantage on saves against stunned, paralyzed,
+  charmed, frightened, incapacitated, restrained).
+- Every master is never weaker than the region's strongest spoke group (`offer_spokes.spoke_strength`:
+  the spoke budget cap, or the cheapest theme monster when nothing fits): below it, hit points and
+  rated XP rise by the ratio, at most `floor_hp_scale_max` (2.0).
+- The offer rates the master at its SRD XP x hit point scale x the round damage its master's turn
+  adds, and the round-damage word counts the extra attacks, so the word follows the real strength.
+- Targets (`data/balance_targets.json`): `master_heroes_down_floor` bounds heroes down per master to
+  [0.6, 1.0] (the same metric as `boss_heroes_down_avg`, whose cap stays 1.0) and
+  `boss_hp_lost_share` >= 0.4 (mean share of the party's hit point maximum lost per master fight,
+  a retried wipe included), both for the balanced and aggressive styles.
+
+## Iterations (four-hero slices; solo and duo do not get the template)
+| run | template | classic | casters | martial | aggressive classic |
+|---|---|---|---|---|---|
+| before | (scaled full-party masters) | 0.53 | 0.07 | 0.20 | 0.73 |
+| i1 | hit dice max, 1 master's turn every round, trait | 3.79 | 3.18 | - | 4.04 (0/5 epilogues) |
+| i2 | SRD hit points, trait | 1.61 | 1.63 | 2.32 | 1.94 |
+| i3 | SRD hit points, no trait | 1.61 | 1.63 | 2.32 | 1.94 |
+| after | = i2 (shipped) | 1.61 | 1.63 | 2.32 | 1.94 |
+Heroes down per master. i2 and i3 are identical run for run: no bot spell ever forced a master's save
+against those conditions, so the trait is neutral in the sims (it answers live play's holds).
+
+## Before -> after (shipped template: SRD floor, trait, hit dice share 0, no master's turn)
+| slice | clean-win | heroes down per master | party HP lost in master fights | wipes/run | epilogues |
+|---|---|---|---|---|---|
+| balanced classic | 0.80 -> 0.82 | 0.53 -> **1.61** | 0.31 -> 0.43 | 0.4 -> 0.6 | 5 -> 4 |
+| balanced casters | 0.93 -> 0.84 | 0.07 -> **1.63** | 0.22 -> 0.44 | 0 -> 0.8 | 5 -> 4 |
+| balanced martial | 0.87 -> 0.90 | 0.20 -> **2.32** | 0.24 -> 0.62 | 0 -> 1.2 | 5 -> 3 |
+| balanced duo | 1.00 -> 1.00 | 0.55 -> 0.55 | 0.60 -> 0.60 | 1.0 -> 1.0 | 5 -> 5 |
+| balanced solo | 0.89 -> 0.89 | 0.74 -> 0.74 | 0.91 -> 0.91 | 3.8 -> 3.8 | 0 -> 0 |
+| aggressive classic | 0.56 -> 0.64 | 0.73 -> **1.94** | 0.27 -> 0.59 | 0 -> 0.6 | 5 -> 5 |
+Bounds: heroes down per master 0.6..1.0, party HP lost >= 0.4, clean-win 0.75..0.90 (balanced).
+Solo and duo margin: at most +0.5 wipes per run over M29.7d (solo 3.4 -> <= 3.9, duo 0.8 -> <= 1.3):
+solo 3.8 and duo 1.0 hold, unchanged by this checkpoint (the template does not reach them; today's
+HEAD already ran solo at 3.8).
+
+## Reading
+- **Both bounds cannot hold with SRD-hit-point masters and these bots.** With the template switched
+  fully off, the mandated floor alone (a full party's master keeps its SRD hit points) takes every
+  four-hero shape from under the floor (0.07-0.53) to over the cap (1.61-2.32). Before, the band was
+  only met because full parties fought masters at 58% (act 2) and 78% (act 3) of their hit points.
+  The HP-spend floor passes everywhere now (0.43-0.62, from 0.22-0.31).
+- **Where the downs are**: wipes at two SRD masters, as M29.6 found. The act-3 mage either dies in
+  round 1 (31 HP did, 40 HP often does not) or lands a fireball on a party standing in one zone
+  (32 damage, 3-4 heroes down; casters 4 and classic 3 wipes there). The act-2 wight at 45 HP resists
+  the martial party's nonmagical weapons (6 wipes, 3.64 downs per fight). Act 1 stays at 0.4 for
+  balanced parties; aggressive classic's 2.0 there predates this checkpoint (no camp before the
+  master).
+- **So the boost values stay at zero** (`hit_dice_share` 0, `legendary_points` 0): every extra point
+  of master strength moves away from the cap (i1). The machinery ships tested and data-switchable.
+- **Levers left, each an owner or harness call**: bot tactics (spread out against an area caster,
+  answer resistant undead with fire, oil or radiant), the master pick (count a master's area spells
+  like breath weapons in the `boss_area` plan check), or a per-tier full-party hit point floor below
+  SRD (against this checkpoint's rule).
