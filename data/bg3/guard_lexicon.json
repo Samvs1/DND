@@ -394,7 +394,8 @@
   "attack_nouns": [
     "bolt", "bolts", "arrow", "arrows", "shaft", "shafts", "quarrel", "shot", "stone", "bullet",
     "claws", "claw", "teeth", "jaws", "fangs", "talons", "spell", "flame", "fire bolt", "blast",
-    "ray", "eldritch blast", "guiding bolt", "sacred flame", "chill touch"
+    "ray", "eldritch blast", "guiding bolt", "sacred flame", "chill touch",
+    "tentacles", "tentacle", "shell-blade"
   ],
   "kill_claims": [
     "folds around", "folds under", "falls to", "drops under", "dies on", "sprawls", "crumples",
@@ -452,11 +453,16 @@
     "inches from", "narrowly misses", "just misses", "bites empty air", "biting empty air",
     "shear empty air", "shears empty air", "sweeping low", "teeth close on", "jaws close on",
     "swings its fist", "fists landing", "fists crash into", "tries to hit", "nearly hits",
-    "almost hits", "nearly catches", "barely misses"
+    "almost hits", "nearly catches", "barely misses",
+    "drives its", "swipes at", "swipes blindly at", "swipes wildly at", "swiping at",
+    "feints toward", "feints at", "feinting toward", "claws raking", "raking toward",
+    "rakes toward", "snap toward", "snaps toward", "snapping toward", "driving you back",
+    "drives you back", "slashes a", "slashes at", "catch only", "catches only"
   ],
   "harm_claims": [
     "scorching", "scorches", "scorch", "chars", "charring", "sears", "blisters", "blistering",
-    "burns", "crash into", "crashes into", "opens"
+    "burns", "crash into", "crashes into", "opens",
+    "sizzles across", "eats into", "eating into", "eating a furrow", "furrow into"
   ],
   "fall_claims": [
     "drops under", "dies on", "sprawls", "crumples", "collapses",
@@ -530,5 +536,60 @@
   "cast_gap_stops": [
     "on", "upon", "over", "across", "into", "onto", "through", "at", "in", "from", "by", "off",
     "about", "around", "along", "against", "toward", "towards", "under", "behind", "like", "as"
+  ],
+  "count_words": {
+    "two": 2,
+    "three": 3,
+    "four": 4,
+    "five": 5,
+    "six": 6,
+    "both": 2,
+    "twin": 2,
+    "second": 2,
+    "third": 3,
+    "fourth": 4,
+    "several": 2,
+    "other": 2,
+    "another": 2,
+    "each": 2,
+    "pair of": 2
+  },
+  "evade_claims": [
+    "twists aside", "twisted aside", "dodges", "dodged", "sidesteps", "sidestepped", "ducks aside",
+    "ducks under", "slips aside", "slips away from", "jerks aside", "rolls aside", "leaps aside",
+    "springs aside", "barely missed", "untouched by", "unharmed by", "unscathed"
+  ],
+  "partial_harm_claims": [
+    "still", "splash", "splashes", "spatters across", "spattering across", "burns", "burning",
+    "stings", "stinging", "sears", "searing", "scalds", "catches", "clips", "grazes", "half"
+  ],
+  "keep_claims": [
+    "tucks it away", "tucks them away", "tucked it away", "tucked them away", "tucks it into",
+    "tucks them into", "tucked into one arm", "tucked under", "tucks it under", "stows", "stowed",
+    "pockets", "pocketed", "comes up with", "came up with", "draws both", "pinches a", "plucks",
+    "dangling from his fingers", "dangling from her fingers", "in his hand", "in her hand",
+    "takes it", "takes them", "took it", "took them", "picks up", "picked up", "picks it up",
+    "scoops up", "pulls it free", "now carries", "now holds"
+  ],
+  "recipient_verbs": [
+    "gives", "gave", "hands", "handed", "presses", "pressed", "passes", "passed", "offers",
+    "offered", "slides", "slid", "tosses", "tossed", "places", "placed", "holds out", "extends",
+    "sets"
+  ],
+  "accept_claims": [
+    "you accept", "you accepted", "you agree", "you agreed", "you take the errand",
+    "you take the task", "you take the job", "you take up", "you take on", "you have accepted",
+    "you've accepted", "the party accepts", "the party accepted", "the party agrees",
+    "the party agreed", "agree to help", "agreed to help", "the bargain is struck",
+    "the bargain is sworn", "the deal is struck", "accepts your word", "you give your word",
+    "you gave your word"
+  ],
+  "ally_defeat_claims": [
+    "laid low", "brought low", "struck down", "cut down", "slain", "fell", "fallen", "defeated",
+    "vanquished", "overthrown", "was killed", "perished", "died", "destroyed"
+  ],
+  "ally_defeat_skips": [
+    "fell silent", "fell quiet", "fell still", "fell asleep", "fell away", "fell into step",
+    "fell in beside", "fell in with", "fell back", "fell to the party", "fell to you", "fell from"
   ]
 }

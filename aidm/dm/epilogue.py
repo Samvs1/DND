@@ -10,12 +10,17 @@ happened (`template_epilogue`). The epilogue is a story ABOUT the past, so the s
 "absent NPC" check is switched off (everyone who exists may be mentioned); the closed-world name
 check is not. M29.5c G35: past-tense death words ("fell", "was killed": `epilogue_death_claims`)
 count as death claims about the living, the facts state each boss's fate, and this turn's
-blow, coin and hand-over checks are off (the epilogue tells the past).
+blow, coin and hand-over checks are off (the epilogue tells the past). M31.1c V20: who lived and
+the quest list are ENGINE-WRITTEN lines after the prose (`epilogue_record`), never left to it; a
+mixed ending gets no "the scene waits" filler; an NPC who sided with the party is never told
+defeated (`aidm.dm.guard_epilogue.ally_defeated`), and a finale question that told an ally laid
+low (written before the party chose) is left out of the facts (`honest_facts`).
 
 Public API:
 - `EPILOGUE_STYLE`, `epilogue_ready(state) -> bool`, `epilogue_messages(facts) -> list[Message]`.
 - `epilogue_checker(state) -> ProseCheck`; `facts_checker(state, lines, *, past_deaths)` (the same
-  relaxed guard for any prose about listed facts; the defeat epilogue uses it too).
+  relaxed guard for any prose about listed facts; the defeat epilogue uses it too);
+  `honest_facts(state) -> EpilogueFacts`.
 - `begin_epilogue(state, llm) -> NarrationStream | None`: None until the campaign is complete (or
   when the epilogue is already written); the stream's sentences are the epilogue.
 - `epilogue_event(stream) -> EpilogueWritten`: the event to apply once the stream is collected.
@@ -26,8 +31,14 @@ import dataclasses
 from collections.abc import Sequence
 from dataclasses import dataclass
 
-from aidm.dm.epilogue_facts import EpilogueFacts, epilogue_facts, template_epilogue
+from aidm.dm.epilogue_facts import (
+    EpilogueFacts,
+    epilogue_facts,
+    epilogue_record,
+    epilogue_story,
+)
 from aidm.dm.guard import check_prose, guarded_narration
+from aidm.dm.guard_epilogue import allies, ally_defeated
 from aidm.dm.guard_flow import NarrationSource
 from aidm.dm.guard_scene import guard_scene, words_of
 from aidm.dm.guard_turn import TurnTruth
@@ -48,8 +59,9 @@ EPILOGUE_STYLE = (
     " user: tell what happened to the places, the heroes who fell or lived on, the quests, the"
     " people the party befriended or wronged. Invent no names, no events, no rewards and no"
     " places that are not listed. A defeated enemy stays defeated: never describe it acting."
-    " A hero who survived is alive. 5 to 10 sentences of prose, past tense, no lists, no"
-    " mechanics numbers."
+    " A hero who survived is alive. An NPC who sided with the party was never defeated."
+    " The engine lists who lived and every quest after your prose: do not list them."
+    " 5 to 10 sentences of prose, past tense, no lists, no mechanics numbers."
 )
 
 
@@ -73,9 +85,29 @@ def epilogue_messages(facts: EpilogueFacts) -> list[Message]:
     return [{"role": "system", "content": EPILOGUE_STYLE}, {"role": "user", "content": user}]
 
 
+def honest_facts(state: GameState) -> EpilogueFacts:
+    """The facts, minus a finale question that tells an ally defeated (M31.1c V20: it was
+    written before the party chose its road)."""
+    facts = epilogue_facts(state)
+    finale = facts.finale
+    lex = guard_scene(state).lexicon
+    if finale is None or not ally_defeated(finale.question, allies(state, lex), lex):
+        return facts
+    return dataclasses.replace(facts, finale=dataclasses.replace(finale, question=""))
+
+
 def epilogue_checker(state: GameState, facts: EpilogueFacts | None = None) -> ProseCheck:
-    """THE guard with the scene-local checks relaxed: every word of the facts is known."""
-    return facts_checker(state, (facts or epilogue_facts(state)).lines(), past_deaths=True)
+    """THE guard with the scene-local checks relaxed: every word of the facts is known; an
+    ally told defeated is flagged (M31.1c V20)."""
+    base = facts_checker(state, (facts or honest_facts(state)).lines(), past_deaths=True)
+    lex = guard_scene(state).lexicon
+    terms = allies(state, lex)
+
+    def check(text: str) -> GuardReport:
+        report = base(text)
+        return GuardReport((*report.violations, *ally_defeated(text, terms, lex)))
+
+    return check
 
 
 def facts_checker(
@@ -103,15 +135,17 @@ def facts_checker(
 def begin_epilogue(state: GameState, llm: LlmClient) -> NarrationStream | None:
     if not epilogue_ready(state):
         return None
-    facts = epilogue_facts(state)
+    facts = honest_facts(state)
     sentences = guarded_narration(
         llm,
         epilogue_messages(facts),
         epilogue_checker(state, facts),
-        template_epilogue(facts),
+        epilogue_story(facts),
         role=LlmRole.QUALITY,
         max_tokens=EPILOGUE_MAX_TOKENS,
         max_sentences=EPILOGUE_MAX_SENTENCES,
+        closing=(),
+        record=epilogue_record(facts),
     )
     return NarrationStream(NarrationTone.EXPLORATION, sentences)
 

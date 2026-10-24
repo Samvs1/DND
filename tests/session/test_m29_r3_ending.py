@@ -34,9 +34,9 @@ def test_m29_ending_tells_engine_facts_full() -> None:
     assert "High Lector Orlan Voss was won over and sided with the party" in text
     assert "Legion-Captain Ulva the Guilted was won over and sided with the party" in text
     assert "Cunning paved the way first: the party won the fight at The Slag Warren." in text
-    assert (
-        "Completed quests: The Shard in the Mud, The Shard in the Thorns, The Shard in the Ash,"
-        " The Widow of the Deep" in text
+    assert (  # M31.1c V20: the main quests on their own line
+        "Main quests: The Shard in the Mud (completed), The Shard in the Thorns (completed),"
+        " The Shard in the Ash (completed). Completed quests: The Widow of the Deep" in text
     )
     assert "Quest The Shard in the Ash: completed." in told
 

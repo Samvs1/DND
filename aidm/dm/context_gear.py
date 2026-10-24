@@ -7,10 +7,15 @@
   carried gear that fit here now (`aidm.rules.item_use.usable_uses`), e.g.
   "Usable gear of Brak [fighter]: Torch [torch]: light this dark place", so the model calls
   `use_item` instead of granting advantage itself.
+- `actor_gear_lines(state, actor_id, show_ids)`: for the adjudicator, M31.1c V21: everything the
+  ACTING hero carries (packs, tools, weapons, keepsakes), in the never-trimmed manifest, so a
+  check never rules "no crowbar at hand" while the hero carries one.
 
-Public API: `light_lines(state) -> list[str]`, `gear_lines(state, scene, show_ids) -> list[str]`.
+Public API: `light_lines(state) -> list[str]`, `gear_lines(state, scene, show_ids) -> list[str]`,
+`actor_gear_lines(state, actor_id, show_ids) -> list[str]`.
 """
 
+from aidm.dm.entities import display_name
 from aidm.models.state import GameState
 from aidm.rules.item_effects import gear_name
 from aidm.rules.item_use import usable_uses
@@ -51,3 +56,19 @@ def gear_lines(state: GameState, scene: SceneView, show_ids: bool) -> list[str]:
             who = state.creatures[cid].name + _tag(show_ids, cid)
             lines.append(f"Usable gear of {who}: {'; '.join(dict.fromkeys(parts))}")
     return lines
+
+
+def actor_gear_lines(state: GameState, actor_id: str | None, show_ids: bool) -> list[str]:
+    hero = state.creatures.get(actor_id or "")
+    if hero is None or hero.pc is None:
+        return []
+    pc = hero.pc
+    things = [
+        f"{display_name(i.item)}{_tag(show_ids, i.item)}" + (f" x{i.qty}" if i.qty > 1 else "")
+        for i in pc.inventory
+    ]
+    things += [k.name for k in pc.keepsakes]
+    if not things:
+        return []
+    who = hero.name + _tag(show_ids, hero.id)
+    return [f"Carried by {who}, the acting hero (all of it at hand): {', '.join(things)}"]

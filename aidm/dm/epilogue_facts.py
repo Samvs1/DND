@@ -19,7 +19,11 @@ Public API:
 - `RegionOutcome`, `QuestOutcome`, `FinaleOutcome`, `EpilogueFacts` (frozen; `lines()` is the
   model's whole input).
 - `epilogue_facts(state) -> EpilogueFacts` (ValueError without a campaign).
-- `template_epilogue(facts) -> list[str]`: the deterministic fallback sentences.
+- `template_epilogue(facts) -> list[str]`: the deterministic fallback sentences: the story part
+  (`epilogue_story`) and then the record (`epilogue_record`, M31.1c V20: who lived or fell, the
+  main quests and every other quest by outcome, ENGINE-WRITTEN lines that follow the model's
+  prose too, so the list is never left to the prose). A finale question left empty (it told an
+  ally laid low, `aidm.dm.epilogue`) is not stated.
 """
 
 from dataclasses import dataclass
@@ -59,6 +63,7 @@ class QuestOutcome:
     title: str
     state: QuestState
     closed: ClosedReason | None = None
+    main: bool = False
 
 
 @dataclass(frozen=True)
@@ -86,7 +91,8 @@ class EpilogueFacts:
             out.append(_region_line(r))
         out.extend(_fate_line(r) for r in self.regions)
         if self.finale is not None:
-            out.append(f"The final choice: {self.finale.question}")
+            if self.finale.question:
+                out.append(f"The final choice: {self.finale.question}")
             out.append(f"The party chose: {self.finale.title}. {self.finale.text}")
         out.extend(f"{name} fell and did not return." for name in self.fallen)
         out.extend(f"{name} survived to the end." for name in self.survivors)
@@ -189,7 +195,8 @@ def _finale_outcome(state: GameState) -> FinaleOutcome | None:
 
 
 def _quest_outcome(quest: Quest) -> QuestOutcome:
-    return QuestOutcome(quest.title, quest.state, quest.closed_reason)
+    main = quest.kind is QuestKind.MAIN
+    return QuestOutcome(quest.title, quest.state, quest.closed_reason, main=main)
 
 
 def _quests(state: GameState) -> tuple[QuestOutcome, ...]:
@@ -239,26 +246,38 @@ _QUEST_LABELS = (
 
 
 def _quest_lines(quests: tuple[QuestOutcome, ...]) -> list[str]:
-    out: list[str] = []
+    mains = [f"{q.title} ({_quest_word(q)})" for q in quests if q.main]
+    out = [f"Main quests: {', '.join(mains)}."] if mains else []
     for word, label in _QUEST_LABELS:
-        titles = tuple(q.title for q in quests if _quest_word(q) == word)
+        titles = tuple(q.title for q in quests if not q.main and _quest_word(q) == word)
         if titles:
             out.append(f"{label}: {_names(titles)}.")
     return out
 
 
-def template_epilogue(facts: EpilogueFacts) -> list[str]:
-    lines = [f"The tale of {facts.title} is told."]
-    lines.extend(_region_line(r) for r in facts.regions)
-    if facts.finale is not None:
-        lines.append(f"At the last, the party faced a choice: {facts.finale.question}")
-        lines.append(f"They chose: {facts.finale.title}. {facts.finale.text}")
+def epilogue_record(facts: EpilogueFacts) -> list[str]:
+    """M31.1c V20: the engine-written close of every epilogue: who lived, who fell, the quests."""
+    lines: list[str] = []
     if facts.fallen:
         lines.append(f"{_names(facts.fallen)} did not live to see the end.")
     if facts.survivors:
         lines.append(f"{_names(facts.survivors)} lived on.")
-    lines.extend(_quest_lines(facts.quests))
+    return lines + _quest_lines(facts.quests)
+
+
+def epilogue_story(facts: EpilogueFacts) -> list[str]:
+    """The template's story part: the regions, the finale, the people, the ledger."""
+    lines = [f"The tale of {facts.title} is told."]
+    lines.extend(_region_line(r) for r in facts.regions)
+    if facts.finale is not None:
+        if facts.finale.question:
+            lines.append(f"At the last, the party faced a choice: {facts.finale.question}")
+        lines.append(f"They chose: {facts.finale.title}. {facts.finale.text}")
     lines.extend(f"{n} ended {band} toward the party." for n, _, band in facts.attitudes)
     lines.extend(facts.revealed)
     lines.extend(facts.ledger)
     return lines
+
+
+def template_epilogue(facts: EpilogueFacts) -> list[str]:
+    return epilogue_story(facts) + epilogue_record(facts)

@@ -97,6 +97,7 @@ def begin_defeat(state: GameState, llm: LlmClient) -> NarrationStream:
         role=LlmRole.QUALITY,
         max_tokens=DEFEAT_MAX_TOKENS,
         max_sentences=DEFEAT_MAX_SENTENCES,
+        closing=(),  # M31.1c V20: no "the scene waits on your next move" in an ending
     )
     return NarrationStream(NarrationTone.EXPLORATION, sentences)
 

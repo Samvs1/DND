@@ -120,6 +120,15 @@ class GuardLexicon(BaseModel):
     cast_verbs: frozenset[str] = frozenset()
     cast_hedges: frozenset[str] = frozenset()
     cast_gap_stops: frozenset[str] = frozenset()
+    # M31.1c (round 4 V17-V20): attempts, counts, results, found things, hand-overs, endings
+    count_words: dict[str, int] = {}
+    evade_claims: frozenset[str] = frozenset()
+    partial_harm_claims: frozenset[str] = frozenset()
+    keep_claims: frozenset[str] = frozenset()
+    recipient_verbs: frozenset[str] = frozenset()
+    accept_claims: frozenset[str] = frozenset()
+    ally_defeat_claims: frozenset[str] = frozenset()
+    ally_defeat_skips: frozenset[str] = frozenset()
 
     @model_validator(mode="after")
     def _check(self) -> GuardLexicon:

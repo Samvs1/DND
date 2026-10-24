@@ -110,7 +110,9 @@ def test_template_epilogue_tells_the_chosen_ending_and_passes_the_guard() -> Non
     assert f"They chose: Silence the song. {SILENCE_TEXT}" in text
     assert not epilogue_checker(state, facts)(text).violations
     sides = " ".join(template_epilogue(epilogue_facts(_routes_walked())))
-    assert "Completed quests: Fog on the Quay, The Kelpglass Reach, The Missing Ledger." in sides
+    # M31.1c V20: the main quests on their own line, then the other quests by outcome
+    assert "Main quests: Fog on the Quay (completed), The Kelpglass Reach (completed)." in sides
+    assert "Completed quests: The Missing Ledger." in sides
     assert "Left behind: Break the Smugglers." in sides
     assert "Never taken up: The Warden's Signet." in sides
 

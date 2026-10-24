@@ -10,7 +10,9 @@ turns), 6 EVENTS (engine events since the last narration, authoritative), 7 NPC_
 secrets and the route hint the NPC knows, ONLY for `NPC_VOICE`).
 
 Token budget (estimate: characters / 4): when the pack is over budget, FACTS lose their lowest
-ranked lines first, then MEMORY its oldest lines, then PARTY switches to short sheets. SYSTEM,
+ranked lines first, then MEMORY its oldest lines, then PARTY switches to short sheets (M31.1c V21:
+the acting hero keeps the full sheet, and the adjudicator's manifest always lists everything the
+actor carries, `actor_gear_lines`). SYSTEM,
 MANIFEST, QUESTS, EVENTS and NPC_PRIVATE are never truncated, so the pack may stay over budget
 when they alone exceed it (`over_budget`).
 
@@ -33,7 +35,7 @@ from dataclasses import dataclass, replace
 from enum import StrEnum
 from typing import Any
 
-from aidm.dm.context_gear import gear_lines, light_lines
+from aidm.dm.context_gear import actor_gear_lines, gear_lines, light_lines
 from aidm.dm.context_quests import quest_lines, route_hint_lines
 from aidm.dm.context_sections import (
     fact_lines,
@@ -169,7 +171,11 @@ def build_context(
     arriving = state.world.scene_turn == 0 or any(e.type == "party_moved" for e in events)
     describe = purpose is not ContextPurpose.NARRATE or arriving
     manifest = manifest_lines(state, scene, show_ids, describe)
-    gear = gear_lines(state, scene, show_ids) if purpose is ContextPurpose.ADJUDICATE else []
+    gear = (
+        [*actor_gear_lines(state, actor_id, show_ids), *gear_lines(state, scene, show_ids)]
+        if purpose is ContextPurpose.ADJUDICATE
+        else []
+    )
     manifest[-1:-1] = [*light_lines(state), *gear]
     sections = [
         ContextSection(SectionKey.SYSTEM, "SYSTEM", (system_text(purpose),)),
@@ -198,7 +204,7 @@ def build_context(
         npc.name if npc is not None else None,
         budget_tokens=budget_tokens,
     )
-    return _fit(pack, party_lines(state, short=True))
+    return _fit(pack, party_lines(state, short=True, keep=actor_id))
 
 
 def to_messages(pack: ContextPack, purpose: ContextPurpose | None = None) -> list[dict[str, Any]]:

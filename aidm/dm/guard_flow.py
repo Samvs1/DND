@@ -13,12 +13,15 @@ never reaches a player, TTS or memory. Flow:
 Ending rules: nothing shown -> the whole template (`source` TEMPLATE); something shown but the
 model stopped -> the unfinished fragment is dropped and the template lines follow when fewer
 than `MIN_MODEL_SENTENCES` were shown (the outcome must be told), else `CLOSING_LINE` (`source`
-MIXED). At most `MAX_SENTENCES` sentences. `template_start` is the index of the first template
+MIXED; M31.1c V20: `closing` replaces it, the epilogue passes none). At most `MAX_SENTENCES`
+sentences. `record` (M31.1c V20: the epilogue's engine-written quest list and who lived) is always
+appended after the prose, whatever its source. `template_start` is the index of the first template
 sentence (None while only model prose was shown): those are engine statements, shown each on its
 own line (M20.7).
 
 Public API: `NarrationSource`, `AttemptFactory`, `model_sentences(stream)`,
-`GuardedSentences(attempt, check, fallback_lines, *, max_attempts, max_sentences)` (`sentences`,
+`GuardedSentences(attempt, check, fallback_lines, *, max_attempts, max_sentences, closing,
+record)` (`sentences`,
 `text`, `source`, `failure`, `reports`, `attempts`, `retried`, `template_start`, `collect()`),
 `MAX_SENTENCES`,
 `MIN_MODEL_SENTENCES`, `MAX_ATTEMPTS`, `REPEAT_OVERLAP`, `repeats(sentence, shown)`.
@@ -94,8 +97,12 @@ class GuardedSentences:
         *,
         max_attempts: int = MAX_ATTEMPTS,
         max_sentences: int = MAX_SENTENCES,
+        closing: Sequence[str] = (CLOSING_LINE,),
+        record: Sequence[str] = (),
     ) -> None:
         self._attempt = attempt
+        self._closing = list(closing)
+        self._record = list(record)
         self._check = check
         self._fallback = list(fallback_lines)
         self._max_attempts = max_attempts
@@ -160,17 +167,21 @@ class GuardedSentences:
                 return
             previous = self._stopped
 
-    async def _run(self) -> AsyncIterator[str]:
-        async for sentence in self._model():
-            yield sentence
+    def _ending(self) -> list[str]:
         shown = len(self.sentences)
         clean = self.failure is None and self._stopped is None
         if shown and (clean or shown >= self._max):
             self.source = NarrationSource.MODEL
-            return
+            return []
         self.source = NarrationSource.MIXED if shown else NarrationSource.TEMPLATE
-        ending = self._fallback if shown < MIN_MODEL_SENTENCES else [CLOSING_LINE]
-        self.template_start = shown
+        return self._fallback if shown < MIN_MODEL_SENTENCES else self._closing
+
+    async def _run(self) -> AsyncIterator[str]:
+        async for sentence in self._model():
+            yield sentence
+        ending = [*self._ending(), *self._record]
+        if ending:
+            self.template_start = len(self.sentences)
         for line in ending:
             self.sentences.append(line)
             yield line

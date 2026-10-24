@@ -14,11 +14,12 @@ from aidm.dm.epilogue import (
     epilogue_ready,
     write_epilogue,
 )
-from aidm.dm.epilogue_facts import epilogue_facts, template_epilogue
+from aidm.dm.epilogue_facts import epilogue_facts, epilogue_record, template_epilogue
 from aidm.dm.fake_llm import FakeStream, fake_text
 from aidm.dm.guard_flow import NarrationSource
 from aidm.dm.guard_types import ViolationKind
 from aidm.models.events import CreatureDied
+from aidm.models.state import GameState
 from aidm.session.reducer import ReducerError, apply, replay
 from tests.ai.epilogue_fixtures import FINAL_BOSS, LEDGER_FACT, finished_campaign
 from tests.ai.fake_scripts import fake_client
@@ -34,6 +35,11 @@ INVENTED = (
     "Sister Kelene crowned the heroes lords of the harbour and handed each of them "
     "five thousand gold. A dragon named Vharax then burned the beacon down."
 )
+
+
+def _told(state: GameState) -> str:
+    """M31.1c V20: the model's prose, then the engine-written record (who lived, the quests)."""
+    return " ".join([GOOD, *epilogue_record(epilogue_facts(state))])
 
 
 def _user_text(messages: list[dict[str, object]]) -> str:
@@ -65,7 +71,7 @@ async def test_clean_epilogue_is_streamed_once_from_the_facts_only(tmp_path: Pat
     _, state, _, _ = finished_campaign()
     client, fake = fake_client(tmp_path, [FakeStream((GOOD[:60], GOOD[60:]))])
     result = await write_epilogue(state, client)
-    assert result is not None and result.text == GOOD
+    assert result is not None and result.text == _told(state)
     assert result.source is NarrationSource.MODEL and not result.retried
     assert len(fake.requests) == 1 and fake.requests[0].model == "deepseek-v4-pro"
     system = str(fake.requests[0].messages[0]["content"])
@@ -74,7 +80,7 @@ async def test_clean_epilogue_is_streamed_once_from_the_facts_only(tmp_path: Pat
     assert LEDGER_FACT in body and FINAL_BOSS in body and "FACTS" in body
     secrets = [s.text for n in state.world.npcs.values() for s in n.secrets if not s.revealed]
     assert secrets and all(text not in body for text in secrets)
-    assert result.event.text == GOOD and result.event.source == "model"
+    assert result.event.text == _told(state) and result.event.source == "model"
 
 
 async def test_epilogue_that_invents_events_falls_back_to_the_facts(tmp_path: Path) -> None:
@@ -98,14 +104,14 @@ async def test_unearned_gold_in_the_epilogue_is_flagged(tmp_path: Path) -> None:
     assert K.UNEARNED_REWARD in {v.kind for v in epilogue_checker(state)(greedy).violations}
     client, _ = fake_client(tmp_path, [fake_text(greedy), fake_text(GOOD)])
     result = await write_epilogue(state, client)
-    assert result is not None and result.text == GOOD and result.retried
+    assert result is not None and result.text == _told(state) and result.retried
 
 
 async def test_a_clean_retry_is_used(tmp_path: Path) -> None:
     _, state, _, _ = finished_campaign()
     client, _ = fake_client(tmp_path, [fake_text(INVENTED), fake_text(GOOD)])
     result = await write_epilogue(state, client)
-    assert result is not None and result.text == GOOD and result.retried
+    assert result is not None and result.text == _told(state) and result.retried
     assert result.source is NarrationSource.MODEL
 
 
@@ -128,7 +134,7 @@ async def test_epilogue_event_replays_and_requires_a_finished_campaign(tmp_path:
     event = epilogue_event(stream)
     apply(state, event)
     log.append(event)
-    assert state.campaign is not None and state.campaign.epilogue == GOOD
+    assert state.campaign is not None and state.campaign.epilogue == _told(state)
     assert replay(start, log) == state and not epilogue_ready(state)
     _, unfinished, _ = campaign_state()
     with pytest.raises(ReducerError):

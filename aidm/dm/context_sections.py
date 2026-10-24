@@ -8,7 +8,8 @@ Public API:
 - `manifest_lines(state, scene, show_ids, describe_place=True) -> list[str]` (ends with
   `CLOSED_WORLD`; in a fight the foes' traits follow the hostile creatures, M27.6
   `aidm.dm.context_traits`).
-- `party_lines(state, short) -> list[str]`: one compact sheet line per living PC.
+- `party_lines(state, short, keep=None) -> list[str]`: one compact sheet line per living PC;
+  `keep` (M31.1c V21: the acting hero) keeps the full sheet when the others go short.
 - `relevant_facts(facts, focus, k) -> list[Fact]` (THE fact
   retrieval: top-k by entity overlap with `focus`, ties broken by recency; deterministic);
   `fact_lines(state, focus, k) -> list[str]` (their texts).
@@ -161,9 +162,9 @@ def _life_note(c: Creature) -> str:
     return ""
 
 
-def party_lines(state: GameState, short: bool) -> list[str]:
+def party_lines(state: GameState, short: bool, keep: str | None = None) -> list[str]:
     pcs = sorted((c for c in state.creatures.values() if c.pc is not None), key=lambda c: c.id)
-    return [_sheet(c, short) + _life_note(c) for c in pcs]
+    return [_sheet(c, short and c.id != keep) + _life_note(c) for c in pcs]
 
 
 def scene_focus(

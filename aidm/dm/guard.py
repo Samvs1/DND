@@ -33,7 +33,8 @@ Public API: `SCRUB_TOKEN`, `check_prose`, `prose_checker(state, events=(), *, vo
 -> ProseCheck`,
 `scrub_messages(messages, terms)`, `retry_messages(messages, report, shown)`,
 `guarded_narration(llm, messages, check, fallback_lines, *, role, max_tokens, player_text,
-max_sentences) -> GuardedSentences`.
+max_sentences, closing, record) -> GuardedSentences` (M31.1c V20: an ending passes no
+`closing` filler and its engine-written `record`).
 """
 
 import dataclasses
@@ -76,6 +77,7 @@ from aidm.dm.guard_world import dead_acting, destroyed_items, opened_locks, unli
 from aidm.dm.llm_backend import Message
 from aidm.dm.llm_client import LlmClient, TextStream
 from aidm.dm.llm_types import LlmRole
+from aidm.dm.narration_templates import CLOSING_LINE
 from aidm.dm.sentence_chunker import split_sentences
 from aidm.models.events import AnyEvent
 from aidm.models.state import GameState
@@ -231,6 +233,8 @@ def guarded_narration(
     max_tokens: int = 700,
     player_text: str | None = None,
     max_sentences: int = MAX_SENTENCES,
+    closing: Sequence[str] = (CLOSING_LINE,),
+    record: Sequence[str] = (),
 ) -> GuardedSentences:
     base = list(messages)
 
@@ -238,4 +242,6 @@ def guarded_narration(
         sent = base if report is None else retry_messages(base, report, shown)
         return llm.stream_text(sent, role, max_tokens=max_tokens, player_text=player_text)
 
-    return GuardedSentences(attempt, check, fallback_lines, max_sentences=max_sentences)
+    return GuardedSentences(
+        attempt, check, fallback_lines, max_sentences=max_sentences, closing=closing, record=record
+    )
