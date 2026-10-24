@@ -89,7 +89,9 @@ The full gate is `pytest -q`, `ruff check .`, `ruff format --check .`, `pyright`
 ## Secrets
 - `.env` exists in the root and is gitignored. **Never print, log, echo, commit or paste its values.**
   To inspect it, list names only: `Get-Content .env | ForEach-Object { ($_ -split '=')[0] }`.
-- Names present: `DEEPSEEK_API_KEY`, `FISH_API_KEY`, `FISH_VOICE_ID`, `FISH_MODEL`, `TTS_ENABLED`, `DEV`.
+- Names present: `DEEPSEEK_API_KEY`, `FISH_API_KEY`, `FISH_VOICE_ID`, `FISH_MODEL`, `TTS_ENABLED`, `DEV`,
+  `IMAGE_PROVIDER`, `IMAGE_API_KEY`, `OPENROUTER_API_KEY` (added 2026-10-24, $10 credit, not used by aidm yet;
+  using it is new spend: ask the owner).
 - `scripts/check_secrets.py` must pass before every commit from M0.3 onward.
 
 ## v1 reference (read-only, never modify)
