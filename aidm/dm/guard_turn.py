@@ -17,6 +17,9 @@ already applied to `state`:
 - M29.7b: `fight` (`aidm.dm.fight_ledger`: who acted, was struck, missed, fell, killed), `burning`
   (light noun -> bearer, `aidm.dm.turn_world`), `ended` (a light went out), `short_of` (the travel
   destination not reached this turn), `picked` (a thing came into a hero's hands).
+- M29.9c (round 3 T10 T11): `given` (names of the NPCs who received a keepsake, item or coin
+  in these events: they took it), `outcomes` (the quest states reached in these events:
+  "completed", "failed").
 `TurnTruth()` (`checked` False) switches these checks off, for prose about the past (epilogue).
 
 Public API: `TurnTruth`, `Claim`, `claimed_things(state, actor_id, text)`, `hero_terms(names)`,
@@ -40,6 +43,7 @@ from aidm.models.encounter_events import EncounterStarted
 from aidm.models.item_events import HandedOver, ItemUsed, LightEnded, LightLit
 from aidm.models.quest_events import KeepsakeGiven
 from aidm.models.state import Creature, GameState
+from aidm.models.world import QuestState
 
 _WORD = re.compile(r"[a-z]+(?:-[a-z]+)*")
 _MIN_TERM = 4
@@ -70,6 +74,8 @@ class TurnTruth:
     ended: bool = True
     short_of: str = ""
     picked: bool = True
+    given: frozenset[str] = frozenset()
+    outcomes: frozenset[str] = frozenset()
 
 
 def hero_terms(names: Iterable[str], lex: GuardLexicon | None = None) -> dict[str, str]:
@@ -191,6 +197,18 @@ def _fighting(state: GameState, events: Sequence[ev.AnyEvent]) -> bool:
     return active or any(isinstance(e, EncounterStarted) for e in events)
 
 
+def _given(state: GameState, events: Sequence[ev.AnyEvent]) -> frozenset[str]:
+    """Names of the NPCs (or creatures) who received something in these events."""
+    ids = [e.npc_id for e in events if isinstance(e, KeepsakeGiven)]
+    ids += [e.to_id for e in events if isinstance(e, HandedOver)]
+    names = {state.world.npcs[i].name for i in ids if i in state.world.npcs}
+    names |= {state.creatures[i].name for i in ids if i in state.creatures}
+    return frozenset(plain(n) for n in names)
+
+
+_OUTCOMES = (QuestState.COMPLETED, QuestState.FAILED)
+
+
 def turn_truth(
     state: GameState,
     events: Sequence[ev.AnyEvent],
@@ -223,4 +241,10 @@ def turn_truth(
         ended=any(isinstance(e, LightEnded) for e in events),
         short_of=short_of(state, events, player_text),
         picked=picked_up(events),
+        given=_given(state, events),
+        outcomes=frozenset(
+            e.quest.state.value
+            for e in events
+            if isinstance(e, we.QuestUpdated) and e.quest.state in _OUTCOMES
+        ),
     )

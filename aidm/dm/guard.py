@@ -16,7 +16,10 @@ and the current scene (`aidm.dm.guard_scene`):
 - arrival at another map node without travel, and an invented stranger walking in
   (`aidm.dm.guard_claims`, QA-10); with `prose_checker(..., voice_next=name)`, spoken words or
   that NPC's reply in the narration told right before their own voice (`spoken_for`, M20.7);
-- a lock opened in prose when no `FeatureUnlocked` event opened it (`opened_locks`, M27.5).
+- a lock opened in prose when no `FeatureUnlocked` event opened it (`opened_locks`, M27.5);
+- M29.9c: a foe's attempt or near miss with no attack, a saved spell told as a hit, a fled or
+  standing foe told fallen (`aidm.dm.guard_blows`), a hand-over told refused, a quest told done,
+  failed or undone against the events, an NPC told joining the party (`aidm.dm.guard_quests`).
 Vocabulary is data (data/bg3/guard_lexicon.json); matching uses word boundaries and negation
 windows, so "unbroken" and "no hidden door" are not flagged.
 
@@ -51,6 +54,7 @@ from aidm.dm.guard_party import (
     wrong_race,
 )
 from aidm.dm.guard_pronoun import PronounContext, pronoun_declared_dead
+from aidm.dm.guard_quests import denied_outcome, joined_party, refused_handover, unmade_outcome
 from aidm.dm.guard_rewards import unearned_rewards
 from aidm.dm.guard_scene import GuardScene, guard_scene
 from aidm.dm.guard_secrets import leaked_secrets
@@ -130,7 +134,8 @@ def _honest(
 
 def _round_two(sentence: str, tokens: list[Token], scene: GuardScene) -> list[Violation]:
     """M29.7b: light state, the place reached, pick-ups, the party's count and health, races,
-    present people told absent, engine ids."""
+    present people told absent, engine ids; M29.9c: hand-overs and quest outcomes both ways, an
+    NPC told joining the party (`aidm.dm.guard_quests`)."""
     return [
         *light_state(sentence, tokens, scene),
         *short_travel(sentence, scene),
@@ -140,6 +145,10 @@ def _round_two(sentence: str, tokens: list[Token], scene: GuardScene) -> list[Vi
         *wrong_race(sentence, scene),
         *told_absent(sentence, scene),
         *identifiers(sentence, scene),
+        *refused_handover(sentence, tokens, scene),
+        *unmade_outcome(sentence, tokens, scene),
+        *denied_outcome(sentence, tokens, scene),
+        *joined_party(sentence, tokens, scene),
     ]
 
 

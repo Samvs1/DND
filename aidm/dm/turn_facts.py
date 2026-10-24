@@ -51,11 +51,11 @@ def _weapon_facts(state: GameState, events: Sequence[ev.AnyEvent]) -> list[str]:
     return [f"Weapons of these attacks (name only these, no other weapon): {told}."]
 
 
-def _hurt_facts(state: GameState, events: Sequence[ev.AnyEvent]) -> list[str]:
+def _hurt_facts(state: GameState, events: Sequence[ev.AnyEvent], fled: frozenset[str]) -> list[str]:
     touched = list(
         dict.fromkeys(e.creature_id for e in events if isinstance(e, ev.HpChanged | ev.DamageTaken))
     )
-    alive = [state.creatures[c] for c in touched if c in state.creatures]
+    alive = [state.creatures[c] for c in touched if c in state.creatures and c not in fled]
     standing = [c.name for c in alive if not c.dead and c.hp > 0]
     down = [c.name for c in alive if not c.dead and c.hp <= 0 and c.pc is not None]
     out: list[str] = []
@@ -177,7 +177,8 @@ def turn_facts(
 ) -> list[str]:
     truth = turn_truth(state, events, actor_id=actor_id, player_text=player_text)
     text = plain(player_text or "").casefold()
-    out = [*_weapon_facts(state, events), *_hurt_facts(state, events), *_foes_left(state)]
+    out = [*_weapon_facts(state, events), *_hurt_facts(state, events, truth.fight.fled)]
+    out += _foes_left(state)
     out += _actor_facts(state, truth, events) + _fight_facts(truth)
     if text:
         out += _goods_facts(state, truth, actor_id, text) + _travel_facts(state, text, events)

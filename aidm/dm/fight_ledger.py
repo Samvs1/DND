@@ -10,7 +10,11 @@ events already applied to `state`:
   the damage that dropped them;
 - `terms`: every word the prose may use for a creature in this fight (names, their distinctive
   words, the monster kind; generic foe words such as "creature" mean every foe), longest first;
-- `foes`: the ids of the non-hero creatures in the fight.
+- `foes`: the ids of the non-hero creatures in the fight;
+- M29.9c (round 3 T4): `saved` (id -> spell: a save against that spell succeeded), `fled` (ids
+  that fled the fight, alive), `standing` (ids alive above 0 HP, in the fight, with no
+  `down_conditions` condition: they may not be told fallen).
+Generic foe words (lexicon `foe_words`: "creature", "corpse") mean every foe.
 `FightLedger()` (empty `terms`) switches the per-creature checks off.
 
 Public API: `FightLedger`, `fight_ledger(state, events) -> FightLedger`,
@@ -25,10 +29,12 @@ from aidm.data.guard_lexicon import GuardLexicon, guard_lexicon
 from aidm.dm.guard_text import plain
 from aidm.dm.wording import attack_label
 from aidm.models import events as ev
+from aidm.models.checks import CheckKind
 from aidm.models.combat_events import AttackRolled, MonsterActionUsed, SpellCast
+from aidm.models.encounter import WithdrawReason
+from aidm.models.encounter_events import CombatantWithdrew
 from aidm.models.state import Creature, GameState
 
-GENERIC_FOE_WORDS = ("creature", "beast", "brute", "monster", "thing", "figure")
 _MIN_WORD = 4
 
 
@@ -44,6 +50,9 @@ class FightLedger:
     terms: tuple[tuple[str, frozenset[str]], ...] = ()
     foes: frozenset[str] = frozenset()
     names: dict[str, str] = field(default_factory=dict[str, str])
+    saved: dict[str, str] = field(default_factory=dict[str, str])  # id -> spell id
+    fled: frozenset[str] = frozenset()
+    standing: frozenset[str] = frozenset()
 
     @property
     def active(self) -> bool:
@@ -80,7 +89,7 @@ def _terms(fighters: list[Creature], lex: GuardLexicon) -> tuple[tuple[str, froz
             found.setdefault(word, set()).add(creature.id)
     foes = {c.id for c in fighters if c.pc is None}
     if foes:
-        for word in GENERIC_FOE_WORDS:
+        for word in lex.foe_words:
             found.setdefault(word, set()).update(foes)
     ordered = sorted(found.items(), key=lambda p: (-len(p[0]), p[0]))
     return tuple((term, frozenset(ids)) for term, ids in ordered)
@@ -125,6 +134,52 @@ def _falls(events: Sequence[ev.AnyEvent]) -> tuple[set[str], set[str], dict[str,
     return struck, downed, killers
 
 
+def _saves(events: Sequence[ev.AnyEvent]) -> dict[str, str]:
+    """Target id -> spell id for every save that succeeded against a spell of these events."""
+    out: dict[str, str] = {}
+    spell: SpellCast | None = None
+    for e in events:
+        if isinstance(e, SpellCast):
+            spell = e
+        elif isinstance(e, AttackRolled | MonsterActionUsed):
+            spell = None
+        elif isinstance(e, ev.CheckResolved) and spell is not None:
+            result = e.result
+            if (
+                result.kind is CheckKind.SAVE
+                and result.success
+                and e.creature_id in spell.target_ids
+            ):
+                out[e.creature_id] = spell.spell_id
+    return out
+
+
+def _fled(state: GameState, events: Sequence[ev.AnyEvent]) -> set[str]:
+    fled = {
+        e.creature_id
+        for e in events
+        if isinstance(e, CombatantWithdrew) and e.reason is WithdrawReason.FLED
+    }
+    if state.encounter is not None:
+        fled |= {
+            c.creature_id
+            for c in state.encounter.combatants.values()
+            if c.withdrawn is WithdrawReason.FLED
+        }
+    return fled
+
+
+def _standing(fighters: list[Creature], fled: set[str], lex: GuardLexicon) -> frozenset[str]:
+    return frozenset(
+        c.id
+        for c in fighters
+        if not c.dead
+        and c.hp > 0
+        and c.id not in fled
+        and not {k.name for k in c.conditions} & lex.down_conditions
+    )
+
+
 def fight_ledger(state: GameState, events: Sequence[ev.AnyEvent]) -> FightLedger:
     lex = guard_lexicon()
     fighters = _fighters(state, events)
@@ -132,6 +187,7 @@ def fight_ledger(state: GameState, events: Sequence[ev.AnyEvent]) -> FightLedger
         return FightLedger()
     acted, hit, missed = _blows(events)
     struck, downed, killers = _falls(events)
+    fled = _fled(state, events)
     return FightLedger(
         acted=frozenset(acted),
         struck=frozenset(struck),
@@ -143,6 +199,9 @@ def fight_ledger(state: GameState, events: Sequence[ev.AnyEvent]) -> FightLedger
         terms=_terms(fighters, lex),
         foes=frozenset(c.id for c in fighters if c.pc is None),
         names={c.id: c.name for c in fighters},
+        saved=_saves(events),
+        fled=frozenset(fled),
+        standing=_standing(fighters, fled, lex),
     )
 
 
@@ -162,6 +221,14 @@ def fight_lines(state: GameState, ledger: FightLedger, events: Sequence[ev.AnyEv
         elif isinstance(e, SpellCast):
             targets = ", ".join(_name(state, t) for t in e.target_ids) or "an area"
             out.append(f"{_name(state, e.caster_id)}: {e.spell_id.replace('-', ' ')} at {targets}")
+    for cid, spell in sorted(ledger.saved.items()):
+        harm = "partial harm only" if cid in ledger.struck else "no harm: not hit, not burned"
+        out.append(f"{_name(state, cid)} saved against {spell.replace('-', ' ')}: {harm}")
+    out += [
+        f"{_name(state, e.creature_id)} fled the fight alive (not dead, not down)"
+        for e in events
+        if isinstance(e, CombatantWithdrew) and e.reason is WithdrawReason.FLED
+    ]
     killers = dict(ledger.killed_by)
     for cid in sorted(ledger.downed):
         by = killers.get(cid)

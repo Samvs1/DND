@@ -126,7 +126,7 @@ def _given(state: GameState, e: KeepsakeGiven) -> str:
     ]
     thing = next((k.name for k in held if k.id == e.keepsake_id), "something")
     who = hero.name if hero is not None else "Someone"
-    return f"{who} hands the {thing} to {npc.name if npc is not None else 'them'}."
+    return f"{who} hands the {thing} to {npc.name if npc is not None else 'them'}, who takes it."
 
 
 def _taken(state: GameState, e: KeepsakeTaken) -> str:
@@ -159,7 +159,10 @@ def _favour_fact(state: GameState, quest: Quest) -> str:
     if quest.state is QuestState.COMPLETED:
         return f"The favour '{quest.title}' for {giver} is done: they are grateful (no reward)."
     if quest.state is QuestState.ACTIVE:
-        return f"The party agreed to do {giver} a favour: {quest.objective or quest.title}"
+        return (
+            f"The party agreed to do {giver} a favour (agreed only: nothing paid, handed over or"
+            f" done yet): {quest.objective or quest.title}"
+        )
     return f"Favour '{quest.title}' is now {quest.state.value}."
 
 
@@ -183,7 +186,10 @@ def _updated_fact(state: GameState, e: QuestUpdated) -> str | None:
     if quest.kind is QuestKind.FAVOUR:
         return _favour_fact(state, quest)
     if quest.state is QuestState.ACTIVE and quest.objective:
-        return f"The party took on the quest '{quest.title}': {quest.objective}"
+        return (
+            f"The party took on the quest '{quest.title}' (accepted only: nothing handed over or"
+            f" done yet): {quest.objective}"
+        )
     return f"Quest '{quest.title}' is now {quest.state.value}."
 
 

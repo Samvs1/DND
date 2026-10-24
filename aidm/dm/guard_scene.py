@@ -28,6 +28,7 @@ from aidm.dm.guard_turn import TurnTruth, turn_truth
 from aidm.models import events as ev
 from aidm.models.encounter import EncounterStatus
 from aidm.models.state import GameState
+from aidm.models.world import QuestState
 from aidm.rules.scene import SceneView, current_scene, node_display_name
 
 _WORD = re.compile(r"[A-Za-z]+(?:'[A-Za-z]+)*")
@@ -78,6 +79,9 @@ class GuardScene:
     races_here: frozenset[str] = frozenset()
     present_words: dict[str, str] = field(default_factory=dict[str, str])
     known_ids: frozenset[str] = frozenset()
+    # M29.9c: the things quests ask for (an ember nobody holds yet), every NPC's name words
+    quest_nouns: dict[str, str] = field(default_factory=dict[str, str])
+    npc_terms: dict[str, str] = field(default_factory=dict[str, str])
 
 
 def _lost_items(events: Sequence[ev.AnyEvent]) -> set[str]:
@@ -196,8 +200,24 @@ def guard_scene(
         other_places=_other_places(state),
         locked=_locked_terms(state, scene, lex),
         turn=turn_truth(state, events, actor_id=actor_id, player_text=player_text),
+        quest_nouns=_item_nouns(_quest_items(state), lex),
+        npc_terms=_absent_terms(
+            {plain(n.name) for n in state.world.npcs.values()}, set(party), lex
+        ),
         **people_facts(state, present_npcs, present_roles, lex),
     )
+
+
+def _quest_items(state: GameState) -> set[str]:
+    """The items the steps of every unfinished quest ask for (M29.9c T11)."""
+    done = (QuestState.COMPLETED, QuestState.FAILED)
+    return {
+        step.item
+        for quest in state.world.quests.values()
+        if quest.state not in done
+        for step in quest.steps
+        if step.item
+    }
 
 
 def _locked_terms(state: GameState, scene: SceneView, lex: GuardLexicon) -> dict[str, str]:

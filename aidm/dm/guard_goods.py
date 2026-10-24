@@ -10,7 +10,8 @@ data (data/bg3/guard_lexicon.json):
   ("Brienne raises the potion", "Rook's silk rope", "Elowen's javelin"), unless the sentence tells
   it as absent ("no such potion", "finds nothing").
 - `unmade_handover` (G31): a present NPC told taking or holding a carried thing ("Ranna folds her
-  fingers around the stiff scroll") when no keepsake or item changed hands.
+  fingers around the stiff scroll") when no keepsake or item changed hands; M29.9c T11: also a
+  thing a quest asks for that nobody holds ("Beska takes your sun-ember").
 - `unlit_light` (G9): a torch, lantern or candle told catching flame when no light was lit.
 
 Public API: `unpaid_coin`, `claimed_items`, `unmade_handover`, `unlit_light`.
@@ -78,9 +79,9 @@ def _npc_words(scene: GuardScene) -> frozenset[str]:
 
 
 def _carried_noun(tokens: list[Token], scene: GuardScene) -> bool:
-    return any(
-        t.lower in scene.item_nouns or t.lower.rstrip("s") in scene.item_nouns for t in tokens
-    )
+    """A carried thing, or one a quest asks for (M29.9c T11: "takes your sun-ember")."""
+    nouns = scene.item_nouns.keys() | scene.quest_nouns.keys()
+    return any(t.lower in nouns or t.lower.rstrip("s") in nouns for t in tokens)
 
 
 def unmade_handover(sentence: str, tokens: list[Token], scene: GuardScene) -> list[Violation]:

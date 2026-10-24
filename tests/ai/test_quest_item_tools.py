@@ -105,7 +105,7 @@ def test_hand_over_and_found_lines_for_model_and_templates() -> None:
     given = KeepsakeGiven(creature_id="fighter", keepsake_id="shell", npc_id="dessa-orrin")
     apply_all(state, [KeepsakeGained(creature_id="fighter", keepsake=shell), given])
     hero = state.creatures["fighter"].name
-    line = f"{hero} hands the Spiral shell to Dessa Orrin."
+    line = f"{hero} hands the Spiral shell to Dessa Orrin, who takes it."
     assert event_line(state, given) == line and template_line(state, given) == line
     _at(state, TUNNELS)
     found = ItemDiscovered(item_id=ORDERS, creature_id="fighter")

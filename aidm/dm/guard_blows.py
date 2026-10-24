@@ -11,7 +11,13 @@ against the turn's `FightLedger` (`aidm.dm.fight_ledger`); vocabulary is data
   their mark in Elowen", or "Rook takes a graze") that lost no hit points in these events;
 - `false_misses`: a `miss_claims` phrase ("skips off", "goes wide") for an attacker whose every
   attack of these events hit;
-- `wrong_killers`: a kill phrase tied to "X's bolt" when someone else dealt the killing damage.
+- `wrong_killers`: a kill phrase tied to "X's bolt" when someone else dealt the killing damage;
+- M29.9c (round 3 T4): attempts and near misses count as blows (`attempt_claims`: "springs at
+  Tamsin", "jaws snapping shut a hand's breadth from her wrist");
+  a spell's harm (`harm_claims`: "scorching its hide") on a creature that lost no hit points (a
+  saved Sacred Flame) is a phantom hit; `phantom_falls`: a `fall_claims` phrase ("slumping into the
+  cinders", "sends it crashing") about a creature none of whose possible meanings fell: one that
+  fled (FLED_TOLD_DEAD) or one still standing (UNHURT_DECLARED_DOWN).
 Mentions are names, their distinctive words, the monster kind and generic foe words ("the
 creature"); "it"/"its" means the last foe named (kept across sentences in `PronounContext`). A
 subject is a mention that opens a clause; "he"/"she" block the guess (nothing is flagged).
@@ -118,14 +124,17 @@ def _mentions(text: str, ledger: FightLedger, scene: GuardScene, ctx: PronounCon
     return out
 
 
-def _claims(text: str, tokens: list[Token], phrases: frozenset[str], scene: GuardScene):
+def _claims(
+    text: str, tokens: list[Token], phrases: frozenset[str], scene: GuardScene, *, past: bool = True
+):
+    """Claim phrases about this turn; `past` False keeps "before slumping" (a fall phrase)."""
     lex = scene.lexicon
     for m in find_phrases(text, phrases):
         index = next((i for i, t in enumerate(tokens) if t.start >= m.start()), len(tokens))
         before = {t.lower for t in tokens[max(0, index - 2) : index]}
         if is_negated(tokens, index, lex.negations, span=2) or before & lex.passive_markers:
             continue
-        if {t.lower for t in tokens[max(0, index - 3) : index]} & lex.past_markers:
+        if past and {t.lower for t in tokens[max(0, index - 3) : index]} & lex.past_markers:
             continue
         after = re.findall(r"[a-z']+", text[m.end() : m.end() + 24].casefold())[:2]
         if after[:1] == ["by"] or _excluded(after, lex.blow_exclusions):
@@ -162,7 +171,8 @@ def _armed(text: str, tokens, mentions: list[Mention], scene: GuardScene) -> lis
     """ "X's bolt" told as attacking: a blow, hit or miss phrase right after it, or a kill phrase
     right before it ("folds around Brienne's bolt")."""
     lex = scene.lexicon
-    after = list(_claims(text, tokens, lex.strike_claims | lex.hit_claims | lex.miss_claims, scene))
+    told = lex.strike_claims | lex.hit_claims | lex.miss_claims | lex.attempt_claims
+    after = list(_claims(text, tokens, told, scene))
     kills = list(_claims(text, tokens, lex.kill_claims | lex.blow_claims, scene))
     out: list[Mention] = []
     for n in mentions:
@@ -178,7 +188,8 @@ def _armed(text: str, tokens, mentions: list[Mention], scene: GuardScene) -> lis
 def _phantom_blows(text: str, tokens, mentions, scene: GuardScene) -> list[Violation]:
     ledger, lex = scene.turn.fight, scene.lexicon
     told: list[tuple[str, Mention]] = []
-    for m in _claims(text, tokens, lex.strike_claims | lex.hit_claims, scene):
+    phrases = lex.strike_claims | lex.hit_claims | lex.attempt_claims
+    for m in _claims(text, tokens, phrases, scene):
         who = _attacker(text, mentions, m.start())
         if who is not None and who.ids:
             told.append((m.group(0), who))
@@ -214,7 +225,7 @@ def _phantom_hits(text: str, tokens, mentions, scene: GuardScene) -> list[Violat
     ledger = scene.turn.fight
     hits = [
         (m.group(0), _target(text, m.end(), mentions))
-        for m in _claims(text, tokens, scene.lexicon.hit_claims, scene)
+        for m in _claims(text, tokens, scene.lexicon.hit_claims | scene.lexicon.harm_claims, scene)
     ]
     for span, who in [*hits, *_grazed(text, mentions, scene)]:
         if who is not None and who.ids and not who.ids & ledger.struck:
@@ -254,6 +265,39 @@ def _wrong_killers(text: str, mentions: list[Mention], scene: GuardScene) -> lis
     return []
 
 
+def _faller(text: str, mentions: list[Mention], start: int, end: int) -> Mention | None:
+    """Who a fall phrase is about: a creature inside it ("sends it crashing"), else the clause's
+    subject (never "X's bolt": the weapon does not fall)."""
+    inside = [n for n in mentions if start <= n.start < end and n.ids]
+    if inside:
+        return inside[0]
+    before = [n for n in mentions if n.end <= start and n.subject and not n.weapon]
+    if not before:
+        return None
+    who = before[-1]
+    cut = max((m.end() for m in _BOUNDARY.finditer(text, who.end, start)), default=None)
+    if cut is not None and len(re.findall(r"[a-z']+", text[cut:start].casefold())) > 1:
+        return None
+    return who
+
+
+def _phantom_falls(text: str, tokens, mentions, scene: GuardScene) -> list[Violation]:
+    ledger = scene.turn.fight
+    for m in _claims(text, tokens, scene.lexicon.fall_claims, scene, past=False):
+        who = _faller(text, mentions, m.start(), m.end())
+        if who is None or not who.ids or who.ids & ledger.downed:
+            continue
+        if not who.ids <= ledger.fled | ledger.standing:
+            continue  # it may mean one that is already down
+        names = _names(scene, who.ids)
+        if who.ids & ledger.fled:
+            detail = f"{names} fled the fight alive: never tell them killed or fallen"
+            return _blow(ViolationKind.FLED_TOLD_DEAD, m.group(0), detail)
+        detail = f"{names} still stands: no engine event dropped them"
+        return _blow(ViolationKind.UNHURT_DECLARED_DOWN, m.group(0), detail)
+    return []
+
+
 def fight_truth(
     sentence: str, tokens: list[Token], scene: GuardScene, context: PronounContext
 ) -> list[Violation]:
@@ -272,4 +316,5 @@ def fight_truth(
         *_phantom_hits(text, tokens, mentions, scene),
         *_false_misses(text, tokens, mentions, scene),
         *_wrong_killers(text, mentions, scene),
+        *_phantom_falls(text, tokens, mentions, scene),
     ]

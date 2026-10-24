@@ -244,7 +244,8 @@
     "rushes at", "charges at", "bites", "bit", "bites into", "bites deep", "strikes", "struck",
     "slashes", "slashed", "stabs", "stabbed", "gouging", "gouges", "gouged", "rakes", "raked",
     "claws at", "sinks its teeth", "teeth sinking", "jaws close", "closes its jaws", "smashes into",
-    "crunches into", "hammers into", "slams into", "drives into", "hits", "wounds", "reopens"
+    "crunches into", "hammers into", "slams into", "drives into", "hits", "wounds", "reopens",
+    "biting into", "lunging at", "lashes out", "lash out", "swing at"
   ],
   "attack_hedges": [
     "ready to", "about to", "poised to", "as if to", "threatens to", "threatening to",
@@ -317,7 +318,8 @@
     "closes his fingers around", "tucks it", "tucked it", "holds both", "hands it", "hands the",
     "handed the", "passes the", "passes it", "extends it to", "gives it to", "gave it to",
     "receives it", "received it", "receives the", "into her hands", "into his hands", "returned the", "returns the",
-    "now in her hands", "now in his hands"
+    "now in her hands", "now in his hands", "takes your", "took your", "from your hands",
+    "from your hand"
   ],
   "light_nouns": ["torch", "torches", "lantern", "candle", "candles", "lamp", "brand"],
   "light_claims": [
@@ -439,5 +441,58 @@
   "race_words": [
     "dwarf", "elf", "halfling", "human", "gnome", "tiefling", "dragonborn", "half-orc", "half-elf",
     "githyanki", "drow", "orc"
+  ],
+  "foe_words": [
+    "creature", "beast", "brute", "monster", "thing", "figure", "corpse", "hound", "foe"
+  ],
+  "attempt_claims": [
+    "springs at", "leaps at", "lunges", "lunge at", "lunging at", "lunging", "snaps at",
+    "swing at", "swings at", "lash out", "lashes out", "rushes at", "charges at", "claws at",
+    "snapping shut", "snap shut", "snaps shut", "a hand's breadth from", "a finger's breadth from",
+    "inches from", "narrowly misses", "just misses", "bites empty air", "biting empty air",
+    "shear empty air", "shears empty air", "sweeping low", "teeth close on", "jaws close on",
+    "swings its fist", "fists landing", "fists crash into", "tries to hit", "nearly hits",
+    "almost hits", "nearly catches", "barely misses"
+  ],
+  "harm_claims": [
+    "scorching", "scorches", "scorch", "chars", "charring", "sears", "blisters", "blistering",
+    "burns", "crash into", "crashes into", "opens"
+  ],
+  "fall_claims": [
+    "drops under", "dies on", "sprawls", "crumples", "collapses",
+    "falls dead", "drops dead", "lies still", "goes still", "goes limp", "slumping into",
+    "slumps into", "slumps lifeless", "sends it crashing", "sending it crashing", "sends it tumbling",
+    "sending it tumbling", "pitches sideways", "drops face-first", "keels over", "falls lifeless"
+  ],
+  "down_conditions": [
+    "unconscious", "asleep", "paralyzed", "petrified", "stunned", "prone", "incapacitated",
+    "surrendered"
+  ],
+  "refusal_claims": [
+    "pushes it back", "push it back", "pushes it away", "hands it back", "gives it back",
+    "passes it back", "slides it back", "returns it to", "refuses it", "refuses the", "declines it",
+    "declines the", "won't take", "will not take", "doesn't take", "does not take", "waves it away",
+    "waves it off", "turns it down", "shakes her head at the offered", "shakes his head at the offered",
+    "at the offered", "lies unanswered", "goes unanswered"
+  ],
+  "quest_done_claims": [
+    "quest is complete", "quest is done", "task is done", "task is complete", "job is done",
+    "deed is done", "work here is done", "your work is done", "bargain is kept", "promise is kept",
+    "is fulfilled", "you have done what", "you've done what", "completes the task",
+    "completes the quest", "the errand is done"
+  ],
+  "quest_failed_claims": [
+    "you have failed", "you've failed", "quest is lost", "task has failed", "quest has failed",
+    "the task is lost", "all is lost"
+  ],
+  "quest_undone_claims": [
+    "not yet done", "not done yet", "still undone", "is not done", "isn't done", "unfinished",
+    "still unfinished", "remains undone", "not yet finished", "not finished"
+  ],
+  "join_claims": [
+    "joined the party", "joins the party", "joined your party", "joins your party",
+    "joined the company", "joins the company", "joined your company", "joined the heroes",
+    "joins the heroes", "joined their ranks", "joins their ranks", "joined your ranks",
+    "became one of the party", "now travels with the party", "travelled on with the party"
   ]
 }

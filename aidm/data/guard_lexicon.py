@@ -101,6 +101,17 @@ class GuardLexicon(BaseModel):
     whole_claims: frozenset[str] = frozenset()
     group_phrases: frozenset[str] = frozenset()
     race_words: frozenset[str] = frozenset()
+    # M29.9c (round 3 T4 T10 T11 T21): attempts, saved spells, falls, refusals, outcomes, joins
+    foe_words: tuple[str, ...] = ()
+    attempt_claims: frozenset[str] = frozenset()
+    harm_claims: frozenset[str] = frozenset()
+    fall_claims: frozenset[str] = frozenset()
+    down_conditions: frozenset[str] = frozenset()
+    refusal_claims: frozenset[str] = frozenset()
+    quest_done_claims: frozenset[str] = frozenset()
+    quest_failed_claims: frozenset[str] = frozenset()
+    quest_undone_claims: frozenset[str] = frozenset()
+    join_claims: frozenset[str] = frozenset()
 
     @model_validator(mode="after")
     def _check(self) -> GuardLexicon:

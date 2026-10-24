@@ -6,7 +6,8 @@ Public API:
   UNEARNED_REWARD (M4.8), UNHURT_DECLARED_DOWN (M19.1); M29.5c: UNRESOLVED_BLOW, WRONG_WEAPON,
   UNHURT_WOUNDED, UNPAID, CLAIMED_ITEM, UNMADE_HANDOVER, UNLIT_LIGHT, PLACEHOLDER,
   INSTRUCTION_LEAK; M29.7b: PHANTOM_BLOW, PHANTOM_HIT, FALSE_MISS, WRONG_KILLER, LIGHT_STATE,
-  SHORT_TRAVEL, UNMADE_PICKUP, WRONG_COUNT, HURT_TOLD_WHOLE, IDENTIFIER;
+  SHORT_TRAVEL, UNMADE_PICKUP, WRONG_COUNT, HURT_TOLD_WHOLE, IDENTIFIER; M29.9c: FLED_TOLD_DEAD,
+  REFUSED_HANDOVER, UNMADE_OUTCOME, DENIED_OUTCOME, JOINED_PARTY;
   `SCRUBBED_KINDS` (names removed from a retry).
 - `Violation(kind, span, detail)`: `span` is the offending text as written (a name, a phrase).
 - `GuardReport(violations)`: `ok`, `scrub_terms` (distinct offending names, removed from the
@@ -59,6 +60,11 @@ class ViolationKind(StrEnum):
     WRONG_COUNT = "wrong_count"
     HURT_TOLD_WHOLE = "hurt_told_whole"
     IDENTIFIER = "identifier"
+    FLED_TOLD_DEAD = "fled_told_dead"  # M29.9c: round 3 T4 T10 T11 T21
+    REFUSED_HANDOVER = "refused_handover"
+    UNMADE_OUTCOME = "unmade_outcome"
+    DENIED_OUTCOME = "denied_outcome"
+    JOINED_PARTY = "joined_party"
 
 
 SCRUBBED_KINDS = frozenset({ViolationKind.UNKNOWN_NAME, ViolationKind.ABSENT_NPC})
