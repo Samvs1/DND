@@ -12,7 +12,7 @@ from aidm.models.campaign_state import OfferChoice
 from aidm.models.combat_events import AttackRolled
 from aidm.models.commands import AttackCommand
 from aidm.models.events import CheckResolved, DiceRolled
-from aidm.models.protocol_client import SubmitAction
+from aidm.models.protocol_client import ConfirmHostile, SubmitAction
 from aidm.session import combat_flow
 from aidm.session.table import Table
 from tests.session.playtest_saves import replay_until
@@ -96,6 +96,9 @@ async def test_m29_typed_parley_rolls_once_for_the_offer(tmp_path: Path) -> None
         seat = await join(table, "Ann", "pc-p2")
         start = table.state.event_count
         seat.send(SubmitAction(text=R4_TEXT))
+        await table.settle()
+        assert table.state.event_count == start + 1  # M31.1a V4: only the words, then the card
+        seat.send(ConfirmHostile())
         await table.settle()
         assert_replays(table)
         events = [e.event for e in table.log if e.seq >= start]

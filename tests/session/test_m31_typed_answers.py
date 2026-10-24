@@ -4,21 +4,26 @@ and a typed answer to a waiting quest offer, on the real round-4 states."""
 import random
 from pathlib import Path
 
+from aidm.dm.parley_intent import ParleyIntent
 from aidm.dm.precheck import precheck
 from aidm.dm.quest_answer_intent import QuestAnswerIntent
 from aidm.dm.tool_context import tool_registries
 from aidm.models.abilities import Skill
+from aidm.models.campaign_events import OfferResolved
+from aidm.models.campaign_state import OfferChoice
 from aidm.models.events import AnyEvent, CheckResolved, ConditionApplied
-from aidm.models.protocol_client import SubmitAction
-from aidm.models.protocol_server import Notice
+from aidm.models.protocol_client import CancelHostile, ConfirmHostile, SubmitAction
+from aidm.models.protocol_server import Notice, PendingConfirmationMsg
 from aidm.models.state import GameState
 from aidm.models.world import QuestState
 from aidm.rules.surrender import NoneYield, demand_surrender, never_yield_line
 from aidm.session import combat_flow
+from aidm.session.held import PARLEY_ASK, PARLEY_STAY
 from tests.session.playtest_saves import logged, replay_until
 from tests.session.table_fixtures import assert_replays, disabled_llm, join, running
 
 TYPED = "m31-r4-typed"
+QUESTS = "m31-r4-quests"
 
 
 def _typed(run: str, seq: int) -> tuple[str, str]:
@@ -109,3 +114,60 @@ async def test_m31_typed_acceptance_makes_the_quest_active(tmp_path: Path) -> No
     _, after, _ = await _send(tmp_path, replay_until(TYPED, 62), actor, text)
     assert after.world.quests["the-settled-ledger"].state is QuestState.ACTIVE
     assert after.world.quest_ask is None
+
+
+def test_m31_peaceful_words_to_the_foes_are_a_parley() -> None:
+    """V4, typed 113: "Easy now, friend in the robe ... we don't want a fight" got a model
+    check and left the offer open."""
+    actor, text = _typed(TYPED, 113)
+    state = replay_until(TYPED, 113)
+    assert precheck(state, actor, text) == ParleyIntent(actor, Skill.PERSUASION)
+    # a bystander named (Sister Mareld, the shrine-warden) is talk, the offer keeps waiting (T16)
+    for line in ("Easy now, Sister Mareld, we don't want a fight", "Mareld, what are those?"):
+        assert precheck(state, actor, line) is None
+
+
+def test_m31_question_to_the_named_master_is_a_parley() -> None:
+    """V4, quests 373: a question to Grinner Voss, the master, answers the offer as parley."""
+    actor, text = _typed(QUESTS, 373)
+    state = replay_until(QUESTS, 373)
+    assert precheck(state, actor, text) == ParleyIntent(actor, Skill.PERSUASION)
+    asked = precheck(state, actor, "Grinner Voss, what does the Silent Company collect?")
+    assert asked == ParleyIntent(actor, Skill.PERSUASION)
+
+
+async def test_m31_typed_parley_asks_before_the_roll(tmp_path: Path) -> None:
+    actor, text = _typed(TYPED, 113)
+    async with running(disabled_llm(tmp_path), replay_until(TYPED, 113)) as (table, _):
+        seat = await join(table, "Ann", actor)
+        seat.drain()
+        start = table.state.event_count
+        seat.send(SubmitAction(text=text))
+        await table.settle()
+        asked = [m.prompt for m in seat.drain() if isinstance(m, PendingConfirmationMsg)]
+        assert asked == [PARLEY_ASK]
+        assert table.state.campaign is not None and table.state.campaign.offer is not None
+        seat.send(ConfirmHostile())
+        await table.settle()
+        assert_replays(table)
+        events = [e.event for e in table.log if e.seq >= start]
+    resolved = [e.choice for e in events if isinstance(e, OfferResolved)]
+    assert resolved == [OfferChoice.PARLEY]
+    checks = [e for e in events if isinstance(e, CheckResolved)]
+    assert [(c.reason, c.result.skill) for c in checks] == [("parley", "persuasion")]
+
+
+async def test_m31_typed_parley_cancelled_leaves_the_offer(tmp_path: Path) -> None:
+    actor, text = _typed(QUESTS, 373)
+    async with running(disabled_llm(tmp_path), replay_until(QUESTS, 373)) as (table, _):
+        seat = await join(table, "Ann", actor)
+        seat.send(SubmitAction(text=text))
+        await table.settle()
+        seat.drain()
+        seat.send(CancelHostile())
+        await table.settle()
+        notes = [m.text for m in seat.drain() if isinstance(m, Notice)]
+        offer = table.state.campaign.offer if table.state.campaign is not None else None
+        assert_replays(table)
+    assert offer is not None and table.pending is None
+    assert notes == [PARLEY_STAY]

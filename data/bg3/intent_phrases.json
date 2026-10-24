@@ -672,6 +672,56 @@
       ]
     },
     {
+      "id": "parley_peace",
+      "scopes": [
+        "explore"
+      ],
+      "family": "parley",
+      "precedence": 1145,
+      "resolver": "parley",
+      "tokens": "letters",
+      "match": "search",
+      "when": [
+        "offer_has_parley",
+        "no_friend_named",
+        "foe_or_no_bystander"
+      ],
+      "params": {
+        "skill": "persuasion"
+      },
+      "patterns": [
+        {
+          "re": "\\b(?:easy(?: now| there)?|steady(?: now)?|peace|peaceful(?:ly)?|friend|calm down|stand easy|hold your (?:fire|blades?|ground)|(?:we|i) (?:mean|wish|intend) (?:you )?no harm|no harm meant|(?:we|i) (?:do not|don't|didn't|did not) (?:want|come for|seek|mean) (?:a |any )?(?:fight|trouble|harm|bloodshed|quarrel)|no (?:need for|call for) (?:a )?(?:fight|blood|bloodshed|violence|blades)|(?:let us|let's) (?:talk|parley))\\b"
+        }
+      ],
+      "note": "M31.1a V4: peaceful words to the foes with no talk verb ('Easy now, friend in the robe ... we don't want a fight')"
+    },
+    {
+      "id": "parley_question",
+      "scopes": [
+        "explore"
+      ],
+      "family": "parley",
+      "precedence": 1150,
+      "resolver": "parley",
+      "tokens": "letters",
+      "match": "search",
+      "when": [
+        "offer_has_parley",
+        "no_friend_named",
+        "foe_named"
+      ],
+      "params": {
+        "skill": "persuasion"
+      },
+      "patterns": [
+        {
+          "re": "[?]|^(?:what|why|who|whom|whose|where|how|when|which|will|would|can|could|do|does|did|is|are|shall)\\s|, (?:what|why|who|where|how|when|which|will|would|can|could|do|does|is|are)\\s"
+        }
+      ],
+      "note": "M31.1a V4: a question put to a named foe or master is a parley (a question to a bystander stays talk, T16)"
+    },
+    {
       "id": "rest_short",
       "scopes": [
         "explore"

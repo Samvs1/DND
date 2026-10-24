@@ -9,6 +9,7 @@ scope depends on, evaluated here and only here (`aidm.dm.intent_match` calls the
 - `foe_or_no_bystander` (M29.9a T16): the sentence names one of the offer's foes (a word of a
   monster id or of the master's name), or names no other NPC standing here (name words minus
   filler like "the", "old"); naming a present non-foe NPC is a normal talk turn;
+- `foe_named` (M31.1a V4): the sentence names a foe of the offer or its master;
 - `no_offer_waits`: no encounter offer waits (travel is the offer's buttons then);
 - `quest_ask_here` (M31.1a V8): a quest offer waits from a living person standing here.
 
@@ -98,6 +99,11 @@ def foe_or_no_bystander(found: "Found") -> bool:
     )
 
 
+def foe_named(found: "Found") -> bool:
+    """M31.1a V4: the sentence names a foe of the waiting offer or its master."""
+    return bool(found.words & foe_words(found.state))
+
+
 def no_offer_waits(found: "Found") -> bool:
     return _offer(found.state) is None
 
@@ -116,6 +122,7 @@ CONDITIONS: dict[str, Condition] = {
     "offer_has_parley": offer_has_parley,
     "no_friend_named": no_friend_named,
     "foe_or_no_bystander": foe_or_no_bystander,
+    "foe_named": foe_named,
     "no_offer_waits": no_offer_waits,
     "quest_ask_here": quest_ask_here,
 }

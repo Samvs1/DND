@@ -54,8 +54,7 @@ from aidm.dm.precheck import (
 )
 from aidm.dm.quest_answer_intent import QuestAnswerIntent
 from aidm.dm.use_intent import UseIntent
-from aidm.models.campaign_state import OfferChoice
-from aidm.models.protocol_client import AnswerOffer, AnswerQuestOffer, SubmitAction
+from aidm.models.protocol_client import AnswerQuestOffer, SubmitAction
 from aidm.models.protocol_server import (
     ErrorCode,
     NoticeKind,
@@ -75,7 +74,7 @@ from aidm.session import (
     what_now,
 )
 from aidm.session.declared import declare
-from aidm.session.held import adjudicated
+from aidm.session.held import adjudicated, hold_parley
 from aidm.session.table_core import Job, Player, TableCore
 from aidm.session.telling import conclude, remember, tell_text
 
@@ -164,10 +163,8 @@ async def resolve_action(core: TableCore, entry: QueueEntry) -> None:
     elif isinstance(intent, QuestAnswerIntent):  # M31.1a V8: the card's Accept / Not now
         answer = AnswerQuestOffer(quest_id=intent.quest_id, accept=intent.accept)
         await quest_people.answer_quest(core, player, answer)
-    elif isinstance(intent, ParleyIntent):  # M29.7a R4: one roll answers the waiting offer
-        await party_actions.answer(
-            core, player, AnswerOffer(choice=OfferChoice.PARLEY, skill=intent.skill)
-        )
+    elif isinstance(intent, ParleyIntent):  # M31.1a V4: asked first, then one roll answers
+        hold_parley(core, player, intent.actor_id, intent.skill)
     elif isinstance(intent, UseIntent):
         await _gear_use(core, player, entry, intent)
     elif isinstance(intent, HealIntent | CastIntent):  # M30.0b T7: a typed spell out of a fight
