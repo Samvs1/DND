@@ -1,4 +1,4 @@
-NEXT: Next: FULL gate on the M30 tree (orchestrator) and commit `M30: Impossible actions`. M30.3 done: `action_impossible` in FEED_EVENTS (aidm/web/js/story.js), manual section 'Impossible actions', RULES_DECISIONS M30.3 line, tests/ui/test_m30_impossible.py (shot artifacts/ui/m30_impossible_feed_390.png). Scoped gate green.
+NEXT: Next: keep the model-only 'accepted only' / 'agreed only' quest notes out of the player feed (M29.9c put them in QUEST_EVENT_LINES; move them to QUEST_EVENT_NOTES; seen in the M30 shot), then M31.0 round 4 playtest (owner approved 2026-10-24 'if necessary'), then M26.11. M30 Impossible actions DONE (M30.0b router, 30.1 engine, 30.2 rule + live probe, 30.2b no free spells, 30.3 feed + manual). Files in flight: none. Last gate: FULL `GATE: PASS (12/12)` on 0563ea5 (M30).
 
 # PROGRESS
 
