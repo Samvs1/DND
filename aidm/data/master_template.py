@@ -10,7 +10,11 @@ the one interpreter (`aidm.rules.master_boost`), never per-monster code:
   a spent pool refills at the start of the master's turn on a d6 of at least this (1: always,
   5: the SRD "Recharge 5-6");
 - `trait`: a features.json trait stamped on the master (data hooks, for example advantage on
-  saves against being stunned or held); None: none.
+  saves against being stunned or held); None: none;
+- `full_party_hp_share` (M31.1g, owner 2026-10-24 "Tune HP to the cap"): region tier -> the
+  share of its hit points (after `hit_dice_share`) a full party's master spawns with; a tier
+  not listed: 1.0. Never below the old M29.6 small-party scale (what round 4 met), see
+  `aidm.rules.master_boost`.
 Every master, whatever the party size, is never weaker than the region's own spoke fights:
 below the strongest spoke group's adjusted XP its hit points rise by that ratio, at most
 `floor_hp_scale_max`. Solo and duo parties keep the M29.6 small-party hit point scale instead
@@ -25,6 +29,7 @@ from __future__ import annotations
 import functools
 import json
 from pathlib import Path
+from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -43,6 +48,9 @@ class MasterTemplate(BaseModel):
     legendary_recharge: int = Field(default=1, ge=1, le=6)
     trait: str | None = None
     floor_hp_scale_max: float = Field(default=1.0, ge=1.0, le=4.0)
+    full_party_hp_share: dict[int, Annotated[float, Field(gt=0.0, le=1.0)]] = Field(
+        default_factory=dict[int, float]
+    )
 
 
 def load_master_template(path: Path | None = None) -> MasterTemplate:

@@ -876,3 +876,80 @@ martial 3.64 -> 2.50 (wight wipes 6 -> 3, the tactics); acts 1 and 2 otherwise u
   (<= 1.3), and heroes down per master 1.04 (cap 1.0).
 - **Owner call** (unchanged levers): a per-tier full-party hit point floor below SRD, accept harder
   masters (SRD strength, today's numbers), or a different act-3 master for the built-in campaign.
+
+# M31.1g: masters tuned to the cap (2026-10-24)
+
+Owner call (2026-10-24), "Tune HP to the cap": a full party's master gets a share of its hit points
+per tier, stored as data, tuned until four-hero parties land at 0.6-1.0 heroes down per master.
+Same slice and seeds as M31.1d and M31.1f: balanced x classic, martial (`saves/balance/M31g_<run>_a`),
+balanced x casters, duo, solo (`_b`) and aggressive x classic (`_c`), seeds 1-5, 30 full campaigns
+on the fake storyteller, 3 detached processes per grid; 0 runs failed a check. Report: `python
+scripts/balance_report.py saves/balance/M31g_i2_a saves/balance/M31g_i2_b saves/balance/M31g_i2_c
+--markdown` (i2 is the shipped data, so it is the after grid). Before = M31.1f after (`M31f_after_*`).
+
+## What changed
+- `data/bg3/master_template.json` `full_party_hp_share` (region tier -> share), typed in
+  `aidm.data.master_template`, applied by the one interpreter `rules.master_boost` for parties of
+  `party_min` (3)+: hit points = template hit points (`hit_dice_share`, 0 = SRD) x the tier's share
+  (1.0 when not listed), **never below the M29.6 small-party scale for the same party**
+  (`small_party_scale`: 1.0 when the lone master fits the boss cap x `boss_budget_scale`, else
+  max(0.5, cap / its adjusted XP); round 4's wight at 26 HP is that scale), then the spoke floor and
+  the spawn cap as before. This replaces the M31.1d "at least SRD" floor. Solo and duo unchanged.
+- Shipped shares: tier 1 1.0, tier 2 0.8, tier 3 0.5.
+
+## Hit points the sample campaign's masters get (four heroes, the level the grid meets them at)
+| act | master (SRD) | level | M31.1f | M31.1g | old M29.6 scale (guard) | offer word before -> after |
+|---|---|---|---|---|---|---|
+| 1 | bugbear (27) | 2 | 32 (spoke floor) | 32 (spoke floor) | 1.0 (27) | easy -> easy (with a cultist) |
+| 2 | wight (45) | 3 | 45 | **36** | 0.577 (26) | medium -> **easy** |
+| 3 | gladiator (112) | 4 | 112 | **56** | 0.5 (56) | hard -> hard |
+| 3 | gladiator (112) | 5 | 112 | 112 | 0.999 (112) | hard -> hard |
+Solo and duo masters are unchanged (bugbear 14 / 22, wight 22, gladiator 56). The act-2 word reads
+easy: 700 x 0.8 = 560 rated XP against medium 600 for four level-3 heroes; its resistance to
+nonmagical weapons is not part of the rating (as before).
+
+## Iterations (heroes down per master; party HP lost in master fights in brackets)
+| run | shares t1 / t2 / t3 | classic | casters | martial | aggressive classic | duo | solo |
+|---|---|---|---|---|---|---|---|
+| M31.1f after | SRD floor | 2.50 (0.47) | 0.93 (0.28) | 2.33 (0.61) | 3.23 (0.63) | 1.04 | 0.74 |
+| i1 | 1.0 / 0.7 / 0.6 | 2.50 (0.45) | 1.00 (0.27) | 0.73 (0.34) | 2.50 (0.49) | 1.04 | 0.74 |
+| **i2** | 1.0 / 0.8 / 0.5 (shipped) | **1.69 (0.38)** | **0.73 (0.23)** | **0.87 (0.40)** | **1.40 (0.35)** | 1.04 | 0.74 |
+| i3 | 1.0 / 0.9 / 0.5 | 1.88 (0.40) | 0.87 (0.27) | 1.61 (0.55) | 2.63 (0.56) | 1.04 | 0.74 |
+| x1 (not shipped) | i2, guard off | 1.31 (0.33) | 0.67 (0.20) | 0.73 (0.36) | 1.13 (0.28) | 1.04 | 0.74 |
+x1 ran from a scratch copy of the tree with the round-4 guard removed (the gladiator at 56 HP at
+level 5 too), only to measure what the guard costs. Solo and duo are identical in every grid (the
+share never reaches them). Per act, i2: classic 0.4 / 1.0 / 3.33 (6 fights), casters 0.4 / 0 / 1.8,
+martial 0.6 / 0.8 / 1.2, aggressive 2.0 / 0.2 / 2.0, duo 0.2 / 0.75 / 1.54 (13 fights).
+
+## Before -> after (M31.1f -> M31.1g, shipped = i2)
+| slice | clean-win | heroes down per master | party HP lost in master fights | wipes/run | epilogues |
+|---|---|---|---|---|---|
+| balanced classic | 0.82 -> 0.84 | 2.50 -> **1.69** | 0.47 -> **0.38** | 0.6 -> 0.2 | 5 -> 5 |
+| balanced casters | 0.84 -> 0.84 | 0.93 -> **0.73** | 0.28 -> **0.23** | 0 -> 0 | 5 -> 5 |
+| balanced martial | 0.905 -> **0.933** | 2.33 -> **0.87** | 0.61 -> 0.40 | 1.4 -> 0 | 3 -> 5 |
+| balanced duo | 1.00 -> 1.00 | 1.04 -> 1.04 | 0.74 -> 0.74 | 2.2 -> 2.2 | 4 -> 4 |
+| balanced solo | 0.89 -> 0.89 | 0.74 -> 0.74 | 0.91 -> 0.91 | 3.8 -> 3.8 | 0 -> 0 |
+| aggressive classic | 0.64 -> 0.57 | 3.23 -> **1.40** | 0.63 -> **0.35** | 1.4 -> 0.2 | 5 -> 5 |
+Bounds: heroes down per master 0.6..1.0, party HP lost >= 0.4, clean-win 0.75..0.90 (balanced).
+
+## Reading
+- **Martial passes both master bounds** (0.87, HP lost 0.40): the wight at 36 HP is no longer a wall
+  for weapons it resists (act-2 downs 2.50 -> 0.80, 0 wipes). At 40 HP (i3) the wall is back (2.25).
+- **Casters pass the band** (0.73) but miss the HP floor (0.23): they kill every master from range,
+  at any share tried (0.20-0.28); HP alone cannot fix it without pushing them over the cap elsewhere.
+- **Classic misses the cap** (1.69) because of tier 3 under the guard: against four level-5 heroes the
+  old M29.6 scale is 1799 / 1800, so the gladiator keeps its SRD 112 HP whatever the share (2.5 downs
+  per fight there); the one level-4 seed meets it at 56 HP (the guard's half and the share) and still
+  takes 4 downs and a wipe. With the guard off (x1) classic is 1.31: still over. Stopped here as the
+  checkpoint asks (no other levers pushed): the tier-3 wall is the round-4 guard plus the
+  gladiator's damage (three attacks of 11 a round), not hit points alone.
+- **Aggressive classic** 3.23 -> 1.40 (reported, not fitted); its act-1 2.0 predates M31.1d.
+- **Duo** keeps the small-party scale (owner rule): unchanged at 1.04, 2.2 wipes per run; the master
+  that misses is the act-3 **gladiator** at 56 HP (13 fights, 1.54 downs each, 8 wipes).
+- **Normal fights**: classic and casters stay in band; martial 0.905 -> 0.933 because all five
+  martial runs now live through act 3's spokes (5 epilogues, was 3); aggressive classic (no clean-win
+  target) 0.64 -> 0.57 the same way. No target in data/balance_targets.json was touched.
+- **Owner levers left**: the guard's reading for tier 3 (the literal M29.6 scale keeps a CR 5
+  master at full HP for four level-5 heroes; round 4's weak masters were a hobgoblin, a ghoul and
+  the act-2 wight), a less damaging act-3 master for the built-in campaign, or accepting classic at
+  about 1.7.

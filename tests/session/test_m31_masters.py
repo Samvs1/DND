@@ -3,8 +3,8 @@ acted, a wight at 26 of its 45 SRD hit points).
 
 - Cause: the M29.6 small-party scale compared a lone master with the boss cap x
   `boss_budget_scale`, below one CR 3 monster for four level-3 heroes, so full parties fought
-  scaled masters. A party of three or more now keeps at least the SRD hit points; a solo or duo
-  keeps the scale (owner rule).
+  scaled masters. A party of three or more now gets a share of its hit points per tier (M31.1g,
+  never below that scale); a solo or duo keeps the scale (owner rule).
 - The master template (data/bg3/master_template.json): hit points towards the hit dice maximum, a
   master's turn (one-point legendary attacks) and a trait, for parties of `party_min` or more.
 - A master is never weaker than the region's strongest spoke fight; the offer word follows.
@@ -90,15 +90,20 @@ def _fight_master(state: GameState, data: OfferData) -> Creature:
     return next(c for c in state.creatures.values() if c.npc_id == boss_npc_id(R1))
 
 
-def test_v1_m31_full_party_wight_keeps_its_srd_hit_points() -> None:
+def test_v1_m31_full_party_wight_never_meets_round_4_scaling() -> None:
     # Round 4 (r4-typed 1098): four level-3 heroes met the act-2 wight with 26 HP, 45 x 0.577
-    # (boss cap 0.45 x 899 = 404 against its 700 XP). A party of three or more is never scaled
-    # down: with the template off the wight keeps its 45 SRD hit points.
+    # (boss cap 0.45 x 899 = 404 against its 700 XP). M31.1g: a party of three or more gets its
+    # tier's `full_party_hp_share` of the template's hit points (a tier not listed: 1.0), never
+    # below that M29.6 scale.
     state = GameState(campaign_id="masters", seed=SEED)
     build_party(state, 3)
     state.world.region_tier = 2
     assert boss_hp_scale(state, OFF, "wight") == 1.0
     assert boss_hp_scale(state, ON, "wight") == 66 / 45
+    shared = replace(DATA, master=MasterTemplate(full_party_hp_share={2: 0.8}))
+    assert boss_hp_scale(state, shared, "wight") == 0.8
+    low = replace(DATA, master=MasterTemplate(full_party_hp_share={2: 0.3}))
+    assert boss_hp_scale(state, low, "wight") == 404 / 700
 
 
 def test_golden_m31_hit_dice_maximum() -> None:

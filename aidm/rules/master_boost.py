@@ -8,7 +8,10 @@ parties got scaled masters too. Now:
   points x boss cap / the master's adjusted XP, never below `boss_hp_scale_floor`;
 - a party of `template.party_min` heroes or more gets the template (`aidm.data.master_template`):
   hit points towards the hit dice maximum, a master's turn (lite legendary points) and a trait;
-  never below its SRD hit points;
+  M31.1g (owner 2026-10-24, "Tune HP to the cap", replacing the M31.1d SRD floor): those hit
+  points x `template.full_party_hp_share[region tier]` (1.0 when the tier is not listed), never
+  below the small-party scale above computed for the same party (the M29.6 scale every party
+  met in round 4: a master never spawns weaker than round 4's);
 - every master is never weaker than the region's own spoke fights: when its rated XP alone is
   below `offer_spokes.spoke_strength`, its hit points (and rated XP) rise by that ratio, at most
   `template.floor_hp_scale_max`.
@@ -21,6 +24,8 @@ Public API:
 - `boss_cap_xp(levels, data, tier) -> int`: the most adjusted XP a master's fight may have.
 - `hit_dice_ratio(monster, share) -> float`: hit points at `share` of the way from the average to
   the hit dice maximum, over the average.
+- `small_party_scale(levels, data, monster, tier) -> float`: the M29.6 hit point scale (boss cap
+  over the master's adjusted XP, never below `boss_hp_scale_floor`; 1.0 when it fits).
 - `master_boost(state, data, monster_id, region) -> MasterBoost`.
 - `boss_hp_scale(state, data, monster_id, region=None) -> float`: the master spawn's hit point
   scale (M29.6, M31.1d).
@@ -73,7 +78,7 @@ def hit_dice_ratio(monster: SrdMonster, share: float) -> float:
     return (average + share * max(0, top - average)) / average
 
 
-def _small_scale(levels: list[int], data: OfferData, monster: str, tier: int) -> float:
+def small_party_scale(levels: list[int], data: OfferData, monster: str, tier: int) -> float:
     floor = data.tables.boss_hp_scale_floor
     if floor is None:
         return 1.0
@@ -97,10 +102,12 @@ def _base(
     levels = party_levels(state)
     template = data.master
     if len(levels) <= data.tables.small_party_max:
-        return _small_scale(levels, data, monster_id, tier), 0, ()
+        return small_party_scale(levels, data, monster_id, tier), 0, ()
     if len(levels) < template.party_min:
         return 1.0, 0, ()
-    hp = hit_dice_ratio(data.monsters.get(monster_id), template.hit_dice_share)
+    share = template.full_party_hp_share.get(tier, 1.0)
+    hp = hit_dice_ratio(data.monsters.get(monster_id), template.hit_dice_share) * share
+    hp = max(hp, small_party_scale(levels, data, monster_id, tier))
     traits = (template.trait,) if template.trait else ()
     return hp, template.legendary_points, traits
 

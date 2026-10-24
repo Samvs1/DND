@@ -184,11 +184,12 @@ def test_golden_m29_act_two_master_is_scaled_at_the_planned_level() -> None:
     # 700 -> hit points x 404 / 700 = 0.577 until M31.1d. M31.1d: a party of three or more keeps
     # at least the SRD hit points (round 4 met this wight with 26 HP), so only a solo or duo is
     # scaled: two level-3 heroes, 2 x 225 - 1 = 449 x 0.45 = 202 against 700 x 1.5 = 1050 ->
-    # max(0.5, 0.19) = 0.5.
+    # max(0.5, 0.19) = 0.5. M31.1g: a full party's master gets its tier's share of those hit
+    # points, never below the M29.6 scale (404 / 700, round 4's 26 HP).
     state = GameState(campaign_id="scale", seed=SEED)
     ids = build_party(state, 3)
     state.world.region_tier = 2
-    assert boss_hp_scale(state, DATA, "wight") >= 1.0
+    assert boss_hp_scale(state, DATA, "wight") >= 404 / 700
     for dropped in ids[2:]:
         del state.creatures[dropped]
     assert boss_hp_scale(state, DATA, "wight") == 0.5
