@@ -21,7 +21,7 @@ from aidm.data.item_catalogue import CatalogueItem
 from aidm.data.registry import Registry
 from aidm.data.scribe_defs import scribe_table
 from aidm.data.zone_templates import zone_templates
-from aidm.dm.precheck import is_shop
+from aidm.dm.scene_intent import is_shop
 from aidm.models.campaign_state import OfferChoice
 from aidm.models.encounter import EncounterStatus
 from aidm.models.protocol_views import (

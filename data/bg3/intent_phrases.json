@@ -1,0 +1,1615 @@
+{
+  "source": "aidm original phrase table of the typed intents (M30.0b, one intent router). A row matches a reading of the sentence (patterns: regex templates, {slot} a fragment, {slot:group} a named object slot, {verbs} the row's verb alternatives); the lowest precedence that resolves wins. Lexicon entries are lowercase words.",
+  "slots": {
+    "try": "(?:try to |attempt to )?",
+    "feet": "(?: (?:back )?(?:up|on (?:to )?(?:her|his|their) feet|to (?:her|his|their) feet))",
+    "someone": "[a-z0-9' -]+?",
+    "hero": "[a-z' -]+?",
+    "thing": "[a-z0-9 ,'-]+?",
+    "gear": "[a-z ,'-]+",
+    "foe": "[a-z0-9' ,-]+?",
+    "place": "[a-z0-9' -]+",
+    "give_art": "(?:my |the |a |an |this |that |our )?",
+    "give_own": "(?:my |the |our |this |that )",
+    "art": "(?:my |the |a |an |this |that |our |some |his |her |their )?",
+    "use_art": "(?:my |the |a |an |our |this |that |some |his |her |their )?",
+    "equip_art": "(?:my |the |a |an |his |her |their |our )?",
+    "take_art": "(?:the |a |an |that |this )?",
+    "mine": "(?:my|the|his|her|their|our)",
+    "money": "(?:(?P<n>\\d+|an?|one|two|three|four|five|six|seven|eight|nine|ten|some|a few) )?(?P<coin>gold|silver|copper|gp|sp|cp|coins?)(?: (?:gold |silver |copper )?(?:pieces?|coins?))?",
+    "for": "(?: for .+)?",
+    "at_target": "(?: (?:on|at|onto|into|against|to|toward|towards) (?:the |a |an |that |this )?(?P<target>[a-z0-9' -]+))?"
+  },
+  "lexicon": {
+    "parley_intimidation": [
+      "bullies",
+      "bully",
+      "cow",
+      "cows",
+      "demand",
+      "demands",
+      "frighten",
+      "frightens",
+      "intimidate",
+      "intimidates",
+      "intimidation",
+      "menace",
+      "menaces",
+      "scare",
+      "scares",
+      "threaten",
+      "threatens",
+      "warn",
+      "warns"
+    ],
+    "parley_deception": [
+      "bluff",
+      "bluffs",
+      "deceive",
+      "deceives",
+      "deception",
+      "feign",
+      "feigns",
+      "fool",
+      "fools",
+      "mislead",
+      "misleads",
+      "pretend",
+      "pretends",
+      "trick",
+      "tricks"
+    ],
+    "parley_persuasion": [
+      "appeal",
+      "appeals",
+      "bargain",
+      "bargains",
+      "beg",
+      "begs",
+      "calm",
+      "calms",
+      "convince",
+      "convinces",
+      "diplomacy",
+      "negotiate",
+      "negotiates",
+      "parley",
+      "parleys",
+      "persuade",
+      "persuades",
+      "persuasion",
+      "plead",
+      "pleads",
+      "reason",
+      "reasons",
+      "soothe",
+      "soothes"
+    ],
+    "talk_words": [
+      "address",
+      "addresses",
+      "ask",
+      "asks",
+      "call",
+      "calls",
+      "greet",
+      "greets",
+      "hail",
+      "hails",
+      "say",
+      "says",
+      "shout",
+      "shouts",
+      "speak",
+      "speaks",
+      "talk",
+      "talks",
+      "tell",
+      "tells"
+    ],
+    "own_side": [
+      "allies",
+      "companions",
+      "everyone",
+      "friends",
+      "group",
+      "others",
+      "party"
+    ],
+    "cast_words": [
+      "cast",
+      "casting",
+      "casts"
+    ],
+    "heal_self_verbs": [
+      "applies",
+      "apply",
+      "down",
+      "downs",
+      "drink",
+      "drinks",
+      "gulp",
+      "quaff",
+      "quaffs",
+      "sip",
+      "sips",
+      "swallow",
+      "swallows",
+      "use",
+      "uses"
+    ],
+    "heal_give_verbs": [
+      "administer",
+      "administers",
+      "bind",
+      "binds",
+      "feed",
+      "feeds",
+      "pour",
+      "pours",
+      "press",
+      "presses",
+      "rub",
+      "rubs",
+      "tip",
+      "tips"
+    ],
+    "hand_use_words": [
+      "administer",
+      "applies",
+      "apply",
+      "bind",
+      "binds",
+      "drink",
+      "drinks",
+      "feed",
+      "feeds",
+      "heal",
+      "heals",
+      "lips",
+      "mouth",
+      "pour",
+      "pours",
+      "quaff",
+      "rub",
+      "sip",
+      "swallow",
+      "tend",
+      "use",
+      "uses",
+      "wound",
+      "wounds"
+    ],
+    "abstract_gifts": [
+      "advice",
+      "answer",
+      "apologies",
+      "apology",
+      "attention",
+      "blessing",
+      "break",
+      "chance",
+      "condolence",
+      "condolences",
+      "greeting",
+      "greetings",
+      "hand",
+      "hug",
+      "kiss",
+      "look",
+      "moment",
+      "name",
+      "nod",
+      "push",
+      "regards",
+      "respect",
+      "respects",
+      "shove",
+      "sign",
+      "signal",
+      "slap",
+      "smile",
+      "thank",
+      "thanks",
+      "time",
+      "warning",
+      "wink",
+      "word",
+      "words"
+    ],
+    "lock_strong_verbs": [
+      "breach",
+      "breaches",
+      "force",
+      "forces",
+      "forcing",
+      "jimmies",
+      "jimmy",
+      "pick",
+      "picking",
+      "picks",
+      "prise",
+      "prize",
+      "pry",
+      "unlock",
+      "unlocking",
+      "unlocks"
+    ],
+    "lock_weak_verbs": [
+      "bash",
+      "bashes",
+      "break",
+      "breaks",
+      "kick",
+      "kicks",
+      "open",
+      "opens",
+      "smash",
+      "smashes"
+    ],
+    "lock_nouns": [
+      "door",
+      "doors",
+      "gate",
+      "gates",
+      "lock",
+      "locks",
+      "seal",
+      "seals"
+    ],
+    "surrender_kind_words": [
+      "calmly",
+      "convince",
+      "convinces",
+      "gently",
+      "kindly",
+      "mercy",
+      "offer",
+      "offers",
+      "persuade",
+      "persuades",
+      "plead",
+      "pleads",
+      "promise",
+      "promises",
+      "quarter",
+      "reason",
+      "reasons",
+      "spare",
+      "spares"
+    ],
+    "ranged_attack_verbs": [
+      "fire",
+      "fire at",
+      "loose",
+      "loose at",
+      "shoot",
+      "shoot at"
+    ],
+    "spare_item_words": [
+      "borrowed",
+      "bought",
+      "extra",
+      "fine",
+      "good",
+      "heavy",
+      "light",
+      "new",
+      "old",
+      "other",
+      "own",
+      "plain",
+      "second",
+      "shiny",
+      "spare",
+      "trusted",
+      "trusty"
+    ],
+    "dash_verbs": [
+      "dash",
+      "sprint"
+    ],
+    "light_words": [
+      "fire",
+      "flame",
+      "light",
+      "wick"
+    ],
+    "light_verbs": [
+      "ignite",
+      "kindle",
+      "light"
+    ],
+    "throw_verbs": [
+      "hurl",
+      "lob",
+      "pour",
+      "spill",
+      "splash",
+      "throw",
+      "toss"
+    ],
+    "heal_item_verbs": [
+      "administer",
+      "administers",
+      "applies",
+      "apply",
+      "bind",
+      "binds",
+      "down",
+      "downs",
+      "drink",
+      "drinks",
+      "feed",
+      "feeds",
+      "gulp",
+      "pour",
+      "pours",
+      "press",
+      "presses",
+      "quaff",
+      "quaffs",
+      "rub",
+      "rubs",
+      "sip",
+      "sips",
+      "swallow",
+      "swallows",
+      "tip",
+      "tips",
+      "use",
+      "uses"
+    ]
+  },
+  "patterns": {
+    "rest_refusal": "\\b(?:not|don't|do not|won't|without|instead of|no time|can't|cannot)\\b",
+    "short_rest_named": "\\b(?:take|takes|taking|have|has|having|get|gets) (?:a |an |our |their |his |her )?short rest\\b",
+    "long_rest_named": "\\b(?:take|takes|taking|have|has|having|get|gets) (?:a |an |our |their |his |her )?long rest\\b",
+    "self_surrender": "^(i|we|let us|let's)( all)? (surrender|yield|give up)\\b",
+    "purpose": " (?:so that|so|to|in order to|because|before|while|for) .+$",
+    "item_tail": " (?:instead(?: of .*)?|in place of .*|in its place|for now)$",
+    "pick_up": "\\bpick(?:s|ing)? (?:\\S+ ){0,3}up\\b",
+    "loose_money": "(?:\\d+|some|a few|a|an|one|two|three|a handful of|a bit of|a little)? ?(?:gold|silver|copper|coin|coins|gold coins?|silver coins?|copper coins?|gp|sp|cp|money)(?: pieces?| coins?)?",
+    "gold_amount": "(?P<n>\\d+) (?:gold(?: pieces| coins)?|gp|coins?)",
+    "counted": "(?P<n>\\d+|two|three|four|five|six|seven|eight|nine|ten) (?P<rest>.+)"
+  },
+  "scopes": {
+    "explore": {
+      "base": "own",
+      "when": [
+        "out_of_fight"
+      ]
+    },
+    "fight": {
+      "base": "as_is"
+    },
+    "ask": {
+      "base": "normal"
+    }
+  },
+  "rows": [
+    {
+      "id": "help_up",
+      "scopes": [
+        "explore",
+        "ask"
+      ],
+      "family": "help",
+      "precedence": 100,
+      "resolver": "help_up",
+      "patterns": [
+        {
+          "re": "{try}{verbs} (?:up )?{someone:who}{feet}",
+          "verbs": [
+            "help",
+            "get",
+            "pull",
+            "lift",
+            "haul",
+            "heave",
+            "raise"
+          ]
+        },
+        {
+          "re": "{try}{verbs} up {someone:who}",
+          "verbs": [
+            "help",
+            "pull",
+            "lift",
+            "haul"
+          ]
+        },
+        {
+          "re": "{try}{verbs} (?:up )?{someone:who}(?: up| round)?",
+          "verbs": [
+            "wake",
+            "rouse",
+            "revive",
+            "stabili[sz]e",
+            "bring round",
+            "bring around"
+          ]
+        },
+        {
+          "re": "{try}bring {someone:who} (?:round|around|to)"
+        }
+      ],
+      "note": "M20.2: help a downed hero up; a pronoun while exactly one is down"
+    },
+    {
+      "id": "what_now",
+      "scopes": [
+        "ask"
+      ],
+      "family": "what_now",
+      "precedence": 105,
+      "resolver": "what_now",
+      "readings": [
+        "strip"
+      ],
+      "patterns": [
+        {
+          "re": "(?:so |ok |okay |hmm |um |well )?(?:what now|now what|what next|what(?: is|'s) next|what(?: is|'s) the plan|what (?:should|do|can|must) (?:i|we) do(?: now| next| here)?|where to(?: now| next)?|where (?:do|should|can) (?:i|we) go(?: now| next| from here)?|where now|(?:i'm|i am|we're|we are) lost|help(?: me| us)?|(?:give (?:me|us) )?a hint|hint|any (?:ideas|hints))"
+        }
+      ],
+      "note": "M23.8: What now? is answered before the queue, never a turn"
+    },
+    {
+      "id": "parley_threat",
+      "scopes": [
+        "explore"
+      ],
+      "family": "parley",
+      "precedence": 110,
+      "resolver": "parley",
+      "tokens": "letters",
+      "when": [
+        "offer_has_parley",
+        "no_friend_named",
+        "foe_or_no_bystander"
+      ],
+      "params": {
+        "skill": "intimidation"
+      },
+      "has_words": [
+        "parley_intimidation"
+      ]
+    },
+    {
+      "id": "parley_deceive",
+      "scopes": [
+        "explore"
+      ],
+      "family": "parley",
+      "precedence": 111,
+      "resolver": "parley",
+      "tokens": "letters",
+      "when": [
+        "offer_has_parley",
+        "no_friend_named",
+        "foe_or_no_bystander"
+      ],
+      "params": {
+        "skill": "deception"
+      },
+      "has_words": [
+        "parley_deception"
+      ]
+    },
+    {
+      "id": "parley_lie",
+      "scopes": [
+        "explore"
+      ],
+      "family": "parley",
+      "precedence": 112,
+      "resolver": "parley",
+      "tokens": "letters",
+      "when": [
+        "offer_has_parley",
+        "no_friend_named",
+        "foe_or_no_bystander"
+      ],
+      "params": {
+        "skill": "deception"
+      },
+      "match": "search",
+      "patterns": [
+        {
+          "re": "\\blies? to\\b"
+        }
+      ]
+    },
+    {
+      "id": "parley_persuade",
+      "scopes": [
+        "explore"
+      ],
+      "family": "parley",
+      "precedence": 113,
+      "resolver": "parley",
+      "tokens": "letters",
+      "when": [
+        "offer_has_parley",
+        "no_friend_named",
+        "foe_or_no_bystander"
+      ],
+      "params": {
+        "skill": "persuasion"
+      },
+      "has_words": [
+        "parley_persuasion"
+      ]
+    },
+    {
+      "id": "parley_talk",
+      "scopes": [
+        "explore"
+      ],
+      "family": "parley",
+      "precedence": 114,
+      "resolver": "parley",
+      "tokens": "letters",
+      "when": [
+        "offer_has_parley",
+        "no_friend_named",
+        "foe_or_no_bystander"
+      ],
+      "params": {
+        "skill": "persuasion"
+      },
+      "has_words": [
+        "talk_words"
+      ]
+    },
+    {
+      "id": "rest_short",
+      "scopes": [
+        "explore"
+      ],
+      "family": "rest",
+      "precedence": 120,
+      "resolver": "rest",
+      "patterns": [
+        {
+          "re": "(?:take |have )?(?:a )?short rest|rest (?:for )?(?:an|one|a) hour|(?:catch (?:our|my) breath|take a breather)"
+        }
+      ],
+      "params": {
+        "kind": "short"
+      }
+    },
+    {
+      "id": "rest_long",
+      "scopes": [
+        "explore"
+      ],
+      "family": "rest",
+      "precedence": 121,
+      "resolver": "rest",
+      "patterns": [
+        {
+          "re": "(?:take |have )?(?:a )?long rest|(?:make|set up|pitch) camp(?: for the night)?|camp for the night|rest for the night|rest until (?:morning|dawn)|(?:go to )?sleep for the night|bed down(?: for the night)?"
+        }
+      ],
+      "params": {
+        "kind": "long"
+      }
+    },
+    {
+      "id": "look",
+      "scopes": [
+        "explore"
+      ],
+      "family": "look",
+      "precedence": 122,
+      "resolver": "look",
+      "patterns": [
+        {
+          "re": "look|look around|look about|glance around|(?:look|glance) around (?:the )?(?:room|area|place)|survey (?:the )?(?:area|room|surroundings|scene)|take in (?:the|my|our) surroundings|what do (?:i|we) see|where am i|where are we|describe (?:the )?(?:room|area|place|scene|surroundings)"
+        }
+      ]
+    },
+    {
+      "id": "inventory",
+      "scopes": [
+        "explore"
+      ],
+      "family": "inventory",
+      "precedence": 123,
+      "resolver": "inventory",
+      "patterns": [
+        {
+          "re": "(?:(?:check|open|show|see|look in|look at) )?(?:my |our )?(?:inventory|pack|backpack|bag|belongings)|what (?:am i|are we) carrying|what do (?:i|we) have"
+        }
+      ]
+    },
+    {
+      "id": "lift",
+      "scopes": [
+        "explore"
+      ],
+      "family": "lift",
+      "precedence": 130,
+      "resolver": "lift",
+      "match": "search",
+      "patterns": [
+        {
+          "re": "\\b(?:lift|lifts|steal|steals|pickpocket|pickpockets|pick (?:his|her|their) pocket|snatch|snatches|filch|filches|swipe|swipes|pilfer|pilfers|palm|palms|nick|nicks|(?:take|takes|grab|grabs|get|gets|slip|slips|sneak|sneaks) (?:it |the [a-z' -]+ )?back|(?:slip|slips|fish|fishes|ease|eases) [a-z' -]+ out)\\b"
+        }
+      ],
+      "note": "M29.7a R18: a keepsake an NPC here holds"
+    },
+    {
+      "id": "give_carried",
+      "scopes": [
+        "explore"
+      ],
+      "family": "give",
+      "precedence": 131,
+      "resolver": "give_carried",
+      "readings": [
+        "base",
+        "comma_head",
+        "and_head"
+      ],
+      "patterns": [
+        {
+          "re": "{verbs}(?: over| back)? {give_art}{thing:item}(?: over| back)? to (?:the )?{someone:who}",
+          "verbs": [
+            "give",
+            "hand",
+            "pass",
+            "offer",
+            "present",
+            "deliver",
+            "return"
+          ],
+          "params": {
+            "anywhere": true
+          }
+        },
+        {
+          "re": "{verbs} {someone:who} {give_own}{thing:item}",
+          "verbs": [
+            "give",
+            "hand",
+            "pass",
+            "offer",
+            "return"
+          ],
+          "params": {
+            "anywhere": false
+          }
+        }
+      ],
+      "note": "M23.3: a thing the hero carries, to a known NPC"
+    },
+    {
+      "id": "pay",
+      "scopes": [
+        "explore"
+      ],
+      "family": "pay",
+      "precedence": 132,
+      "resolver": "pay",
+      "readings": [
+        "clause_head",
+        "base"
+      ],
+      "scan": "each",
+      "patterns": [
+        {
+          "re": "pay {hero:who}(?: {money})?{for}"
+        },
+        {
+          "re": "{verbs} {money} to {hero:who}{for}",
+          "verbs": [
+            "give",
+            "hand",
+            "toss",
+            "slip",
+            "offer",
+            "pass",
+            "pay"
+          ]
+        },
+        {
+          "re": "{verbs} {hero:who} {money}{for}",
+          "verbs": [
+            "give",
+            "hand",
+            "toss",
+            "slip",
+            "offer",
+            "pass",
+            "pay"
+          ]
+        },
+        {
+          "re": "count out {money} (?:for|to) {hero:who}"
+        }
+      ],
+      "note": "M29.9a T17: coins to an NPC, after a give of a carried thing"
+    },
+    {
+      "id": "give_missing",
+      "scopes": [
+        "explore"
+      ],
+      "family": "give",
+      "precedence": 133,
+      "resolver": "give_missing",
+      "readings": [
+        "base",
+        "comma_head",
+        "and_head"
+      ],
+      "patterns": [
+        {
+          "re": "{verbs}(?: over| back)? {give_art}{thing:item}(?: over| back)? to (?:the )?{someone:who}",
+          "verbs": [
+            "give",
+            "hand",
+            "pass",
+            "offer",
+            "present",
+            "deliver",
+            "return"
+          ],
+          "params": {
+            "anywhere": true
+          }
+        },
+        {
+          "re": "{verbs} {someone:who} {give_own}{thing:item}",
+          "verbs": [
+            "give",
+            "hand",
+            "pass",
+            "offer",
+            "return"
+          ],
+          "params": {
+            "anywhere": false
+          }
+        }
+      ],
+      "note": "M29.7a R23: a concrete thing not carried, after paying"
+    },
+    {
+      "id": "hand",
+      "scopes": [
+        "explore"
+      ],
+      "family": "hand",
+      "precedence": 134,
+      "resolver": "hand",
+      "readings": [
+        "base",
+        "clause_head",
+        "comma_head"
+      ],
+      "tokens": "letters",
+      "unless": [
+        "hand_use_words"
+      ],
+      "patterns": [
+        {
+          "re": "{verbs}(?: over)? {art}{thing:item}(?: over| across)? to {hero:who}",
+          "verbs": [
+            "give",
+            "hand",
+            "pass",
+            "toss",
+            "slip",
+            "lend",
+            "offer"
+          ]
+        },
+        {
+          "re": "{verbs} {hero:who} {art}{thing:item}",
+          "verbs": [
+            "give",
+            "hand",
+            "pass",
+            "toss",
+            "slip",
+            "lend",
+            "offer"
+          ]
+        }
+      ],
+      "note": "M29.7a R7/R8: to another hero; a drink word is healing"
+    },
+    {
+      "id": "heal_spell",
+      "scopes": [
+        "explore"
+      ],
+      "family": "heal",
+      "precedence": 135,
+      "resolver": "heal_spell",
+      "tokens": "alnum",
+      "has_words": [
+        "cast_words"
+      ],
+      "on_match": "stop_family"
+    },
+    {
+      "id": "heal_item",
+      "scopes": [
+        "explore"
+      ],
+      "family": "heal",
+      "precedence": 136,
+      "resolver": "heal_item",
+      "tokens": "alnum",
+      "has_words": [
+        "heal_item_verbs"
+      ]
+    },
+    {
+      "id": "rest_named_short",
+      "scopes": [
+        "explore"
+      ],
+      "family": "wordy_rest",
+      "precedence": 140,
+      "resolver": "rest",
+      "match": "search",
+      "patterns": [
+        {
+          "ref": "short_rest_named"
+        }
+      ],
+      "unless": [
+        "rest_refusal",
+        "long_rest_named"
+      ],
+      "params": {
+        "kind": "short"
+      }
+    },
+    {
+      "id": "rest_named_long",
+      "scopes": [
+        "explore"
+      ],
+      "family": "wordy_rest",
+      "precedence": 141,
+      "resolver": "rest",
+      "match": "search",
+      "patterns": [
+        {
+          "ref": "long_rest_named"
+        }
+      ],
+      "unless": [
+        "rest_refusal",
+        "short_rest_named"
+      ],
+      "params": {
+        "kind": "long"
+      }
+    },
+    {
+      "id": "rest_phrase_long",
+      "scopes": [
+        "explore"
+      ],
+      "family": "wordy_rest",
+      "precedence": 142,
+      "resolver": "rest",
+      "match": "search",
+      "patterns": [
+        {
+          "re": "\\b(?:rest(?:s|ing)? (?:for the night|until (?:morning|dawn))|(?:make|makes|making|set up|sets up|pitch|pitches) camp|camp for the night|beds? down|sleeps? (?:for the night|until (?:morning|dawn)))\\b"
+        }
+      ],
+      "unless": [
+        "rest_refusal",
+        "short_rest_named",
+        "long_rest_named"
+      ],
+      "params": {
+        "kind": "long"
+      }
+    },
+    {
+      "id": "rest_phrase_short",
+      "scopes": [
+        "explore"
+      ],
+      "family": "wordy_rest",
+      "precedence": 143,
+      "resolver": "rest",
+      "match": "search",
+      "patterns": [
+        {
+          "re": "\\b(?:catch(?:es|ing)? (?:his|her|their|our|my|its) breath|take a breather|rests? (?:for )?(?:an|one|a) hour)\\b"
+        }
+      ],
+      "unless": [
+        "rest_refusal",
+        "short_rest_named",
+        "long_rest_named"
+      ],
+      "params": {
+        "kind": "short"
+      }
+    },
+    {
+      "id": "shop",
+      "scopes": [
+        "explore"
+      ],
+      "family": "shop",
+      "precedence": 150,
+      "resolver": "shop",
+      "on_match": "stop",
+      "patterns": [
+        {
+          "re": "(?:shop|browse(?: (?:the|their|his|her) wares)?|(?:see|look at) (?:the|their|his|her) wares|open (?:the|their|his|her) shop|trade|barter|buy something|buy supplies|(?:buy|purchase|shop|trade|barter) (?:from|with) (?P<who>[a-z' -]+))"
+        }
+      ]
+    },
+    {
+      "id": "travel",
+      "scopes": [
+        "explore"
+      ],
+      "family": "travel",
+      "precedence": 151,
+      "resolver": "travel",
+      "on_match": "stop",
+      "when": [
+        "no_offer_waits"
+      ],
+      "patterns": [
+        {
+          "re": "{verbs}(?: back)? (?:to|towards?|into|for) (?:the )?{place:dest}",
+          "verbs": [
+            "go",
+            "travel",
+            "head",
+            "walk",
+            "move",
+            "return",
+            "journey",
+            "ride",
+            "set off",
+            "set out",
+            "proceed",
+            "make (?:our|my) way"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lock_pick",
+      "scopes": [
+        "explore"
+      ],
+      "family": "lock",
+      "precedence": 152,
+      "resolver": "barred_lock",
+      "readings": [
+        "no_pick_up"
+      ],
+      "has_words": [
+        "lock_strong_verbs"
+      ],
+      "note": "M29.7c R24: a progress gate gets no check"
+    },
+    {
+      "id": "lock_force",
+      "scopes": [
+        "explore"
+      ],
+      "family": "lock",
+      "precedence": 153,
+      "resolver": "barred_lock",
+      "readings": [
+        "no_pick_up"
+      ],
+      "has_words": [
+        "lock_weak_verbs",
+        "lock_nouns"
+      ]
+    },
+    {
+      "id": "item_pair",
+      "scopes": [
+        "explore"
+      ],
+      "family": "item_pair",
+      "precedence": 160,
+      "resolver": "item_pair",
+      "readings": [
+        "clause_head"
+      ],
+      "note": "M29.7a R9: '<unequip X> and <equip Y>' is the equip"
+    },
+    {
+      "id": "item_equip",
+      "scopes": [
+        "explore"
+      ],
+      "family": "item",
+      "precedence": 161,
+      "resolver": "item",
+      "readings": [
+        "item_tail"
+      ],
+      "on_match": "stop_family",
+      "params": {
+        "action": "equip"
+      },
+      "patterns": [
+        {
+          "re": "{verbs} {equip_art}{gear:item}",
+          "verbs": [
+            "equip",
+            "wield",
+            "don",
+            "put on",
+            "pull on",
+            "strap on",
+            "slip on",
+            "wear",
+            "ready",
+            "draw",
+            "heft",
+            "take up",
+            "switch to",
+            "swap to"
+          ]
+        },
+        {
+          "re": "{verbs} {equip_art}[a-z ,'-]+? (?:for|with) {equip_art}{gear:item}",
+          "verbs": [
+            "swap",
+            "switch",
+            "trade",
+            "exchange"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "item_unequip",
+      "scopes": [
+        "explore"
+      ],
+      "family": "item",
+      "precedence": 162,
+      "resolver": "item",
+      "readings": [
+        "item_tail"
+      ],
+      "on_match": "stop_family",
+      "params": {
+        "action": "unequip"
+      },
+      "patterns": [
+        {
+          "re": "{verbs} {equip_art}{gear:item}",
+          "verbs": [
+            "unequip",
+            "unwield",
+            "sheathe",
+            "stow",
+            "put away",
+            "take off",
+            "doff",
+            "remove",
+            "unstrap",
+            "unhook",
+            "unbuckle",
+            "unsling"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "item_drop",
+      "scopes": [
+        "explore"
+      ],
+      "family": "item",
+      "precedence": 163,
+      "resolver": "item",
+      "readings": [
+        "item_tail"
+      ],
+      "on_match": "stop_family",
+      "params": {
+        "action": "drop"
+      },
+      "patterns": [
+        {
+          "re": "{verbs} {equip_art}{gear:item}",
+          "verbs": [
+            "drop",
+            "discard",
+            "throw away"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "light_first",
+      "scopes": [
+        "explore"
+      ],
+      "family": "light_first",
+      "precedence": 170,
+      "resolver": "light_first",
+      "readings": [
+        "clause_head"
+      ],
+      "note": "M29.7a R17: a first act that lights or puts out a light, the rest told after"
+    },
+    {
+      "id": "clue_read",
+      "scopes": [
+        "explore"
+      ],
+      "family": "use",
+      "precedence": 180,
+      "resolver": "clue_read",
+      "readings": [
+        "head_or_whole"
+      ],
+      "patterns": [
+        {
+          "re": "{verbs} {use_art}{thing:item}(?: (?:carefully|closely|again|aloud|out loud|slowly))*",
+          "verbs": [
+            "read",
+            "reread",
+            "examine",
+            "study",
+            "inspect",
+            "peruse",
+            "unfold",
+            "look over",
+            "look at",
+            "pore over"
+          ]
+        }
+      ],
+      "note": "M29.9b T13: reading a clue the hero carries"
+    },
+    {
+      "id": "put_out",
+      "scopes": [
+        "explore"
+      ],
+      "family": "use",
+      "precedence": 181,
+      "resolver": "put_out",
+      "readings": [
+        "aim"
+      ],
+      "on_match": "stop_family",
+      "patterns": [
+        {
+          "re": "{verbs} {use_art}{thing:item}",
+          "verbs": [
+            "put out",
+            "douse",
+            "extinguish",
+            "snuff out",
+            "snuff",
+            "blow out",
+            "smother",
+            "pinch out",
+            "pinch",
+            "quench",
+            "shutter",
+            "cover",
+            "hood",
+            "close the shutter of",
+            "close the shutters of"
+          ]
+        },
+        {
+          "re": "{verbs} {use_art}{thing:item} out",
+          "verbs": [
+            "put",
+            "pinch",
+            "blow",
+            "snuff"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "light_aimed",
+      "scopes": [
+        "explore"
+      ],
+      "family": "use",
+      "precedence": 182,
+      "resolver": "use_held",
+      "readings": [
+        "aim"
+      ],
+      "on_match": "stop_family",
+      "patterns": [
+        {
+          "re": "{verbs:verb} (?:up )?{use_art}{thing:item}(?: up)?",
+          "verbs": [
+            "light",
+            "ignite",
+            "kindle"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "light",
+      "scopes": [
+        "explore"
+      ],
+      "family": "use",
+      "precedence": 183,
+      "resolver": "use_held",
+      "on_match": "stop_family",
+      "patterns": [
+        {
+          "re": "{verbs:verb} (?:up )?{use_art}{thing:item}(?: up)?",
+          "verbs": [
+            "light",
+            "ignite",
+            "kindle"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "throw",
+      "scopes": [
+        "explore"
+      ],
+      "family": "use",
+      "precedence": 184,
+      "resolver": "use_held",
+      "on_match": "stop_family",
+      "patterns": [
+        {
+          "re": "{verbs:verb} {use_art}{thing:item}{at_target}",
+          "verbs": [
+            "throw",
+            "hurl",
+            "toss",
+            "lob",
+            "scatter",
+            "spill",
+            "pour",
+            "splash"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "read_scroll",
+      "scopes": [
+        "explore"
+      ],
+      "family": "use",
+      "precedence": 185,
+      "resolver": "use_held",
+      "on_match": "stop_family",
+      "patterns": [
+        {
+          "re": "{verbs:verb} {use_art}(?P<item>scroll(?: of [a-z0-9' -]+?)?){at_target}",
+          "verbs": [
+            "read"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "open_pack",
+      "scopes": [
+        "explore"
+      ],
+      "family": "use",
+      "precedence": 186,
+      "resolver": "use_held",
+      "on_match": "stop_family",
+      "patterns": [
+        {
+          "re": "{verbs:verb} (?:up )?{use_art}{thing:item}",
+          "verbs": [
+            "open",
+            "unpack",
+            "unseal"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "use_on",
+      "scopes": [
+        "explore"
+      ],
+      "family": "use",
+      "precedence": 187,
+      "resolver": "use_carried",
+      "on_match": "stop_family",
+      "patterns": [
+        {
+          "re": "use {use_art}{thing:item}{at_target}"
+        }
+      ]
+    },
+    {
+      "id": "craft",
+      "scopes": [
+        "explore"
+      ],
+      "family": "use",
+      "precedence": 188,
+      "resolver": "craft",
+      "on_match": "stop_family",
+      "patterns": [
+        {
+          "re": "{verbs:verb} {use_art}(?P<what>[a-z0-9' -]+?)(?: (?:with|using) {use_art}(?P<item>[a-z0-9 ,'-]+))?",
+          "verbs": [
+            "brew",
+            "craft"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "take",
+      "scopes": [
+        "explore"
+      ],
+      "family": "take",
+      "precedence": 190,
+      "resolver": "take",
+      "patterns": [
+        {
+          "re": "{verbs} (?:up )?{take_art}{thing:item}(?: up)?(?: (?:from|off|at|on) (?:the )?[a-z0-9 ,'-]+)?",
+          "verbs": [
+            "pick up",
+            "take",
+            "grab",
+            "collect",
+            "retrieve",
+            "scoop up",
+            "pocket",
+            "lift",
+            "get"
+          ]
+        },
+        {
+          "re": "pick {take_art}{thing:item} up"
+        }
+      ],
+      "note": "M19.3: a visible item here"
+    },
+    {
+      "id": "move",
+      "scopes": [
+        "fight"
+      ],
+      "family": "move",
+      "precedence": 300,
+      "resolver": "move",
+      "readings": [
+        "plain"
+      ],
+      "when": [
+        "in_fight"
+      ],
+      "patterns": [
+        {
+          "re": "^(?:please |ok |okay )?(?:(?:i|we)(?: will| shall|'ll| want to| would like to| try to)? |let'?s )?{verbs:verb}(?: (?:back|over|down|up|across|out|quickly))?(?: (?:to|towards?|into|in to|onto|up to|over to|across to|down to|down into|at))? (?:the )?(?P<dest>[a-z0-9' -]+?)(?: zone| area)?$",
+          "verbs": [
+            "move",
+            "go",
+            "run",
+            "walk",
+            "step",
+            "head",
+            "dash",
+            "sprint",
+            "charge",
+            "rush",
+            "advance",
+            "retreat",
+            "hurry",
+            "climb",
+            "jump down",
+            "descend",
+            "cross",
+            "make (?:my|our) way"
+          ]
+        }
+      ],
+      "note": "M19.4: a zone or a creature of the fight"
+    },
+    {
+      "id": "attack",
+      "scopes": [
+        "fight"
+      ],
+      "family": "attack",
+      "precedence": 310,
+      "resolver": "attack",
+      "readings": [
+        "own"
+      ],
+      "when": [
+        "in_fight"
+      ],
+      "patterns": [
+        {
+          "re": "{verbs:verb} (?:the )?{foe:target}(?: with {mine} {foe:weapon})?",
+          "verbs": [
+            "attack",
+            "strike",
+            "strike at",
+            "hit",
+            "swing at",
+            "slash",
+            "slash at",
+            "stab",
+            "stab at",
+            "cut",
+            "cut at",
+            "hack at",
+            "chop at",
+            "lunge at",
+            "thrust at",
+            "smash",
+            "bash",
+            "shoot",
+            "shoot at",
+            "fire at",
+            "loose at"
+          ]
+        },
+        {
+          "re": "{verbs:verb} {mine} {foe:weapon} (?:at|into|toward|towards|against|on|down on) (?:the )?{foe:target}",
+          "verbs": [
+            "swing",
+            "thrust",
+            "drive",
+            "bring down",
+            "slash",
+            "stab",
+            "jab",
+            "fire",
+            "shoot",
+            "loose",
+            "aim",
+            "point"
+          ]
+        }
+      ],
+      "note": "M29.7a R22: the hotbar's AttackCommand"
+    },
+    {
+      "id": "feature",
+      "scopes": [
+        "fight"
+      ],
+      "family": "feature",
+      "precedence": 320,
+      "resolver": "feature",
+      "readings": [
+        "plain"
+      ],
+      "when": [
+        "in_fight"
+      ],
+      "note": "M29.5b: a self feature the hotbar offers, by its name words"
+    },
+    {
+      "id": "fight_heal_spell",
+      "scopes": [
+        "fight"
+      ],
+      "family": "fight_heal",
+      "precedence": 330,
+      "resolver": "fight_heal_spell",
+      "readings": [
+        "plain"
+      ],
+      "tokens": "alnum",
+      "when": [
+        "in_fight"
+      ],
+      "has_words": [
+        "cast_words"
+      ],
+      "on_match": "stop_family"
+    },
+    {
+      "id": "fight_heal_item",
+      "scopes": [
+        "fight"
+      ],
+      "family": "fight_heal",
+      "precedence": 331,
+      "resolver": "fight_heal_item",
+      "readings": [
+        "plain"
+      ],
+      "tokens": "alnum",
+      "when": [
+        "in_fight"
+      ],
+      "has_words": [
+        "heal_item_verbs"
+      ]
+    },
+    {
+      "id": "surrender_kind",
+      "scopes": [
+        "fight"
+      ],
+      "family": "surrender",
+      "precedence": 340,
+      "resolver": "surrender",
+      "readings": [
+        "named_cut"
+      ],
+      "match": "search",
+      "tokens": "letters",
+      "when": [
+        "in_fight"
+      ],
+      "unless": [
+        "self_surrender"
+      ],
+      "has_words": [
+        "surrender_kind_words"
+      ],
+      "patterns": [
+        {
+          "re": "\\b(surrender|yield|give up|stand down|(lay|put|drop|throw|cast) down (your|their|his|her|the) (weapons?|arms|blades?)|(drop|lower) (your|their|his|her) (weapons?|arms|blades?))\\b"
+        }
+      ],
+      "params": {
+        "skill": "persuasion"
+      },
+      "note": "M29.9a T12: one engine check"
+    },
+    {
+      "id": "surrender_demand",
+      "scopes": [
+        "fight"
+      ],
+      "family": "surrender",
+      "precedence": 341,
+      "resolver": "surrender",
+      "readings": [
+        "named_cut"
+      ],
+      "match": "search",
+      "tokens": "letters",
+      "when": [
+        "in_fight"
+      ],
+      "unless": [
+        "self_surrender"
+      ],
+      "patterns": [
+        {
+          "re": "\\b(surrender|yield|give up|stand down|(lay|put|drop|throw|cast) down (your|their|his|her|the) (weapons?|arms|blades?)|(drop|lower) (your|their|his|her) (weapons?|arms|blades?))\\b"
+        }
+      ],
+      "params": {
+        "skill": "intimidation"
+      }
+    }
+  ]
+}

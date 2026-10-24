@@ -2,52 +2,34 @@
 and tells her to keep it" spent the poultice on Elowen; "gives the spare crowbar to Elowen" and
 passing coin were prose only). A deterministic precheck like `aidm.dm.give_intent`.
 
-`hand_intent(state, actor_id, clean)` reads the precheck's normalised sentence (the hero's own
-name with a third-person verb reads the same; a trailing clause after "and" or a comma is cut):
+The `hand` phrase row (data/bg3/intent_phrases.json) reads the sentence (the hero's own name
+with a third-person verb reads the same; then its first act and its part before a comma):
 - "<give|hand|pass|toss|slip|lend|offer> [over] <thing> [over] to <hero>",
   "<verb> <hero> <thing>";
-- `thing` is "<n> gold" / "<n> gp" / "<n> coins" (gold), else "[n] <item>": a keepsake the
-  actor carries, else an inventory item (`aidm.dm.gear_words.fits` on its names). A thing the
-  actor does not carry is still an intent (`thing` ""), so the rules say so plainly;
+- `thing` is "<n> gold" / "<n> gp" / "<n> coins" (gold, the `gold_amount` pattern), else
+  "[n] <item>": a keepsake the actor carries, else an inventory item
+  (`aidm.dm.gear_words.fits` on its names). A thing the actor does not carry is still an
+  intent (`thing` ""), so the rules say so plainly;
 - the receiver is another hero named by full or first name.
-None when a drink / use word is said ("give Rook my potion to drink", "pour it into her mouth":
-`aidm.dm.heal_intent` heals), when an abstract gift is meant (`ABSTRACT_GIFTS`: "give Elowen
-my thanks", "a hug", "a nod"), or when no hero is named. The rules decide
-(`aidm.rules.hero_handing.hand_events`).
+None when a drink / use word is said (the row's `hand_use_words` veto: "give Rook my potion to
+drink", "pour it into her mouth" are healing, `aidm.dm.heal_intent`), when an abstract gift is
+meant (the lexicon's `abstract_gifts`: "give Elowen my thanks", "a hug", "a nod"), or when no
+hero is named. The rules decide (`aidm.rules.hero_handing.hand_events`).
 
-Public API: `HeroHandIntent(actor_id, to_id, thing, qty, gold)`, `ABSTRACT_GIFTS`,
-`hand_intent(state, actor_id, clean) -> HeroHandIntent | None`.
+Public API: `HeroHandIntent(actor_id, to_id, thing, qty, gold)`, `RESOLVERS` (`hand`).
 """
 
 import re
 from dataclasses import dataclass
 
+from aidm.data.intent_phrases import intent_phrases
 from aidm.dm.gear_words import fits, words
-from aidm.dm.sentence import own_reading, split_clause
+from aidm.dm.intent_match import Found, Resolver
 from aidm.models.state import Creature, CreatureKind, GameState
 from aidm.rules.item_effects import gear_name
 
-_THING = r"(?:my |the |a |an |this |that |our |some |his |her |their )?(?P<{}>[a-z0-9 ,'-]+?)"
-_VERBS = r"(?:give|hand|pass|toss|slip|lend|offer)"
-_HAND = re.compile(
-    rf"{_VERBS}(?: over)? {_THING.format('item')}(?: over| across)? to (?P<who>[a-z' -]+?)|"
-    rf"{_VERBS} (?P<who2>[a-z' -]+?) {_THING.format('item2')}"
-)
-_GOLD = re.compile(r"(?P<n>\d+) (?:gold(?: pieces| coins)?|gp|coins?)")
-_COUNT = re.compile(r"(?P<n>\d+|two|three|four|five|six|seven|eight|nine|ten) (?P<rest>.+)")
 _NUMBERS = {"two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8}
 _NUMBERS |= {"nine": 9, "ten": 10}
-_USE_WORDS = frozenset(
-    {"drink", "drinks", "quaff", "sip", "swallow", "use", "uses", "apply", "applies", "feed"}
-    | {"feeds", "pour", "pours", "administer", "rub", "bind", "binds", "heal", "heals", "tend"}
-    | {"lips", "mouth", "wound", "wounds"}
-)
-ABSTRACT_GIFTS = frozenset(
-    {"thanks", "thank", "regards", "word", "words", "blessing", "greeting", "greetings", "hug"}
-    | {"nod", "smile", "look", "wink", "hand", "advice", "attention", "time", "name", "answer"}
-    | {"apology", "apologies", "respect", "respects", "condolence", "condolences", "warning"}
-    | {"signal", "sign", "moment", "chance", "break", "push", "shove", "slap", "kiss"}
-)
 
 
 @dataclass(frozen=True)
@@ -85,38 +67,25 @@ def _carried(actor: Creature, phrase: str) -> str:
 
 def _what(actor: Creature, to_id: str, phrase: str) -> HeroHandIntent | None:
     phrase = phrase.strip()
-    if words(phrase) & ABSTRACT_GIFTS:
+    table = intent_phrases()
+    if words(phrase) & table.lexicon["abstract_gifts"]:
         return None
-    gold = _GOLD.fullmatch(phrase)
+    gold = re.fullmatch(table.patterns["gold_amount"], phrase)
     if gold is not None:
         return HeroHandIntent(actor.id, to_id, None, gold=int(gold["n"]))
-    qty, count = 1, _COUNT.fullmatch(phrase)
+    qty, count = 1, re.fullmatch(table.patterns["counted"], phrase)
     if count is not None:
         n = count["n"]
         qty, phrase = (int(n) if n.isdigit() else _NUMBERS[n]), count["rest"]
     return HeroHandIntent(actor.id, to_id, _carried(actor, phrase), qty=max(1, qty))
 
 
-def _reading(state: GameState, actor: Creature, reading: str) -> HeroHandIntent | None:
-    match = _HAND.fullmatch(reading)
-    if match is None:
-        return None
-    who, item = (match["who"], match["item"]) if match["who"] else (match["who2"], match["item2"])
-    to_id = _hero(state, actor.id, who)
-    return _what(actor, to_id, item) if to_id is not None else None
-
-
-def hand_intent(state: GameState, actor_id: str, clean: str) -> HeroHandIntent | None:
-    actor = state.creatures.get(actor_id)
+def hand(found: Found) -> HeroHandIntent | None:
+    actor = found.state.creatures.get(found.actor_id)
     if actor is None or actor.pc is None:
         return None
-    if set(re.findall(r"[a-z]+", clean)) & _USE_WORDS:
-        return None
-    own = own_reading(actor.name, clean)
-    cut = split_clause(own)
-    readings = [own, *(c for c in (cut[0] if cut else None, own.split(",")[0]) if c)]
-    for reading in dict.fromkeys(readings):
-        found = _reading(state, actor, reading)
-        if found is not None:
-            return found
-    return None
+    to_id = _hero(found.state, actor.id, found.group("who") or "")
+    return _what(actor, to_id, found.group("item") or "") if to_id is not None else None
+
+
+RESOLVERS: dict[str, Resolver] = {"hand": hand}

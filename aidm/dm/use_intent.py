@@ -1,8 +1,9 @@
 """Typed gear use (M27.5, docs/next/GOAL_ITEMS.md "Design": a deterministic precheck, like
 `aidm.dm.give_intent`).
 
-`use_intent(state, actor_id, clean)` reads the precheck's normalised sentence and returns a
-`UseIntent` when it plainly uses gear the actor carries (`aidm.dm.gear_words`):
+The `use` family of phrase rows (data/bg3/intent_phrases.json, in precedence order; a row that
+matches ends the family) gives the slots and the resolvers return a `UseIntent` when the
+sentence plainly uses gear the actor carries (`aidm.dm.gear_words`):
 - "put out my torch", "douse the torch", "extinguish the lantern", "snuff out the candle",
   "put my torch out", "put out my light" (M29.7a R17: also pinch out, blow out, quench, shutter
   or cover the lantern): `put_out` (the hero's carried light; free);
@@ -28,18 +29,20 @@ becomes its zone for gear that covers a zone); a target that names nothing known
 None and goes on to the adjudicator. The rules decide (`aidm.rules.item_use.use_item`,
 `aidm.rules.light.put_out`).
 
-`light_first(state, actor_id, clean)` (M29.7a R17): a compound sentence ("light a candle to see,
-then look around", "pinch out the candle and we crouch low") whose FIRST act lights or puts out
-a light is that intent with `rest`, the other act (the session does both).
+`light_first` (M29.7a R17, its own row ranked before the use rows): a compound sentence
+("light a candle to see, then look around", "pinch out the candle and we crouch low") whose
+FIRST act lights or puts out a light is that intent with `rest`, the other act (the session
+does both).
 
 Public API: `UseIntent(actor_id, item, target, verb, put_out, at_rest, use_id, rest)`,
-`use_intent(state, actor_id, clean) -> UseIntent | None`, `light_first(...) -> UseIntent | None`,
-`item_phrase(clean) -> (phrase, mine) | None`.
+`RESOLVERS`, `use_intent(state, actor_id, clean) -> UseIntent | None` (the use rows alone, on
+the text as given), `item_phrase(clean) -> (phrase, mine) | None`.
 """
 
 import re
 from dataclasses import dataclass, replace
 
+from aidm.data.intent_phrases import intent_phrases
 from aidm.data.item_uses import (
     CastSpell,
     ConditionUse,
@@ -52,43 +55,13 @@ from aidm.data.item_uses import (
     uses_for_item,
 )
 from aidm.dm.gear_words import carried_entry, fits, held_gear, lock_named, words
-from aidm.dm.sentence import split_clause
+from aidm.dm.intent_match import Found, Resolver, route, text_match
 from aidm.models.encounter import EncounterStatus
 from aidm.models.state import Creature, GameState
 from aidm.rules.item_effects import gear_name
 from aidm.rules.light import hero_light
 from aidm.rules.scene import current_scene
 
-_THE = r"(?:my |the |a |an |our |this |that |some |his |her |their )?"
-_THING = r"(?P<item>[a-z0-9 ,'-]+?)"
-_AT = r"(?: (?:on|at|onto|into|against|to|toward|towards) (?:the |a |an |that |this )?"
-_PUT_OUT = re.compile(
-    r"(?:put out|douse|extinguish|snuff out|snuff|blow out|smother|pinch out|pinch|quench|"
-    rf"shutter|cover|hood|close the shutter of|close the shutters of) {_THE}{_THING}|"
-    rf"(?:put|pinch|blow|snuff) {_THE}(?P<item2>[a-z0-9 ,'-]+?) out"
-)
-_LIGHT = re.compile(rf"(?P<verb>light|ignite|kindle) (?:up )?{_THE}{_THING}(?: up)?")
-_THROW = re.compile(
-    rf"(?P<verb>throw|hurl|toss|lob|scatter|spill|pour|splash) {_THE}{_THING}"
-    rf"{_AT}(?P<target>[a-z0-9' -]+))?"
-)
-_READ = re.compile(
-    rf"(?P<verb>read) {_THE}(?P<item>scroll(?: of [a-z0-9' -]+?)?){_AT}(?P<target>[a-z0-9' -]+))?"
-)
-_OPEN = re.compile(rf"(?P<verb>open|unpack|unseal) (?:up )?{_THE}{_THING}")
-_USE = re.compile(rf"use {_THE}{_THING}{_AT}(?P<target>[a-z0-9' -]+))?")
-_CRAFT = re.compile(
-    rf"(?P<verb>brew|craft) {_THE}(?P<what>[a-z0-9' -]+?)"
-    rf"(?: (?:with|using) {_THE}(?P<item>[a-z0-9 ,'-]+))?"
-)
-_STUDY = re.compile(
-    r"(?:read|reread|examine|study|inspect|peruse|unfold|look over|look at|pore over) "
-    rf"{_THE}{_THING}(?: (?:carefully|closely|again|aloud|out loud|slowly))*"
-)
-_LIGHT_WORDS = frozenset({"light", "flame", "fire", "wick"})
-_PURPOSE = re.compile(r" (?:so that|so|to|in order to|because|before|while|for) .+$")
-_LIGHTS = frozenset({"light", "ignite", "kindle"})
-_THROWS = frozenset({"throw", "hurl", "toss", "lob", "pour", "spill", "splash"})
 _TAKES = (ConditionUse, Stabilize, DamageUse, CastSpell)  # uses that take a creature
 _SAME_VERB = {
     "ignite": "light",
@@ -119,10 +92,11 @@ def _fight(state: GameState) -> bool:
 def _put_out(state: GameState, actor: Creature, phrase: str) -> UseIntent | None:
     light = hero_light(state, actor.id)
     wanted = words(phrase)
-    if light is not None and (wanted <= _LIGHT_WORDS or fits(wanted, gear_name(light.item))):
+    light_words = intent_phrases().lexicon["light_words"]
+    if light is not None and (wanted <= light_words or fits(wanted, gear_name(light.item))):
         return UseIntent(actor.id, light.item, put_out=True)
     item = carried_entry(actor, phrase)
-    if item is None and not wanted <= _LIGHT_WORDS:
+    if item is None and not wanted <= light_words:
         return None
     return UseIntent(actor.id, item or "light", put_out=True)
 
@@ -206,7 +180,7 @@ def _with_verb(
     uses = _verb_uses(state, item, verb)
     if not uses or (not _fight(state) and all(u.when == "fight" for u in uses)):
         return None  # out of a fight a throw goes to the AI (it may start the fight)
-    aimed = _target(state, target, uses, verb in _THROWS)
+    aimed = _target(state, target, uses, verb in intent_phrases().lexicon["throw_verbs"])
     if target and aimed is None:  # aimed at a creature no use of it takes
         return None
     at_rest = all(u.when == "long_rest" for u in uses)
@@ -225,63 +199,86 @@ def _crafter(actor: Creature, verb: str) -> str | None:
     )
 
 
-def clue_read(state: GameState, actor_id: str, clean: str) -> UseIntent | None:
+def _hero(found: Found) -> Creature | None:
+    actor = found.state.creatures.get(found.actor_id)
+    return actor if actor is not None and actor.pc is not None else None
+
+
+def clue_read(found: Found) -> UseIntent | None:
     """M29.9b T13: "read the note", "examine the spore-ink note carefully" (and the rest of a
     compound sentence as `rest`) for a clue keepsake the hero carries (`rules.lore`); the read
     is a use of that keepsake (`rules.item_use.use_item`). Anything else: None."""
-    actor = state.creatures.get(actor_id)
+    actor = _hero(found)
     if actor is None or actor.pc is None:
         return None
-    cut = split_clause(clean)
-    head, rest = cut if cut is not None else (clean, None)
-    m = _STUDY.fullmatch(head)
-    if m is None:
-        return None
-    wanted = words(m["item"])
+    wanted = words(found.group("item") or "")
     clue = next((k for k in actor.pc.keepsakes if k.teaches and fits(wanted, k.name)), None)
-    return UseIntent(actor.id, clue.name, verb="read", rest=rest) if clue is not None else None
+    if clue is None:
+        return None
+    return UseIntent(actor.id, clue.name, verb="read", rest=found.rest)
+
+
+def put_out_light(found: Found) -> UseIntent | None:
+    actor = _hero(found)
+    return _put_out(found.state, actor, found.group("item") or "") if actor else None
+
+
+def use_held(found: Found) -> UseIntent | None:
+    """light / throw / read / open: the gear by `held_gear`, the verb said, an aim if any."""
+    actor = _hero(found)
+    if actor is None:
+        return None
+    item = held_gear(found.state, actor, found.group("item") or "")
+    return _with_verb(found.state, actor, item, found.group("verb"), found.group("target"))
+
+
+def use_carried(found: Found) -> UseIntent | None:
+    actor = _hero(found)
+    if actor is None:
+        return None
+    item = carried_entry(actor, found.group("item") or "")
+    return _with_verb(found.state, actor, item, None, found.group("target"))
+
+
+def craft(found: Found) -> UseIntent | None:
+    actor, verb, named = _hero(found), found.group("verb") or "", found.group("item")
+    if actor is None:
+        return None
+    item = carried_entry(actor, named) if named else _crafter(actor, verb)
+    return _with_verb(found.state, actor, item, verb, None)
+
+
+def light_first(found: Found) -> UseIntent | None:
+    if found.rest is None:
+        return None
+    first = use_intent(found.state, found.actor_id, found.text)
+    lights = intent_phrases().lexicon["light_verbs"]
+    if first is None or not (first.put_out or first.verb in lights):
+        return None
+    return replace(first, rest=found.rest)
+
+
+_USE_RESOLVERS: dict[str, Resolver] = {
+    "clue_read": clue_read,
+    "put_out": put_out_light,
+    "use_held": use_held,
+    "use_carried": use_carried,
+    "craft": craft,
+}
+RESOLVERS: dict[str, Resolver] = _USE_RESOLVERS | {"light_first": light_first}
 
 
 def use_intent(state: GameState, actor_id: str, clean: str) -> UseIntent | None:
-    actor = state.creatures.get(actor_id)
-    if actor is None or actor.pc is None:
-        return None
-    read = clue_read(state, actor_id, clean)
-    if read is not None:
-        return read
-    aim = _PURPOSE.sub("", clean) if split_clause(clean) is None else clean
-    if m := _PUT_OUT.fullmatch(aim):
-        return _put_out(state, actor, m["item"] or m["item2"])
-    if m := _LIGHT.fullmatch(aim):
-        return _with_verb(state, actor, held_gear(state, actor, m["item"]), m["verb"], None)
-    for pattern in (_LIGHT, _THROW, _READ, _OPEN):
-        if m := pattern.fullmatch(clean):
-            target = m["target"] if "target" in pattern.groupindex else None
-            return _with_verb(state, actor, held_gear(state, actor, m["item"]), m["verb"], target)
-    if m := _USE.fullmatch(clean):
-        return _with_verb(state, actor, carried_entry(actor, m["item"]), None, m["target"])
-    if m := _CRAFT.fullmatch(clean):
-        item = carried_entry(actor, m["item"]) if m["item"] else _crafter(actor, m["verb"])
-        return _with_verb(state, actor, item, m["verb"], None)
-    return None
-
-
-def light_first(state: GameState, actor_id: str, clean: str) -> UseIntent | None:
-    cut = split_clause(clean)
-    if cut is None:
-        return None
-    found = use_intent(state, actor_id, cut[0])
-    if found is None or not (found.put_out or found.verb in _LIGHTS):
-        return None
-    return replace(found, rest=cut[1])
+    found = route(state, actor_id, clean, _USE_RESOLVERS, families=("use",), base="as_is")
+    return found if isinstance(found, UseIntent) else None
 
 
 def item_phrase(clean: str) -> tuple[str, bool] | None:
     """(the gear phrase, said as the hero's own: "my"/"our") of a throw or use sentence (M27.6:
     the gear a creative effect leans on), else None."""
-    for pattern in (_THROW, _USE):
-        if m := pattern.fullmatch(clean):
-            phrase = m["item"].strip()
-            mine = re.search(rf"\b(?:my|our) {re.escape(phrase)}\b", clean) is not None
-            return phrase, mine
-    return None
+    m = text_match(("throw", "use_on"), clean)
+    if m is None:
+        return None
+    phrase = m["item"].strip()
+    mine = re.search(rf"\b(?:my|our) {re.escape(phrase)}\b", clean) is not None
+    return phrase, mine

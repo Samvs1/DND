@@ -1,7 +1,8 @@
 """Typed equip, unequip and drop (SPEC 6.2 pre-checks; moved out of `aidm.dm.precheck` in M29.7a).
 
-`item_command(state, actor_id, clean)` reads the precheck's normalised sentence and returns an
-`ItemIntent` when it plainly equips, unequips or drops an item the actor carries (or wears):
+The `item_*` phrase rows (data/bg3/intent_phrases.json) read the sentence and the resolver
+returns an `ItemIntent` when it plainly equips, unequips or drops an item the actor carries (or
+wears); the first verb row that matches decides:
 - equip: equip, wield, wear, don, put on, pull on, strap on, slip on, ready, draw, heft, take up,
   switch to, swap to; "swap/switch/trade my <old> for <new>" equips the new one;
 - unequip: unequip, unwield, sheathe, stow, put away, take off, doff, remove, unstrap, unhook,
@@ -10,22 +11,25 @@
 M29.7a R9 ("Elowen unhooks her mace and wields the new warhammer instead", "I put on the studded
 leather armor in place of my leather armor" equipped nothing): the hero's own name with a
 third-person verb reads the same (`aidm.dm.sentence.own_reading`); a trailing "instead",
-"in place of ..." or "instead of ..." is dropped; the two acts of "<unequip X> and <equip Y>"
-read as the equip (it takes Y in hand, the rules free the slot); an item named with a spare word
-("the new warhammer") is the carried item whose name words are all in the phrase, the others
-only spare words (`_SPARE`: new, old, spare ...; an exact name first). Anything else is None.
-The rules decide (`aidm.rules.equipment`).
+"in place of ..." or "instead of ..." is dropped (the `item_tail` reading); the two acts of
+"<unequip X> and <equip Y>" read as the equip (`item_pair`, ranked first: it takes Y in hand,
+the rules free the slot); an item named with a spare word ("the new warhammer") is the carried
+item whose name words are all in the phrase, the others only spare words (the lexicon's
+`spare_item_words`: new, old, spare ...; an exact name first). Anything else is None. The rules
+decide (`aidm.rules.equipment`).
 
 Public API: `ItemAction` (EQUIP/UNEQUIP/DROP), `ItemIntent(actor_id, action, item)` (`item` the
-inventory index), `item_command(state, actor_id, clean) -> ItemIntent | None`.
+inventory index), `RESOLVERS` (`item`, `item_pair`).
 """
 
 import re
 from dataclasses import dataclass
 from enum import StrEnum
 
+from aidm.data.intent_phrases import intent_phrases
 from aidm.dm.entities import display_name
-from aidm.dm.sentence import own_reading, plain_verb, split_clause
+from aidm.dm.intent_match import Found, Resolver, route
+from aidm.dm.sentence import plain_verb
 from aidm.models.state import Creature, GameState
 
 
@@ -40,22 +44,6 @@ class ItemIntent:
     actor_id: str
     action: ItemAction
     item: str
-
-
-_THE = r"(?:my |the |a |an |his |her |their |our )?"
-_EQUIP = re.compile(
-    r"(?:equip|wield|don|put on|pull on|strap on|slip on|wear|ready|draw|heft|take up|"
-    rf"switch to|swap to) {_THE}(?P<item>[a-z ,'-]+)|"
-    rf"(?:swap|switch|trade|exchange) {_THE}[a-z ,'-]+? (?:for|with) {_THE}(?P<item2>[a-z ,'-]+)"
-)
-_UNEQUIP = re.compile(
-    r"(?:unequip|unwield|sheathe|stow|put away|take off|doff|remove|unstrap|unhook|unbuckle|"
-    rf"unsling) {_THE}(?P<item>[a-z ,'-]+)"
-)
-_DROP = re.compile(rf"(?:drop|discard|throw away) {_THE}(?P<item>[a-z ,'-]+)")
-_SPARE = frozenset({"new", "old", "spare", "other", "own", "trusty", "second", "extra", "fine"})
-_SPARE |= {"good", "bought", "shiny", "borrowed", "heavy", "light", "trusted", "plain"}
-_TAIL = re.compile(r" (?:instead(?: of .*)?|in place of .*|in its place|for now)$")
 
 
 def _words(name: str) -> frozenset[str]:
@@ -77,25 +65,25 @@ def _item(actor: Creature, action: ItemAction, name: str) -> ItemIntent | None:
     wanted = _words(name)
     names = [(index, (_words(index), _words(display_name(index)))) for index in pool]
     exact = next((i for i, have in names if wanted in have), None)
+    spare = intent_phrases().lexicon["spare_item_words"]
     loose = next(
-        (i for i, have in names if any(h and h <= wanted and wanted - h <= _SPARE for h in have)),
+        (i for i, have in names if any(h and h <= wanted and wanted - h <= spare for h in have)),
         None,
     )
     found = exact or loose
     return ItemIntent(actor.id, action, found) if found is not None else None
 
 
-def _one(actor: Creature, text: str) -> ItemIntent | None:
-    text = _TAIL.sub("", text).strip()
-    for action, pattern in (
-        (ItemAction.EQUIP, _EQUIP),
-        (ItemAction.UNEQUIP, _UNEQUIP),
-        (ItemAction.DROP, _DROP),
-    ):
-        match = pattern.fullmatch(text)
-        if match:
-            return _item(actor, action, match["item"] or match.groupdict().get("item2") or "")
-    return None
+def item(found: Found) -> ItemIntent | None:
+    actor = found.state.creatures.get(found.actor_id)
+    if actor is None:
+        return None
+    return _item(actor, ItemAction(str(found.params["action"])), found.group("item") or "")
+
+
+def _one(state: GameState, actor_id: str, text: str) -> ItemIntent | None:
+    found = route(state, actor_id, text, {"item": item}, families=("item",), base="as_is")
+    return found if isinstance(found, ItemIntent) else None
 
 
 def _plain(text: str) -> str:
@@ -103,14 +91,15 @@ def _plain(text: str) -> str:
     return f"{plain_verb(verb)} {rest}".strip()
 
 
-def item_command(state: GameState, actor_id: str, clean: str) -> ItemIntent | None:
-    actor = state.creatures.get(actor_id)
-    if actor is None:
+def item_pair(found: Found) -> ItemIntent | None:
+    """Both acts of "<unequip X> and <equip Y>" are item commands: the equip, else the first."""
+    if found.rest is None:
         return None
-    own = own_reading(actor.name, clean)
-    cut = split_clause(own)
-    if cut is not None:
-        first, second = _one(actor, cut[0]), _one(actor, _plain(cut[1]))
-        if first is not None and second is not None:
-            return second if second.action is ItemAction.EQUIP else first
-    return _one(actor, own)
+    first = _one(found.state, found.actor_id, found.text)
+    second = _one(found.state, found.actor_id, _plain(found.rest))
+    if first is None or second is None:
+        return None
+    return second if second.action is ItemAction.EQUIP else first
+
+
+RESOLVERS: dict[str, Resolver] = {"item": item, "item_pair": item_pair}

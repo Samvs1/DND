@@ -1,40 +1,36 @@
 """Typed healing out of a fight (M29.5b G2 / G17 / G33: "I drink my potion", "I pour my potion
 into Rook", "Elowen casts cure wounds on Tamsin" were told by the storyteller as heals the engine
-never made). A deterministic precheck, like `aidm.dm.give_intent`; the rules decide.
+never made). Phrase rows of data/bg3/intent_phrases.json (`heal_spell`, `heal_item` out of a
+fight; `fight_heal_*` in one, `aidm.dm.fight_intent`); the rules decide.
 
-`heal_intent(state, actor_id, clean)` reads the precheck's normalised sentence:
-- a spell: the sentence says cast / casts / casting and names a healing spell (a spell whose data
+The resolvers read the sentence:
+- a spell (`heal_spell`, a word of the lexicon's `cast_words`; such a sentence is never a
+  draught): the sentence names a healing spell (a spell whose data
   has a `heal` effect, matched by the words of its id); the actor is the caster (a player plays
   only their own hero), the targets are the heroes the sentence names other than the actor (the
   last one named for a one-target spell; every hero for a many-target spell when none is named),
   else the actor;
-- a healing consumable (data/bg3/consumables.json with `heal`): a drink verb ("drink", "quaff",
-  "use", "apply" ...) heals the actor or the hero the sentence names; a giving verb ("pour",
-  "feed", "bind" ...) needs a named hero (M29.7a R7: "hand" / "give" with no drink word is a
+- a healing consumable (`heal_item`, data/bg3/consumables.json with `heal`): a drink verb
+  (`heal_self_verbs`: "drink", "quaff", "use", "apply" ...) heals the actor or the hero the
+  sentence names; a giving verb (`heal_give_verbs`: "pour", "feed", "bind" ...) needs a named
+  hero (M29.7a R7: "hand" / "give" with no drink word is a
   hand-over, `aidm.dm.hand_intent`, read before this). The draught is the actor's, else the named
   hero's own ("pours his potion between Rook's lips"). The best word match wins ("my potion").
 Anything else is None and goes on as before (the adjudicator).
 
-Public API: `HealIntent(actor_id, target_ids, item, owner_id, spell)`,
-`heal_intent(state, actor_id, clean) -> HealIntent | None`.
+Public API: `HealIntent(actor_id, target_ids, item, owner_id, spell)`, `RESOLVERS`
+(`heal_spell`, `heal_item`).
 """
 
 import re
 from dataclasses import dataclass
 
 from aidm.data.combat_data import combat_registries
+from aidm.data.intent_phrases import intent_phrases
 from aidm.data.spell_defs import HealEffect
+from aidm.dm.intent_match import Found, Resolver
 from aidm.models.state import Creature, CreatureKind, GameState
 
-_CAST = frozenset({"cast", "casts", "casting"})
-_SELF_VERBS = frozenset(
-    {"drink", "drinks", "quaff", "quaffs", "sip", "sips", "swallow", "swallows", "gulp", "use"}
-    | {"uses", "apply", "applies", "down", "downs"}
-)
-_GIVE_VERBS = frozenset(
-    {"pour", "pours", "feed", "feeds", "tip", "tips", "bind", "binds"}
-    | {"press", "presses", "administer", "administers", "rub", "rubs"}
-)
 _SMALL = frozenset({"of", "the", "a", "an", "my", "his", "her"})
 
 
@@ -67,7 +63,7 @@ def _named_heroes(state: GameState, actor_id: str, text: str) -> list[str]:
     return [cid for _, cid in sorted(found)]
 
 
-def _spell(words: set[str]) -> str | None:
+def _spell(words: frozenset[str]) -> str | None:
     heals = [
         s.index
         for s in combat_registries().spells.all()
@@ -76,7 +72,7 @@ def _spell(words: set[str]) -> str | None:
     return max(heals, key=lambda i: len(_words(i)), default=None)
 
 
-def _spell_intent(state: GameState, actor_id: str, clean: str, words: set[str]) -> HealIntent:
+def _spell_intent(state: GameState, actor_id: str, clean: str, words: frozenset[str]) -> HealIntent:
     spell = _spell(words)
     named = _named_heroes(state, actor_id, clean)
     one = spell is not None and combat_registries().spells.get(spell).targeting.kind == "creature"
@@ -88,7 +84,7 @@ def _spell_intent(state: GameState, actor_id: str, clean: str, words: set[str]) 
     return HealIntent(actor_id, targets, spell=spell)
 
 
-def _heal_items(hero: Creature, words: set[str]) -> tuple[int, str] | None:
+def _heal_items(hero: Creature, words: frozenset[str]) -> tuple[int, str] | None:
     if hero.pc is None:
         return None
     regs = combat_registries().consumables
@@ -104,10 +100,13 @@ def _heal_items(hero: Creature, words: set[str]) -> tuple[int, str] | None:
 
 
 def _item_intent(
-    state: GameState, actor: Creature, clean: str, words: set[str]
+    state: GameState, actor: Creature, clean: str, words: frozenset[str]
 ) -> HealIntent | None:
     named = _named_heroes(state, actor.id, clean)
-    if not words & _SELF_VERBS and not (words & _GIVE_VERBS and named):
+    lexicon = intent_phrases().lexicon
+    if not words & lexicon["heal_self_verbs"] and not (
+        words & lexicon["heal_give_verbs"] and named
+    ):
         return None
     target = state.creatures[named[-1]] if named else actor
     for owner in (actor, target):
@@ -117,12 +116,19 @@ def _item_intent(
     return None
 
 
-def heal_intent(state: GameState, actor_id: str, clean: str) -> HealIntent | None:
-    actor = state.creatures.get(actor_id)
+def heal_spell(found: Found) -> HealIntent | None:
+    actor = found.state.creatures.get(found.actor_id)
     if actor is None or actor.pc is None:
         return None
-    words = set(_words(clean))
-    if words & _CAST:
-        intent = _spell_intent(state, actor_id, clean, words)
-        return intent if intent.spell is not None else None
-    return _item_intent(state, actor, clean, words)
+    intent = _spell_intent(found.state, found.actor_id, found.text, found.words)
+    return intent if intent.spell is not None else None
+
+
+def heal_item(found: Found) -> HealIntent | None:
+    actor = found.state.creatures.get(found.actor_id)
+    if actor is None or actor.pc is None:
+        return None
+    return _item_intent(found.state, actor, found.text, found.words)
+
+
+RESOLVERS: dict[str, Resolver] = {"heal_spell": heal_spell, "heal_item": heal_item}

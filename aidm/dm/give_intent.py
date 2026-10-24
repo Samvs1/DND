@@ -1,32 +1,34 @@
 """Typed handing-over (M23.3, GOAL "Items": "give the bell-tongue to Yeva" is deterministic).
 
-`give_intent(state, actor_id, clean)` reads the precheck's normalised sentence ("give the
-tide-orders to gorran", "hand over the hymnal to the cantor", "give yeva the bell-tongue") and
-returns a `GiveIntent` when it names a thing the actor carries (a keepsake first, then an
-inventory item; words compared through `rules.quest_items.item_words`; M29.7a R18: showing is
-not giving, "show" is no hand-over verb; R23: a keepsake is also named by its description, or,
-when its quest's deliver step names this NPC, by any word it shares with the name: "the bent
-silver coin" is "Mord's Coin" for Mord)
-and a known, living NPC (a present one first, by name or role; when two records fit, the one an
-active quest's deliver step names). The NPC need not be here: the
-rules then refuse in plain words ("Yeva Mossbell is not here."), as they refuse a hostile one.
-M29.5c G31: the hero's own name with a third-person verb ("Rook hands the scroll over to Ranna,
-giving it into her hands") reads the same, a trailing clause cut. A sentence naming nobody known
-is None and goes on to the adjudicator; so is an abstract gift or coin ("give my thanks to
-Yeva", "give him a coin": `hand_intent.ABSTRACT_GIFTS`, `_MONEY`). M29.7a R23: a concrete thing
-the actor does not carry is still an intent (`thing` ""), so the rules say so plainly instead
-of a storyteller gift. The rules decide (`aidm.rules.handing.give_events`).
+The `give_carried` and `give_missing` phrase rows (data/bg3/intent_phrases.json: "give the
+tide-orders to gorran", "hand over the hymnal to the cantor", "give yeva the bell-tongue"; the
+sentence, its part before a comma and its part before "and" are tried in turn) give the `item`
+and `who` slots; the resolvers return a `GiveIntent` when they name a thing the actor carries (a
+keepsake first, then an inventory item; words compared through `rules.quest_items.item_words`;
+M29.7a R18: showing is not giving, "show" is no hand-over verb; R23: a keepsake is also named
+by its description, or, when its quest's deliver step names this NPC, by any word it shares
+with the name: "the bent silver coin" is "Mord's Coin" for Mord) and a known, living NPC (a
+present one first, by name or role; when two records fit, the one an active quest's deliver
+step names; the "give <who> the <thing>" form only for an NPC here). The NPC need not be here:
+the rules then refuse in plain words ("Yeva Mossbell is not here."), as they refuse a hostile
+one. An abstract gift or coin ("give my thanks to Yeva", "give him a coin": the lexicon's
+`abstract_gifts`, the `loose_money` pattern) is None. M29.7a R23: a concrete thing the actor
+does not carry is still an intent (`thing` ""), so the rules say so plainly instead of a
+storyteller gift; that row (`give_missing`) ranks after paying (M29.9a T17). The rules decide
+(`aidm.rules.handing.give_events`).
 
 Public API: `GiveIntent(actor_id, npc_id, thing)` (`thing` a keepsake id, an inventory key,
-or "" for nothing carried),
-`give_intent(state, actor_id, clean) -> GiveIntent | None`, `named_npc(state, who, anywhere)`.
+or "" for nothing carried), `RESOLVERS` (`give_carried`, `give_missing`),
+`give_intent(state, actor_id, clean) -> GiveIntent | None` (the give rows alone),
+`named_npc(state, who, anywhere)`.
 """
 
 import re
 from dataclasses import dataclass
 
+from aidm.data.intent_phrases import intent_phrases
 from aidm.dm.entities import display_name
-from aidm.dm.hand_intent import ABSTRACT_GIFTS
+from aidm.dm.intent_match import Found, Resolver, route
 from aidm.models.quests import StepKind
 from aidm.models.state import Creature, GameState
 from aidm.models.world import QuestState, WorldNpc
@@ -34,26 +36,7 @@ from aidm.rules.quest_items import item_words
 from aidm.rules.quest_plan import main_quests
 from aidm.rules.scene import current_scene
 
-_THING = r"(?:my |the |a |an |this |that |our )?(?P<{}>[a-z0-9 ,'-]+?)"
-_GIVE = re.compile(
-    r"(?:give|hand|pass|offer|present|deliver|return)(?: over| back)? "
-    + _THING.format("item")
-    + r"(?: over| back)? to (?:the )?(?P<who>[a-z0-9' -]+?)|"
-    r"(?:give|hand|pass|offer|return) (?P<who2>[a-z0-9' -]+?) "
-    r"(?:my |the |our |this |that )(?P<item2>[a-z0-9 ,'-]+?)"
-)
-
-
 _PRONOUNS = frozenset({"it", "them", "this", "that", "these", "those", "one", "him", "her"})
-_THIRD = {
-    "gives": "give",
-    "hands": "hand",
-    "passes": "pass",
-    "offers": "offer",
-    "presents": "present",
-    "delivers": "deliver",
-    "returns": "return",
-}
 
 
 @dataclass(frozen=True)
@@ -70,13 +53,6 @@ def _words(text: str) -> frozenset[str]:
 def _fits(wanted: frozenset[str], name: str) -> bool:
     have = _words(name)
     return bool(wanted) and bool(have) and (wanted <= have or have <= wanted)
-
-
-_MONEY = re.compile(
-    r"(?:\d+|some|a few|a|an|one|two|three|a handful of|a bit of|a little)? ?"
-    r"(?:gold|silver|copper|coin|coins|gold coins?|silver coins?|copper coins?|gp|sp|cp|money)"
-    r"(?: pieces?| coins?)?"
-)
 
 
 def _delivers_to(state: GameState, quest_id: str | None, npc_id: str) -> bool:
@@ -125,8 +101,9 @@ def _thing(state: GameState, actor: Creature, name: str, npc_id: str) -> str | N
     if item is not None:
         return item
     plain = name.strip().removeprefix("some ")
-    abstract = not wanted or wanted & ABSTRACT_GIFTS or wanted <= _PRONOUNS
-    return None if abstract or _MONEY.fullmatch(plain) else ""
+    table = intent_phrases()
+    abstract = not wanted or wanted & table.lexicon["abstract_gifts"] or wanted <= _PRONOUNS
+    return None if abstract or re.fullmatch(table.patterns["loose_money"], plain) else ""
 
 
 def _npc_fits(npc: WorldNpc, wanted: frozenset[str]) -> bool:
@@ -164,40 +141,26 @@ def named_npc(state: GameState, who: str, anywhere: bool) -> str | None:
     return _pick(state, [n.id for n in living if _fits(wanted, n.name)])
 
 
-def _readings(actor: Creature, clean: str) -> list[str]:
-    """M29.5c G31: "rook hands the receipt-scroll over to ranna, giving it into her hands" is a
-    hand-over too: the hero's own name and a third-person verb read as "hand ...", and a
-    trailing clause (after a comma or "and") is cut."""
-    text = clean
-    name = actor.name.lower()
-    for prefix in (name, name.split()[0]):
-        if text.startswith(f"{prefix} "):
-            verb, _, rest = text[len(prefix) + 1 :].partition(" ")
-            text = f"{_THIRD.get(verb, verb)} {rest}".strip()
-            break
-    cuts = [text, text.split(",")[0].strip(), text.split(" and ")[0].strip()]
-    return list(dict.fromkeys(c for c in cuts if c))
-
-
-def _intent(state: GameState, actor: Creature, reading: str) -> GiveIntent | None:
-    match = _GIVE.fullmatch(reading)
-    if match is None:
+def _resolve(found: Found) -> GiveIntent | None:
+    state = found.state
+    actor = state.creatures.get(found.actor_id)
+    if actor is None:
         return None
-    if match["who"] is not None:
-        item, npc_id = match["item"], named_npc(state, match["who"], anywhere=True)
-    else:
-        item, npc_id = match["item2"], named_npc(state, match["who2"], anywhere=False)
+    npc_id = named_npc(state, found.group("who") or "", anywhere=found.params["anywhere"] is True)
     if npc_id is None:
         return None
-    thing = _thing(state, actor, item, npc_id)
-    if thing is None:
-        return None
-    return GiveIntent(actor.id, npc_id, thing)
+    thing = _thing(state, actor, found.group("item") or "", npc_id)
+    return GiveIntent(actor.id, npc_id, thing) if thing is not None else None
+
+
+def give_carried(found: Found) -> GiveIntent | None:
+    intent = _resolve(found)
+    return intent if intent is not None and intent.thing else None
+
+
+RESOLVERS: dict[str, Resolver] = {"give_carried": give_carried, "give_missing": _resolve}
 
 
 def give_intent(state: GameState, actor_id: str, clean: str) -> GiveIntent | None:
-    actor = state.creatures.get(actor_id)
-    if actor is None:
-        return None
-    found = [i for r in _readings(actor, clean) if (i := _intent(state, actor, r)) is not None]
-    return next((i for i in found if i.thing), found[0] if found else None)
+    found = route(state, actor_id, clean, RESOLVERS, families=("give",))
+    return found if isinstance(found, GiveIntent) else None
