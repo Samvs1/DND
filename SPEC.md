@@ -221,18 +221,28 @@ For each free-text player action (exploration) the actor runs:
    offending names scrubbed from the context. Still bad: fall back to the safe template narration.
 5. **Commit** events, update memory (6.6), autosave.
 
-Combat turns do NOT use free-text parsing for standard actions. The UI sends structured commands
-(`attack`, `cast`, `move`, `dash`, `disengage`, `shove`, `jump`, `use_item`, `hide`, `help`,
-`end_turn`). Free text in combat goes through the adjudicator as a `creative_action` limited to the
-tools in 6.3. Monster turns are decided by `rules.monster_ai`, and ONE batched narration call per
+Buttons send structured commands (`attack`, `cast`, `move`, `dash`, `disengage`, `shove`, `jump`,
+`use_item`, `hide`, `help`, `end_turn`, and the scene actions). A typed line, in or out of combat, is
+first read by the menu chooser (6.2): the steps it picks run through the same code as the buttons;
+only `other` (a stunt or anything off the menu) reaches the adjudicator above, in combat as a
+`creative_action` limited to the tools in 6.3. Monster turns are decided by `rules.monster_ai`, and ONE batched narration call per
 round segment describes consecutive monster turns.
 
-### 6.2 Routing without a router
+### 6.2 Reading a typed line: the engine's menu, the model's pick (M36, owner 2026-10-25)
 
-There is no separate classifier. The adjudicator IS the router. Its tools cover: checks, saves,
-social attitude, movement, creation, rewards, starting an encounter, and `no_mechanics`.
-Deterministic pre-checks (rule-based, no LLM) handle obvious commands: rest, shop, travel to a
-listed neighbour, inventory/equipment management, "look around" (served from the manifest).
+There is no keyword router. For every typed line the engine builds the acting hero's menu of legal
+actions right now (`rules.action_menu.build_menu`): everything the buttons offer plus the scene
+(people to talk to, give/hand/pay/take, search, look, travel destinations, rest, shop, equip, offer
+answers, the quest card, helping a downed hero up). Each entry has a stable id from data keys, a short
+label and its allowed targets and quantity. One FAST call with ONE forced tool, `choose_actions`, whose
+schema is built per call with enums of the menu's ids, returns up to 4 ordered steps or `other`. The
+engine turns steps into acts (`rules.menu_steps.to_acts`, pure) and runs them through the button code
+paths; engine meaning lives there, never in wording (a melee attack out of reach approaches first, a
+stowed weapon is drawn, travel to where you are says so). No confirmation prompt. A line that exactly
+matches a menu label or a button/chip sentence plays with no model call (also the fallback when the
+call fails; otherwise the in-fiction fallback notice, the turn not consumed). The interpreter is
+measured by a labelled corpus of real typed lines (`scripts/eval_interpret.py`). Design:
+docs/next/M36_ACTION_MENU.md.
 
 ### 6.3 Tools (all validated by pydantic; engine owns the numbers)
 
