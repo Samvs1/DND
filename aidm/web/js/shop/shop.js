@@ -44,7 +44,7 @@ function closedView(view, client, store) {
     h(
       'li',
       {},
-      h('button', { type: 'button', class: 'btn', 'data-testid': 'shop-visit', 'data-npc': npc.id, onclick: () => { client.send('submit_action', { text: `trade with ${npc.name}` }); store.update({ panel: null, ctab: 'play' }); } }, t('shop.visit', { name: npc.name })),
+      h('button', { type: 'button', class: 'btn', 'data-testid': 'shop-visit', 'data-npc': npc.id, onclick: () => { client.send('submit_action', { text: `Trade with a shopkeeper here ${npc.name}` }); store.update({ panel: null, ctab: 'play' }); } }, t('shop.visit', { name: npc.name })),
     ),
   );
   return [h('p', { class: 'hint', 'data-testid': 'shop-closed' }, t('shop.closed')), h('ul', { class: 'shop-visit-list' }, ...rows), h('p', { class: 'hint' }, t('shop.visitHint'))];

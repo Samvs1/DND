@@ -65,7 +65,7 @@ def test_dark_board_and_phone_badges_in_a_fight(
     active.click("[data-testid=put-out-light]")
     assert active.evaluate("window.__sent.at(-1)") == {
         "type": "submit_action",
-        "text": "put out my light",
+        "text": "Put out your light",
     }
     shot(active, "04_torch_lit_putout_phone390")
     assert errors == []
@@ -104,7 +104,7 @@ def test_out_of_a_fight_dark_scene_chip_and_card(browser: Browser, live_server: 
     assert host.inner_text("[data-testid=dark-badge]").lower() == "lit"
     assert host.locator("[data-testid=boon-chip]").count() == 1
     host.click("[data-testid=put-out-light]")
-    assert host.evaluate("window.__sent.at(-1)")["text"] == "put out my light"
+    assert host.evaluate("window.__sent.at(-1)")["text"] == "Put out your light"
     shot(host, "06_torch_lit_now_card_phone390")
     assert errors == []
 
@@ -122,11 +122,12 @@ def test_item_card_use_says_what_it_does_here(browser: Browser, live_server: Liv
     page.evaluate(CARD, {"dark": True})
     assert "Light this dark place" in page.inner_text("[data-testid=inv-use]")
     page.click("[data-testid=use-here-torch-light]")
-    assert page.evaluate("window.__sent") == [{"type": "submit_action", "text": "light my torch"}]
+    assert page.evaluate("window.__sent") == [{"type": "submit_action", "text": "Light the torch"}]
     page.click("[data-testid=inv-item][data-item=crowbar]")
     assert page.locator("[data-testid=use-here-target-crowbar-force] option").all_inner_texts() == [
         "Cellar door"
     ]
     page.click("[data-testid=use-here-crowbar-force]")
-    assert page.evaluate("window.__sent.at(-1)")["text"] == "use my crowbar on Cellar door"
+    force = "Force this open with the crowbar Cellar door"  # the menu's own label (M36.10b)
+    assert page.evaluate("window.__sent.at(-1)")["text"] == force
     shot(page, "07_item_card_use_phone390")
