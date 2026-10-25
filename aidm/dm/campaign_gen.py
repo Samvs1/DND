@@ -5,7 +5,15 @@ their terrains, the NPC archetypes and terrain tags the engine supports) -> `llm
 with `CampaignDraft` -> `assemble_plan` (code assigns ids, resolves names) -> `plan_problems`
 (registry checks + region graph validation: connectivity, no soft-locks, the boss at the
 gateway, defeat always possible) -> on problems a bounded retry with the problem list fed back
--> exhausted, LLM failure or no key -> the built-in sample campaign (`load_sample_campaign`).
+-> exhausted or no key -> the built-in sample campaign (`load_sample_campaign`).
+Retry over fall back (M35.4, Y20): a client `LlmFailure` (JSON broken on every client try, a
+timeout, a transport error) spends one plan attempt and the next attempt asks again; only the
+attempts running out falls back. Worst case per campaign: `max_attempts` plan attempts x
+(1 + `LlmSettings.max_retries`) provider calls = 3 x 3 = 9 calls (a timeout or transport error
+costs one call, since the client returns it at once). Repair over reject (M35.4): before
+assembly `aidm.dm.campaign_refs.repair_draft_refs` swaps wrong-tier or unknown monsters, unknown
+terrains and archetypes and dangling home places for valid ones and drops a quest without a
+giver (each a note); only what is left (plan structure, the region graph) is fed back.
 Quests (M23.6): the draft's steps, routes and finale are repaired while assembling (each repair a
 note); `check_plan_quests` problems left after repair are fed back on a retry, but a plan whose
 only problems are quest problems is kept and accepted when the attempts run out (repair over
@@ -35,6 +43,7 @@ from aidm.data.encounter_monsters import encounter_monsters
 from aidm.data.srd import srd
 from aidm.data.zone_templates import zone_templates
 from aidm.dm.campaign_draft import CampaignDraft, assemble_plan
+from aidm.dm.campaign_refs import repair_draft_refs
 from aidm.dm.campaign_sample import load_sample_campaign
 from aidm.dm.llm_backend import Message
 from aidm.dm.llm_client import LlmClient
@@ -49,6 +58,7 @@ MAX_PLAN_ATTEMPTS = 3
 CAMPAIGN_TIMEOUT_S = 150.0
 CAMPAIGN_MAX_TOKENS = 9000
 MAX_FEEDBACK = 12
+MAX_FAILURE_DETAIL = 160
 SURPRISE_WORDS = frozenset({"", "surprise me", "surprise", "random", "anything", "you choose"})
 MAX_ARCHETYPE_CR = 8.0
 
@@ -69,6 +79,7 @@ Rules the engine checks:
 - A boss may have an ally_path (how the party could turn them); fighting stays possible.
   A boss is one person: never list them again among the NPCs under a shorter name.
 - Write short, evocative flavour. NPC motives and secrets are for the game master only.
+- Text values never contain double quotes; write single quotes for a name or saying inside text.
 Quests (the engine checks every step itself; use the exact names you defined):
 - A step is a kind plus a short note (max 100 characters; the engine writes the line players read
   from the step's fields, so put the story in the quest objective): visit (places: 1-3 places to
@@ -171,7 +182,7 @@ def _judge(
 ) -> tuple[CampaignResult | None, list[Problem]]:
     """The accepted result (None when the plan is invalid) and the problems to feed back."""
     repairs: list[Problem] = []
-    assembled = assemble_plan(draft, repairs)
+    assembled = assemble_plan(repair_draft_refs(draft, repairs), repairs)
     if not isinstance(assembled, CampaignPlan):
         return None, assembled
     problems = plan_problems(assembled, seed)
@@ -205,13 +216,21 @@ async def generate_campaign(
             max_tokens=CAMPAIGN_MAX_TOKENS,
         )
         if isinstance(draft, LlmFailure):
-            return _kept(kept, attempt) or _fallback(problems, attempt)
+            problems = [_failure(draft, attempt)]
+            continue
         result, problems = _judge(draft, seed, attempt)
         if result is not None and not problems:
             return result
         kept = result or kept
         messages = [*messages, *_feedback(draft, problems)]
     return _kept(kept, max_attempts) or _fallback(problems, max_attempts)
+
+
+def _failure(failure: LlmFailure, attempt: int) -> Problem:
+    """The log line of an attempt the client could not answer (it is retried, never fed back)."""
+    detail = failure.detail[:MAX_FAILURE_DETAIL]
+    msg = f"attempt {attempt}: no plan ({failure.reason.value}: {detail})"
+    return Problem(code="llm_failure", message=msg, subject=f"attempt-{attempt}")
 
 
 def _kept(kept: CampaignResult | None, attempts: int) -> CampaignResult | None:

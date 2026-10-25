@@ -20,7 +20,7 @@ from aidm.models.quests import QuestStep, RouteKind, StepKind
 from aidm.rules.plan_ids import boss_npc_id
 from aidm.rules.quest_check import check_plan_quests
 from aidm.rules.quest_plan import main_quest, main_quests
-from tests.ai.campaign_fixtures import draft_from_plan, with_bad_theme
+from tests.ai.campaign_fixtures import draft_from_plan
 from tests.ai.fake_scripts import fake_client
 
 PARTY = "four level-1 adventurers: fighter, rogue, cleric, wizard"
@@ -270,9 +270,16 @@ async def test_generator_keeps_a_plan_with_only_quest_problems(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     _left_once(monkeypatch, 1)
+    calls = {"n": 0}
+    softlock = Problem(code="softlock", message="glutmere: the gateway cannot be reached")
+
+    def rejected_after_first(plan: CampaignPlan, seed: int = 0) -> list[Problem]:
+        calls["n"] += 1
+        return [] if calls["n"] == 1 else [softlock]
+
+    monkeypatch.setattr(campaign_gen, "plan_problems", rejected_after_first)
     good = draft_from_plan()
-    bad = with_bad_theme(good)
-    client, _ = fake_client(tmp_path, [_submit(good), _submit(bad), _submit(bad)])
+    client, _ = fake_client(tmp_path, [_submit(good), _submit(good), _submit(good)])
     result = await generate_campaign("salt", PARTY, client)
     assert result.source is CampaignSource.MODEL and result.attempts == 3
     assert [p.code for p in result.problems] == ["step_tag"]
