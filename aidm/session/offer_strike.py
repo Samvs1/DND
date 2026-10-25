@@ -12,21 +12,33 @@ started and the act waits for the turn, and the story of the fight's start is to
 player's words, so it never tells the blow or the spell before the engine does. An offer that
 closes without a fight (its foes are gone, the region is settled) goes to the storyteller.
 
-Public API: `WAITS`, `offer_strike_turn`.
+M35.2 (round 6 Y9: "I cast Sleep on the kobolds behind the spur" at a waiting offer was cast at
+the scene, the slot spent and the offer still waiting): a typed cast of a harmful spell while a
+foe's offer waits here (`rules.waiting_foe.cast_starts_fight`) is the same act
+(`cast_opens_fight`): the fight starts and the cast waits for the hero's turn.
+
+Public API: `WAITS`, `offer_strike_turn`, `cast_opens_fight`.
 """
 
 from aidm.dm.arrival import offer_data
+from aidm.dm.cast_intent import CastIntent
 from aidm.dm.offer_intent import OfferStrikeIntent
 from aidm.models.campaign_state import OfferChoice
 from aidm.models.protocol_server import NoticeKind
 from aidm.models.protocol_views import QueueEntry
 from aidm.rules.offer_answer import OfferRefused, answer_offer
+from aidm.rules.waiting_foe import cast_starts_fight
 from aidm.session import combat_flow, waiting_line
 from aidm.session.held import adjudicated
 from aidm.session.table_core import Player, TableCore
 from aidm.session.telling import conclude
 
 WAITS = "The fight starts. What you typed waits for {name}'s turn and is played then, as typed."
+
+
+def cast_opens_fight(core: TableCore, intent: CastIntent) -> bool:
+    spell = core.regs.combat.spells.find(intent.spell)
+    return spell is not None and cast_starts_fight(core.state, spell)
 
 
 async def offer_strike_turn(

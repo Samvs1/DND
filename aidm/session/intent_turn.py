@@ -18,6 +18,8 @@ words are declared to the table (not for the private inventory listing); then
 M32.1a: an attack at the waiting offer starts the fight and waits for the hero's turn
 (`offer_strike`); a plain no-roll answer (`RefusedIntent`: the dead do not surrender) is a notice
 and the offer still waits; an impossible feat logs `ActionImpossible` with no dice and is told.
+M35.2 (round 6 Y9): a harmful spell read as a cast at the scene while a foe's offer waits here is
+the same fight-starting act (`offer_strike.cast_opens_fight`): never a slot spent at the scene.
 
 Public API: `resolve_line`, `run_intent`, `inventory_text`.
 """
@@ -68,7 +70,7 @@ from aidm.session.asides import Aside, told_with
 from aidm.session.declared import declare
 from aidm.session.held import adjudicated, hold_parley
 from aidm.session.lore_turn import lore_turn
-from aidm.session.offer_strike import offer_strike_turn
+from aidm.session.offer_strike import cast_opens_fight, offer_strike_turn
 from aidm.session.search_turn import search_turn
 from aidm.session.table_core import Player, TableCore
 from aidm.session.telling import conclude, remember, tell_text
@@ -176,6 +178,8 @@ async def _run_other(core: TableCore, player: Player, entry: QueueEntry, intent:
         await search_turn(core, entry, intent)
     elif isinstance(intent, AskIntent):  # M31.1b V13: what the person teaches, then the telling
         await lore_turn(core, entry, intent)
+    elif isinstance(intent, CastIntent) and cast_opens_fight(core, intent):  # M35.2 Y9
+        await offer_strike_turn(core, player, entry, OfferStrikeIntent(intent.actor_id))
     elif isinstance(intent, HealIntent | CastIntent):  # M30.0b T7: a typed spell out of a fight
         await heal_actions.heal_intent(core, player, intent)
     elif isinstance(intent, OfferStrikeIntent):  # M32.1a X3: the fight, then this line

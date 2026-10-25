@@ -7,7 +7,8 @@ before the parley rows) hands a line that names a foe of the offer here, and the
 returns `OfferStrikeIntent` when the line strikes (a sneak or an ambush, the row's
 `stealth_words` veto, stays the storyteller's surprise): a weapon the hero has (or a weapon kind,
 `strike_intent.said_weapon`), a strike word of the lexicon's `strike_verbs`, or a harmful spell
-the hero names (`spell_names.named_spell`, `rules.ai_spells.is_hostile_spell`). The session
+the hero names (`spell_names.named_spell`, `rules.ai_spells.is_hostile_spell`; M35.2 Y9: or
+`spell_targets.strikes_creatures`, so an HP pool such as Sleep counts). The session
 starts the fight as the offer's Fight answer and plays the same line as the hero's own turn
 (`session.offer_strike`). M33.1 (ultrareview 3): the words are read by position
 (`dm.strike_words`): a weapon word only as a weapon ("my bow", not "I bow to the captain"), a
@@ -36,6 +37,7 @@ from aidm.dm.strike_words import marked, negated, strikes
 from aidm.models.abilities import Skill
 from aidm.models.state import Creature
 from aidm.rules.ai_spells import is_hostile_spell
+from aidm.rules.spell_targets import strikes_creatures
 from aidm.rules.surrender import offer_never_yield_line
 
 
@@ -50,8 +52,8 @@ def _harmful_spell(actor: Creature, words: list[str]) -> bool:
         return False
     if said[3]:  # a targeted ability (Turn Undead) aims at others
         return True
-    spell = combat_registries().spells.find(said[0])
-    return spell is not None and is_hostile_spell(spell)
+    spell = combat_registries().spells.find(said[0])  # M35.2 Y9: an HP pool (Sleep) harms too
+    return spell is not None and (is_hostile_spell(spell) or strikes_creatures(spell))
 
 
 def offer_strike(found: Found) -> OfferStrikeIntent | None:

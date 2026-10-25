@@ -13,7 +13,8 @@
   act), or the refusal told as above and nothing applied.
 - `rest_with_crafts(core, crafts) -> Job`: the long rest, then each `(hero, item)` long-rest use
   with `resting=True`; a craft the rules refuse after the rest (supplies spent by the rest, no
-  proficiency) is told as a notice and nothing is made.
+  proficiency) is told as a notice and nothing is made. M35.2: with a foe's offer waiting here
+  neither happens: the foe strikes first (`session.rest_ambush`).
 - `fight_gear(core, player, entry) -> bool` (a fight): a typed put-out (free, on any turn) or a
   typed light (a bonus action on the hero's own turn, the interpreter spends it) is scheduled
   here (a refusal is a notice). M27.6: any other typed gear use on the hero's own turn ("throw
@@ -44,6 +45,7 @@ from aidm.rules.light import put_out
 from aidm.rules.rests import RestRefused, long_rest, rest_refused_text
 from aidm.session import combat_flow, votes
 from aidm.session.declared import declare
+from aidm.session.rest_ambush import ambushed
 from aidm.session.table_core import Job, Player, TableCore
 from aidm.session.telling import conclude, remember, tell_text
 from aidm.session.views import public_combat
@@ -108,6 +110,8 @@ async def first_act(core: TableCore, player: Player, intent: UseIntent) -> list[
 
 def rest_with_crafts(core: TableCore, crafts: tuple[tuple[str, str], ...]) -> Job:
     async def job() -> None:
+        if await ambushed(core):  # M35.2 Y4: no rest and no craft with a foe waiting here
+            return
         try:
             events = core.apply_all(long_rest(core.state))
         except RestRefused as refused:

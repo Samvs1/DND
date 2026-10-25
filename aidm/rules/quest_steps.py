@@ -6,7 +6,9 @@ Every check reads the CURRENT state. A step is met when its count reaches `Quest
   count until the next arrival); a main quest (active from the first step into its region) and
   a save from before count `World.visited` (x/N);
 - clear: a fight there was won (or a parley succeeded): the spoke milestone `clear:<node>` in
-  `CampaignState.milestones` (DECISIONS M23.2); a gateway counts once its boss is defeated;
+  `CampaignState.milestones` (DECISIONS M23.2); a gateway counts once its boss is defeated or,
+  M35.2 (round 6 Y6: a favour's "Win the fight at The Wailing Keep" could never close once the
+  master there was won over), once its region is resolved by any route (the threat is over);
 - defeat: the NPC is dead (`WorldNpc.dead`), or the step names a region boss and
   `progression.boss_defeated` holds (saves from before `dead`);
 - obtain: the party has `count` copies: engine quest items of that name (any quest's: one item
@@ -93,7 +95,9 @@ def _clear(state: GameState, step: QuestStep, owner: str) -> int:
     if clear_key(node) in campaign.milestones:
         return 1
     region = next((r for r in campaign.plan.all_regions() if r.gateway.id == node), None)
-    return int(region is not None and boss_defeated(state, region))
+    if region is None:
+        return 0
+    return int(region.id in campaign.resolved or boss_defeated(state, region))
 
 
 def _defeat(state: GameState, step: QuestStep, owner: str) -> int:

@@ -2,8 +2,9 @@
 
 Vote jobs (run once a ready vote passes): `travel_job` (the `move_party` DM tool, then the
 M5.4 arrival order through `telling.conclude`; a crossing that leaves open tasks behind asks the
-proposer first, `quest_people.hold`, M23.4), `rest_job` (`rules.rests`), `shop_job` (the
-`open_shop` tool, then `shop_stock` to everyone). Hero jobs: `answer` (the pending encounter
+proposer first, `quest_people.hold`, M23.4), `rest_job` (`rules.rests`; M35.2: with a foe's
+offer waiting here no rest is taken and the foe strikes first, `session.rest_ambush`), `shop_job`
+(the `open_shop` tool, then `shop_stock` to everyone). Hero jobs: `answer` (the pending encounter
 offer, first answer wins), `buy`/`sell` (`rules.shop`), `level` (`rules.leveling.level_up`; not
 in a fight, M20.4), `equip`/`unequip`/`drop` and the equip/drop pre-check intents
 (`rules.equipment`; M31.1a V7: both acts of a compound line, one already so is an `ALREADY`
@@ -63,6 +64,7 @@ from aidm.rules.scrolls import ScrollCopyRefused, copy_scroll_to_spellbook, scro
 from aidm.rules.shop import ShopRefused, buy_events, npc_shop_stock, sell_events
 from aidm.session import combat_flow
 from aidm.session.quest_people import hold
+from aidm.session.rest_ambush import ambushed
 from aidm.session.table_core import Job, Player, TableCore
 from aidm.session.telling import conclude, remember, tell_text
 from aidm.session.views import stock_lines
@@ -97,6 +99,8 @@ def travel_job(core: TableCore, actor_id: str, node_id: str) -> Job:
 
 def rest_job(core: TableCore, kind: RestKind) -> Job:
     async def job() -> None:
+        if await ambushed(core):  # M35.2 Y4: a foe waiting here takes the opening
+            return
         try:
             events = (
                 short_rest(core.state, core.regs.combat.chars.features)

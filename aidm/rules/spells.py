@@ -32,7 +32,9 @@ Public API:
   and one `SpellCast(at_scene=True)`. Nothing else is recorded: outside a fight there is no zone
   to move into or cover and no combatant to strike, so a teleport moves nobody between places
   (travel stays travel), a surface lies nowhere, and no concentration starts or ends (there is
-  nothing to hold; docs/RULES_DECISIONS.md M30.2b).
+  nothing to hold; docs/RULES_DECISIONS.md M30.2b). M35.2 (round 6 Y9): a hostile spell while
+  a foe's encounter offer waits here is the fight's opening act, never a scene cast: refused
+  before any slot is spent (`rules.waiting_foe.cast_starts_fight`; the session starts the fight).
 - `scroll_cast(state, reader_id, spell, numbers, (target_ids, target_zone), rng, regs)` (M27.7):
   a spell read from a scroll with the scroll's numbers at the spell's own level, no slot
   (`aidm.rules.scroll_read`).
@@ -72,6 +74,7 @@ from aidm.rules.spell_targets import (
     caster_numbers,
     resolve_targets,
 )
+from aidm.rules.waiting_foe import FOE_WAITS, cast_starts_fight
 
 
 def _check_casting(
@@ -203,6 +206,8 @@ def scene_cast(
     enc = state.encounter
     if enc is not None and enc.status is EncounterStatus.ACTIVE and caster_id in enc.combatants:
         raise CommandRefused(RefusalCode.CANNOT_ACT, "In a fight, cast it from your spells.")
+    if cast_starts_fight(state, spell):
+        raise CommandRefused(RefusalCode.CANNOT_ACT, FOE_WAITS)
     caster = _caster(state, caster_id, spell, regs)
     numbers, _ = _numbers(caster, spell, regs)
     cast_level, paid = cast_slot(caster, spell, None, numbers.resource)
