@@ -35,7 +35,7 @@ from aidm.session import party_actions, what_now
 from aidm.session.asides import Aside, told_with
 from aidm.session.declared import declare
 from aidm.session.intent_turn import run_intent
-from aidm.session.menu_pick import line_menu, pick, play_steps
+from aidm.session.menu_pick import MenuQueueEntry, line_menu, pick, play_steps
 from aidm.session.table_core import Player, TableCore
 
 FIGHT_STARTED = "the fight has started"
@@ -52,7 +52,10 @@ def _private(act: Act) -> bool:
 
 async def menu_line(core: TableCore, player: Player, actor: Creature, entry: QueueEntry) -> None:
     menu = line_menu(core, actor.id)
-    choice = await pick(core, player, actor.id, entry.text, menu)
+    if isinstance(entry, MenuQueueEntry):  # a button's pick (M36.11): no model call
+        choice = entry.choice
+    else:
+        choice = await pick(core, player, actor.id, entry.text, menu)
     if choice is None:
         return
     groups = to_groups(core.state, menu, choice, core.regs.combat, entry.text)

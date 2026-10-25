@@ -33,7 +33,7 @@ router: a line out of a fight is `session.menu_turn.menu_line`, a fight line
 `session.menu_fight_turn.menu_combat_line`, and "what now" is the menu's own entry (no router
 pre-check).
 
-Public API: `submit_action`, `kick_resolver`, `resolve_next`, `resolve_action`.
+Public API: `acting_hero`, `submit_action`, `kick_resolver`, `resolve_next`, `resolve_action`.
 """
 
 from aidm.dm.precheck import asks_what_now
@@ -44,31 +44,42 @@ from aidm.models.protocol_server import (
     Resolving,
 )
 from aidm.models.protocol_views import QueueEntry, TablePhase
+from aidm.models.state import Creature
 from aidm.session import fight_text, menu_fight_turn, what_now
 from aidm.session.intent_turn import resolve_line
 from aidm.session.menu_turn import menu_line
 from aidm.session.table_core import Player, TableCore
 
 
-def submit_action(core: TableCore, player: Player, msg: SubmitAction) -> None:
+def acting_hero(core: TableCore, player: Player, text: str | None) -> Creature | None:
+    """The hero who may act now, or None (the player was told why). `text` is the typed line
+    (the router reads "what now" from it); a button's pick passes None (M36.11)."""
     if core.phase is not TablePhase.PLAY:
         ended = core.phase is TablePhase.ENDED
-        text = "This tale has ended." if ended else "The adventure has not started yet."
-        core.error(player.id, ErrorCode.WRONG_PHASE, text)
-        return
+        words = "This tale has ended." if ended else "The adventure has not started yet."
+        core.error(player.id, ErrorCode.WRONG_PHASE, words)
+        return None
     pc = core.living_pc(player)
     menu = core.config.interpreter == "menu"
-    if not menu and asks_what_now(core.state, pc.id if pc is not None else "", msg.text):
+    if not menu and text is not None and asks_what_now(core.state, pc.id if pc else "", text):
         what_now.answer(core, player)  # M23.8: not a turn, also in a fight
-        return
+        return None
     if pc is None:
         core.error(player.id, ErrorCode.NO_CHARACTER, "You need a living hero to act.")
-        return
+        return None
     if pc.hp <= 0:  # M11.1: a downed hero cannot act (v1: the unconscious hero kept typing)
         core.error(player.id, ErrorCode.NO_CHARACTER, "You are unconscious and cannot act.")
-        return
+        return None
     if core.pending is not None and core.pending.player_id == player.id:
         core.pending = None  # a new action answers the open "Are you sure?" with no (M15.1)
+    return pc
+
+
+def submit_action(core: TableCore, player: Player, msg: SubmitAction) -> None:
+    pc = acting_hero(core, player, msg.text)
+    if pc is None:
+        return
+    menu = core.config.interpreter == "menu"
     if core.combat_active():
         fight_line = menu_fight_turn.menu_combat_line if menu else fight_text.combat_text
         fight_line(core, player, pc, msg.text)

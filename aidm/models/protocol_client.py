@@ -76,6 +76,17 @@ class SubmitAction(_Client):
     text: str = Field(max_length=MAX_TEXT)
 
 
+class MenuAct(_Client):
+    """One pick from the engine's action menu, sent by a button (M36.11): the menu entry's id, the
+    target ids and the count, the shape of `models.action_menu.MenuStep`. Played with no model
+    call, on the same turn and off-turn rules as a typed line."""
+
+    type: Literal["menu_act"] = "menu_act"
+    entry: str = Field(min_length=1, max_length=MAX_NAME * 2)
+    targets: tuple[str, ...] = Field(default=(), max_length=4)
+    qty: int = Field(default=1, ge=1, le=99)
+
+
 class CombatCommandMsg(_Client):
     type: Literal["combat_command"] = "combat_command"
     command: Command

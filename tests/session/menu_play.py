@@ -56,6 +56,7 @@ async def menu_play(
     script: Sequence[FakeStep] = (),
     also: tuple[str, ...] = (),
     log: SessionLog | None = None,
+    send: AnyClientMsg | None = None,
 ) -> MenuPlayed:
     """Seat a player as the hero who typed at `seq` (or `actor`), send the line (or `text`).
     `also` seats other players first (their heroes' turns wait for them). On a fight state the
@@ -77,7 +78,8 @@ async def menu_play(
         seat.drain()
         start = table.state.event_count
         msgs: list[AnyServerMsg] = []
-        for msg in (SubmitAction(text=text if text is not None else said), *then):
+        first = send or SubmitAction(text=text if text is not None else said)  # `send`: M36.11
+        for msg in (first, *then):
             seat.send(msg)
             await table.settle()
             msgs += seat.drain()

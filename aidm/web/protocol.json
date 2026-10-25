@@ -1548,6 +1548,45 @@
           "title": "LevelUpChoices",
           "type": "object"
         },
+        "MenuAct": {
+          "additionalProperties": false,
+          "description": "One pick from the engine's action menu, sent by a button (M36.11): the menu entry's id, the\ntarget ids and the count, the shape of `models.action_menu.MenuStep`. Played with no model\ncall, on the same turn and off-turn rules as a typed line.",
+          "properties": {
+            "entry": {
+              "maxLength": 80,
+              "minLength": 1,
+              "title": "Entry",
+              "type": "string"
+            },
+            "qty": {
+              "default": 1,
+              "maximum": 99,
+              "minimum": 1,
+              "title": "Qty",
+              "type": "integer"
+            },
+            "targets": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 4,
+              "title": "Targets",
+              "type": "array"
+            },
+            "type": {
+              "const": "menu_act",
+              "default": "menu_act",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "entry"
+          ],
+          "title": "MenuAct",
+          "type": "object"
+        },
         "MonsterActionCommand": {
           "additionalProperties": false,
           "properties": {
@@ -2237,6 +2276,7 @@
           "host_turn_timer": "#/$defs/HostTurnTimer",
           "import_character": "#/$defs/ImportCharacter",
           "level_up": "#/$defs/LevelUp",
+          "menu_act": "#/$defs/MenuAct",
           "ping": "#/$defs/Ping",
           "presented": "#/$defs/Presented",
           "request_hit_chances": "#/$defs/RequestHitChances",
@@ -2268,6 +2308,9 @@
         },
         {
           "$ref": "#/$defs/SubmitAction"
+        },
+        {
+          "$ref": "#/$defs/MenuAct"
         },
         {
           "$ref": "#/$defs/CombatCommandMsg"
@@ -2444,6 +2487,7 @@
       "host_turn_timer",
       "import_character",
       "level_up",
+      "menu_act",
       "ping",
       "presented",
       "request_hit_chances",

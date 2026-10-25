@@ -67,6 +67,7 @@ CLIENT_TYPES = {
     "create_character",
     "roll_abilities",
     "submit_action",
+    "menu_act",
     "combat_command",
     "suggestion",
     "confirm_hostile",

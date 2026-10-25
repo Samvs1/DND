@@ -22,6 +22,7 @@ type AnyClientMsg = (
     | c.CreateCharacter
     | c.RollAbilities
     | c.SubmitAction
+    | c.MenuAct
     | c.CombatCommandMsg
     | c.Suggestion
     | c.ConfirmHostile

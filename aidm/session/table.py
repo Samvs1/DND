@@ -49,6 +49,7 @@ from aidm.session import (
     host,
     host_seat,
     lobby,
+    menu_act,
     party_actions,
     quest_people,
     relay,
@@ -82,6 +83,7 @@ type JobMaker = Callable[[TableCore, Player, Any], Job]
 
 IMMEDIATE: dict[type, Immediate] = {
     c.SubmitAction: explore.submit_action,
+    c.MenuAct: menu_act.menu_act,  # M36.11
     c.Vote: lambda core, p, m: votes.cast_vote(core, p, m.vote_id, m.ready),
     c.RollAbilities: lambda core, p, m: lobby.roll(core, p),
     c.Chat: relay.chat,
@@ -269,7 +271,7 @@ class Table(TableCore):
             return
         if defeat_flow.locked(self, player, msg):
             return
-        if isinstance(msg, c.SubmitAction):
+        if isinstance(msg, c.SubmitAction | c.MenuAct):
             floor.stop_typing(self, player.id)
         immediate = IMMEDIATE.get(type(msg))
         if immediate is not None:

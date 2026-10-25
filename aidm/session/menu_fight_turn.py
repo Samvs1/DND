@@ -32,7 +32,7 @@ Public API: `TURN_OVER`, `menu_combat_line`, `play_fight_acts`, `held_strike`.
 
 from aidm.dm.chooser import exact_choice
 from aidm.dm.scene_text import inventory_text
-from aidm.models.action_menu import ActionKind, ActionMenu, MenuStep
+from aidm.models.action_menu import ActionKind, ActionMenu, MenuChoice, MenuStep
 from aidm.models.protocol_server import ErrorCode, NoticeKind
 from aidm.models.protocol_views import QueueEntry
 from aidm.models.state import Creature
@@ -43,7 +43,7 @@ from aidm.rules.menu_steps_fight import COMMAND_TYPES
 from aidm.session import combat_flow, gear_actions, what_now
 from aidm.session.declared import declare
 from aidm.session.fight_text import NOT_YOUR_TURN, my_turn, play_act
-from aidm.session.menu_pick import line_menu, pick, play_steps
+from aidm.session.menu_pick import MenuQueueEntry, line_menu, pick, play_steps
 from aidm.session.table_core import Job, Player, TableCore
 
 TURN_OVER = "your turn is over"
@@ -56,13 +56,22 @@ def _free_menu(menu: ActionMenu) -> ActionMenu:
     return ActionMenu(scope=menu.scope, actor_id=menu.actor_id, entries=entries)
 
 
-def menu_combat_line(core: TableCore, player: Player, pc: Creature, text: str) -> None:
+def menu_combat_line(
+    core: TableCore, player: Player, pc: Creature, text: str, picked: MenuChoice | None = None
+) -> None:
+    """`picked`: a button's menu pick (M36.11, `session.menu_act`), played with no model call."""
     entry = QueueEntry(player_id=player.id, creature_id=pc.id, text=text)
+    if picked is not None:
+        entry = MenuQueueEntry(player_id=player.id, creature_id=pc.id, text=text, choice=picked)
     if my_turn(core, pc.id):
         core.schedule(lambda: _turn(core, player, entry))
         return
     free = _free_menu(line_menu(core, pc.id))
-    choice = exact_choice(free, text)
+    if picked is None:
+        choice = exact_choice(free, text)
+    else:
+        known = {e.id for e in free.entries}
+        choice = picked if all(s.entry in known for s in picked.steps) else None
     if choice is None:
         core.error(player.id, ErrorCode.NOT_YOUR_TURN, NOT_YOUR_TURN)
         return
@@ -75,7 +84,10 @@ async def _turn(core: TableCore, player: Player, entry: QueueEntry) -> None:
         core.error(player.id, ErrorCode.NOT_YOUR_TURN, NOT_YOUR_TURN)
         return
     menu = line_menu(core, entry.creature_id)
-    choice = await pick(core, player, entry.creature_id, entry.text, menu)
+    if isinstance(entry, MenuQueueEntry):
+        choice = entry.choice
+    else:
+        choice = await pick(core, player, entry.creature_id, entry.text, menu)
     if choice is None:
         return
     acts = to_acts(core.state, menu, choice, core.regs.combat, entry.text)

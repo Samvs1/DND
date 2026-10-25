@@ -15,7 +15,7 @@ function travelList(view, client, store) {
   const fighting = Boolean(view.combat);
   const rows = exits.map((exit) => {
     const go = () => {
-      client.send('submit_action', { text: `Travel to a place ${exit.name}` }); // the menu's own label (M36.10b; MenuAct in M36.11)
+      client.send('menu_act', { entry: 'travel', targets: [exit.node_id] }); // a menu pick, no model call (M36.11)
       store.update({ panel: null, ctab: 'play' });
     };
     const label = exit.locked ? t('map.travelLocked', { name: exit.name }) : t('map.travel', { name: exit.name });

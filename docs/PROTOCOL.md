@@ -41,6 +41,7 @@ Machine-readable schema: `aidm/web/protocol.json`.
 | client | `host_turn_timer` | `seconds`: integer, `type`: host_turn_timer |
 | client | `import_character` | `text`: string, `type`: import_character |
 | client | `level_up` | `choices`: LevelUpChoices, `type`: level_up |
+| client | `menu_act` | `entry`: string, `qty`: integer (optional), `targets`: array of string (optional), `type`: menu_act |
 | client | `ping` | `type`: ping |
 | client | `presented` | `seq`: integer, `type`: presented |
 | client | `request_hit_chances` | `target_id`: string, `type`: request_hit_chances |

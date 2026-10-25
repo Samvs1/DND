@@ -17,7 +17,8 @@ Used when `TableConfig.interpreter` is "menu" by `session.menu_turn` (a line out
   (a fight started, the hero's turn ended); either way the player is told plainly that the rest
   of the line is not played (`STOPPED`), never a silent drop.
 
-Public API: `RECENT`, `STOPPED`, `NOT_DONE`, `line_menu`, `recent_events`, `pick`, `play_steps`.
+Public API: `MenuQueueEntry`, `RECENT`, `STOPPED`, `NOT_DONE`, `line_menu`, `recent_events`,
+`pick`, `play_steps`.
 """
 
 from collections.abc import Awaitable, Callable, Sequence
@@ -26,6 +27,7 @@ from aidm.dm.chooser import ChooserFailure, choose
 from aidm.models.action_menu import ActionMenu, MenuChoice
 from aidm.models.events import AnyEvent
 from aidm.models.protocol_server import NoticeKind
+from aidm.models.protocol_views import QueueEntry
 from aidm.rules.action_menu import build_menu
 from aidm.rules.menu_trade import TradeData
 from aidm.session.table_core import Player, TableCore
@@ -34,6 +36,12 @@ RECENT = 60
 STOPPED = "The rest of what you typed is not played: {why}."
 NOT_DONE = "that step did not happen"
 COLOUR_CHARS = 120
+
+
+class MenuQueueEntry(QueueEntry):
+    """A queued button pick (M36.11): the pick rides with the entry, the wire shows the base."""
+
+    choice: MenuChoice
 
 
 def line_menu(core: TableCore, actor_id: str) -> ActionMenu:
