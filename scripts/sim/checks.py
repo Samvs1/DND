@@ -6,7 +6,8 @@
 - `privacy_leaks(game, texts)`: no NPC motive or still-unrevealed secret text from the
   campaign plan appears in any message a client received (exact or whitespace-folded match).
 - `replay_problems(saves_dir, campaign_id, live)`: the saved `events.jsonl` replayed from
-  `initial.json` equals the live final state (and the loader did not have to recover).
+  `initial.json` equals the live final state (and the loader did not have to recover), and
+  every absolute in it agrees with its running value (`scripts.sim.ledger`, M35.1 Y1).
 - `hero_up(game, hero_id)`: the hero lives and stands (M27.10: a hero lying unconscious at
   0 HP cannot act, so its bot cannot propose, search or light anything).
 
@@ -22,6 +23,7 @@ from aidm.models.state import GameState
 from aidm.session.persistence import CampaignStore
 from aidm.session.reducer import replay
 from scripts.sim.client import Msg
+from scripts.sim.ledger import ledger_problems
 
 
 def public_invariants(state: Msg) -> list[str]:
@@ -90,7 +92,9 @@ def replay_problems(saves_dir: Path, campaign_id: str, live: GameState) -> list[
         return [f"no save folder for {campaign_id}"]
     loaded = store.load(campaign_id)
     problems = [f"save needed recovery: {'; '.join(loaded.notes)}"] if loaded.recovered else []
-    rebuilt = replay(loaded.initial, [entry.event for entry in loaded.log])
+    events = [entry.event for entry in loaded.log]
+    problems += ledger_problems(loaded.initial, events)
+    rebuilt = replay(loaded.initial, events)
     if rebuilt.model_dump() != live.model_dump():
         problems.append(_first_difference(rebuilt.model_dump(), live.model_dump()))
     return problems

@@ -11,11 +11,12 @@ Public API:
 - `visit_key(node_id)`, `clear_key(node_id)`: the milestone sources.
 - `spoke_region(state, node_id) -> RegionPlan | None`: the region whose spoke `node_id` is.
 - `spoke_milestone_xp(tiers, region, key) -> int`: the XP per PC a `visit:` or `clear:` key pays.
-- `spoke_milestone_events(state, key, amount, catalogue, already=0) -> list[AnyEvent]`: one
-  payout (`[]` when `key` was paid already); `already` as in `rules.rewards.payout_events`.
+- `spoke_milestone_events(state, key, amount, catalogue) -> list[AnyEvent]`: one payout (`[]`
+  when `key` was paid already).
 - `milestone_events(state, events, tiers, catalogue) -> list[AnyEvent]`: the milestones an
   APPLIED batch earned: `PartyMoved` -> first visit of the new node; `EncounterEnded` with
-  VICTORY or a successful parley `OfferResolved` -> the current node is cleared.
+  VICTORY or a successful parley `OfferResolved` -> the current node is cleared. Both payouts
+  read the same state, so the XP totals are chained (`rules.running_totals`).
 """
 
 from collections.abc import Sequence
@@ -32,6 +33,7 @@ from aidm.models.events import AnyEvent
 from aidm.models.state import GameState
 from aidm.models.world_events import PartyMoved
 from aidm.rules.rewards import Payout, payout_events
+from aidm.rules.running_totals import chain_totals
 
 
 def visit_key(node_id: str) -> str:
@@ -62,12 +64,11 @@ def spoke_milestone_events(
     key: str,
     amount: int,
     catalogue: Registry[CatalogueItem],
-    already: int = 0,
 ) -> list[AnyEvent]:
     campaign = state.campaign
     if campaign is None or key in campaign.milestones:
         return []
-    return payout_events(state, Payout(xp_each=amount), key, "milestone", catalogue, already)
+    return payout_events(state, Payout(xp_each=amount), key, "milestone", catalogue)
 
 
 def _cleared(event: AnyEvent) -> bool:
@@ -96,11 +97,6 @@ def milestone_events(
     if any(_cleared(e) for e in events):
         keys.append(clear_key(node))
     out: list[AnyEvent] = []
-    already = 0
     for key in keys:
-        amount = spoke_milestone_xp(tiers, region, key)
-        paid = spoke_milestone_events(state, key, amount, catalogue, already)
-        if paid:
-            out += paid
-            already += amount
-    return out
+        out += spoke_milestone_events(state, key, spoke_milestone_xp(tiers, region, key), catalogue)
+    return chain_totals(state, out)

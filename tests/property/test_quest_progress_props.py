@@ -12,6 +12,7 @@ from aidm.models.world import QuestState
 from aidm.models.world_events import QuestUpdated, RewardGranted
 from aidm.session.quest_flow import settle_after
 from aidm.session.reducer import replay
+from scripts.sim.ledger import ledger_problems
 from tests.session.progression_fixtures import REGS, apply_all, campaign_state, move
 
 
@@ -41,3 +42,4 @@ def test_settling_is_idempotent_and_replays(data: st.DataObject) -> None:
     assert len(sources) == len(set(sources))
     decoded = [event_adapter.validate_json(e.model_dump_json()) for e in log]
     assert replay(start, decoded).model_dump() == state.model_dump()
+    assert ledger_problems(start, log) == []  # M35.1 Y1: every total is the running one

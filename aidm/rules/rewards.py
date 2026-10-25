@@ -10,9 +10,9 @@ Public API:
 - `Payout(xp_each, gold_total, items, supplies)`: frozen; `is_empty`.
 - `reward_party(state) -> list[Creature]`: living player characters sorted by id.
 - `gold_shares(total, count) -> list[int]`: the even split (sums to `total`).
-- `payout_events(state, payout, source, kind, catalogue, xp_already=0) -> list[AnyEvent]`: `[]`
-  without a living PC or an empty payout; `xp_already` is XP each PC was granted earlier in the
-  same unapplied batch.
+- `payout_events(state, payout, source, kind, catalogue) -> list[AnyEvent]`: `[]` without a
+  living PC or an empty payout. The new values are read from `state`: a caller that joins
+  several payouts from one state runs `rules.running_totals.chain_totals` over the result.
 """
 
 from dataclasses import dataclass
@@ -57,7 +57,6 @@ def payout_events(
     source: str,
     kind: Literal["loot", "quest", "milestone"],
     catalogue: Registry[CatalogueItem],
-    xp_already: int = 0,
 ) -> list[AnyEvent]:
     party = reward_party(state)
     if not party or payout.is_empty:
@@ -74,7 +73,7 @@ def payout_events(
     ]
     if payout.xp_each:
         for pc in party:
-            events.extend(gain_xp(pc, payout.xp_each, already=xp_already))
+            events.extend(gain_xp(pc, payout.xp_each))
     for pc, share in zip(party, gold_shares(payout.gold_total, len(party)), strict=True):
         if share and pc.pc is not None:
             events.append(GoldChanged(creature_id=pc.id, delta=share, gold=pc.pc.gold + share))

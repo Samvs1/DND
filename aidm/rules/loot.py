@@ -11,7 +11,8 @@ Public API:
 - `loot_payout(state, tables, rng) -> Payout`: the loot of the ACTIVE encounter's defeated foes.
 - `victory_loot_events(state, tables, catalogue, rng) -> list[AnyEvent]`.
 - `end_encounter_with_loot(state, status, tables, catalogue, rng) -> list[AnyEvent]`:
-  `end_encounter` plus the loot of a VICTORY (the one call the session makes at a fight's end).
+  `end_encounter` plus the loot of a VICTORY (the one call the session makes at a fight's end),
+  totals chained (`rules.running_totals`: the kill XP and the loot read one state).
 - `loot_rng(state) -> random.Random`: `Random(f"{seed}:loot:{encounter id}")`.
 """
 
@@ -27,6 +28,7 @@ from aidm.rules.dice import Rng, roll
 from aidm.rules.encounter import active_encounter, defeated_hostiles, end_encounter
 from aidm.rules.monster_stats import creature_type_of
 from aidm.rules.rewards import Payout, payout_events
+from aidm.rules.running_totals import chain_totals
 
 BOSS_KIND = "boss"
 
@@ -97,4 +99,4 @@ def end_encounter_with_loot(
     events = end_encounter(state, status)
     if status is EncounterStatus.VICTORY:
         events.extend(victory_loot_events(state, tables, catalogue, rng))
-    return events
+    return chain_totals(state, events)

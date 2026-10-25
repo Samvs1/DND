@@ -21,6 +21,11 @@ A pass, in order:
 3. Each ACTIVE side quest or favour with steps: newly met steps are recorded; when every step
    is recorded the quest completes with `quest_deed_events` + `quest_reward_events` (once: only
    an active quest completes, and the payout refuses a quest already completed).
+Several quests can finish in one pass, all read from the same state (M35.1, round-6 Y1: the
+second payout overwrote the first): the pass's gold, XP and item totals are chained
+(`rules.running_totals.chain_totals`), and a quest whose deeds would touch an NPC another
+completion or Peace route of this pass already moved waits for the next pass (an
+`AttitudeChanged` carries absolute values and no change to chain).
 Offered quests never move. A quest without steps (made up by the model) never moves by itself.
 
 Public API: `current_act(state) -> int | None`, `quest_progress_events(state, tiers, catalogue)
@@ -38,13 +43,14 @@ from aidm.models.quest_events import QuestStepDone, RouteDiscovered
 from aidm.models.quests import QuestKind, RouteEffect, RouteKind, RoutePlan, StepKind
 from aidm.models.state import GameState
 from aidm.models.world import MAX_QUEST_LOG, Quest, QuestState
-from aidm.models.world_events import QuestUpdated
+from aidm.models.world_events import AttitudeChanged, QuestUpdated
 from aidm.rules.plan_ids import boss_npc_id, main_quest_id
 from aidm.rules.progression import region_of
 from aidm.rules.quest_items import quest_item_events
 from aidm.rules.quest_plan import main_quest, main_world_quest
 from aidm.rules.quest_rewards import quest_reward_events
 from aidm.rules.quest_steps import npc_meetable, steps_met
+from aidm.rules.running_totals import chain_totals
 from aidm.rules.social import ALLY_BAR, attitude_score, deed_attitude_events
 from aidm.rules.social_deeds import quest_deed_events
 
@@ -190,10 +196,29 @@ def quest_progress_events(
             main = quests.get(main_quest_id(act.region))
             if main is not None and main.state is QuestState.ACTIVE:
                 events += _main_events(state, plan, act, main)
-    for quest in sorted(quests.values(), key=lambda q: q.id):
-        if quest.kind is not QuestKind.MAIN and quest.state is QuestState.ACTIVE:
-            events += _side_events(state, quest, tiers, catalogue)
+    events += _side_pass(state, events, tiers, catalogue)
+    return chain_totals(state, events)
+
+
+def _side_pass(
+    state: GameState, before: list[AnyEvent], tiers: DmTiers, catalogue: Registry[CatalogueItem]
+) -> list[AnyEvent]:
+    touched = _moved_npcs(before)
+    events: list[AnyEvent] = []
+    for quest in sorted(state.world.quests.values(), key=lambda q: q.id):
+        if quest.kind is QuestKind.MAIN or quest.state is not QuestState.ACTIVE:
+            continue
+        side = _side_events(state, quest, tiers, catalogue)
+        npcs = _moved_npcs(side)
+        if npcs & touched:
+            continue  # its deeds build on the applied state of the next pass
+        touched |= npcs
+        events += side
     return events
+
+
+def _moved_npcs(events: list[AnyEvent]) -> set[str]:
+    return {e.npc_id for e in events if isinstance(e, AttitudeChanged)}
 
 
 def route_effects(state: GameState, region: RegionPlan) -> frozenset[RouteEffect]:

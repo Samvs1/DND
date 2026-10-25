@@ -20,7 +20,8 @@ Public API:
 - `milestone_payout(state, resolved, tiers) -> Payout` and
   `resolution_reward_events(state, tiers, catalogue) -> list[AnyEvent]`:
   `progression.region_resolution_events` plus the milestone XP of every region it resolves (the
-  session calls this instead of the bare function).
+  session calls this instead of the bare function), with the totals chained
+  (`rules.running_totals`).
 """
 
 from aidm.data.dm_tiers import DmTiers
@@ -36,6 +37,7 @@ from aidm.models.world import Quest, QuestState
 from aidm.rules.dm_tiers import party_level, xp_award
 from aidm.rules.progression import region_resolution_events
 from aidm.rules.rewards import Payout, payout_events, reward_party
+from aidm.rules.running_totals import chain_totals
 from aidm.rules.secrets import item_key
 
 LIFECYCLE: dict[QuestState, frozenset[QuestState]] = {
@@ -108,13 +110,9 @@ def resolution_reward_events(
     state: GameState, tiers: DmTiers, catalogue: Registry[CatalogueItem]
 ) -> list[AnyEvent]:
     out: list[AnyEvent] = []
-    already = 0
     for event in region_resolution_events(state):
         out.append(event)
         if isinstance(event, RegionResolved):
             payout = milestone_payout(state, event, tiers)
-            out.extend(
-                payout_events(state, payout, event.region_id, "milestone", catalogue, already)
-            )
-            already += payout.xp_each
-    return out
+            out.extend(payout_events(state, payout, event.region_id, "milestone", catalogue))
+    return chain_totals(state, out)
