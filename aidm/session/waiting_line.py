@@ -6,7 +6,9 @@ and the attack was lost while the story told it).
 `HeldLine`). When that hero's turn opens (`combat_flow._prompt`, after the turns before it were
 told), `play` hands the same words back to the table as the player's own typed action
 (`SubmitAction` through the inbox), so the engine plays it exactly as if typed then: the attack
-rolls or the cast is cast, or the rules say why not.
+rolls or the cast is cast, or the rules say why not. M36.6 (menu interpreter): the line keeps the
+chosen menu step as a job (`HeldLine.strike`, `menu_fight_turn.held_strike`), scheduled instead of
+the words, so the step is aimed at the spawned foes (`rules.menu_steps.resume_strike`).
 
 M33.1 (ultrareview 7: a player away as the turn opened lost the line with no word): the line
 is kept until it is submitted, once, and only in its hero's own open turn:
@@ -17,13 +19,13 @@ is kept until it is submitted, once, and only in its hero's own open turn:
   fight ends first (`drop_all`): the table is told plainly that it will not be played
   (`LAPSED`), and it is never played afterwards.
 
-Public API: `LAPSED`, `keep(player, text)`, `play(core, owner)`, `on_return(core, player)`,
-`lapse(core, creature_id)`, `drop_all(core)`.
+Public API: `LAPSED`, `keep(player, text, strike=None)`, `play(core, owner)`,
+`on_return(core, player)`, `lapse(core, creature_id)`, `drop_all(core)`.
 """
 
 from aidm.models.protocol_client import SubmitAction
 from aidm.models.protocol_server import NoticeKind
-from aidm.session.table_core import ClientIn, Player, TableCore
+from aidm.session.table_core import ClientIn, Job, Player, TableCore
 from aidm.session.table_records import HeldLine
 
 LAPSED = "What was typed for {name} at the offer will not be played: {why}."
@@ -31,12 +33,15 @@ _TURN_PASSED = "the turn passed first"
 _FIGHT_OVER = "the fight ended first"
 
 
-def keep(player: Player, text: str) -> None:
-    player.waiting_line = HeldLine(text)
+def keep(player: Player, text: str, strike: Job | None = None) -> None:
+    player.waiting_line = HeldLine(text, strike=strike)
 
 
 def _submit(core: TableCore, owner: Player, line: HeldLine) -> None:
     owner.waiting_line = None
+    if line.strike is not None:  # M36.6: the menu step chosen at the offer
+        core.schedule(line.strike)
+        return
     core.inbox.put_nowait(ClientIn(min(owner.conns), SubmitAction(text=line.text)))
 
 

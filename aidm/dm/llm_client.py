@@ -12,13 +12,14 @@ Public API:
   - `aclose()`: closes the transport (M4.8: the live run showed the SDK's HTTP pool otherwise
     closes after the event loop, "Event loop is closed"); call it at shutdown.
   - `call_tools(messages, tools, role, *, tool_choice, max_tokens, max_retries, player_text,
-    require_call, timeout_s) -> ToolCallResult | LlmFailure`: every call is parsed and
+    require_call, timeout_s, kind) -> ToolCallResult | LlmFailure`: every call is parsed and
     validated against its tool model; an invalid or truncated answer is retried (bounded)
     with the validation errors fed back as a message (and written to the log row);
     truncation doubles `max_tokens` (up to the cap). Structured calls use at least
     `settings.structured_max_tokens` (4000). Empty content is fine.
     Timeouts and transport errors are not retried (the turn falls back instead of stalling).
     `timeout_s` overrides `settings.timeout_s` for this call (M6.2: campaign generation).
+    `kind` is the log row's call kind ("tools"; M36.6: the menu chooser logs "choose").
   - `structured(messages, schema, role, *, fallback, player_text, timeout_s, max_tokens)
     -> T | LlmFailure`: forces a single `submit_result` tool whose arguments are `schema`;
     on exhaustion returns `fallback` when given, else the `LlmFailure`.
@@ -162,6 +163,7 @@ class LlmClient:
         player_text: str | None = None,
         require_call: bool = False,
         timeout_s: float | None = None,
+        kind: str = "tools",
     ) -> ToolCallResult | LlmFailure:
         if not self.available:
             return LlmFailure(FailureReason.DISABLED, "llm disabled")
@@ -184,9 +186,7 @@ class LlmClient:
             start = time.perf_counter()
             sent = await self._send(request)
             if isinstance(sent, LlmFailure):
-                self.record_call(
-                    "tools", role, _ms(start), sent.reason.value, attempt, (0, 0), phash
-                )
+                self.record_call(kind, role, _ms(start), sent.reason.value, attempt, (0, 0), phash)
                 return LlmFailure(sent.reason, sent.detail, attempt)
             check = validate_tool_calls(sent, by_name)
             errors = check.errors
@@ -194,7 +194,7 @@ class LlmClient:
                 errors = ("no tool was called; call one of the listed tools",)
             outcome = "ok" if not errors else ("truncated" if check.truncated else "invalid")
             usage = (sent.prompt_tokens, sent.completion_tokens)
-            self.record_call("tools", role, _ms(start), outcome, attempt, usage, phash, errors)
+            self.record_call(kind, role, _ms(start), outcome, attempt, usage, phash, errors)
             if not errors:
                 return ToolCallResult(check.calls, sent.content, attempt)
             if check.truncated:

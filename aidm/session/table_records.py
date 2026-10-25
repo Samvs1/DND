@@ -6,7 +6,8 @@ encounter offer. `OpenVote`: the open ready vote (`votes`) and its public view.
 `TurnClock`: the running combat turn clock (`session.turn_clock`, M15.1): the end timer, the
 30 s warning timer and the deadline the countdown is shown from. `HeldLine` (M32.1a X3, M33.1):
 a line typed at an encounter offer, waiting on the seat for its hero's turn (`waiting_line`);
-`due` is the turn key it came due in while the player was away.
+`due` is the turn key it came due in while the player was away; M36.6: `strike` is the job that
+plays the menu step chosen at the offer (`resume_strike`), else the words are submitted as typed.
 
 Public API: `PendingHostile`, `OpenVote`, `TurnClock`, `HeldLine`.
 """
@@ -75,3 +76,4 @@ class TurnClock:
 class HeldLine:
     text: str
     due: str | None = None
+    strike: VoteJob | None = None

@@ -2,10 +2,12 @@
 `aidm.dm.scene_intent`): the place, its description, the people here, hostiles, features, items
 lying here and the ways on (a locked way with its short reason).
 
-Public API: `look_around_text(state) -> str`.
+M36.6: `inventory_text(creature)` (moved out of `session.intent_turn`): the private pack listing.
+
+Public API: `look_around_text(state) -> str`, `inventory_text(creature) -> str`.
 """
 
-from aidm.models.state import GameState
+from aidm.models.state import Creature, GameState
 from aidm.rules.gateway_lock import short_reason
 from aidm.rules.scene import current_scene, node_display_name
 
@@ -41,3 +43,14 @@ def look_around_text(state: GameState) -> str:
     ]
     parts.append(f"Ways on: {_listing(exits)}." if exits else "There is no obvious way on.")
     return " ".join(parts)
+
+
+def inventory_text(creature: Creature) -> str:
+    pc = creature.pc
+    if pc is None or not pc.inventory:
+        return f"{creature.name} carries nothing of note."
+    items = ", ".join(
+        f"{row.item.replace('-', ' ')} x{row.qty}" if row.qty > 1 else row.item.replace("-", " ")
+        for row in pc.inventory
+    )
+    return f"{creature.name} carries: {items}. Gold: {pc.gold}."

@@ -28,6 +28,10 @@ and out of a fight go through the one router (`dm.intent_router`).
 M31.1a: the storyteller's turn, the held acts and their confirm / cancel are `session.held`; a
 typed line in a fight is `session.fight_text`. M32.1a: one routed line (and the acts of a
 compound line) is played by `session.intent_turn`; the votes it opens are `session.scene_votes`.
+M36.6: with `TableConfig.interpreter` "menu" the menu chooser reads typed lines instead of the
+router: a line out of a fight is `session.menu_turn.menu_line`, a fight line
+`session.menu_fight_turn.menu_combat_line`, and "what now" is the menu's own entry (no router
+pre-check).
 
 Public API: `submit_action`, `kick_resolver`, `resolve_next`, `resolve_action`.
 """
@@ -40,8 +44,9 @@ from aidm.models.protocol_server import (
     Resolving,
 )
 from aidm.models.protocol_views import QueueEntry, TablePhase
-from aidm.session import fight_text, what_now
+from aidm.session import fight_text, menu_fight_turn, what_now
 from aidm.session.intent_turn import resolve_line
+from aidm.session.menu_turn import menu_line
 from aidm.session.table_core import Player, TableCore
 
 
@@ -52,7 +57,8 @@ def submit_action(core: TableCore, player: Player, msg: SubmitAction) -> None:
         core.error(player.id, ErrorCode.WRONG_PHASE, text)
         return
     pc = core.living_pc(player)
-    if asks_what_now(core.state, pc.id if pc is not None else "", msg.text):
+    menu = core.config.interpreter == "menu"
+    if not menu and asks_what_now(core.state, pc.id if pc is not None else "", msg.text):
         what_now.answer(core, player)  # M23.8: not a turn, also in a fight
         return
     if pc is None:
@@ -64,7 +70,8 @@ def submit_action(core: TableCore, player: Player, msg: SubmitAction) -> None:
     if core.pending is not None and core.pending.player_id == player.id:
         core.pending = None  # a new action answers the open "Are you sure?" with no (M15.1)
     if core.combat_active():
-        fight_text.combat_text(core, player, pc, msg.text)
+        fight_line = menu_fight_turn.menu_combat_line if menu else fight_text.combat_text
+        fight_line(core, player, pc, msg.text)
         return
     if any(e.player_id == player.id for e in core.queue):
         core.error(player.id, ErrorCode.ALREADY_QUEUED, "Your next action is already waiting.")
@@ -103,4 +110,5 @@ async def resolve_action(core: TableCore, entry: QueueEntry) -> None:
     if player is None or actor is None or actor.dead:
         core.notice(entry.player_id, NoticeKind.REFUSED, "Your hero can no longer act.")
         return
-    await resolve_line(core, player, actor, entry)  # M32.1a: the routed intent, or the story
+    line = menu_line if core.config.interpreter == "menu" else resolve_line  # M36.6
+    await line(core, player, actor, entry)  # M32.1a: the routed intent, or the story

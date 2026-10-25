@@ -15,7 +15,11 @@ line (`dm.compound_lines`) whose acts each route is every act in order (the move
 attack); a move followed by words no row reads is the move, then those words as the creative
 action. The whole line is declared once; the acts stop when the turn or the fight ends.
 
-Public API: `combat_text`.
+M36.6: the menu interpreter (`session.menu_fight_turn`) plays its acts through `play_act` (one
+act: a move list, a hotbar command, a draw, a surrender demand, a refusal, or None: the creative
+action) and checks `my_turn`.
+
+Public API: `NOT_YOUR_TURN`, `combat_text`, `play_act`, `my_turn`.
 """
 
 from aidm.dm.compound_lines import clause_parts, is_lead_in
@@ -40,7 +44,7 @@ NOT_YOUR_TURN = "It is not your turn."
 type _Act = tuple[str, FightIntent | None]
 
 
-def _my_turn(core: TableCore, creature_id: str) -> bool:
+def my_turn(core: TableCore, creature_id: str) -> bool:
     enc = core.state.encounter
     return enc is not None and enc.active_id() == creature_id and core.turn_key is not None
 
@@ -49,7 +53,7 @@ def combat_text(core: TableCore, player: Player, pc: Creature, text: str) -> Non
     entry = QueueEntry(player_id=player.id, creature_id=pc.id, text=text)
     if gear_actions.fight_gear(core, player, entry):  # M27.5: put out (free) or light (bonus)
         return
-    if not _my_turn(core, pc.id):
+    if not my_turn(core, pc.id):
         core.error(player.id, ErrorCode.NOT_YOUR_TURN, NOT_YOUR_TURN)
         return
     found = fight_intent(core.state, pc.id, text)  # M30.0b: the one router's fight rows
@@ -63,7 +67,7 @@ def combat_text(core: TableCore, player: Player, pc: Creature, text: str) -> Non
     if found is None and not _action_left(core, pc.id):
         core.error(player.id, ErrorCode.REFUSED, ACTION_SPENT)
         return
-    core.schedule(lambda: _play(core, player, entry, found))
+    core.schedule(lambda: play_act(core, player, entry, found))
 
 
 def _plan(state: GameState, actor_id: str, text: str, whole: FightIntent | None) -> list[_Act]:
@@ -90,12 +94,12 @@ async def _play_plan(core: TableCore, player: Player, entry: QueueEntry, plan: l
     await combat_flow.tell_segment(core)
     declare(core, entry)
     for part, act in plan:
-        if not _my_turn(core, entry.creature_id):
+        if not my_turn(core, entry.creature_id):
             return
-        await _play(core, player, entry.model_copy(update={"text": part}), act, say=False)
+        await play_act(core, player, entry.model_copy(update={"text": part}), act, say=False)
 
 
-async def _play(
+async def play_act(
     core: TableCore, player: Player, entry: QueueEntry, found: FightIntent | None, say: bool = True
 ) -> None:
     if found is None:
@@ -113,7 +117,7 @@ async def _play(
 
 
 async def _creative(core: TableCore, player: Player, entry: QueueEntry, say: bool) -> None:
-    if not _my_turn(core, entry.creature_id):
+    if not my_turn(core, entry.creature_id):
         core.error(player.id, ErrorCode.NOT_YOUR_TURN, NOT_YOUR_TURN)
         return
     if not _action_left(core, entry.creature_id):

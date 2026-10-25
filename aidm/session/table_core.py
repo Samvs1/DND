@@ -1,16 +1,14 @@
 """Table actor state and its outbound plumbing (SPEC 5 Concurrency, 10). See `table.py`.
 
 `TableCore` holds one table: the `GameState` (mutated ONLY through `apply`: THE reducer, a
-`LoggedEvent` with a monotonic `seq`, the public projection (`public_feed`) and dice broadcast,
-then (M35.3) a concentration whose last effect ended ends too), the story feed (`public`), the
-seats (`Player`), connection queues, the exploration queue, the open vote, a pending hostile
-act, the combat segment awaiting narration and the turn timer. Handlers in `lobby`, `explore`,
-`votes`, `combat_flow`, `party_actions` and `host` take a `TableCore`, never `table.py`.
+`LoggedEvent` with a monotonic `seq`, the public projection and dice broadcast, then (M35.3) a
+concentration whose last effect ended ends too), the story feed, the seats, connection queues, the
+exploration queue, the open vote, a pending hostile act, the combat segment and the turn timer.
+Handlers take a `TableCore`, never `table.py`. M36.6: `TableConfig.interpreter` ("router" until
+M36.10, or "menu"); `refusals` counts REFUSED notices and errors (a menu line stops after one).
 
-Public API: `Player`, `TableConfig`, `TtsHook`, `no_tts`, `Job`, `ClientIn`, `Closed`,
-`TimerFired`, `Inbound`, `TableCore` (vote and hostile records live in `table_records`),
-`phase_of(state)` (DEFEATED when `state.defeat` is set, M11.1), `typing`, `audio`,
-`floor_view()`, `scribe` (`scribe_picker`), `shows` (`show_board`, cap `show_wait_cap_s`).
+Public API: `Player`, `TableConfig`, `TtsHook`, `no_tts`, `Job`, `ClientIn`, `Closed`, `TimerFired`,
+`Inbound`, `TableCore`, `phase_of(state)` (DEFEATED when `state.defeat` is set, M11.1).
 """
 
 import asyncio
@@ -20,7 +18,7 @@ import secrets
 from collections import deque
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Literal
 
 from aidm.dm.campaign_gen import CAMPAIGN_TIMEOUT_S
 from aidm.dm.llm_client import LlmClient
@@ -90,6 +88,7 @@ class TableConfig:
     ai_turn_pause_s: float = 0.0  # M20.3: how long the screen holds each AI turn
     show_wait_cap_s: float = 8.0  # M26.3: the longest wait for a screen's show
     grace_seconds: float = 30.0  # M15.1 reconnect grace; the playtest harness raises it (M29.4)
+    interpreter: Literal["router", "menu"] = "router"  # M36.6: how typed lines are read
 
 
 @dataclass
@@ -187,6 +186,7 @@ class TableCore:
         self.what_now_limit = RateLimit(limit=1, window=5.0)  # M23.8: screen copies per player
         self.scribe = ScribeMemory()  # M13.2 line picks (session/scribe_voice.py); not persisted
         self.shows = ShowBoard()  # M26.3 presented seqs per screen; not persisted
+        self.refusals = 0  # M36.6: REFUSED notices and errors sent so far
 
     # --- ids, seats, lookups -------------------------------------------------------------
 
@@ -279,12 +279,10 @@ class TableCore:
         )
 
     def autosave(self, *, force: bool = False) -> bool:
-        """Append the unsaved events (fsync) and rewrite snapshot + table metadata.
-
-        Writes to the folder the save was loaded from (`save_id`, QA-09), else to
-        `saves/<campaign_id>/`. Called after every job and seat change. A failing disk never stops
-        the game: the events stay buffered for the next try and the host gets one notice. Returns
-        True when written (`force` also saves a table that has no events yet)."""
+        """Append the unsaved events (fsync) and rewrite snapshot + table metadata, into the folder
+        the save was loaded from (`save_id`, QA-09), else `saves/<campaign_id>/`. Called after every
+        job and seat change. A failing disk never stops the game: the events stay buffered and the
+        host gets one notice. True when written (`force` also saves a table with no events yet)."""
         if (last := self.public.spell_flush(self.state)) is not None:  # a cast ended the job
             self.broadcast(last)
         store = self.config.store
@@ -332,6 +330,7 @@ class TableCore:
         self.config.session_log.emit(event, cid, **fields)
 
     def notice(self, player_id: str | None, kind: NoticeKind, text: str) -> None:
+        self.refusals += kind is NoticeKind.REFUSED
         msg = Notice(kind=kind, text=text)
         if player_id is None:
             self.broadcast(msg)
@@ -339,6 +338,7 @@ class TableCore:
             self.send(player_id, msg)
 
     def error(self, player_id: str, code: ErrorCode, text: str, refusal: str | None = None) -> None:
+        self.refusals += 1
         self.send(player_id, ErrorMsg(code=code, text=text, refusal=refusal))
 
     def snapshot(self) -> Snapshot:

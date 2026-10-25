@@ -22,10 +22,13 @@
   interpreter too when it fits (checked first with a throwaway RNG); a use the rules refuse
   returns False and keeps the fight's own path (the AI meets the same refusal). Anything else
   returns False.
+- `fight_use(core, player, entry, intent, say=True)`: that scheduled use (M36.6: the menu's
+  put-out in a fight runs it directly).
 - `draw_weapon(core, player, intent) -> bool` (M30.0b T9): the free draw of a typed attack with
   a stowed weapon (`rules.equipment.draw_events`); a refusal is a notice and returns False.
 
-Public API: `use_intent`, `first_act`, `rest_with_crafts`, `fight_gear`, `draw_weapon`.
+Public API: `use_intent`, `first_act`, `rest_with_crafts`, `fight_gear`, `fight_use`,
+`draw_weapon`.
 """
 
 import random
@@ -142,21 +145,26 @@ def fight_gear(core: TableCore, player: Player, entry: QueueEntry) -> bool:
     if not lighting and _refusal(_events(core, intent, random.Random(0))) is not None:
         return False
 
-    async def job() -> None:
-        events = _events(core, intent)
-        refused = _refusal(events)
-        if refused is not None:
-            core.notice(player.id, NoticeKind.REFUSED, refused)
-            return
-        declare(core, entry)
-        core.apply_all(events)
-        if intent.put_out or core.state.encounter is None:
-            core.broadcast(CombatState(combat=public_combat(core.state)))
-            return
-        await combat_flow.after_player_step(core, entry.creature_id)  # a throw may end the fight
-
-    core.schedule(job)
+    core.schedule(lambda: fight_use(core, player, entry, intent))
     return True
+
+
+async def fight_use(
+    core: TableCore, player: Player, entry: QueueEntry, intent: UseIntent, *, say: bool = True
+) -> None:
+    """One gear use in a fight (the put-out is free); a refusal is a notice."""
+    events = _events(core, intent)
+    refused = _refusal(events)
+    if refused is not None:
+        core.notice(player.id, NoticeKind.REFUSED, refused)
+        return
+    if say:
+        declare(core, entry)
+    core.apply_all(events)
+    if intent.put_out or core.state.encounter is None:
+        core.broadcast(CombatState(combat=public_combat(core.state)))
+        return
+    await combat_flow.after_player_step(core, entry.creature_id)  # a throw may end the fight
 
 
 def draw_weapon(core: TableCore, player: Player, intent: DrawAttack) -> bool:

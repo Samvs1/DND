@@ -22,14 +22,16 @@ M35.2 (round 6 Y9): a harmful spell read as a cast at the scene while a foe's of
 the same fight-starting act (`offer_strike.cast_opens_fight`): never a slot spent at the scene.
 M36.4: `run_intent` also runs the menu's own acts (`rules.menu_steps`; not yet produced from a
 typed line until M36.6): taking from a fallen hero's pack, a feature out of a fight, the menu's
-look (the look-around text written here) and a line off the menu (the storyteller).
+look (the look-around text written here) and a line off the menu (the storyteller). M36.6: with
+`TableConfig.interpreter` "menu" the typed line goes to `session.menu_turn.menu_line` instead,
+which runs the menu's acts through `run_intent`; `resolve_line` is the router's path.
 
-Public API: `resolve_line`, `run_intent`, `inventory_text`.
+Public API: `resolve_line`, `run_intent` (the pack listing is `dm.scene_text.inventory_text`).
 """
 
 from aidm.dm.compound_lines import clause_parts, is_lead_in
 from aidm.dm.precheck import precheck
-from aidm.dm.scene_text import look_around_text
+from aidm.dm.scene_text import inventory_text, look_around_text
 from aidm.models.impossible import ActionImpossible
 from aidm.models.protocol_client import AnswerQuestOffer
 from aidm.models.protocol_server import NoticeKind
@@ -248,14 +250,3 @@ async def _gear_use(core: TableCore, player: Player, entry: QueueEntry, intent: 
         await search_turn(core, entry, follow, prior=prior)
         return
     await adjudicated(core, entry.model_copy(update={"text": intent.rest}), prior=prior)
-
-
-def inventory_text(creature: Creature) -> str:
-    pc = creature.pc
-    if pc is None or not pc.inventory:
-        return f"{creature.name} carries nothing of note."
-    items = ", ".join(
-        f"{row.item.replace('-', ' ')} x{row.qty}" if row.qty > 1 else row.item.replace("-", " ")
-        for row in pc.inventory
-    )
-    return f"{creature.name} carries: {items}. Gold: {pc.gold}."

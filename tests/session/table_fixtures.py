@@ -4,7 +4,7 @@ from collections.abc import AsyncIterator, Iterable, Sequence
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from aidm.dm.fake_llm import FakeLLM, FakeStep
 from aidm.dm.llm_client import LlmClient
@@ -61,6 +61,7 @@ async def running(
     turn_seconds: float | None = 90.0,
     store: CampaignStore | None = None,
     session_log: SessionLog | None = None,
+    interpreter: Literal["router", "menu"] = "router",
 ) -> AsyncIterator[tuple[Table, ManualClock]]:
     clock = ManualClock()
     config = TableConfig(
@@ -68,6 +69,7 @@ async def running(
         turn_seconds=turn_seconds,
         store=store,
         session_log=session_log or SessionLog(),
+        interpreter=interpreter,
     )
     table = Table(state if state is not None else inn_state(), llm, config)
     async with table:

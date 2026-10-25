@@ -22,9 +22,9 @@ Engine meaning lives here and in `menu_steps_fight` / `menu_steps_scene`, never 
   opens (travel, rest, shop, parley), as the router's compound lines did.
 - Re-validation: the plan is never trusted. The session plays the acts in order through its
   runners, which ask the rules again on the live state (a spent action, a gone item, a foe
-  already down are answered plainly there), and stops when the hero's turn or the fight ends
-  (`fight_text._play_plan`). A session that wants the dice of an earlier act to count (a step
-  after an attack that may kill the target) can call `step_acts` per step on the live state.
+  already down are answered plainly there), and stops after a refused act or when the hero's
+  turn or the fight ends (M36.6: `session.menu_fight_turn`, `session.menu_turn`). A session that
+  wants the dice of an earlier act to count can call `step_acts` per step on the live state.
 
 `resume_strike(state, actor_id, step, regs)`: on the hero's first turn of the fight an offer
 strike started, the step's targets are mapped onto the creatures: `foe:<monster>` -> the living

@@ -16,12 +16,13 @@
    missed, so `ChooserFailure` (the session shows `notice`, adjudicator.FALLBACK_NOTICE, and the
    turn is not consumed).
 
+Every chooser call is logged in llm.jsonl with kind `choose` (`CHOOSE_KIND`, M36.6).
 DeepSeek strict function calling is used when `LlmSettings.strict_tools` is set (off by
 default; `AIDM_STRICT_TOOLS=1` also points the client at the beta endpoint). The validator and
 the retry stay either way.
 
-Public API: `ChooserFailure(reason, detail, notice)`, `exact_choice(menu, text)`, `choose(...)`
-(`normalise` lives in `aidm.dm.chooser_prompt`).
+Public API: `CHOOSE_KIND`, `ChooserFailure(reason, detail, notice)`, `exact_choice(menu, text)`,
+`choose(...)` (`normalise` lives in `aidm.dm.chooser_prompt`).
 """
 
 import re
@@ -40,6 +41,7 @@ from aidm.models.events import AnyEvent
 from aidm.models.state import GameState
 
 _BRACKETS = re.compile(r"\([^)]*\)")
+CHOOSE_KIND = "choose"  # the llm.jsonl call kind of a chooser call (M36.6; M36.9 counts them)
 
 
 @dataclass(frozen=True)
@@ -99,6 +101,7 @@ async def choose(
         tool_choice=CHOOSE_TOOL,
         player_text=text,
         require_call=True,
+        kind=CHOOSE_KIND,
     )
     if isinstance(reply, LlmFailure):
         return ChooserFailure(reply.reason.value, reply.detail)

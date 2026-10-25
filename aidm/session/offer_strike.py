@@ -17,6 +17,10 @@ the scene, the slot spent and the offer still waiting): a typed cast of a harmfu
 foe's offer waits here (`rules.waiting_foe.cast_starts_fight`) is the same act
 (`cast_opens_fight`): the fight starts and the cast waits for the hero's turn.
 
+M36.6 (menu interpreter): an offer strike chosen from the menu carries its step
+(`OfferStrikeIntent.step`); the seat keeps it as a job (`menu_fight_turn.held_strike`) that aims
+the step at the spawned foes on the hero's turn (`rules.menu_steps.resume_strike`).
+
 Public API: `WAITS`, `offer_strike_turn`, `cast_opens_fight`.
 """
 
@@ -29,6 +33,7 @@ from aidm.rules.offer_answer import OfferRefused, answer_offer
 from aidm.rules.waiting_foe import cast_starts_fight
 from aidm.session import combat_flow, waiting_line
 from aidm.session.held import adjudicated
+from aidm.session.menu_fight_turn import held_strike
 from aidm.session.table_core import Player, TableCore
 from aidm.session.telling import conclude
 
@@ -53,7 +58,9 @@ async def offer_strike_turn(
         return
     core.apply_all(events)
     if core.combat_active():
-        waiting_line.keep(player, entry.text)
+        step = intent.step
+        strike = held_strike(core, player, hero.id, step, entry.text) if step else None
+        waiting_line.keep(player, entry.text, strike)
         core.notice(player.id, NoticeKind.INFO, WAITS.format(name=hero.name))
     every = await conclude(core, None, events, actor_id=hero.id)
     await combat_flow.after_resolution(core, every)
