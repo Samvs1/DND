@@ -14,7 +14,9 @@ from tests.session.table_fixtures import (
     drain_queue,
     fake_llm,
     join,
+    menu_llm,
     of_type,
+    pick,
     running,
     start_fight,
 )
@@ -46,8 +48,8 @@ async def test_won_fight_leaves_the_dying_stable_and_an_ally_helps_them_up(
 
 
 async def test_typed_help_up_and_refusals(tmp_path: Path) -> None:
-    llm, _ = fake_llm(tmp_path)
-    async with running(llm) as (table, _clock):
+    llm, _ = menu_llm(tmp_path, pick(("help_up", ["rogue"], None)))  # the menu chooser's
+    async with running(llm, interpreter="menu") as (table, _clock):
         ann = await join(table, "Ann", "fighter")
         bob = await join(table, "Bob", "rogue")
         await hurt(table, "rogue", table.state.creatures["rogue"].hp)

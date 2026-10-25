@@ -66,7 +66,7 @@ async def play(
     llm = disabled_llm(tmp_path)
     if picks is not None:
         llm = menu_llm(tmp_path, *picks, storyteller_down=True)[0]
-    reading = "router" if picks is None else "menu"
+    reading = None if picks is None else "menu"  # None: the table's default
     async with running(llm, replay_until(run, seq), interpreter=reading) as (table, _):
         seat = await join(table, "Ann", actor)
         seat.drain()

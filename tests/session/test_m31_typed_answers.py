@@ -2,8 +2,10 @@
 and a typed answer to a waiting quest offer, on the real round-4 states."""
 
 import random
+from collections.abc import Sequence
 from pathlib import Path
 
+from aidm.dm.fake_llm import FakeStep
 from aidm.dm.precheck import precheck
 from aidm.dm.tool_context import tool_registries
 from aidm.models.abilities import Skill
@@ -19,7 +21,7 @@ from aidm.rules.surrender import NoneYield, demand_surrender, never_yield_line
 from aidm.session import combat_flow
 from aidm.session.held import PARLEY_ASK, PARLEY_STAY
 from tests.session.playtest_saves import logged, replay_until
-from tests.session.table_fixtures import assert_replays, disabled_llm, join, running
+from tests.session.table_fixtures import assert_replays, disabled_llm, join, menu_llm, pick, running
 
 TYPED = "m31-r4-typed"
 QUESTS = "m31-r4-quests"
@@ -32,9 +34,21 @@ def _typed(run: str, seq: int) -> tuple[str, str]:
 
 
 async def _send(
-    tmp_path: Path, state: GameState, actor: str, text: str, *, fight: bool = False
+    tmp_path: Path,
+    state: GameState,
+    actor: str,
+    text: str,
+    *,
+    fight: bool = False,
+    picks: Sequence[FakeStep] | None = None,
 ) -> tuple[list[AnyEvent], GameState, list[str]]:
-    async with running(disabled_llm(tmp_path), state) as (table, _):
+    """M36.10a: `picks` plays at the menu interpreter (the chooser's readings scripted, every
+    other AI call failing as with no key)."""
+    llm = disabled_llm(tmp_path)
+    if picks is not None:
+        llm = menu_llm(tmp_path, *picks, storyteller_down=True)[0]
+    reading = None if picks is None else "menu"  # None: the table's default
+    async with running(llm, state, interpreter=reading) as (table, _):
         seat = await join(table, "Ann", actor)
         if fight:
             table.in_combat = True
@@ -110,7 +124,8 @@ def test_m31_typed_yes_waits_for_a_quest_offer_here() -> None:
 
 async def test_m31_typed_acceptance_makes_the_quest_active(tmp_path: Path) -> None:
     actor, text = _typed(TYPED, 62)
-    _, after, _ = await _send(tmp_path, replay_until(TYPED, 62), actor, text)
+    accept = pick(("quest:accept", [], None))  # the quest card's Accept, read from the menu
+    _, after, _ = await _send(tmp_path, replay_until(TYPED, 62), actor, text, picks=[accept])
     assert after.world.quests["the-settled-ledger"].state is QuestState.ACTIVE
     assert after.world.quest_ask is None
 

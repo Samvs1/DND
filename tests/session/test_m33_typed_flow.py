@@ -10,6 +10,7 @@ import pytest
 
 from aidm.dm import narrator
 from aidm.dm.compound_lines import clause_parts, is_lead_in
+from aidm.dm.fake_llm import FakeStep
 from aidm.dm.intent_router import explore_intent, fight_intent
 from aidm.models.campaign_events import OfferResolved
 from aidm.models.combat_events import AttackRolled
@@ -24,6 +25,7 @@ from aidm.session.offer_strike import WAITS
 from aidm.session.table_core import TableCore
 from tests.session.m32_play import QUESTS, TYPED, play, typed
 from tests.session.playtest_saves import replay_until
+from tests.session.table_fixtures import Step, pick
 
 TAMSIN, ELOWEN, ROOK = "pc-p8", "pc-p4", "pc-p6"
 
@@ -69,14 +71,28 @@ def _taken(events: list[Any], item: str) -> list[int]:
     return [e.qty for e in events if isinstance(e, InventoryChanged) and e.item == item]
 
 
+GIVE_ONE: Step = ("give:piton", ["bram-velde"], 1)
+
+
+def _give(qty: int) -> FakeStep:
+    """The menu chooser's reading of a counted give of pitons to Bram (M36.10a)."""
+    return pick(("give:piton", ["bram-velde"], qty))
+
+
 async def test_v1_m33_counted_give_of_a_stack_gives_the_count(tmp_path: Path) -> None:
-    played = await play(tmp_path, QUESTS, 284, "Brienne gives two pitons to Bram Velde")
+    played = await play(
+        tmp_path, QUESTS, 284, "Brienne gives two pitons to Bram Velde", picks=[_give(2)]
+    )
     assert _taken(played.events, "piton") == [9, 8]
     assert not [n for n in played.notices() if "had only" in n]
-    fewer = await play(tmp_path, QUESTS, 284, "Brienne gives 12 pitons to Bram Velde")
+    fewer = await play(
+        tmp_path, QUESTS, 284, "Brienne gives 12 pitons to Bram Velde", picks=[_give(12)]
+    )
     assert len(_taken(fewer.events, "piton")) == 10
     assert ONLY.format(name="Brienne", n=10) in fewer.notices()
-    single = await play(tmp_path, QUESTS, 284, "Brienne gives a piton to Bram Velde")
+    single = await play(
+        tmp_path, QUESTS, 284, "Brienne gives a piton to Bram Velde", picks=[_give(1)]
+    )
     assert _taken(single.events, "piton") == [9]
 
 
@@ -161,14 +177,16 @@ async def test_v1_m33_compound_line_tells_every_part(
 
     monkeypatch.setattr(telling, "narrate", narrate)
     line = "Brienne climbs onto the cart and gives a piton to Bram Velde"
-    played = await play(tmp_path, QUESTS, 284, line)
+    climb = pick(GIVE_ONE, other="climb onto the cart", first=True)  # the menu chooser's
+    played = await play(tmp_path, QUESTS, 284, line, picks=[climb])
     assert _taken(played.events, "piton") == [9]
     assert told == ["climb onto the cart"]
     told.clear()
     gesture = "Brienne steps forward and gives a piton to Bram Velde"
-    stepped = await play(tmp_path, QUESTS, 284, gesture)
+    stepping = pick(GIVE_ONE, colour="steps forward")  # M36.9: the manner only colours the give
+    stepped = await play(tmp_path, QUESTS, 284, gesture, picks=[stepping])
     assert _taken(stepped.events, "piton") == [9]
-    assert told == [] and "step forward" in said
+    assert told == [] and "steps forward" in said  # the narrator tells it with the give
 
 
 def test_v1_m33_typed_round_lines_still_route() -> None:

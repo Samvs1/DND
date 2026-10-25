@@ -3,7 +3,7 @@
 from collections import deque
 from collections.abc import AsyncIterator, Iterable, Sequence
 from contextlib import asynccontextmanager
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any, Literal
 
@@ -98,16 +98,18 @@ async def running(
     turn_seconds: float | None = 90.0,
     store: CampaignStore | None = None,
     session_log: SessionLog | None = None,
-    interpreter: Literal["router", "menu"] = "router",
+    interpreter: Literal["router", "menu"] | None = None,
 ) -> AsyncIterator[tuple[Table, ManualClock]]:
+    """`interpreter`: how typed lines are read (None: `TableConfig`'s default)."""
     clock = ManualClock()
     config = TableConfig(
         clock=clock,
         turn_seconds=turn_seconds,
         store=store,
         session_log=session_log or SessionLog(),
-        interpreter=interpreter,
     )
+    if interpreter is not None:
+        config = replace(config, interpreter=interpreter)
     table = Table(state if state is not None else inn_state(), llm, config)
     async with table:
         yield table, clock

@@ -30,7 +30,9 @@ from tests.session.table_fixtures import (
     disabled_llm,
     join,
     join_with_token,
+    menu_llm,
     of_type,
+    pick,
     running,
 )
 
@@ -57,7 +59,9 @@ async def test_v1_m33_road_walk_stops_at_a_quest_ask(
     state.world.quests[ASKED] = quest
     monkeypatch.setattr(quest_flow, "ask_events", _ask_at_the_cross)
     actor, text = typed(TYPED, 394)
-    async with running(disabled_llm(tmp_path), state) as (table, _):
+    roads = pick(("travel", [CROSS], None), ("travel", [BARROW], None))
+    llm = menu_llm(tmp_path, roads, storyteller_down=True)[0]  # the menu chooser's (M36.10a)
+    async with running(llm, state, interpreter="menu") as (table, _):
         seat = await join(table, "Ann", actor)
         seat.drain()
         seat.send(SubmitAction(text=text))

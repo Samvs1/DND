@@ -16,7 +16,9 @@ use, which asks the rules again on the live state:
   and scroll copying (`party_actions.buy`, `sell`, `copy_scroll`), "what now" (`what_now.answer`).
 The words are declared once (not for a private listing: the pack, "what now"). A refused act
 stops the acts after it, and a fight that starts stops them too (`menu_pick.play_steps`).
-The narrator still gets the player's own words for colour (the entry's text), as today.
+The narrator still gets the player's own words for colour (the entry's text), as today; M36.10a:
+the chooser's `colour` (the words that only say how the hero acts: "steps forward") is told with
+the first narration of the line (`asides.told_with`), as the router's lead-ins were (M33.1).
 
 Public API: `FIGHT_STARTED`, `menu_line`.
 """
@@ -30,6 +32,7 @@ from aidm.models.state import Creature
 from aidm.rules.acts import Intent, InventoryIntent, WhatNowIntent
 from aidm.rules.menu_steps import Act, Group, step_acts, to_groups
 from aidm.session import party_actions, what_now
+from aidm.session.asides import Aside, told_with
 from aidm.session.declared import declare
 from aidm.session.intent_turn import run_intent
 from aidm.session.menu_pick import line_menu, pick, play_steps
@@ -67,7 +70,8 @@ async def menu_line(core: TableCore, player: Player, actor: Creature, entry: Que
             if core.refusals > before:
                 return
 
-    await play_steps(core, player, groups, run, lambda: _fight_started(core))
+    with told_with(Aside(choice.colour)):  # M36.10a: the manner is told with the first telling
+        await play_steps(core, player, groups, run, lambda: _fight_started(core))
 
 
 def _fight_started(core: TableCore) -> str | None:
