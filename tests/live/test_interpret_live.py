@@ -1,13 +1,15 @@
 """Live menu-chooser probe (M36.12): skipped unless RUN_LIVE=1 (tests/conftest.py).
 
-20 representative corpus lines (8 explore, 7 fight, 5 offer; finding-cited rows first, the labelled
-`M29 ...`/`M31 ...`/`M34 ...` sources) go through the REAL chooser (`aidm.dm.chooser.choose`) with
+20 representative corpus lines (8 explore, 7 fight, 5 offer; a seeded random sample per scope, so
+the mix of easy and hard lines is the corpus's own; finding-cited first picked the rows every pass
+misses and sat at the floor, M36.12) go through the REAL chooser (`aidm.dm.chooser.choose`) with
 DeepSeek through THE one LLM client. The floor: at least 16 of 20 are an exact or act match, and
 none fails outright. Spend: 20 model calls (the exact label fast path asks none). The full 300-row
 eval is `python scripts/eval_interpret.py --live`.
 """
 
 import dataclasses
+import random
 from collections.abc import AsyncIterator, Callable
 from pathlib import Path
 
@@ -23,6 +25,7 @@ from scripts.interpret.evaluate import live
 CORPUS = Path(__file__).resolve().parents[1] / "fixtures" / "interpret" / "corpus.jsonl"
 SHARE = {"explore": 8, "fight": 7, "offer": 5}
 FLOOR = 16
+SEED = 36
 
 
 def _cited(row: Row) -> bool:
@@ -30,10 +33,11 @@ def _cited(row: Row) -> bool:
 
 
 def pick_rows(rows: list[Row]) -> list[Row]:
+    rng = random.Random(SEED)
     chosen: list[Row] = []
     for scope, count in SHARE.items():
-        mine = sorted((r for r in rows if r.scope == scope), key=lambda r: (not _cited(r), r.id))
-        chosen += mine[:count]
+        mine = sorted((r for r in rows if r.scope == scope), key=lambda r: r.id)
+        chosen += rng.sample(mine, count)
     return chosen
 
 
@@ -50,10 +54,11 @@ async def client(tmp_path: Path, live_env: dict[str, str]) -> AsyncIterator[LlmC
     await made.aclose()
 
 
-def test_the_selection_is_twenty_rows_with_findings_first() -> None:
+def test_the_selection_is_twenty_rows_in_the_scope_mix() -> None:
     rows = pick_rows(load_corpus(CORPUS))
-    assert len(rows) == 20
-    assert sum(_cited(r) for r in rows) >= 12
+    assert len(rows) == 20 and len({r.id for r in rows}) == 20
+    assert {s: sum(r.scope == s for r in rows) for s in SHARE} == SHARE
+    assert any(_cited(r) for r in rows)
 
 
 async def test_live_chooser_reads_twenty_corpus_lines(

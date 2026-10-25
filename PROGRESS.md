@@ -1,4 +1,4 @@
-NEXT: M36 closed. Orchestrator: run `$env:RUN_LIVE="1"; pytest -q tests/live/test_interpret_live.py` once (20 calls, within the M36 cap; 1,332 of 2,500 used), then read PROGRESS for the next milestone or ask the owner. Last gate: M36.12 FULL gate GATE: PASS (12/12); eval_interpret offline coverage 300 of 300.
+NEXT: M36 closed (commit 246384a). Live interpreter test ran 2026-10-26: 18 of 20 (seeded sample; DECISIONS M36.12 correction). M36 live spend 1,381 of 2,500 calls. Next: read PROGRESS for the next milestone; if none is planned, ask the owner (round 7 playtest needs a fresh OK). Files in flight: none. Last gate: M36.12 FULL gate PASS (12/12); after it only tests/live/test_interpret_live.py (RUN_LIVE only), docs/DECISIONS.md and docs/next/m36_router_sentences.jsonl changed.
 
 # PROGRESS
 

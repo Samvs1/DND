@@ -1,0 +1,165 @@
+{"file": "tests/ai/test_combat_intent.py", "test": "test_a_named_zone_is_a_move", "text": "I move to the {name}.", "in_corpus": false}
+{"file": "tests/ai/test_combat_intent.py", "test": "test_a_named_zone_is_a_move", "text": "I head towards the {name}", "in_corpus": false}
+{"file": "tests/ai/test_combat_intent.py", "test": "test_a_creature_name_moves_to_its_zone", "text": "I charge at the {name}", "in_corpus": false}
+{"file": "tests/ai/test_combat_intent.py", "test": "test_dash_first_only_when_the_walk_needs_it", "text": "I dash to the {name}", "in_corpus": false}
+{"file": "tests/ai/test_combat_intent.py", "test": "test_dash_first_only_when_the_walk_needs_it", "text": "I walk to the {name}", "in_corpus": false}
+{"file": "tests/ai/test_combat_intent.py", "test": "test_other_sentences_and_own_zone_are_not_moves", "text": "I swing my sword at the goblin", "in_corpus": false}
+{"file": "tests/ai/test_combat_intent.py", "test": "test_other_sentences_and_own_zone_are_not_moves", "text": "I move to the {here}", "in_corpus": false}
+{"file": "tests/ai/test_combat_intent.py", "test": "test_other_sentences_and_own_zone_are_not_moves", "text": "I move to the forest", "in_corpus": false}
+{"file": "tests/ai/test_creative_gear.py", "test": "test_other_sentences_and_own_zone_are_not_moves", "text": "I throw my bottle of water at the goblin", "in_corpus": false}
+{"file": "tests/ai/test_help_intent.py", "test": "test_other_sentences_and_own_zone_are_not_moves", "text": "I help Brannoc up", "in_corpus": false}
+{"file": "tests/ai/test_help_intent.py", "test": "test_other_sentences_and_own_zone_are_not_moves", "text": "I try to wake Brannoc.", "in_corpus": false}
+{"file": "tests/ai/test_help_intent.py", "test": "test_other_sentences_and_own_zone_are_not_moves", "text": "We get Brannoc back on his feet", "in_corpus": false}
+{"file": "tests/ai/test_help_intent.py", "test": "test_other_sentences_and_own_zone_are_not_moves", "text": "I help Brannoc to his feet", "in_corpus": false}
+{"file": "tests/ai/test_help_intent.py", "test": "test_other_sentences_and_own_zone_are_not_moves", "text": "I stabilize him", "in_corpus": false}
+{"file": "tests/ai/test_help_intent.py", "test": "test_other_sentences_and_own_zone_are_not_moves", "text": "Let's revive Brannoc", "in_corpus": false}
+{"file": "tests/ai/test_help_intent.py", "test": "test_other_sentences_and_own_zone_are_not_moves", "text": "I pull Brannoc up", "in_corpus": false}
+{"file": "tests/ai/test_help_intent.py", "test": "test_help_up_typed_needs_a_downed_named_ally", "text": "I help Celes up", "in_corpus": false}
+{"file": "tests/ai/test_help_intent.py", "test": "test_help_up_typed_needs_a_downed_named_ally", "text": "I help Brannoc up", "in_corpus": false}
+{"file": "tests/ai/test_item_tools.py", "test": "test_help_up_typed_needs_a_downed_named_ally", "text": "I pick up the pouch.", "in_corpus": false}
+{"file": "tests/ai/test_item_tools.py", "test": "test_help_up_typed_needs_a_downed_named_ally", "text": "I take the spilled pouch", "in_corpus": false}
+{"file": "tests/ai/test_item_tools.py", "test": "test_help_up_typed_needs_a_downed_named_ally", "text": "I pick the pouch up", "in_corpus": false}
+{"file": "tests/ai/test_item_tools.py", "test": "test_typed_pick_ups_need_no_model", "text": "I take a short rest", "in_corpus": false}
+{"file": "tests/ai/test_item_tools.py", "test": "test_typed_pick_ups_need_no_model", "text": "I take off my armor", "in_corpus": false}
+{"file": "tests/ai/test_item_tools.py", "test": "test_typed_pick_ups_need_no_model", "text": "I get going", "in_corpus": false}
+{"file": "tests/ai/test_m27_typed_gear.py", "test": "test_other_take_phrases_are_not_pick_ups", "text": "I use the rope to force open the lock", "in_corpus": false}
+{"file": "tests/ai/test_m29_honest_goods.py", "test": "test_m29_third_person_hand_over_is_a_give", "text": "Rook hands the Receipt-scroll over to Ranna the Brine-Widow, giving it into her hands", "in_corpus": true}
+{"file": "tests/ai/test_m29_locks_levels.py", "test": "test_m29_unpickable_lock_gets_no_check_full_vault", "text": "I try to pick the lock on the Foundling Vault door", "in_corpus": true}
+{"file": "tests/ai/test_m29_locks_levels.py", "test": "test_m29_unpickable_lock_gets_no_check_full_vault", "text": "I force the Foundling Vault open with my crowbar", "in_corpus": false}
+{"file": "tests/ai/test_m29_locks_levels.py", "test": "test_m29_other_words_near_a_locked_way_are_no_lock_try", "text": "I pick up the stone near the Foundling Vault", "in_corpus": false}
+{"file": "tests/ai/test_m29_locks_levels.py", "test": "test_m29_other_words_near_a_locked_way_are_no_lock_try", "text": "I ask Serin about the Foundling Vault", "in_corpus": false}
+{"file": "tests/ai/test_m29_locks_levels.py", "test": "test_m29_other_words_near_a_locked_way_are_no_lock_try", "text": "I open my pack by the Foundling Vault", "in_corpus": false}
+{"file": "tests/ai/test_m30_intent_router.py", "test": "_winner", "text": "I open the door.", "in_corpus": false}
+{"file": "tests/ai/test_precheck.py", "test": "_state", "text": "I take a short rest.", "in_corpus": false}
+{"file": "tests/ai/test_precheck.py", "test": "_state", "text": "We'll have a short rest", "in_corpus": false}
+{"file": "tests/ai/test_precheck.py", "test": "_state", "text": "we make camp for the night", "in_corpus": false}
+{"file": "tests/ai/test_precheck.py", "test": "_state", "text": "Let us set up camp!", "in_corpus": false}
+{"file": "tests/ai/test_precheck.py", "test": "_state", "text": "I want to take a long rest please", "in_corpus": false}
+{"file": "tests/ai/test_precheck.py", "test": "test_rest_positive", "text": "I rest my hand on the hilt", "in_corpus": false}
+{"file": "tests/ai/test_precheck.py", "test": "test_rest_positive", "text": "I ask the innkeeper about a long rest", "in_corpus": false}
+{"file": "tests/ai/test_precheck.py", "test": "test_rest_negative", "text": "We travel to Whispering Woods.", "in_corpus": false}
+{"file": "tests/ai/test_precheck.py", "test": "test_rest_negative", "text": "I walk towards whispering woods", "in_corpus": false}
+{"file": "tests/ai/test_precheck.py", "test": "test_travel_to_a_locked_exit_says_it_is_barred", "text": "I go to the bar and order a drink", "in_corpus": false}
+{"file": "tests/ai/test_precheck.py", "test": "test_shop_needs_a_present_shopkeeper", "text": "I browse the wares", "in_corpus": false}
+{"file": "tests/ai/test_precheck.py", "test": "test_shop_needs_a_present_shopkeeper", "text": "I buy Tam a drink", "in_corpus": false}
+{"file": "tests/ai/test_precheck.py", "test": "test_shop_npc_elsewhere_is_not_a_shop", "text": "I wield the light crossbow", "in_corpus": false}
+{"file": "tests/ai/test_precheck.py", "test": "test_shop_npc_elsewhere_is_not_a_shop", "text": "I take off my chain mail", "in_corpus": false}
+{"file": "tests/ai/test_precheck.py", "test": "test_item_positive", "text": "I drop the longsword on the goblin's head", "in_corpus": false}
+{"file": "tests/ai/test_precheck.py", "test": "test_item_negative", "text": "what am I carrying?", "in_corpus": false}
+{"file": "tests/ai/test_precheck.py", "test": "test_inventory_positive", "text": "I look around.", "in_corpus": false}
+{"file": "tests/ai/test_precheck.py", "test": "test_inventory_positive", "text": "What do we see?", "in_corpus": false}
+{"file": "tests/ai/test_precheck.py", "test": "test_look_positive", "text": "I look Mira in the eye", "in_corpus": false}
+{"file": "tests/ai/test_quest_item_tools.py", "test": "test_typed_give_is_a_precheck", "text": "I give the spiral shell to Dessa.", "in_corpus": false}
+{"file": "tests/ai/test_use_intent.py", "test": "test_light_my_torch", "text": "I light my torch.", "in_corpus": false}
+{"file": "tests/ai/test_use_intent.py", "test": "test_throw_the_oil_at_z", "text": "I throw the oil at the goblin", "in_corpus": false}
+{"file": "tests/ai/test_use_intent.py", "test": "test_brew_a_poultice_is_a_long_rest_use", "text": "I brew a poultice", "in_corpus": false}
+{"file": "tests/ai/test_use_intent.py", "test": "test_item_commands_still_win", "text": "I tie up the goblin with my rope", "in_corpus": false}
+{"file": "tests/ai/test_what_now_precheck.py", "test": "test_item_commands_still_win", "text": "What now?", "in_corpus": false}
+{"file": "tests/ai/test_what_now_precheck.py", "test": "test_item_commands_still_win", "text": "what now", "in_corpus": false}
+{"file": "tests/ai/test_what_now_precheck.py", "test": "test_item_commands_still_win", "text": "What should we do?", "in_corpus": false}
+{"file": "tests/ai/test_what_now_precheck.py", "test": "test_item_commands_still_win", "text": "what do I do next", "in_corpus": false}
+{"file": "tests/ai/test_what_now_precheck.py", "test": "test_item_commands_still_win", "text": "I'm lost", "in_corpus": false}
+{"file": "tests/ai/test_what_now_precheck.py", "test": "test_item_commands_still_win", "text": "we are lost.", "in_corpus": false}
+{"file": "tests/ai/test_what_now_precheck.py", "test": "test_item_commands_still_win", "text": "What's next?", "in_corpus": false}
+{"file": "tests/ai/test_what_now_precheck.py", "test": "test_what_now_phrases", "text": "I help Tobin carry the crates", "in_corpus": false}
+{"file": "tests/ai/test_what_now_precheck.py", "test": "test_what_now_phrases", "text": "what now, I attack the goblin", "in_corpus": false}
+{"file": "tests/ai/test_what_now_precheck.py", "test": "test_typed_move_to_the_locked_gateway_is_barred_with_the_reason", "text": "We go to the Sunken Vestry", "in_corpus": false}
+{"file": "tests/session/test_m29_hand_over.py", "test": "test_m29_drink_words_keep_the_heal", "text": "Brienne gives Elowen the poultice to drink", "in_corpus": false}
+{"file": "tests/session/test_m29_hand_over.py", "test": "test_m31_toss_gold_with_a_reason_is_a_gold_hand_over", "text": "I toss Elowen 10 gold for her trouble", "in_corpus": false}
+{"file": "tests/session/test_m29_keepsake_hand_over.py", "test": "test_m29_show_is_not_give", "text": "I show Farran Dell the Bailiff's Broken Link and ask him plainly what the debt is", "in_corpus": false}
+{"file": "tests/session/test_m29_r3_ending.py", "test": "test_m29_reading_a_clue_records_the_lesson_items", "text": "I read the Spore-Ink Note carefully and say aloud what it says", "in_corpus": false}
+{"file": "tests/session/test_m29_r3_offers.py", "test": "test_m29_question_to_a_bystander_is_not_a_parley", "text": "Brienne asks Dreda Flint who she is, what happens at the forge, and where Sera Vask is.", "in_corpus": true}
+{"file": "tests/session/test_m29_r3_offers.py", "test": "test_m29_question_to_a_bystander_is_not_a_parley", "text": "I tell the ogre to turn back and leave us be", "in_corpus": false}
+{"file": "tests/session/test_m29_r3_offers.py", "test": "test_m29_question_to_a_bystander_is_not_a_parley", "text": "I call out and ask whether we may pass in peace", "in_corpus": false}
+{"file": "tests/session/test_m29_r3_pay.py", "test": "test_m29_hand_rutter_a_gold_piece_pays_him", "text": "Brienne hands Rutter the Gap 1 gold piece for the crossing and boards the boat.", "in_corpus": true}
+{"file": "tests/session/test_m29_r3_pay.py", "test": "test_m29_pay_phrases_and_silver_rounding", "text": "I pay Rutter the Gap for a crossing and ask him about the drowned girl.", "in_corpus": false}
+{"file": "tests/session/test_m29_r3_pay.py", "test": "test_m29_pay_phrases_and_silver_rounding", "text": "Brienne counts out four silver for Rutter the Gap and asks him to row us out.", "in_corpus": false}
+{"file": "tests/session/test_m29_r3_pay.py", "test": "test_m29_pay_phrases_and_silver_rounding", "text": "I pay Rutter 12 gold", "in_corpus": false}
+{"file": "tests/session/test_m29_r3_pay.py", "test": "test_m29_pay_phrases_and_silver_rounding", "text": "I give Rutter 25 silver pieces", "in_corpus": false}
+{"file": "tests/session/test_m29_r3_pay.py", "test": "test_m29_pay_phrases_and_silver_rounding", "text": "I pay attention to the water", "in_corpus": false}
+{"file": "tests/session/test_m29_r3_surrender.py", "test": "test_m29_surrender_demand_is_read", "text": "I plead with them to yield, we will spare them", "in_corpus": false}
+{"file": "tests/session/test_m29_r3_surrender.py", "test": "test_m29_surrender_demand_is_read", "text": "I surrender", "in_corpus": false}
+{"file": "tests/session/test_m29_typed_gear_words.py", "test": "test_m29_light_compound_sentences_light_first", "text": "I light a candle to see, then look around the dark wharf for the counterfeit bell", "in_corpus": false}
+{"file": "tests/session/test_m29_typed_gear_words.py", "test": "test_m29_light_compound_sentences_light_first", "text": "Brienne pinches out the candle", "in_corpus": false}
+{"file": "tests/session/test_m29_typed_intents.py", "test": "test_m29_typed_weapon_attack_is_the_attack_command", "text": "I swing my longsword at Mirrorwarden Luth", "in_corpus": true}
+{"file": "tests/session/test_m29_typed_intents.py", "test": "test_m29_typed_weapon_attack_is_the_attack_command", "text": "Brienne swings her longsword at Mirrorwarden Luth", "in_corpus": false}
+{"file": "tests/session/test_m29_typed_intents.py", "test": "test_m29_typed_weapon_attack_is_the_attack_command", "text": "I shoot Mirrorwarden Luth", "in_corpus": false}
+{"file": "tests/session/test_m29_typed_intents.py", "test": "test_m29_typed_weapon_attack_is_the_attack_command", "text": "I swing from the chandelier into Mirrorwarden Luth", "in_corpus": false}
+{"file": "tests/session/test_m29_typed_intents.py", "test": "test_m29_typed_weapon_attack_is_the_attack_command", "text": "I swing my longsword at Elowen", "in_corpus": false}
+{"file": "tests/session/test_m29_typed_intents.py", "test": "test_m29_talk_while_an_offer_waits_is_the_parley", "text": "I threaten Veles with my blade", "in_corpus": false}
+{"file": "tests/session/test_m29_typed_intents.py", "test": "test_m29_talk_while_an_offer_waits_is_the_parley", "text": "I lie to Veles about who sent us", "in_corpus": false}
+{"file": "tests/session/test_m29_typed_intents.py", "test": "test_m29_talk_while_an_offer_waits_is_the_parley", "text": "I lie low in the reeds", "in_corpus": false}
+{"file": "tests/session/test_m29_typed_intents.py", "test": "test_m29_talk_while_an_offer_waits_is_the_parley", "text": "I tell the others to get ready", "in_corpus": false}
+{"file": "tests/session/test_m29_typed_intents.py", "test": "test_m29_talk_while_an_offer_waits_is_the_parley", "text": "I ask my companions", "in_corpus": false}
+{"file": "tests/session/test_m29_typed_intents.py", "test": "test_m29_talk_while_an_offer_waits_is_the_parley", "text": "I swing my longsword at Veles", "in_corpus": false}
+{"file": "tests/session/test_m29_typed_rest_feature.py", "test": "test_m29_wordy_rest_sentences_are_rest_intents", "text": "We do not rest for the night, we press on", "in_corpus": false}
+{"file": "tests/session/test_m29_typed_rest_feature.py", "test": "test_m29_wordy_rest_sentences_are_rest_intents", "text": "I search the camp for tracks", "in_corpus": false}
+{"file": "tests/session/test_m29_typed_rest_feature.py", "test": "test_m29_typed_cure_wounds_in_a_fight_is_the_cast_command", "text": "Elowen casts cure wounds on Brienne", "in_corpus": false}
+{"file": "tests/session/test_m29_typed_rest_feature.py", "test": "test_m29_typed_cure_wounds_in_a_fight_is_the_cast_command", "text": "Brienne swings her longsword wildly", "in_corpus": false}
+{"file": "tests/session/test_m30_free_spells.py", "test": "test_m30_hostile_spell_aimed_at_an_npc_keeps_the_old_path", "text": "I cast fire bolt at Tobin", "in_corpus": false}
+{"file": "tests/session/test_m30_free_spells.py", "test": "test_m30_hostile_spell_aimed_at_an_npc_keeps_the_old_path", "text": "I cast fire bolt at the crates", "in_corpus": false}
+{"file": "tests/session/test_m30_free_spells.py", "test": "test_m30_scene_spell_needs_its_name_after_the_cast_word", "text": "I cast a glance at the web of ropes", "in_corpus": false}
+{"file": "tests/session/test_m30_free_spells.py", "test": "test_m30_scene_spell_needs_its_name_after_the_cast_word", "text": "I cast a quick misty step", "in_corpus": false}
+{"file": "tests/session/test_m30_r3_intents.py", "test": "test_m30_r3_set_before_an_npc_is_a_give", "text": "Rook sets the lockbox down at Old Renn's feet", "in_corpus": false}
+{"file": "tests/session/test_m30_r3_intents.py", "test": "test_m30_r3_set_before_an_npc_is_a_give", "text": "I lay the lockbox before Renn", "in_corpus": false}
+{"file": "tests/session/test_m30_r3_intents.py", "test": "test_m30_r3_set_down_with_nobody_named_is_no_give", "text": "Rook sets the lockbox on the boards", "in_corpus": false}
+{"file": "tests/session/test_m30_r3_intents.py", "test": "test_m30_r3_set_down_with_nobody_named_is_no_give", "text": "I set my torch before the door", "in_corpus": false}
+{"file": "tests/session/test_m30_r3_intents.py", "test": "test_m30_r3_typed_cast_out_of_a_fight_is_read", "text": "Elowen casts bless on Rook and Tamsin", "in_corpus": false}
+{"file": "tests/session/test_m30_r3_intents.py", "test": "test_m30_r3_typed_cast_out_of_a_fight_is_read", "text": "I cast guidance", "in_corpus": false}
+{"file": "tests/session/test_m30_r3_intents.py", "test": "test_m30_r3_typed_cast_out_of_a_fight_is_read", "text": "Brienne casts magic missile at the ferryman", "in_corpus": false}
+{"file": "tests/session/test_m30_r3_intents.py", "test": "test_m30_r3_typed_cast_out_of_a_fight_is_read", "text": "Elowen casts guidance on Old Renn", "in_corpus": false}
+{"file": "tests/session/test_m31_pay_path.py", "test": "test_m30_r3_stowed_rapier_is_drawn_then_attacks", "text": "I slap 50 gold down on the table for Merre Wenslow", "in_corpus": false}
+{"file": "tests/session/test_m31_pay_path.py", "test": "test_v1_m31_coins_to_a_hero_are_a_hand_over", "text": "I pay Brienne 10 gold", "in_corpus": false}
+{"file": "tests/session/test_m31_pay_path.py", "test": "test_v1_m31_coins_to_a_hero_are_a_hand_over", "text": "I slap 10 gold down for Brienne", "in_corpus": false}
+{"file": "tests/session/test_m31_pay_path.py", "test": "test_v1_m31_coins_to_a_hero_are_a_hand_over", "text": "I press 5 gold into Merre's hand", "in_corpus": false}
+{"file": "tests/session/test_m31_pay_path.py", "test": "test_v1_m31_coins_to_a_hero_are_a_hand_over", "text": "I leave 5 gold for the poor", "in_corpus": false}
+{"file": "tests/session/test_m31_quests.py", "test": "test_m31_a_question_without_the_topic_or_the_person_teaches_nothing", "text": "What do I see here?", "in_corpus": false}
+{"file": "tests/session/test_m31_typed_answers.py", "test": "test_m31_typed_yes_accepts_the_quest_offer", "text": "We'll pass on that", "in_corpus": false}
+{"file": "tests/session/test_m31_typed_answers.py", "test": "test_m31_typed_yes_accepts_the_quest_offer", "text": "I ask Merre what the cairn holds", "in_corpus": false}
+{"file": "tests/session/test_m31_typed_explore.py", "test": "test_m31_hostile_spell_aimed_at_a_person_here_stays_with_the_storyteller", "text": "I cast burning hands at Merre", "in_corpus": false}
+{"file": "tests/session/test_m31_typed_explore.py", "test": "test_m31_hostile_spell_aimed_at_a_person_here_stays_with_the_storyteller", "text": "I cast burning hands at the peddler", "in_corpus": false}
+{"file": "tests/session/test_m31_typed_explore.py", "test": "test_m31_hostile_spell_aimed_at_a_person_here_stays_with_the_storyteller", "text": "I cast burning hands at him", "in_corpus": false}
+{"file": "tests/session/test_m31_typed_explore.py", "test": "test_m31_ready_spell_named_without_cast_is_cast", "text": "I ask Merre about healing word", "in_corpus": false}
+{"file": "tests/session/test_m31_typed_explore.py", "test": "test_m31_drink_targets_the_drinker", "text": "I help Brienne drink my potion of healing", "in_corpus": false}
+{"file": "tests/session/test_m31_typed_explore.py", "test": "test_m31_compound_gear_line_is_both_acts", "text": "I holster my light crossbow", "in_corpus": false}
+{"file": "tests/session/test_m31_typed_explore.py", "test": "test_m31_compound_gear_line_is_both_acts", "text": "Brienne slings her shield over her shoulder", "in_corpus": false}
+{"file": "tests/session/test_m31_typed_fight.py", "test": "test_m31_typed_cast_with_no_target_is_refused_plainly", "text": "I cast fire bolt", "in_corpus": false}
+{"file": "tests/session/test_m31_typed_fight.py", "test": "test_m31_typed_cast_with_no_target_is_refused_plainly", "text": "I ask about fire bolt", "in_corpus": false}
+{"file": "tests/session/test_m31_typed_fight.py", "test": "test_m31_typed_cast_with_no_target_is_refused_plainly", "text": "I cast a glance at the zombie", "in_corpus": false}
+{"file": "tests/session/test_m31_utility_cantrips.py", "test": "test_m31_round4_weapon_phrasings_attack", "text": "I light the torch", "in_corpus": false}
+{"file": "tests/session/test_m31_utility_cantrips.py", "test": "_wizard", "text": "I cast mage hand to pull the lever", "in_corpus": false}
+{"file": "tests/session/test_m31_utility_cantrips.py", "test": "_wizard", "text": "I cast prestidigitation to clean my cloak", "in_corpus": false}
+{"file": "tests/session/test_m31_utility_cantrips.py", "test": "_wizard", "text": "I cast mending on the strap", "in_corpus": false}
+{"file": "tests/session/test_m31_utility_cantrips.py", "test": "_wizard", "text": "I cast message to the guard", "in_corpus": false}
+{"file": "tests/session/test_m31_utility_cantrips.py", "test": "_wizard", "text": "I cast dancing lights down the tunnel", "in_corpus": false}
+{"file": "tests/session/test_m31_utility_cantrips.py", "test": "test_typed_utility_cast_is_a_cast_on_the_caster", "text": "I light the torch", "in_corpus": false}
+{"file": "tests/session/test_m31_utility_cantrips.py", "test": "test_typed_utility_cast_is_a_cast_on_the_caster", "text": "I cast a glance at the light", "in_corpus": false}
+{"file": "tests/session/test_m32_typed_compound.py", "test": "test_v1_m32_travel_further_goes_road_by_road", "text": "I travel to The Skiff-Road", "in_corpus": false}
+{"file": "tests/session/test_m32_typed_fight.py", "test": "test_v1_m32_weapon_line_stunts_stay_creative", "text": "I trip the thug with my longsword", "in_corpus": false}
+{"file": "tests/session/test_m32_typed_fight.py", "test": "test_v1_m32_weapon_line_stunts_stay_creative", "text": "I shove the thug off the steps with my shield and longsword", "in_corpus": false}
+{"file": "tests/session/test_m32_typed_fight.py", "test": "test_v1_m32_weapon_line_stunts_stay_creative", "text": "I throw my longsword at the thug", "in_corpus": false}
+{"file": "tests/session/test_m32_typed_fight.py", "test": "test_v1_m32_weapon_line_stunts_stay_creative", "text": "I wipe the thug's blood off my longsword", "in_corpus": false}
+{"file": "tests/session/test_m32_typed_fight.py", "test": "test_v1_m32_weapon_line_stunts_stay_creative", "text": "I sheathe my longsword and glare at the thug", "in_corpus": false}
+{"file": "tests/session/test_m32_typed_offer.py", "test": "test_v1_m32_impossible_feat_in_other_words", "text": "I climb the sheer wall", "in_corpus": false}
+{"file": "tests/session/test_m32_typed_offer.py", "test": "test_v1_m32_impossible_feat_in_other_words", "text": "I throw a rock into the river", "in_corpus": false}
+{"file": "tests/session/test_m32_typed_offer.py", "test": "test_v1_m32_impossible_feat_in_other_words", "text": "I push the cart off the bridge", "in_corpus": false}
+{"file": "tests/session/test_m32_typed_offer.py", "test": "test_v1_m32_impossible_feat_in_other_words", "text": "I lift the bridge keeper's lantern", "in_corpus": false}
+{"file": "tests/session/test_m33_typed_flow.py", "test": "test_v1_m32_impossible_feat_in_other_words", "text": "I attack the zombie with my light crossbow", "in_corpus": false}
+{"file": "tests/session/test_m33_typed_flow.py", "test": "test_v1_m33_light_never_hijacks_a_weapon_line", "text": "I cast light on my shield", "in_corpus": false}
+{"file": "tests/session/test_m33_typed_flow.py", "test": "test_v1_m33_light_never_hijacks_a_weapon_line", "text": "I cast light on my light crossbow", "in_corpus": false}
+{"file": "tests/session/test_m33_typed_flow.py", "test": "test_v1_m33_counted_give_of_a_stack_names_the_units", "text": "I bow to the bandit", "in_corpus": false}
+{"file": "tests/session/test_m33_typed_flow.py", "test": "test_v1_m33_counted_give_of_a_stack_names_the_units", "text": "Rook bows low to the bandit", "in_corpus": false}
+{"file": "tests/session/test_m33_typed_flow.py", "test": "test_v1_m33_counted_give_of_a_stack_names_the_units", "text": "I warm my hands by the fire, watching the bandit", "in_corpus": false}
+{"file": "tests/session/test_m33_typed_flow.py", "test": "test_v1_m33_counted_give_of_a_stack_names_the_units", "text": "I keep my bow slung and greet the bandit", "in_corpus": false}
+{"file": "tests/session/test_m33_typed_flow.py", "test": "test_v1_m33_counted_give_of_a_stack_names_the_units", "text": "I won't attack the bandit", "in_corpus": false}
+{"file": "tests/session/test_m33_typed_flow.py", "test": "test_v1_m33_counted_give_of_a_stack_names_the_units", "text": "I will not cast fire bolt at the bandit", "in_corpus": false}
+{"file": "tests/session/test_m33_typed_flow.py", "test": "test_v1_m33_courtesy_at_an_offer_is_no_strike", "text": "I shoot the bandit", "in_corpus": false}
+{"file": "tests/session/test_m33_typed_flow.py", "test": "test_v1_m33_courtesy_at_an_offer_is_no_strike", "text": "I take a swing at the bandit", "in_corpus": false}
+{"file": "tests/session/test_m33_typed_flow.py", "test": "test_v1_m33_courtesy_at_an_offer_is_no_strike", "text": "I attack the bandit with my bow", "in_corpus": false}
+{"file": "tests/session/test_m33_typed_flow.py", "test": "test_v1_m33_courtesy_at_an_offer_is_no_strike", "text": "I loose an arrow at the bandit", "in_corpus": false}
+{"file": "tests/session/test_m33_typed_flow.py", "test": "test_v1_m33_courtesy_at_an_offer_is_no_strike", "text": "I cast fire bolt at the bandit", "in_corpus": false}
+{"file": "tests/session/test_m33_typed_flow.py", "test": "test_v1_m33_bow_in_a_fight_is_no_shot", "text": "I bow to the zombie", "in_corpus": false}
+{"file": "tests/session/test_m33_typed_flow.py", "test": "test_v1_m33_bow_in_a_fight_is_no_shot", "text": "I put an arrow in the zombie's chest", "in_corpus": true}
+{"file": "tests/session/test_m33_typed_flow.py", "test": "test_v1_m33_checked_movement_is_no_lead_in", "text": "I climb the wall and search the room", "in_corpus": false}
+{"file": "tests/session/test_m35_waiting_foe.py", "test": "test_v1_m35_sleep_named_at_one_foe_is_a_strike", "text": "I cast Sleep on the kobold", "in_corpus": false}
+{"file": "tests/session/test_quest_items_flow.py", "test": "test_offer_appears_once_with_all_options_and_blocks_travel", "text": "I pick up the Choir tide-orders", "in_corpus": false}
