@@ -27,5 +27,5 @@ export const zoneGlows = (zone) => Boolean(zone?.dark && zone.lit);
 
 /** "Put out light": free on any turn, sent as the menu's own label (M36.10b; MenuAct in M36.11). */
 export function putOutButton(client, cls = 'btn btn-small') {
-  return h('button', { type: 'button', class: `${cls} ct-putout`, 'data-testid': 'put-out-light', title: t('light.putOutTip'), onclick: () => client.send('submit_action', { text: 'Put out your light' }) }, t('light.putOut'));
+  return h('button', { type: 'button', class: `${cls} ct-putout`, 'data-testid': 'put-out-light', title: t('light.putOutTip'), onclick: () => client.send('submit_action', { text: 'put out your light' }) }, t('light.putOut'));
 }

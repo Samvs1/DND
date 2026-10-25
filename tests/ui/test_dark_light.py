@@ -65,7 +65,7 @@ def test_dark_board_and_phone_badges_in_a_fight(
     active.click("[data-testid=put-out-light]")
     assert active.evaluate("window.__sent.at(-1)") == {
         "type": "submit_action",
-        "text": "Put out your light",
+        "text": "put out your light",
     }
     shot(active, "04_torch_lit_putout_phone390")
     assert errors == []
@@ -104,7 +104,7 @@ def test_out_of_a_fight_dark_scene_chip_and_card(browser: Browser, live_server: 
     assert host.inner_text("[data-testid=dark-badge]").lower() == "lit"
     assert host.locator("[data-testid=boon-chip]").count() == 1
     host.click("[data-testid=put-out-light]")
-    assert host.evaluate("window.__sent.at(-1)")["text"] == "Put out your light"
+    assert host.evaluate("window.__sent.at(-1)")["text"] == "put out your light"
     shot(host, "06_torch_lit_now_card_phone390")
     assert errors == []
 
