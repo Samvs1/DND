@@ -4,8 +4,10 @@ The loop the table actor will also follow, minus players: for each turn `rules.t
 then the acting creature's AI asks for ONE command at a time (`rules.party_ai.next_pc_command`
 for PCs, `rules.monster_ai.next_monster_command` for everything else), the command is executed
 through `rules.commands.execute_command` and its events are applied by THE reducer, until the AI
-ends the turn. After every applied batch `rules.encounter.encounter_outcome` is checked; an
-outcome ends the fight through `end_encounter`. After each `TurnEnded`, every monster of
+ends the turn. Every applied event may be followed by the end of a concentration whose last
+effect just ended (M35.3, `orphaned_concentration_events`). After every applied batch
+`rules.encounter.encounter_outcome` is checked; an outcome ends the fight through
+`end_encounter`. After each `TurnEnded`, every monster of
 `rules.monster_legendary.legendary_ready` may take the legendary action the AI picks.
 The planner only returns commands it validated, so a refusal here is an engine/AI disagreement:
 it is counted in `CombatStats.refused` and the turn is ended instead (never a silent stall).
@@ -29,6 +31,7 @@ from aidm.models.events import AnyEvent
 from aidm.models.state import GameState
 from aidm.rules.command_checks import CommandRefused
 from aidm.rules.commands import execute_command
+from aidm.rules.concentration import orphaned_concentration_events
 from aidm.rules.dice import Rng
 from aidm.rules.encounter import encounter_outcome, end_encounter
 from aidm.rules.monster_ai import choose_legendary_action, next_monster_command
@@ -76,10 +79,15 @@ class CombatRunner:
 
     def _apply(self, events: list[AnyEvent]) -> None:
         for event in events:
-            apply(self.state, event)
-            self.log.append(event)
-            if self.on_event is not None:
-                self.on_event(self.state, event)
+            self._apply_one(event)
+            for follow in orphaned_concentration_events(self.state):  # M35.3 Y3
+                self._apply_one(follow)
+
+    def _apply_one(self, event: AnyEvent) -> None:
+        apply(self.state, event)
+        self.log.append(event)
+        if self.on_event is not None:
+            self.on_event(self.state, event)
 
     def execute(self, command: AnyCommand) -> AnyCommand:
         try:

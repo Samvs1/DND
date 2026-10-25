@@ -38,8 +38,9 @@ Public API:
   weapon damage the attacker deals to this target because of conditions it applied (Hunter's
   Mark). `condition_bonus_actions(creature) -> frozenset[str]` (Expeditious Retreat: "dash").
   `condition_blocks_verbal(creature) -> bool` (Silence).
-- `attack_consumed_conditions(creature) -> list[ActiveCondition]`: instances that end when the
-  bearer makes an attack roll (hidden, helped).
+- `attack_consumed_conditions(creature, *, against=False) -> list[ActiveCondition]`: instances
+  that end when the bearer makes an attack roll (hidden, helped), or with `against` when an
+  attack roll is made against the bearer (guided, M35.3).
 - `save_with_conditions(rng, creature, ability, dc, *, adv_sources=0, dis_sources=0, bonus=0)
   -> CheckResult`: the saving throw every effect uses. Condition advantage is combined with the
   caller's sources and condition save dice are rolled (before the d20) into the bonus; an
@@ -238,8 +239,13 @@ def condition_blocks_verbal(creature: Creature) -> bool:
     return any(d.blocks_verbal for d in _defs(creature))
 
 
-def attack_consumed_conditions(creature: Creature) -> list[ActiveCondition]:
-    return [c for c in creature.conditions if condition_def(c.name).consumed_by_attack]
+def attack_consumed_conditions(
+    creature: Creature, *, against: bool = False
+) -> list[ActiveCondition]:
+    def used(d: ConditionDef) -> bool:
+        return d.consumed_by_attack_against if against else d.consumed_by_attack
+
+    return [c for c in creature.conditions if used(condition_def(c.name))]
 
 
 def _situation(

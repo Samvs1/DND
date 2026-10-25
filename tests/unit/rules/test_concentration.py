@@ -85,10 +85,10 @@ def test_start_records_concentration() -> None:
 def test_new_concentration_ends_old_and_its_conditions() -> None:
     state = setup()
     events = start_concentration(state, "cleric", "bless")
-    assert events[0] == ConditionRemoved(
+    assert isinstance(events[0], ConcentrationEnded)  # M35.3: the end comes first
+    assert events[1] == ConditionRemoved(
         creature_id="orc", name="paralyzed", source_id="cleric", exact_source=True
     )
-    assert isinstance(events[1], ConcentrationEnded)
     run(state, events)
     assert state.creatures["orc"].conditions == []
     conc = state.creatures["cleric"].concentrating_on
@@ -153,7 +153,7 @@ def test_dropping_to_zero_breaks_concentration_without_roll() -> None:
     taken = _hit(state, "cleric", 30)
     events = concentration_after_damage(FixedRng(20), state, taken)
     assert not any(isinstance(e, CheckResolved) for e in events)
-    assert events[-1] == ConcentrationEnded(
+    assert events[0] == ConcentrationEnded(
         creature_id="cleric", spell_id="hold-person", reason="incapacitated"
     )
 
@@ -163,7 +163,7 @@ def test_upkeep_on_death_and_stun() -> None:
     assert concentration_upkeep(state, "cleric") == []
     assert concentration_upkeep(state, "ally") == []
     state.creatures["cleric"].conditions = [ActiveCondition(name="stunned")]
-    assert isinstance(concentration_upkeep(state, "cleric")[-1], ConcentrationEnded)
+    assert isinstance(concentration_upkeep(state, "cleric")[0], ConcentrationEnded)
     state.creatures["cleric"].dead = True
-    ended = concentration_upkeep(state, "cleric")[-1]
+    ended = concentration_upkeep(state, "cleric")[0]
     assert isinstance(ended, ConcentrationEnded) and ended.reason == "died"

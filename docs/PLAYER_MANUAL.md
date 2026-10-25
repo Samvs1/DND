@@ -481,7 +481,7 @@ To move, use the **Move** list right under the Now card on your phone (on your t
 Pick **Spells**, choose a spell, then choose its target or the zone. Casting a spell uses your action or bonus action depending on the spell. A bonus-action spell does not stop you from casting an action spell on the same turn.
 - **Cantrips** cost nothing. They get stronger at character level 5.
 - Levelled spells use a **slot** of that level (or a higher one for a stronger effect). Slots come back on a long rest. Warlock pact slots come back on a short rest too.
-- **Concentration**: you can concentrate on one spell at a time, and casting another concentration spell ends the first. It also ends if you are knocked out or incapacitated, or if you fail a Constitution save. You make that save each time you take damage, against a DC of 10 or half the damage, whichever is higher.
+- **Concentration**: you can concentrate on one spell at a time, and casting another concentration spell ends the first. It also ends if you are knocked out or incapacitated, if you fail a Constitution save, or when the spell's last effect is gone (the condition it gave has worn off, been used up or been removed from every target). You make that save each time you take damage, against a DC of 10 or half the damage, whichever is higher.
 - Area spells hit everyone in the target zone, **friends included** (never the caster). While you pick the zone, each zone in the **Move** list says who the spell would catch, with friends marked **(ally)**, or **Out of reach**.
 - A cone, line or cube that starts from you (Burning Hands and Color Spray 15 ft, Thunderwave 15 ft, Fear 30 ft, Lightning Bolt 100 ft) is aimed: pick your own zone or a neighbouring zone whose distance is no longer than the spell (Burning Hands reaches a zone 15 ft away, not one 25 ft away; Fear reaches 25 or 30 ft). It hits everyone in that one zone and never you. Aimed at your own zone it also catches the friends beside you. Spirit Guardians always surrounds you in your own zone. One damage roll counts for all, and each target saves on their own.
 - Spell attacks use your proficiency bonus plus your casting modifier.
@@ -595,7 +595,7 @@ Conditions are shown on tokens and on your sheet.
 | Chilled | Speed is 67%. |
 | Shocked | Cannot take reactions. |
 | True Strike | Its attacks have advantage; ends after its next attack. |
-| Guided | Attacks against it have advantage. |
+| Guided | Attacks against it have advantage; ends after the next attack against it. |
 | Mage Armor | +3 AC. |
 | Blurred | Attacks against it have disadvantage. |
 | Invisibility | Its attacks have advantage; attacks against it have disadvantage; others cannot see it; ends after its next attack. |

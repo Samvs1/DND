@@ -18,6 +18,9 @@ Fields of `ConditionDef` (all but index/name/source default to "no effect"):
   expression added to the bearer's attack rolls / saving throws / ability checks (Bless,
   Resistance, Guidance); a leading "-" subtracts it instead (Bane: "-1d4").
   `consumed_by_attack`: the instance ends when the bearer makes an attack roll (hidden, helped).
+  `consumed_by_attack_against` (M35.3): the instance ends when an attack roll is made against
+  the bearer, hit or miss (SRD 5.1 Guiding Bolt: "the next attack roll made against this
+  target ... has advantage"); the applying effect's ROUNDS still cap it.
   `ends_on_damage`: the instance ends when the bearer takes damage (magical sleep).
   `ends_on_source_side_harm` (M29.7d): the instance ends when the creature that applied it, or
   anyone on its side, damages the bearer (SRD 5.1 Animal Friendship, Charm Person: "if you or
@@ -136,6 +139,7 @@ class ConditionDef(BaseModel):
     save_dice: str | None = Field(default=None, pattern=BONUS_DICE)
     check_dice: str | None = Field(default=None, pattern=BONUS_DICE)
     consumed_by_attack: bool = False
+    consumed_by_attack_against: bool = False
     ends_on_damage: bool = False
     ends_on_source_side_harm: bool = False
     harm_must_be_direct: bool = False

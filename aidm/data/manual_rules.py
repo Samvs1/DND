@@ -105,6 +105,8 @@ def _tail_lines(c: ConditionDef) -> list[str]:
     out: list[str] = []
     if c.consumed_by_attack:
         out.append("ends after its next attack")
+    if c.consumed_by_attack_against:
+        out.append("ends after the next attack against it")
     if c.ends_on_damage:
         out.append("ends when it takes damage")
     if c.ends_on_source_side_harm:

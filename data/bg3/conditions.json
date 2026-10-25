@@ -205,10 +205,11 @@
   {
     "index": "guided",
     "name": "Guided",
-    "source": "SRD 5.1 Guiding Bolt (attacks against the target have advantage until the end of the caster's next turn; the SRD limits it to the next attack)",
+    "source": "SRD 5.1 Guiding Bolt (the next attack roll made against the target before the end of the caster's next turn has advantage)",
     "srd_condition": false,
     "attacks_against_melee": "advantage",
-    "attacks_against_ranged": "advantage"
+    "attacks_against_ranged": "advantage",
+    "consumed_by_attack_against": true
   },
   {
     "index": "mage-armor",

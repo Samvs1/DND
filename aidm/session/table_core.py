@@ -1,19 +1,16 @@
 """Table actor state and its outbound plumbing (SPEC 5 Concurrency, 10). See `table.py`.
 
-`TableCore` holds everything one table owns: the `GameState` (mutated ONLY through `apply`,
-which runs THE reducer, appends a `LoggedEvent` with a monotonic `seq` and broadcasts the
-event's public projection (`public_feed`; private events are not sent) plus any dice), the
-public story feed (`public`), the seats (`Player`), the subscriber queues of the open
-connections, the exploration queue, the open vote, a pending hostile act, the combat segment
-awaiting narration and the turn timer. Handlers in `lobby`, `explore`, `votes`,
-`combat_flow`, `party_actions` and `host` take a `TableCore` and never import `table.py`.
+`TableCore` holds one table: the `GameState` (mutated ONLY through `apply`: THE reducer, a
+`LoggedEvent` with a monotonic `seq`, the public projection (`public_feed`) and dice broadcast,
+then (M35.3) a concentration whose last effect ended ends too), the story feed (`public`), the
+seats (`Player`), connection queues, the exploration queue, the open vote, a pending hostile
+act, the combat segment awaiting narration and the turn timer. Handlers in `lobby`, `explore`,
+`votes`, `combat_flow`, `party_actions` and `host` take a `TableCore`, never `table.py`.
 
 Public API: `Player`, `TableConfig`, `TtsHook`, `no_tts`, `Job`, `ClientIn`, `Closed`,
 `TimerFired`, `Inbound`, `TableCore` (vote and hostile records live in `table_records`),
-`phase_of(state)` (the phase a loaded state starts in: DEFEATED when `state.defeat` is set,
-M11.1). M11.2: `typing` (who is composing), `audio` (the screen's audio settings, saved in
-table.json), `floor_view()`. M13.2: `scribe` (the Scribe's line memory, `scribe_picker`).
-M26.3: `shows` (what each screen has presented, `show_board`; waits cap at `show_wait_cap_s`).
+`phase_of(state)` (DEFEATED when `state.defeat` is set, M11.1), `typing`, `audio`,
+`floor_view()`, `scribe` (`scribe_picker`), `shows` (`show_board`, cap `show_wait_cap_s`).
 """
 
 import asyncio
@@ -49,6 +46,7 @@ from aidm.models.protocol_server import (
 from aidm.models.protocol_views import AudioSettings, FloorView, PlayerInfo, QueueEntry, TablePhase
 from aidm.models.state import Creature, GameState
 from aidm.models.world_events import LevelUpReady, PartyMoved
+from aidm.rules.concentration import orphaned_concentration_events
 from aidm.session.persistence import CampaignStore, SeatRecord, TableMeta, new_game_state
 from aidm.session.presence import RateLimit, TypingBoard
 from aidm.session.public_feed import PublicFeed
@@ -231,6 +229,8 @@ class TableCore:
         seq = self.state.event_count
         reduce(self.state, event)
         self.record(event, seq)
+        for follow in orphaned_concentration_events(self.state):
+            self.apply(follow)
 
     def apply_all(self, events: list[AnyEvent]) -> list[AnyEvent]:
         for event in events:

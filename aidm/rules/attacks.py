@@ -7,7 +7,7 @@ the d20 (advantage combined from every source) + the attack bonus + condition bo
 a natural roll at or above the crit threshold always hits and crits; a melee hit on a paralyzed
 or unconscious target crits. A crit doubles every damage die (not modifiers), including riders
 whose `doubles_on_crit` is set. Making the roll ends the attacker's attack-consumed conditions
-(hidden, helped).
+(hidden, helped) and the target's consumed-by-an-attack-against-it ones (guided, M35.3).
 
 Public API:
 - `AttackRoll(events, hit, crit, situation)`; `roll_attack(rng, state, attacker_id, target_id,
@@ -107,12 +107,13 @@ def roll_attack(
             adv_why=sit.adv_why,
         )
     ]
-    for c in attack_consumed_conditions(state.creatures[attacker_id]):
-        events.append(
-            ConditionRemoved(
-                creature_id=attacker_id, name=c.name, source_id=c.source_id, exact_source=True
+    for bearer_id, against in ((attacker_id, False), (target_id, True)):
+        for c in attack_consumed_conditions(state.creatures[bearer_id], against=against):
+            events.append(
+                ConditionRemoved(
+                    creature_id=bearer_id, name=c.name, source_id=c.source_id, exact_source=True
+                )
             )
-        )
     return AttackRoll(events=events, hit=hit, crit=crit, situation=sit)
 
 
