@@ -20,12 +20,16 @@ M32.1a: an attack at the waiting offer starts the fight and waits for the hero's
 and the offer still waits; an impossible feat logs `ActionImpossible` with no dice and is told.
 M35.2 (round 6 Y9): a harmful spell read as a cast at the scene while a foe's offer waits here is
 the same fight-starting act (`offer_strike.cast_opens_fight`): never a slot spent at the scene.
+M36.4: `run_intent` also runs the menu's own acts (`rules.menu_steps`; not yet produced from a
+typed line until M36.6): taking from a fallen hero's pack, a feature out of a fight, the menu's
+look (the look-around text written here) and a line off the menu (the storyteller).
 
 Public API: `resolve_line`, `run_intent`, `inventory_text`.
 """
 
 from aidm.dm.compound_lines import clause_parts, is_lead_in
 from aidm.dm.precheck import precheck
+from aidm.dm.scene_text import look_around_text
 from aidm.models.impossible import ActionImpossible
 from aidm.models.protocol_client import AnswerQuestOffer
 from aidm.models.protocol_server import NoticeKind
@@ -35,6 +39,7 @@ from aidm.rules.acts import (
     AskIntent,
     BarredIntent,
     CastIntent,
+    FeatureUseIntent,
     GiveIntent,
     HealIntent,
     HelpUpIntent,
@@ -45,8 +50,11 @@ from aidm.rules.acts import (
     ItemIntent,
     ItemIntents,
     LiftIntent,
+    LookAroundIntent,
     LookIntent,
+    LootIntent,
     OfferStrikeIntent,
+    OtherIntent,
     ParleyIntent,
     PayIntent,
     QuestAnswerIntent,
@@ -163,6 +171,14 @@ async def run_intent(
         await _pay(core, player, entry, intent)
     elif isinstance(intent, LiftIntent):
         await hand_over.lift_intent(core, player, intent)
+    elif isinstance(intent, LootIntent):  # M36.4 Y14: from a fallen hero's pack
+        await hand_over.loot_intent(core, player, intent)
+    elif isinstance(intent, FeatureUseIntent):  # M36.4: Second Wind out of a fight
+        await heal_actions.feature_intent(core, player, intent)
+    elif isinstance(intent, LookAroundIntent):  # M36.4: the menu's look
+        await _look(core, entry, LookIntent(look_around_text(core.state)))
+    elif isinstance(intent, OtherIntent):  # M36.4: off the menu, the storyteller's call
+        await adjudicated(core, entry.model_copy(update={"text": intent.text}))
     else:
         await _run_other(core, player, entry, intent)
 

@@ -14,7 +14,7 @@ from typing import assert_never
 from aidm.models.character import Equipped, Keepsake
 from aidm.models.memory import MAX_NARRATION_LOG
 from aidm.models.state import GameState
-from aidm.models.world import WorldNpc
+from aidm.models.world import World, WorldNpc
 from aidm.models.world_events import (
     ActionDeclared,
     AttitudeChanged,
@@ -160,6 +160,19 @@ def _rewarded(state: GameState, kind: str, source: str) -> None:
         campaign.milestones.append(source)
 
 
+def _item_removed(world: World, item_id: str, qty: int) -> None:
+    """M36.4: `qty` units off the stack (the rest stays); 0 or the whole stack removes it."""
+    item = world.items.get(item_id)
+    if item is None:
+        raise ReducerError(f"unknown item {item_id!r}")
+    if qty > item.qty:
+        raise ReducerError(f"only {item.qty} of item {item_id!r} lie there")
+    if 0 < qty < item.qty:
+        item.qty -= qty
+        return
+    del world.items[item_id]
+
+
 def _narrated(state: GameState, text: str, turn: int) -> None:
     memory = state.memory
     if memory.turns_since_summary == 0:
@@ -186,9 +199,8 @@ def _scene_event(state: GameState, event: SceneEvent) -> None:
             if item.id in world.items:
                 raise ReducerError(f"duplicate item id {item.id!r}")
             world.items[item.id] = item.model_copy(deep=True)
-        case ItemRemoved(item_id=item_id):
-            if world.items.pop(item_id, None) is None:
-                raise ReducerError(f"unknown item {item_id!r}")
+        case ItemRemoved(item_id=item_id, qty=qty):
+            _item_removed(world, item_id, qty)
         case ItemDiscovered(item_id=item_id):
             item = world.items.get(item_id)
             if item is None or not item.hidden:

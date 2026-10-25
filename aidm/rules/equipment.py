@@ -12,6 +12,8 @@ other in hand; `release_events` is that step, also used by a throw).
 Taking (M19.3) is the reverse: a visible item lying at the current place leaves it
 (`ItemRemoved`) and joins the hero: a catalogue item into the inventory, anything else (a story
 object with no catalogue entry) as a keepsake; a quest item keeps its `quest_id` (M23.3).
+M36.4 (round 6 Y12): `qty` takes that many units of a stack (`ItemRemoved.qty`, the rest stays
+where it lies); none, or more than lie there, takes the whole stack.
 
 M30.0b T9: `draw_events` is the free object interaction of an attack (SRD 5.1 "Other Activity
 on Your Turn": draw a weapon as part of the attack; BG3 swaps weapons freely): a carried weapon
@@ -21,7 +23,7 @@ Public API: `EquipRefusal`, `EquipRefused`, `equip_events(creature, item, regs)`
 `draw_events(creature, item, regs)`,
 `unequip_events(creature, item, regs)`, `release_events(creature, item, regs, qty=1)`,
 `drop_events(state, creature, item, regs)`,
-`take_events(state, creature, item_id)`.
+`take_events(state, creature, item_id, qty=None)`.
 """
 
 from enum import StrEnum
@@ -180,13 +182,22 @@ def drop_events(
     return events
 
 
-def take_events(state: GameState, creature: Creature, item_id: str) -> list[AnyEvent]:
-    """`creature` picks up the visible world item `item_id` lying at the current place."""
+def take_events(
+    state: GameState, creature: Creature, item_id: str, qty: int | None = None
+) -> list[AnyEvent]:
+    """`creature` picks up the visible world item `item_id` lying at the current place (`qty`
+    units of its stack; None or the whole count takes it all)."""
     _hero(creature)
     item = state.world.items.get(item_id)
     here = state.world.current_node
     if item is None or item.hidden or item.node_id != here:
         raise EquipRefused(EquipRefusal.NOT_HERE, "that is not lying here")
+    if qty is not None and 0 < qty < item.qty and item.catalog_id is not None:
+        have = carried_qty(creature, item.catalog_id) + qty
+        return [
+            ItemRemoved(item_id=item.id, qty=qty),
+            InventoryChanged(creature_id=creature.id, item=item.catalog_id, delta=qty, qty=have),
+        ]
     gone = ItemRemoved(item_id=item.id)
     if item.catalog_id is None:
         keepsake = Keepsake(

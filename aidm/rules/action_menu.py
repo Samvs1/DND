@@ -10,8 +10,9 @@ joins the parts that belong to it:
 - `offer`: out of a fight while an encounter offer waits at the party's place: the offer's
   answers, strikes at its foes and a surrender demand (`rules.menu_offer`), the quest card,
   helping a downed hero up, people, looking, rests (`rules.menu_scene`), items
-  (`rules.menu_items`) and casts (`rules.menu_casts`); travel notes that the offer is answered
-  first (the place itself stays "you are here"); search and the shop wait for the answer;
+  (`rules.menu_items`), casts and features usable out of a fight (`rules.menu_casts`); travel
+  notes that the offer is answered first (the place itself stays "you are here"); search and
+  the shop wait for the answer;
 - `explore`: out of a fight with no offer here: all of the scene, items, casts, the quest card,
   helping up and, while a shop is open here and `trade` is given, buying and selling
   (`rules.menu_trade`).
@@ -27,7 +28,7 @@ from aidm.data.combat_data import CombatRegistries
 from aidm.models.action_menu import ActionMenu, MenuEntry, MenuScope
 from aidm.models.encounter import EncounterStatus
 from aidm.models.state import GameState
-from aidm.rules.menu_casts import explore_casts
+from aidm.rules.menu_casts import explore_casts, explore_features
 from aidm.rules.menu_fight import fight_menu
 from aidm.rules.menu_items import carried_entries, put_out_entries
 from aidm.rules.menu_offer import help_up_entries, offer_entries, quest_entries
@@ -71,6 +72,7 @@ def _out_of_fight(
         *scene_entries(view, offer_scope),
         *carried_entries(view),
         *explore_casts(view),
+        *explore_features(view),
     ]
     if trade is not None and not offer_scope:
         entries += trade_entries(view, trade)

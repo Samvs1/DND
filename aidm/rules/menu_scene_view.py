@@ -8,7 +8,8 @@ whether its foes are still a threat (`rules.waiting_foe`).
 
 Targets, each labelled for a model choosing:
 - people: "Widow Cabrelle (silent keeper of the inn)", ", hostile" when so;
-- heroes: "Tamsin, down", the hero "Brienne (you), unhurt";
+- heroes: "Tamsin, down", the hero "Brienne (you), unhurt"; M36.4: a dead hero ("Tamsin,
+  dead") only as the source of a `loot:` entry (`fallen_heroes`);
 - places: every place the party knows (visited, or the next road from one) with the walk from
   here over the roads open now (`rules.world_graph.travel_route`): "next door", "2 roads away",
   "you are here", a locked way's short reason (`rules.gateway_lock.short_reason`), or "no open
@@ -17,7 +18,8 @@ Targets, each labelled for a model choosing:
 - offer foes: `foe:<monster>` per kind ("Kobold x3") and the master by NPC id.
 
 Public API: `SceneMenuView`, `scene_view(state, actor_id, regs)`, `Place`, `places(view)`,
-`scene_targets(view)`, `offer_foes(view)`, `HERE_NOTE`, `NO_ROAD_NOTE`, `FOE_PREFIX`.
+`scene_targets(view)`, `offer_foes(view)`, `fallen_heroes(view)`, `HERE_NOTE`, `NO_ROAD_NOTE`,
+`FOE_PREFIX`.
 """
 
 from dataclasses import dataclass
@@ -167,11 +169,23 @@ def _features(view: SceneMenuView) -> list[MenuTarget]:
     return out
 
 
+def fallen_heroes(view: SceneMenuView) -> tuple[str, ...]:
+    """M36.4 Y14: the other heroes who are down or dead (their packs can be taken from)."""
+    return tuple(
+        sorted(
+            c.id
+            for c in view.state.creatures.values()
+            if c.pc is not None and c.id != view.actor_id and (c.dead or c.hp <= 0)
+        )
+    )
+
+
 def scene_targets(view: SceneMenuView) -> list[MenuTarget]:
     """Every target an out-of-fight entry may name (the menu keeps the ones named)."""
     out = [MenuTarget(id=n, label=_person_label(view, n), kind="person") for n in view.people]
     out.append(MenuTarget(id=view.actor_id, label=_hero_label(view, view.actor_id), kind="self"))
-    out += [MenuTarget(id=h, label=_hero_label(view, h), kind="ally") for h in view.heroes]
+    heroes = (*view.heroes, *(h for h in fallen_heroes(view) if h not in view.heroes))
+    out += [MenuTarget(id=h, label=_hero_label(view, h), kind="ally") for h in heroes]
     out += offer_foes(view)
     out += _features(view)
     out += [MenuTarget(id=p.node_id, label=p.label, kind="place") for p in places(view)]

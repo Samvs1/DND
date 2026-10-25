@@ -29,7 +29,8 @@ Public API:
 - `FeatureDiscovered(feature_id, creature_id)` (M4.3): a hidden feature was found; it joins
   the manifest.
 - `NodeDescribed(node_id, text)`: the established description of a place (stored once).
-- `ItemPlaced(item)` / `ItemRemoved(item_id)`: a world item appears in / leaves a place.
+- `ItemPlaced(item)` / `ItemRemoved(item_id, qty)`: a world item appears in / leaves a place
+  (M36.4: `qty` > 0 takes that many units off its stack, the rest stays).
 - `ItemDiscovered(item_id, creature_id)` (M23.3): a hidden world item was found; it joins the
   manifest.
 - `KeepsakeGained(creature_id, keepsake)` (M19.3): a hero now carries a story object.
@@ -177,6 +178,7 @@ class ItemPlaced(_WorldEvent):
 class ItemRemoved(_WorldEvent):
     type: Literal["item_removed"] = "item_removed"
     item_id: str
+    qty: int = Field(default=0, ge=0)  # M36.4: that many units taken off the stack; 0 = all
 
 
 class ItemDiscovered(_WorldEvent):

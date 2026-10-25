@@ -6,7 +6,11 @@
   person standing here (`rules.handing.give_events`);
 - `hand:<item>`, `hand:gold`: the same to another hero (`rules.hero_handing.hand_events`);
 - `pay`: gold to a person here (`qty_max` the gold carried, `rules.paying.pay_events`);
-- `take:<name>`: each visible item lying here (`qty_max` its count, `rules.equipment.take_events`);
+- `take:<name>`: each visible item lying here, items of one name and kind grouped (M36.4, round 6
+  Y12: three lumps of resin are one entry, `qty_max` 3; `item` the first one's id,
+  `same_lying` finds the rest), `qty_max` the count (`rules.equipment.take_events`, counted);
+- `loot:<item>` (M36.4, round 6 Y14): each thing in a downed or dead hero's pack (keepsakes
+  grouped by name, `loot:gold` the coins), aimed at that hero (`rules.hero_handing.loot_events`);
 - `lift:<keepsake>`: a keepsake a person here holds, taken back (`rules.lifting.lift_events`);
 - `equip:<item>` (a weapon, armour or shield not in hand), `unequip:<item>`, `drop:<item>`
   (`qty_max` the count carried; one unit per drop, `rules.equipment`);
@@ -17,31 +21,78 @@
 - `copy:<scroll>`: a wizard copying a carried scroll into the spellbook (`rules.scrolls`).
 Labels say what the cards say: names, counts, gold, healing dice.
 
-Public API: `carried_entries(view) -> list[MenuEntry]`, `put_out_entries(state, actor_id)`.
+Public API: `carried_entries(view) -> list[MenuEntry]`, `put_out_entries(state, actor_id)`,
+`same_keepsakes(keepsakes, first_id)`, `same_lying(state, first_id)` (the group of an entry).
 """
 
+from collections.abc import Sequence
+
 from aidm.models.action_menu import ActionKind, MenuEntry
+from aidm.models.character import Keepsake
 from aidm.models.sheet import InventoryLine
-from aidm.models.state import GameState
+from aidm.models.state import Creature, GameState
+from aidm.models.world import WorldItem
 from aidm.rules.item_effects import gear_name
 from aidm.rules.light import hero_light
-from aidm.rules.menu_scene_view import SceneMenuView
+from aidm.rules.menu_scene_view import SceneMenuView, fallen_heroes
 from aidm.rules.menu_view import slug
 from aidm.rules.scene import current_scene
 
 
-def _carried(view: SceneMenuView) -> list[tuple[str, str, int]]:
-    """(entry key, item or keepsake id, count) for every thing the hero can hand over."""
-    out = [(row.item, row.item, row.qty) for row in view.sheet.inventory if row.qty > 0]
-    pc = view.state.creatures[view.actor_id].pc
+def _keepsake_key(keepsake: Keepsake) -> str:
+    return slug(keepsake.name) or slug(keepsake.id)
+
+
+def same_keepsakes(keepsakes: Sequence[Keepsake], first_id: str) -> list[str]:
+    """The ids of the keepsakes grouped with `first_id` (same name), `first_id` first."""
+    first = next((k for k in keepsakes if k.id == first_id), None)
+    if first is None:
+        return []
+    key = _keepsake_key(first)
+    return [first_id, *(k.id for k in keepsakes if k.id != first_id and _keepsake_key(k) == key)]
+
+
+def _lying_key(item: WorldItem) -> tuple[str, str | None]:
+    return slug(item.name) or slug(item.id), item.catalog_id
+
+
+def same_lying(state: GameState, first_id: str) -> list[WorldItem]:
+    """The visible items lying here grouped with `first_id` (same name and kind), it first."""
+    world = state.world
+    here = [world.items[i] for i in current_scene(state).item_ids]
+    first = next((i for i in here if i.id == first_id), None)
+    if first is None:
+        return []
+    key = _lying_key(first)
+    return [first, *(i for i in here if i.id != first_id and _lying_key(i) == key)]
+
+
+def _with_keepsakes(
+    out: list[tuple[str, str, int]], keepsakes: Sequence[Keepsake]
+) -> list[tuple[str, str, int]]:
     groups: dict[str, list[str]] = {}
-    for keepsake in pc.keepsakes if pc is not None else []:
-        key = slug(keepsake.name) or slug(keepsake.id)
-        groups.setdefault(key, []).append(keepsake.id)
+    for keepsake in keepsakes:
+        groups.setdefault(_keepsake_key(keepsake), []).append(keepsake.id)
     taken = {key for key, _, _ in out}
     for key, ids in groups.items():
         out.append((key if key not in taken else f"{key}-keepsake", ids[0], len(ids)))
     return out
+
+
+def _pack(hero: Creature) -> list[tuple[str, str, int]]:
+    """(entry key, item or keepsake id, count) for every thing in a hero's pack."""
+    pc = hero.pc
+    if pc is None:
+        return []
+    rows = [(row.item, row.item, row.qty) for row in pc.inventory if row.qty > 0]
+    return _with_keepsakes(rows, pc.keepsakes)
+
+
+def _carried(view: SceneMenuView) -> list[tuple[str, str, int]]:
+    """(entry key, item or keepsake id, count) for every thing the hero can hand over."""
+    rows = [(row.item, row.item, row.qty) for row in view.sheet.inventory if row.qty > 0]
+    pc = view.state.creatures[view.actor_id].pc
+    return _with_keepsakes(rows, pc.keepsakes if pc is not None else [])
 
 
 def _name(view: SceneMenuView, thing: str) -> str:
@@ -119,14 +170,19 @@ def _gold(view: SceneMenuView) -> list[MenuEntry]:
 def _lying(view: SceneMenuView) -> list[MenuEntry]:
     world = view.state.world
     out: list[MenuEntry] = []
+    seen: set[str] = set()
     for item_id in current_scene(view.state).item_ids:
-        item = world.items[item_id]
+        if item_id in seen:
+            continue
+        group = same_lying(view.state, item_id)
+        seen.update(i.id for i in group)
+        item, count = group[0], sum(i.qty for i in group)
         out.append(
             MenuEntry(
-                id=f"take:{slug(item.name) or slug(item.id)}",
+                id=f"take:{_lying_key(item)[0]}",
                 kind=ActionKind.TAKE,
-                label=f"Pick up {item.name} ({item.qty} here)",
-                qty_max=item.qty,
+                label=f"Pick up {item.name} ({count} here)",
+                qty_max=count,
                 item=item.id,
             )
         )
@@ -242,8 +298,43 @@ def put_out_entries(state: GameState, actor_id: str) -> list[MenuEntry]:
     ]
 
 
+def _loot(view: SceneMenuView) -> list[MenuEntry]:
+    """M36.4 Y14: what lies in a downed or dead hero's pack, out of a fight."""
+    out: list[MenuEntry] = []
+    for hero_id in fallen_heroes(view):
+        hero = view.state.creatures[hero_id]
+        keep = {k.id: k.name for k in hero.pc.keepsakes} if hero.pc is not None else {}
+        for key, thing, count in _pack(hero):
+            name = keep.get(thing) or gear_name(thing)
+            out.append(
+                MenuEntry(
+                    id=f"loot:{key}",
+                    kind=ActionKind.TAKE,
+                    label=f"Take {name} from {hero.name}'s pack ({hero.name} carries {count})",
+                    target_ids=(hero_id,),
+                    max_targets=1,
+                    qty_max=count,
+                    item=thing,
+                )
+            )
+        gold = hero.pc.gold if hero.pc is not None else 0
+        if gold > 0:
+            label = f"Take gold from {hero.name}'s pack ({hero.name} has {gold} gp)"
+            out.append(
+                MenuEntry(
+                    id="loot:gold",
+                    kind=ActionKind.TAKE,
+                    label=label,
+                    target_ids=(hero_id,),
+                    max_targets=1,
+                    qty_max=gold,
+                )
+            )
+    return out
+
+
 def carried_entries(view: SceneMenuView) -> list[MenuEntry]:
-    out = [*_handing(view), *_gold(view), *_lying(view)]
+    out = [*_handing(view), *_gold(view), *_lying(view), *_loot(view)]
     for row in view.sheet.inventory:
         out += _gear_changes(view, row)
         potion = _potion(view, row)

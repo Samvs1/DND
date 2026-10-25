@@ -5,8 +5,8 @@ the rules, the same code paths the buttons use. The fight acts are in `aidm.rule
 Public API:
 - `RestKind` (SHORT/LONG), `RestIntent(kind)`, `ShopIntent(npc_id)`, `TravelIntent(node_id, goal)`
   (`goal`: a place further on, walked hop by hop), `InventoryIntent(actor_id)`, `LookIntent(text)`,
-  `TakeIntent(actor_id, item_id)`, `BarredIntent(text)` (a locked way's reason),
-  `WhatNowIntent(actor_id)`;
+  `TakeIntent(actor_id, item_id, qty)` (`qty` units of a stack, None = all, M36.4),
+  `BarredIntent(text)` (a locked way's reason), `WhatNowIntent(actor_id)`;
 - `ItemAction` (EQUIP/UNEQUIP/DROP), `ItemIntent(actor_id, action, item)` (`item` the inventory
   index), `ItemIntents(acts)` (both halves of a compound gear line, in the order said);
 - `HelpUpIntent(actor_id, target_id)`, `GiveIntent(actor_id, npc_id, thing, more, said)`,
@@ -14,10 +14,18 @@ Public API:
   `LiftIntent(actor_id, npc_id, keepsake_id)`, `ParleyIntent(actor_id, skill)`,
   `UseIntent(actor_id, item, ...)`, `HealIntent(actor_id, target_ids, item, owner_id, spell)`,
   `CastIntent(actor_id, spell, target_ids, at_scene)`, `QuestAnswerIntent(actor_id, quest_id,
-  accept)`, `SearchIntent(actor_id, skill, rest)`, `AskIntent(actor_id, npc_id)` (a question to a
-  person who can teach), `OfferStrikeIntent(actor_id)` (an attack while an encounter offer
-  waits), `RefusedIntent(actor_id, text)` (a plain no-roll answer), `ImpossibleIntent(actor_id,
-  text, reason)` (a feat no body could do);
+  accept)`, `SearchIntent(actor_id, skill, rest)`, `AskIntent(actor_id, npc_id, said)` (a word
+  with a person; `said` the player's words when the menu chose it, M36.4),
+  `OfferStrikeIntent(actor_id, step)` (an attack while an encounter offer waits; M36.4: `step` the
+  menu strike to play on the hero's turn, `rules.menu_steps.resume_strike`),
+  `RefusedIntent(actor_id, text)` (a plain no-roll answer), `ImpossibleIntent(actor_id, text,
+  reason)` (a feat no body could do);
+- M36.4 (the menu's acts, `rules.menu_steps`): `LootIntent(actor_id, from_id, thing, qty, gold)`
+  (taking from a downed or dead hero's pack out of a fight, `rules.hero_handing.loot_events`),
+  `FeatureUseIntent(actor_id, feature_id)` (a class feature used out of a fight,
+  `rules.feature_commands.explore_feature_events`), `LookAroundIntent(actor_id)` (the session
+  writes the look-around text, then plays it as `LookIntent`), `OtherIntent(actor_id, text)` (a
+  line off the menu: the storyteller's creative or social call);
 - `Intent`: the union of the acts above.
 """
 
@@ -25,6 +33,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 
 from aidm.models.abilities import Skill
+from aidm.models.action_menu import MenuStep
 
 
 class RestKind(StrEnum):
@@ -62,6 +71,7 @@ class LookIntent:
 class TakeIntent:
     actor_id: str
     item_id: str
+    qty: int | None = None  # M36.4: units of a stack; None = all of it
 
 
 @dataclass(frozen=True)
@@ -186,11 +196,13 @@ class SearchIntent:
 class AskIntent:
     actor_id: str
     npc_id: str
+    said: str = ""  # M36.4: the player's words, when the menu chose the talk
 
 
 @dataclass(frozen=True)
 class OfferStrikeIntent:
     actor_id: str
+    step: MenuStep | None = None  # M36.4: the menu strike, played on the hero's turn
 
 
 @dataclass(frozen=True)
@@ -204,6 +216,32 @@ class ImpossibleIntent:
     actor_id: str
     text: str
     reason: str
+
+
+@dataclass(frozen=True)
+class LootIntent:
+    actor_id: str
+    from_id: str
+    thing: str | None  # an inventory key or keepsake id; None for gold only
+    qty: int = 1
+    gold: int = 0
+
+
+@dataclass(frozen=True)
+class FeatureUseIntent:
+    actor_id: str
+    feature_id: str
+
+
+@dataclass(frozen=True)
+class LookAroundIntent:
+    actor_id: str
+
+
+@dataclass(frozen=True)
+class OtherIntent:
+    actor_id: str
+    text: str
 
 
 type Intent = (
@@ -231,4 +269,8 @@ type Intent = (
     | OfferStrikeIntent
     | RefusedIntent
     | ImpossibleIntent
+    | LootIntent
+    | FeatureUseIntent
+    | LookAroundIntent
+    | OtherIntent
 )

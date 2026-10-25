@@ -35,6 +35,8 @@ Public API:
   the keepsake `keepsake_id` (moved by this event, `aidm.rules.hero_handing`). M29.9a T17:
   `to_id` may be a world NPC for gold only (paying them, `aidm.rules.paying`): the hero's
   `GoldChanged` comes with it and this event adds the coins to `WorldNpc.paid`.
+  M36.4 (round 6 Y14): `taken` = `to_id` took it from the pack of `creature_id`, a downed or
+  dead hero, out of a fight (`aidm.rules.hero_handing.loot_events`).
 - `ItemEvents`: the union of these classes.
 """
 
@@ -122,6 +124,7 @@ class HandedOver(_ItemEvent):
     keepsake_id: str | None = None
     qty: int = Field(default=0, ge=0)
     gold: int = Field(default=0, ge=0)
+    taken: bool = False  # M36.4 Y14: taken by `to_id` from the pack of a fallen `creature_id`
 
 
 ItemEvents = (

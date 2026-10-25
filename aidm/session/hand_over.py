@@ -15,6 +15,10 @@
   M29.7a R8) share ONE path to another hero: `rules.hero_handing.hand_events`, then the engine
   line of the hand-over is told (no model call); a refusal is the rules' plain reason.
 
+- `loot_intent` (M36.4 Y14, the menu's `loot:` entries): `rules.hero_handing.loot_events`, taking
+  from a downed or dead hero's pack out of a fight, told the same way. M36.4: `take_intent`
+  takes `qty` units of a stack when the act counts them.
+
 - `pay_first` (typed "pay Rutter 4 silver", M29.9a T17): `rules.paying.pay_events` applied, or
   the rules' plain reason; the caller tells it (alone, or with the sentence's other act).
 
@@ -22,8 +26,8 @@
   `rules.lifting.lift_events` (a Sleight of Hand check; the keepsake moves on a success, the
   NPC notices on a failure), then `telling.conclude` tells it.
 
-Public API: `take_intent`, `give`, `give_intent`, `hand`, `hand_intent`, `pay_first`,
-`lift_intent`.
+Public API: `take_intent`, `give`, `give_intent`, `hand`, `hand_intent`, `loot_intent`,
+`pay_first`, `lift_intent`.
 """
 
 from aidm.dm.event_text import event_line
@@ -34,10 +38,17 @@ from aidm.models.item_events import HandedOver
 from aidm.models.protocol_client import Give, HandOver
 from aidm.models.protocol_server import ErrorCode, NoticeKind
 from aidm.models.state import Creature
-from aidm.rules.acts import GiveIntent, HeroHandIntent, LiftIntent, PayIntent, TakeIntent
+from aidm.rules.acts import (
+    GiveIntent,
+    HeroHandIntent,
+    LiftIntent,
+    LootIntent,
+    PayIntent,
+    TakeIntent,
+)
 from aidm.rules.equipment import EquipRefused, take_events
 from aidm.rules.handing import GiveRefused, give_events
-from aidm.rules.hero_handing import HandRefused, hand_events
+from aidm.rules.hero_handing import HandRefused, hand_events, loot_events
 from aidm.rules.lifting import LiftRefused, lift_events
 from aidm.rules.paying import PayRefused, pay_events
 from aidm.session.table_core import Player, TableCore
@@ -52,7 +63,7 @@ async def take_intent(core: TableCore, player: Player, intent: TakeIntent) -> No
     if pc is None or item is None:
         return
     try:
-        events = take_events(core.state, pc, intent.item_id)
+        events = take_events(core.state, pc, intent.item_id, intent.qty)
     except EquipRefused as refused:
         detail = refused.detail.capitalize() + "."
         core.error(player.id, ErrorCode.REFUSED, detail, refused.reason.value)
@@ -60,7 +71,12 @@ async def take_intent(core: TableCore, player: Player, intent: TakeIntent) -> No
     core.apply_all(events)
     moved = await follow_ups(core, events)
     name = item.name if item.catalog_id is None else item.name.lower()
-    lines = [f"{pc.name} picks up the {name}."]
+    part = intent.qty is not None and intent.qty < item.qty and item.catalog_id is not None
+    lines = [
+        f"{pc.name} picks up {intent.qty} of the {name}."
+        if part
+        else f"{pc.name} picks up the {name}."
+    ]
     lines += [line for e in moved if (line := template_line(core.state, e))]
     await remember(core, await tell_text(core, " ".join(lines)), [*events, *moved])
 
@@ -110,6 +126,24 @@ async def hand_intent(core: TableCore, player: Player, intent: HeroHandIntent) -
     await _hand(core, player, intent)
 
 
+async def loot_intent(core: TableCore, player: Player, intent: LootIntent) -> None:
+    """M36.4 Y14: taking from a fallen hero's pack out of a fight; told like a hand-over."""
+    try:
+        events = loot_events(
+            core.state,
+            intent.actor_id,
+            intent.from_id,
+            core.regs.combat.chars,
+            thing=intent.thing,
+            qty=intent.qty,
+            gold=intent.gold,
+        )
+    except HandRefused as refused:
+        core.error(player.id, ErrorCode.REFUSED, refused.detail, "hand_refused")
+        return
+    await _told(core, core.apply_all(events))
+
+
 async def _hand(core: TableCore, player: Player, intent: HeroHandIntent) -> None:
     try:
         events = hand_events(
@@ -124,7 +158,10 @@ async def _hand(core: TableCore, player: Player, intent: HeroHandIntent) -> None
     except HandRefused as refused:
         core.error(player.id, ErrorCode.REFUSED, refused.detail, "hand_refused")
         return
-    applied = core.apply_all(events)
+    await _told(core, core.apply_all(events))
+
+
+async def _told(core: TableCore, applied: list[AnyEvent]) -> None:
     lines = [
         line for e in applied if isinstance(e, HandedOver) and (line := event_line(core.state, e))
     ]

@@ -19,6 +19,7 @@ from aidm.models.state import GameState
 from aidm.models.world_events import ActionDeclared
 from aidm.rules.action_menu import build_menu
 from aidm.rules.light import hero_light
+from aidm.rules.menu_items import same_lying
 from aidm.rules.menu_scene_view import scene_view
 from aidm.rules.menu_trade import TradeData
 from aidm.rules.menu_view import slug
@@ -88,7 +89,8 @@ def _cards(state: GameState, actor_id: str, menu: ActionMenu) -> None:
     if hero_light(state, actor_id) is not None:
         _entry(menu, "put_out")
     _entry(menu, "what_now")
-    lying = {e.item for e in menu.entries if e.kind is ActionKind.TAKE}
+    takes = [e.item for e in menu.entries if e.kind is ActionKind.TAKE and e.id.startswith("take:")]
+    lying = {i.id for first in takes for i in same_lying(state, first or "")}  # M36.4: grouped
     assert set(current_scene(state).item_ids) <= lying
 
 

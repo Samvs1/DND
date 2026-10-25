@@ -9,9 +9,11 @@ Targets come from the real commands (`menu_probe.probe_targets`). A foe out of r
 hidden: it is an approach target ("moves 15 ft first") when the movement left gets the hero in
 reach (`rules.approach`), else "out of reach this turn". Never a swap to another weapon.
 
-Public API: `attack_entries(view) -> list[MenuEntry]` (attacks, stowed weapons, throws).
+Public API: `attack_entries(view) -> list[MenuEntry]` (attacks, stowed weapons, throws),
+`drawn_state(state, actor_id, item, regs)` (the state with a stowed weapon drawn).
 """
 
+from aidm.data.character_data import CharacterRegistries
 from aidm.models.action_menu import ActionKind, EntryCost, MenuEntry
 from aidm.models.combat import AttackProfile
 from aidm.models.commands import AnyCommand, AttackCommand, ThrowCommand
@@ -99,19 +101,26 @@ def _weapon_entry(
     )
 
 
-def _drawn_state(view: FightView, item: str) -> GameState | None:
-    creature = view.state.creatures[view.actor_id]
+def drawn_state(
+    state: GameState, actor_id: str, item: str, regs: CharacterRegistries
+) -> GameState | None:
+    """The state with the stowed weapon `item` drawn (None: it cannot be drawn)."""
+    creature = state.creatures[actor_id]
     try:
-        events = draw_events(creature, item, view.regs.chars)
+        events = draw_events(creature, item, regs)
     except EquipRefused:
         return None
     changed = next((e for e in events if isinstance(e, EquipmentChanged)), None)
     if changed is None or creature.pc is None:
-        return None
+        return state if not events else None
     pc = creature.pc.model_copy(update={"equipped": changed.equipped})
-    creatures = dict(view.state.creatures)
-    creatures[view.actor_id] = creature.model_copy(update={"pc": pc})
-    return view.state.model_copy(update={"creatures": creatures})
+    creatures = dict(state.creatures)
+    creatures[actor_id] = creature.model_copy(update={"pc": pc})
+    return state.model_copy(update={"creatures": creatures})
+
+
+def _drawn_state(view: FightView, item: str) -> GameState | None:
+    return drawn_state(view.state, view.actor_id, item, view.regs.chars)
 
 
 def _stowed_entries(view: FightView, taken: set[str]) -> list[MenuEntry]:

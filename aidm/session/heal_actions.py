@@ -11,12 +11,17 @@ out of a fight, `dm.cast_intent`) is cast the same way: the same sheet, slot and
 of `cast_spell`. M30.2b: a `CastIntent` at the scene (a spell aimed at no creature) is cast
 through `rules.spells.scene_cast`: the same checks, the slot spent, nothing moved or covered.
 
-Public API: `heal_intent(core, player, intent)` (a `HealIntent` or a `CastIntent`).
+M36.4: `feature_intent` uses a class feature out of a fight (`FeatureUseIntent`, Second Wind)
+through `rules.feature_commands.explore_feature_events`, told the same way.
+
+Public API: `heal_intent(core, player, intent)` (a `HealIntent` or a `CastIntent`),
+`feature_intent(core, player, intent)`.
 """
 
 from aidm.models.events import AnyEvent
-from aidm.rules.acts import CastIntent, HealIntent
+from aidm.rules.acts import CastIntent, FeatureUseIntent, HealIntent
 from aidm.rules.command_checks import CommandRefused
+from aidm.rules.feature_commands import explore_feature_events
 from aidm.rules.items import use_item_events
 from aidm.rules.spells import cast_spell, scene_cast
 from aidm.session.table_core import Player, TableCore
@@ -50,6 +55,18 @@ async def heal_intent(core: TableCore, player: Player, intent: HealIntent | Cast
     try:
         events = (
             _cast_events(core, intent) if isinstance(intent, CastIntent) else _events(core, intent)
+        )
+    except CommandRefused as refused:
+        await remember(core, await tell_text(core, refused.reason))
+        return
+    await conclude(core, None, core.apply_all(events), actor_id=intent.actor_id)
+
+
+async def feature_intent(core: TableCore, player: Player, intent: FeatureUseIntent) -> None:
+    del player  # the seat already declared the action; the line is public
+    try:
+        events = explore_feature_events(
+            core.state, intent.actor_id, intent.feature_id, core.regs.combat, core.rng
         )
     except CommandRefused as refused:
         await remember(core, await tell_text(core, refused.reason))

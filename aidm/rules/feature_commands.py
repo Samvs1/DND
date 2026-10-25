@@ -16,8 +16,13 @@ the feature at its level (NO_FEATURE), its resource (ABILITY_SPENT), the economy
 Events: `EconomyChanged` (Action Surge: the restored action), the resource `ResourceSet`,
 `FeatureUsed`, then the effect events.
 
-Public API: `feature_action_command`, `resolve_feature_id` (a short id such as
-`action-surge` to the full one), `ability_spell(hook, feature_id) -> SpellDef`, `PSEUDO_SCHOOL`.
+M36.4: `explore_feature_events(state, actor_id, feature_id, regs, rng)` uses a feature out of a
+fight with the same hook, resource and heal (no turn economy) when `usable_out_of_fight(hook)`:
+a healing bonus action (Second Wind); Action Surge and the zone-aimed abilities need a fight.
+
+Public API: `feature_action_command`, `explore_feature_events`, `usable_out_of_fight`,
+`resolve_feature_id` (a short id such as `action-surge` to the full one),
+`ability_spell(hook, feature_id) -> SpellDef`, `PSEUDO_SCHOOL`.
 """
 
 from aidm.data.combat_data import CombatRegistries
@@ -29,6 +34,7 @@ from aidm.models.abilities import Ability
 from aidm.models.combat_events import FeatureUsed
 from aidm.models.commands import FeatureActionCommand, RefusalCode
 from aidm.models.dice import RollKind
+from aidm.models.encounter import EncounterStatus
 from aidm.models.events import AnyEvent, DiceRolled
 from aidm.models.state import Creature, GameState
 from aidm.rules.abilities import ability_modifier
@@ -36,7 +42,13 @@ from aidm.rules.command_checks import Actor, CommandRefused, acting, changed, sp
 from aidm.rules.conditions import can_take_actions
 from aidm.rules.damage import resolve_healing
 from aidm.rules.dice import Rng, roll
-from aidm.rules.features import LEVEL_PLACEHOLDER, character_level, command_hook, creature_hooks
+from aidm.rules.features import (
+    LEVEL_PLACEHOLDER,
+    CommandHook,
+    character_level,
+    command_hook,
+    creature_hooks,
+)
 from aidm.rules.projection import project_state
 from aidm.rules.resources import resource_left, spend_resource
 from aidm.rules.spell_context import CastContext
@@ -88,14 +100,24 @@ def _heal(
 ) -> list[AnyEvent]:
     me = actor.creature
     _self_only(cmd)
+    _not_full(me)
+    economy = spend(state, me.id, bonus_action=True, reason=cmd.feature_id)
+    return [changed(me.id, economy, cmd.feature_id), *_healed(me, cmd, hook, name, rng)]
+
+
+def _not_full(me: Creature) -> None:
     if me.hp >= me.max_hp:
         raise CommandRefused(RefusalCode.FULL_HP, "You are already at full health.")
-    economy = spend(state, me.id, bonus_action=True, reason=cmd.feature_id)
+
+
+def _healed(
+    me: Creature, cmd: FeatureActionCommand, hook: BonusActionHook, name: str, rng: Rng
+) -> list[AnyEvent]:
+    """The resource, the use and the heal dice on the user ("LEVEL" = character level)."""
     dice = (hook.heal or "0").replace(LEVEL_PLACEHOLDER, str(character_level(me)))
     healed = roll(dice, rng)
     return [
-        changed(me.id, economy, cmd.feature_id),
-        *_paid(actor, hook.resource),
+        *(spend_resource(me, hook.resource) if hook.resource else []),
         _used(cmd, name, (me.id,)),
         DiceRolled(roll=healed, roller_id=me.id, label=name, kind=RollKind.HEAL, target_id=me.id),
         *resolve_healing(me, max(0, healed.total)),
@@ -192,3 +214,42 @@ def feature_action_command(
     if isinstance(hook, ExtraActionHook):
         return _surge(actor, cmd, hook, name)
     return _ability(state, actor, cmd, hook, regs, rng)
+
+
+def usable_out_of_fight(hook: CommandHook) -> bool:
+    """M36.4: a feature whose use needs no turn, zone or initiative: a healing bonus action
+    (Second Wind). Action Surge (a turn's action) and the active abilities, which aim at the
+    fight's zones (Turn Undead, Breath Weapon), need a fight."""
+    return isinstance(hook, BonusActionHook) and bool(hook.heal)
+
+
+def _explorer(state: GameState, actor_id: str) -> Creature:
+    me = state.creatures.get(actor_id)
+    if me is None or me.pc is None or me.dead or me.hp <= 0 or not can_take_actions(me):
+        raise CommandRefused(RefusalCode.CANNOT_ACT, "You cannot act right now.")
+    enc = state.encounter
+    if enc is not None and enc.status is EncounterStatus.ACTIVE and actor_id in enc.combatants:
+        raise CommandRefused(RefusalCode.NOT_YOUR_TURN, "In a fight, use it on your turn.")
+    return me
+
+
+def explore_feature_events(
+    state: GameState, actor_id: str, feature_id: str, regs: CombatRegistries, rng: Rng
+) -> list[AnyEvent]:
+    """A feature used out of a fight (M36.4): the same hook, resource and heal as in a fight,
+    with no turn economy. Refused plainly: no such feature, a spent one, one that needs a fight
+    (`usable_out_of_fight`), full health."""
+    me = _explorer(state, actor_id)
+    feats = regs.chars.features
+    full = resolve_feature_id(me, feats, feature_id)
+    hook = command_hook(me, feats, full)
+    if hook is None:
+        raise CommandRefused(RefusalCode.NO_FEATURE, "You have no such ability to use.")
+    name = feats.get(full).name
+    if not isinstance(hook, BonusActionHook) or not usable_out_of_fight(hook):
+        raise CommandRefused(RefusalCode.NOT_IN_COMBAT, f"{name} is only of use in a fight.")
+    if hook.resource is not None and resource_left(me, hook.resource) < 1:
+        raise CommandRefused(RefusalCode.ABILITY_SPENT, "That ability is spent until you rest.")
+    _not_full(me)
+    cmd = FeatureActionCommand(actor_id=actor_id, feature_id=full)
+    return _healed(me, cmd, hook, name, rng)

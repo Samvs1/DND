@@ -12,7 +12,12 @@ the rules answer an empty pool), labelled from its own data (`menu_labels.spell_
   offer is answered as Fight and the cast plays on the hero's turn (M35.2 Y9,
   `rules.waiting_foe.cast_starts_fight`), never a scene cast.
 
-Public API: `explore_casts(view)`, `strike_casts(view, foe_ids)`, `SCENE_NOTE`.
+M36.4: `feature:<name>`: a class feature usable out of a fight (`feature_commands.
+usable_out_of_fight`: a healing bonus action such as Second Wind) with uses left, the same id as
+in a fight; Action Surge, Turn Undead and Breath Weapon need a fight and are not listed.
+
+Public API: `explore_casts(view)`, `strike_casts(view, foe_ids)`, `explore_features(view)`,
+`SCENE_NOTE`.
 """
 
 from collections.abc import Iterator
@@ -20,9 +25,12 @@ from collections.abc import Iterator
 from aidm.data.spell_defs import SpellDef
 from aidm.models.action_menu import ActionKind, MenuEntry
 from aidm.models.sheet import SpellLine
+from aidm.rules.feature_commands import usable_out_of_fight
+from aidm.rules.features import command_hook
 from aidm.rules.menu_labels import spell_label
 from aidm.rules.menu_magic import lowest_slot, needs_of
 from aidm.rules.menu_scene_view import SceneMenuView
+from aidm.rules.menu_view import slug
 from aidm.rules.spell_targets import strikes_creatures
 
 SCENE_NOTE = "cast at the scene"
@@ -86,6 +94,31 @@ def strike_casts(view: SceneMenuView, foe_ids: tuple[str, ...]) -> list[MenuEntr
                 spell_id=spell.index,
                 slot_level=level,
                 starts_fight=True,
+            )
+        )
+    return out
+
+
+def explore_features(view: SceneMenuView) -> list[MenuEntry]:
+    hero = view.state.creatures[view.actor_id]
+    feats = view.regs.chars.features
+    out: list[MenuEntry] = []
+    for line in view.sheet.feature_actions:
+        hook = command_hook(hero, feats, line.feature)
+        if not line.available or hook is None or not usable_out_of_fight(hook):
+            continue
+        entry_id = f"feature:{slug(line.name)}"
+        if any(e.id == entry_id for e in out):
+            continue
+        parts = [f"heals {line.heal}"] if line.heal else []
+        parts += [f"{line.uses_left} left"] if line.uses_left is not None else []
+        out.append(
+            MenuEntry(
+                id=entry_id,
+                kind=ActionKind.FEATURE,
+                label=f"{line.name} ({', '.join(parts)})" if parts else line.name,
+                cost="bonus",
+                feature_id=line.feature,
             )
         )
     return out

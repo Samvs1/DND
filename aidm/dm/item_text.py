@@ -8,6 +8,7 @@ the narrator's event list and the template narration all read the same words).
   changed nothing says "no special effect").
 - `FeatureUnlocked`: the lock is open, and how; no line ever opens a lock without this event.
 - `HandedOver` (M29.7a R8): who handed what (an item, a keepsake or gold) to which hero.
+  M36.4 Y14: `taken` says who took what from a fallen hero's pack.
 - `PlaceAlerted` by noise (M27.11: forcing a lock, a noisy use; the event fires once per place):
   `NOISE_WARNING`. A light's alert has no line of its own (`LIGHT_WARNING` says it).
 - `encounter_line(state)`: the fight-start line, plus `DARK_FIGHT` in a dark place (M27.8), plus
@@ -93,6 +94,8 @@ def _handed(state: GameState, e: HandedOver) -> str:
             for k in hero.pc.keepsakes
         ]
         what = f"the {next((k.name for k in held if k.id == e.keepsake_id), 'keepsake')}"
+    if e.taken:  # M36.4 Y14: from a fallen hero's pack
+        return f"{taker} takes {what} from {_who(state, e.creature_id)}'s pack."
     return f"{_who(state, e.creature_id)} hands {what} to {taker}."
 
 
