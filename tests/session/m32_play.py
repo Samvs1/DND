@@ -68,8 +68,7 @@ async def play(
     llm = disabled_llm(tmp_path)
     if picks is not None:
         llm = menu_llm(tmp_path, *picks, script=script, storyteller_down=True)[0]
-    reading = None if picks is None else "menu"  # None: the table's default
-    async with running(llm, replay_until(run, seq), interpreter=reading) as (table, _):
+    async with running(llm, replay_until(run, seq)) as (table, _):
         seat = await join(table, "Ann", actor)
         seat.drain()
         start = table.state.event_count

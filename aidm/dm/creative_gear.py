@@ -1,8 +1,8 @@
 """Gear a creative effect leans on (M27.6, docs/next/GOAL_ITEMS.md "D: creative actions use the
 same rules" and "D: substances, not one-off items").
 
-The gear is the effect's `item` argument, else the gear phrase of the player's throw or use
-sentence (`precheck.gear_phrase`, the M27.5 word matching of `aidm.dm.gear_words`). It resolves
+The gear is the effect's `item` argument (M36.12: no text rules; the M27.5 word matching of
+`aidm.dm.gear_words`). It resolves
 to the hero's carried item (by name, by a substance word: "my bottle of water" is the carried
 waterskin, the lit light in hand, or worn gear: "my shield"), else:
 - a keepsake of that name: refused (a keepsake is never gear);
@@ -17,14 +17,13 @@ creative effect):
    (`rules.weaknesses`), and the item is used up (poured or splashed);
 3. else None: the creative effect runs and the gear is kept.
 
-Public API: `GEAR_REFUSED`, `leaned_gear(state, actor_id, item, text) -> str | None` (raises
+Public API: `GEAR_REFUSED`, `leaned_gear(state, actor_id, item) -> str | None` (raises
 `ToolRefused`), `gear_outcome(state, args, item, rng, regs) -> ToolResult | None`.
 """
 
 from aidm.data.item_catalogue import ItemCategory, item_catalogue
 from aidm.data.item_uses import item_substances
 from aidm.dm.gear_words import fits, held_gear, words
-from aidm.dm.precheck import gear_phrase
 from aidm.dm.tool_context import ToolRefused, ToolRegistries, ToolResult
 from aidm.dm.tool_exec_gear import gear_summary
 from aidm.dm.tools import CreativeEffectArgs
@@ -65,14 +64,13 @@ def _catalogue(phrase: str) -> str | None:
     return next((i.id for i in item_catalogue().all() if fits(wanted, gear_name(i.id))), None)
 
 
-def leaned_gear(state: GameState, actor_id: str, item: str | None, text: str) -> str | None:
+def leaned_gear(state: GameState, actor_id: str, item: str | None) -> str | None:
     actor = state.creatures.get(actor_id)
     if actor is None or actor.pc is None:
         return None
-    said = (item, True) if item else gear_phrase(text)
-    if said is None:
+    if not item:
         return None
-    phrase, mine = said
+    phrase, mine = item, True
     carried = _carried(state, actor, phrase)
     if carried is not None:
         return carried

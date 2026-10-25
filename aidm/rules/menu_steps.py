@@ -24,7 +24,7 @@ Engine meaning lives here and in `menu_steps_fight` / `menu_steps_scene`, never 
   hand all the salt to Gran Tevin" hands the salt just picked up too).
 - The steps stop after an act that ends the line: the turn ends (end turn, flee), a fight starts
   (an offer strike, the offer's Fight, Surprise or Escape answer), or a vote or held parley
-  opens (travel, rest, shop, parley), as the router's compound lines did.
+  opens (travel, rest, shop, parley).
 - Re-validation: the plan is never trusted. The session plays the acts in order through its
   runners, which ask the rules again on the live state (a spent action, a gone item, a foe
   already down are answered plainly there), and stops after a refused act or when the hero's

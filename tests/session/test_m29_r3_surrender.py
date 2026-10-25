@@ -5,7 +5,6 @@ three standing cultists to surrender (663-664)."""
 from pathlib import Path
 
 from aidm.data.dm_tiers import dm_tiers
-from aidm.dm.surrender_intent import surrender_intent
 from aidm.models.abilities import Skill
 from aidm.models.campaign_events import RegionResolved
 from aidm.models.damage import DamagePacket, DamageType
@@ -14,7 +13,6 @@ from aidm.models.encounter_events import EncounterEnded
 from aidm.models.events import CheckResolved, ConditionApplied, ConditionRemoved, DamageTaken
 from aidm.models.protocol_client import SubmitAction
 from aidm.models.state import GameState
-from aidm.rules.acts_fight import SurrenderIntent
 from aidm.rules.damage import resolve_damage
 from aidm.rules.encounter import encounter_outcome, end_encounter, kill_xp
 from aidm.rules.harm_ends import harm_ended_events
@@ -38,12 +36,8 @@ def _surrendered() -> GameState:
     return state
 
 
-def test_m29_surrender_demand_is_read() -> None:
+def test_m29_surrender_dc_of_the_boss_table() -> None:
     state = replay_until("r3-items", 663)
-    assert surrender_intent(state, "pc-p8", TEXT) == SurrenderIntent("pc-p8", Skill.INTIMIDATION)
-    spare = surrender_intent(state, "pc-p8", "I plead with them to yield, we will spare them")
-    assert spare == SurrenderIntent("pc-p8", Skill.PERSUASION)
-    assert surrender_intent(state, "pc-p8", "I surrender") is None
     # tier 1, the master among the foes, one cultist already down: the boss table's easy DC
     assert surrender_dc(state, dm_tiers()) == 10
 

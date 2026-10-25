@@ -21,7 +21,7 @@ SEARCH = pick(("search:investigation", [], None))  # "I search behind the hearth
 
 async def _play(tmp_path: Path, store: CampaignStore) -> Table:
     llm = menu_llm(tmp_path, SEARCH)[0]
-    async with running(llm, inn_state(), store=store, interpreter="menu") as (table, _):
+    async with running(llm, inn_state(), store=store) as (table, _):
         host = await join(table, "Ann", "fighter")
         host.send(SubmitAction(text="I search behind the hearth"))
         await table.settle()
@@ -146,7 +146,7 @@ async def test_list_campaigns_and_bad_ids(tmp_path: Path) -> None:
 async def test_autosave_after_each_resolved_action(tmp_path: Path) -> None:
     store = CampaignStore(tmp_path / "saves")
     llm = menu_llm(tmp_path, SEARCH, pick(other=""))[0]  # the lever: the storyteller's
-    async with running(llm, inn_state(), store=store, interpreter="menu") as (table, _):
+    async with running(llm, inn_state(), store=store) as (table, _):
         host = await join(table, "Ann", "fighter")
         counts: list[int] = []
         for text in ("I search behind the hearth", "I study the rusted lever"):

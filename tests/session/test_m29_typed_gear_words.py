@@ -5,12 +5,10 @@ says why not in an engine line; a compound sentence does both of its acts."""
 from pathlib import Path
 
 from aidm.dm.fake_llm import FakeStep
-from aidm.dm.precheck import precheck
 from aidm.models.item_events import LightEnded, LightLit
 from aidm.models.protocol_client import SubmitAction
 from aidm.models.state import GameState
 from aidm.models.world_events import EquipmentChanged, NarrationRecorded
-from aidm.rules.acts import UseIntent
 from tests.session.playtest_saves import replay_until
 from tests.session.table_fixtures import assert_replays, join, menu_llm, pick, running
 
@@ -20,7 +18,7 @@ async def _typed(
 ) -> list[object]:
     """`choice`: the menu chooser's reading (M36.10a); the AI is otherwise down."""
     llm = menu_llm(tmp_path, choice, storyteller_down=True)[0]
-    async with running(llm, state, interpreter="menu") as (table, _):
+    async with running(llm, state) as (table, _):
         seat = await join(table, "Ann", hero)
         start = table.state.event_count
         seat.send(SubmitAction(text=text))
@@ -46,16 +44,6 @@ async def test_m29_typed_put_on_and_wield_equip(tmp_path: Path) -> None:
     events = await _typed(tmp_path, replay_until("r2-p7", 393), "pc-p4", text, wield)
     held = [e.equipped.main_hand for e in events if isinstance(e, EquipmentChanged)]
     assert held == ["warhammer"]
-
-
-def test_m29_light_compound_sentences_light_first() -> None:
-    state = replay_until("r2-p4", 210)
-    text = "I light a candle to see, then look around the dark wharf for the counterfeit bell"
-    intent = precheck(state, "pc-p2", text)
-    assert isinstance(intent, UseIntent) and intent.item == "candle" and intent.verb == "light"
-    assert intent.rest == "look around the dark wharf for the counterfeit bell"
-    intent = precheck(replay_until("r2-p4", 243), "pc-p2", "Brienne pinches out the candle")
-    assert isinstance(intent, UseIntent) and intent.put_out and intent.rest is None
 
 
 async def test_m29_light_a_candle_then_look_lights_it(tmp_path: Path) -> None:
@@ -84,6 +72,3 @@ async def test_m29_pinch_out_the_candle_puts_it_out(tmp_path: Path) -> None:
     put_out = pick(("put_out", [], None), colour="we crouch low in the shadows")
     events = await _typed(tmp_path, replay_until("r2-p4", 243), "pc-p2", text, put_out)
     assert [e.item for e in events if isinstance(e, LightEnded)] == ["candle"]
-    for text in ("snuff the candle", "blow out my candle", "douse the light so we can creep"):
-        intent = precheck(replay_until("r2-p4", 243), "pc-p2", text)
-        assert isinstance(intent, UseIntent) and intent.put_out

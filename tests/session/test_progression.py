@@ -1,14 +1,12 @@
 """M5.4 progression: travel legality, gateway locks, offers, escape/parley, region resolution."""
 
-from aidm.dm.precheck import precheck
 from aidm.models.abilities import Skill
-from aidm.models.campaign_events import EncounterOffered, OfferResolved, RegionResolved
+from aidm.models.campaign_events import OfferResolved, RegionResolved
 from aidm.models.campaign_state import OfferChoice, RegionResolution
 from aidm.models.encounter import EncounterStatus
 from aidm.models.events import AnyEvent
 from aidm.models.state import GameState
 from aidm.models.world_events import AttitudeChanged, PartyMoved
-from aidm.rules.acts import BarredIntent, TravelIntent
 from aidm.rules.campaign_install import install_campaign
 from aidm.rules.finale import choose_events, finale_open
 from aidm.rules.plan_ids import boss_npc_id
@@ -54,36 +52,6 @@ def test_travel_follows_legal_neighbours_only() -> None:
     assert far.error is not None
     ok = run_tool(state, "move_party", node_id=R1.spokes[0].id)
     assert ok.ok
-
-
-def test_gateway_unlocks_only_after_every_spoke() -> None:
-    _, state, log = campaign_state()
-    move(state, R1.spokes[0].id, log)
-    answer(state, OfferChoice.FIGHT, log)
-    win_fight(state, log)
-    barred = run_tool(state, "move_party", node_id=R1.gateway.id)
-    assert barred.error is not None and "barred" in barred.error
-    shut = precheck(state, "fighter", f"go to the {R1.gateway.name}")
-    assert isinstance(shut, BarredIntent) and "stays shut" in shut.text  # M23.8: it says why
-    _visit_spokes(state, log)
-    assert R1.gateway.id not in state.world.locked_nodes
-    assert R2.arrival.id in state.world.locked_nodes
-    intent = precheck(state, "fighter", f"go to the {R1.gateway.name}")
-    assert intent == TravelIntent(R1.gateway.id)
-
-
-def test_offer_appears_once_with_all_options_and_blocks_travel() -> None:
-    _, state, log = campaign_state()
-    assert state.campaign is not None and state.campaign.offer is None  # arrival is safe
-    events = move(state, R1.spokes[0].id, log)
-    assert len(events) == 1 and isinstance(events[0], EncounterOffered)
-    offer = pending(state)
-    assert set(offer.options) == set(OfferChoice)
-    assert offer.monster_ids and set(offer.monster_ids) <= set(R1.spokes[0].encounter_themes)
-    assert offer.retreat_node == R1.arrival.id and offer.escape_dc == 10
-    blocked = run_tool(state, "move_party", node_id=R1.arrival.id)
-    assert blocked.error is not None and "parley" in blocked.error
-    assert precheck(state, "fighter", f"go to the {R1.arrival.name}") is None
 
 
 def test_escape_success_retreats_and_never_reoffers() -> None:

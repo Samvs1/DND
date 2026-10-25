@@ -1,4 +1,4 @@
-"""Gear named in a player's words (M27.5): the one word matcher of the use precheck
+"""Gear named in a player's words (M27.5): the one word matcher of the use rows
 (`aidm.dm.use_intent`) and the scoped rope rule (`request_check`, `aidm.rules.gear_fit`).
 
 Words are compared through `rules.quest_items.item_words` (lowercase, articles dropped, a plural
@@ -10,7 +10,7 @@ in words, but it has no use: the rules say so).
 Public API: `words(text) -> frozenset[str]`, `fits(wanted, name) -> bool` (one set of words
 inside the other), `carried_entry(actor, phrase) -> str | None` (the inventory item a short
 phrase names), `held_gear(state, actor, phrase) -> str | None` (the same, or by a substance
-word, or the lit light: THE gear matcher of the typed precheck and of creative effects),
+word, or the lit light: THE gear matcher of the typed menu and of creative effects),
 `named_gear(state, actor_id, text) -> list[str]` (the inventory items and the keepsake ids a
 sentence names), `lock_named(state, text) -> str | None`, `aims_at_lock(state, text, feature)
 -> bool`.

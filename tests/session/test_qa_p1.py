@@ -89,7 +89,7 @@ LISTEN = pick(("search:perception", [], None))  # "I listen at the door"
 
 async def _saved_game(tmp_path: Path, store: CampaignStore) -> Table:
     llm = menu_llm(tmp_path, SEARCH, LISTEN)[0]
-    async with running(llm, inn_state(), store=store, interpreter="menu") as (table, _):
+    async with running(llm, inn_state(), store=store) as (table, _):
         host = await join(table, "Ann", "fighter")
         for text in ("I search behind the hearth", "look around", "I listen at the door"):
             host.send(SubmitAction(text=text))

@@ -1,7 +1,7 @@
 """What now? at the table (M23.8, GOAL_QUESTS "What players see").
 
 `answer(core, player)` serves the phone's What now? button (`what_now`) and a typed "what now"
-(`explore.submit_action` asks `precheck.asks_what_now` before anything else). It is NOT a turn:
+(the menu's own `what_now` entry). It is NOT a turn:
 no queue slot, no vote, no model call, no event, no state change, so it works in a fight and
 while another action resolves. The lines come from `rules.quest_hints.what_now`; a line that
 would carry private text (`public_feed.leaks`: a motive, an unrevealed secret, a hidden feature)

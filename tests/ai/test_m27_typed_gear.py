@@ -12,7 +12,6 @@ from pathlib import Path
 
 from aidm.data.srd import srd
 from aidm.dm.fake_llm import FakeStep
-from aidm.dm.precheck import gear_intent
 from aidm.dm.tool_context import ToolContext
 from aidm.models.encounter import Side
 from aidm.models.events import AnyEvent
@@ -68,8 +67,6 @@ async def _typed(
 async def test_m27_rope_to_force_the_lock_is_not_a_climb(tmp_path: Path) -> None:
     state = at(DOCKS, hero(gear=[ROPE]))
     chest = _chest(state)
-    intent = gear_intent(state, "hero", "I use the rope to force open the lock")
-    assert intent is not None and intent.target == chest  # aimed at the lock, not dropped
     events, after = await _typed(tmp_path, state, "I use the rope to force open the lock")
     assert not [e for e in events if isinstance(e, BoonGained | ItemUsed)]  # no climbing boon
     assert after.world.features[chest].lock is not None  # and the lock holds
@@ -78,14 +75,8 @@ async def test_m27_rope_to_force_the_lock_is_not_a_climb(tmp_path: Path) -> None
 
 async def test_m27_typed_bottle_of_water_is_the_waterskin(tmp_path: Path) -> None:
     state = _elemental("waterskin")
-    intent = gear_intent(state, "hero", WATER)
-    assert intent is not None and (intent.item, intent.target) == ("waterskin", "fe")
     hurl = pick(("throw:waterskin", ["fe"], None))  # the fight menu's improvised throw
     events, after = await _typed(tmp_path, state, WATER, hurl)
     used = [(e.item, e.use_id) for e in events if isinstance(e, ItemUsed)]
     assert used == [("waterskin", "improvised-throw")]  # thrown through the item rules
     assert qty(after, "hero", "waterskin") == 0
-
-
-def test_m27_bottle_of_water_without_a_waterskin_is_no_gear_use() -> None:
-    assert gear_intent(_elemental(), "hero", WATER) is None  # the AI path refuses it (M27.6)

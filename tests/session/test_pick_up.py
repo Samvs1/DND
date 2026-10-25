@@ -19,7 +19,7 @@ from tests.session.table_fixtures import (
 
 async def test_dropped_item_can_be_picked_up_again_by_typing(tmp_path: Path) -> None:
     llm, fake = menu_llm(tmp_path)
-    async with running(llm, interpreter="menu") as (table, _):
+    async with running(llm) as (table, _):
         ann = await join(table, "Ann", "fighter")
         hero = table.state.creatures["fighter"]
         assert hero.pc is not None

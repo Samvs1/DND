@@ -5,7 +5,6 @@ pick-up / give and the `give` command."""
 
 from pathlib import Path
 
-from aidm.dm.precheck import precheck
 from aidm.dm.tool_context import ToolContext
 from aidm.dm.tool_exec import execute_tool
 from aidm.models.campaign_events import RegionResolved
@@ -18,7 +17,6 @@ from aidm.models.quest_events import KeepsakeGiven, QuestStepDone
 from aidm.models.state import GameState
 from aidm.models.world import QuestState
 from aidm.models.world_events import ItemDiscovered, ItemPlaced, PartyMoved
-from aidm.rules.acts import TakeIntent
 from aidm.rules.encounter import end_encounter
 from aidm.rules.equipment import take_events
 from aidm.rules.handing import give_events
@@ -82,8 +80,6 @@ def _search_and_take(state: GameState, log: list[AnyEvent]) -> list[AnyEvent]:
     assert result.ok, result.error
     assert ItemDiscovered(item_id=ORDERS, creature_id="fighter") in result.events
     apply_all(state, list(result.events), log)
-    intent = precheck(state, "fighter", "I pick up the Choir tide-orders")
-    assert intent == TakeIntent("fighter", ORDERS)
     taken = apply_all(state, take_events(state, state.creatures["fighter"], ORDERS), log)
     return _settle(state, taken, log)
 
@@ -149,7 +145,7 @@ async def test_typed_pick_up_and_give_at_the_table(tmp_path: Path) -> None:
     take = pick(("take:choir-tide-orders", [], None))  # the lying item's menu id
     # M36.10a: Gorran is not here, so the menu has no give to him: the chooser says `other`
     llm, _ = menu_llm(tmp_path, take, pick(other=""))
-    async with running(llm, _table_state(), interpreter="menu") as (table, _):
+    async with running(llm, _table_state()) as (table, _):
         ann = await join(table, "Ann", "fighter")
         ann.send(SubmitAction(text="I pick up the Choir tide-orders"))
         await table.settle()

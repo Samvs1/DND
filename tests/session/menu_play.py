@@ -1,5 +1,5 @@
 """Shared helper of the M36.6 menu-interpreter session tests: one typed line played at a real table
-(`TableConfig.interpreter="menu"`) on a replayed round-6 state, the chooser's pick scripted with
+(the menu chooser) on a replayed round-6 state, the chooser's pick scripted with
 FakeLLM `by_tool` steps (never the network), the storyteller on FakeLLM's defaults. Every play
 asserts that replaying the log equals the snapshot."""
 
@@ -67,7 +67,7 @@ async def menu_play(
         prep(state)
     by_tool: Mapping[str, Sequence[FakeStep]] = {"choose_actions": choices}
     llm, fake = chooser_client(tmp_path, by_tool, script, mode=mode)
-    async with running(llm, state, interpreter="menu", session_log=log) as (table, _):
+    async with running(llm, state, session_log=log) as (table, _):
         for n, other in enumerate(also):
             await join(table, f"Bo{n}", other)
         seat = await join(table, "Ann", actor or hero)

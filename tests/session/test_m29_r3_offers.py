@@ -4,14 +4,12 @@ reproduced from its live save (tests/session/playtest_saves.py)."""
 import random
 
 from aidm.dm.arrival import offer_data
-from aidm.dm.precheck import precheck
 from aidm.dm.tool_context import tool_registries
 from aidm.models.campaign_events import OfferResolved, RegionResolved
 from aidm.models.campaign_state import OfferChoice
 from aidm.models.encounter import EncounterSetup, MonsterSpawn, PartyPlacement
 from aidm.models.encounter_events import EncounterStarted
 from aidm.models.events import CreatureAdded
-from aidm.rules.acts import ParleyIntent
 from aidm.rules.encounter import start_encounter
 from aidm.rules.encounter_offer import fight_map
 from aidm.rules.offer_answer import answer_offer, foes_gone, sure_parley
@@ -90,16 +88,3 @@ def test_m29_hand_over_leaves_the_master_offer_waiting() -> None:
         state, OfferChoice.PARLEY, offer_data(tool_registries()), random.Random(4)
     )
     assert [(type(e), getattr(e, "success", None)) for e in answer] == [(OfferResolved, True)]
-
-
-def test_m29_question_to_a_bystander_is_not_a_parley() -> None:
-    """r3-full 1440-1442: "Brienne asks Dreda Flint who she is ..." while an ogre offer waited
-    was read as a parley and failed into the fight. Words to another NPC are a talk turn."""
-    state = replay_until("r3-full", 1440)
-    assert state.campaign is not None and state.campaign.offer is not None
-    text = "Brienne asks Dreda Flint who she is, what happens at the forge, and where Sera Vask is."
-    assert not isinstance(precheck(state, "pc-p2", text), ParleyIntent)
-    aimed = precheck(state, "pc-p2", "I tell the ogre to turn back and leave us be")
-    assert isinstance(aimed, ParleyIntent)
-    plain = precheck(state, "pc-p2", "I call out and ask whether we may pass in peace")
-    assert isinstance(plain, ParleyIntent)

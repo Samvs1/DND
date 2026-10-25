@@ -4,7 +4,7 @@ Usage: python scripts/extract_typed_lines.py [--runs a,b] [--out PATH]
 (default out: artifacts/interpret/candidates.jsonl, gitignored)
 
 One JSONL row per typed line: id "<run>:<seq>", run, seq, actor_id, text, scope (the menu's),
-menu_ids, router (the old router's reading, serialised, or null) and engine (what the engine did
+menu_ids and engine (what the engine did
 until the next declared line). These are weak labels for the labeller, not truth.
 """
 

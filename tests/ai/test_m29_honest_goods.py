@@ -10,7 +10,6 @@ from aidm.dm.guard import prose_checker
 from aidm.dm.guard_flow import NarrationSource
 from aidm.dm.guard_types import ViolationKind
 from aidm.dm.narrator import narrate
-from aidm.dm.precheck import precheck
 from aidm.dm.turn_facts import turn_facts
 from aidm.models.state import GameState
 from tests.ai.fake_scripts import fake_client
@@ -119,19 +118,6 @@ def test_m29_hand_over_not_made_is_flagged() -> None:
         assert "Nothing changed hands" in _facts(turn)
     real = told_turn("p3", 422)  # after "give the Receipt-scroll to Ranna": a keepsake_given
     assert ViolationKind.UNMADE_HANDOVER not in _kinds(real)
-
-
-def test_m29_third_person_hand_over_is_a_give() -> None:
-    """G31 (p3 415): "Rook hands the Receipt-scroll over to Ranna the Brine-Widow, giving it into
-    her hands" now goes through the one give path (only "give X to Y" worked)."""
-    state = replay_until("p3", 415)
-    intent = precheck(
-        state,
-        "pc-p6",
-        "Rook hands the Receipt-scroll over to Ranna the Brine-Widow, giving it into her hands",
-    )
-    assert intent is not None and type(intent).__name__ == "GiveIntent"
-    assert getattr(intent, "thing", "").startswith("qi-")
 
 
 def test_m29_unknown_place_is_not_stood_in_for() -> None:

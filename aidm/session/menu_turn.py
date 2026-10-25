@@ -1,11 +1,10 @@
-"""One typed line out of a fight, read by the menu chooser (M36.6, SPEC 6.2; the router's twin is
-`session.intent_turn.resolve_line`, kept while `TableConfig.interpreter` is "router").
+"""One typed line out of a fight, read by the menu chooser (M36.6, SPEC 6.2).
 
 `menu_line(core, player, actor, entry)`: the hero's menu (`menu_pick.line_menu`: the explore
 scope, or the offer scope while an encounter offer waits here), the chooser's pick
 (`menu_pick.pick`; a failure is the fallback notice and nothing else), the acts
 (`rules.menu_steps.to_groups`; M36.10a: each step planned again on the live state the steps
-before it left), then each act through the runner the buttons and the router already
+before it left), then each act through the runner the buttons already
 use, which asks the rules again on the live state:
 - the intents (`intent_turn.run_intent`): give, hand, pay, take, lift, loot, equip, unequip,
   drop, talk (`AskIntent` with the words), look, search, inventory, travel, rest, shop, the quest
@@ -18,7 +17,7 @@ The words are declared once (not for a private listing: the pack, "what now"). A
 stops the acts after it, and a fight that starts stops them too (`menu_pick.play_steps`).
 The narrator still gets the player's own words for colour (the entry's text), as today; M36.10a:
 the chooser's `colour` (the words that only say how the hero acts: "steps forward") is told with
-the first narration of the line (`asides.told_with`), as the router's lead-ins were (M33.1).
+the first narration of the line (`asides.told_with`), (M33.1).
 
 Public API: `FIGHT_STARTED`, `menu_line`.
 """

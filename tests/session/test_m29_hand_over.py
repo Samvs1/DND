@@ -7,7 +7,6 @@ import pytest
 
 from aidm.data.combat_data import combat_registries
 from aidm.dm.fake_llm import FakeStep
-from aidm.dm.precheck import precheck
 from aidm.models.character import Keepsake, PcData
 from aidm.models.events import GoldChanged, InventoryChanged
 from aidm.models.item_events import HandedOver, ItemUsed
@@ -15,7 +14,6 @@ from aidm.models.protocol import AnyClientMsg
 from aidm.models.protocol_client import HandOver, SubmitAction
 from aidm.models.protocol_server import ErrorMsg
 from aidm.models.state import GameState
-from aidm.rules.acts import HealIntent, HeroHandIntent
 from aidm.rules.hero_handing import HandRefused, hand_events
 from aidm.session.reducer import apply, replay
 from tests.session.playtest_saves import replay_until
@@ -34,7 +32,7 @@ async def _typed(
 ) -> list[object]:
     """`picks`: the menu chooser's readings of a typed line (M36.10a); the AI is otherwise down."""
     llm = menu_llm(tmp_path, *picks, storyteller_down=True)[0]
-    async with running(llm, state, interpreter="menu") as (table, _):
+    async with running(llm, state) as (table, _):
         seat = await join(table, "Ann", hero)
         start = table.state.event_count
         seat.send(msg)
@@ -64,13 +62,6 @@ async def test_m29_hand_poultice_to_a_hero_is_a_hand_over(tmp_path: Path) -> Non
     )
     assert not any(isinstance(e, ItemUsed) for e in events)
     assert _moved(events) == [("pc-p2", "herbal-poultice", -1), ("pc-p4", "herbal-poultice", 1)]
-
-
-def test_m29_drink_words_keep_the_heal() -> None:
-    state = replay_until("r2-p7", 64)
-    said = "Brienne gives Elowen the poultice to drink"
-    assert isinstance(precheck(state, "pc-p2", said), HealIntent)
-    assert precheck(state, "pc-p2", "give Elowen my thanks") is None
 
 
 async def test_m29_hand_crowbar_and_gold_between_heroes(tmp_path: Path) -> None:
@@ -118,11 +109,3 @@ def test_m29_hand_over_refuses_only_the_impossible() -> None:
     for event in hand_events(state, "pc-p2", "pc-p4", chars, gold=1):
         apply(state, event)
     assert _pc(state, "pc-p4").gold == 16
-
-
-def test_m31_toss_gold_with_a_reason_is_a_gold_hand_over() -> None:
-    """r4 (M31.1e): "I toss Elowen 10 gold for her trouble" was refused as an item not carried."""
-    state = replay_until("r2-p7", 289)
-    intent = precheck(state, "pc-p2", "I toss Elowen 10 gold for her trouble")
-    assert isinstance(intent, HeroHandIntent)
-    assert (intent.gold, intent.to_id, intent.thing) == (10, "pc-p4", None)

@@ -1,5 +1,4 @@
-"""A hero's typed fight line, read by the menu chooser (M36.6, SPEC 6.1, 6.2; the router's twin is
-`session.fight_text.combat_text`, kept while `TableConfig.interpreter` is "router").
+"""A hero's typed fight line, read by the menu chooser (M36.6, SPEC 6.1, 6.2).
 
 `menu_combat_line(core, player, pc, text)`:
 - off the hero's turn: no model call. Only an exact free entry of the menu (the pack, "what

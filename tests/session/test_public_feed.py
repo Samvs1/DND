@@ -144,7 +144,7 @@ async def test_reload_gets_story_history_and_restart_rebuilds_it(tmp_path: Path)
     llm, _ = menu_llm(tmp_path, pick(("rest:short", [], None)), pick(("look", [], None)))
     store = CampaignStore(tmp_path / "saves")
     start = GameState(campaign_id="t", seed=3)
-    async with running(llm, start, store=store, interpreter="menu") as (table, _):
+    async with running(llm, start, store=store) as (table, _):
         ann = await _hero(table, "Ann", "fighter")
         ann.send(HostStart())
         await table.settle()

@@ -1,6 +1,6 @@
 """Typed healing out of a fight at the table (M29.5b G2 / G17 / G33).
 
-`heal_intent(core, player, intent)` runs the precheck's `HealIntent` through the ONE engine path
+`heal_intent(core, player, intent)` runs the menu's `HealIntent` through the ONE engine path
 of each kind: a healing consumable through `rules.items.use_item_events` (the sheet's Use; the
 carrier's draught is used up, the target heals, a dead target is refused and nothing is used),
 a healing spell through `rules.spells.cast_spell` (the lowest fitting slot is spent; a spell

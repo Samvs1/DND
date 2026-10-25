@@ -147,7 +147,7 @@ async def test_welcome_starts_while_the_world_is_being_written(tmp_path: Path) -
 async def test_host_load_welcomes_back_but_not_a_lobby_save(tmp_path: Path) -> None:
     store = CampaignStore(tmp_path / "saves")
     llm = menu_llm(tmp_path, SEARCH)[0]
-    async with running(llm, inn_state(), store=store, interpreter="menu") as (first, _):
+    async with running(llm, inn_state(), store=store) as (first, _):
         ann = await join(first, "Ann", "fighter")
         ann.send(SubmitAction(text="I search behind the hearth"))
         await first.settle()
@@ -170,7 +170,7 @@ async def test_host_load_welcomes_back_but_not_a_lobby_save(tmp_path: Path) -> N
 async def test_boot_load_welcomes_back_once_on_the_first_connection(tmp_path: Path) -> None:
     store = CampaignStore(tmp_path / "saves")
     llm = menu_llm(tmp_path, pick(("look", [], None)))[0]
-    async with running(llm, inn_state(), store=store, interpreter="menu") as (first, _):
+    async with running(llm, inn_state(), store=store) as (first, _):
         ann = await join(first, "Ann", "fighter")
         ann.send(SubmitAction(text="I look around"))
         await first.settle()

@@ -4,8 +4,6 @@ waits, and feats no body could do, on the real round-5 states."""
 from pathlib import Path
 
 from aidm.dm.fake_llm import fake_tool_call
-from aidm.dm.intent_router import explore_intent
-from aidm.models.abilities import Skill
 from aidm.models.campaign_events import OfferResolved
 from aidm.models.campaign_state import OfferChoice
 from aidm.models.combat_events import AttackRolled, SpellCast
@@ -14,25 +12,11 @@ from aidm.models.events import CheckResolved
 from aidm.models.impossible import ActionImpossible
 from aidm.models.protocol_client import ConfirmHostile, SubmitAction
 from aidm.models.protocol_server import ErrorMsg, PendingConfirmationMsg
-from aidm.rules.acts import ImpossibleIntent, OfferStrikeIntent, ParleyIntent, RefusedIntent
 from aidm.session.held import NOT_YOURS, PARLEY_ASK
 from aidm.session.offer_strike import WAITS
 from tests.session.m32_play import FULL, QUESTS, TYPED, play, typed
 from tests.session.playtest_saves import replay_until
 from tests.session.table_fixtures import assert_replays, join, menu_down, pick, running
-
-
-def _routed(run: str, seq: int) -> object:
-    actor, text = typed(run, seq)
-    return explore_intent(replay_until(run, seq), actor, text)
-
-
-def test_v1_m32_attack_at_a_waiting_offer_is_a_strike() -> None:
-    """X3: quests 162-166, typed 348 and 932: an attack or a harmful spell at the offer's foes."""
-    assert _routed(QUESTS, 161) == OfferStrikeIntent("pc-p6")  # shouts and lets fly an arrow
-    assert _routed(QUESTS, 162) == OfferStrikeIntent("pc-p6")  # attacks the bandit with his bow
-    assert _routed(TYPED, 347) == OfferStrikeIntent("pc-p6")  # I cast Burning Hands at the fungus
-    assert _routed(TYPED, 931) == OfferStrikeIntent("pc-p6")  # I fling a scorching ray at the gnoll
 
 
 async def test_v1_m32_attack_at_a_waiting_offer_fights_then_attacks(tmp_path: Path) -> None:
@@ -92,17 +76,6 @@ async def test_v1_m32_peace_line_to_a_master_never_starts_a_fight(tmp_path: Path
     assert [(c.reason, c.result.skill) for c in checks] == [("parley", "persuasion")]
 
 
-def test_v1_m32_surrender_demand_of_the_dead_at_the_offer_rolls_nothing() -> None:
-    """X5, typed 420-422: "Drop your weapons and yield!" to a risen zombie rolled Intimidation
-    and was told obeyed; now it is the plain line of a fight, no roll."""
-    line = "The zombie will not yield: the dead do not surrender."
-    assert _routed(TYPED, 419) == RefusedIntent("pc-p2", line)
-    state = replay_until(QUESTS, 161)  # a bandit and a wolf can yield: a parley, asked first
-    assert explore_intent(state, "pc-p6", "Drop your weapons and yield!") == ParleyIntent(
-        "pc-p6", Skill.INTIMIDATION
-    )
-
-
 async def test_v1_m32_surrender_demand_of_the_dead_keeps_the_offer(tmp_path: Path) -> None:
     demand = pick(("surrender", [], None))  # the menu chooser's (M36.10b)
     played = await play(tmp_path, TYPED, 419, picks=[demand])
@@ -110,20 +83,6 @@ async def test_v1_m32_surrender_demand_of_the_dead_keeps_the_offer(tmp_path: Pat
     assert played.notices() == ["The zombie will not yield: the dead do not surrender."]
     campaign = played.state.campaign
     assert campaign is not None and campaign.offer is not None
-
-
-def test_v1_m32_impossible_feat_in_other_words() -> None:
-    """X8, typed 640-642: lifting the whole thicket and hurling it rolled Strength."""
-    found = _routed(TYPED, 639)
-    assert isinstance(found, ImpossibleIntent) and "thicket" in found.reason
-    state = replay_until(TYPED, 639)
-    for possible in (
-        "I climb the sheer wall",
-        "I throw a rock into the river",
-        "I push the cart off the bridge",
-        "I lift the bridge keeper's lantern",
-    ):
-        assert not isinstance(explore_intent(state, "pc-p2", possible), ImpossibleIntent), possible
 
 
 async def test_v1_m32_impossible_feat_rolls_no_dice(tmp_path: Path) -> None:

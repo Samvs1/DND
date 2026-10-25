@@ -1,4 +1,4 @@
-"""The three eval modes over a corpus (M36.7): offline coverage, live chooser, router baseline."""
+"""The two eval modes over a corpus (M36.7): offline coverage and the live chooser."""
 
 import time
 from collections import defaultdict
@@ -9,12 +9,9 @@ from aidm.dm.chooser import ChooserFailure, choose
 from aidm.dm.llm_client import LlmClient
 from aidm.dm.llm_types import LlmRole
 from aidm.models.action_menu import MenuChoice
-from aidm.rules.acts import OtherIntent
-from aidm.rules.menu_steps import to_acts
 from scripts.interpret import lib
 from scripts.interpret.corpus import Row, gaps
-from scripts.interpret.router import UNAVAILABLE, reading
-from scripts.interpret.score import FLAGS, verdicts
+from scripts.interpret.score import verdicts
 
 DEFAULT_CAP = 300
 
@@ -88,42 +85,3 @@ async def live(rows: list[Row], llm: LlmClient, cap: int, limit: int | None) -> 
         }
     ordered = [results[r.id] for r in todo if r.id in results]
     return {"results": ordered, "calls": used, "scored": len(ordered), "asked": len(todo)}
-
-
-def router_baseline(rows: list[Row]) -> dict[str, Any]:
-    """The old router's reading of each line, scored by act match (no model calls)."""
-    results: list[dict[str, Any]] = []
-    for row, line in with_states(rows):
-        if line is None:
-            continue
-        menu = lib.menu_for(line.state, row.actor_id)
-        found, label = reading(line.state, row.actor_id, row.text, menu.scope)
-        if label == UNAVAILABLE:
-            return {"results": [], "scored": 0, "asked": len(rows), "calls": 0}
-        results.append(
-            {
-                "id": row.id,
-                "scope": row.scope,
-                "source": row.source,
-                "text": row.text,
-                "router": label,
-                "verdict": _router_verdict(row, line, found),
-                "calls": 0,
-                "latency_s": 0.0,
-            }
-        )
-    return {"results": results, "scored": len(results), "asked": len(rows), "calls": 0}
-
-
-def _router_verdict(row: Row, line: lib.Line, found: object | None) -> dict[str, bool]:
-    menu = lib.menu_for(line.state, row.actor_id)
-    ours: list[object] = [OtherIntent(row.actor_id, row.text)] if found is None else [found]
-    out: dict[str, bool] = dict.fromkeys(FLAGS, False)
-    for choice in row.choices():
-        try:
-            want: list[object] = list(to_acts(line.state, menu, choice, lib.regs(), row.text))
-        except Exception:  # an expectation the rules cannot play never matches
-            continue
-        if want == ours or (isinstance(found, list) and want == found):
-            out["act"] = True
-    return out

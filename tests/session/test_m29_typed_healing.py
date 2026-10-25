@@ -26,7 +26,7 @@ async def _typed(
     state = replay_until(run, seq)
     choice = pick(*steps, other="" if other else None)
     llm = menu_llm(tmp_path, choice, storyteller_down=True)[0]
-    async with running(llm, state, interpreter="menu") as (table, _):
+    async with running(llm, state) as (table, _):
         seat = await join(table, "Ann", hero)
         start = table.state.event_count
         seat.send(SubmitAction(text=text))

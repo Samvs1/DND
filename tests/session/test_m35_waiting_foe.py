@@ -5,23 +5,18 @@ import random
 from pathlib import Path
 
 from aidm.data.combat_data import combat_registries
-from aidm.dm.intent_router import explore_intent, fight_intent
 from aidm.models.campaign_events import OfferResolved
 from aidm.models.campaign_state import OfferChoice
 from aidm.models.combat_events import SpellCast
-from aidm.models.commands import CastCommand
 from aidm.models.encounter_events import EncounterStarted
 from aidm.models.events import AnyEvent, LongRestTaken, ResourceSet
 from aidm.models.quest_events import QuestStepDone
 from aidm.models.world import QuestState
-from aidm.rules.acts import OfferStrikeIntent
 from aidm.rules.command_checks import CommandRefused
-from aidm.rules.offer_answer import answer_offer
 from aidm.rules.spells import scene_cast
 from aidm.rules.waiting_foe import FOE_WAITS, cast_starts_fight, rest_ambush_events, waiting_foe
 from aidm.session.offer_strike import WAITS
 from aidm.session.quest_flow import settle_after
-from aidm.session.reducer import apply
 from aidm.session.rest_ambush import REST_AMBUSHED
 from tests.session.m32_play import play
 from tests.session.playtest_saves import replay_until
@@ -118,24 +113,3 @@ async def test_v1_m35_sleep_at_a_waiting_offer_starts_the_fight(tmp_path: Path) 
     ]
     assert spent == []
     assert WAITS.format(name="Rook") in played.notices()
-
-
-def test_v1_m35_sleep_named_at_one_foe_is_a_strike() -> None:
-    """Y9: Sleep (an HP pool, no save or damage) aimed at a foe of the offer is a strike too."""
-    state = replay_until(TYPED, 378)
-    assert explore_intent(state, "pc-p6", "I cast Sleep on the kobold") == OfferStrikeIntent(
-        "pc-p6"
-    )
-
-
-def test_v1_m35_sleep_waits_as_a_cast_at_the_kobolds() -> None:
-    """Y9: on Rook's turn the same words are the hotbar's cast at the kobolds' zone."""
-    state = replay_until(TYPED, 378)
-    for event in answer_offer(state, OfferChoice.FIGHT, DATA, random.Random(1), actor_id="pc-p6"):
-        apply(state, event)
-    command = fight_intent(state, "pc-p6", SLEEP)
-    assert isinstance(command, CastCommand) and command.spell_id == "sleep"
-    enc = state.encounter
-    assert enc is not None
-    kobolds = {c.zone_id for c in enc.combatants.values() if c.creature_id.startswith("kobold")}
-    assert command.target_zone in kobolds

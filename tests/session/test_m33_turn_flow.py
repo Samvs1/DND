@@ -62,7 +62,7 @@ async def test_v1_m33_road_walk_stops_at_a_quest_ask(
     actor, text = typed(TYPED, 394)
     roads = pick(("travel", [CROSS], None), ("travel", [BARROW], None))
     llm = menu_llm(tmp_path, roads, storyteller_down=True)[0]  # the menu chooser's (M36.10a)
-    async with running(llm, state, interpreter="menu") as (table, _):
+    async with running(llm, state) as (table, _):
         seat = await join(table, "Ann", actor)
         seat.drain()
         seat.send(SubmitAction(text=text))

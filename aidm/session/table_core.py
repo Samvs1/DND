@@ -4,8 +4,8 @@
 `LoggedEvent` with a monotonic `seq`, the public projection and dice broadcast, then (M35.3) a
 concentration whose last effect ended ends too), the story feed, the seats, connection queues, the
 exploration queue, the open vote, a pending hostile act, the combat segment and the turn timer.
-Handlers take a `TableCore`, never `table.py`. `TableConfig.interpreter`: "menu" (M36.10b default)
-or "router" (until M36.12); `refusals` counts REFUSED notices and errors (a menu line stops).
+Handlers take a `TableCore`, never `table.py`. Typed lines are read by the menu chooser (M36.12);
+`refusals` counts REFUSED notices and errors (a menu line stops).
 
 Public API: `Player`, `TableConfig`, `TtsHook`, `no_tts`, `Job`, `ClientIn`, `Closed`, `TimerFired`,
 `Inbound`, `TableCore`, `phase_of(state)` (DEFEATED when `state.defeat` is set, M11.1).
@@ -18,7 +18,7 @@ import secrets
 from collections import deque
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
-from typing import Any, Literal
+from typing import Any
 
 from aidm.dm.campaign_gen import CAMPAIGN_TIMEOUT_S
 from aidm.dm.llm_client import LlmClient
@@ -88,7 +88,6 @@ class TableConfig:
     ai_turn_pause_s: float = 0.0  # M20.3: how long the screen holds each AI turn
     show_wait_cap_s: float = 8.0  # M26.3: the longest wait for a screen's show
     grace_seconds: float = 30.0  # M15.1 reconnect grace; the playtest harness raises it (M29.4)
-    interpreter: Literal["router", "menu"] = "menu"  # M36.6; menu the default since M36.10b
 
 
 @dataclass

@@ -1,4 +1,4 @@
-"""The menu gaps closed in M36.8c, played at a real table in menu mode (`interpreter="menu"`, the
+"""The menu gaps closed in M36.8c, played at a real table in menu mode (the
 chooser scripted with FakeLLM by_tool, the log replayed equal): a search while foes wait, an
 attack on a person through the point-of-no-return card, a downed ally's own potion, the trade
 button while an offer waits, and a strike at the master's shown twin.

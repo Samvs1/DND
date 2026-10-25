@@ -5,16 +5,12 @@ import pytest
 
 from aidm.dm.guard import check_prose
 from aidm.dm.guard_types import ViolationKind
-from aidm.dm.precheck import precheck
 from aidm.models.damage import DamagePacket, DamageType
-from aidm.models.encounter import Encounter
 from aidm.models.events import HpChanged
 from aidm.models.state import GameState
-from aidm.rules.acts import HelpUpIntent
 from aidm.rules.damage import resolve_damage
 from aidm.session.reducer import apply
 from tests.ai.guard_fixtures import inn_state
-from tests.unit.rules.combat_fixtures import small_map
 
 
 def _down(state: GameState, cid: str) -> GameState:
@@ -23,36 +19,6 @@ def _down(state: GameState, cid: str) -> GameState:
     for event in resolve_damage(target, [packet]):
         apply(state, event)
     return state
-
-
-@pytest.mark.parametrize(
-    "text",
-    [
-        "I help Brannoc up",
-        "help her up",
-        "I try to wake Brannoc.",
-        "We get Brannoc back on his feet",
-        "I help Brannoc to his feet",
-        "rouse brannoc",
-        "I stabilize him",
-        "Let's revive Brannoc",
-        "I pull Brannoc up",
-    ],
-)
-def test_help_up_typed(text: str) -> None:
-    state = _down(inn_state(), "rogue")
-    assert precheck(state, "fighter", text) == HelpUpIntent("fighter", "rogue")
-
-
-def test_help_up_typed_needs_a_downed_named_ally() -> None:
-    state = _down(inn_state(), "rogue")
-    assert precheck(state, "fighter", "I help Celes up") is None  # Celes is standing
-    assert precheck(state, "rogue", "I help Brannoc up") is None  # not yourself
-    _down(state, "wizard")
-    assert precheck(state, "fighter", "help her up") is None  # two are down: name one
-    assert precheck(state, "fighter", "wake Celes") == HelpUpIntent("fighter", "wizard")
-    state.encounter = Encounter(id="f1", zone_map=small_map())
-    assert precheck(state, "fighter", "wake Celes") is None  # in a fight: the Help action
 
 
 @pytest.mark.parametrize(

@@ -51,7 +51,7 @@ async def test_quest_card_not_now_comes_back_next_arrival_then_accept(tmp_path: 
     look = pick(("look", [], None))  # the chooser's readings (M36.10a)
     there, back = (pick(("travel", [node], None)) for node in ("rotting-boathouse", QUAY))
     llm, _ = menu_llm(tmp_path, look, there, back)
-    async with running(llm, _asked_at_the_docks(), interpreter="menu") as (table, _):
+    async with running(llm, _asked_at_the_docks()) as (table, _):
         ann = await join(table, "Ann", "fighter")
         card = table.snapshot().state.quest_offer
         assert card is not None and card.quest_id == LEDGER and card.giver == "Tobin Marrow"
@@ -94,7 +94,7 @@ def _at_the_gateway_with_an_open_task() -> GameState:
 async def test_crossing_asks_first_and_leaves_open_tasks_behind(tmp_path: Path) -> None:
     cross = pick(("travel", ["lamplighters-rest"], None))  # the chooser's reading (M36.10a)
     llm, _ = menu_llm(tmp_path, cross, cross)
-    async with running(llm, _at_the_gateway_with_an_open_task(), interpreter="menu") as (table, _):
+    async with running(llm, _at_the_gateway_with_an_open_task()) as (table, _):
         ann = await join(table, "Ann", "fighter")
         ann.send(SubmitAction(text="I travel to Lamplighters' Rest"))
         await table.settle()

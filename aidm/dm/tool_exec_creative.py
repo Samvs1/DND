@@ -174,11 +174,11 @@ def run_creative_effect(
     state: GameState, args: CreativeEffectArgs, ctx: ToolContext, rng: Rng, regs: ToolRegistries
 ) -> ToolResult:
     require_creature(state, args.actor)
-    gear = leaned_gear(state, args.actor, args.item, ctx.player_text)  # M27.6: carried or refused
+    gear = leaned_gear(state, args.actor, args.item)  # M27.6: carried or refused
     outcome = gear_outcome(state, args, gear, rng, regs) if gear is not None else None
     if outcome is not None:
         return outcome
-    blow = weapon_outcome(state, args, gear, ctx.player_text, rng, regs)  # M31.1a V3
+    blow = weapon_outcome(state, args, gear, rng, regs)  # M31.1a V3
     if blow is not None:
         return blow
     run: _Run = (state, args, rng, regs)

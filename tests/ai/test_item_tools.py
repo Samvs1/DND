@@ -6,14 +6,12 @@ import pytest
 from aidm.dm.context import build_context
 from aidm.dm.context_text import ContextPurpose
 from aidm.dm.guard import check_prose
-from aidm.dm.precheck import precheck
 from aidm.dm.tool_exec_items import MAX_KEEPSAKES
 from aidm.models.character import Keepsake
 from aidm.models.events import InventoryChanged
 from aidm.models.state import GameState
 from aidm.models.world import WorldItem
 from aidm.models.world_events import ItemRemoved, KeepsakeGained
-from aidm.rules.acts import TakeIntent
 from aidm.rules.equipment import EquipRefused, take_events
 from aidm.rules.item_grants import carried_qty
 from tests.ai.tool_fixtures import apply_result, party_state, run_tool
@@ -75,23 +73,6 @@ def test_keepsakes_are_capped() -> None:
     assert hero.pc is not None
     hero.pc.keepsakes = [Keepsake(id=f"k{i}", name=f"Token {i}") for i in range(MAX_KEEPSAKES)]
     assert not run_tool(state, "give_keepsake", name="One too many").ok
-
-
-@pytest.mark.parametrize(
-    "text",
-    ["I pick up the pouch.", "I take the spilled pouch", "grab pouch", "I pick the pouch up"],
-)
-def test_typed_pick_ups_need_no_model(text: str) -> None:
-    state = party_state()
-    _place(state, "dropped-pouch-27", "Pouch", "pouch")
-    assert precheck(state, "fighter", text) == TakeIntent("fighter", "dropped-pouch-27")
-
-
-@pytest.mark.parametrize("text", ["I take a short rest", "I take off my armor", "I get going"])
-def test_other_take_phrases_are_not_pick_ups(text: str) -> None:
-    state = party_state()
-    _place(state, "dropped-pouch-27", "Pouch", "pouch")
-    assert not isinstance(precheck(state, "fighter", text), TakeIntent)
 
 
 def test_keepsakes_reach_the_dm_and_the_guard() -> None:

@@ -4,7 +4,6 @@ from collections.abc import Iterator
 from typing import Any
 
 from scripts.interpret import lib
-from scripts.interpret.router import reading
 
 _QUIET = frozenset(
     {"action_declared", "narration_recorded", "fact_recorded", "scene_summarised", "dice_rolled"}
@@ -51,9 +50,8 @@ def candidate(line: lib.Line) -> dict[str, Any]:
         menu = lib.menu_for(line.state, actor)
         scope: str | None = menu.scope.value
         ids = [e.id for e in menu.entries]
-        _, router = reading(line.state, actor, text, menu.scope)
-    except Exception as exc:  # a state the menu cannot be built for is still a row
-        scope, ids, router = None, [], f"menu_error:{type(exc).__name__}"
+    except Exception:  # a state the menu cannot be built for is still a row
+        scope, ids = None, []
     return {
         "id": line.id,
         "run": line.run,
@@ -62,7 +60,6 @@ def candidate(line: lib.Line) -> dict[str, Any]:
         "text": text,
         "scope": scope,
         "menu_ids": ids,
-        "router": router,
         "engine": engine_summary(line),
     }
 

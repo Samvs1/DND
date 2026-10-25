@@ -164,7 +164,7 @@ async def test_cancelled_hostile_act_changes_nothing(tmp_path: Path) -> None:
 async def test_hello_with_last_seq_resends_only_missed_events(tmp_path: Path) -> None:
     rest = pick(("rest:short", [], None))
     llm = menu_llm(tmp_path, rest, pick(other=""), rest)[0]
-    async with running(llm, interpreter="menu") as (table, _):
+    async with running(llm) as (table, _):
         host = await join(table, "Ann", "fighter")
         for text in ("we take a short rest", "I warm my hands", "we take a short rest"):
             host.send(SubmitAction(text=text))

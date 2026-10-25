@@ -171,7 +171,7 @@ def test_difficulty_message_is_range_checked() -> None:
 
 async def test_tts_toggle_updates_the_table_and_the_snapshot(tmp_path: Path) -> None:
     store = CampaignStore(tmp_path / "saves")
-    async with running(_searching(tmp_path), inn_state(), store=store, interpreter="menu") as (
+    async with running(_searching(tmp_path), inn_state(), store=store) as (
         table,
         _,
     ):
@@ -207,7 +207,7 @@ async def test_save_forces_a_snapshot_and_works_without_a_store(tmp_path: Path) 
 
 async def test_load_switches_the_table_to_a_saved_campaign(tmp_path: Path) -> None:
     store = CampaignStore(tmp_path / "saves")
-    async with running(_searching(tmp_path), inn_state(), store=store, interpreter="menu") as (
+    async with running(_searching(tmp_path), inn_state(), store=store) as (
         first,
         _,
     ):
@@ -242,7 +242,7 @@ async def test_load_switches_the_table_to_a_saved_campaign(tmp_path: Path) -> No
 
 async def test_new_campaign_resets_the_game_and_keeps_the_seats(tmp_path: Path) -> None:
     store = CampaignStore(tmp_path / "saves")
-    async with running(_searching(tmp_path), inn_state(), store=store, interpreter="menu") as (
+    async with running(_searching(tmp_path), inn_state(), store=store) as (
         table,
         _,
     ):

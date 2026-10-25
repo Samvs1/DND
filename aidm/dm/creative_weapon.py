@@ -3,33 +3,25 @@ my sword" became an Athletics check and a flat 2d6, and 13 from a longsword, abo
 of 11, with no roll against armour).
 
 The rule, in ONE place (`run_creative_effect` asks it before any creative damage): creative
-damage aimed at a creature of the fight, when the effect leans on a weapon the hero carries or
-the player's line reads as a weapon attack (the `attack` phrase row's shapes,
-`dm.intent_match.text_match`, or M32.1a X1 a weapon the line names, `strike_intent.said_weapon`:
-"an arrow" is the ranged option), is the engine's own attack instead:
-- a throw word of the lexicon's `throw_verbs` with a weapon: `ThrowCommand` with that weapon;
-- otherwise `AttackCommand` with the attack option whose name fits the weapon (the main hand
-  when no option fits, the unarmed strike with nothing in hand).
+damage aimed at a creature of the fight, when the effect leans on a weapon the hero carries (the
+creative_effect tool's `item` argument; M36.12: no text rules, the line is read by the menu), is
+the engine's own attack instead: `AttackCommand` with the attack option whose name fits the
+weapon (the main hand when no option fits).
 `rules.commands.execute_command` rolls it against armour class with the weapon's own dice and
 spends the action; when it is impossible (out of reach, no attack left) the tool is refused with
 the rules' plain reason, and no creative damage is dealt.
 
-Public API: `WEAPON_BLOW`, `weapon_outcome(state, args, gear, text, rng, regs)`.
+Public API: `WEAPON_BLOW`, `weapon_outcome(state, args, gear, rng, regs)`.
 """
 
 import re
 
 from aidm.data.combat_data import combat_registries
-from aidm.data.intent_phrases import intent_phrases
 from aidm.dm.entities import display_name
-from aidm.dm.intent_match import text_match
-from aidm.dm.sentence import normalise, own_reading
-from aidm.dm.strike_intent import said_weapon
-from aidm.dm.strike_words import marked
 from aidm.dm.tool_context import ToolRefused, ToolRegistries, ToolResult
 from aidm.dm.tools import CreativeEffectArgs
 from aidm.models.combat_events import AttackRolled
-from aidm.models.commands import AttackCommand, ThrowCommand
+from aidm.models.commands import AttackCommand
 from aidm.models.dm_tiers import EffectKind
 from aidm.models.encounter import EncounterStatus
 from aidm.models.state import Creature, GameState
@@ -48,11 +40,6 @@ def _words(text: str) -> set[str]:
 def _weapon(gear: str | None) -> str | None:
     entry = combat_registries().chars.equipment.find(gear) if gear else None
     return gear if entry is not None and entry.weapon_category is not None else None
-
-
-def _shaped(actor: Creature, text: str) -> bool:
-    clean = normalise(text)
-    return bool(clean) and text_match(("attack",), own_reading(actor.name, clean)) is not None
 
 
 def _option(actor: Creature, weapon: str | None) -> str:
@@ -85,7 +72,6 @@ def weapon_outcome(
     state: GameState,
     args: CreativeEffectArgs,
     gear: str | None,
-    text: str,
     rng: Rng,
     regs: ToolRegistries,
 ) -> ToolResult | None:
@@ -96,16 +82,9 @@ def weapon_outcome(
     if not _in_fight(state, actor.id, target):
         return None
     weapon = _weapon(gear)
-    said = said_weapon(actor, marked(text))  # M32.1a X1: "an arrow in its chest" is the bow
-    if weapon is None and said is None and not _shaped(actor, text):
+    if weapon is None:
         return None
-    throws = bool(_words(text) & intent_phrases().lexicon["throw_verbs"])
-    option = said if weapon is None and said is not None else _option(actor, weapon)
-    command = (
-        ThrowCommand(actor_id=actor.id, target_id=target, item=weapon)
-        if throws and weapon is not None
-        else AttackCommand(actor_id=actor.id, target_id=target, option=option)
-    )
+    command = AttackCommand(actor_id=actor.id, target_id=target, option=_option(actor, weapon))
     try:
         events = execute_command(state, command, regs.combat, rng)
     except CommandRefused as refused:

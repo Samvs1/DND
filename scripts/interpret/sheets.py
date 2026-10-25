@@ -4,8 +4,8 @@ Each sheet row is a selected candidate plus what a labeller needs to pick the ex
 menu exactly as the chooser sees it (`prompt`: the CHOOSE prompt's ACTING HERO, TARGETS, PRONOUNS,
 RECENT ENGINE EVENTS and MENU sections, from the one context builder; a full entry list would be
 four times larger, mostly give/hand/drop rows the MENU section's ITEMS line already spells out),
-the exact fast-path pick if the line is a game string, and two weak hints (the old router's
-reading and what the engine did).
+the exact fast-path pick if the line is a game string, and a weak hint (what the engine
+did).
 
 Public API: `sheet_rows(rows)`, `split(rows, parts)`, `write_sheets(rows, out_dir)`, `README`.
 """
@@ -46,7 +46,7 @@ object per line, ASCII only):
   true only when that part comes before the steps. A pure flourish is NOT other.
 - alt only for a genuinely equal second reading (same shape as expect).
 - keep source as given; part1 rows 1-15 are already done in examples.jsonl: copy them.
-- hint_router and hint_engine are weak hints (often wrong); label what the player asked for.
+- hint_engine is a weak hint (often wrong); label what the player asked for.
 - If no menu entry can express what the player clearly asked for, still write your best row and
   put "MENU GAP: <what is missing>" in note.
 
@@ -76,7 +76,6 @@ def _sheet_row(row: dict[str, Any], line: lib.Line) -> dict[str, Any]:
     return {
         **{k: row[k] for k in keep},
         "exact": _choice(exact_choice(menu, line.event.text)),
-        "hint_router": row.get("router"),
         "hint_engine": row.get("engine", []),
         "prompt": _prompt(line.state, line, menu, line.recent),
     }

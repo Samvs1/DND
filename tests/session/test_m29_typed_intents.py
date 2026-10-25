@@ -4,16 +4,11 @@ live save: the typed words become the engine's own command, never a storyteller 
 from pathlib import Path
 
 from aidm.dm.fake_llm import FakeStep
-from aidm.dm.fight_intent import fight_command
-from aidm.dm.precheck import precheck
-from aidm.models.abilities import Skill
 from aidm.models.campaign_events import OfferResolved
 from aidm.models.campaign_state import OfferChoice
 from aidm.models.combat_events import AttackRolled
-from aidm.models.commands import AttackCommand
 from aidm.models.events import CheckResolved, DiceRolled
 from aidm.models.protocol_client import ConfirmHostile, SubmitAction
-from aidm.rules.acts import ParleyIntent
 from aidm.session import combat_flow
 from aidm.session.table import Table
 from tests.session.playtest_saves import replay_until
@@ -43,26 +38,6 @@ async def _in_fight(
         return [e.event for e in table.log if e.seq >= start]
 
 
-def test_m29_typed_weapon_attack_is_the_attack_command() -> None:
-    """full 455-460: "I swing my longsword at Mirrorwarden Luth" was a creative action."""
-    state = replay_until("r2-full", 455)
-    plain = AttackCommand(actor_id="pc-p2", target_id="thug-1", option="main_hand")
-    for text in (
-        "I swing my longsword at Mirrorwarden Luth",
-        "Brienne swings her longsword at Mirrorwarden Luth",
-        "attack Mirrorwarden Luth with my sword",
-    ):
-        assert fight_command(state, "pc-p2", text) == plain
-    shot = fight_command(state, "pc-p2", "I shoot Mirrorwarden Luth")
-    assert shot == AttackCommand(actor_id="pc-p2", target_id="thug-1", option="ranged")
-    for creative in (
-        "I swing from the chandelier into Mirrorwarden Luth",
-        "stab Mirrorwarden Luth with my dagger",  # no dagger in hand
-        "I swing my longsword at Elowen",  # not a foe
-    ):
-        assert fight_command(state, "pc-p2", creative) is None
-
-
 async def test_m29_typed_weapon_attack_rolls_against_ac(tmp_path: Path) -> None:
     text = "I swing my longsword at Mirrorwarden Luth"
     swing = pick(("attack:longsword", ["thug-1"], None))
@@ -77,20 +52,6 @@ R4_TEXT = (
     "Before I decide anything, I call out to Hearthkeeper Veles and ask what he guards and"
     " whether he will let us pass."
 )
-
-
-def test_m29_talk_while_an_offer_waits_is_the_parley() -> None:
-    state = replay_until("r2-p5", 536)
-    assert precheck(state, "pc-p2", R4_TEXT) == ParleyIntent("pc-p2", Skill.PERSUASION)
-    threat = precheck(state, "pc-p2", "I threaten Veles with my blade")
-    assert threat == ParleyIntent("pc-p2", Skill.INTIMIDATION)
-    assert precheck(state, "pc-p2", "I lie to Veles about who sent us") == ParleyIntent(
-        "pc-p2", Skill.DECEPTION
-    )
-    others = ("I lie low in the reeds", "I tell the others to get ready", "I ask my companions")
-    for other in (*others, "I swing my longsword at Veles"):
-        assert not isinstance(precheck(state, "pc-p2", other), ParleyIntent)
-    assert precheck(replay_until("r2-p5", 520), "pc-p2", R4_TEXT) is None  # no offer waits
 
 
 async def test_m29_typed_parley_rolls_once_for_the_offer(tmp_path: Path) -> None:

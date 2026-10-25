@@ -51,7 +51,7 @@ async def test_arrival_offer_fight_loot_and_back_to_exploration(tmp_path: Path) 
     spoke = R1.spokes[0]
     travel = pick(("travel", [spoke.id], None))  # M36.10a; the AI is otherwise down
     llm = menu_llm(tmp_path, travel, storyteller_down=True)[0]
-    async with running(llm, state, interpreter="menu") as (table, _):
+    async with running(llm, state) as (table, _):
         ann = await join(table, "Ann", "fighter")
         ann.send(AnswerOffer(choice=OfferChoice.FIGHT))
         await table.settle()
@@ -81,7 +81,7 @@ async def test_completed_campaign_writes_the_epilogue_once(tmp_path: Path) -> No
     _, state, _, _ = finished_campaign()
     toast = pick(other="")  # the storyteller's line (M36.10a); the AI is otherwise down
     llm = menu_llm(tmp_path, toast, storyteller_down=True)[0]
-    async with running(llm, state, interpreter="menu") as (table, _):
+    async with running(llm, state) as (table, _):
         ann = await join(table, "Ann", "fighter")
         ann.send(SubmitAction(text="We raise a toast to the fallen"))
         await table.settle()

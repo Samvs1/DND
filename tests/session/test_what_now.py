@@ -54,7 +54,7 @@ async def test_what_now_answers_the_asker_and_the_screen_without_a_turn(tmp_path
 async def test_typed_what_now_takes_the_same_path(tmp_path: Path) -> None:
     llm, fake = menu_llm(tmp_path, pick(("what_now", [], None)))
     _, state, _ = fresh()
-    async with running(llm, state, interpreter="menu") as (table, _):
+    async with running(llm, state) as (table, _):
         ann = await join(table, "Ann", "fighter")
         screen = await screen_seat(table)
         ann.drain()
@@ -111,7 +111,7 @@ async def test_typed_move_to_the_locked_gateway_says_why(tmp_path: Path) -> None
     state.world.current_node = "rotting-boathouse"  # a spoke: the gateway is one of its exits
     state.world.visited.append("rotting-boathouse")
     state.world.quest_ask = None
-    async with running(llm, state, interpreter="menu") as (table, _):
+    async with running(llm, state) as (table, _):
         ann = await join(table, "Ann", "fighter")
         ann.drain()
         asked = len(fake.requests)

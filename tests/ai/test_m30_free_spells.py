@@ -47,7 +47,7 @@ async def test_m30_typed_cast_is_cast_before_the_model(tmp_path: Path) -> None:
     never asked: the engine casts the spell and spends the slot. M36.10a: the menu chooser's call
     is the only one with a tool (it picks the cast; the storyteller only tells it)."""
     client, fake = menu_llm(tmp_path, pick(("cast:misty-step", [], None)))
-    async with running(client, _docks(), interpreter="menu") as (table, _):
+    async with running(client, _docks()) as (table, _):
         seat = await join(table, "Ann", "wizard")
         start = table.state.event_count
         seat.send(SubmitAction(text=BLINK))

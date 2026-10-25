@@ -35,7 +35,7 @@ POTION = "potion-of-healing"
 
 async def test_gear_messages_and_equip_text(tmp_path: Path) -> None:
     llm = menu_llm(tmp_path, pick(("equip:shield", [], None)), storyteller_down=True)[0]
-    async with running(llm, interpreter="menu") as (table, _):
+    async with running(llm) as (table, _):
         ann = await join(table, "Ann", "fighter")
         ann.send(Unequip(item_id="shield"))
         await table.settle()

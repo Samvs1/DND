@@ -5,9 +5,8 @@
   ... --live [--limit N] [--cap N] [--strict]             the real chooser on each row (DeepSeek
                                                           key from .env, never printed); cap =
                                                           model calls
-  ... --router                                            the old router's reading, scored by acts
 
-Live and router runs write artifacts/eval/<timestamp>.json and print an ASCII summary.
+Live runs write artifacts/eval/<timestamp>.json and print an ASCII summary.
 Scoring definitions: scripts/interpret/score.py.
 """
 
@@ -75,12 +74,11 @@ async def run_live(args: argparse.Namespace, rows: list[Any]) -> dict[str, Any] 
 
 def main(argv: list[str]) -> int:
     from scripts.interpret.corpus import load_corpus
-    from scripts.interpret.evaluate import DEFAULT_CAP, coverage, router_baseline
+    from scripts.interpret.evaluate import DEFAULT_CAP, coverage
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--corpus", default=str(DEFAULT_CORPUS))
     parser.add_argument("--live", action="store_true")
-    parser.add_argument("--router", action="store_true")
     parser.add_argument("--strict", action="store_true")
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--cap", type=int, default=DEFAULT_CAP)
@@ -92,15 +90,11 @@ def main(argv: list[str]) -> int:
     bad = len({p.split(": ")[0] for p in problems})
     print(f"coverage: {len(rows) - bad} of {len(rows)} rows covered")
     payload: dict[str, Any] = {"corpus": args.corpus, "rows": len(rows), "gaps": problems}
-    if args.router:
-        run = router_baseline(rows)
-        payload["router"] = {**run, **report("router", run)}
     if args.live:
         live_run = asyncio.run(run_live(args, rows))
         if live_run is None:
             return 2
         payload["live"] = {**live_run, **report("live", live_run)}
-    if args.live or args.router:
         print(f"written: {write(payload)}")
     return 1 if problems else 0
 

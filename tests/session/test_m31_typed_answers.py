@@ -6,7 +6,6 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from aidm.dm.fake_llm import FakeStep
-from aidm.dm.precheck import precheck
 from aidm.dm.tool_context import tool_registries
 from aidm.models.abilities import Skill
 from aidm.models.campaign_events import OfferResolved
@@ -16,7 +15,6 @@ from aidm.models.protocol_client import CancelHostile, ConfirmHostile, SubmitAct
 from aidm.models.protocol_server import Notice, PendingConfirmationMsg
 from aidm.models.state import GameState
 from aidm.models.world import QuestState
-from aidm.rules.acts import ParleyIntent, QuestAnswerIntent
 from aidm.rules.surrender import NoneYield, demand_surrender, never_yield_line
 from aidm.session import combat_flow
 from aidm.session.held import PARLEY_ASK, PARLEY_STAY
@@ -55,8 +53,7 @@ async def _send(
     llm = disabled_llm(tmp_path)
     if picks is not None:
         llm = menu_llm(tmp_path, *picks, storyteller_down=True)[0]
-    reading = None if picks is None else "menu"  # None: the table's default
-    async with running(llm, state, interpreter=reading) as (table, _):
+    async with running(llm, state) as (table, _):
         seat = await join(table, "Ann", actor)
         if fight:
             table.in_combat = True
@@ -113,51 +110,12 @@ def test_m31_surrender_roll_covers_only_the_foes_that_can_yield() -> None:
     raise AssertionError("no seed made the check")
 
 
-def test_m31_typed_yes_accepts_the_quest_offer() -> None:
-    """V8, typed 62 and 533: the typed acceptances did not accept; only `answer yes` did."""
-    for seq, quest in ((62, "the-settled-ledger"), (533, "favour-1")):
-        actor, text = _typed(TYPED, seq)
-        found = precheck(replay_until(TYPED, seq), actor, text)
-        assert found == QuestAnswerIntent(actor, quest, accept=True)
-    state = replay_until(TYPED, 62)
-    for line in ("No, we have other business first.", "Not now, Merre", "We'll pass on that"):
-        assert precheck(state, "pc-p2", line) == QuestAnswerIntent(
-            "pc-p2", "the-settled-ledger", accept=False
-        )
-    assert precheck(state, "pc-p2", "I ask Merre what the cairn holds") is None
-
-
-def test_m31_typed_yes_waits_for_a_quest_offer_here() -> None:
-    state = replay_until(TYPED, 70)  # the offer was answered at 64: nothing waits
-    assert not isinstance(precheck(state, "pc-p2", "Yes, let's go"), QuestAnswerIntent)
-
-
 async def test_m31_typed_acceptance_makes_the_quest_active(tmp_path: Path) -> None:
     actor, text = _typed(TYPED, 62)
     accept = pick(("quest:accept", [], None))  # the quest card's Accept, read from the menu
     _, after, _ = await _send(tmp_path, replay_until(TYPED, 62), actor, text, picks=[accept])
     assert after.world.quests["the-settled-ledger"].state is QuestState.ACTIVE
     assert after.world.quest_ask is None
-
-
-def test_m31_peaceful_words_to_the_foes_are_a_parley() -> None:
-    """V4, typed 113: "Easy now, friend in the robe ... we don't want a fight" got a model
-    check and left the offer open."""
-    actor, text = _typed(TYPED, 113)
-    state = replay_until(TYPED, 113)
-    assert precheck(state, actor, text) == ParleyIntent(actor, Skill.PERSUASION)
-    # a bystander named (Sister Mareld, the shrine-warden) is talk, the offer keeps waiting (T16)
-    for line in ("Easy now, Sister Mareld, we don't want a fight", "Mareld, what are those?"):
-        assert precheck(state, actor, line) is None
-
-
-def test_m31_question_to_the_named_master_is_a_parley() -> None:
-    """V4, quests 373: a question to Grinner Voss, the master, answers the offer as parley."""
-    actor, text = _typed(QUESTS, 373)
-    state = replay_until(QUESTS, 373)
-    assert precheck(state, actor, text) == ParleyIntent(actor, Skill.PERSUASION)
-    asked = precheck(state, actor, "Grinner Voss, what does the Silent Company collect?")
-    assert asked == ParleyIntent(actor, Skill.PERSUASION)
 
 
 PERSUADE = pick(("offer:parley:persuasion", [], None))

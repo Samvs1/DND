@@ -87,7 +87,7 @@ async def test_finale_card_confirm_then_ending_and_epilogue_once(tmp_path: Path)
     _, state, _, _ = finished_campaign(ending=None)
     water = pick(other="")  # the storyteller's line (M36.10a); the AI is otherwise down
     llm = menu_llm(tmp_path, water, storyteller_down=True)[0]
-    async with running(llm, state, interpreter="menu") as (table, _):
+    async with running(llm, state) as (table, _):
         ann = await join(table, "Ann", "fighter")
         snap = table.snapshot().state
         assert snap.finale is not None and snap.finale.chosen is None and not snap.complete
@@ -126,7 +126,7 @@ async def test_old_plan_without_a_finale_writes_the_epilogue_as_before(tmp_path:
     _, state, _, _ = finished_campaign(finale=False)
     toast = pick(other="")  # the storyteller's line (M36.10a); the AI is otherwise down
     llm = menu_llm(tmp_path, toast, storyteller_down=True)[0]
-    async with running(llm, state, interpreter="menu") as (table, _):
+    async with running(llm, state) as (table, _):
         ann = await join(table, "Ann", "fighter")
         assert table.snapshot().state.finale is None
         ann.send(SubmitAction(text="We raise a toast"))

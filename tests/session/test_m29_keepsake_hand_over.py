@@ -7,7 +7,6 @@ from pathlib import Path
 
 from aidm.data.dm_tiers import dm_tiers
 from aidm.dm.fake_llm import FakeStep
-from aidm.dm.precheck import precheck
 from aidm.models.events import CheckResolved
 from aidm.models.protocol_client import SubmitAction
 from aidm.models.protocol_server import ErrorMsg
@@ -34,7 +33,7 @@ async def _typed(
 ) -> list[object]:
     """`choice`: the menu chooser's reading (M36.10a); the AI is otherwise down."""
     llm = menu_llm(tmp_path, choice, storyteller_down=True)[0]
-    async with running(llm, replay_until(run, seq), interpreter="menu") as (table, _):
+    async with running(llm, replay_until(run, seq)) as (table, _):
         seat = await join(table, "Ann", hero)
         start = table.state.event_count
         seat.send(SubmitAction(text=text))
@@ -42,15 +41,6 @@ async def _typed(
         assert_replays(table)
         errors = of_type(seat.drain(), ErrorMsg)
         return [*errors, *(e.event for e in table.log if e.seq >= start)]
-
-
-def test_m29_show_is_not_give() -> None:
-    """p4 291-292: "I show Farran Dell the Bailiff's Broken Link and ask him ..." gave the
-    main-quest keepsake away."""
-    state = replay_until("r2-p4", 291)
-    text = "I show Farran Dell the Bailiff's Broken Link and ask him plainly what the debt is"
-    assert precheck(state, "pc-p2", text) is None
-    assert precheck(state, "pc-p2", "show the Bailiff's Broken Link to Farran Dell") is None
 
 
 def test_m29_lifting_a_held_keepsake_moves_it_or_is_noticed() -> None:

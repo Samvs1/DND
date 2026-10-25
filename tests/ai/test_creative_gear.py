@@ -44,7 +44,7 @@ def _said(text: str) -> ToolContext:
 
 async def test_creative_throw_of_an_item_you_lack_is_refused(tmp_path: Path) -> None:
     state = _goblin_fight()
-    script: list[FakeStep] = [fake_tool_call("creative_effect", _effect())]
+    script: list[FakeStep] = [fake_tool_call("creative_effect", _effect(item="waterskin"))]
     client, _ = fake_client(tmp_path, script)
     result = await adjudicate(
         state,
@@ -87,8 +87,8 @@ def test_creative_effect_naming_gear_it_lacks_is_refused() -> None:
 def test_creative_throw_consumes_the_item() -> None:
     state = _goblin_fight("waterskin")
     # "my bottle of water" is the carried waterskin (its substance, water, is named)
-    ctx = _said("I throw my bottle of water at the goblin")
-    result = run_tool(state, "creative_effect", ctx=ctx, **_effect())
+    ctx = _said("I throw my bottle of water at the goblin")  # the model names the item
+    result = run_tool(state, "creative_effect", ctx=ctx, **_effect(item="waterskin"))
     assert result.error is None, result.error
     used = [e for e in result.events if isinstance(e, ItemUsed)]
     assert [u.use_id for u in used] == ["improvised-throw"]
@@ -99,7 +99,7 @@ def test_creative_throw_consumes_the_item() -> None:
 
 def test_a_keepsake_named_like_a_catalogue_item_is_refused() -> None:
     state = _goblin_fight(keepsakes=("Waterskin",))
-    result = run_tool(state, "creative_effect", ctx=_said(THROW), **_effect())
+    result = run_tool(state, "creative_effect", ctx=_said(THROW), **_effect(item="Waterskin"))
     assert result.error is not None and "keepsake" in result.error
     assert result.events == ()
     tool = run_tool(

@@ -3,9 +3,9 @@
 from collections import deque
 from collections.abc import AsyncIterator, Iterable, Sequence
 from contextlib import asynccontextmanager
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any
 
 from aidm.dm.fake_llm import FakeLLM, FakeRaise, FakeStep, fake_tool_call
 from aidm.dm.llm_backend import BackendError, CompletionRequest
@@ -104,9 +104,7 @@ async def running(
     turn_seconds: float | None = 90.0,
     store: CampaignStore | None = None,
     session_log: SessionLog | None = None,
-    interpreter: Literal["router", "menu"] | None = None,
 ) -> AsyncIterator[tuple[Table, ManualClock]]:
-    """`interpreter`: how typed lines are read (None: `TableConfig`'s default)."""
     clock = ManualClock()
     config = TableConfig(
         clock=clock,
@@ -114,8 +112,6 @@ async def running(
         store=store,
         session_log=session_log or SessionLog(),
     )
-    if interpreter is not None:
-        config = replace(config, interpreter=interpreter)
     table = Table(state if state is not None else inn_state(), llm, config)
     async with table:
         yield table, clock

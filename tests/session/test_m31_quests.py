@@ -4,7 +4,6 @@ favour places that stay near, and no unchecked step kinds, on the real round-4 s
 import random
 from pathlib import Path
 
-from aidm.dm.precheck import precheck
 from aidm.dm.quest_text import FAVOUR_ASK_NOTE, QUEST_EVENT_NOTES
 from aidm.dm.tool_context import ToolContext, tool_registries
 from aidm.dm.tool_exec_quests import run_offer_favour
@@ -16,13 +15,11 @@ from aidm.models.quest_events import LoreLearned, QuestAsked, QuestStepDone
 from aidm.models.quests import QuestStep, StepKind
 from aidm.models.state import GameState
 from aidm.models.world_events import QuestUpdated, SecretRevealed
-from aidm.rules.acts import AskIntent
 from aidm.rules.lore import place_lore_events
 from aidm.rules.lore_talk import ask_events
 from aidm.rules.plan_repair import repair_plan
 from aidm.rules.plan_satisfy import unsatisfiable
 from aidm.rules.plan_steps import map_steps
-from aidm.rules.plan_tasks import normal_tags
 from aidm.rules.quest_steps import step_met
 from aidm.rules.secrets import fact_words
 from aidm.session.reducer import apply
@@ -48,7 +45,7 @@ async def _send(
     with no call); the AI is otherwise down."""
     talk = () if person is None else (pick(("talk", [person], None)),)
     llm = menu_llm(tmp_path, *talk, storyteller_down=True)[0]
-    async with running(llm, state, interpreter="menu") as (table, _):
+    async with running(llm, state) as (table, _):
         seat = await join(table, "Ann", actor)
         seat.drain()
         start = table.state.event_count
@@ -67,7 +64,6 @@ async def test_m31_asking_the_giver_teaches_the_favour(tmp_path: Path) -> None:
     `bramble-grief` and the learn step stayed open. Now the ask records the lesson."""
     actor, text = _typed(QUESTS, 227)
     state = replay_until(QUESTS, 227)
-    assert precheck(state, actor, text) == AskIntent(actor, "bramble-the-kinless")
     events = await _send(tmp_path, state, actor, text, "bramble-the-kinless")
     learned = [e for e in events if isinstance(e, LoreLearned)]
     assert [(e.tag, e.npc_id) for e in learned] == [("bramble-grief", "bramble-the-kinless")]
@@ -104,14 +100,6 @@ def test_m31_mallow_tells_his_own_story() -> None:
     assert [(type(e), getattr(e, "tag", None)) for e in events] == [(LoreLearned, "mallow")]
 
 
-def test_m31_a_question_without_the_topic_or_the_person_teaches_nothing() -> None:
-    state = replay_until(FULL, 545)
-    assert precheck(state, "pc-p4", "What do I see here?") is None
-    words = fact_words("Sister Thena, where is the road north?")
-    events = ask_events(state, "pc-p4", "sister-thena", words)
-    assert [type(e) for e in events] == [SecretRevealed]  # friendly: she opens up, no lesson
-
-
 def _steps(plan: CampaignPlan) -> list[QuestStep]:
     out: list[QuestStep] = []
 
@@ -143,22 +131,6 @@ def test_m31_a_place_teaches_on_a_look_not_on_the_arrival() -> None:
     assert not step_met(state, quest.steps[0], quest.id)
     lore = place_lore_events(state, "pc-p2")
     assert lore == [LoreLearned(creature_id="pc-p2", item="The Tithing Shed", tag="tithing")]
-
-
-def test_m31_tags_are_normalised_at_plan_time() -> None:
-    """V13: "brother-mallow" and "mallow" in one act are one tag, matched exactly in play."""
-    raw = _plan(FULL)
-    act = raw.acts[0]
-    assert act.main is not None
-    route = act.main.routes[1]
-    step = route.steps[0].model_copy(update={"tag": "Brother Mallow"})
-    route = route.model_copy(update={"steps": (step, *route.steps[1:])})
-    main = act.main.model_copy(update={"routes": (act.main.routes[0], route)})
-    plan = raw.model_copy(update={"acts": (act.model_copy(update={"main": main}), *raw.acts[1:])})
-    fixed = normal_tags(plan, notes := [])
-    tags = [s.tag for s in _steps(fixed) if s.tag]
-    assert "mallow" in tags and "brother-mallow" not in tags and "Brother Mallow" not in tags
-    assert notes
 
 
 def test_m31_come_back_quests_end_with_the_giver() -> None:

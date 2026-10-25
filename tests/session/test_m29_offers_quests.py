@@ -4,7 +4,6 @@ G34), each reproduced from its live save (tests/session/playtest_saves.py)."""
 import random
 
 from aidm.dm.arrival import offer_data
-from aidm.dm.give_intent import give_intent
 from aidm.dm.tool_context import tool_registries
 from aidm.models.campaign_events import OfferResolved, RegionResolved
 from aidm.models.campaign_state import OfferChoice
@@ -14,7 +13,7 @@ from aidm.rules.offer_answer import answer_offer, sure_parley
 from aidm.rules.progression import region_resolution_events
 from aidm.rules.rests import RestRefused, long_rest, rest_refused_text
 from aidm.session.reducer import apply
-from tests.session.playtest_saves import logged, replay_until
+from tests.session.playtest_saves import replay_until
 
 P3_BOSS = "boss-bracken-march"
 
@@ -54,15 +53,6 @@ def test_m29_stale_boss_offer_never_turns_an_ally_hostile() -> None:
         assert not any(isinstance(e, AttitudeChanged | EncounterStarted) for e in events)
         apply(state, events[0])
         assert state.campaign.offer is None and not state.world.npcs[P3_BOSS].hostile
-
-
-def test_m29_give_by_name_reaches_the_quest_receiver() -> None:
-    """p3 420-421: "give the Receipt-scroll to Ranna" went to the boss twin; the side quest's
-    deliver step names the cast record, so the give goes there."""
-    state = replay_until("p3", 421)
-    assert logged("p3", 421).event.model_dump()["npc_id"] == "boss-pale-creek-reaches"
-    intent = give_intent(state, "pc-p6", "give the receipt-scroll to ranna")
-    assert intent is not None and intent.npc_id == "ranna-the-brine-widow"
 
 
 def test_m29_rest_refusal_names_the_supplies_short() -> None:

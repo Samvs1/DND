@@ -1,6 +1,6 @@
 """Typed gear use at the table (M27.5, docs/next/GOAL_ITEMS.md "Design", "Light and darkness").
 
-- `use_intent(core, player, intent) -> bool` (out of a fight, from the precheck): a put-out
+- `use_intent(core, player, intent) -> bool` (out of a fight, from the menu): a put-out
   (`rules.light.put_out`, free) or THE interpreter (`rules.item_use.use_item`); the events apply
   and the narrator tells them (`telling.conclude`; the engine lines of `dm.item_text` go out as
   they apply). A refused use returns False: the caller hands the words to the adjudicator, which
@@ -16,26 +16,17 @@
   with `resting=True`; a craft the rules refuse after the rest (supplies spent by the rest, no
   proficiency) is told as a notice and nothing is made. M35.2: with a foe's offer waiting here
   neither happens: the foe strikes first (`session.rest_ambush`).
-- `fight_gear(core, player, entry) -> bool` (a fight): a typed put-out (free, on any turn) or a
-  typed light (a bonus action on the hero's own turn, the interpreter spends it) is scheduled
-  here (a refusal is a notice). M27.6: any other typed gear use on the hero's own turn ("throw
-  the acid at the goblin", "scatter the caltrops", "use my healer's kit on Bryn") runs the
-  interpreter too when it fits (checked first with a throwaway RNG); a use the rules refuse
-  returns False and keeps the fight's own path (the AI meets the same refusal). Anything else
-  returns False.
+M27.6: a gear use on the hero's own turn runs the interpreter (the menu's, M36.6).
 - `fight_use(core, player, entry, intent, say=True)`: that scheduled use (M36.6: the menu's
   put-out in a fight runs it directly).
 - `draw_weapon(core, player, intent) -> bool` (M30.0b T9): the free draw of a typed attack with
   a stowed weapon (`rules.equipment.draw_events`); a refusal is a notice and returns False.
 
-Public API: `use_intent`, `first_act`, `rest_with_crafts`, `fight_gear`, `fight_use`,
+Public API: `use_intent`, `first_act`, `rest_with_crafts`, `fight_use`,
 `draw_weapon`.
 """
 
-import random
-
 from aidm.data.item_uses import LightPlace, uses_for_item
-from aidm.dm.precheck import gear_intent
 from aidm.models.events import AnyEvent
 from aidm.models.item_events import ItemUseRefused
 from aidm.models.protocol_server import CombatState, ErrorCode, NoticeKind
@@ -142,21 +133,6 @@ def rest_with_crafts(core: TableCore, crafts: tuple[tuple[str, str], ...]) -> Jo
         await conclude(core, None, events)
 
     return job
-
-
-def fight_gear(core: TableCore, player: Player, entry: QueueEntry) -> bool:
-    intent = gear_intent(core.state, entry.creature_id, entry.text)
-    if intent is None or intent.at_rest:
-        return False
-    enc = core.state.encounter
-    if not intent.put_out and (enc is None or enc.active_id() != entry.creature_id):
-        return False
-    lighting = intent.put_out or intent.verb in _LIGHT_VERBS
-    if not lighting and _refusal(_events(core, intent, random.Random(0))) is not None:
-        return False
-
-    core.schedule(lambda: fight_use(core, player, entry, intent))
-    return True
 
 
 async def fight_use(

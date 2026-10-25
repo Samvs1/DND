@@ -3,12 +3,10 @@ typed "give X to Y" is a deterministic pre-check, and the narrator can tell a ha
 
 from aidm.dm.event_text import event_line
 from aidm.dm.narration_templates import template_line
-from aidm.dm.precheck import precheck
 from aidm.models.character import Keepsake
 from aidm.models.quest_events import KeepsakeGiven
 from aidm.models.state import GameState
 from aidm.models.world_events import ItemDiscovered, ItemPlaced, KeepsakeGained, PartyMoved
-from aidm.rules.acts import GiveIntent
 from aidm.rules.plan_ids import boss_npc_id, main_quest_id, quest_item_id
 from aidm.rules.sheet import build_sheet
 from aidm.session.sheet_view import quest_titles
@@ -67,36 +65,6 @@ def test_give_keepsake_still_makes_flavour_keepsakes() -> None:
     apply_all(state, list(result.events))
     (shell,) = _fighter_keepsakes(state)
     assert shell.quest_id is None
-
-
-def test_typed_give_is_a_precheck() -> None:
-    _, state, _ = campaign_state()
-    shell = Keepsake(id="shell", name="Spiral shell")
-    apply_all(state, [KeepsakeGained(creature_id="fighter", keepsake=shell)])
-    assert precheck(state, "fighter", "I give the spiral shell to Dessa.") == GiveIntent(
-        "fighter", "dessa-orrin", "shell"
-    )
-    assert precheck(state, "fighter", "hand over the shell to dessa orrin") == GiveIntent(
-        "fighter", "dessa-orrin", "shell"
-    )
-    assert precheck(state, "fighter", "give dessa the shell") == GiveIntent(
-        "fighter", "dessa-orrin", "shell"
-    )
-    # someone known but not here: the rules refuse in plain words later
-    assert precheck(state, "fighter", "give the shell to gorran") == GiveIntent(
-        "fighter", BOSS, "shell"
-    )
-    assert precheck(state, "fighter", "give my thanks to dessa") is None  # roleplay
-    assert precheck(state, "fighter", "give the shell to the gulls") is None
-
-
-def test_typed_give_names_an_inventory_item_too() -> None:
-    _, state, _ = campaign_state()
-    pc = state.creatures["fighter"].pc
-    assert pc is not None
-    item = pc.inventory[-1].item
-    said = f"give the {item.replace('-', ' ')} to dessa"
-    assert precheck(state, "fighter", said) == GiveIntent("fighter", "dessa-orrin", item)
 
 
 def test_hand_over_and_found_lines_for_model_and_templates() -> None:

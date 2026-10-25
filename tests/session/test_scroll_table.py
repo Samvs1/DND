@@ -70,7 +70,7 @@ async def test_read_a_scroll_out_of_a_fight(tmp_path: Path) -> None:
     )
     hp = state.creatures["fighter"].hp
     llm = menu_llm(tmp_path, pick(("use:scroll-read", [], None)), storyteller_down=True)[0]
-    async with running(llm, state, interpreter="menu") as (table, _):
+    async with running(llm, state) as (table, _):
         ann = await join(table, "Ann", "fighter")
         ann.send(SubmitAction(text="I read the scroll of cure wounds"))
         await table.settle()

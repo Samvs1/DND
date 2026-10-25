@@ -113,6 +113,9 @@ class HelpUpIntent:
     target_id: str
 
 
+GIVE_ALL = 99  # `GiveIntent.said` for "all of them"
+
+
 @dataclass(frozen=True)
 class GiveIntent:
     actor_id: str

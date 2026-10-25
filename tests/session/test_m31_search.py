@@ -5,7 +5,6 @@ import random
 from pathlib import Path
 
 from aidm.dm.fake_llm import FakeStep
-from aidm.dm.precheck import precheck
 from aidm.dm.tool_context import ToolContext, tool_registries
 from aidm.dm.tool_exec_checks import run_request_check
 from aidm.dm.tools import RequestCheckArgs
@@ -15,7 +14,6 @@ from aidm.models.events import AnyEvent, CheckResolved
 from aidm.models.item_events import ItemUsed
 from aidm.models.protocol_client import SubmitAction
 from aidm.models.world_events import ItemDiscovered
-from aidm.rules.acts import SearchIntent, UseIntent
 from aidm.rules.searching import search_events
 from tests.session.playtest_saves import logged, replay_until
 from tests.session.table_fixtures import (
@@ -36,22 +34,6 @@ def _typed(run: str, seq: int) -> tuple[str, str]:
     event = logged(run, seq).event
     assert event.type == "action_declared"
     return event.creature_id, event.text
-
-
-def test_m31_typed_search_with_something_hidden_is_the_search() -> None:
-    """V9, quests 937: the line went to the storyteller, which lit a candle and rolled nothing."""
-    actor, text = _typed(QUESTS, 937)
-    found = precheck(replay_until(QUESTS, 937), actor, text)
-    assert found == SearchIntent(actor, Skill.INVESTIGATION, "pick it up, and read it")
-    full = replay_until("m31-r4-full", 971)
-    actor, text = _typed("m31-r4-full", 971)
-    assert precheck(full, actor, text) == SearchIntent(actor, Skill.INVESTIGATION)
-
-
-def test_m31_search_with_nothing_hidden_stays_with_the_storyteller() -> None:
-    state = replay_until(QUESTS, 677)  # nothing hidden at the Counting-House
-    actor, text = _typed(QUESTS, 677)
-    assert precheck(state, actor, text) is None
 
 
 def test_m31_search_verdict_and_find_agree() -> None:
@@ -85,7 +67,7 @@ async def _turn(
 ) -> list[AnyEvent]:
     """`choice`: the menu chooser's reading (M36.10a); the AI is otherwise down."""
     llm = menu_llm(tmp_path, choice, storyteller_down=True)[0]
-    async with running(llm, replay_until(QUESTS, seq), interpreter="menu") as (table, _):
+    async with running(llm, replay_until(QUESTS, seq)) as (table, _):
         seat = await join(table, "Ann", actor)
         start = table.state.event_count
         seat.send(SubmitAction(text=text))
@@ -105,8 +87,6 @@ async def test_m31_typed_search_rolls_before_anything_else(tmp_path: Path) -> No
 
 async def test_m31_light_first_never_replaces_the_search(tmp_path: Path) -> None:
     line = "I light a candle, then search the ash-buried shelves for a note"
-    state = replay_until(QUESTS, 937)
-    assert isinstance(precheck(state, "pc-p6", line), UseIntent)
     light_then_search = pick(("use:candle-light", [], None), SEARCH)
     events = await _turn(tmp_path, 937, line, "pc-p6", light_then_search)
     used = [e.item for e in events if isinstance(e, ItemUsed)]

@@ -9,13 +9,11 @@ plainly, and a hostile spell with an NPC here stays the storyteller's (an attack
 from pathlib import Path
 
 from aidm.dm.fake_llm import FakeStep
-from aidm.dm.precheck import precheck
 from aidm.models.combat_events import SpellCast
 from aidm.models.events import AnyEvent, ResourceSet
 from aidm.models.protocol_client import SubmitAction
 from aidm.models.state import GameState
 from aidm.models.world_events import NarrationRecorded, PartyMoved
-from aidm.rules.acts import CastIntent
 from tests.ai.tool_fixtures import party_state
 from tests.session.table_fixtures import assert_replays, join, menu_llm, pick, running
 from tests.sim.sim_setup import build_party
@@ -43,7 +41,7 @@ async def _typed(
 ) -> tuple[list[AnyEvent], GameState]:
     """`choice`: the menu chooser's reading (M36.10a); the AI is otherwise down."""
     llm = menu_llm(tmp_path, choice, storyteller_down=True)[0]
-    async with running(llm, state, interpreter="menu") as (table, _):
+    async with running(llm, state) as (table, _):
         seat = await join(table, "Ann", actor)
         start = table.state.event_count
         seat.send(SubmitAction(text=text))
@@ -60,7 +58,6 @@ async def test_m30_typed_misty_step_spends_the_slot(tmp_path: Path) -> None:
     state = _docks()
     node = state.world.current_node
     slots = state.creatures["wizard"].resources[SLOT2].current
-    assert precheck(state, "wizard", BLINK) == CastIntent("wizard", "misty-step", (), True)
     events, after = await _typed(tmp_path, state, "wizard", BLINK, MISTY)
     cast = [e for e in events if isinstance(e, SpellCast)]
     assert [(e.spell_id, e.cast_level, e.at_scene) for e in cast] == [("misty-step", 2, True)]
@@ -76,7 +73,6 @@ async def test_m30_typed_misty_step_spends_the_slot(tmp_path: Path) -> None:
 async def test_m30_typed_cantrip_at_the_scene_spends_nothing(tmp_path: Path) -> None:
     state = party_state(3)  # the town square: nobody else stands here, no offer waits
     text = "I cast fire bolt at the old scarecrow"
-    assert precheck(state, "wizard", text) == CastIntent("wizard", "fire-bolt", (), True)
     bolt = pick(("cast:fire-bolt", [], None))
     events, _ = await _typed(tmp_path, state, "wizard", text, bolt)
     cast = [e for e in events if isinstance(e, SpellCast)]
@@ -101,23 +97,3 @@ async def test_m30_typed_unready_scene_spell_is_refused_plainly(tmp_path: Path) 
     text = "I cast misty step onto the roof"
     events, _ = await _typed(tmp_path, state, "fighter", text, pick(other=""))
     assert not any(isinstance(e, SpellCast | ResourceSet) for e in events)
-
-
-def test_m30_hostile_spell_aimed_at_an_npc_keeps_the_old_path() -> None:
-    state = _docks()  # Dessa, Odalys and Tobin stand on the docks
-    assert precheck(state, "wizard", "I cast fire bolt at Tobin") is None
-    # M31.1a V2: people standing near do not stop a cast at scenery (round 4, typed 79)
-    assert precheck(state, "wizard", "I cast fire bolt at the crates") == CastIntent(
-        "wizard", "fire-bolt", (), True
-    )
-    # with nobody here a hostile spell has no one to strike: it is cast at the scene
-    empty = party_state(3)
-    assert precheck(empty, "wizard", "I cast fire bolt at the crates") == CastIntent(
-        "wizard", "fire-bolt", (), True
-    )
-
-
-def test_m30_scene_spell_needs_its_name_after_the_cast_word() -> None:
-    state = party_state(3)
-    assert precheck(state, "fighter", "I cast a glance at the web of ropes") is None
-    assert precheck(state, "wizard", "I cast a quick misty step") is not None

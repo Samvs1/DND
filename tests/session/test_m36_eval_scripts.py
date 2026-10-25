@@ -10,7 +10,7 @@ from scripts.eval_interpret import main as eval_main
 from scripts.extract_typed_lines import main as extract_main
 from scripts.interpret import lib
 from scripts.interpret.corpus import Expect, Row, load_corpus
-from scripts.interpret.evaluate import coverage, live, router_baseline, with_states
+from scripts.interpret.evaluate import coverage, live, with_states
 from scripts.interpret.score import tallies
 from tests.ai.chooser_fixtures import chooser_client
 
@@ -88,10 +88,8 @@ def test_extract_typed_lines_one_run(tmp_path: Path) -> None:
         "text",
         "scope",
         "menu_ids",
-        "router",
         "engine",
     }
-    assert by_id["m35-r6-typed:770"]["router"] is None
 
 
 def test_extract_unknown_run_is_refused(tmp_path: Path) -> None:
@@ -150,10 +148,3 @@ async def test_eval_live_stops_at_the_cap(tmp_path: Path) -> None:
     llm, _ = chooser_client(tmp_path, {"choose_actions": script})
     run = await live(rows, llm, cap=2, limit=None)
     assert run["scored"] == 2 and run["calls"] == 2 and run["asked"] == 6
-
-
-def test_eval_router_baseline_scores_by_acts() -> None:
-    run = router_baseline(load_corpus(SAMPLE))
-    assert run["scored"] == 7 and run["calls"] == 0
-    verdicts = {r["id"]: r["verdict"] for r in run["results"]}
-    assert not verdicts["m35-r6-typed:161"]["act"]  # Y11: the router missed the pronoun line

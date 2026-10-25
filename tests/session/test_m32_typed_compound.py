@@ -4,8 +4,6 @@ the real round-5 states."""
 
 from pathlib import Path
 
-from aidm.dm.give_intent import GIVE_ALL
-from aidm.dm.intent_router import explore_intent
 from aidm.dm.narration_templates import QUIET_LINE, template_narration
 from aidm.dm.refusal_text import NOT_DONE, NOTHING_ALLOWS, refusal_line
 from aidm.models.combat_events import AttackRolled, CombatantMoved
@@ -13,7 +11,6 @@ from aidm.models.dm_tiers import DeltaTier
 from aidm.models.protocol_client import ConfirmHostile, SubmitAction
 from aidm.models.quest_events import KeepsakeGiven, QuestStepDone
 from aidm.models.world_events import AttitudeChanged, EquipmentChanged, PartyMoved
-from aidm.rules.acts import BarredIntent, GiveIntent, TravelIntent
 from aidm.rules.offer_answer import sure_parley
 from aidm.rules.social import hostile_attitude_events, social_attitude_events
 from aidm.session import combat_flow
@@ -41,18 +38,6 @@ async def test_v1_m32_pick_up_then_hand_over_does_both(tmp_path: Path) -> None:
     played = await play(tmp_path, FULL, 610, picks=[salt])
     given = [(e.keepsake_id, e.npc_id) for e in played.of(KeepsakeGiven)]
     assert given == [(f"{SALT}0", "gran-tevin"), (f"{SALT}2", "gran-tevin")]
-
-
-def test_v1_m32_counted_hand_over_names_the_count() -> None:
-    """X6, quests 284-285: "hands the three salt-lanterns to Bram" gave one of three."""
-    actor, text = typed(QUESTS, 284)
-    found = explore_intent(replay_until(QUESTS, 284), actor, text)
-    assert found == GiveIntent(
-        "pc-p2", "bram-velde", f"{LANTERN}0", (f"{LANTERN}1", f"{LANTERN}2"), 3
-    )
-    state = replay_until(FULL, 614)
-    found = explore_intent(state, "pc-p6", "hand all the salt we have gathered to gran tevin")
-    assert isinstance(found, GiveIntent) and found.said == GIVE_ALL
 
 
 async def test_v1_m32_counted_hand_over_gives_them_all(tmp_path: Path) -> None:
@@ -89,17 +74,6 @@ async def test_v1_m32_charge_and_cleave_moves_then_attacks(tmp_path: Path) -> No
         "zombie-1",
     )
     assert [e.type for e in events].count("action_declared") == 1
-
-
-def test_v1_m32_travel_further_goes_road_by_road() -> None:
-    """X6, typed 395-397: "back to Hollowgate Cross, then on to the Barrow" stopped at the cross;
-    full 618: "I travel to The Skiff-Road", two roads away, got the filler line."""
-    actor, text = typed(TYPED, 394)
-    found = explore_intent(replay_until(TYPED, 394), actor, text)
-    assert found == TravelIntent("hollowgate-cross", goal="barrow-of-the-hollow-king")
-    skiff = explore_intent(replay_until(FULL, 617), "pc-p2", "I travel to The Skiff-Road")
-    assert isinstance(skiff, TravelIntent | BarredIntent)
-    assert not isinstance(skiff, TravelIntent) or skiff.goal == "the-skiff-road"
 
 
 async def test_v1_m32_travel_further_walks_every_road(tmp_path: Path) -> None:

@@ -1,35 +1,18 @@
-"""Typed lines of the active hero in a fight (split out of `session.explore` in M31.1a; SPEC 6.1).
+"""Playing one act of a typed line in a fight (split out of `session.explore` in M31.1a; SPEC 6.1).
 
-`combat_text(core, player, pc, text)`: a typed put-out or light is `gear_actions.fight_gear`
-(M27.5); otherwise on the hero's own turn the one router's fight rows (`dm.intent_router`) read
-the line first: a move is the Move list's commands (M19.4), a surrender demand one engine check
-(M29.9a T12), and a weapon attack, a feature, a healing draught or (M31.1a V1) a cast of a ready
-spell or a targeted feature is the hotbar's own command, so the rules charge or refuse it with
-their reason. A cast line that cannot name a valid target is refused plainly (`RefusedIntent`,
-nothing spent, never a creative check). M32.1a X8: a feat no body could do is the engine's
-`ActionImpossible` (no dice, no action spent). Anything else is a creative action: the
-storyteller's call, which spends the action.
+`play_act` plays one act of the menu interpreter (`session.menu_fight_turn`): a move list (M19.4),
+a hotbar command, a draw, a surrender demand (one engine check, M29.9a T12), a refusal, an
+impossible feat (M32.1a X8: no dice, no action spent), or None: the creative action, the
+storyteller's call, which spends the action. `my_turn` checks the hero's turn.
 
-M32.1a X6 (round 5: "I charge the zombie and cleave it with my longsword" only moved): a compound
-line (`dm.compound_lines`) whose acts each route is every act in order (the move, then the
-attack); a move followed by words no row reads is the move, then those words as the creative
-action. The whole line is declared once; the acts stop when the turn or the fight ends.
-
-M36.6: the menu interpreter (`session.menu_fight_turn`) plays its acts through `play_act` (one
-act: a move list, a hotbar command, a draw, a surrender demand, a refusal, or None: the creative
-action) and checks `my_turn`.
-
-Public API: `NOT_YOUR_TURN`, `combat_text`, `play_act`, `my_turn`.
+Public API: `NOT_YOUR_TURN`, `play_act`, `my_turn`.
 """
 
-from aidm.dm.compound_lines import clause_parts, is_lead_in
-from aidm.dm.intent_router import fight_intent
 from aidm.dm.narration_templates import template_line
 from aidm.models.commands import DashCommand, MoveCommand
 from aidm.models.impossible import ActionImpossible
 from aidm.models.protocol_server import ErrorCode, NoticeKind
 from aidm.models.protocol_views import QueueEntry
-from aidm.models.state import Creature, GameState
 from aidm.rules.acts import ImpossibleIntent, RefusedIntent
 from aidm.rules.acts_fight import DrawAttack, FightCommand, FightIntent, SurrenderIntent
 from aidm.rules.turns import EconomyRefused, spend_action
@@ -41,62 +24,11 @@ from aidm.session.table_core import Player, TableCore
 from aidm.session.telling import remember, tell_text
 
 NOT_YOUR_TURN = "It is not your turn."
-type _Act = tuple[str, FightIntent | None]
 
 
 def my_turn(core: TableCore, creature_id: str) -> bool:
     enc = core.state.encounter
     return enc is not None and enc.active_id() == creature_id and core.turn_key is not None
-
-
-def combat_text(core: TableCore, player: Player, pc: Creature, text: str) -> None:
-    entry = QueueEntry(player_id=player.id, creature_id=pc.id, text=text)
-    if gear_actions.fight_gear(core, player, entry):  # M27.5: put out (free) or light (bonus)
-        return
-    if not my_turn(core, pc.id):
-        core.error(player.id, ErrorCode.NOT_YOUR_TURN, NOT_YOUR_TURN)
-        return
-    found = fight_intent(core.state, pc.id, text)  # M30.0b: the one router's fight rows
-    plan = _plan(core.state, pc.id, text, found)
-    if plan:  # M32.1a X6: every act of a compound line
-        core.schedule(lambda: _play_plan(core, player, entry, plan))
-        return
-    if isinstance(found, RefusedIntent):  # M31.1a V1: a cast with no valid target, nothing spent
-        core.notice(player.id, NoticeKind.REFUSED, found.text)
-        return
-    if found is None and not _action_left(core, pc.id):
-        core.error(player.id, ErrorCode.REFUSED, ACTION_SPENT)
-        return
-    core.schedule(lambda: play_act(core, player, entry, found))
-
-
-def _plan(state: GameState, actor_id: str, text: str, whole: FightIntent | None) -> list[_Act]:
-    parts = clause_parts(state, actor_id, text)
-    if len(parts) < 2:
-        return []
-    routed = [fight_intent(state, actor_id, part) for part in parts]
-    acts: list[_Act] = []
-    if isinstance(whole, list) and not any(isinstance(r, list) for r in routed):
-        acts.append((text, whole))  # the move the whole line reads ("vault up ... at the thug")
-    for part, act in zip(parts, routed, strict=True):
-        if act is not None and all(act != done for _, done in acts):  # one act said twice: once
-            acts.append((part, act))
-    if len(acts) >= 2:
-        return acts
-    if isinstance(whole, list) and len(acts) == 1:  # a move, then words no row reads
-        unread = [p for p, r in zip(parts, routed, strict=True) if r is None]
-        said = [p for p in unread if not is_lead_in(p)]  # M33.1: a gesture goes with the rest
-        return [*acts, (" and ".join(unread), None)] if said else []
-    return []
-
-
-async def _play_plan(core: TableCore, player: Player, entry: QueueEntry, plan: list[_Act]) -> None:
-    await combat_flow.tell_segment(core)
-    declare(core, entry)
-    for part, act in plan:
-        if not my_turn(core, entry.creature_id):
-            return
-        await play_act(core, player, entry.model_copy(update={"text": part}), act, say=False)
 
 
 async def play_act(

@@ -1,5 +1,5 @@
 """Typed fight lines read by the menu chooser at a real table (M36.6, SPEC 6.1, 6.2; round 6
-Y10, Y11): `TableConfig.interpreter="menu"`, the chooser's pick scripted (FakeLLM by_tool), the
+Y10, Y11): the menu chooser, the chooser's pick scripted (FakeLLM by_tool), the
 acts run through the button paths, every play replayed equal to the snapshot.
 """
 

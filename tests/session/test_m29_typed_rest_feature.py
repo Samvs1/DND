@@ -5,15 +5,12 @@ feature or heal in a fight runs as the hotbar's command (charged by the rules)."
 from pathlib import Path
 
 from aidm.dm.fake_llm import FakeStep
-from aidm.dm.fight_intent import fight_command
-from aidm.dm.precheck import precheck
 from aidm.models.character import InventoryItem
-from aidm.models.commands import CastCommand
 from aidm.models.events import HpChanged, InventoryChanged, ResourceSet
 from aidm.models.protocol_client import SubmitAction
 from aidm.models.protocol_server import VoteOpen
 from aidm.models.protocol_views import VoteKind
-from aidm.rules.acts import RestIntent, RestKind
+from aidm.rules.acts import RestKind
 from aidm.session import combat_flow
 from aidm.session.table import Table
 from tests.session.playtest_saves import replay_until
@@ -51,22 +48,13 @@ WORDY = (
 )
 
 
-def test_m29_wordy_rest_sentences_are_rest_intents() -> None:
-    """p2 353-357: each went to the storyteller (no rest tool), so HP stayed unchanged."""
-    for seq, hero, text, kind in WORDY:
-        assert precheck(replay_until("p2", seq), hero, text) == RestIntent(kind)
-    state = replay_until("p2", 353)
-    for text in ("We do not rest for the night, we press on", "I search the camp for tracks"):
-        assert precheck(state, "pc-p2", text) is None
-
-
 async def test_m29_wordy_rest_opens_the_rest_vote_and_rests(tmp_path: Path) -> None:
     seq, hero, text, _ = WORDY[1]
     state = replay_until("p2", seq)
     hurt = state.creatures["pc-p6"].hp
     camp = pick(("rest:long", [], None))  # the menu chooser's reading (M36.10a)
     llm = menu_llm(tmp_path, camp, storyteller_down=True)[0]
-    async with running(llm, state, interpreter="menu") as (table, _):
+    async with running(llm, state) as (table, _):
         seat = await join(table, "Ann", hero)
         seat.send(SubmitAction(text=text))
         await table.settle()
@@ -127,10 +115,3 @@ async def test_m29_typed_potion_in_a_fight_is_the_hotbar_use(tmp_path: Path) -> 
     used = [(e.creature_id, e.item, e.delta) for e in events if isinstance(e, InventoryChanged)]
     assert used == [("pc-p2", "potion-of-healing", -1)]
     assert any(isinstance(e, HpChanged) and e.creature_id == "pc-p2" for e in events)
-
-
-def test_m29_typed_cure_wounds_in_a_fight_is_the_cast_command() -> None:
-    state = replay_until("p6", 702)
-    command = fight_command(state, "pc-p4", "Elowen casts cure wounds on Brienne")
-    assert command == CastCommand(actor_id="pc-p4", spell_id="cure-wounds", target_ids=("pc-p2",))
-    assert fight_command(state, "pc-p2", "Brienne swings her longsword wildly") is None

@@ -57,7 +57,7 @@ async def test_herbalism_crafts_at_a_long_rest(tmp_path: Path) -> None:
     state.camp_supplies = 60  # the rest costs 10 per hero, the poultice 2 more
     before = state.camp_supplies
     cost = long_rest_cost(state)
-    async with running(_menu(tmp_path, BREW), state, interpreter="menu") as (table, _):
+    async with running(_menu(tmp_path, BREW), state) as (table, _):
         seat = await join(table, "Ann", "fighter")
         seat.send(SubmitAction(text="I brew a poultice with my herbalism kit"))
         await table.settle()
@@ -74,7 +74,7 @@ async def test_herbalism_crafts_at_a_long_rest(tmp_path: Path) -> None:
 async def test_herbalism_without_the_proficiency_rests_and_makes_nothing(tmp_path: Path) -> None:
     state = _carrying("herbalism-kit")
     state.camp_supplies = 60
-    async with running(_menu(tmp_path, BREW), state, interpreter="menu") as (table, _):
+    async with running(_menu(tmp_path, BREW), state) as (table, _):
         seat = await join(table, "Ann", "fighter")
         seat.send(SubmitAction(text="I brew a poultice"))
         await table.settle()
@@ -87,7 +87,7 @@ async def test_herbalism_without_the_proficiency_rests_and_makes_nothing(tmp_pat
 async def test_typed_gear_use_applies_through_the_rules(tmp_path: Path) -> None:
     state = _carrying("spyglass")
     look = pick(("use:spyglass-look", [], None))
-    async with running(_menu(tmp_path, look, look), state, interpreter="menu") as (table, _):
+    async with running(_menu(tmp_path, look, look), state) as (table, _):
         seat = await join(table, "Ann", "fighter")
         seat.send(SubmitAction(text="I use my spyglass"))
         await table.settle()

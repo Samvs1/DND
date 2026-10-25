@@ -31,7 +31,6 @@ Public API: `take_intent`, `give`, `give_intent`, `hand`, `hand_intent`, `loot_i
 """
 
 from aidm.dm.event_text import event_line
-from aidm.dm.give_intent import GIVE_ALL
 from aidm.dm.narration_templates import template_line
 from aidm.models.events import AnyEvent
 from aidm.models.item_events import HandedOver
@@ -39,6 +38,7 @@ from aidm.models.protocol_client import Give, HandOver
 from aidm.models.protocol_server import ErrorCode, NoticeKind
 from aidm.models.state import Creature
 from aidm.rules.acts import (
+    GIVE_ALL,
     GiveIntent,
     HeroHandIntent,
     LiftIntent,

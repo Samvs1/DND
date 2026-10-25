@@ -3,7 +3,6 @@
 import random
 
 from aidm.data.item_uses import uses_for_item
-from aidm.dm.use_intent import use_intent
 from aidm.models.item_events import ItemUsed
 from aidm.rules.item_use import use_item
 from aidm.session.reducer import apply
@@ -53,19 +52,6 @@ def test_unpack_events_replay_to_the_same_state() -> None:
         apply(replayed, event)
     run(state, events)
     assert replayed.model_dump() == state.model_dump()
-
-
-def test_unpack_phrases_resolve_through_the_precheck() -> None:
-    state = at(CAVE, hero(gear=["dungeoneers-pack"]))
-    for text in (
-        "open my pack",
-        "unpack my dungeoneer's pack",
-        "open the dungeoneers pack",
-        "open my dungeoneer's",
-    ):
-        found = use_intent(state, "hero", text)
-        assert found is not None and found.item == "dungeoneers-pack", text
-    assert use_intent(state, "hero", "open the door") is None
 
 
 def test_every_shipped_pack_has_an_unpack_use() -> None:
