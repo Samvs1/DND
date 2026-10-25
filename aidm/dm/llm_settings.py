@@ -5,7 +5,9 @@ Public API:
   (docs/DECISIONS.md M4.1). `DEEPSEEK_MODEL_FAST` / `DEEPSEEK_MODEL_QUALITY` override them.
 - `LlmSettings`: key presence (the key itself is held privately and never logged or repr'd),
   model ids, fake flag, timeouts, retry bound, token floors and the log path.
-- `llm_settings_from_env(environ) -> LlmSettings`: reads the Appendix A variables.
+- `llm_settings_from_env(environ) -> LlmSettings`: reads the Appendix A variables; M36.5
+  `AIDM_STRICT_TOOLS=1` turns on DeepSeek strict function calling for the chooser's tool
+  (`strict_tools`) and points the client at the beta endpoint (off by default).
 - `resolve_models(available, fast, quality) -> ModelChoice`: keeps a configured id that the
   provider lists; otherwise picks the closest listed id for the role ("flash" for FAST, "pro"
   for QUALITY, else the first listed) and records a warning. An empty list (discovery failed)
@@ -21,6 +23,7 @@ from aidm.dm.llm_types import LlmRole
 DEFAULT_MODEL_FAST = "deepseek-flash"
 DEFAULT_MODEL_QUALITY = "deepseek-v4-pro"
 DEEPSEEK_BASE_URL = "https://api.deepseek.com"
+DEEPSEEK_BETA_URL = "https://api.deepseek.com/beta"  # strict function calling lives here
 STRUCTURED_MAX_TOKENS = 4000
 DEFAULT_LOG_PATH = Path("logs") / "llm.jsonl"
 _ROLE_HINT = {LlmRole.FAST: "flash", LlmRole.QUALITY: "pro"}
@@ -39,6 +42,7 @@ class LlmSettings:
     structured_max_tokens: int = STRUCTURED_MAX_TOKENS
     max_tokens_cap: int = 16000
     log_path: Path | None = DEFAULT_LOG_PATH
+    strict_tools: bool = False  # M36.5: the chooser's tool in strict mode (beta endpoint)
 
     @property
     def has_key(self) -> bool:
@@ -60,8 +64,11 @@ def _float(value: str | None, default: float) -> float:
 
 
 def llm_settings_from_env(environ: Mapping[str, str]) -> LlmSettings:
+    strict = _flag(environ.get("AIDM_STRICT_TOOLS"))
     return LlmSettings(
         api_key=(environ.get("DEEPSEEK_API_KEY") or "").strip() or None,
+        base_url=DEEPSEEK_BETA_URL if strict else DEEPSEEK_BASE_URL,
+        strict_tools=strict,
         model_fast=environ.get("DEEPSEEK_MODEL_FAST") or DEFAULT_MODEL_FAST,
         model_quality=environ.get("DEEPSEEK_MODEL_QUALITY") or DEFAULT_MODEL_QUALITY,
         fake=_flag(environ.get("AIDM_FAKE_LLM")),

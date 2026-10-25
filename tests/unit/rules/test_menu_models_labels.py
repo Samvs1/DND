@@ -66,14 +66,16 @@ def test_action_menu_rejects_duplicates_and_unknown_targets() -> None:
         ActionMenu(scope=MenuScope.FIGHT, actor_id="pc-p2", entries=(_sword(),))
 
 
-def test_menu_choice_is_steps_or_other() -> None:
+def test_menu_choice_is_steps_other_or_both() -> None:
     step = MenuStep(entry="attack:longsword", targets=("kobold-1",))
     assert MenuChoice(steps=(step,)).other is False
     assert MenuChoice(other=True).steps == ()
+    both = MenuChoice(steps=(step,), other=True, other_text="leap onto the table", other_first=True)
+    assert both.other_first and both.steps == (step,)  # M36.5: a stunt and an attack
     with pytest.raises(ValidationError):
         MenuChoice()
     with pytest.raises(ValidationError):
-        MenuChoice(steps=(step,), other=True)
+        MenuChoice(steps=(step,), other_first=True)
     with pytest.raises(ValidationError):
         MenuChoice(steps=(step,) * 5)
 

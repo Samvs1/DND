@@ -105,6 +105,8 @@ def test_left_behind_and_finished_quests_are_not_listed() -> None:
 
 def test_rules_say_quests_are_a_closed_list() -> None:
     for purpose in ContextPurpose:
+        if purpose is ContextPurpose.CHOOSE:  # M36.5: picks menu ids only, never a DM prompt
+            continue
         rules = system_text(purpose)
         assert "never invent a task, a reward or a quest item" in rules
         assert "offer_favour" in rules

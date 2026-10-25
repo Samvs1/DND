@@ -9,6 +9,12 @@ offers; M23.5) and FACTS (top-k by entity overlap), 5 MEMORY (scene summaries, l
 turns), 6 EVENTS (engine events since the last narration, authoritative), 7 NPC_PRIVATE (motive,
 secrets and the route hint the NPC knows, ONLY for `NPC_VOICE`).
 
+M36.5 `CHOOSE` (the menu chooser, SPEC 6.2) is the same builder with its own sections, in this
+order: SYSTEM (the chooser's fixed rules and examples, `aidm.dm.chooser_prompt`), ACTOR (class,
+HP, where, what is left this turn), TARGETS (ids and labels with distances), ANCHORS (the hero's
+last target and the last person spoken to, from `events`), EVENTS (the last 2), MENU (compact,
+`aidm.dm.chooser_menu`); the player's words come last as untrusted data. Nothing is truncated.
+
 Token budget (estimate: characters / 4): when the pack is over budget, FACTS lose their lowest
 ranked lines first, then MEMORY its oldest lines, then PARTY switches to short sheets (M31.1c V21:
 the acting hero keeps the full sheet, and the adjudicator's manifest always lists everything the
@@ -25,7 +31,7 @@ Public API:
   `text()`).
 - `estimate_tokens(text) -> int`; `wrap_player_text(text, actor_name) -> str`.
 - `build_context(state, purpose, actor_id=None, player_text=None, npc_id=None, *, events=(),
-  budget_tokens=DEFAULT_BUDGET_TOKENS, facts_k=8, narration_n=6) -> ContextPack`.
+  budget_tokens=DEFAULT_BUDGET_TOKENS, facts_k=8, narration_n=6, menu=None) -> ContextPack`.
 - `to_messages(pack, purpose=None) -> list[dict]`: system + user messages for the LLM client.
 """
 
@@ -35,6 +41,8 @@ from dataclasses import dataclass, replace
 from enum import StrEnum
 from typing import Any
 
+from aidm.dm.chooser_menu import menu_lines
+from aidm.dm.chooser_prompt import actor_lines, anchor_lines, recent_lines, target_lines
 from aidm.dm.context_gear import actor_gear_lines, gear_lines, light_lines
 from aidm.dm.context_quests import quest_lines, route_hint_lines
 from aidm.dm.context_sections import (
@@ -47,6 +55,7 @@ from aidm.dm.context_sections import (
 )
 from aidm.dm.context_text import PLAYER_TAG, ContextPurpose, system_text, task_text
 from aidm.dm.event_text import event_lines
+from aidm.models.action_menu import ActionMenu
 from aidm.models.events import AnyEvent
 from aidm.models.state import GameState
 from aidm.rules.scene import current_scene
@@ -65,6 +74,10 @@ class SectionKey(StrEnum):
     MEMORY = "memory"
     EVENTS = "events"
     NPC_PRIVATE = "npc_private"
+    ACTOR = "actor"
+    TARGETS = "targets"
+    ANCHORS = "anchors"
+    MENU = "menu"
 
 
 _TITLES = {
@@ -75,6 +88,10 @@ _TITLES = {
     SectionKey.MEMORY: "MEMORY",
     SectionKey.EVENTS: "RECENT ENGINE EVENTS (authoritative)",
     SectionKey.NPC_PRIVATE: "NPC PRIVATE NOTES (never reveal unrevealed secrets)",
+    SectionKey.ACTOR: "ACTING HERO",
+    SectionKey.TARGETS: "TARGETS (id = what it is)",
+    SectionKey.ANCHORS: "PRONOUNS",
+    SectionKey.MENU: "MENU (entry id = what it does -> its targets)",
 }
 
 
@@ -132,6 +149,13 @@ def _section(key: SectionKey, lines: Sequence[str]) -> ContextSection:
     return ContextSection(key, _TITLES.get(key, key.value), tuple(lines))
 
 
+def _player_block(state: GameState, actor_id: str | None, text: str | None) -> str | None:
+    if text is None:
+        return None
+    actor = state.creatures.get(actor_id or "")
+    return wrap_player_text(text, actor.name if actor is not None else "player")
+
+
 def _fit(pack: ContextPack, short_party: list[str]) -> ContextPack:
     trimmed: list[str] = []
     sections = list(pack.sections)
@@ -165,7 +189,10 @@ def build_context(
     budget_tokens: int = DEFAULT_BUDGET_TOKENS,
     facts_k: int = 8,
     narration_n: int = 6,
+    menu: ActionMenu | None = None,
 ) -> ContextPack:
+    if purpose is ContextPurpose.CHOOSE:
+        return _choose_pack(state, actor_id, player_text, menu, events, budget_tokens)
     scene = current_scene(state)
     show_ids = purpose in (ContextPurpose.ADJUDICATE, ContextPurpose.SUMMARIZE)
     arriving = state.world.scene_turn == 0 or any(e.type == "party_moved" for e in events)
@@ -193,10 +220,7 @@ def build_context(
     if purpose is ContextPurpose.NPC_VOICE:
         private = [*npc_private_lines(state, npc_id), *route_hint_lines(state, npc_id)]
         sections.append(_section(SectionKey.NPC_PRIVATE, private))
-    block = None
-    if player_text is not None:
-        actor = state.creatures.get(actor_id or "")
-        block = wrap_player_text(player_text, actor.name if actor is not None else "player")
+    block = _player_block(state, actor_id, player_text)
     pack = ContextPack(
         purpose,
         tuple(sections),
@@ -205,6 +229,27 @@ def build_context(
         budget_tokens=budget_tokens,
     )
     return _fit(pack, party_lines(state, short=True, keep=actor_id))
+
+
+def _choose_pack(
+    state: GameState,
+    actor_id: str | None,
+    player_text: str | None,
+    menu: ActionMenu | None,
+    events: Sequence[AnyEvent],
+    budget_tokens: int,
+) -> ContextPack:
+    purpose = ContextPurpose.CHOOSE
+    sections = (
+        ContextSection(SectionKey.SYSTEM, "SYSTEM", (system_text(purpose),)),
+        _section(SectionKey.ACTOR, actor_lines(state, actor_id, menu)),
+        _section(SectionKey.TARGETS, target_lines(menu)),
+        _section(SectionKey.ANCHORS, anchor_lines(state, actor_id, menu, events)),
+        _section(SectionKey.EVENTS, recent_lines(state, events)),
+        _section(SectionKey.MENU, menu_lines(menu)),
+    )
+    block = _player_block(state, actor_id, player_text)
+    return ContextPack(purpose, sections, block, budget_tokens=budget_tokens)
 
 
 def to_messages(pack: ContextPack, purpose: ContextPurpose | None = None) -> list[dict[str, Any]]:

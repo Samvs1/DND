@@ -5,7 +5,9 @@
 command objects the button paths already run (`session.intent_turn.run_intent`,
 `session.fight_text`, `combat_flow.player_command`, the client handlers), in the order chosen.
 Engine meaning lives here and in `menu_steps_fight` / `menu_steps_scene`, never in wording.
-- `other` is one `OtherIntent(actor, text)`: the storyteller's creative or social call.
+- `other` is one `OtherIntent(actor, text)`: the storyteller's creative or social call, with
+  the off-menu part's words (`choice.other_text`, else the whole line). With steps too (M36.5)
+  it comes before them when `other_first`, else after them unless a step ended the line.
 - A strike with `starts_fight` (the offer scope) is `OfferStrikeIntent(actor, step)` and ends the
   steps: the offer is answered as Fight and the step itself waits for the hero's turn, when
   `resume_strike` maps it onto the spawned creatures (below).
@@ -128,18 +130,19 @@ def to_acts(
     regs: CombatRegistries,
     text: str = "",
 ) -> list[Act]:
-    if choice.other:
-        return [OtherIntent(menu.actor_id, text)]
-    acts: list[Act] = []
+    other: list[Act] = [OtherIntent(menu.actor_id, choice.other_text or text)]
+    if not choice.other:
+        other = []
+    acts: list[Act] = other if choice.other_first else []
     running = state
     for step in choice.steps:
         made = step_acts(running, menu, step, regs, text)
         acts += made
         if any(_ends(a) for a in made):
-            break
+            return acts
         if menu.scope is MenuScope.FIGHT:
             running = _after(running, made, regs)
-    return acts
+    return acts if choice.other_first else [*acts, *other]
 
 
 def _named(state: GameState, foe: str) -> list[str]:

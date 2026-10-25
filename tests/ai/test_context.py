@@ -90,8 +90,12 @@ def test_section_order_is_fixed() -> None:
     keys = [
         s.key for s in build_context(state, ContextPurpose.NPC_VOICE, npc_id="npc-mira").sections
     ]
-    assert keys == list(SectionKey)
+    k = SectionKey
+    dm = [k.SYSTEM, k.MANIFEST, k.PARTY, k.QUESTS, k.FACTS, k.MEMORY, k.EVENTS, k.NPC_PRIVATE]
+    assert keys == dm
     assert SectionKey.NPC_PRIVATE not in [s.key for s in build_context(state, NARR).sections]
+    choose = [s.key for s in build_context(state, ContextPurpose.CHOOSE, "fighter", "x").sections]
+    assert choose == [k.SYSTEM, k.ACTOR, k.TARGETS, k.ANCHORS, k.EVENTS, k.MENU]  # M36.5
 
 
 def test_same_state_gives_identical_messages() -> None:

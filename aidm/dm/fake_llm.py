@@ -14,17 +14,24 @@ Public API:
 - `FakeStep` (the union), `default_fake_step(request)`: `no_mechanics` when offered, an empty
   `{}` call for a forced tool (callers fall back if it does not validate), and a short canned
   narration chosen by a stable hash of the last user message for text calls.
-- `FakeLLM(script=(), responder=None, models=...)`.
+- `FakeLLM(script=(), responder=None, models=..., by_tool=None)`. M36.5: a call that forces a tool
+  named in `by_tool` (e.g. `{"choose_actions": [...]}`) takes its step from that tool's own
+  script, never from the main `script`; when that is empty, `TOOL_DEFAULTS` answers
+  (`choose_actions`: `other` = the player's line, `default_choice_step`), so every existing
+  adjudicator test keeps its own scripted steps unchanged.
 """
 
 import asyncio
 import hashlib
+import html
 import json
+import re
 from collections import deque
 from collections.abc import AsyncIterator, Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
+from aidm.dm.context_text import PLAYER_TAG
 from aidm.dm.llm_backend import (
     BackendError,
     BackendTimeout,
@@ -116,6 +123,26 @@ def default_fake_step(request: CompletionRequest) -> FakeStep:
     return fake_text(CANNED_NARRATION[digest[0] % len(CANNED_NARRATION)])
 
 
+_PLAYER_LINE = re.compile(rf"<{PLAYER_TAG}[^>]*>(.*?)</{PLAYER_TAG}>", re.DOTALL)
+
+
+def default_choice_step(request: CompletionRequest) -> FakeStep:
+    """`choose_actions` with no script: `other` holding the player's line (the storyteller's)."""
+    found = [m for msg in request.messages for m in _PLAYER_LINE.findall(str(msg.get("content")))]
+    line = html.unescape(found[-1]) if found else ""
+    return fake_tool_call("choose_actions", {"steps": [], "other": {"text": line, "first": False}})
+
+
+TOOL_DEFAULTS: dict[str, Callable[[CompletionRequest], FakeStep]] = {
+    "choose_actions": default_choice_step
+}
+
+
+def _forced(request: CompletionRequest) -> str | None:
+    choice = request.tool_choice
+    return choice if request.tools and choice not in (None, "auto", "required", "none") else None
+
+
 def _tokens(text: str) -> int:
     return max(1, len(text) // 4) if text else 0
 
@@ -130,8 +157,12 @@ class FakeLLM:
         script: Iterable[FakeStep] = (),
         responder: Callable[[CompletionRequest], FakeStep] | None = None,
         models: Sequence[str] = ("deepseek-flash", "deepseek-v4-pro"),
+        by_tool: Mapping[str, Iterable[FakeStep]] | None = None,
     ) -> None:
         self.script: deque[FakeStep] = deque(script)
+        self.by_tool: dict[str, deque[FakeStep]] = {
+            name: deque(steps) for name, steps in (by_tool or {}).items()
+        }
         self.responder = responder or default_fake_step
         self.models = list(models)
         self.requests: list[CompletionRequest] = []
@@ -142,6 +173,12 @@ class FakeLLM:
 
     def _next(self, request: CompletionRequest) -> FakeStep:
         self.requests.append(request)
+        tool = _forced(request)
+        own = self.by_tool.get(tool) if tool is not None else None
+        if own:
+            return own.popleft()
+        if tool is not None and (own is not None or tool in TOOL_DEFAULTS):
+            return TOOL_DEFAULTS.get(tool, default_fake_step)(request)
         return self.script.popleft() if self.script else self.responder(request)
 
     async def complete(self, request: CompletionRequest) -> Completion:

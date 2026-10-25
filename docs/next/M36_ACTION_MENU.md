@@ -20,8 +20,8 @@ findings stayed at 9, 8, 7 per round.
    from data keys (`attack:longsword`, `cast:fire-bolt`, `give:block-of-incense`, `travel`), a short label with
    descriptors from data ("Fire Bolt (cantrip, fire, 120 ft)"), its allowed targets and quantity bound.
 2. The model gets the line, the menu and a small scene context (FAST role, one forced tool `choose_actions`) and
-   may only answer with menu ids: up to 4 ordered steps `{do, to, qty}`, or `other` (a stunt or something off the
-   menu). The schema is built per call with enums; a validator rejects any target or quantity that does not fit
+   may only answer with menu ids: up to 4 ordered steps `{do, to, qty}`, `other` (a stunt or something off the
+   menu), or both (M36.5: `other: {text, first}`, the stunt before or after the steps). The schema is built per call with enums; a validator rejects any target or quantity that does not fit
    its entry and the client's existing retry-with-feedback loop repairs it.
 3. The engine turns steps into acts (pure rules) and runs them through the SAME code paths the buttons and jobs
    use. `other` goes to the existing creative/social adjudicator, so nothing physically possible is refused.

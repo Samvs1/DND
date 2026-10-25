@@ -235,7 +235,8 @@ actions right now (`rules.action_menu.build_menu`): everything the buttons offer
 (people to talk to, give/hand/pay/take, search, look, travel destinations, rest, shop, equip, offer
 answers, the quest card, helping a downed hero up). Each entry has a stable id from data keys, a short
 label and its allowed targets and quantity. One FAST call with ONE forced tool, `choose_actions`, whose
-schema is built per call with enums of the menu's ids, returns up to 4 ordered steps or `other`. The
+schema is built per call with enums of the menu's ids, returns up to 4 ordered steps, `other` or both
+(a stunt and an attack: `other.first` says whether the stunt comes before the steps). The
 engine turns steps into acts (`rules.menu_steps.to_acts`, pure) and runs them through the button code
 paths; engine meaning lives there, never in wording (a melee attack out of reach approaches first, a
 stowed weapon is drawn, travel to where you are says so). No confirmation prompt. A line that exactly

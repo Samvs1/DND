@@ -1,7 +1,8 @@
 """Stable prompt text of the context pack (SPEC 6.4 section 1, 6.7): short, versioned with code.
 
 Public API:
-- `ContextPurpose`: ADJUDICATE / NARRATE / NPC_VOICE / SUMMARIZE (what the pack is for).
+- `ContextPurpose`: ADJUDICATE / NARRATE / NPC_VOICE / SUMMARIZE / CHOOSE (what the pack is for;
+  CHOOSE, M36.5, has the chooser's own rules and task from `aidm.dm.chooser_prompt`).
 - `CLOSED_WORLD`: the statement that ends every scene manifest.
 - `PLAYER_TAG`: the delimiter tag that wraps player text as data.
 - `IMPOSSIBLE_RULE`: when the adjudicator may declare an attempt impossible (M30.2; rare).
@@ -11,12 +12,15 @@ Public API:
 
 from enum import StrEnum
 
+from aidm.dm.chooser_prompt import CHOOSE_TASK, choose_system
+
 
 class ContextPurpose(StrEnum):
     ADJUDICATE = "adjudicate"
     NARRATE = "narrate"
     NPC_VOICE = "npc_voice"
     SUMMARIZE = "summarize"
+    CHOOSE = "choose"  # M36.5: pick the typed line's steps from the engine's menu (SPEC 6.2)
 
 
 CLOSED_WORLD = (
@@ -74,8 +78,12 @@ _TASK = {
 
 
 def system_text(purpose: ContextPurpose) -> str:
+    if purpose is ContextPurpose.CHOOSE:  # not a DM prompt: the chooser's own fixed rules
+        return choose_system(PLAYER_TAG)
     return " ".join((*_RULES, _ROLE[purpose]))
 
 
 def task_text(purpose: ContextPurpose, npc_name: str | None = None) -> str:
+    if purpose is ContextPurpose.CHOOSE:
+        return CHOOSE_TASK
     return _TASK[purpose].format(npc=npc_name or "the NPC")

@@ -29,8 +29,11 @@ Public API:
   world item id, `qty_max` the count carried or held.
 - `ActionMenu(scope, actor_id, entries, targets)`: entry ids and target ids are unique and every
   target id an entry names is in `targets`.
-- `MenuStep(entry, targets, qty)`, `MenuChoice(steps, other)`: up to 4 ordered steps, or `other`
-  (a stunt or something off the menu) with no steps.
+- `MenuStep(entry, targets, qty)`, `MenuChoice(steps, other, other_text, other_first)`: up to 4
+  ordered steps, `other` (a stunt or something off the menu), or both (M36.5, DECISIONS: "I leap
+  onto the table and fire at the kobold" is a stunt and an attack). `other_text` is the
+  off-menu part in the player's words ("" = the whole line); `other_first` = it happens before
+  the steps (else after them).
 """
 
 from enum import StrEnum
@@ -182,9 +185,13 @@ class MenuStep(_Frozen):
 class MenuChoice(_Frozen):
     steps: tuple[MenuStep, ...] = Field(default=(), max_length=MAX_STEPS)
     other: bool = False
+    other_text: str = ""
+    other_first: bool = False
 
     @model_validator(mode="after")
     def _steps_or_other(self) -> Self:
-        if self.other == bool(self.steps):
-            raise ValueError("a choice is either steps or other, never both or neither")
+        if not self.other and not self.steps:
+            raise ValueError("a choice needs steps, other or both")
+        if not self.other and (self.other_text or self.other_first):
+            raise ValueError("other_text and other_first belong to other")
         return self

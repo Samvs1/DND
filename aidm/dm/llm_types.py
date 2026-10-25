@@ -4,8 +4,9 @@ Public API:
 - `LlmRole`: FAST (routing, extraction, summaries) / QUALITY (narration, social, NPC voice).
 - `LlmMode`: LIVE (DeepSeek), FAKE (`AIDM_FAKE_LLM=1`, deterministic), DISABLED (no key: every
   call returns an `LlmFailure` so callers use their template fallbacks; the host sees a banner).
-- `ToolDef(name, description, args_model)`: one callable tool; `tool_param(defn)` exports it as
-  an OpenAI `tools` entry (JSON schema from the pydantic model).
+- `ToolDef(name, description, args_model, strict=False)`: one callable tool; `tool_param(defn)`
+  exports it as an OpenAI `tools` entry (JSON schema from the pydantic model; `strict` adds the
+  provider's strict-schema flag, M36.5).
 - `ToolCall(id, name, args)`: one VALIDATED tool call (`args` is an instance of the tool's model).
 - `ToolCallResult(calls, content, attempts)`: the validated answer of `LlmClient.call_tools`.
 - `FailureReason` / `LlmFailure(reason, detail, attempts)`: the typed failure every client method
@@ -37,16 +38,21 @@ class ToolDef:
     name: str
     description: str
     args_model: type[BaseModel]
+    strict: bool = False  # M36.5: DeepSeek strict function calling (beta endpoint), off by default
 
 
 def tool_param(defn: ToolDef) -> dict[str, Any]:
     """The OpenAI-compatible `tools` entry for one tool (the engine validates again anyway)."""
     schema = defn.args_model.model_json_schema()
     schema.pop("title", None)
-    return {
-        "type": "function",
-        "function": {"name": defn.name, "description": defn.description, "parameters": schema},
+    function: dict[str, Any] = {
+        "name": defn.name,
+        "description": defn.description,
+        "parameters": schema,
     }
+    if defn.strict:
+        function["strict"] = True
+    return {"type": "function", "function": function}
 
 
 @dataclass(frozen=True)
