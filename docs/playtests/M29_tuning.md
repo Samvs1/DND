@@ -989,3 +989,44 @@ grid's cap misses (heroes down per master above 1.0 for classic, martial and agg
 are expected and accepted: the bots do not play like the live table (live round 5 had 0.2 heroes
 down per master fight). Live play rules over the scripted grid for masters; the targets in
 `data/balance_targets.json` are unchanged.
+
+# M35.5 re-run after Y1 (2026-10-25)
+
+M35.1 fixed round-6 Y1 (two quest payouts in one pass: the second wrote its absolute from the
+same snapshot and wiped the first). The M31.1d-M32.1c grids were measured with that loss. Same
+slices, seeds 1-5 and fake storyteller as M32.1c, 30 campaigns at HEAD a475afa (M32.1c + 38
+commits: M32.1d-M35.4), saves in `saves/balance/M35e_a` (balanced classic, martial), `_b`
+(balanced casters, duo, solo), `_c` (aggressive classic); 0 runs failed a check, nothing retuned.
+Ledger check (`scripts.sim.ledger.ledger_problems`, also run inside every sim's `replay_problems`):
+**0 problems in all 30 new logs**; the same check over the 30 M32.1c logs finds problems in 6, all
+seed 5 (one per slice): 60 gold and 75-150 XP lost per hero in act 1.
+
+## Before (M32.1c) -> after (M35.5); gold and XP are the mean per hero when each act's master is first offered
+| slice | gold m1 / m2 / m3 | XP m1 / m2 / m3 | level at masters | heroes down per master (HP lost) | clean-win | epilogues | wipes/run |
+|---|---|---|---|---|---|---|---|
+| balanced classic | 90/101/134 -> 102/111/149 | 672/1918/6592 -> 687/1933/6620 | 2/3/5 -> 2/3/5 | 2.50 (0.47) -> 2.24 (0.40) | 0.82 -> 0.76 | 5 -> 5 | 0.6 -> 0.4 |
+| balanced casters | 92/100/138 -> 103/114/151 | 685/1931/6630 -> 695/1942/6641 | 2/3/5 -> 2/3/5 | 0.93 (0.28) -> 2.18 (0.45) | 0.84 -> 0.91 | 5 -> 5 | 0 -> 0.4 |
+| balanced martial | 91/103/136 -> 103/115/151 | 675/1914/6563 -> 710/1952/6626 | 2/3/5 -> 2/3/5 | 2.33 (0.61) -> 1.12 (0.42) | 0.905 -> 0.84 | 3 -> 5 | 1.4 -> 0.2 |
+| balanced duo | 89/118/199 -> 100/129/215 | 669/1894/6594 -> 699/1924/6624 | 2/3/5 -> 2/3/5 | 1.04 (0.74) -> 1.22 (0.78) | 1.00 -> 0.98 | 4 -> 4 | 2.2 -> 2.6 |
+| balanced solo | 87/144/- -> 102/157/- | 695/2020/- -> 725/2050/- | 2/3/5 -> 2/3/5 | 0.74 (0.91) -> 0.78 (0.85) | 0.89 -> 1.00 | 0 -> 1 | 3.8 -> 3.4 |
+| aggressive classic | 92/110/155 -> 104/117/158 | 672/1916/6565 -> 687/1923/6592 | 2/3/5 -> 2/3/4.5 | 3.23 (0.63) -> 3.50 (0.75) | - | 5 -> 3 | 1.4 -> 2.0 |
+Per act, heroes down per master after: classic 0.6 / 0.4 / 4.71, casters 0.4 / 0.4 / 4.71, martial
+2.17 / 0.2 / 0.8, aggressive 3.29 / 2.9 / 4.57, duo 1.0 / 1.42 / 1.17, solo 0.56 / 0.93 / 0.67
+(before: classic 0.4 / 1.8 / 4.25, casters 0.4 / 0 / 2.4, martial 0.6 / 2.5 / 3.25). Solo m3 is one
+run either way (not shown). Report: `python scripts/balance_report.py saves/balance/M35e_a
+saves/balance/M35e_b saves/balance/M35e_c --markdown`.
+
+## Reading
+The economy shift is exactly Y1 and nothing else: seeds 1-4 meet the act-1 master with the same gold
+(within 2; XP equal but one run 25 apart) and later masters within about 10 gold (loot rolls), while seed 5, the one campaign where two side
+quests finish on the same step in act 1, now keeps both payouts and meets the act-1 master with
+about 100 gold and 610-720 XP per hero instead of 38-44 gold and 536-568 XP; that lifts each
+slice's mean by about 11-15 gold and 15-35 XP per hero at every master. Levels at the masters do not
+move (the lost XP never crossed a level line), and every gold target stays in band. The master and
+clean-win numbers move a lot (casters 0.93 -> 2.18 from two act-3 wipes, martial 2.33 -> 1.12 with
+all five runs reaching the epilogue, aggressive classic loses two runs), but that is not Y1: the
+38 commits since M32.1c (M33-M35 rules fixes: guided on the next attack only, concentration ending
+with its last effect, waiting-foe rests, and more) change the dice stream of every fight, and five
+seeds per slice swing a master average by a hero or more. No rest ambush (M35.2) happened in any
+run. Nothing was retuned; the owner decides balance (live play rules over the bots for masters,
+M32.1c).

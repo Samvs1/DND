@@ -90,3 +90,13 @@ def test_mp3_encoders_write_once_atomically(tmp_path: Path) -> None:
     encode_lameenc(_stereo(), 48000, 320, other)
     assert other.stat().st_size > 10000
     assert sorted(p.name for p in tmp_path.rglob("*") if p.is_file()) == ["a.mp3", "b.mp3"]
+
+
+def test_float_wav_bytes_carry_no_write_time() -> None:
+    """libsndfile stamps a float WAV's PEAK chunk with the wall clock; wav_bytes zeroes it."""
+    samples = np.linspace(-0.5, 0.5, 1000).astype(np.float32).astype(np.float64)  # exact in FLOAT
+    data = wav_bytes(samples, 48000, subtype="FLOAT")
+    peak = data.index(b"PEAK")
+    assert data[peak + 12 : peak + 16] == bytes(4)
+    assert np.array_equal(read_wav(data)[0], samples)
+    assert wav_bytes(samples, 48000, subtype="FLOAT") == data

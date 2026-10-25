@@ -43,10 +43,27 @@ def read_wav(data: bytes) -> tuple[Audio, int]:
     return mono, int(rate)
 
 
+def _without_peak_time(data: bytes) -> bytes:
+    """Zero the wall-clock timestamp libsndfile puts in a float WAV's PEAK chunk.
+
+    Without this the same samples give different bytes when two writes straddle a second
+    (M35.5: a spliced line re-built from cached parts differed from its first build at byte 60).
+    """
+    out = bytearray(data)
+    offset = 12  # after "RIFF" <size> "WAVE"
+    while offset + 8 <= len(out):
+        size = int.from_bytes(out[offset + 4 : offset + 8], "little")
+        if bytes(out[offset : offset + 4]) == b"PEAK" and size >= 8:
+            out[offset + 12 : offset + 16] = bytes(4)  # after the chunk header and version
+        offset += 8 + size + (size & 1)
+    return bytes(out)
+
+
 def wav_bytes(samples: Audio, rate: int, subtype: str = "PCM_16") -> bytes:
+    """Samples -> WAV bytes, the same bytes for the same samples (no write time inside)."""
     buf = io.BytesIO()
     sf.write(buf, samples, rate, format="WAV", subtype=subtype)
-    return buf.getvalue()
+    return _without_peak_time(buf.getvalue())
 
 
 def _import_sdk() -> Any:
