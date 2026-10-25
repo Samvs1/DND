@@ -5,8 +5,10 @@ here, not hostile (`rules.shop`):
 - `buy:<item>`: each item on the keeper's shelves (`rules.shop.npc_shop_stock`, the same stock the
   shop panel shows), `qty_max` the most the hero's gold buys (at least 1: the rules answer a
   purse too light plainly), at most the shop's lot limit;
-- `sell:<item>`: each carried item with a market value, `qty_max` the units not in use; an item
-  a trader pays nothing for says so ("worthless to a trader"), as the rules would.
+- `sell:<item>`: each carried item with a market value, `qty_max` the units not in use (one in
+  use says "unequip it first"). M36.8c: an item a trader pays nothing for is not listed, as the
+  shop panel lists no Sell button for it (the menu matches the buttons; it also keeps the
+  CHOOSE prompt in its budget).
 The shop data is passed in (`TradeData`), never loaded here.
 
 Public API: `TradeData(catalogue, shops)`, `trade_entries(view, trade) -> list[MenuEntry]`.
@@ -79,7 +81,9 @@ def _sells(view: SceneMenuView, trade: TradeData, keeper: WorldNpc) -> list[Menu
             continue
         free = row.qty - _in_use(view, row.item)
         each = sell_price(item.value_gp, 1, trade.shops)
-        note = "unequip it first" if free < 1 else ("worthless to a trader" if each < 1 else "")
+        if each < 1:
+            continue
+        note = "unequip it first" if free < 1 else ""
         out.append(
             MenuEntry(
                 id=f"sell:{row.item}",

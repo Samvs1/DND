@@ -59,6 +59,7 @@ from aidm.rules.acts import (
     OtherIntent,
     ParleyIntent,
     PayIntent,
+    PersonStrikeIntent,
     QuestAnswerIntent,
     RefusedIntent,
     RestIntent,
@@ -79,7 +80,7 @@ from aidm.session import (
 )
 from aidm.session.asides import Aside, told_with
 from aidm.session.declared import declare
-from aidm.session.held import adjudicated, hold_parley
+from aidm.session.held import adjudicated, hold_parley, strike_person
 from aidm.session.lore_turn import lore_turn
 from aidm.session.offer_strike import cast_opens_fight, offer_strike_turn
 from aidm.session.search_turn import search_turn
@@ -203,6 +204,8 @@ async def _run_other(core: TableCore, player: Player, entry: QueueEntry, intent:
         await heal_actions.heal_intent(core, player, intent)
     elif isinstance(intent, OfferStrikeIntent):  # M32.1a X3: the fight, then this line
         await offer_strike_turn(core, player, entry, intent)
+    elif isinstance(intent, PersonStrikeIntent):  # M36.8c: the point-of-no-return path
+        await strike_person(core, entry, intent)
     elif isinstance(intent, RefusedIntent):  # M32.1a X5: no roll, the offer still waits
         core.notice(player.id, NoticeKind.REFUSED, intent.text)
     elif isinstance(intent, ImpossibleIntent):  # M32.1a X8: no dice, told failing

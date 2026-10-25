@@ -2,9 +2,9 @@
 
 Walks committed playtest fixtures through the one reducer and, at each typed line out of a fight,
 checks the menu against what the client could send in that state: the offer card's answers, the
-quest card, the shop (visit, buy, sell), the item cards (give, hand, equip, unequip, drop, use
-here, potions, copy a scroll, put out the light), helping a downed hero up, picking up what lies
-here, "what now" and the travel map's exits.
+quest card, the shop (visit, buy, sell what a trader pays for), the item cards (give, hand, equip,
+unequip, drop, use here, potions, copy a scroll, put out the light), helping a downed hero up,
+picking up what lies here, "what now" and the travel map's exits.
 """
 
 from collections.abc import Iterator
@@ -25,7 +25,7 @@ from aidm.rules.menu_trade import TradeData
 from aidm.rules.menu_view import slug
 from aidm.rules.offer_answer import PARLEY_SKILLS
 from aidm.rules.scene import current_scene
-from aidm.rules.shop import is_shop, npc_shop_stock
+from aidm.rules.shop import is_shop, npc_shop_stock, sell_price
 from aidm.session.reducer import apply
 from tests.session.playtest_saves import events_of, replay_until
 
@@ -106,16 +106,17 @@ def _shop(state: GameState, actor_id: str, menu: ActionMenu) -> None:
     keepers = {
         n for n in view.people if is_shop(state, world.npcs[n]) and not world.npcs[n].hostile
     }
-    if keepers and view.offer is None:
+    if keepers:  # M36.8c: the shop panel shows the visit while an offer waits too
         assert keepers <= set(_entry(menu, "shop").target_ids)
     keeper = world.npcs.get(world.shop_npc_id or "")
-    if keeper is None or keeper.id not in view.people or keeper.hostile or view.offer is not None:
+    if keeper is None or keeper.id not in view.people or keeper.hostile:
         return
     for stock in npc_shop_stock(state, keeper.id, TRADE.catalogue, TRADE.shops):
         _entry(menu, f"buy:{stock.item}")
     for row in view.sheet.inventory:
-        if TRADE.catalogue.find(row.item) is not None:
-            _entry(menu, f"sell:{row.item}")
+        item = TRADE.catalogue.find(row.item)
+        if item is not None and sell_price(item.value_gp, 1, TRADE.shops) >= 1:
+            _entry(menu, f"sell:{row.item}")  # the panel's Sell buttons (worth at least 1 gp)
 
 
 def _item_cards(state: GameState, actor_id: str, menu: ActionMenu) -> None:

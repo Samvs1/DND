@@ -8,14 +8,14 @@ joins the parts that belong to it:
   the light, which is free on any turn, and the plain answers); the session answers anything
   else "not your turn" with no model call;
 - `offer`: out of a fight while an encounter offer waits at the party's place: the offer's
-  answers, strikes at its foes and a surrender demand (`rules.menu_offer`), the quest card,
-  helping a downed hero up, people, looking, rests (`rules.menu_scene`), items
-  (`rules.menu_items`), casts and features usable out of a fight (`rules.menu_casts`); travel
-  notes that the offer is answered first (the place itself stays "you are here"); search and
-  the shop wait for the answer;
-- `explore`: out of a fight with no offer here: all of the scene, items, casts, the quest card,
-  helping up and, while a shop is open here and `trade` is given, buying and selling
-  (`rules.menu_trade`).
+  answers, strikes at its foes (and at the people here) and a surrender demand
+  (`rules.menu_offer`), then everything of `explore`; travel notes that the offer is answered
+  first (the place itself stays "you are here");
+- `explore`: out of a fight with no offer here: all of the scene (people, looking, searching,
+  travel, rests, the shop: `rules.menu_scene`), items (`rules.menu_items`), casts and features
+  usable out of a fight (`rules.menu_casts`), the quest card, helping up, a strike at a person
+  here (`menu_offer.person_strikes`, M36.8c: the engine's point-of-no-return path) and, while a
+  shop is open here and `trade` is given, buying and selling (`rules.menu_trade`).
 Out of a fight the menu keeps only the targets its entries name. Entry ids are unique: a clash
 of two data keys (rare) keeps the first and numbers the next (`give:torch-2`).
 
@@ -31,7 +31,7 @@ from aidm.models.state import GameState
 from aidm.rules.menu_casts import explore_casts, explore_features
 from aidm.rules.menu_fight import fight_menu
 from aidm.rules.menu_items import carried_entries, put_out_entries
-from aidm.rules.menu_offer import help_up_entries, offer_entries, quest_entries
+from aidm.rules.menu_offer import help_up_entries, offer_entries, person_strikes, quest_entries
 from aidm.rules.menu_scene import info_entries, scene_entries
 from aidm.rules.menu_scene_view import scene_targets, scene_view
 from aidm.rules.menu_trade import TradeData, trade_entries
@@ -66,15 +66,15 @@ def _out_of_fight(
     view = scene_view(state, actor_id, regs)
     offer_scope = view.offer is not None
     entries = [
-        *offer_entries(view),
+        *(offer_entries(view) if offer_scope else person_strikes(view)),
         *quest_entries(view),
         *help_up_entries(view),
-        *scene_entries(view, offer_scope),
+        *scene_entries(view),
         *carried_entries(view),
         *explore_casts(view),
         *explore_features(view),
     ]
-    if trade is not None and not offer_scope:
+    if trade is not None:
         entries += trade_entries(view, trade)
     named = {t for e in entries for t in (*e.target_ids, *e.zone_ids)}
     return ActionMenu(

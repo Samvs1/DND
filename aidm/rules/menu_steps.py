@@ -10,7 +10,11 @@ Engine meaning lives here and in `menu_steps_fight` / `menu_steps_scene`, never 
   it comes before them when `other_first`, else after them unless a step ended the line.
 - A strike with `starts_fight` (the offer scope) is `OfferStrikeIntent(actor, step)` and ends the
   steps: the offer is answered as Fight and the step itself waits for the hero's turn, when
-  `resume_strike` maps it onto the spawned creatures (below).
+  `resume_strike` maps it onto the spawned creatures (below). M36.8c: a weapon strike out of a
+  fight aimed at a person here (not the waiting master) is `PersonStrikeIntent(actor, npc,
+  attack option)` and ends the steps too; a shown cast twin of a boss record is mapped back to
+  the boss record first (`menu_scene_view.twin_boss`), so the master's strike stays an offer
+  strike.
 - Ordering on the running state: each step is turned into acts on the state the steps before it
   leave. In a fight that state is planned here: every command the steps send is probed with the
   real rules (`menu_probe.accepted`, a probe RNG; a draw, a walk) and projected
@@ -41,7 +45,15 @@ Public API: `Act`, `to_acts(state, menu, choice, regs, text="")`,
 from collections.abc import Sequence
 
 from aidm.data.combat_data import CombatRegistries
-from aidm.models.action_menu import ActionMenu, MenuChoice, MenuEntry, MenuScope, MenuStep
+from aidm.models.action_menu import (
+    STRIKE_KINDS,
+    ActionKind,
+    ActionMenu,
+    MenuChoice,
+    MenuEntry,
+    MenuScope,
+    MenuStep,
+)
 from aidm.models.campaign_state import OfferChoice
 from aidm.models.commands import EndTurnCommand, FleeCommand, MoveCommand
 from aidm.models.protocol_client import AnswerOffer
@@ -51,6 +63,7 @@ from aidm.rules.acts import (
     OfferStrikeIntent,
     OtherIntent,
     ParleyIntent,
+    PersonStrikeIntent,
     RefusedIntent,
     RestIntent,
     ShopIntent,
@@ -59,7 +72,7 @@ from aidm.rules.acts import (
 from aidm.rules.acts_fight import DrawAttack
 from aidm.rules.menu_attacks import drawn_state
 from aidm.rules.menu_probe import accepted, walk
-from aidm.rules.menu_scene_view import FOE_PREFIX
+from aidm.rules.menu_scene_view import FOE_PREFIX, twin_boss
 from aidm.rules.menu_steps_fight import COMMAND_TYPES, FightAct, fight_step_acts
 from aidm.rules.menu_steps_scene import SceneAct, free_acts, scene_step_acts
 from aidm.rules.projection import project_state
@@ -70,6 +83,7 @@ _ENDS = (
     EndTurnCommand,
     FleeCommand,
     OfferStrikeIntent,
+    PersonStrikeIntent,
     TravelIntent,
     RestIntent,
     ShopIntent,
@@ -95,14 +109,32 @@ def step_acts(
     entry = _entry(menu, step.entry)
     if entry is None:  # not on this menu (the validator keeps this out): the storyteller's
         return [OtherIntent(actor_id, text)]
-    if entry.starts_fight:
-        return [OfferStrikeIntent(actor_id, step)]
+    if menu.scope not in _FIGHT_SCOPES and entry.kind in STRIKE_KINDS:
+        strike = _strike_acts(state, actor_id, entry, step)
+        if strike is not None:
+            return strike
     if menu.scope in _FIGHT_SCOPES:
         free = free_acts(actor_id, entry)
         if free is not None:
             return [*free]
         return [*fight_step_acts(state, actor_id, entry, step, regs)]
     return [*scene_step_acts(state, actor_id, entry, step, text)]
+
+
+def _strike_acts(
+    state: GameState, actor_id: str, entry: MenuEntry, step: MenuStep
+) -> list[Act] | None:
+    """Out of a fight: a weapon strike at a person here, or a strike at a waiting offer's foes."""
+    chosen = step.targets or (entry.target_ids if len(entry.target_ids) == 1 else ())
+    targets = tuple(twin_boss(state, t) for t in chosen)
+    offer = state.campaign.offer if state.campaign is not None else None
+    master = offer.boss_npc_id if offer is not None else None
+    person = next((t for t in targets if t in state.world.npcs and t != master), None)
+    if person is not None and entry.kind is ActionKind.ATTACK:
+        return [PersonStrikeIntent(actor_id, person, entry.option)]
+    if entry.starts_fight:
+        return [OfferStrikeIntent(actor_id, step.model_copy(update={"targets": targets}))]
+    return None
 
 
 def _after(state: GameState, acts: Sequence[Act], regs: CombatRegistries) -> GameState:

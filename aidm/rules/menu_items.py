@@ -11,17 +11,22 @@
   `same_lying` finds the rest), `qty_max` the count (`rules.equipment.take_events`, counted);
 - `loot:<item>` (M36.4, round 6 Y14): each thing in a downed or dead hero's pack (keepsakes
   grouped by name, `loot:gold` the coins), aimed at that hero (`rules.hero_handing.loot_events`);
-- `lift:<keepsake>`: a keepsake a person here holds, taken back (`rules.lifting.lift_events`);
+- `lift:<keepsake>`: a keepsake a person here holds, taken back (`rules.lifting.lift_events`;
+  a keepsake held by a hidden boss twin is aimed at the shown person, M36.8c);
 - `equip:<item>` (a weapon, armour or shield not in hand), `unequip:<item>`, `drop:<item>`
   (`qty_max` the count carried; one unit per drop, `rules.equipment`);
 - `item:<consumable>`: a potion or poultice on the hero or another hero (`rules.items`);
+- `feed:<consumable>` (M36.8c, round 1 G17 "pours his Potion of Healing between his lips"): a
+  draught from another hero's own pack given to that hero (downed or not; out of a fight every
+  hero is at hand), `option` FEED_OPTION: the carrier is the target (`HealIntent.owner_id`);
 - `use:<use_id>`: each use of carried gear made out of a fight, in the place (the item card's Use
   button, `rules.gear_menu.item_use_hints`); a use on a lock aims at a locked thing here;
 - `put_out`: putting out the hero's carried light (free, on any turn);
 - `copy:<scroll>`: a wizard copying a carried scroll into the spellbook (`rules.scrolls`).
 Labels say what the cards say: names, counts, gold, healing dice.
 
-Public API: `carried_entries(view) -> list[MenuEntry]`, `put_out_entries(state, actor_id)`,
+Public API: `FEED_OPTION`, `carried_entries(view) -> list[MenuEntry]`,
+`put_out_entries(state, actor_id)`,
 `same_keepsakes(keepsakes, first_id)`, `same_lying(state, first_id)` (the group of an entry).
 """
 
@@ -37,6 +42,8 @@ from aidm.rules.light import hero_light
 from aidm.rules.menu_scene_view import SceneMenuView, fallen_heroes
 from aidm.rules.menu_view import slug
 from aidm.rules.scene import current_scene
+
+FEED_OPTION = "their_own"
 
 
 def _keepsake_key(keepsake: Keepsake) -> str:
@@ -186,14 +193,15 @@ def _lying(view: SceneMenuView) -> list[MenuEntry]:
                 item=item.id,
             )
         )
-    for npc_id in view.people:
+    shown = {n: n for n in view.people} | view.twins
+    for npc_id, person in shown.items():
         for keepsake in world.npcs[npc_id].keepsakes:
             out.append(
                 MenuEntry(
                     id=f"lift:{slug(keepsake.id)}",
                     kind=ActionKind.LIFT,
                     label=f"Take back {keepsake.name} from {world.npcs[npc_id].name}",
-                    target_ids=(npc_id,),
+                    target_ids=(person,),
                     max_targets=1,
                     item=keepsake.id,
                 )
@@ -240,6 +248,30 @@ def _potion(view: SceneMenuView, row: InventoryLine) -> MenuEntry | None:
         max_targets=1,
         item=row.item,
     )
+
+
+def _feeds(view: SceneMenuView) -> list[MenuEntry]:
+    """M36.8c G17: each draught another hero carries, given to that hero from their own pack."""
+    carriers: dict[str, list[str]] = {}
+    for hero_id in view.heroes:
+        pc = view.state.creatures[hero_id].pc
+        for row in pc.inventory if pc is not None else []:
+            if row.qty > 0 and view.regs.consumables.find(row.item) is not None:
+                carriers.setdefault(row.item, []).append(hero_id)
+    out: list[MenuEntry] = []
+    for item, heroes in carriers.items():
+        out.append(
+            MenuEntry(
+                id=f"feed:{item}",
+                kind=ActionKind.ITEM,
+                label=f"Give a hero their own {view.regs.consumables.get(item).name}",
+                target_ids=tuple(heroes),
+                max_targets=1,
+                item=item,
+                option=FEED_OPTION,
+            )
+        )
+    return out
 
 
 def _uses(view: SceneMenuView, row: InventoryLine) -> list[MenuEntry]:
@@ -340,6 +372,7 @@ def carried_entries(view: SceneMenuView) -> list[MenuEntry]:
         potion = _potion(view, row)
         out += [potion] if potion is not None else []
         out += _uses(view, row)
+    out += _feeds(view)
     out += put_out_entries(view.state, view.actor_id)
     out += _copies(view)
     return out

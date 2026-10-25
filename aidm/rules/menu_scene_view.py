@@ -16,10 +16,15 @@ Targets, each labelled for a model choosing:
   road from here";
 - things: the discovered features of this place ("Iron Door, locked");
 - offer foes: `foe:<monster>` per kind ("Kobold x3") and the master by NPC id.
+M36.8c: one person is one target. An old plan can hold a region master's boss record and a cast
+record of the same name standing at the same place (M29 G30: "Ranna the Brine-Widow" twice).
+`person_twins(state)` maps the boss record to the cast record (hidden -> shown); the menu shows
+only the cast record (its label marked ", master"), the offer's master target is that id too,
+and the steps map it back where an act needs the boss record (`twin_boss`: a strike).
 
 Public API: `SceneMenuView`, `scene_view(state, actor_id, regs)`, `Place`, `places(view)`,
-`scene_targets(view)`, `offer_foes(view)`, `fallen_heroes(view)`, `HERE_NOTE`, `NO_ROAD_NOTE`,
-`FOE_PREFIX`.
+`scene_targets(view)`, `offer_foes(view)`, `fallen_heroes(view)`, `person_twins(state)`,
+`twin_boss(state, npc_id)`, `HERE_NOTE`, `NO_ROAD_NOTE`, `FOE_PREFIX`, `MASTER_MARK`.
 """
 
 from dataclasses import dataclass
@@ -32,6 +37,7 @@ from aidm.models.state import GameState
 from aidm.rules.gateway_lock import locked_reason, short_reason
 from aidm.rules.light import hero_light
 from aidm.rules.menu_labels import state_word
+from aidm.rules.plan_ids import boss_npc_id
 from aidm.rules.scene import current_scene, node_display_name
 from aidm.rules.sheet import build_sheet
 from aidm.rules.waiting_foe import waiting_foe
@@ -40,6 +46,7 @@ from aidm.rules.world_graph import travel_route
 HERE_NOTE = "you are here"
 NO_ROAD_NOTE = "no open road from here"
 FOE_PREFIX = "foe:"
+MASTER_MARK = ", master"
 
 
 @dataclass(frozen=True)
@@ -52,10 +59,36 @@ class SceneMenuView:
     heroes: tuple[str, ...]
     offer: EncounterOffer | None
     threat: bool
+    twins: dict[str, str]  # M36.8c: a boss record hidden behind its cast twin (hidden -> shown)
 
     @property
     def gold(self) -> int:
         return self.sheet.gold
+
+
+def person_twins(state: GameState) -> dict[str, str]:
+    """The boss records standing here whose cast twin (same name, not a boss) stands here too:
+    boss id -> the cast record's id (M29 G30, M36.8c)."""
+    campaign = state.campaign
+    if campaign is None:
+        return {}
+    bosses = {boss_npc_id(r) for r in campaign.plan.all_regions()}
+    npcs = state.world.npcs
+    present = current_scene(state).npc_ids
+    out: dict[str, str] = {}
+    for boss in (n for n in present if n in bosses):
+        name = npcs[boss].name.casefold()
+        twin = next(
+            (n for n in present if n not in bosses and npcs[n].name.casefold() == name), None
+        )
+        if twin is not None:
+            out[boss] = twin
+    return out
+
+
+def twin_boss(state: GameState, npc_id: str) -> str:
+    """The boss record behind a shown cast twin, else `npc_id` itself."""
+    return next((b for b, t in person_twins(state).items() if t == npc_id), npc_id)
 
 
 def scene_view(state: GameState, actor_id: str, regs: CombatRegistries) -> SceneMenuView:
@@ -70,15 +103,17 @@ def scene_view(state: GameState, actor_id: str, regs: CombatRegistries) -> Scene
     campaign = state.campaign
     offer = campaign.offer if campaign is not None else None
     here = offer if offer is not None and offer.node_id == state.world.current_node else None
+    twins = person_twins(state)
     return SceneMenuView(
         state=state,
         actor_id=actor_id,
         regs=regs,
         sheet=sheet,
-        people=current_scene(state).npc_ids,
+        people=tuple(n for n in current_scene(state).npc_ids if n not in twins),
         heroes=tuple(heroes),
         offer=here,
         threat=waiting_foe(state) is not None,
+        twins=twins,
     )
 
 
@@ -131,6 +166,7 @@ def places(view: SceneMenuView) -> list[Place]:
 def _person_label(view: SceneMenuView, npc_id: str) -> str:
     npc = view.state.world.npcs[npc_id]
     label = f"{npc.name} ({npc.role})" if npc.role else npc.name
+    label += MASTER_MARK if npc_id in view.twins.values() else ""
     return f"{label}, hostile" if npc.hostile else label
 
 
@@ -147,7 +183,8 @@ def offer_foes(view: SceneMenuView) -> list[MenuTarget]:
     out: list[MenuTarget] = []
     boss = view.state.world.npcs.get(offer.boss_npc_id or "")
     if boss is not None:
-        out.append(MenuTarget(id=boss.id, label=f"{boss.name} (master)", kind="foe"))
+        shown = view.twins.get(boss.id, boss.id)
+        out.append(MenuTarget(id=shown, label=f"{boss.name} (master)", kind="foe"))
     counts = dict.fromkeys(offer.monster_ids, 0)
     for monster in offer.monster_ids:
         counts[monster] += 1

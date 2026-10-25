@@ -17,11 +17,13 @@ SPEC 6.2). Pure.
   offer waits here the note says the foe strikes first and no rest is taken (M35.2,
   `rules.waiting_foe`);
 - `shop`: trading with a friendly shopkeeper standing here (`rules.shop.is_shop`).
-While an encounter offer waits here (the `offer` scope), search and the shop wait, and every
-travel destination but the place itself notes that the offer is answered first (`move_party`
-never moves past a waiting offer; Escape is the offer's way out); "you are here" stays plain.
+While an encounter offer waits here (the `offer` scope) every travel destination but the place
+itself notes that the offer is answered first (`move_party` never moves past a waiting offer;
+Escape is the offer's way out); "you are here" stays plain. M36.8c: search and the shop stay on
+the menu while foes wait (the engine runs the search check and the table shows the shop's
+"trade with" button then too: never refuse the possible, the menu matches the buttons).
 
-Public API: `scene_entries(view, offer_scope) -> list[MenuEntry]`, `info_entries()`.
+Public API: `scene_entries(view) -> list[MenuEntry]`, `info_entries()`.
 """
 
 from aidm.models.abilities import Skill
@@ -149,14 +151,14 @@ def _shop(view: SceneMenuView) -> list[MenuEntry]:
     ]
 
 
-def scene_entries(view: SceneMenuView, offer_scope: bool) -> list[MenuEntry]:
+def scene_entries(view: SceneMenuView) -> list[MenuEntry]:
     look = MenuEntry(id="look", kind=ActionKind.LOOK, label="Look around", cost="free")
-    entries = [*_talk(view), look]
-    if not offer_scope:
-        entries += _searches()
-    entries += info_entries()
-    entries += _travel(view)
-    entries += _rests(view)
-    if not offer_scope:
-        entries += _shop(view)
-    return entries
+    return [
+        *_talk(view),
+        look,
+        *_searches(),
+        *info_entries(),
+        *_travel(view),
+        *_rests(view),
+        *_shop(view),
+    ]

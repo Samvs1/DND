@@ -50,7 +50,7 @@ prints is a typo to fix or a menu gap to note (below).
    foes are `offer:parley:persuasion` (reason, a plea, peace), `offer:parley:intimidation` (a threat) or
    `offer:parley:deception` (a lie: "our captain is right behind us"); a surrender demand there is `surrender`;
    a question to a bystander stays `talk`; an attack or hostile spell on them is the attack or cast entry with a
-   `foe:<monster>` target (it starts the fight).
+   `foe:<monster>` target (it starts the fight). A question or greeting to the waiting master is `talk` (A1 below).
 6. **Questions to the storyteller** are entries too: "what can I see?" / "I look around." -> `look`; "what should
    we do now?" -> `what_now`; "what am I carrying?" -> `inventory`; "look around for the bell" / "search the
    shelves" -> `search:perception` (watching, listening, scanning) or `search:investigation` (going through
@@ -75,8 +75,8 @@ prints is a typo to fix or a menu gap to note (below).
 - **Spent entries stay on the menu** (marked `spent`). Label what was asked; the rules refuse it plainly. Never
   swap to an unspent entry the player did not ask for.
 - **Melee at a foe out of reach**: label the melee entry; the engine walks first ("moves 25 ft first" in the
-  label) or says out of reach. "Run at the gnoll and strike it down" may be `move` + attack or the attack alone
-  (put the second reading in `alt`, as in the sample corpus row for Y10 496).
+  label) or says out of reach. "Run at the gnoll and strike it down" is the attack alone with `move` + attack
+  in `alt` (A4 below, as in the sample corpus row for Y10 496).
 - **A stowed weapon** ("draws first" in the label) is still the attack entry: no separate draw step.
 - **An item the hero does not carry, a person not present, a place not known**: no entry does it, so `other`
   (note what is missing). Do not pick a look-alike.
@@ -89,6 +89,38 @@ Only for a genuinely equal second reading, with the same shape as `expect`: two 
 player named none ("I attack the zombie" with a mace and a crossbow and the zombie in reach of both), two foes that
 both fit "the nearest", a demand that reads as threat or offer, a swap said as two steps that one equip also does.
 Not for a reading you think is wrong but forgivable. Most rows have no `alt`.
+
+## Conventions (M36.8c, applied to every corpus row)
+The three labellers split on a few kinds of line; these rules decide them (the chooser's rules in
+`aidm/dm/chooser_prompt.py` say the same in short):
+- **A1 Words to a waiting master or foe** (the `offer` scope): a question, a greeting or a request
+  for information is `talk` to them; a plea, an offer, a demand, a bargain or an answer to the
+  master's challenge meant to avoid or end the fight is `offer:parley:<skill>`. The other goes in
+  `alt` only when the line truly does both ("ask what he guards and whether he will let us pass").
+- **A2 Another hero's deed** described in the acting hero's line ("Brienne keeps the light while I
+  search") is colour, never `other`: the storyteller would act for the wrong hero. `other` only when
+  the acting hero's own part is off the menu.
+- **A3 Counts**: a plural noun, "all", "them", "the coins" or a mass noun naming the thing ("the
+  salt") is every one present or carried (qty = that count, an alt with 1 for a mass noun); a
+  singular, "a", "an" or "one" is 1; a number is that number. The qty never exceeds the entry's
+  `up to N`: the menu counts the pack before the line (a pick-up then "give all of it" gives what
+  was carried before; counts on the running state are not modelled).
+- **A4 A charge** ("run at X and strike", "charge the zombie") with no zone named is the attack
+  entry (its approach does the walk), with `move` + attack as the alt.
+- **A5 A prop**: one the hero does not carry is `other` ("holds up the locket" when the locket is
+  elsewhere); one the hero carries and hands over or sets down before a person is `give`.
+
+## Known gaps kept (M36.8c; the label stays as the labeller chose)
+Coins under 1 gp (the economy is whole gold: "four silver" is `pay` 1), escorting a person on
+travel (travel plus `other`), asking for an item back (`talk`, the Sleight of Hand take-back in
+`alt`). Their notes start `KNOWN GAP (kept, M36.8c):`.
+
+## Menu gaps closed in M36.8c (rows relabelled with the new entries)
+Search entries while an encounter offer waits; a weapon strike at a person here out of a fight
+(the point-of-no-return card first); `feed:<draught>` (a hero's own draught given to that hero);
+the shop entry (and buy/sell) while an offer waits, as the shop panel shows; one target per person
+(a region master's boss record folded into its cast twin of the same name). Items a trader pays
+nothing for are no longer on the sell list (the shop panel has no Sell button for them).
 
 ## Source and note
 - `source` is given in the sheet: `"<round doc> <finding id>"` for a line a playtest finding cites ("M34 Y11",
@@ -129,3 +161,11 @@ Not for a reading you think is wrong but forgivable. Most rows have no `alt`.
 | m29-p6:39 | Rook pulls fifty feet of silk rope out of his pocket and ties it to a post | other | - | item not carried, no entry ties rope |
 
 All qty are 1. The offline eval covers all 15 (`coverage: 15 of 15 rows covered`).
+
+## The merged corpus (M36.8c)
+`tests/fixtures/interpret/corpus.jsonl`: 300 rows sorted by run and event, ids unique, sources kept
+(120 finding-cited, 160 sample, 20 button). Scope x source: explore 63 cited / 69 sample / 18
+button, fight 38 / 62 / 0, offer 19 / 29 / 2. 17 rows are `other` only, 7 steps plus `other`, 23
+carry an alt, 20 have two or more steps. Offline coverage 300 of 300
+(`python scripts/eval_interpret.py`). Router baseline (`--router`, act match, no model calls):
+overall 56.3%, explore 49.3%, offer 40.0%, fight 75.0%, finding-cited 53.3%.

@@ -11,12 +11,18 @@ While an encounter offer waits at the party's place (the `offer` scope):
   (M32.1a X3, M35.2 Y9, `session.offer_strike`);
 - `surrender`: a demand that the foes yield, a parley with Intimidation; when every foe is a kind
   that never yields the note carries the rules' plain line (`rules.surrender`, M32.1a X5).
+M36.8c (round 1 G-104 "attacks Old Broker Tann without warning"): every weapon the hero holds
+(not the off hand: a bonus action never opens a fight) also aims at the people standing here, out
+of a fight with or without an offer (`person_strikes` when none waits). Chosen, it is the
+engine's own path for an attack on a person (`PersonStrikeIntent`: `start_encounter` against
+them with the opening strike; a non-hostile person asks the point-of-no-return question first).
 At any place out of a fight:
 - `quest:accept`, `quest:decline`: the quest card's answers while a quest is asked by a living
   person standing here (`world.quest_ask`);
 - `help_up`: helping a downed hero up to 1 HP (`rules.downed.help_up_events`).
 
-Public API: `offer_entries(view)`, `quest_entries(view)`, `help_up_entries(view)`.
+Public API: `offer_entries(view)`, `person_strikes(view)`, `quest_entries(view)`,
+`help_up_entries(view)`.
 """
 
 from aidm.models.action_menu import ActionKind, MenuEntry
@@ -30,6 +36,7 @@ from aidm.rules.offer_answer import PARLEY_SKILLS
 from aidm.rules.surrender import offer_never_yield_line
 
 _FIGHT_NOTE = "starts the fight"
+_PERSON_NOTE = "starts a fight"
 _ANSWERS = {
     OfferChoice.FIGHT: "Fight them (the fight starts)",
     OfferChoice.SURPRISE: "Sneak up and strike first (a group Stealth check, then the fight)",
@@ -59,31 +66,27 @@ def _answers(offer: EncounterOffer) -> list[MenuEntry]:
     return out
 
 
-def _strike(line: AttackLine, entry_id: str, foes: tuple[str, ...]) -> MenuEntry:
+def _strike(
+    line: AttackLine, entry_id: str, foes: tuple[str, ...], people: tuple[str, ...]
+) -> MenuEntry:
+    aimed = foes + (people if line.hand != "off_hand" else ())
+    note = _FIGHT_NOTE if foes else _PERSON_NOTE
     return MenuEntry(
         id=entry_id,
         kind=ActionKind.ATTACK,
         label=strike_label(line.name, line.range_band, line.damage),
-        target_ids=foes,
+        target_ids=aimed,
         max_targets=1,
         cost="bonus" if line.hand == "off_hand" else "attack",
-        note=_FIGHT_NOTE,
+        note=note,
         option=line.hand,
         item=line.item,
-        starts_fight=True,
+        starts_fight=bool(foes),
     )
 
 
-def _weapon_strikes(view: SceneMenuView, foes: tuple[str, ...]) -> list[MenuEntry]:
+def _stowed(view: SceneMenuView, foes: tuple[str, ...], taken: set[str]) -> list[MenuEntry]:
     out: list[MenuEntry] = []
-    taken: set[str] = set()
-    for line in view.sheet.attacks:
-        prefix = "offhand" if line.hand == "off_hand" else "attack"
-        entry_id = f"{prefix}:{line.item or UNARMED_KEY}"
-        if entry_id in taken:
-            entry_id = f"{entry_id}:{line.hand.replace('_', '-')}"
-        taken.add(entry_id)
-        out.append(_strike(line, entry_id, foes))
     equipment = view.regs.chars.equipment
     for row in view.sheet.inventory:
         weapon = equipment.find(row.item)
@@ -114,6 +117,23 @@ def _weapon_strikes(view: SceneMenuView, foes: tuple[str, ...]) -> list[MenuEntr
     return out
 
 
+def _weapon_strikes(
+    view: SceneMenuView, foes: tuple[str, ...], people: tuple[str, ...]
+) -> list[MenuEntry]:
+    out: list[MenuEntry] = []
+    taken: set[str] = set()
+    for line in view.sheet.attacks:
+        if not foes and line.hand == "off_hand":
+            continue
+        prefix = "offhand" if line.hand == "off_hand" else "attack"
+        entry_id = f"{prefix}:{line.item or UNARMED_KEY}"
+        if entry_id in taken:
+            entry_id = f"{entry_id}:{line.hand.replace('_', '-')}"
+        taken.add(entry_id)
+        out.append(_strike(line, entry_id, foes, people))
+    return out + (_stowed(view, foes, taken) if foes else [])
+
+
 def _surrender(view: SceneMenuView) -> MenuEntry:
     never = offer_never_yield_line(view.state, view.regs.monsters)
     return MenuEntry(
@@ -130,19 +150,26 @@ def offer_entries(view: SceneMenuView) -> list[MenuEntry]:
     if offer is None:
         return []
     out = _answers(offer)
+    foes = tuple(t.id for t in offer_foes(view)) if view.threat else ()
+    people = tuple(p for p in view.people if p not in foes)
+    if foes or people:
+        out += _weapon_strikes(view, foes, people)
+    if foes:
+        out += strike_casts(view, foes)
     if view.threat:
-        foes = tuple(t.id for t in offer_foes(view))
-        if foes:
-            out += _weapon_strikes(view, foes)
-            out += strike_casts(view, foes)
         out.append(_surrender(view))
     return out
+
+
+def person_strikes(view: SceneMenuView) -> list[MenuEntry]:
+    """M36.8c: no offer waits here: each held weapon at the people standing here."""
+    return _weapon_strikes(view, (), view.people) if view.people else []
 
 
 def quest_entries(view: SceneMenuView) -> list[MenuEntry]:
     world = view.state.world
     ask = world.quest_ask
-    if ask is None or ask.npc_id not in view.people:
+    if ask is None or (ask.npc_id not in view.people and ask.npc_id not in view.twins):
         return []
     quest = world.quests.get(ask.quest_id)
     title = quest.title if quest is not None else ask.quest_id.replace("-", " ")

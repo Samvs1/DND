@@ -18,7 +18,9 @@ meaning, never wording:
   (`ParleyIntent`), the surrender demand a parley with its skill or, when every foe is a kind
   that never yields, the rules' plain line;
 - a feature is used out of a fight (`FeatureUseIntent`), a draught on a hero is `HealIntent`, a
-  spell on heroes `CastIntent` (no creature target: cast at the scene).
+  spell on heroes `CastIntent` (no creature target: cast at the scene); M36.8c: a `feed:` draught
+  comes from the target hero's own pack (`HealIntent.owner_id` the target), and a keepsake taken
+  back from a shown person comes from whichever of their twin records holds it.
 `free_acts` serves the free answers on any menu (pack, "what now", putting out the light).
 
 Public API: `SceneAct`, `scene_step_acts(state, actor_id, entry, step, text)`,
@@ -63,8 +65,9 @@ from aidm.rules.acts import (
 )
 from aidm.rules.gateway_lock import locked_reason
 from aidm.rules.item_grants import carried_qty
-from aidm.rules.menu_items import same_keepsakes, same_lying
+from aidm.rules.menu_items import FEED_OPTION, same_keepsakes, same_lying
 from aidm.rules.menu_scene import OFFER_FIRST_NOTE
+from aidm.rules.menu_scene_view import twin_boss
 from aidm.rules.scene import node_display_name
 from aidm.rules.world_graph import travel_route
 
@@ -193,15 +196,15 @@ def _plain(actor_id: str, entry: MenuEntry, target: str | None, text: str) -> Sc
             return RestIntent(RestKind(entry.option or RestKind.SHORT.value))
         case ActionKind.SHOP:
             return ShopIntent(target or "")
-        case ActionKind.LIFT:
-            return LiftIntent(actor_id, target or "", entry.item or "")
+
         case ActionKind.EQUIP:
             return ItemIntent(actor_id, ItemAction.EQUIP, entry.item or "")
         case ActionKind.UNEQUIP:
             return ItemIntent(actor_id, ItemAction.UNEQUIP, entry.item or "")
         case ActionKind.ITEM:
             target_id = target or actor_id
-            return HealIntent(actor_id, (target_id,), item=entry.item, owner_id=actor_id)
+            owner = target_id if entry.option == FEED_OPTION else actor_id
+            return HealIntent(actor_id, (target_id,), item=entry.item, owner_id=owner)
         case ActionKind.GEAR:
             return UseIntent(actor_id, entry.item or "", target, use_id=entry.use_id)
         case ActionKind.COPY_SCROLL:
@@ -241,6 +244,14 @@ def _counted(
             return None
 
 
+def _holder(state: GameState, person: str, keepsake: str) -> str:
+    """The record of a shown person that holds the keepsake (a hidden boss twin may, M36.8c)."""
+    npc = state.world.npcs.get(person)
+    if npc is not None and any(k.id == keepsake for k in npc.keepsakes):
+        return person
+    return twin_boss(state, person)
+
+
 def _cast(actor_id: str, entry: MenuEntry, step: MenuStep) -> SceneAct:
     spell = entry.spell_id or ""
     if not entry.target_ids:
@@ -268,5 +279,9 @@ def scene_step_acts(
         return [_unlock(state, actor_id, entry, target or "")]
     if entry.kind is ActionKind.CAST:
         return [_cast(actor_id, entry, step)]
+    if entry.kind is ActionKind.LIFT:
+        return [
+            LiftIntent(actor_id, _holder(state, target or "", entry.item or ""), entry.item or "")
+        ]
     counted = _counted(state, actor_id, entry, target or "", qty)
     return counted if counted is not None else [_plain(actor_id, entry, target, text)]

@@ -3,8 +3,8 @@
 Entries are written `id = label -> targets`, with `up to N` for a counted entry, `[spent]` when
 its action is used and the entry's note. A verb with several entries that differ only by item
 (`give:dagger`, `give:rope`, ... with the same targets) is ONE line: `give:<item> -> targets:
-item, item (up to N), ...`, items that share a note grouped after it ("worthless to a trader:
-arrow, bell"). When several groups list the same items, the items are written once (`ITEMS`)
+item, item (up to N), ...`, items that share a note grouped after it ("unequip it first:
+dagger, shortbow"). When several groups list the same items, the items are written once (`ITEMS`)
 and each group says `<item> = any of ITEMS` (or the few it leaves out). A target list that is
 every listed target of its kinds is written "any foe" / "any place" and so on, unless a
 target carries a note ("moves 30 ft first"). Grouping reads ids and fields only, never wording.

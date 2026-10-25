@@ -26,6 +26,9 @@ Public API:
   `rules.feature_commands.explore_feature_events`), `LookAroundIntent(actor_id)` (the session
   writes the look-around text, then plays it as `LookIntent`), `OtherIntent(actor_id, text)` (a
   line off the menu: the storyteller's creative or social call);
+- M36.8c: `PersonStrikeIntent(actor_id, npc_id, attack)` (an attack on a person here out of a
+  fight: `start_encounter` against them with the opening strike `attack`, a weapon option key;
+  a non-hostile person asks the point-of-no-return question first);
 - `Intent`: the union of the acts above.
 """
 
@@ -239,6 +242,13 @@ class LookAroundIntent:
 
 
 @dataclass(frozen=True)
+class PersonStrikeIntent:
+    actor_id: str
+    npc_id: str
+    attack: str | None = None
+
+
+@dataclass(frozen=True)
 class OtherIntent:
     actor_id: str
     text: str
@@ -272,5 +282,6 @@ type Intent = (
     | LootIntent
     | FeatureUseIntent
     | LookAroundIntent
+    | PersonStrikeIntent
     | OtherIntent
 )

@@ -25,8 +25,9 @@ Public API:
   M36.3: `quest_id` names the quest a quest-card answer answers (only a `quest` entry has
   one); `starts_fight` = a strike at a waiting offer's foes (the offer is answered as Fight
   and the strike plays on the hero's turn). Out of a fight `option` carries the entry's
-  choice (rest kind, offer answer, quest accept), `item` an inventory key, keepsake id or
-  world item id, `qty_max` the count carried or held.
+  choice (rest kind, offer answer, quest accept; M36.8c: a `feed:` draught's "their_own", a
+  person strike's attack option), `item` an inventory key, keepsake id or world item id,
+  `qty_max` the count carried or held.
 - `ActionMenu(scope, actor_id, entries, targets)`: entry ids and target ids are unique and every
   target id an entry names is in `targets`.
 - `MenuStep(entry, targets, qty)`, `MenuChoice(steps, other, other_text, other_first)`: up to 4

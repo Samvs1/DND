@@ -101,7 +101,7 @@ def test_menu_offer_answers_and_strikes() -> None:
     sword = _entry(menu, "attack:longsword")
     assert sword.starts_fight and set(sword.target_ids) == {"boss-gullmere-quay", "foe:cultist"}
     assert _entry(menu, "surrender").skill == "intimidation"
-    assert "shop" not in ids and not any(i.startswith("search:") for i in ids)
+    assert {"search:perception", "search:investigation"} <= ids  # M36.8c: search while foes wait
     assert _entry(menu, "rest:long").note.startswith("a foe waits here")
 
 
