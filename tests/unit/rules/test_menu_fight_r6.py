@@ -107,6 +107,9 @@ def test_menu_stowed_rapier_draws_first() -> None:
     assert "draws first" in rapier.label
 
 
-def test_menu_off_turn_has_no_entries() -> None:
+def test_menu_off_turn_has_no_fight_entries() -> None:
+    """M36.3: off turn only the free answers (pack, "what now", putting out a light) remain."""
     menu = build_menu(replay_until(RUN, 435), "pc-p4", REGS)
-    assert menu.scope is MenuScope.OFF_TURN and menu.entries == ()
+    assert menu.scope is MenuScope.OFF_TURN
+    free = {ActionKind.INVENTORY, ActionKind.WHAT_NOW, ActionKind.PUT_OUT}
+    assert {e.kind for e in menu.entries} <= free and menu.targets == ()

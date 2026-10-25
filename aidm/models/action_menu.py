@@ -7,19 +7,28 @@ stored, never an event payload. Ids are stable and built from data keys (`attack
 corpus can name them.
 
 Public API:
-- `MenuScope` (fight, off_turn, explore, offer), `ActionKind`, `TargetKind`, `EntryCost`.
-- `MenuTarget(id, label, kind)`: a creature or zone the entries may aim at, its label written for
-  a model choosing ("Kobold A, 15 ft, unhurt").
+- `MenuScope` (fight, off_turn, explore, offer), `ActionKind`, `TargetKind`, `EntryCost`,
+  `STRIKE_KINDS` (the kinds that may start a fight).
+- `MenuTarget(id, label, kind)`: a creature, zone, person (an NPC here), place (a travel
+  destination), thing (a feature here) or foe the entries may aim at, its label written for a
+  model choosing ("Kobold A, 15 ft, unhurt", "Lamplighters' Rest, next door"). M36.3: the foes of
+  a waiting encounter offer are `foe:<monster>` (or the master's NPC id) until the fight spawns
+  them.
 - `MenuEntry(id, kind, label, target_ids, max_targets, qty_max, zone_ids, cost, spent, note,
   target_notes, approach, far, option, spell_id, slot_level, feature_id, item, use_id,
-  condition, skill, draw)`: `max_targets` 0 means no target; `zone_ids` a second pick (where a
-  push sends the foe); `spent` = the action or bonus action it needs is used this turn (the
-  rules answer it plainly); `approach` = target -> feet the hero moves first (a melee strike out
-  of reach), `far` = targets out of reach this turn; the last nine fields are the data keys the
-  executor needs (attack option, spell, lowest slot, feature, item, gear use, condition ended,
-  surrender skill, a stowed weapon drawn first).
-- `ActionMenu(scope, actor_id, entries, targets)`: entry ids are unique and every target id an
-  entry names is in `targets`.
+  condition, skill, draw, quest_id, starts_fight)`: `max_targets` 0 means no target;
+  `zone_ids` a second pick (where a push sends the foe); `spent` = the action or bonus action
+  it needs is used this turn (the rules answer it plainly); `approach` = target -> feet the
+  hero moves first (a melee strike out of reach), `far` = targets out of reach this turn;
+  `option` .. `draw` are the data keys the executor needs (attack option, spell, lowest slot,
+  feature, item, gear use, condition ended, surrender skill, a stowed weapon drawn first).
+  M36.3: `quest_id` names the quest a quest-card answer answers (only a `quest` entry has
+  one); `starts_fight` = a strike at a waiting offer's foes (the offer is answered as Fight
+  and the strike plays on the hero's turn). Out of a fight `option` carries the entry's
+  choice (rest kind, offer answer, quest accept), `item` an inventory key, keepsake id or
+  world item id, `qty_max` the count carried or held.
+- `ActionMenu(scope, actor_id, entries, targets)`: entry ids and target ids are unique and every
+  target id an entry names is in `targets`.
 - `MenuStep(entry, targets, qty)`, `MenuChoice(steps, other)`: up to 4 ordered steps, or `other`
   (a stunt or something off the menu) with no steps.
 """
@@ -60,9 +69,34 @@ class ActionKind(StrEnum):
     FLEE = "flee"
     END_TURN = "end_turn"
     SURRENDER = "surrender"
+    TALK = "talk"
+    LOOK = "look"
+    SEARCH = "search"
+    INVENTORY = "inventory"
+    WHAT_NOW = "what_now"
+    TRAVEL = "travel"
+    UNLOCK = "unlock"
+    REST = "rest"
+    SHOP = "shop"
+    BUY = "buy"
+    SELL = "sell"
+    GIVE = "give"
+    HAND = "hand"
+    PAY = "pay"
+    TAKE = "take"
+    LIFT = "lift"
+    EQUIP = "equip"
+    UNEQUIP = "unequip"
+    DROP = "drop"
+    PUT_OUT = "put_out"
+    COPY_SCROLL = "copy_scroll"
+    OFFER = "offer"
+    QUEST = "quest"
+    HELP_UP = "help_up"
 
 
-type TargetKind = Literal["foe", "ally", "self", "zone"]
+type TargetKind = Literal["foe", "ally", "self", "zone", "person", "place", "thing"]
+STRIKE_KINDS = frozenset({ActionKind.ATTACK, ActionKind.CAST, ActionKind.FEATURE, ActionKind.THROW})
 type EntryCost = Literal["action", "bonus", "attack", "extra", "movement", "free"]
 
 
@@ -99,6 +133,8 @@ class MenuEntry(_Frozen):
     condition: str | None = None
     skill: str | None = None
     draw: str | None = None
+    quest_id: str | None = None
+    starts_fight: bool = False
 
     @model_validator(mode="after")
     def _targets_fit(self) -> Self:
@@ -108,6 +144,10 @@ class MenuEntry(_Frozen):
         loose = (set(self.approach) | set(self.far) | set(self.target_notes)) - named
         if loose:
             raise ValueError(f"{self.id}: notes for targets not listed: {sorted(loose)}")
+        if self.starts_fight and self.kind not in STRIKE_KINDS:
+            raise ValueError(f"{self.id}: only a strike can start a fight")
+        if (self.quest_id is not None) != (self.kind is ActionKind.QUEST):
+            raise ValueError(f"{self.id}: a quest answer names its quest, nothing else does")
         return self
 
 
@@ -127,6 +167,9 @@ class ActionMenu(_Frozen):
             missing = (set(entry.target_ids) | set(entry.zone_ids)) - known
             if missing:
                 raise ValueError(f"{entry.id}: unknown targets {sorted(missing)}")
+        target_ids = [t.id for t in self.targets]
+        if len(target_ids) != len(set(target_ids)):
+            raise ValueError("duplicate target ids")
         return self
 
 

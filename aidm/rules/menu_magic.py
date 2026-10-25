@@ -12,7 +12,8 @@
   (`feature_commands.ability_spell`). An area around the hero names who it would reach, from the
   real command's `FeatureUsed` targets ("undead nearby: Cantor Ashmere Voll").
 
-Public API: `spell_entries(view)`, `feature_entries(view)`.
+Public API: `spell_entries(view)`, `feature_entries(view)`, `needs_of(spell)`,
+`lowest_slot(block, level)` (the lowest slot level with a slot left, and how many are left).
 """
 
 from collections.abc import Callable
@@ -73,7 +74,7 @@ def _aim_reach(view: FightView, spell: SpellDef, build: Build) -> Reach | None:
     return reach if reach.listed else None
 
 
-def _slot(block: SpellcastingBlock, level: int) -> tuple[int, int] | None:
+def lowest_slot(block: SpellcastingBlock, level: int) -> tuple[int, int] | None:
     """(lowest slot level >= `level` with a slot left, slots left at that level)."""
     for group in block.levels:
         left = sum(s.current for s in group.slots)
@@ -84,7 +85,7 @@ def _slot(block: SpellcastingBlock, level: int) -> tuple[int, int] | None:
 
 def _spell_entry(view: FightView, line: SpellLine, block: SpellcastingBlock) -> MenuEntry | None:
     spell = view.regs.spells.find(line.index)
-    slot = _slot(block, line.level) if line.level > 0 and line.resource is None else None
+    slot = lowest_slot(block, line.level) if line.level > 0 and line.resource is None else None
     if spell is None or (line.level > 0 and line.resource is None and slot is None):
         return None
     slot_level = slot[0] if slot is not None else None
