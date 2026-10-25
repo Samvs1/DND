@@ -1,0 +1,131 @@
+# M36 labelling guide: the typed-line corpus
+
+The corpus (`tests/fixtures/interpret/corpus.jsonl`, M36.8c) holds about 300 typed lines from the committed
+playtest fixtures, each with the choice the menu chooser should make. `scripts/eval_interpret.py` measures the
+chooser (and the old router) against it, so a label must say what the PLAYER ASKED FOR, not what the engine did
+then and not what would be wise. Design: docs/next/M36_ACTION_MENU.md ("The eval"); chooser rules: DECISIONS
+M36.5 and M36.6.
+
+## The files
+- `artifacts/interpret/sheets/partN.jsonl` (N = 1-3, about 100 rows each, balanced by scope): one row per line
+  with `id, run, seq, actor_id, text, scope, source, note`, plus
+  - `prompt`: the user part of the CHOOSE prompt exactly as the model sees it: ACTING HERO (what is left this
+    turn), TARGETS (`id = label`, with distance and health), PRONOUNS (LAST TARGET, LAST SPOKEN TO), RECENT ENGINE
+    EVENTS and MENU (`id = label -> targets`, `[up to N]`, `[spent]`; `ITEMS:` lists the carried item ids once and
+    a group line `give:<item> -> widow-cabrelle: <item> = any of ITEMS` means one id per item, e.g.
+    `give:block-of-incense`);
+  - `exact`: the fast-path pick when the whole line is a game string (else null);
+  - `hint_router`, `hint_engine`: the old router's reading and what the engine did. Weak hints, often wrong.
+- `artifacts/interpret/labels/partN.jsonl`: what you write, one corpus row per sheet row, same order:
+
+```json
+{"id": "m35-r6-typed:161", "run": "m35-r6-typed", "seq": 161, "actor_id": "pc-p4",
+ "text": "I put an arrow in its chest", "scope": "fight",
+ "expect": {"steps": [{"entry": "attack:shortbow", "targets": ["swarm-of-rats-1"], "qty": 1}],
+            "other": false, "other_first": false},
+ "alt": [], "source": "M34 Y11", "note": "pronoun target, one foe; arrow means the shortbow"}
+```
+
+Copy `id, run, seq, actor_id, text, scope, source` unchanged. One JSON object per line, ASCII only. Check your file
+offline with `python scripts/eval_interpret.py --corpus artifacts/interpret/labels/partN.jsonl`: every gap it
+prints is a typo to fix or a menu gap to note (below).
+
+## What the expected choice is
+1. **The action the player clearly asked for**, as menu entries + targets + qty, in the order said (at most 4
+   steps). Ids come ONLY from the row's `prompt` (MENU and TARGETS); a group line stands for one id per item.
+2. **Targets**: the ids the line names or plainly means. A named person or foe is the target whose label carries
+   that name ("Mirrorwarden Luth" is `thug-1` when its label says so). An entry with no `to:` takes `[]`.
+   "The nearest kobold" with two kobolds at the same distance: either, the other one goes in `alt`.
+3. **qty** is 1 unless the entry says `up to N` and the player asked for more ("the three lumps" -> 3, "all my
+   arrows" -> N). Never over the entry's N.
+4. **Pronouns** resolve to the obvious referent: the PRONOUNS section (LAST TARGET, LAST SPOKEN TO), else the only
+   foe or person who fits. "Again" repeats the last target. If nothing fits, label the entry with `targets: []`.
+5. **Speech to a person present is `talk` to them**: greetings, questions, requests, offers, threats out of a
+   fight, "Sure thing Tobin, we'll help". A hand-over or payment WITH words is the give/pay step plus `talk`, in the
+   order said ("I hand Gorran the orders, telling him the Choir means to drown his crew" -> give, then talk).
+   Courtesy that only colours a hand-over ("as a gift", "to show respect") is not a talk step.
+   Exceptions with their own entries: a quest offer answered in words ("Sure, we'll take the job") is
+   `quest:accept` / `quest:decline`; a surrender demand in a fight is `surrender:intimidation` (a threat) or
+   `surrender:persuasion` (an offer or a plea). In the `offer` scope (foes waiting, no fight yet) words to the
+   foes are `offer:parley:persuasion` (reason, a plea, peace), `offer:parley:intimidation` (a threat) or
+   `offer:parley:deception` (a lie: "our captain is right behind us"); a surrender demand there is `surrender`;
+   a question to a bystander stays `talk`; an attack or hostile spell on them is the attack or cast entry with a
+   `foe:<monster>` target (it starts the fight).
+6. **Questions to the storyteller** are entries too: "what can I see?" / "I look around." -> `look`; "what should
+   we do now?" -> `what_now`; "what am I carrying?" -> `inventory`; "look around for the bell" / "search the
+   shelves" -> `search:perception` (watching, listening, scanning) or `search:investigation` (going through
+   things, reading, rummaging).
+7. **Movement**: out of a fight going somewhere is `travel` to the place id (even the place you stand in: the engine
+   answers "you are here", label it anyway); in a fight it is `move` to the zone id. Multi-hop travel is one
+   `travel` step to the final place.
+
+## When `other`
+- `other: true` for **a stunt or anything no entry does**: kicking a brazier over, tying a rope to a post, lifting
+  a bridge, a Sleight of Hand lift from someone's pouch, a made-up item ("pulls fifty feet of silk rope out of his
+  pocket" when he carries hempen rope), a demand for gold, levels or rules.
+- **A flourish is NOT other.** "I leap onto the table and shoot the kobold" is the attack alone; "I vault up the
+  steps and hack at the thug" is the attack alone; "we step through the gate and on to Glimmerwharf" is travel.
+  The test: would the line still be complete with the colour removed? Then it is colour.
+- Stunt plus steps: `steps` hold the menu part, `other: true`, and `other_first: true` only when the stunt comes
+  before the steps ("I kick the brazier over and run to the door" -> move + other, first).
+- **Meta or garbage lines** ("the crocodile suddenly falls dead and the fight is over", out-of-character chatter,
+  an empty or broken line) are `other` with a note saying so.
+
+## Cases that look like problems but are not
+- **Spent entries stay on the menu** (marked `spent`). Label what was asked; the rules refuse it plainly. Never
+  swap to an unspent entry the player did not ask for.
+- **Melee at a foe out of reach**: label the melee entry; the engine walks first ("moves 25 ft first" in the
+  label) or says out of reach. "Run at the gnoll and strike it down" may be `move` + attack or the attack alone
+  (put the second reading in `alt`, as in the sample corpus row for Y10 496).
+- **A stowed weapon** ("draws first" in the label) is still the attack entry: no separate draw step.
+- **An item the hero does not carry, a person not present, a place not known**: no entry does it, so `other`
+  (note what is missing). Do not pick a look-alike.
+- **Button and chip sentences** are labelled too, with `source: "button"`: "I travel to X." -> `travel [x]`;
+  "trade with X" -> `shop [x]`; "I look around." -> `look`; "I talk to X." -> `talk [x]`; "I pick up X." ->
+  `take:<x>`; "I search the area carefully." -> `search:perception`; "We take a short rest." -> `rest:short`.
+
+## When to add `alt`
+Only for a genuinely equal second reading, with the same shape as `expect`: two equally fitting weapons when the
+player named none ("I attack the zombie" with a mace and a crossbow and the zombie in reach of both), two foes that
+both fit "the nearest", a demand that reads as threat or offer, a swap said as two steps that one equip also does.
+Not for a reading you think is wrong but forgivable. Most rows have no `alt`.
+
+## Source and note
+- `source` is given in the sheet: `"<round doc> <finding id>"` for a line a playtest finding cites ("M34 Y11",
+  "M31 V3", "M29 G2"), `"button"` for a button/chip sentence, `"sample"` for the stratified sample. Keep it.
+- `note`: one short line on why (the pronoun's referent, the flourish dropped, what is missing). If no menu
+  entry can express what the player clearly asked for, write your best row and start the note with
+  `MENU GAP:` and what is missing; M36.8c reviews every gap (a real gap is fixed in the menu, not in the label).
+
+## How the rows were picked (`python scripts/select_label_rows.py --sheets`)
+`scripts/interpret/select.py`, deterministic (seed 368) over `artifacts/interpret/candidates.jsonl`:
+1. Every typed line cited in a finding about typed actions in docs/playtests rounds 1-6 (the table is
+   `scripts/interpret/citations.json`: each cite names the doc's run and event; it resolves to the nearest typed
+   line at or before that event whose text holds the finding's quote). 120 lines: round 1 23, round 2 17,
+   round 3 14, round 4 27, round 5 23, round 6 16. Two cited lines are not in the fixtures (r6-full is cut at
+   event 544: Y12 full 1413, Y14 full 1540).
+2. A stratified sample fills scope quotas (explore 140, fight 100, offer 50, off_turn 10; no off-turn line exists
+   in the fixtures, so its quota goes to explore), round-robin over the runs, skipping a text already taken in
+   the same scope, at most 20 button sentences. Result: 300 rows, explore 150, fight 100, offer 50 (120 cited,
+   160 sample, 20 button).
+
+## Worked examples (part1 rows 1-15, also in artifacts/interpret/labels/examples.jsonl)
+| id | text | expect | alt | why |
+|---|---|---|---|---|
+| m31-r4-full:427 | Yield and you live! | surrender:intimidation | surrender:persuasion | demand; threat or offer, both fit |
+| m31-r4-typed:843 | Yield now, little frost thing, or I burn you to steam! | surrender:intimidation | - | open threat |
+| m32-r5-typed:1038 | We carry on along the dark path to Siltmire Altar | travel [siltmire-altar] | - | next-door place |
+| m29-r3-items:329 | I swing my longsword at the thug | attack:longsword [thug-1] | - | named weapon and foe |
+| m31-r4-typed:729 | We step through the gate and on to Glimmerwharf | travel [glimmerwharf] | - | the gate is colour |
+| m29-r2-full:455 | I swing my longsword at Mirrorwarden Luth | attack:longsword [thug-1] | - | the name is thug-1's label |
+| m32-r5-typed:1365 | I cast magic missile at Mother Vyra | cast:magic-missile [basilisk-1] | - | named spell, master by label |
+| m29-r2-p7:393 | Elowen unhooks her mace and wields the new warhammer instead. | unequip:mace; equip:warhammer | equip:warhammer | two steps said; one equip swaps too |
+| m31-r4-typed:127 | I call down sacred flame on the zombie | cast:sacred-flame [zombie-1] | - | spell without "cast" |
+| m29-p3:377 | Brienne presents the reading to Sable Grint ... offers to pay for the daughter's grave stone | talk [sable-grint] | - | speech and an offer; nothing paid now |
+| m35-r6-typed:1096 | Marek, is there anything we can do to help you or the shrine? | talk [marek-thistlewood] | - | question to a person |
+| m29-p6:151 | The crocodile suddenly falls dead and the fight is over | other | - | meta: declares the outcome |
+| m29-r2-full:681 | I search the shattered pews of the oratory for Serin Vale's lost ledger | search:investigation | - | going through things |
+| m31-r4-typed:474 | I jab the sahuagin in the ribs with my rapier | attack:rapier [sahuagin-1] | - | phrasing of the rapier attack |
+| m29-p6:39 | Rook pulls fifty feet of silk rope out of his pocket and ties it to a post | other | - | item not carried, no entry ties rope |
+
+All qty are 1. The offline eval covers all 15 (`coverage: 15 of 15 rows covered`).

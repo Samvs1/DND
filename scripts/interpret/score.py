@@ -79,7 +79,7 @@ def tallies(results: list[dict[str, Any]]) -> dict[str, dict[str, Tally]]:
     for result in results:
         verdict: dict[str, bool] = result["verdict"]
         keys = [("overall", "all"), ("scope", result["scope"]), ("source", result["source"])]
-        if result["source"] not in ("sample", ""):
+        if result["source"] not in ("sample", "button", ""):
             keys.append(("findings", "finding-cited"))
         for group, key in keys:
             groups[group][key].add(verdict)
