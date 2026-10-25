@@ -3,6 +3,7 @@ waits, and feats no body could do, on the real round-5 states."""
 
 from pathlib import Path
 
+from aidm.dm.fake_llm import fake_tool_call
 from aidm.dm.intent_router import explore_intent
 from aidm.models.abilities import Skill
 from aidm.models.campaign_events import OfferResolved
@@ -18,7 +19,7 @@ from aidm.session.held import NOT_YOURS, PARLEY_ASK
 from aidm.session.offer_strike import WAITS
 from tests.session.m32_play import FULL, QUESTS, TYPED, play, typed
 from tests.session.playtest_saves import replay_until
-from tests.session.table_fixtures import assert_replays, disabled_llm, join, running
+from tests.session.table_fixtures import assert_replays, join, menu_down, pick, running
 
 
 def _routed(run: str, seq: int) -> object:
@@ -38,7 +39,8 @@ async def test_v1_m32_attack_at_a_waiting_offer_fights_then_attacks(tmp_path: Pa
     """X3, quests 162-166: the fight started and the attack never came while the story told
     "Rook's arrow flies true". Now the offer is the fight, and the same line is Rook's attack
     on Rook's turn, rolled against armour."""
-    played = await play(tmp_path, QUESTS, 162)
+    shoot = pick(("attack:shortbow", ["foe:bandit"], None))  # the menu chooser's (M36.10b)
+    played = await play(tmp_path, QUESTS, 162, picks=[shoot])
     resolved = played.of(OfferResolved)
     assert [r.choice for r in resolved] == [OfferChoice.FIGHT]
     assert played.of(EncounterStarted)
@@ -51,7 +53,8 @@ async def test_v1_m32_attack_at_a_waiting_offer_fights_then_attacks(tmp_path: Pa
 
 async def test_v1_m32_spell_at_a_waiting_offer_is_cast_in_the_fight(tmp_path: Path) -> None:
     """X3, typed 932-936: "I fling a scorching ray at the gnoll" only started the fight."""
-    played = await play(tmp_path, TYPED, 931)
+    ray = pick(("cast:scorching-ray", ["foe:gnoll"], None))  # the menu chooser's (M36.10b)
+    played = await play(tmp_path, TYPED, 931, picks=[ray])
     assert [r.choice for r in played.of(OfferResolved)] == [OfferChoice.FIGHT]
     cast = [e for e in played.of(SpellCast) if e.caster_id == "pc-p6"]
     assert [(e.spell_id, e.target_ids) for e in cast] == [("scorching-ray", ("gnoll-1",))]
@@ -63,7 +66,8 @@ async def test_v1_m32_peace_line_to_a_master_never_starts_a_fight(tmp_path: Path
     from another seat changes nothing and names whose card it is; Elowen's own confirm is the
     parley roll, never the fight button."""
     actor, text = typed(FULL, 903)
-    async with running(disabled_llm(tmp_path), replay_until(FULL, 903)) as (table, _):
+    parley = menu_down(tmp_path, pick(("offer:parley:persuasion", [], None)))  # M36.10b
+    async with running(parley, replay_until(FULL, 903)) as (table, _):
         host = await join(table, "Sam", "pc-p2")
         elowen = await join(table, "Ann", actor)
         start = table.state.event_count
@@ -100,7 +104,8 @@ def test_v1_m32_surrender_demand_of_the_dead_at_the_offer_rolls_nothing() -> Non
 
 
 async def test_v1_m32_surrender_demand_of_the_dead_keeps_the_offer(tmp_path: Path) -> None:
-    played = await play(tmp_path, TYPED, 419)
+    demand = pick(("surrender", [], None))  # the menu chooser's (M36.10b)
+    played = await play(tmp_path, TYPED, 419, picks=[demand])
     assert [type(e).__name__ for e in played.events] == ["ActionDeclared"]
     assert played.notices() == ["The zombie will not yield: the dead do not surrender."]
     campaign = played.state.campaign
@@ -122,7 +127,13 @@ def test_v1_m32_impossible_feat_in_other_words() -> None:
 
 
 async def test_v1_m32_impossible_feat_rolls_no_dice(tmp_path: Path) -> None:
-    played = await play(tmp_path, TYPED, 639)
+    """M36.10b: no menu entry does it, so the storyteller rules on it (`other`); its check says
+    no one could, and the engine rolls nothing."""
+    actor, feat = typed(TYPED, 639)
+    why = "no one can lift a whole thicket"
+    check = {"actor": actor, "ability_or_skill": "athletics", "dc_tier": "nearly_impossible"}
+    ruled = fake_tool_call("request_check", {**check, "reason": feat[:200], "impossible": why})
+    played = await play(tmp_path, TYPED, 639, picks=[pick(other=feat)], script=[ruled])
     assert len(played.of(ActionImpossible)) == 1
     assert not played.of(CheckResolved)
     assert "cannot be done" in played.told()

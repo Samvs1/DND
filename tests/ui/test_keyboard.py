@@ -32,7 +32,7 @@ def test_whole_flow_with_the_keyboard_alone(
     page.wait_for_selector("[data-testid=controller]", timeout=20000)
     page.wait_for_function(PHONE_TEXT, timeout=20000)
     first = page.inner_text("[data-testid=last-line]")
-    type_into(page, "[data-testid=action-input]", "I look around the room")
+    type_into(page, "[data-testid=action-input]", "Look around")
     page.keyboard.press("Tab")  # to the Act button (the hidden microphone slot is skipped)
     assert page.evaluate(FOCUSED, "[data-testid=action-send]")
     page.keyboard.press("Space")

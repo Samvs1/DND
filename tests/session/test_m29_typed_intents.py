@@ -3,6 +3,7 @@ live save: the typed words become the engine's own command, never a storyteller 
 
 from pathlib import Path
 
+from aidm.dm.fake_llm import FakeStep
 from aidm.dm.fight_intent import fight_command
 from aidm.dm.precheck import precheck
 from aidm.models.abilities import Skill
@@ -16,7 +17,7 @@ from aidm.rules.acts import ParleyIntent
 from aidm.session import combat_flow
 from aidm.session.table import Table
 from tests.session.playtest_saves import replay_until
-from tests.session.table_fixtures import Seat, assert_replays, disabled_llm, join, running
+from tests.session.table_fixtures import Seat, assert_replays, join, menu_down, pick, running
 
 
 async def _resumed(table: Table, hero: str) -> Seat:
@@ -28,9 +29,12 @@ async def _resumed(table: Table, hero: str) -> Seat:
     return seat
 
 
-async def _in_fight(tmp_path: Path, run: str, seq: int, hero: str, text: str) -> list[object]:
+async def _in_fight(
+    tmp_path: Path, run: str, seq: int, hero: str, text: str, chosen: FakeStep
+) -> list[object]:
+    """`chosen`: the menu chooser's scripted reading of `text` (M36.10b)."""
     state = replay_until(run, seq)
-    async with running(disabled_llm(tmp_path), state) as (table, _):
+    async with running(menu_down(tmp_path, chosen), state) as (table, _):
         seat = await _resumed(table, hero)
         start = table.state.event_count
         seat.send(SubmitAction(text=text))
@@ -61,7 +65,8 @@ def test_m29_typed_weapon_attack_is_the_attack_command() -> None:
 
 async def test_m29_typed_weapon_attack_rolls_against_ac(tmp_path: Path) -> None:
     text = "I swing my longsword at Mirrorwarden Luth"
-    events = await _in_fight(tmp_path, "r2-full", 455, "pc-p2", text)
+    swing = pick(("attack:longsword", ["thug-1"], None))
+    events = await _in_fight(tmp_path, "r2-full", 455, "pc-p2", text, swing)
     attacks = [e for e in events if isinstance(e, AttackRolled)]
     assert attacks and attacks[0].attack == "Longsword" and attacks[0].target_ac > 0
     assert not any(isinstance(e, CheckResolved) for e in events)
@@ -92,7 +97,8 @@ async def test_m29_typed_parley_rolls_once_for_the_offer(tmp_path: Path) -> None
     """p5 536-540: a storyteller Persuasion check passed (20 vs 20), then the parley rolled
     again and failed: one act, two rolls, the first counting for nothing."""
     state = replay_until("r2-p5", 536)
-    async with running(disabled_llm(tmp_path), state) as (table, _):
+    parley = pick(("offer:parley:persuasion", [], None))  # the menu chooser's (M36.10b)
+    async with running(menu_down(tmp_path, parley), state) as (table, _):
         seat = await join(table, "Ann", "pc-p2")
         start = table.state.event_count
         seat.send(SubmitAction(text=R4_TEXT))

@@ -81,7 +81,7 @@ def test_phone_vote_card_sits_at_the_top_of_the_content(
 ) -> None:
     errors: list[str] = []
     host, guest = start_table(browser, live_server.base, SMALL, errors)
-    host.fill("[data-testid=action-input]", "We take a short rest")
+    host.fill("[data-testid=action-input]", "Short rest")
     host.click("[data-testid=action-send]")
     card = guest.locator("[data-testid=vote]")
     card.wait_for(timeout=15000)

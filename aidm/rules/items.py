@@ -16,8 +16,10 @@ Public API:
 - `use_item_command(state, cmd, regs, rng) -> list[AnyEvent]`: in combat: the target is the
   user or a living ally combatant in the same zone; costs the bonus action. An item that is not
   a consumable but has gear uses (data/bg3/item_uses.json, M27.6: thrown flasks, oil, caltrops,
-  a torch, the healer's kit) goes through THE item interpreter (`rules.item_use.use_item`,
-  aimed at `target_zone` or `target_id`, its own cost); its refusal becomes
+  a torch, the healer's kit), or a command that names a use (`use_id`, M36.10b: the menu's
+  improvised throw of any carried item) goes through THE item interpreter
+  (`rules.item_use.use_item`, aimed at `target_zone` or `target_id`, its own cost); its refusal
+  becomes
   `CommandRefused(GEAR_REFUSED, message)`.
 """
 
@@ -96,7 +98,8 @@ def use_item_command(
     state: GameState, cmd: UseItemCommand, regs: CombatRegistries, rng: Rng
 ) -> list[AnyEvent]:
     actor = acting(state, cmd.actor_id)
-    if regs.consumables.find(cmd.item) is None and uses_for_item(cmd.item):
+    gear = uses_for_item(cmd.item) or cmd.use_id is not None  # a named use is gear (M36.10b)
+    if regs.consumables.find(cmd.item) is None and gear:
         return _gear_command(state, cmd, regs, rng)
     target_id = cmd.target_id or cmd.actor_id
     if target_id != cmd.actor_id:

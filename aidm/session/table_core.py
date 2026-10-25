@@ -4,8 +4,9 @@
 `LoggedEvent` with a monotonic `seq`, the public projection and dice broadcast, then (M35.3) a
 concentration whose last effect ended ends too), the story feed, the seats, connection queues, the
 exploration queue, the open vote, a pending hostile act, the combat segment and the turn timer.
-Handlers take a `TableCore`, never `table.py`. M36.6: `TableConfig.interpreter` ("router" until
-M36.10, or "menu"); `refusals` counts REFUSED notices and errors (a menu line stops after one).
+Handlers take a `TableCore`, never `table.py`. M36.6: `TableConfig.interpreter` ("menu", the
+default since M36.10b, or "router" until M36.12); `refusals` counts REFUSED notices and errors (a
+menu line stops after one).
 
 Public API: `Player`, `TableConfig`, `TtsHook`, `no_tts`, `Job`, `ClientIn`, `Closed`, `TimerFired`,
 `Inbound`, `TableCore`, `phase_of(state)` (DEFEATED when `state.defeat` is set, M11.1).
@@ -88,7 +89,7 @@ class TableConfig:
     ai_turn_pause_s: float = 0.0  # M20.3: how long the screen holds each AI turn
     show_wait_cap_s: float = 8.0  # M26.3: the longest wait for a screen's show
     grace_seconds: float = 30.0  # M15.1 reconnect grace; the playtest harness raises it (M29.4)
-    interpreter: Literal["router", "menu"] = "router"  # M36.6: how typed lines are read
+    interpreter: Literal["router", "menu"] = "menu"  # M36.6; menu the default since M36.10b
 
 
 @dataclass

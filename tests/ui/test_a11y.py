@@ -113,7 +113,7 @@ def test_controller_panels_dialogs_focus_and_live_regions(
     _audit(screen, "screen")
     # The feed (on the screen) is silent while it types; a finished paragraph is announced once.
     assert screen.get_attribute("[data-testid=feed]", "aria-live") == "off"
-    host.fill("[data-testid=action-input]", "I look around the room")
+    host.fill("[data-testid=action-input]", "Look around")
     host.click("[data-testid=action-send]")
     screen.wait_for_function(
         "document.querySelector('[data-testid=narration-live]').textContent.trim().length > 20",

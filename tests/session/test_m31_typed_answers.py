@@ -21,7 +21,15 @@ from aidm.rules.surrender import NoneYield, demand_surrender, never_yield_line
 from aidm.session import combat_flow
 from aidm.session.held import PARLEY_ASK, PARLEY_STAY
 from tests.session.playtest_saves import logged, replay_until
-from tests.session.table_fixtures import assert_replays, disabled_llm, join, menu_llm, pick, running
+from tests.session.table_fixtures import (
+    assert_replays,
+    disabled_llm,
+    join,
+    menu_down,
+    menu_llm,
+    pick,
+    running,
+)
 
 TYPED = "m31-r4-typed"
 QUESTS = "m31-r4-quests"
@@ -79,8 +87,10 @@ def test_m31_surrender_of_the_undead_rolls_nothing() -> None:
 
 async def test_m31_surrender_of_the_undead_keeps_the_action(tmp_path: Path) -> None:
     actor, text = _typed(TYPED, 1143)
-    events, after, notes = await _send(tmp_path, replay_until(TYPED, 1143), actor, text, fight=True)
-    assert events == []
+    demand = pick(("surrender:intimidation", [], None))  # the menu chooser's (M36.10b)
+    state = replay_until(TYPED, 1143)
+    events, after, notes = await _send(tmp_path, state, actor, text, fight=True, picks=[demand])
+    assert [e.type for e in events] == ["action_declared"]  # the words only: no roll, no cost
     enc = after.encounter
     assert enc is not None and enc.combatants[actor].economy.action
     assert "The Tithekeeper will not yield: the dead do not surrender." in notes
@@ -150,9 +160,13 @@ def test_m31_question_to_the_named_master_is_a_parley() -> None:
     assert asked == ParleyIntent(actor, Skill.PERSUASION)
 
 
+PERSUADE = pick(("offer:parley:persuasion", [], None))
+
+
 async def test_m31_typed_parley_asks_before_the_roll(tmp_path: Path) -> None:
     actor, text = _typed(TYPED, 113)
-    async with running(disabled_llm(tmp_path), replay_until(TYPED, 113)) as (table, _):
+    parley = menu_down(tmp_path, PERSUADE)  # the menu chooser's (M36.10b)
+    async with running(parley, replay_until(TYPED, 113)) as (table, _):
         seat = await join(table, "Ann", actor)
         seat.drain()
         start = table.state.event_count
@@ -173,7 +187,8 @@ async def test_m31_typed_parley_asks_before_the_roll(tmp_path: Path) -> None:
 
 async def test_m31_typed_parley_cancelled_leaves_the_offer(tmp_path: Path) -> None:
     actor, text = _typed(QUESTS, 373)
-    async with running(disabled_llm(tmp_path), replay_until(QUESTS, 373)) as (table, _):
+    parley = menu_down(tmp_path, PERSUADE)  # the menu chooser's (M36.10b)
+    async with running(parley, replay_until(QUESTS, 373)) as (table, _):
         seat = await join(table, "Ann", actor)
         seat.send(SubmitAction(text=text))
         await table.settle()

@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING
 from aidm.rules.rests import CAMP_SUPPLY_PER_MEMBER, MAX_SHORT_RESTS
 from scripts.sim.bot import Bot
 from scripts.sim.client import Msg
+from scripts.sim.menu_lines import BROWSE, LONG_REST
 
 if TYPE_CHECKING:
     from scripts.sim.flow import Director
@@ -31,7 +32,7 @@ def hp_ratio(d: "Director") -> float:
 async def _buy_supplies(d: "Director", needed: int) -> None:
     host = d.proposer(d.party.fighter)
     mark = host.conn.mark()
-    if not await d.propose(host, "I browse the wares"):
+    if not await d.propose(host, BROWSE):
         return
     stock = next((m for m in host.conn.log[mark:] if m["type"] == "shop_stock"), None)
     if stock is None:
@@ -75,7 +76,7 @@ async def camp(d: "Director") -> bool:
         return False
     d.step("long rest")
     before = state.camp_supplies
-    if not await d.propose(d.proposer(d.party.fighter), "We make camp for the night"):
+    if not await d.propose(d.proposer(d.party.fighter), LONG_REST):
         d.report.fail("the long rest vote did not pass")
         return False
     if d.srv.table.state.camp_supplies != before - cost:

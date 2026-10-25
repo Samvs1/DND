@@ -76,7 +76,8 @@ async def open_stock(session: Session, link: Link, keeper: Msg) -> Msg | None:
     """Propose the shop vote, let the other heroes accept, then WAIT (bounded) for the
     `shop_stock` message: on the live storyteller it arrives late (M29.7e H7)."""
     mark = link.conn.mark()
-    await link.send({"type": "submit_action", "text": f"trade with {keeper['name']}"})
+    shop = f"Trade with a shopkeeper here {keeper['name']}"  # the menu's own label (M36.10b)
+    await link.send({"type": "submit_action", "text": shop})
     cast = await _others_accept(session, link)
     wait = STOCK_WAIT_LIVE_S if session.live else STOCK_WAIT_FAKE_S
     stock = await _wait_stock(link, mark, wait / 2)

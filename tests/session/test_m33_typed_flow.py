@@ -128,12 +128,14 @@ def test_v1_m33_real_attack_at_an_offer_still_strikes(text: str) -> None:
 
 
 async def test_v1_m33_bow_to_the_offer_keeps_it_waiting(tmp_path: Path) -> None:
-    played = await play(tmp_path, QUESTS, 162, "I bow to the bandit")
+    bow = pick(other="I bow to the bandit")  # the menu chooser's: no entry, a gesture (M36.10b)
+    played = await play(tmp_path, QUESTS, 162, "I bow to the bandit", picks=[bow])
     assert not played.of(EncounterStarted) and not played.of(OfferResolved)
     assert WAITS.format(name="Rook") not in played.notices()
     campaign = played.state.campaign
     assert campaign is not None and campaign.offer is not None
-    shot = await play(tmp_path, QUESTS, 162)  # "attacks the bandit with his bow": the fight
+    shoot = pick(("attack:shortbow", ["foe:bandit"], None))  # "attacks the bandit with his bow"
+    shot = await play(tmp_path, QUESTS, 162, picks=[shoot])  # the fight
     assert [e.attacker_id for e in shot.of(AttackRolled)].count(ROOK) == 1
 
 

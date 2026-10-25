@@ -47,9 +47,7 @@ def info_entries() -> list[MenuEntry]:
         MenuEntry(
             id="inventory", kind=ActionKind.INVENTORY, label="Check what you carry", cost="free"
         ),
-        MenuEntry(
-            id="what_now", kind=ActionKind.WHAT_NOW, label="Ask what to do next", cost="free"
-        ),
+        MenuEntry(id="what_now", kind=ActionKind.WHAT_NOW, label="What now?", cost="free"),
     ]
 
 

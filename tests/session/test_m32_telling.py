@@ -7,10 +7,12 @@ from pathlib import Path
 from aidm.dm.narration_templates import QUIET_LINE
 from aidm.models.encounter_events import EncounterStarted
 from tests.session.m32_play import QUESTS, play
+from tests.session.table_fixtures import pick
 
 
 async def test_v1_m32_turn_opening_tells_no_filler(tmp_path: Path) -> None:
-    played = await play(tmp_path, QUESTS, 162)
+    shoot = pick(("attack:shortbow", ["foe:bandit"], None))  # the menu chooser's (M36.10b)
+    played = await play(tmp_path, QUESTS, 162, picks=[shoot])
     assert played.of(EncounterStarted)
     told = played.told()
     assert "a fight breaks out" in told and QUIET_LINE not in told

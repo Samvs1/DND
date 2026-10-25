@@ -83,7 +83,7 @@ def test_action_shows_dice_and_narration_for_both(
     screen, host, guest = start_with_screen(browser, scripted_server.base, errors)
     before = screen.locator("[data-testid=narration]").count()
     guest_items = guest.evaluate("window.aidm.story.items.length")
-    host.fill("[data-testid=action-input]", "I search the room carefully")
+    host.fill("[data-testid=action-input]", "Search this place by going through things")
     host.click("[data-testid=action-send]")
     # The roll stage takes the screen (M26.6); only the roller's phone shows the roll: its roll
     # card, then "Your last roll" keeps it. A check has its card, so no toast (M26.7).
@@ -138,7 +138,7 @@ def test_rest_vote_both_ready_passes(
 ) -> None:
     errors: list[str] = []
     screen, host, guest = start_with_screen(browser, live_server.base, errors)
-    host.fill("[data-testid=action-input]", "we take a short rest")
+    host.fill("[data-testid=action-input]", "Short rest")
     host.click("[data-testid=action-send]")
     for page in (host, guest):
         page.wait_for_selector("[data-testid=vote]:not([hidden])", timeout=20000)
@@ -159,7 +159,7 @@ def test_rest_vote_both_ready_passes(
 def test_vote_decline_fails(browser: Browser, live_server: LiveServer) -> None:
     errors: list[str] = []
     _screen, host, guest = start_with_screen(browser, live_server.base, errors)
-    host.fill("[data-testid=action-input]", "we take a long rest")
+    host.fill("[data-testid=action-input]", "Long rest")
     host.click("[data-testid=action-send]")
     guest.wait_for_selector("[data-testid=vote]:not([hidden])", timeout=20000)
     guest.click("[data-testid=vote-decline]")
@@ -291,7 +291,7 @@ def test_phone_layout_has_no_overflow_and_works(
     screen, host, _guest = start_with_screen(browser, live_server.base, errors, size=PHONE)
     no_scroll = "document.documentElement.scrollWidth <= window.innerWidth"
     assert host.evaluate(no_scroll)
-    host.fill("[data-testid=action-input]", "we take a short rest")
+    host.fill("[data-testid=action-input]", "Short rest")
     host.click("[data-testid=action-send]")
     host.wait_for_selector("[data-testid=vote]:not([hidden])", timeout=20000)
     assert host.evaluate(no_scroll)

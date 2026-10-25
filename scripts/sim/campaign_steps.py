@@ -25,6 +25,7 @@ from scripts.sim.explore import scene_of
 from scripts.sim.fake_dm import SEARCH_TEXT
 from scripts.sim.gear import stock_up
 from scripts.sim.levelup import level_up_bot
+from scripts.sim.menu_lines import BROWSE, pick_up_line
 from scripts.sim.shapes import main_ability
 from scripts.sim.spells import POTIONS
 from scripts.sim.styles import Style
@@ -60,7 +61,7 @@ async def _reply(bot: Bot, send: Msg, timeout: float = 15.0) -> Msg:
 async def _browse(d: "Director") -> Msg | None:
     host = d.proposer(d.party.fighter)
     mark = host.conn.mark()
-    if not await d.propose(host, "I browse the wares"):
+    if not await d.propose(host, BROWSE):
         return None
     return next((m for m in reversed(host.conn.log[mark:]) if m["type"] == "shop_stock"), None)
 
@@ -155,7 +156,7 @@ async def pick_up_all(d: "Director") -> None:
         bot = _searcher(d)
         if bot is None:
             return
-        await bot.submit(f"I pick up the {name}", d.timeout)
+        await bot.submit(pick_up_line(name), d.timeout)
         await d.settle()
 
 

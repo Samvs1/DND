@@ -8,16 +8,19 @@ from aidm.models.protocol_server import Notice
 from aidm.rules.zones import zone_neighbors
 from tests.session.table_fixtures import (
     assert_replays,
-    disabled_llm,
     join,
+    menu_llm,
     of_type,
+    pick,
+    push_picks,
     running,
     start_fight,
 )
 
 
 async def test_a_typed_move_moves_the_hero_and_keeps_the_action(tmp_path: Path) -> None:
-    async with running(disabled_llm(tmp_path)) as (table, _):
+    llm, fake = menu_llm(tmp_path, storyteller_down=True)
+    async with running(llm) as (table, _):
         ann = await join(table, "Ann", "fighter")
         bob = await join(table, "Bob", "rogue")
         await start_fight(table, "goblin", "goblin")
@@ -34,6 +37,7 @@ async def test_a_typed_move_moves_the_hero_and_keeps_the_action(tmp_path: Path) 
         )
         name = next(z.name for z in enc.zone_map.zones if z.id == near)
         seat.drain()
+        push_picks(fake, pick(("move", [near], None)))  # the menu chooser's (M36.10b)
         seat.send(SubmitAction(text=f"I move to the {name}"))
         await table.settle()
         now = table.state.encounter

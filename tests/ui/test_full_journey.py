@@ -153,7 +153,7 @@ def _stage_action(journey: Journey, screen: Page, host: Page, guest: Page) -> No
     before = screen.locator(NARRATION).count()
     guest_line = guest.evaluate(LAST)
     screen.evaluate("window.__narrLens.length = 0")
-    host.fill("[data-testid=action-input]", "I search the room carefully")
+    host.fill("[data-testid=action-input]", "Search this place by going through things")
     host.click("[data-testid=action-send]")
     # M26.6: a check out of combat plays the roll stage (tests/ui/test_roll_stage.py covers it)
     screen.wait_for_selector("[data-testid=roll-stage]", state="attached", timeout=20000)

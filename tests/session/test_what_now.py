@@ -85,6 +85,26 @@ async def test_what_now_works_in_a_fight(tmp_path: Path) -> None:
         assert len(table.log) == events
 
 
+async def test_typed_what_now_off_turn_in_a_fight_answers_with_no_call(tmp_path: Path) -> None:
+    """M36.10b: the button's own words, typed off the hero's turn, are the menu's free What now?
+    entry (an exact label, no model call), as the router answered them before the flip."""
+    llm, fake = fake_llm(tmp_path)
+    _, state, _ = fresh()
+    async with running(llm, state) as (table, _):
+        seats = [await join(table, "Ann", "fighter"), await join(table, "Bob", "rogue")]
+        await start_fight(table, "goblin")
+        enc = table.state.encounter
+        assert enc is not None
+        idle = next(s for s in seats if table.players[s.player_id].creature_id != enc.active_id())
+        idle.drain()
+        events, asked = len(table.log), len(fake.requests)
+        idle.send(SubmitAction(text="What now?"))
+        await table.settle()
+        answer = of_type(idle.drain(), WhatNowAnswer)
+        assert len(answer) == 1 and answer[0].lines[0] == FIGHTING
+        assert len(table.log) == events and len(fake.requests) == asked
+
+
 async def test_typed_move_to_the_locked_gateway_says_why(tmp_path: Path) -> None:
     llm, fake = menu_llm(tmp_path, pick(("travel", ["sunken-vestry"], None)))
     _, state, _ = fresh()

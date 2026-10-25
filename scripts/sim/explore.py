@@ -11,6 +11,7 @@ import random
 
 from scripts.sim.chaos import chaos_text
 from scripts.sim.client import Msg
+from scripts.sim.menu_lines import travel_line
 
 FIGHTER_LINES = (
     "I draw my sword and scan the crowd for trouble.",
@@ -33,7 +34,7 @@ def travel_text(state: Msg, rng: random.Random, prefer_new: bool = True) -> str 
     exits = [e for e in scene_of(state).get("exits", []) if not e["locked"]]
     fresh = [e for e in exits if not e["visited"]]
     pool = fresh if (prefer_new and fresh) else exits
-    return f"I travel to {rng.choice(pool)['name']}" if pool else None
+    return travel_line(rng.choice(pool)["name"]) if pool else None
 
 
 def _explorer(state: Msg, rng: random.Random) -> str:

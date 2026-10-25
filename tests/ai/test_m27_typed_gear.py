@@ -11,6 +11,7 @@
 from pathlib import Path
 
 from aidm.data.srd import srd
+from aidm.dm.fake_llm import FakeStep
 from aidm.dm.precheck import gear_intent
 from aidm.dm.tool_context import ToolContext
 from aidm.models.encounter import Side
@@ -22,7 +23,7 @@ from aidm.models.world_events import FeatureIntroduced
 from aidm.rules.monster_stats import creature_from_monster
 from aidm.session import combat_flow
 from tests.ai.tool_fixtures import apply_result, run_tool
-from tests.session.table_fixtures import assert_replays, disabled_llm, join, running
+from tests.session.table_fixtures import assert_replays, join, menu_down, pick, running
 from tests.unit.rules.item_fixtures import DOCKS, at, gear_fight, hero, qty
 
 ROPE = "rope-hempen-50-feet"
@@ -45,8 +46,11 @@ def _elemental(*gear: str) -> GameState:
     return gear_fight(DOCKS, hero(gear=list(gear)), (elemental, Side.HOSTILE, "b"))
 
 
-async def _typed(tmp_path: Path, state: GameState, text: str) -> tuple[list[AnyEvent], GameState]:
-    async with running(disabled_llm(tmp_path), state) as (table, _):
+async def _typed(
+    tmp_path: Path, state: GameState, text: str, *picks: FakeStep
+) -> tuple[list[AnyEvent], GameState]:
+    """`picks`: the menu chooser's scripted readings (M36.10b); other AI calls fail (no key)."""
+    async with running(menu_down(tmp_path, *picks), state) as (table, _):
         seat = await join(table, "Ann", "hero")
         if table.combat_active():
 
@@ -76,7 +80,8 @@ async def test_m27_typed_bottle_of_water_is_the_waterskin(tmp_path: Path) -> Non
     state = _elemental("waterskin")
     intent = gear_intent(state, "hero", WATER)
     assert intent is not None and (intent.item, intent.target) == ("waterskin", "fe")
-    events, after = await _typed(tmp_path, state, WATER)
+    hurl = pick(("throw:waterskin", ["fe"], None))  # the fight menu's improvised throw
+    events, after = await _typed(tmp_path, state, WATER, hurl)
     used = [(e.item, e.use_id) for e in events if isinstance(e, ItemUsed)]
     assert used == [("waterskin", "improvised-throw")]  # thrown through the item rules
     assert qty(after, "hero", "waterskin") == 0

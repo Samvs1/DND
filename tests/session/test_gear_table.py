@@ -104,7 +104,8 @@ async def test_typed_gear_use_applies_through_the_rules(tmp_path: Path) -> None:
 async def test_putting_a_light_out_in_a_fight_is_free_on_any_turn(tmp_path: Path) -> None:
     state = _carrying("lantern-hooded")
     apply(state, LightLit(creature_id="fighter", item="lantern-hooded"))
-    async with running(disabled_llm(tmp_path), state) as (table, _):
+    douse = pick(("put_out", [], None))  # the menu chooser's reading (M36.10b)
+    async with running(_menu(tmp_path, douse), state) as (table, _):
         seat = await join(table, "Ann", "fighter")
         await start_fight(table, "goblin")
         assert table.combat_active()
@@ -117,10 +118,11 @@ async def test_putting_a_light_out_in_a_fight_is_free_on_any_turn(tmp_path: Path
 
 
 async def test_typed_throw_in_a_fight_runs_the_item_rules(tmp_path: Path) -> None:
-    # M27.6: "I throw the acid at the goblin" on the hero's own turn is THE interpreter's
-    # thrown attack (no AI involved); the vial is used up, hit or miss.
+    # M27.6: "I throw the acid at the goblin" on the hero's own turn is the menu's
+    # thrown gear use (the chooser picks it); the vial is used up, hit or miss.
     state = _carrying("acid-vial")
-    async with running(disabled_llm(tmp_path), state) as (table, _):
+    throw = pick(("use:acid-vial-throw", ["goblin-1"], None))  # the chooser's (M36.10b)
+    async with running(_menu(tmp_path, throw), state) as (table, _):
         seat = await join(table, "Ann", "fighter")
         await start_fight(table, "goblin")
         enc = table.state.encounter

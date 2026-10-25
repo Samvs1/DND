@@ -23,7 +23,7 @@ from aidm.rules.surrender import demand_surrender, surrender_dc
 from aidm.session import combat_flow
 from aidm.session.reducer import apply
 from tests.session.playtest_saves import replay_until
-from tests.session.table_fixtures import assert_replays, disabled_llm, join, running
+from tests.session.table_fixtures import assert_replays, join, menu_down, pick, running
 from tests.unit.rules.combat_fixtures import ScriptedRng
 
 TEXT = "I lower my bow and call out for Sorrel Myn and her cultists to surrender, they are beaten"
@@ -104,7 +104,8 @@ async def test_m29_typed_surrender_is_one_engine_check(tmp_path: Path) -> None:
     """r3-items 663: the typed demand at the table rolls ONE surrender check (not a story roll)
     and, on a success, the yielding foes end the fight."""
     state = replay_until("r3-items", 663)
-    async with running(disabled_llm(tmp_path), state) as (table, _):
+    demand = pick(("surrender:intimidation", [], None))  # the menu chooser's reading (M36.10b)
+    async with running(menu_down(tmp_path, demand), state) as (table, _):
         table.in_combat = True
         seat = await join(table, "Ann", "pc-p8")
         table.schedule(lambda: combat_flow.advance(table))

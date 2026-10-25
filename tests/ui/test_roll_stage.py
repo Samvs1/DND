@@ -46,7 +46,7 @@ def test_a_search_plays_the_stage_and_the_story_waits_for_its_verdict(
     screen, host = _table(browser, scripted_server.base, errors)
     host.evaluate("window.__aidmShowScale = 1")
     told = screen.evaluate(TOLD)
-    host.fill("[data-testid=action-input]", "I search the room for anything hidden")
+    host.fill("[data-testid=action-input]", "Search this place by going through things")
     host.click("[data-testid=action-send]")
     screen.wait_for_selector(STAGE, timeout=30000)
     assert "INVESTIGATION" in screen.locator(".ss-title").inner_text()

@@ -4,6 +4,7 @@ each on the real round-4 state where the line was typed (tests/session/playtest_
 import random
 from pathlib import Path
 
+from aidm.dm.fake_llm import FakeStep
 from aidm.dm.intent_router import fight_intent
 from aidm.dm.tool_context import ToolContext, tool_registries
 from aidm.dm.tool_exec_creative import run_creative_effect
@@ -14,11 +15,11 @@ from aidm.models.damage import DamageType
 from aidm.models.dm_tiers import EffectKind
 from aidm.models.events import CheckResolved, DiceRolled, ResourceSet
 from aidm.models.protocol_client import SubmitAction
-from aidm.models.protocol_server import Notice
+from aidm.models.protocol_server import ErrorMsg
 from aidm.rules.acts import RefusedIntent
 from aidm.session import combat_flow
 from tests.session.playtest_saves import logged, replay_until
-from tests.session.table_fixtures import assert_replays, disabled_llm, join, running
+from tests.session.table_fixtures import assert_replays, join, menu_down, pick, running
 
 RUN = "m31-r4-typed"
 
@@ -75,8 +76,11 @@ def test_m31_typed_cast_with_no_target_is_refused_plainly() -> None:
     assert fight_intent(state, "pc-p6", "I cast a glance at the zombie") is None
 
 
-async def _fight_turn(tmp_path: Path, seq: int, text: str, actor: str) -> list[object]:
-    async with running(disabled_llm(tmp_path), replay_until(RUN, seq)) as (table, _):
+async def _fight_turn(
+    tmp_path: Path, seq: int, text: str, actor: str, chosen: FakeStep
+) -> list[object]:
+    """`chosen`: the menu chooser's scripted reading of `text` (M36.10b)."""
+    async with running(menu_down(tmp_path, chosen), replay_until(RUN, seq)) as (table, _):
         table.in_combat = True
         seat = await join(table, "Ann", actor)
         table.schedule(lambda: combat_flow.advance(table))
@@ -90,7 +94,8 @@ async def _fight_turn(tmp_path: Path, seq: int, text: str, actor: str) -> list[o
 
 async def test_m31_typed_guiding_bolt_spends_the_slot_and_rolls(tmp_path: Path) -> None:
     actor, text = _typed(357)
-    events = await _fight_turn(tmp_path, 357, text, actor)
+    bolt = pick(("cast:guiding-bolt", ["sahuagin-1"], None))
+    events = await _fight_turn(tmp_path, 357, text, actor, bolt)
     cast = [e for e in events if isinstance(e, SpellCast)]
     assert [(e.spell_id, e.target_ids) for e in cast] == [("guiding-bolt", ("sahuagin-1",))]
     assert any(isinstance(e, ResourceSet) and e.key == "spell-slot-1" for e in events)
@@ -101,7 +106,8 @@ async def test_m31_typed_guiding_bolt_spends_the_slot_and_rolls(tmp_path: Path) 
 async def test_m31_typed_sacred_flame_saves_at_the_real_dc(tmp_path: Path) -> None:
     """V1, typed 127: the model asked DC 15; the engine's DC is 8 + 2 + WIS 2 = 12."""
     actor, text = _typed(127)
-    events = await _fight_turn(tmp_path, 127, text, actor)
+    flame = pick(("cast:sacred-flame", ["zombie-1"], None))
+    events = await _fight_turn(tmp_path, 127, text, actor, flame)
     saves = [e for e in events if isinstance(e, CheckResolved) and e.creature_id == "zombie-1"]
     assert [e.result.dc for e in saves] == [12]
     assert not any(isinstance(e, DiceRolled) and e.label == "Creative action" for e in events)
@@ -109,13 +115,15 @@ async def test_m31_typed_sacred_flame_saves_at_the_real_dc(tmp_path: Path) -> No
 
 async def test_m31_typed_turn_undead_uses_channel_divinity(tmp_path: Path) -> None:
     actor, text = _typed(931)
-    events = await _fight_turn(tmp_path, 931, text, actor)
+    turn = pick(("feature:turn-undead", [], None))
+    events = await _fight_turn(tmp_path, 931, text, actor, turn)
     assert [e.name for e in events if isinstance(e, FeatureUsed)] == ["Turn Undead"]
     assert any(isinstance(e, ResourceSet) and e.key == "channel-divinity" for e in events)
 
 
 async def test_m31_typed_cast_with_no_target_spends_nothing(tmp_path: Path) -> None:
-    async with running(disabled_llm(tmp_path), replay_until(RUN, 161)) as (table, _):
+    aimless = pick(("cast:fire-bolt", [], None))  # the chooser names no target (M36.10b)
+    async with running(menu_down(tmp_path, aimless), replay_until(RUN, 161)) as (table, _):
         table.in_combat = True
         seat = await join(table, "Ann", "pc-p6")
         table.schedule(lambda: combat_flow.advance(table))
@@ -124,9 +132,9 @@ async def test_m31_typed_cast_with_no_target_spends_nothing(tmp_path: Path) -> N
         seat.send(SubmitAction(text="I cast fire bolt"))
         await table.settle()
         events = [e.event for e in table.log if e.seq >= start]
-        notices = [m for m in seat.drain() if isinstance(m, Notice)]
-    assert events == []
-    assert any("Name who Fire Bolt is aimed at" in m.text for m in notices)
+        refused = [m.refusal for m in seat.drain() if isinstance(m, ErrorMsg)]
+    assert [e.type for e in events] == ["action_declared"]  # the words only: nothing spent
+    assert refused == ["bad_targets"]  # the rules' own plain "Choose a target." (M36.10b)
 
 
 def test_m31_round4_weapon_phrasings_attack() -> None:

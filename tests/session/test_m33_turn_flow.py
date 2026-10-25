@@ -30,6 +30,7 @@ from tests.session.table_fixtures import (
     disabled_llm,
     join,
     join_with_token,
+    menu_down,
     menu_llm,
     of_type,
     pick,
@@ -108,7 +109,8 @@ def _rook_shots(table: Table) -> list[AttackRolled]:
 
 async def test_v1_m33_held_line_plays_when_the_player_returns(tmp_path: Path) -> None:
     """Finding 7: a player away as Rook's turn opened lost the attack typed at the offer."""
-    async with running(disabled_llm(tmp_path), replay_until(QUESTS, 162)) as (table, _):
+    shoot = pick(("attack:shortbow", ["bandit-1"], None))  # the held line, read on his turn
+    async with running(menu_down(tmp_path, shoot), replay_until(QUESTS, 162)) as (table, _):
         rook, _, _ = await _rook_turn_away(table)
         assert not _rook_shots(table)
         back = await join_with_token(table, "Ann", rook.token)

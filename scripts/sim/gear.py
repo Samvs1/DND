@@ -5,7 +5,7 @@
   (a general store always has one); the fighter's dungeoneer's pack holds the torches, the
   rogue's burglar's pack the oil.
 - `dark_place`: out of a fight in a dark place (the scene says `dark`): every lit light is put
-  out, a search rolls with the *Darkness* disadvantage, the torch bearer types "I light my torch",
+  out, a search rolls with the *Darkness* disadvantage, the torch bearer types "Light the torch",
   the same search rolls without it, and the light is put out again before the next dark place.
 - `gear_failures`: what the engine's event log must show at the end of a seed: a light lit and
   put out, a combat item used in the fights, the healer's kit used whenever an ally lay dying on
@@ -28,6 +28,7 @@ from scripts.sim.checks import hero_up
 from scripts.sim.explore import scene_of
 from scripts.sim.fake_dm import SEARCH_TEXT
 from scripts.sim.gear_fight import COMBAT_ITEM_USES, KIT_USE
+from scripts.sim.menu_lines import BROWSE, LIGHT_TORCH, PUT_OUT
 
 if TYPE_CHECKING:
     from scripts.sim.flow import Director
@@ -41,7 +42,7 @@ async def stock_up(d: "Director") -> None:
     buyer = d.party.fighter
     d.step("stock up")
     mark = buyer.conn.mark()
-    if not await d.propose(d.proposer(d.party.fighter), "I browse the wares"):
+    if not await d.propose(d.proposer(d.party.fighter), BROWSE):
         d.report.notes.append("the shop vote did not pass")
         return
     stock = next((m for m in reversed(buyer.conn.log[mark:]) if m["type"] == "shop_stock"), None)
@@ -86,10 +87,10 @@ async def _put_out(d: "Director", bot: Bot) -> bool:
     light = (bot.me() or {}).get("light") or ""
     if not light:
         return False
-    await bot.submit(f"I put out my {light.lower()}", d.timeout)
+    await bot.submit(PUT_OUT, d.timeout)
     await d.settle()
     if (bot.me() or {}).get("light"):
-        d.report.fail(f"{bot.name} typed 'put out my {light.lower()}' and the light still burns")
+        d.report.fail(f"{bot.name} typed {PUT_OUT!r} and the {light.lower()} still burns")
         return False
     d.report.gear["doused"] += 1
     return True
@@ -111,10 +112,10 @@ async def dark_place(d: "Director") -> None:
     before = await _search(d, searcher)
     if before is None or DARKNESS not in before:
         d.report.fail(f"a search in a dark unlit place rolled {before} (no {DARKNESS})")
-    await bearer.submit("I light my torch", d.timeout)
+    await bearer.submit(LIGHT_TORCH, d.timeout)
     await d.settle()
     if (bearer.me() or {}).get("light") != "Torch":
-        d.report.fail(f"{bearer.name} typed 'I light my torch' and no torch burns")
+        d.report.fail(f"{bearer.name} typed {LIGHT_TORCH!r} and no torch burns")
         return
     d.report.gear["torch_lit"] += 1
     after = await _search(d, searcher)

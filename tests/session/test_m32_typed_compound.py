@@ -19,7 +19,7 @@ from aidm.rules.social import hostile_attitude_events, social_attitude_events
 from aidm.session import combat_flow
 from tests.session.m32_play import FULL, QUESTS, TYPED, play, typed
 from tests.session.playtest_saves import replay_until
-from tests.session.table_fixtures import assert_replays, disabled_llm, join, pick, running
+from tests.session.table_fixtures import assert_replays, join, menu_down, pick, running
 
 SALT = "qi-salt-for-the-elders-own-0-"
 LANTERN = "qi-main-the-rookery-reaches-salt-the-wound-0-"
@@ -69,7 +69,8 @@ async def test_v1_m32_counted_hand_over_gives_them_all(tmp_path: Path) -> None:
 async def test_v1_m32_charge_and_cleave_moves_then_attacks(tmp_path: Path) -> None:
     """X6, typed 429-431: "I charge the zombie and cleave it with my longsword" only moved."""
     actor, text = typed(TYPED, 428)
-    async with running(disabled_llm(tmp_path), replay_until(TYPED, 428)) as (table, _):
+    cleave = pick(("attack:longsword", ["zombie-1"], None))  # out of reach: the menu approaches
+    async with running(menu_down(tmp_path, cleave), replay_until(TYPED, 428)) as (table, _):
         table.in_combat = True
         seat = await join(table, "Ann", actor)
         table.schedule(lambda: combat_flow.advance(table))

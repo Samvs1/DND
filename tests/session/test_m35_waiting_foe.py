@@ -26,6 +26,7 @@ from aidm.session.rest_ambush import REST_AMBUSHED
 from tests.session.m32_play import play
 from tests.session.playtest_saves import replay_until
 from tests.session.progression_fixtures import DATA, REGS, apply_all
+from tests.session.table_fixtures import pick
 
 FULL, QUESTS, TYPED = "m35-r6-full", "m35-r6-quests", "m35-r6-typed"
 SLEEP = "I cast Sleep on the kobolds behind the spur"
@@ -35,7 +36,8 @@ async def test_v1_m35_long_rest_with_a_master_waiting_starts_the_fight(tmp_path:
     """Y4, full 519-534: "we make camp and take a long rest" in front of Gorran Hookhand's
     waiting offer rested the party while he "had not moved". The rest is not taken: he takes the
     opening, the offer is answered as a fight and the party starts it surprised."""
-    played = await play(tmp_path, FULL, 526)
+    camp = pick(("rest:long", [], None))  # the menu chooser's (M36.10b)
+    played = await play(tmp_path, FULL, 526, picks=[camp])
     assert not played.of(LongRestTaken)
     resolved = played.of(OfferResolved)
     assert [(r.offer_id, r.choice) for r in resolved] == [("offer-519", OfferChoice.FIGHT)]
@@ -103,7 +105,8 @@ def test_v1_m35_hostile_spell_at_a_waiting_offer_is_never_cast_at_the_scene() ->
 async def test_v1_m35_sleep_at_a_waiting_offer_starts_the_fight(tmp_path: Path) -> None:
     """Y9: the typed cast answers the offer as Fight, no slot is spent at the scene, and the
     words wait for Rook's turn."""
-    played = await play(tmp_path, TYPED, 378)
+    sleep = pick(("cast:sleep", ["foe:kobold"], None))  # the menu chooser's (M36.10b)
+    played = await play(tmp_path, TYPED, 378, picks=[sleep])
     assert [r.choice for r in played.of(OfferResolved)] == [OfferChoice.FIGHT]
     assert played.of(EncounterStarted)
     assert not [e for e in played.of(SpellCast) if e.at_scene]

@@ -18,6 +18,7 @@ from scripts.sim.checks import engine_invariants, hero_up
 from scripts.sim.client import Msg
 from scripts.sim.explore import explore_text, scene_of
 from scripts.sim.levelup import level_up_bot
+from scripts.sim.menu_lines import SHORT_REST, travel_line
 from scripts.sim.report import Report
 from scripts.sim.server import SimServer
 from scripts.sim.setup import Party
@@ -155,7 +156,7 @@ class Director:
         before = scene_of(self.state()).get("node_id")
         proposer = self.proposer(self.party.explorer)
         mark = proposer.conn.mark()
-        passed = await self.propose(proposer, f"I travel to {name}")
+        passed = await self.propose(proposer, travel_line(name))
         if passed and proposer.conn.of_type("pending_confirmation", mark):
             await proposer.conn.send({"type": "confirm_hostile"})  # M23.4: leave tasks behind
             await self.settle()
@@ -202,7 +203,7 @@ class Director:
     async def short_rest(self) -> None:
         self.step("short rest")
         used = self.srv.table.state.short_rests_used
-        if not await self.propose(self.proposer(self.party.fighter), "I take a short rest"):
+        if not await self.propose(self.proposer(self.party.fighter), SHORT_REST):
             self.report.fail("the short rest vote did not pass")
         elif self.srv.table.state.short_rests_used == used + 1:
             self.short_rests += 1

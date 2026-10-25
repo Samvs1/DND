@@ -68,6 +68,12 @@ def menu_llm(
     return llm, fake
 
 
+def menu_down(tmp_path: Path, *picks: FakeStep) -> LlmClient:
+    """`menu_llm(..., storyteller_down=True)`'s client: the chooser's picks scripted, every other
+    AI call failing as with no key (M36.10b, the old `disabled_llm` tables at the menu)."""
+    return menu_llm(tmp_path, *picks, storyteller_down=True)[0]
+
+
 def push_picks(fake: FakeLLM, *picks: FakeStep) -> None:
     """Queue more chooser answers on a running FakeLLM (M36.10)."""
     fake.by_tool.setdefault("choose_actions", deque()).extend(picks)

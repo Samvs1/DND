@@ -4,6 +4,7 @@ feature or heal in a fight runs as the hotbar's command (charged by the rules)."
 
 from pathlib import Path
 
+from aidm.dm.fake_llm import FakeStep
 from aidm.dm.fight_intent import fight_command
 from aidm.dm.precheck import precheck
 from aidm.models.character import InventoryItem
@@ -19,8 +20,8 @@ from tests.session.playtest_saves import replay_until
 from tests.session.table_fixtures import (
     Seat,
     assert_replays,
-    disabled_llm,
     join,
+    menu_down,
     menu_llm,
     of_type,
     pick,
@@ -86,9 +87,12 @@ async def _resumed(table: Table, hero: str) -> Seat:
     return seat
 
 
-async def _in_fight(tmp_path: Path, run: str, seq: int, hero: str, text: str) -> list[object]:
+async def _in_fight(
+    tmp_path: Path, run: str, seq: int, hero: str, text: str, chosen: FakeStep
+) -> list[object]:
+    """`chosen`: the menu chooser's scripted reading of `text` (M36.10b)."""
     state = replay_until(run, seq)
-    async with running(disabled_llm(tmp_path), state) as (table, _):
+    async with running(menu_down(tmp_path, chosen), state) as (table, _):
         seat = await _resumed(table, hero)
         start = table.state.event_count
         seat.send(SubmitAction(text=text))
@@ -99,7 +103,8 @@ async def _in_fight(tmp_path: Path, run: str, seq: int, hero: str, text: str) ->
 
 async def test_m29_typed_second_wind_in_a_fight_uses_the_feature(tmp_path: Path) -> None:
     """p6 702: "Brienne uses Second Wind" on her turn got narration only, no heal, no use."""
-    events = await _in_fight(tmp_path, "p6", 702, "pc-p2", "Brienne uses Second Wind")
+    wind = pick(("feature:second-wind", [], None))
+    events = await _in_fight(tmp_path, "p6", 702, "pc-p2", "Brienne uses Second Wind", wind)
     spent = [e for e in events if isinstance(e, ResourceSet) and e.key == "second-wind"]
     assert spent and spent[0].resource.current == 0
     assert any(isinstance(e, HpChanged) and e.creature_id == "pc-p2" for e in events)
@@ -111,7 +116,8 @@ async def test_m29_typed_potion_in_a_fight_is_the_hotbar_use(tmp_path: Path) -> 
     brienne = state.creatures["pc-p2"]
     assert brienne.pc is not None
     brienne.pc.inventory.append(InventoryItem(item="potion-of-healing", qty=1))
-    async with running(disabled_llm(tmp_path), state) as (table, _):
+    drink = pick(("item:potion-of-healing", ["pc-p2"], None))  # the menu chooser's (M36.10b)
+    async with running(menu_down(tmp_path, drink), state) as (table, _):
         seat = await _resumed(table, "pc-p2")
         start = table.state.event_count
         seat.send(SubmitAction(text="I drink my potion of healing"))

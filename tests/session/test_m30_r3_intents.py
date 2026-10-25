@@ -22,7 +22,7 @@ from aidm.rules.acts_fight import DrawAttack
 from aidm.rules.equipment import EquipRefused, draw_events
 from aidm.session import combat_flow
 from tests.session.playtest_saves import logged, replay_until
-from tests.session.table_fixtures import assert_replays, disabled_llm, join, menu_llm, pick, running
+from tests.session.table_fixtures import assert_replays, join, menu_llm, pick, running
 
 LOCKBOX = "qi-pay-the-ferryman-own-0-0"
 RENN = "old-renn-pitwater"
@@ -146,7 +146,8 @@ def test_m30_r3_stowed_rapier_is_drawn_then_attacks() -> None:
 async def test_m30_r3_typed_attack_with_stowed_rapier_rolls_against_ac(tmp_path: Path) -> None:
     state = replay_until("r3-items", 875)
     _, text = _typed("r3-items", 875)
-    async with running(disabled_llm(tmp_path), state) as (table, _):
+    rapier = pick(("attack:rapier", ["ice-mephit-1"], None))  # the menu chooser's (M36.10b)
+    async with running(_menu(tmp_path, rapier), state) as (table, _):
         table.in_combat = True
         seat = await join(table, "Ann", "pc-p4")
         table.schedule(lambda: combat_flow.advance(table))

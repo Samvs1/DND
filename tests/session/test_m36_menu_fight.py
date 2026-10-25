@@ -180,5 +180,5 @@ async def test_menu_fight_off_turn_exact_free_entry_plays(tmp_path: Path) -> Non
 async def test_menu_fight_put_out_and_what_now_on_the_turn(tmp_path: Path) -> None:
     played = await menu_play(tmp_path, TYPED, 435, text="Put out your light", mode=LlmMode.DISABLED)
     assert any(e.creature_id == "pc-p2" for e in played.of(LightEnded))
-    asked = await menu_play(tmp_path, TYPED, 435, text="Ask what to do next")
+    asked = await menu_play(tmp_path, TYPED, 435, text="What now?")
     assert asked.choose_calls() == 0 and not asked.of(ActionDeclared)

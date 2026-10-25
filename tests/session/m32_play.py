@@ -58,14 +58,16 @@ async def play(
     then: tuple[AnyClientMsg, ...] = (),
     *,
     picks: Sequence[FakeStep] | None = None,
+    script: Sequence[FakeStep] = (),
 ) -> Played:
     """Seat a player as the hero who typed at `seq`, send the line (or `text`), then `then`.
     M36.10a: `picks` plays at the menu interpreter, the chooser's readings scripted (FakeLLM
-    `by_tool`) and every other AI call failing as with no key."""
+    `by_tool`) and every other AI call failing as with no key; M36.10b: `script` answers the
+    other AI calls first (the adjudicator's own tool calls), in order."""
     actor, said = typed(run, seq)
     llm = disabled_llm(tmp_path)
     if picks is not None:
-        llm = menu_llm(tmp_path, *picks, storyteller_down=True)[0]
+        llm = menu_llm(tmp_path, *picks, script=script, storyteller_down=True)[0]
     reading = None if picks is None else "menu"  # None: the table's default
     async with running(llm, replay_until(run, seq), interpreter=reading) as (table, _):
         seat = await join(table, "Ann", actor)
