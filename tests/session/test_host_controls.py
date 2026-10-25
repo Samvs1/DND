@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
+from aidm.dm.llm_client import LlmClient
 from aidm.models.damage import DamagePacket, DamageType
 from aidm.models.events import DamageTaken
 from aidm.models.protocol_client import (
@@ -44,10 +45,19 @@ from tests.session.table_fixtures import (
     drain_queue,
     join,
     join_with_token,
+    menu_llm,
     of_type,
+    pick,
     running,
     start_fight,
 )
+
+SEARCH = pick(("search:investigation", [], None))  # "I search behind the hearth" (M36.10a)
+
+
+def _searching(tmp_path: Path) -> LlmClient:
+    return menu_llm(tmp_path, SEARCH)[0]
+
 
 HOST_MSGS = [
     HostStart(),
@@ -161,7 +171,10 @@ def test_difficulty_message_is_range_checked() -> None:
 
 async def test_tts_toggle_updates_the_table_and_the_snapshot(tmp_path: Path) -> None:
     store = CampaignStore(tmp_path / "saves")
-    async with running(disabled_llm(tmp_path), inn_state(), store=store) as (table, _):
+    async with running(_searching(tmp_path), inn_state(), store=store, interpreter="menu") as (
+        table,
+        _,
+    ):
         ann = await join(table, "Ann", "fighter")
         assert not table.tts_enabled
         ann.send(SubmitAction(text="I search behind the hearth"))
@@ -194,7 +207,10 @@ async def test_save_forces_a_snapshot_and_works_without_a_store(tmp_path: Path) 
 
 async def test_load_switches_the_table_to_a_saved_campaign(tmp_path: Path) -> None:
     store = CampaignStore(tmp_path / "saves")
-    async with running(disabled_llm(tmp_path), inn_state(), store=store) as (first, _):
+    async with running(_searching(tmp_path), inn_state(), store=store, interpreter="menu") as (
+        first,
+        _,
+    ):
         ann = await join(first, "Ann", "fighter")
         ann.send(SubmitAction(text="I search behind the hearth"))
         await first.settle()
@@ -226,7 +242,10 @@ async def test_load_switches_the_table_to_a_saved_campaign(tmp_path: Path) -> No
 
 async def test_new_campaign_resets_the_game_and_keeps_the_seats(tmp_path: Path) -> None:
     store = CampaignStore(tmp_path / "saves")
-    async with running(disabled_llm(tmp_path), inn_state(), store=store) as (table, _):
+    async with running(_searching(tmp_path), inn_state(), store=store, interpreter="menu") as (
+        table,
+        _,
+    ):
         ann = await join(table, "Ann", "fighter")
         ann.send(SubmitAction(text="I search behind the hearth"))
         await table.settle()

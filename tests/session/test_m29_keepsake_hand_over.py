@@ -6,6 +6,7 @@ import random
 from pathlib import Path
 
 from aidm.data.dm_tiers import dm_tiers
+from aidm.dm.fake_llm import FakeStep
 from aidm.dm.precheck import precheck
 from aidm.models.events import CheckResolved
 from aidm.models.protocol_client import SubmitAction
@@ -15,14 +16,25 @@ from aidm.models.world_events import AttitudeChanged
 from aidm.rules.lifting import lift_events
 from aidm.session.reducer import replay
 from tests.session.playtest_saves import replay_until
-from tests.session.table_fixtures import assert_replays, disabled_llm, join, of_type, running
+from tests.session.table_fixtures import (
+    assert_replays,
+    join,
+    menu_llm,
+    of_type,
+    pick,
+    running,
+)
 
 LINK = "qi-main-voke-reach-the-bailiff-s-own-debt-0-0"
 COIN = "qi-the-keeper-s-coin-own-0-0"
 
 
-async def _typed(tmp_path: Path, run: str, seq: int, hero: str, text: str) -> list[object]:
-    async with running(disabled_llm(tmp_path), replay_until(run, seq)) as (table, _):
+async def _typed(
+    tmp_path: Path, run: str, seq: int, hero: str, text: str, choice: FakeStep
+) -> list[object]:
+    """`choice`: the menu chooser's reading (M36.10a); the AI is otherwise down."""
+    llm = menu_llm(tmp_path, choice, storyteller_down=True)[0]
+    async with running(llm, replay_until(run, seq), interpreter="menu") as (table, _):
         seat = await join(table, "Ann", hero)
         start = table.state.event_count
         seat.send(SubmitAction(text=text))
@@ -68,7 +80,8 @@ async def test_m29_typed_lift_runs_the_check(tmp_path: Path) -> None:
         "While Farran Dell is distracted by the others, I slip my fingers into his pouch and"
         " lift the Bailiff's Broken Link back out (Sleight of Hand)"
     )
-    events = await _typed(tmp_path, "r2-p4", 296, "pc-p4", text)
+    lift = pick((f"lift:{LINK}", ["farran-dell"], None))
+    events = await _typed(tmp_path, "r2-p4", 296, "pc-p4", text, lift)
     checks = [e for e in events if isinstance(e, CheckResolved)]
     assert len(checks) == 1 and checks[0].result.skill == "sleight-of-hand"
     moved = any(isinstance(e, KeepsakeTaken) for e in events)
@@ -78,15 +91,17 @@ async def test_m29_typed_lift_runs_the_check(tmp_path: Path) -> None:
 async def test_m29_quest_keepsake_by_another_name_is_delivered(tmp_path: Path) -> None:
     """full 581-583: "I give Mord Wexley the bent silver coin" (keepsake "Mord's Coin") logged
     only an attitude change; the quest was later left behind."""
-    events = await _typed(
-        tmp_path, "r2-full", 581, "pc-p8", "I give Mord Wexley the bent silver coin"
-    )
+    give = pick(("give:mord-s-coin", ["mord-wexley"], 1))
+    text = "I give Mord Wexley the bent silver coin"
+    events = await _typed(tmp_path, "r2-full", 581, "pc-p8", text, give)
     given = [(e.keepsake_id, e.npc_id) for e in events if isinstance(e, KeepsakeGiven)]
     assert given == [(COIN, "mord-wexley")]
     assert any(isinstance(e, QuestStepDone) and e.quest_id == "the-keeper-s-coin" for e in events)
 
 
 async def test_m29_give_what_is_not_carried_is_refused_plainly(tmp_path: Path) -> None:
-    events = await _typed(tmp_path, "r2-full", 581, "pc-p8", "I give Mord Wexley the golden idol")
-    assert isinstance(events[0], ErrorMsg) and "do not carry" in events[0].text
+    """M36.10a: the menu has no give of an idol nobody carries, so the chooser says `other` (the
+    storyteller tells the attempt); nothing is given and nobody's mood moves."""
+    text = "I give Mord Wexley the golden idol"
+    events = await _typed(tmp_path, "r2-full", 581, "pc-p8", text, pick(other=""))
     assert not any(isinstance(e, AttitudeChanged | KeepsakeGiven) for e in events)

@@ -22,7 +22,8 @@ from aidm.models.world_events import (
 )
 from aidm.session.menu_pick import NOT_DONE, STOPPED
 from aidm.session.session_log import MemoryLog
-from tests.session.menu_play import FULL, QUESTS, TYPED, menu_play, pick
+from tests.session.menu_play import FULL, QUESTS, TYPED, menu_play
+from tests.session.table_fixtures import pick
 
 WIDOW, PEDDLER = "widow-cabrelle", "halan-s-rest-peddler"
 INCENSE = "block-of-incense"

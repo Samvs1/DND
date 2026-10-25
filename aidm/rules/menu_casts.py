@@ -2,7 +2,10 @@
 
 Every spell the hero can cast now (a ready cantrip, or a ready leveled spell with a slot of its
 level or higher, `menu_magic.lowest_slot`; a spell paid from a race or feature pool is listed and
-the rules answer an empty pool), labelled from its own data (`menu_labels.spell_label`):
+the rules answer an empty pool), labelled from its own data (`menu_labels.spell_label`). M36.10a:
+a ready leveled spell with no slot left stays listed, `spent` and noted NO_SLOT (never a strike at
+a waiting foe), so a typed cast of it is refused by the rules in plain words (M30.2b: never a free
+spell through the storyteller):
 - a spell that strikes no one and takes creatures (healing, a ward, a buff) aims at the heroes,
   the hero first (`rules.spells.cast_spell`, the typed-healing path);
 - any other spell (self, a point or an area, or a hostile spell with no one to strike) is cast at
@@ -17,7 +20,7 @@ usable_out_of_fight`: a healing bonus action such as Second Wind) with uses left
 in a fight; Action Surge, Turn Undead and Breath Weapon need a fight and are not listed.
 
 Public API: `explore_casts(view)`, `strike_casts(view, foe_ids)`, `explore_features(view)`,
-`SCENE_NOTE`.
+`SCENE_NOTE`, `NO_SLOT`.
 """
 
 from collections.abc import Iterator
@@ -34,6 +37,7 @@ from aidm.rules.menu_view import slug
 from aidm.rules.spell_targets import strikes_creatures
 
 SCENE_NOTE = "cast at the scene"
+NO_SLOT = "no spell slot left"
 
 
 def _castable(view: SceneMenuView) -> Iterator[tuple[SpellDef, SpellLine, int | None, int | None]]:
@@ -50,8 +54,7 @@ def _castable(view: SceneMenuView) -> Iterator[tuple[SpellDef, SpellLine, int | 
             yield spell, line, None, None
             continue
         slot = lowest_slot(block, line.level)
-        if slot is not None:
-            yield spell, line, slot[0], slot[1]
+        yield (spell, line, slot[0], slot[1]) if slot is not None else (spell, line, line.level, 0)
 
 
 def explore_casts(view: SceneMenuView) -> list[MenuEntry]:
@@ -62,6 +65,7 @@ def explore_casts(view: SceneMenuView) -> list[MenuEntry]:
         if hostile and view.threat:
             continue  # a strike at the waiting foes (`strike_casts`)
         aimed = needs_of(spell) == "creature" and not hostile
+        note = NO_SLOT if left == 0 else "" if aimed else SCENE_NOTE
         out.append(
             MenuEntry(
                 id=f"cast:{spell.index}",
@@ -69,7 +73,8 @@ def explore_casts(view: SceneMenuView) -> list[MenuEntry]:
                 label=spell_label(spell, line, left),
                 target_ids=party if aimed else (),
                 max_targets=max(1, line.target_count) if aimed else 0,
-                note="" if aimed else SCENE_NOTE,
+                spent=left == 0,
+                note=note,
                 spell_id=spell.index,
                 slot_level=level,
             )
@@ -80,7 +85,7 @@ def explore_casts(view: SceneMenuView) -> list[MenuEntry]:
 def strike_casts(view: SceneMenuView, foe_ids: tuple[str, ...]) -> list[MenuEntry]:
     out: list[MenuEntry] = []
     for spell, line, level, left in _castable(view):
-        if not strikes_creatures(spell):
+        if not strikes_creatures(spell) or left == 0:
             continue
         count = line.target_count if needs_of(spell) == "creature" else len(foe_ids)
         out.append(

@@ -13,7 +13,8 @@ strict function calling (`strict`, off by default).
 The schema only guides; the args model validates. `ChooseActionsArgs` (bound to the menu by
 `choice_tool`) rejects an id not on the menu, a target that does not fit its entry (its
 `target_ids`, plus the area a push sends the foe to; far targets are listed and allowed, the
-rules answer "out of reach"), too many targets, a qty over the entry's `qty_max` and an empty
+rules answer "out of reach"), too many targets, a qty over the entry's `qty_max` (M36.10a: not a
+said count, `menu_steps_scene.said_count`: a give or gold, the rules answer it) and an empty
 answer, with short repair lines naming the allowed values ("give:block-of-incense takes one of:
 widow-cabrelle, peddler"). The ONE LLM client feeds those lines back and retries
 (`llm_client.call_tools`, `llm_validate`), so a bad pick is repaired, never executed.
@@ -29,6 +30,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from aidm.dm.llm_types import ToolDef
 from aidm.models.action_menu import MAX_STEPS, ActionMenu, MenuChoice, MenuEntry, MenuStep
+from aidm.rules.menu_steps_scene import said_count
 
 CHOOSE_TOOL = "choose_actions"
 TOOL_TEXT = "The hero's MENU steps in the order said, other, colour."
@@ -104,7 +106,7 @@ def _targets_problem(entry: MenuEntry, to: list[str]) -> str | None:
 
 
 def _qty_problem(entry: MenuEntry, qty: int | None) -> str | None:
-    if qty is None or 1 <= qty <= entry.qty_max:
+    if qty is None or 1 <= qty <= entry.qty_max or (qty >= 1 and said_count(entry)):
         return None
     if entry.qty_max == 1:
         return f"{entry.id} takes no quantity; send qty: null"

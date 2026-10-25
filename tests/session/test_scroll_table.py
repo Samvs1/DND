@@ -22,7 +22,9 @@ from tests.session.table_fixtures import (
     disabled_llm,
     fake_llm,
     join,
+    menu_llm,
     of_type,
+    pick,
     running,
 )
 from tests.unit.rules.combat_fixtures import ScriptedRng, do, economy, monster
@@ -67,7 +69,8 @@ async def test_read_a_scroll_out_of_a_fight(tmp_path: Path) -> None:
         HpChanged(creature_id="fighter", delta=-10, new_hp=state.creatures["fighter"].hp - 10),
     )
     hp = state.creatures["fighter"].hp
-    async with running(disabled_llm(tmp_path), state) as (table, _):
+    llm = menu_llm(tmp_path, pick(("use:scroll-read", [], None)), storyteller_down=True)[0]
+    async with running(llm, state, interpreter="menu") as (table, _):
         ann = await join(table, "Ann", "fighter")
         ann.send(SubmitAction(text="I read the scroll of cure wounds"))
         await table.settle()

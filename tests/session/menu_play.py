@@ -6,9 +6,8 @@ asserts that replaying the log equals the snapshot."""
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
 
-from aidm.dm.fake_llm import FakeLLM, FakeStep, fake_tool_call
+from aidm.dm.fake_llm import FakeLLM, FakeStep
 from aidm.dm.llm_types import LlmMode
 from aidm.models.events import AnyEvent
 from aidm.models.protocol import AnyClientMsg, AnyServerMsg
@@ -22,15 +21,6 @@ from tests.session.m32_play import typed
 from tests.session.table_fixtures import assert_replays, join, running
 
 TYPED, QUESTS, FULL = "m35-r6-typed", "m35-r6-quests", "m35-r6-full"
-type Step = tuple[str, Sequence[str], int | None]
-
-
-def pick(*steps: Step, other: str | None = None, first: bool = False, colour: str = "") -> FakeStep:
-    """The chooser's scripted answer: steps `(entry id, target ids, qty)`, and/or `other`;
-    `colour` the words that only colour the steps (M36.9)."""
-    rows = [{"do": e, "to": list(t), "qty": q} for e, t, q in steps]
-    off: dict[str, Any] | None = None if other is None else {"text": other, "first": first}
-    return fake_tool_call("choose_actions", {"steps": rows, "other": off, "colour": colour})
 
 
 @dataclass

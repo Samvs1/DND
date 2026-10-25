@@ -18,7 +18,8 @@ from aidm.models.state import GameState
 from aidm.models.world_events import ActionDeclared
 from aidm.session.fight_text import NOT_YOUR_TURN
 from aidm.session.menu_pick import NOT_DONE, STOPPED
-from tests.session.menu_play import TYPED, menu_play, pick
+from tests.session.menu_play import TYPED, menu_play
+from tests.session.table_fixtures import pick
 
 KOBOLD, SWARM = "kobold-1", "swarm-of-rats-1"
 KICK = {"actor": "pc-p2", "ability_or_skill": "athletics", "dc_tier": "easy", "reason": "kick"}

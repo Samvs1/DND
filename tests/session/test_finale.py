@@ -26,10 +26,11 @@ from tests.ai.epilogue_fixtures import finished_campaign
 from tests.session.progression_fixtures import DATA, apply_all, move, plan
 from tests.session.table_fixtures import (
     assert_replays,
-    disabled_llm,
     drain_queue,
     join,
+    menu_llm,
     of_type,
+    pick,
     running,
 )
 
@@ -84,7 +85,9 @@ def test_a_plan_without_a_finale_ends_at_the_final_resolution() -> None:
 
 async def test_finale_card_confirm_then_ending_and_epilogue_once(tmp_path: Path) -> None:
     _, state, _, _ = finished_campaign(ending=None)
-    async with running(disabled_llm(tmp_path), state) as (table, _):
+    water = pick(other="")  # the storyteller's line (M36.10a); the AI is otherwise down
+    llm = menu_llm(tmp_path, water, storyteller_down=True)[0]
+    async with running(llm, state, interpreter="menu") as (table, _):
         ann = await join(table, "Ann", "fighter")
         snap = table.snapshot().state
         assert snap.finale is not None and snap.finale.chosen is None and not snap.complete
@@ -121,7 +124,9 @@ async def test_finale_card_confirm_then_ending_and_epilogue_once(tmp_path: Path)
 
 async def test_old_plan_without_a_finale_writes_the_epilogue_as_before(tmp_path: Path) -> None:
     _, state, _, _ = finished_campaign(finale=False)
-    async with running(disabled_llm(tmp_path), state) as (table, _):
+    toast = pick(other="")  # the storyteller's line (M36.10a); the AI is otherwise down
+    llm = menu_llm(tmp_path, toast, storyteller_down=True)[0]
+    async with running(llm, state, interpreter="menu") as (table, _):
         ann = await join(table, "Ann", "fighter")
         assert table.snapshot().state.finale is None
         ann.send(SubmitAction(text="We raise a toast"))

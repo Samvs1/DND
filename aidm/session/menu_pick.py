@@ -27,7 +27,6 @@ from aidm.models.action_menu import ActionMenu, MenuChoice
 from aidm.models.events import AnyEvent
 from aidm.models.protocol_server import NoticeKind
 from aidm.rules.action_menu import build_menu
-from aidm.rules.menu_steps import Act
 from aidm.rules.menu_trade import TradeData
 from aidm.session.table_core import Player, TableCore
 
@@ -65,11 +64,11 @@ async def pick(
     return choice
 
 
-async def play_steps(
+async def play_steps[T](
     core: TableCore,
     player: Player,
-    acts: Sequence[Act],
-    run: Callable[[Act], Awaitable[None]],
+    acts: Sequence[T],
+    run: Callable[[T], Awaitable[None]],
     stop: Callable[[], str | None],
 ) -> None:
     for index, act in enumerate(acts):

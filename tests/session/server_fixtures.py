@@ -8,6 +8,7 @@ from typing import Any
 from fastapi import FastAPI
 from starlette.testclient import WebSocketTestSession
 
+from aidm.dm.fake_llm import FakeLLM
 from aidm.models.state import GameState
 from aidm.server.app import create_app
 from aidm.server.registry import TableRegistry
@@ -35,6 +36,13 @@ def settings_of(app: FastAPI) -> ServerSettings:
 
 def registry_of(app: FastAPI) -> TableRegistry:
     return app.state.registry
+
+
+def server_fake(app: FastAPI) -> FakeLLM:
+    """The app's FakeLLM backend (AIDM_FAKE_LLM=1), to queue chooser picks on (M36.10)."""
+    backend = registry_of(app).llm.backend
+    assert isinstance(backend, FakeLLM)
+    return backend
 
 
 def hello(ws: WebSocketTestSession, name: str, **extra: Any) -> None:

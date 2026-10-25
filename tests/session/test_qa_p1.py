@@ -9,10 +9,11 @@ from aidm.session.persistence import CampaignStore
 from aidm.session.table import Table
 from tests.ai.guard_fixtures import inn_state
 from tests.session.table_fixtures import (
-    disabled_llm,
     fake_llm,
     join,
+    menu_llm,
     of_type,
+    pick,
     running,
     start_fight,
 )
@@ -81,8 +82,13 @@ async def test_qa_01_flavour_text_keeps_the_action(tmp_path: Path) -> None:
         assert enc is not None and enc.combatants[active].economy.action
 
 
+SEARCH = pick(("search:investigation", [], None))  # "I search behind the hearth" (M36.10a)
+LISTEN = pick(("search:perception", [], None))  # "I listen at the door"
+
+
 async def _saved_game(tmp_path: Path, store: CampaignStore) -> Table:
-    async with running(disabled_llm(tmp_path), inn_state(), store=store) as (table, _):
+    llm = menu_llm(tmp_path, SEARCH, LISTEN)[0]
+    async with running(llm, inn_state(), store=store, interpreter="menu") as (table, _):
         host = await join(table, "Ann", "fighter")
         for text in ("I search behind the hearth", "look around", "I listen at the door"):
             host.send(SubmitAction(text=text))

@@ -15,7 +15,8 @@ from aidm.models.protocol_server import PendingConfirmationMsg, VoteOpen
 from aidm.models.state import GameState
 from aidm.models.world_events import NarrationRecorded
 from aidm.session.held import STAY_HAND
-from tests.session.menu_play import menu_play, pick
+from tests.session.menu_play import menu_play
+from tests.session.table_fixtures import pick
 
 TANN = "old-broker-tann"
 

@@ -2,6 +2,8 @@
 
 from pathlib import Path
 
+from aidm.dm.fake_llm import FakeStep
+from aidm.dm.llm_client import LlmClient
 from aidm.models.events import GoldChanged
 from aidm.models.protocol_client import HostForceVote, ShopBuy, SubmitAction, Vote
 from aidm.models.protocol_server import (
@@ -15,7 +17,22 @@ from aidm.models.protocol_server import (
 from aidm.models.protocol_views import VoteKind
 from aidm.session.reducer import apply
 from tests.ai.guard_fixtures import inn_state
-from tests.session.table_fixtures import Seat, assert_replays, disabled_llm, join, of_type, running
+from tests.session.table_fixtures import (
+    Seat,
+    assert_replays,
+    join,
+    menu_llm,
+    of_type,
+    pick,
+    running,
+)
+
+TRAVEL = pick(("travel", ["forest"], None))  # "travel to the forest" (M36.10a)
+
+
+def _menu(tmp_path: Path, *picks: FakeStep) -> LlmClient:
+    """The menu interpreter's picks; every other AI call fails as with no key."""
+    return menu_llm(tmp_path, *picks, storyteller_down=True)[0]
 
 
 async def _propose_travel(host: Seat) -> VoteOpen:
@@ -27,7 +44,7 @@ async def _propose_travel(host: Seat) -> VoteOpen:
 
 
 async def test_solo_travel_passes_at_once(tmp_path: Path) -> None:
-    async with running(disabled_llm(tmp_path)) as (table, _):
+    async with running(_menu(tmp_path, TRAVEL), interpreter="menu") as (table, _):
         seat = await join(table, "Ann", "fighter")
         seat.send(SubmitAction(text="travel to the forest"))
         await table.settle()
@@ -40,7 +57,7 @@ async def test_solo_travel_passes_at_once(tmp_path: Path) -> None:
 
 
 async def test_vote_needs_a_majority_and_passes_on_the_second_ready(tmp_path: Path) -> None:
-    async with running(disabled_llm(tmp_path)) as (table, _):
+    async with running(_menu(tmp_path, TRAVEL), interpreter="menu") as (table, _):
         host = await join(table, "Ann", "fighter")
         bob = await join(table, "Bob", "rogue")
         vote = await _propose_travel(host)
@@ -54,7 +71,7 @@ async def test_vote_needs_a_majority_and_passes_on_the_second_ready(tmp_path: Pa
 
 
 async def test_declined_vote_fails_and_nothing_moves(tmp_path: Path) -> None:
-    async with running(disabled_llm(tmp_path)) as (table, _):
+    async with running(_menu(tmp_path, TRAVEL), interpreter="menu") as (table, _):
         host = await join(table, "Ann", "fighter")
         bob = await join(table, "Bob", "rogue")
         vote = await _propose_travel(host)
@@ -66,7 +83,7 @@ async def test_declined_vote_fails_and_nothing_moves(tmp_path: Path) -> None:
 
 
 async def test_host_can_force_a_vote(tmp_path: Path) -> None:
-    async with running(disabled_llm(tmp_path)) as (table, _):
+    async with running(_menu(tmp_path, TRAVEL), interpreter="menu") as (table, _):
         host = await join(table, "Ann", "fighter")
         bob = await join(table, "Bob", "rogue")
         await join(table, "Cy", "wizard")
@@ -82,7 +99,7 @@ async def test_host_can_force_a_vote(tmp_path: Path) -> None:
 
 
 async def test_vote_timeout_passes_when_nobody_declined(tmp_path: Path) -> None:
-    async with running(disabled_llm(tmp_path)) as (table, clock):
+    async with running(_menu(tmp_path, TRAVEL), interpreter="menu") as (table, clock):
         host = await join(table, "Ann", "fighter")
         await join(table, "Bob", "rogue")
         await _propose_travel(host)
@@ -97,7 +114,7 @@ async def test_vote_timeout_passes_when_nobody_declined(tmp_path: Path) -> None:
 
 
 async def test_disconnected_voter_is_dropped(tmp_path: Path) -> None:
-    async with running(disabled_llm(tmp_path)) as (table, _):
+    async with running(_menu(tmp_path, TRAVEL), interpreter="menu") as (table, _):
         host = await join(table, "Ann", "fighter")
         bob = await join(table, "Bob", "rogue")
         await _propose_travel(host)
@@ -110,7 +127,8 @@ async def test_short_rest_and_shop_go_through_votes_then_trade(tmp_path: Path) -
     state = inn_state()
     state.world.npcs["npc-mira"].role = "merchant"
     apply(state, GoldChanged(creature_id="fighter", delta=500, gold=500))
-    async with running(disabled_llm(tmp_path), state) as (table, _):
+    rest, shop = pick(("rest:short", [], None)), pick(("shop", ["npc-mira"], None))
+    async with running(_menu(tmp_path, rest, shop), state, interpreter="menu") as (table, _):
         seat = await join(table, "Ann", "fighter")
         seat.send(SubmitAction(text="take a short rest"))
         await table.settle()

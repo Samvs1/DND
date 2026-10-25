@@ -11,7 +11,10 @@ meaning, never wording:
 - counts: `give` hands that many units (a keepsake group by name gives that many of its
   keepsakes, `menu_items.same_keepsakes`), `hand`/`loot` move `qty` units, gold or keepsakes,
   `pay` that many gold, `take` that many units of a group lying here (`menu_items.same_lying`,
-  `TakeIntent.qty` for part of a stack), `drop` one unit per drop, `buy`/`sell` the count;
+  `TakeIntent.qty` for part of a stack), `drop` one unit per drop, `buy`/`sell` the count; a
+  count is capped at what there is, but M36.10a a said count (`said_count`: a give, or pay, hand
+  or loot gold) goes to the rules as said: a give gives what there is and says so, a coin count
+  over the purse is refused with the real purse (M31.2b);
 - `talk` is the lore/social path carrying the player's words (`AskIntent.said`); `look` the
   look-around (`LookAroundIntent`, the session writes the text);
 - `offer:<choice>` is the offer card's answer (`AnswerOffer`), a parley answer the held parley
@@ -24,7 +27,7 @@ meaning, never wording:
 `free_acts` serves the free answers on any menu (pack, "what now", putting out the light).
 
 Public API: `SceneAct`, `scene_step_acts(state, actor_id, entry, step, text)`,
-`free_acts(actor_id, entry)`.
+`free_acts(actor_id, entry)`, `said_count(entry)`.
 """
 
 from aidm.models.abilities import Skill
@@ -65,7 +68,7 @@ from aidm.rules.acts import (
 )
 from aidm.rules.gateway_lock import locked_reason
 from aidm.rules.item_grants import carried_qty
-from aidm.rules.menu_items import FEED_OPTION, same_keepsakes, same_lying
+from aidm.rules.menu_items import FEED_OPTION, REST_USE, same_keepsakes, same_lying
 from aidm.rules.menu_scene import OFFER_FIRST_NOTE
 from aidm.rules.menu_scene_view import twin_boss
 from aidm.rules.scene import node_display_name
@@ -206,7 +209,8 @@ def _plain(actor_id: str, entry: MenuEntry, target: str | None, text: str) -> Sc
             owner = target_id if entry.option == FEED_OPTION else actor_id
             return HealIntent(actor_id, (target_id,), item=entry.item, owner_id=owner)
         case ActionKind.GEAR:
-            return UseIntent(actor_id, entry.item or "", target, use_id=entry.use_id)
+            rest = entry.option == REST_USE  # M36.10a: the rest is proposed with the use
+            return UseIntent(actor_id, entry.item or "", target, at_rest=rest, use_id=entry.use_id)
         case ActionKind.COPY_SCROLL:
             return CopyScroll(item_id=entry.item or "")
         case ActionKind.QUEST:
@@ -252,6 +256,12 @@ def _holder(state: GameState, person: str, keepsake: str) -> str:
     return twin_boss(state, person)
 
 
+def said_count(entry: MenuEntry) -> bool:
+    """A count the rules answer as said: a give, or gold (pay, or hand or loot with no item)."""
+    coins = entry.kind in (ActionKind.HAND, ActionKind.TAKE) and entry.item is None
+    return entry.kind in (ActionKind.PAY, ActionKind.GIVE) or coins
+
+
 def _cast(actor_id: str, entry: MenuEntry, step: MenuStep) -> SceneAct:
     spell = entry.spell_id or ""
     if not entry.target_ids:
@@ -272,7 +282,7 @@ def scene_step_acts(
     needs = entry.max_targets > 0 and entry.kind not in (ActionKind.ITEM, ActionKind.CAST)
     if target is None and needs:
         return [RefusedIntent(actor_id, f"Say who or where for: {entry.label}.")]
-    qty = max(1, min(step.qty, entry.qty_max))
+    qty = max(1, step.qty if said_count(entry) else min(step.qty, entry.qty_max))
     if entry.kind is ActionKind.TRAVEL:
         return [_travel(state, actor_id, target or "")]
     if entry.kind is ActionKind.UNLOCK:

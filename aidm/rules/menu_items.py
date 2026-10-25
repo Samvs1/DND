@@ -21,17 +21,19 @@
   hero is at hand), `option` FEED_OPTION: the carrier is the target (`HealIntent.owner_id`);
 - `use:<use_id>`: each use of carried gear made out of a fight, in the place (the item card's Use
   button, `rules.gear_menu.item_use_hints`); a use on a lock aims at a locked thing here;
+  M36.10a: a use made at a long rest too (`option` REST_USE: "brew a poultice" proposes the rest);
 - `put_out`: putting out the hero's carried light (free, on any turn);
 - `copy:<scroll>`: a wizard copying a carried scroll into the spellbook (`rules.scrolls`).
 Labels say what the cards say: names, counts, gold, healing dice.
 
-Public API: `FEED_OPTION`, `carried_entries(view) -> list[MenuEntry]`,
+Public API: `FEED_OPTION`, `REST_USE`, `carried_entries(view) -> list[MenuEntry]`,
 `put_out_entries(state, actor_id)`,
 `same_keepsakes(keepsakes, first_id)`, `same_lying(state, first_id)` (the group of an entry).
 """
 
 from collections.abc import Sequence
 
+from aidm.data.item_uses import uses_for_item
 from aidm.models.action_menu import ActionKind, MenuEntry
 from aidm.models.character import Keepsake
 from aidm.models.sheet import InventoryLine
@@ -44,6 +46,7 @@ from aidm.rules.menu_view import slug
 from aidm.rules.scene import current_scene
 
 FEED_OPTION = "their_own"
+REST_USE = "long_rest"
 
 
 def _keepsake_key(keepsake: Keepsake) -> str:
@@ -297,6 +300,21 @@ def _uses(view: SceneMenuView, row: InventoryLine) -> list[MenuEntry]:
     return out
 
 
+def _rest_uses(row: InventoryLine) -> list[MenuEntry]:
+    return [
+        MenuEntry(
+            id=f"use:{use.id}",
+            kind=ActionKind.GEAR,
+            label=f"{use.label} at a long rest ({gear_name(row.item)}, {row.qty} carried)",
+            item=row.item,
+            use_id=use.id,
+            option=REST_USE,
+        )
+        for use in uses_for_item(row.item)
+        if use.when == "long_rest"
+    ]
+
+
 def _copies(view: SceneMenuView) -> list[MenuEntry]:
     out: list[MenuEntry] = []
     for line in view.sheet.scroll_copies:
@@ -371,7 +389,7 @@ def carried_entries(view: SceneMenuView) -> list[MenuEntry]:
         out += _gear_changes(view, row)
         potion = _potion(view, row)
         out += [potion] if potion is not None else []
-        out += _uses(view, row)
+        out += _uses(view, row) + _rest_uses(row)
     out += _feeds(view)
     out += put_out_entries(view.state, view.actor_id)
     out += _copies(view)

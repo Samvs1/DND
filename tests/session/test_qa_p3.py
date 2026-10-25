@@ -11,11 +11,14 @@ from aidm.server import cli
 from aidm.session.persistence import CampaignLoadError, CampaignStore
 from aidm.session.table import Table
 from tests.ai.guard_fixtures import inn_state
-from tests.session.table_fixtures import disabled_llm, join, of_type, running
+from tests.session.table_fixtures import disabled_llm, join, menu_llm, of_type, pick, running
+
+SEARCH = pick(("search:investigation", [], None))  # "I search behind the hearth" (M36.10a)
 
 
 async def _saved(tmp_path: Path, store: CampaignStore) -> Table:
-    async with running(disabled_llm(tmp_path), inn_state(), store=store) as (table, _):
+    llm = menu_llm(tmp_path, SEARCH)[0]
+    async with running(llm, inn_state(), store=store, interpreter="menu") as (table, _):
         host = await join(table, "Ann", "fighter")
         host.send(SubmitAction(text="I search behind the hearth"))
         await table.settle()

@@ -21,7 +21,15 @@ from aidm.models.protocol_server import (
 from aidm.models.state import GameState
 from aidm.models.world import ClosedReason, QuestState
 from tests.session.quest_offer_fixtures import R1, R2, accept, fresh, resolve_region_one
-from tests.session.table_fixtures import assert_replays, fake_llm, join, of_type, running
+from tests.session.table_fixtures import (
+    assert_replays,
+    fake_llm,
+    join,
+    menu_llm,
+    of_type,
+    pick,
+    running,
+)
 
 LEDGER = "missing-ledger"
 CHOIR = "douse-the-choir"
@@ -36,9 +44,14 @@ def _asked_at_the_docks() -> GameState:
     return state
 
 
+QUAY = "gullmere-quay-docks"
+
+
 async def test_quest_card_not_now_comes_back_next_arrival_then_accept(tmp_path: Path) -> None:
-    llm, _ = fake_llm(tmp_path)
-    async with running(llm, _asked_at_the_docks()) as (table, _):
+    look = pick(("look", [], None))  # the chooser's readings (M36.10a)
+    there, back = (pick(("travel", [node], None)) for node in ("rotting-boathouse", QUAY))
+    llm, _ = menu_llm(tmp_path, look, there, back)
+    async with running(llm, _asked_at_the_docks(), interpreter="menu") as (table, _):
         ann = await join(table, "Ann", "fighter")
         card = table.snapshot().state.quest_offer
         assert card is not None and card.quest_id == LEDGER and card.giver == "Tobin Marrow"
@@ -79,8 +92,9 @@ def _at_the_gateway_with_an_open_task() -> GameState:
 
 
 async def test_crossing_asks_first_and_leaves_open_tasks_behind(tmp_path: Path) -> None:
-    llm, _ = fake_llm(tmp_path)
-    async with running(llm, _at_the_gateway_with_an_open_task()) as (table, _):
+    cross = pick(("travel", ["lamplighters-rest"], None))  # the chooser's reading (M36.10a)
+    llm, _ = menu_llm(tmp_path, cross, cross)
+    async with running(llm, _at_the_gateway_with_an_open_task(), interpreter="menu") as (table, _):
         ann = await join(table, "Ann", "fighter")
         ann.send(SubmitAction(text="I travel to Lamplighters' Rest"))
         await table.settle()

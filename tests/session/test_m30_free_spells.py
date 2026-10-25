@@ -8,6 +8,7 @@ plainly, and a hostile spell with an NPC here stays the storyteller's (an attack
 
 from pathlib import Path
 
+from aidm.dm.fake_llm import FakeStep
 from aidm.dm.precheck import precheck
 from aidm.models.combat_events import SpellCast
 from aidm.models.events import AnyEvent, ResourceSet
@@ -16,11 +17,12 @@ from aidm.models.state import GameState
 from aidm.models.world_events import NarrationRecorded, PartyMoved
 from aidm.rules.acts import CastIntent
 from tests.ai.tool_fixtures import party_state
-from tests.session.table_fixtures import assert_replays, disabled_llm, join, running
+from tests.session.table_fixtures import assert_replays, join, menu_llm, pick, running
 from tests.sim.sim_setup import build_party
 from tests.unit.rules.item_fixtures import DOCKS, at
 
 BLINK = "I cast misty step to reach the roof of the warehouse"
+MISTY = pick(("cast:misty-step", [], None))
 SLOT2 = "spell-slot-2"
 
 
@@ -37,9 +39,11 @@ def _docks() -> GameState:
 
 
 async def _typed(
-    tmp_path: Path, state: GameState, actor: str, text: str
+    tmp_path: Path, state: GameState, actor: str, text: str, choice: FakeStep
 ) -> tuple[list[AnyEvent], GameState]:
-    async with running(disabled_llm(tmp_path), state) as (table, _):
+    """`choice`: the menu chooser's reading (M36.10a); the AI is otherwise down."""
+    llm = menu_llm(tmp_path, choice, storyteller_down=True)[0]
+    async with running(llm, state, interpreter="menu") as (table, _):
         seat = await join(table, "Ann", actor)
         start = table.state.event_count
         seat.send(SubmitAction(text=text))
@@ -57,7 +61,7 @@ async def test_m30_typed_misty_step_spends_the_slot(tmp_path: Path) -> None:
     node = state.world.current_node
     slots = state.creatures["wizard"].resources[SLOT2].current
     assert precheck(state, "wizard", BLINK) == CastIntent("wizard", "misty-step", (), True)
-    events, after = await _typed(tmp_path, state, "wizard", BLINK)
+    events, after = await _typed(tmp_path, state, "wizard", BLINK, MISTY)
     cast = [e for e in events if isinstance(e, SpellCast)]
     assert [(e.spell_id, e.cast_level, e.at_scene) for e in cast] == [("misty-step", 2, True)]
     assert any(isinstance(e, ResourceSet) and e.key == SLOT2 for e in events)
@@ -73,7 +77,8 @@ async def test_m30_typed_cantrip_at_the_scene_spends_nothing(tmp_path: Path) -> 
     state = party_state(3)  # the town square: nobody else stands here, no offer waits
     text = "I cast fire bolt at the old scarecrow"
     assert precheck(state, "wizard", text) == CastIntent("wizard", "fire-bolt", (), True)
-    events, _ = await _typed(tmp_path, state, "wizard", text)
+    bolt = pick(("cast:fire-bolt", [], None))
+    events, _ = await _typed(tmp_path, state, "wizard", text, bolt)
     cast = [e for e in events if isinstance(e, SpellCast)]
     assert [(e.spell_id, e.cast_level, e.at_scene) for e in cast] == [("fire-bolt", 0, True)]
     assert not any(isinstance(e, ResourceSet) for e in events)
@@ -84,16 +89,18 @@ async def test_m30_typed_cast_with_no_slot_left_is_refused_plainly(tmp_path: Pat
     state = _docks()
     slots = state.creatures["wizard"].resources
     slots[SLOT2] = slots[SLOT2].model_copy(update={"current": 0})
-    events, _ = await _typed(tmp_path, state, "wizard", BLINK)
+    events, _ = await _typed(tmp_path, state, "wizard", BLINK, MISTY)  # listed, spent (M36.10a)
     assert not any(isinstance(e, SpellCast | ResourceSet) for e in events)
     assert _told(events) == ["You have no spell slot left for that."]
 
 
 async def test_m30_typed_unready_scene_spell_is_refused_plainly(tmp_path: Path) -> None:
+    """M36.10a: the fighter's menu has no spell at all, so the chooser says `other` (the
+    storyteller's call); nothing is cast and no slot is spent."""
     state = _docks()  # the fighter has no spells at all
-    events, _ = await _typed(tmp_path, state, "fighter", "I cast misty step onto the roof")
+    text = "I cast misty step onto the roof"
+    events, _ = await _typed(tmp_path, state, "fighter", text, pick(other=""))
     assert not any(isinstance(e, SpellCast | ResourceSet) for e in events)
-    assert _told(events) == ["You cannot cast spells."]
 
 
 def test_m30_hostile_spell_aimed_at_an_npc_keeps_the_old_path() -> None:

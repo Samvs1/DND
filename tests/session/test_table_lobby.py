@@ -38,7 +38,9 @@ from tests.session.table_fixtures import (
     drain_queue,
     fake_llm,
     join,
+    menu_llm,
     of_type,
+    pick,
     running,
 )
 from tests.unit.rules.creation_fixtures import default_choices
@@ -160,7 +162,9 @@ async def test_cancelled_hostile_act_changes_nothing(tmp_path: Path) -> None:
 
 
 async def test_hello_with_last_seq_resends_only_missed_events(tmp_path: Path) -> None:
-    async with running(disabled_llm(tmp_path)) as (table, _):
+    rest = pick(("rest:short", [], None))
+    llm = menu_llm(tmp_path, rest, pick(other=""), rest)[0]
+    async with running(llm, interpreter="menu") as (table, _):
         host = await join(table, "Ann", "fighter")
         for text in ("we take a short rest", "I warm my hands", "we take a short rest"):
             host.send(SubmitAction(text=text))

@@ -27,7 +27,7 @@ from aidm.rules.quest_steps import step_met
 from aidm.rules.secrets import fact_words
 from aidm.session.reducer import apply
 from tests.session.playtest_saves import events_of, logged, replay_until
-from tests.session.table_fixtures import assert_replays, disabled_llm, join, running
+from tests.session.table_fixtures import assert_replays, join, menu_llm, pick, running
 
 QUESTS = "m31-r4-quests"
 FULL = "m31-r4-full"
@@ -41,8 +41,14 @@ def _typed(run: str, seq: int) -> tuple[str, str]:
     return event.creature_id, event.text
 
 
-async def _send(tmp_path: Path, state: GameState, actor: str, text: str) -> list[AnyEvent]:
-    async with running(disabled_llm(tmp_path), state) as (table, _):
+async def _send(
+    tmp_path: Path, state: GameState, actor: str, text: str, person: str | None = None
+) -> list[AnyEvent]:
+    """The menu chooser reads the line as talking to `person` (M36.10a; none: a menu label, read
+    with no call); the AI is otherwise down."""
+    talk = () if person is None else (pick(("talk", [person], None)),)
+    llm = menu_llm(tmp_path, *talk, storyteller_down=True)[0]
+    async with running(llm, state, interpreter="menu") as (table, _):
         seat = await join(table, "Ann", actor)
         seat.drain()
         start = table.state.event_count
@@ -62,7 +68,7 @@ async def test_m31_asking_the_giver_teaches_the_favour(tmp_path: Path) -> None:
     actor, text = _typed(QUESTS, 227)
     state = replay_until(QUESTS, 227)
     assert precheck(state, actor, text) == AskIntent(actor, "bramble-the-kinless")
-    events = await _send(tmp_path, state, actor, text)
+    events = await _send(tmp_path, state, actor, text, "bramble-the-kinless")
     learned = [e for e in events if isinstance(e, LoreLearned)]
     assert [(e.tag, e.npc_id) for e in learned] == [("bramble-grief", "bramble-the-kinless")]
     done = [e for e in events if isinstance(e, QuestStepDone) and e.quest_id == "favour-1"]
@@ -81,7 +87,7 @@ async def test_m31_friendly_sister_reveals_and_teaches(tmp_path: Path) -> None:
     """V13b, full 543-545: Sister Thena was friendly at deeds 20, yet her secret about Brother
     Mallow stayed hidden and "Learn about mallow" never moved."""
     actor, text = _typed(FULL, 545)
-    events = await _send(tmp_path, replay_until(FULL, 545), actor, text)
+    events = await _send(tmp_path, replay_until(FULL, 545), actor, text, "sister-thena")
     revealed = [e for e in events if isinstance(e, SecretRevealed)]
     assert [e.secret_id for e in revealed] == ["sister-thena-secret-1"]
     learned = [e for e in events if isinstance(e, LoreLearned)]

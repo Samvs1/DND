@@ -1,12 +1,14 @@
 """Helpers for table actor tests: a table on a manual clock, seats, outbox reading (no network)."""
 
+from collections import deque
 from collections.abc import AsyncIterator, Iterable, Sequence
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
 
-from aidm.dm.fake_llm import FakeLLM, FakeStep
+from aidm.dm.fake_llm import FakeLLM, FakeRaise, FakeStep, fake_tool_call
+from aidm.dm.llm_backend import BackendError, CompletionRequest
 from aidm.dm.llm_client import LlmClient
 from aidm.dm.llm_factory import make_llm_client
 from aidm.dm.llm_settings import LlmSettings
@@ -34,6 +36,41 @@ def disabled_llm(tmp_path: Path) -> LlmClient:
 
 def fake_llm(tmp_path: Path, script: Iterable[FakeStep] = ()) -> tuple[LlmClient, FakeLLM]:
     return fake_client(tmp_path, script)
+
+
+type Step = tuple[str, Sequence[str], int | None]
+
+
+def pick(*steps: Step, other: str | None = None, first: bool = False, colour: str = "") -> FakeStep:
+    """The chooser's scripted answer: steps `(entry id, target ids, qty)`, and/or `other`;
+    `colour` the words that only colour the steps (M36.9)."""
+    rows = [{"do": e, "to": list(t), "qty": q} for e, t, q in steps]
+    off: dict[str, Any] | None = None if other is None else {"text": other, "first": first}
+    return fake_tool_call("choose_actions", {"steps": rows, "other": off, "colour": colour})
+
+
+def _down(_request: CompletionRequest) -> FakeStep:
+    return FakeRaise(BackendError("disabled", "no key"))
+
+
+def menu_llm(
+    tmp_path: Path,
+    *picks: FakeStep,
+    script: Iterable[FakeStep] = (),
+    storyteller_down: bool = False,
+) -> tuple[LlmClient, FakeLLM]:
+    """A FakeLLM client for a menu-interpreter table (M36.10): `picks` are the chooser's scripted
+    answers in order (`pick`), `script` feeds every other call. `storyteller_down`: every call
+    but the chooser's fails like the no-key mode (the template fallbacks speak)."""
+    llm, fake = fake_client(tmp_path, script, by_tool={"choose_actions": picks})
+    if storyteller_down:
+        fake.responder = _down
+    return llm, fake
+
+
+def push_picks(fake: FakeLLM, *picks: FakeStep) -> None:
+    """Queue more chooser answers on a running FakeLLM (M36.10)."""
+    fake.by_tool.setdefault("choose_actions", deque()).extend(picks)
 
 
 @dataclass

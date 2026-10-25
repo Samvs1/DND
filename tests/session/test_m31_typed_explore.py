@@ -3,6 +3,7 @@ fight, each on the real round-4 state where the line was typed."""
 
 from pathlib import Path
 
+from aidm.dm.fake_llm import FakeStep
 from aidm.dm.precheck import precheck
 from aidm.models.combat_events import SpellCast
 from aidm.models.events import AnyEvent, HpChanged, ResourceSet
@@ -12,7 +13,14 @@ from aidm.models.state import GameState
 from aidm.models.world_events import EquipmentChanged
 from aidm.rules.acts import CastIntent, HealIntent, ItemAction, ItemIntent, ItemIntents
 from tests.session.playtest_saves import logged, replay_until
-from tests.session.table_fixtures import Seat, assert_replays, disabled_llm, join, running
+from tests.session.table_fixtures import (
+    Seat,
+    assert_replays,
+    join,
+    menu_llm,
+    pick,
+    running,
+)
 
 RUN = "m31-r4-typed"
 
@@ -29,9 +37,11 @@ def _read(seq: int) -> object:
 
 
 async def _turn(
-    tmp_path: Path, state: GameState, actor: str, text: str
+    tmp_path: Path, state: GameState, actor: str, text: str, choice: FakeStep
 ) -> tuple[list[AnyEvent], GameState, list[str]]:
-    async with running(disabled_llm(tmp_path), state) as (table, _):
+    """`choice`: the menu chooser's reading (M36.10a); the AI is otherwise down."""
+    llm = menu_llm(tmp_path, choice, storyteller_down=True)[0]
+    async with running(llm, state, interpreter="menu") as (table, _):
         seat: Seat = await join(table, "Ann", actor)
         seat.drain()
         start = table.state.event_count
@@ -60,7 +70,8 @@ async def test_m31_scene_cast_with_people_near_spends_the_slot(tmp_path: Path) -
     actor, text = _typed(79)
     state = replay_until(RUN, 79)
     before = state.creatures[actor].resources["spell-slot-1"].current
-    events, after, _ = await _turn(tmp_path, state, actor, text)
+    burn = pick(("cast:burning-hands", [], None))
+    events, after, _ = await _turn(tmp_path, state, actor, text, burn)
     cast = [e for e in events if isinstance(e, SpellCast)]
     assert [(e.spell_id, e.at_scene) for e in cast] == [("burning-hands", True)]
     assert after.creatures[actor].resources["spell-slot-1"].current == before - 1
@@ -76,7 +87,8 @@ def test_m31_ready_spell_named_without_cast_is_cast() -> None:
 
 async def test_m31_murmured_healing_word_heals_and_spends(tmp_path: Path) -> None:
     actor, text = _typed(86)
-    events, _, _ = await _turn(tmp_path, replay_until(RUN, 86), actor, text)
+    word = pick(("cast:healing-word", ["pc-p6"], None), colour="to soothe his singed arms")
+    events, _, _ = await _turn(tmp_path, replay_until(RUN, 86), actor, text, word)
     cast = [e for e in events if isinstance(e, SpellCast)]
     assert [(e.spell_id, e.target_ids) for e in cast] == [("healing-word", ("pc-p6",))]
     assert any(isinstance(e, ResourceSet) and e.key == "spell-slot-1" for e in events)
@@ -103,13 +115,15 @@ def test_m31_compound_gear_line_is_both_acts() -> None:
 
 
 async def test_m31_compound_gear_line_keeps_the_valid_half(tmp_path: Path) -> None:
+    """M36.10a: the longsword is already away, so the menu has no stow of it: the chooser picks
+    the shield's stow alone, and the shield is stowed."""
     actor, text = _typed(1333)
     state = replay_until(RUN, 1333)
     pc = state.creatures[actor].pc
     assert pc is not None
     pc.equipped = pc.equipped.model_copy(update={"main_hand": None})  # already sheathed
-    events, after, notes = await _turn(tmp_path, state, actor, text)
+    stow = pick(("unequip:shield", [], None))
+    events, after, _ = await _turn(tmp_path, state, actor, text, stow)
     worn = after.creatures[actor].pc
     assert worn is not None and worn.equipped.shield is None
     assert any(isinstance(e, EquipmentChanged) for e in events)
-    assert "Brienne's longsword is already put away." in notes

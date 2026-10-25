@@ -4,6 +4,7 @@ discovery check at the hidden things' own DC, and the verdict and the find agree
 import random
 from pathlib import Path
 
+from aidm.dm.fake_llm import FakeStep
 from aidm.dm.precheck import precheck
 from aidm.dm.tool_context import ToolContext, tool_registries
 from aidm.dm.tool_exec_checks import run_request_check
@@ -17,10 +18,18 @@ from aidm.models.world_events import ItemDiscovered
 from aidm.rules.acts import SearchIntent, UseIntent
 from aidm.rules.searching import search_events
 from tests.session.playtest_saves import logged, replay_until
-from tests.session.table_fixtures import assert_replays, disabled_llm, join, running
+from tests.session.table_fixtures import (
+    Step,
+    assert_replays,
+    join,
+    menu_llm,
+    pick,
+    running,
+)
 
 QUESTS = "m31-r4-quests"
 KEY = "qi-the-twin-in-the-glass-own-1-0"  # placed hidden at quests 604, DC 10
+SEARCH: Step = ("search:investigation", [], None)
 
 
 def _typed(run: str, seq: int) -> tuple[str, str]:
@@ -71,8 +80,12 @@ def test_m31_storyteller_search_check_uses_the_hidden_dc() -> None:
         assert found == check.result.success
 
 
-async def _turn(tmp_path: Path, seq: int, text: str, actor: str) -> list[AnyEvent]:
-    async with running(disabled_llm(tmp_path), replay_until(QUESTS, seq)) as (table, _):
+async def _turn(
+    tmp_path: Path, seq: int, text: str, actor: str, choice: FakeStep
+) -> list[AnyEvent]:
+    """`choice`: the menu chooser's reading (M36.10a); the AI is otherwise down."""
+    llm = menu_llm(tmp_path, choice, storyteller_down=True)[0]
+    async with running(llm, replay_until(QUESTS, seq), interpreter="menu") as (table, _):
         seat = await join(table, "Ann", actor)
         start = table.state.event_count
         seat.send(SubmitAction(text=text))
@@ -83,7 +96,8 @@ async def _turn(tmp_path: Path, seq: int, text: str, actor: str) -> list[AnyEven
 
 async def test_m31_typed_search_rolls_before_anything_else(tmp_path: Path) -> None:
     actor, text = _typed(QUESTS, 937)
-    events = await _turn(tmp_path, 937, text, actor)
+    search = pick(SEARCH, other="pick it up, and read it")
+    events = await _turn(tmp_path, 937, text, actor, search)
     checks = [e for e in events if isinstance(e, CheckResolved)]
     assert [(c.reason, c.result.dc) for c in checks[:1]] == [("search", 10)]
     assert not any(isinstance(e, ItemUsed) for e in events[: events.index(checks[0])])
@@ -93,7 +107,8 @@ async def test_m31_light_first_never_replaces_the_search(tmp_path: Path) -> None
     line = "I light a candle, then search the ash-buried shelves for a note"
     state = replay_until(QUESTS, 937)
     assert isinstance(precheck(state, "pc-p6", line), UseIntent)
-    events = await _turn(tmp_path, 937, line, "pc-p6")
+    light_then_search = pick(("use:candle-light", [], None), SEARCH)
+    events = await _turn(tmp_path, 937, line, "pc-p6", light_then_search)
     used = [e.item for e in events if isinstance(e, ItemUsed)]
     checks = [e.reason for e in events if isinstance(e, CheckResolved)]
     assert used == ["candle"] and checks == ["search"]

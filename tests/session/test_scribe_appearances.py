@@ -40,12 +40,16 @@ from tests.session.table_fixtures import (
     drain_queue,
     join,
     join_with_token,
+    menu_llm,
     of_type,
+    pick,
     running,
     screen_seat,
     start_fight,
 )
 from tests.unit.rules.creation_fixtures import default_choices
+
+SEARCH = pick(("search:investigation", [], None))  # "I search behind the hearth" (M36.10a)
 
 
 def _groups(msgs: list[AnyServerMsg]) -> list[str]:
@@ -142,7 +146,8 @@ async def test_welcome_starts_while_the_world_is_being_written(tmp_path: Path) -
 
 async def test_host_load_welcomes_back_but_not_a_lobby_save(tmp_path: Path) -> None:
     store = CampaignStore(tmp_path / "saves")
-    async with running(disabled_llm(tmp_path), inn_state(), store=store) as (first, _):
+    llm = menu_llm(tmp_path, SEARCH)[0]
+    async with running(llm, inn_state(), store=store, interpreter="menu") as (first, _):
         ann = await join(first, "Ann", "fighter")
         ann.send(SubmitAction(text="I search behind the hearth"))
         await first.settle()
@@ -164,7 +169,8 @@ async def test_host_load_welcomes_back_but_not_a_lobby_save(tmp_path: Path) -> N
 
 async def test_boot_load_welcomes_back_once_on_the_first_connection(tmp_path: Path) -> None:
     store = CampaignStore(tmp_path / "saves")
-    async with running(disabled_llm(tmp_path), inn_state(), store=store) as (first, _):
+    llm = menu_llm(tmp_path, pick(("look", [], None)))[0]
+    async with running(llm, inn_state(), store=store, interpreter="menu") as (first, _):
         ann = await join(first, "Ann", "fighter")
         ann.send(SubmitAction(text="I look around"))
         await first.settle()

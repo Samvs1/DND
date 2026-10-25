@@ -6,7 +6,8 @@
   they apply). A refused use returns False: the caller hands the words to the adjudicator, which
   tells the attempt (the model meets the same refusal through `use_item`). A put-out with no
   light gets a notice; M29.7a R17: a refused lighting ("Rook already carries a lit torch: it is
-  already lit.") is told as an engine line, never handed to the storyteller. A long-rest use
+  already lit.") is told as an engine line, never handed to the storyteller (M36.10a: also the
+  menu's lighting use, known by its use id). A long-rest use
   (herbalism) proposes the long rest WITH the crafting.
 - `first_act(core, player, intent) -> list[AnyEvent]` (M29.7a R17, the light or put-out of a
   compound sentence): the events applied (not yet told: the caller tells them with the other
@@ -33,6 +34,7 @@ Public API: `use_intent`, `first_act`, `rest_with_crafts`, `fight_gear`, `fight_
 
 import random
 
+from aidm.data.item_uses import LightPlace, uses_for_item
 from aidm.dm.precheck import gear_intent
 from aidm.models.events import AnyEvent
 from aidm.models.item_events import ItemUseRefused
@@ -54,6 +56,14 @@ from aidm.session.telling import conclude, remember, tell_text
 from aidm.session.views import public_combat
 
 _LIGHT_VERBS = ("light", "ignite", "kindle")
+
+
+def _lights(intent: UseIntent) -> bool:
+    """A lighting: the typed verb, or (M36.10a, the menu) the chosen use's own effect."""
+    if intent.verb in _LIGHT_VERBS:
+        return True
+    uses = uses_for_item(intent.item)
+    return any(u.id == intent.use_id and isinstance(u.effect, LightPlace) for u in uses)
 
 
 def _refusal(events: list[AnyEvent]) -> str | None:
@@ -96,7 +106,7 @@ async def _refused(core: TableCore, player: Player, intent: UseIntent, refused: 
     if intent.put_out:
         core.notice(player.id, NoticeKind.REFUSED, refused)
         return True
-    if intent.verb in _LIGHT_VERBS:
+    if _lights(intent):
         await remember(core, await tell_text(core, refused))
         return True
     return False

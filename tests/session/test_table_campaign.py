@@ -23,9 +23,10 @@ from tests.session.progression_fixtures import campaign_state, plan
 from tests.session.table_fixtures import (
     Seat,
     assert_replays,
-    disabled_llm,
     join,
+    menu_llm,
     of_type,
+    pick,
     running,
 )
 
@@ -47,12 +48,14 @@ async def _drive_fight(seat: Seat) -> None:
 
 async def test_arrival_offer_fight_loot_and_back_to_exploration(tmp_path: Path) -> None:
     _, state, _ = campaign_state()
-    async with running(disabled_llm(tmp_path), state) as (table, _):
+    spoke = R1.spokes[0]
+    travel = pick(("travel", [spoke.id], None))  # M36.10a; the AI is otherwise down
+    llm = menu_llm(tmp_path, travel, storyteller_down=True)[0]
+    async with running(llm, state, interpreter="menu") as (table, _):
         ann = await join(table, "Ann", "fighter")
         ann.send(AnswerOffer(choice=OfferChoice.FIGHT))
         await table.settle()
         assert of_type(ann.drain(), ErrorMsg)[0].code is ErrorCode.REFUSED
-        spoke = R1.spokes[0]
         ann.send(SubmitAction(text=f"travel to {spoke.name}"))
         await table.settle()
         assert table.state.world.current_node == spoke.id
@@ -76,7 +79,9 @@ async def test_arrival_offer_fight_loot_and_back_to_exploration(tmp_path: Path) 
 
 async def test_completed_campaign_writes_the_epilogue_once(tmp_path: Path) -> None:
     _, state, _, _ = finished_campaign()
-    async with running(disabled_llm(tmp_path), state) as (table, _):
+    toast = pick(other="")  # the storyteller's line (M36.10a); the AI is otherwise down
+    llm = menu_llm(tmp_path, toast, storyteller_down=True)[0]
+    async with running(llm, state, interpreter="menu") as (table, _):
         ann = await join(table, "Ann", "fighter")
         ann.send(SubmitAction(text="We raise a toast to the fallen"))
         await table.settle()

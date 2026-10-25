@@ -21,7 +21,9 @@ from tests.session.table_fixtures import (
     assert_replays,
     disabled_llm,
     join,
+    menu_llm,
     of_type,
+    pick,
     running,
 )
 
@@ -61,7 +63,9 @@ async def test_m29_wordy_rest_opens_the_rest_vote_and_rests(tmp_path: Path) -> N
     seq, hero, text, _ = WORDY[1]
     state = replay_until("p2", seq)
     hurt = state.creatures["pc-p6"].hp
-    async with running(disabled_llm(tmp_path), state) as (table, _):
+    camp = pick(("rest:long", [], None))  # the menu chooser's reading (M36.10a)
+    llm = menu_llm(tmp_path, camp, storyteller_down=True)[0]
+    async with running(llm, state, interpreter="menu") as (table, _):
         seat = await join(table, "Ann", hero)
         seat.send(SubmitAction(text=text))
         await table.settle()

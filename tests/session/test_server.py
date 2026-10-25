@@ -16,8 +16,10 @@ from tests.session.server_fixtures import (
     make_app,
     read_until,
     registry_of,
+    server_fake,
     settings_of,
 )
+from tests.session.table_fixtures import pick, push_picks
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 
@@ -51,6 +53,8 @@ def test_submit_action_streams_events_then_narration(tmp_path: Path) -> None:
 
 
 REST_ACTIONS = ("we take a short rest", "I warm my hands by the hearth", "we take a short rest")
+REST = pick(("rest:short", [], None))
+REST_PICKS = (REST, pick(other=""), REST)  # the menu interpreter's reading (M36.10a)
 
 
 def test_reconnect_with_last_seq_gets_only_missed_events(tmp_path: Path) -> None:
@@ -60,6 +64,7 @@ def test_reconnect_with_last_seq_gets_only_missed_events(tmp_path: Path) -> None
             hello(ws, "Ann")
             welcome = read_until(ws, "snapshot")[0]
             registry_of(app).table.players[welcome["player_id"]].creature_id = "fighter"
+            push_picks(server_fake(app), *REST_PICKS)
             for text in REST_ACTIONS:
                 ws.send_json({"type": "submit_action", "text": text})
                 read_until(ws, "narration_done")

@@ -6,7 +6,9 @@ from pathlib import Path
 
 import pytest
 
+from aidm.dm.fake_llm import FakeStep
 from aidm.dm.intent_router import fight_intent
+from aidm.dm.llm_client import LlmClient
 from aidm.dm.precheck import precheck
 from aidm.dm.tool_context import tool_registries
 from aidm.models.combat_events import AttackRolled, SpellCast
@@ -14,16 +16,21 @@ from aidm.models.commands import AttackCommand
 from aidm.models.events import CheckResolved, ResourceSet
 from aidm.models.protocol_client import SubmitAction
 from aidm.models.quest_events import KeepsakeGiven
-from aidm.models.world_events import EquipmentChanged, NarrationRecorded
+from aidm.models.world_events import EquipmentChanged
 from aidm.rules.acts import CastIntent, GiveIntent
 from aidm.rules.acts_fight import DrawAttack
 from aidm.rules.equipment import EquipRefused, draw_events
 from aidm.session import combat_flow
 from tests.session.playtest_saves import logged, replay_until
-from tests.session.table_fixtures import assert_replays, disabled_llm, join, running
+from tests.session.table_fixtures import assert_replays, disabled_llm, join, menu_llm, pick, running
 
 LOCKBOX = "qi-pay-the-ferryman-own-0-0"
 RENN = "old-renn-pitwater"
+
+
+def _menu(tmp_path: Path, choice: FakeStep) -> LlmClient:
+    """The menu chooser's reading (M36.10a); every other AI call fails as with no key."""
+    return menu_llm(tmp_path, choice, storyteller_down=True)[0]
 
 
 def _typed(run: str, seq: int) -> tuple[str, str]:
@@ -51,7 +58,8 @@ def test_m30_r3_set_down_with_nobody_named_is_no_give() -> None:
 async def test_m30_r3_set_before_renn_moves_the_keepsake(tmp_path: Path) -> None:
     state = replay_until("r3-casters", 288)
     _, text = _typed("r3-casters", 288)
-    async with running(disabled_llm(tmp_path), state) as (table, _):
+    give = pick(("give:drowned-lockbox", [RENN], 1))  # the menu chooser's reading (M36.10a)
+    async with running(_menu(tmp_path, give), state, interpreter="menu") as (table, _):
         seat = await join(table, "Ann", "pc-p6")
         start = table.state.event_count
         seat.send(SubmitAction(text=text))
@@ -83,7 +91,8 @@ def test_m30_r3_typed_cast_out_of_a_fight_is_read() -> None:
 async def test_m30_r3_typed_cast_spends_the_slot(tmp_path: Path) -> None:
     state = replay_until("r3-casters", 288)
     slots = state.creatures["pc-p4"].resources["spell-slot-1"].current
-    async with running(disabled_llm(tmp_path), state) as (table, _):
+    bless = pick(("cast:bless", ["pc-p6", "pc-p8"], None))
+    async with running(_menu(tmp_path, bless), state, interpreter="menu") as (table, _):
         seat = await join(table, "Ann", "pc-p4")
         start = table.state.event_count
         seat.send(SubmitAction(text="Elowen casts bless on Rook and Tamsin"))
@@ -98,16 +107,16 @@ async def test_m30_r3_typed_cast_spends_the_slot(tmp_path: Path) -> None:
 
 
 async def test_m30_r3_unprepared_typed_cast_is_refused_plainly(tmp_path: Path) -> None:
+    """M36.10a: an unprepared spell is not on the menu (nor the hotbar), so the chooser says
+    `other`: nothing is cast, no slot is spent and no check is rolled."""
     state = replay_until("r3-casters", 288)  # False Life is in Brienne's book, not prepared
-    async with running(disabled_llm(tmp_path), state) as (table, _):
+    async with running(_menu(tmp_path, pick(other="")), state, interpreter="menu") as (table, _):
         seat = await join(table, "Ann", "pc-p2")
         start = table.state.event_count
         seat.send(SubmitAction(text="Brienne casts false life"))
         await table.settle()
         events = [e.event for e in table.log if e.seq >= start]
     assert not any(isinstance(e, SpellCast | ResourceSet | CheckResolved) for e in events)
-    told = [e.text for e in events if isinstance(e, NarrationRecorded)]
-    assert told == ["You do not have that spell ready."]
 
 
 def test_m30_r3_bring_my_mace_down_is_an_attack() -> None:

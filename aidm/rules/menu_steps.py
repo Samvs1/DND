@@ -19,8 +19,9 @@ Engine meaning lives here and in `menu_steps_fight` / `menu_steps_scene`, never 
   leave. In a fight that state is planned here: every command the steps send is probed with the
   real rules (`menu_probe.accepted`, a probe RNG; a draw, a walk) and projected
   (`rules.projection.project_state`), so "move to the crypt, then attack the kobold" plans the
-  attack from the crypt (no second walk). Out of a fight the acts change nothing a later step's
-  meaning reads (counts and targets come from the menu), so the state is kept.
+  attack from the crypt (no second walk). Out of a fight the plan keeps the state, and the
+  session plans each step again on the live state (`to_groups`, M36.10a: "pick up the salt and
+  hand all the salt to Gran Tevin" hands the salt just picked up too).
 - The steps stop after an act that ends the line: the turn ends (end turn, flee), a fight starts
   (an offer strike, the offer's Fight, Surprise or Escape answer), or a vote or held parley
   opens (travel, rest, shop, parley), as the router's compound lines did.
@@ -38,7 +39,9 @@ at a zone takes the zone holding most of them. The step is then played from the 
 (`build_menu`) by the same entry id (the offer menu keeps the fight ids). A strike that no longer
 fits (no foe left, the spell gone) is a plain answer.
 
-Public API: `Act`, `to_acts(state, menu, choice, regs, text="")`,
+- Travel steps in a row are one walk to the last place named (M36.10a, `_travels`).
+
+Public API: `Act`, `Group`, `to_acts(state, menu, choice, regs, text="")`, `to_groups(...)`,
 `step_acts(state, menu, step, regs, text="")`, `resume_strike(state, actor_id, step, regs)`.
 """
 
@@ -155,6 +158,45 @@ def _after(state: GameState, acts: Sequence[Act], regs: CombatRegistries) -> Gam
     return state
 
 
+def _travels(menu: ActionMenu, steps: Sequence[MenuStep]) -> list[MenuStep]:
+    """M36.10a: travel steps in a row are one walk to the last place named (the walk goes road by
+    road, `TravelIntent(first hop, goal)`); a travel opens a vote and ends the line, so a second
+    travel step would never play."""
+    kinds = [e.kind if (e := _entry(menu, s.entry)) is not None else None for s in steps]
+    return [
+        step
+        for i, step in enumerate(steps)
+        if not (kinds[i] is ActionKind.TRAVEL and i + 1 < len(steps) and kinds[i + 1] is kinds[i])
+    ]
+
+
+type Group = tuple[MenuStep | None, list[Act]]
+
+
+def to_groups(
+    state: GameState,
+    menu: ActionMenu,
+    choice: MenuChoice,
+    regs: CombatRegistries,
+    text: str = "",
+) -> list[Group]:
+    """`to_acts`, grouped by the step each act comes from (None: the `other` part), so a session
+    can plan each step again on the state the steps before it left (M36.10a)."""
+    other: list[Group] = [(None, [OtherIntent(menu.actor_id, choice.other_text or text)])]
+    if not choice.other:
+        other = []
+    groups: list[Group] = other if choice.other_first else []
+    running = state
+    for step in _travels(menu, choice.steps):
+        made = step_acts(running, menu, step, regs, text)
+        groups.append((step, made))
+        if any(_ends(a) for a in made):
+            return groups
+        if menu.scope is MenuScope.FIGHT:
+            running = _after(running, made, regs)
+    return groups if choice.other_first else [*groups, *other]
+
+
 def to_acts(
     state: GameState,
     menu: ActionMenu,
@@ -162,19 +204,7 @@ def to_acts(
     regs: CombatRegistries,
     text: str = "",
 ) -> list[Act]:
-    other: list[Act] = [OtherIntent(menu.actor_id, choice.other_text or text)]
-    if not choice.other:
-        other = []
-    acts: list[Act] = other if choice.other_first else []
-    running = state
-    for step in choice.steps:
-        made = step_acts(running, menu, step, regs, text)
-        acts += made
-        if any(_ends(a) for a in made):
-            return acts
-        if menu.scope is MenuScope.FIGHT:
-            running = _after(running, made, regs)
-    return acts if choice.other_first else [*acts, *other]
+    return [act for _, acts in to_groups(state, menu, choice, regs, text) for act in acts]
 
 
 def _named(state: GameState, foe: str) -> list[str]:

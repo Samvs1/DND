@@ -38,7 +38,15 @@ from aidm.session.public_feed import MAX_ROLLS, PublicFeed, public_line
 from aidm.session.reducer import apply as reduce
 from aidm.session.table import Table
 from tests.ai.fake_scripts import fake_client
-from tests.session.table_fixtures import Seat, drain_queue, join, of_type, running
+from tests.session.table_fixtures import (
+    Seat,
+    drain_queue,
+    join,
+    menu_llm,
+    of_type,
+    pick,
+    running,
+)
 from tests.unit.rules.creation_fixtures import default_choices
 
 HATCH = "Brine-Locked Hatch"
@@ -133,9 +141,10 @@ async def test_cast_elsewhere_is_never_named_but_present_npc_is(tmp_path: Path) 
 
 
 async def test_reload_gets_story_history_and_restart_rebuilds_it(tmp_path: Path) -> None:
-    llm, _ = fake_client(tmp_path)
+    llm, _ = menu_llm(tmp_path, pick(("rest:short", [], None)), pick(("look", [], None)))
     store = CampaignStore(tmp_path / "saves")
-    async with running(llm, GameState(campaign_id="t", seed=3), store=store) as (table, _):
+    start = GameState(campaign_id="t", seed=3)
+    async with running(llm, start, store=store, interpreter="menu") as (table, _):
         ann = await _hero(table, "Ann", "fighter")
         ann.send(HostStart())
         await table.settle()

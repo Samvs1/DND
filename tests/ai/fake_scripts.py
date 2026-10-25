@@ -5,7 +5,7 @@ Never touches the network. The adversarial builders reproduce v1 failure classes
 injection suite) can reuse them.
 """
 
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from pathlib import Path
 
 from pydantic import BaseModel, Field
@@ -39,6 +39,7 @@ def fake_client(
     timeout_s: float = 5.0,
     idle_s: float = 5.0,
     max_retries: int = 2,
+    by_tool: Mapping[str, Iterable[FakeStep]] | None = None,
 ) -> tuple[LlmClient, FakeLLM]:
     settings = LlmSettings(
         api_key=None,
@@ -47,7 +48,7 @@ def fake_client(
         stream_idle_timeout_s=idle_s,
         max_retries=max_retries,
     )
-    fake = FakeLLM(script)
+    fake = FakeLLM(script, by_tool=by_tool)
     return LlmClient(fake, settings, LlmMode.FAKE, LlmCallLog(settings.log_path)), fake
 
 

@@ -19,15 +19,17 @@ from aidm.rules.social import hostile_attitude_events, social_attitude_events
 from aidm.session import combat_flow
 from tests.session.m32_play import FULL, QUESTS, TYPED, play, typed
 from tests.session.playtest_saves import replay_until
-from tests.session.table_fixtures import assert_replays, disabled_llm, join, running
+from tests.session.table_fixtures import assert_replays, disabled_llm, join, pick, running
 
 SALT = "qi-salt-for-the-elders-own-0-"
 LANTERN = "qi-main-the-rookery-reaches-salt-the-wound-0-"
+BARROW = "barrow-of-the-hollow-king"
 
 
 async def test_v1_m32_compound_gear_line_does_both_halves(tmp_path: Path) -> None:
     """X6, typed 37: the sword half of "I sheathe my sword and sling my shield" was dropped."""
-    played = await play(tmp_path, TYPED, 35)
+    stow = pick(("unequip:longsword", [], None), ("unequip:shield", [], None))
+    played = await play(tmp_path, TYPED, 35, picks=[stow])
     worn = [(e.equipped.main_hand, e.equipped.shield) for e in played.of(EquipmentChanged)]
     assert worn[-1] == (None, None)
 
@@ -35,7 +37,8 @@ async def test_v1_m32_compound_gear_line_does_both_halves(tmp_path: Path) -> Non
 async def test_v1_m32_pick_up_then_hand_over_does_both(tmp_path: Path) -> None:
     """X6, full 611-614: "I pick up the Free-Given Salt ... and hand all the salt we have
     gathered to Gran Tevin" only picked it up. Now it picks up, then hands every salt over."""
-    played = await play(tmp_path, FULL, 610)
+    salt = pick(("take:free-given-salt", [], None), ("give:free-given-salt", ["gran-tevin"], 2))
+    played = await play(tmp_path, FULL, 610, picks=[salt])
     given = [(e.keepsake_id, e.npc_id) for e in played.of(KeepsakeGiven)]
     assert given == [(f"{SALT}0", "gran-tevin"), (f"{SALT}2", "gran-tevin")]
 
@@ -53,9 +56,12 @@ def test_v1_m32_counted_hand_over_names_the_count() -> None:
 
 
 async def test_v1_m32_counted_hand_over_gives_them_all(tmp_path: Path) -> None:
-    played = await play(tmp_path, QUESTS, 284)
+    three = pick(("give:salt-lanterns", ["bram-velde"], 3))
+    played = await play(tmp_path, QUESTS, 284, picks=[three])
     assert [e.keepsake_id for e in played.of(KeepsakeGiven)] == [f"{LANTERN}{i}" for i in range(3)]
-    fewer = await play(tmp_path, QUESTS, 284, "Brienne hands the five salt-lanterns to Bram Velde")
+    five = pick(("give:salt-lanterns", ["bram-velde"], 5))  # M36.10a: a give's count as said
+    text = "Brienne hands the five salt-lanterns to Bram Velde"
+    fewer = await play(tmp_path, QUESTS, 284, text, picks=[five])
     assert len(fewer.of(KeepsakeGiven)) == 3
     assert "Brienne had only 3 of those to give." in fewer.notices()
 
@@ -96,7 +102,8 @@ def test_v1_m32_travel_further_goes_road_by_road() -> None:
 
 
 async def test_v1_m32_travel_further_walks_every_road(tmp_path: Path) -> None:
-    played = await play(tmp_path, TYPED, 394)
+    roads = pick(("travel", ["hollowgate-cross"], None), ("travel", [BARROW], None))
+    played = await play(tmp_path, TYPED, 394, picks=[roads])
     moved = [(e.from_node, e.to_node) for e in played.of(PartyMoved)]
     assert moved == [
         ("the-briar-vein", "hollowgate-cross"),
@@ -108,7 +115,8 @@ async def test_v1_m32_route_item_to_a_waiting_master_closes_the_step(tmp_path: P
     """X7, full 519-522: "Rook steps forward and gives Caul's Bait-Cache to Abbess Marwen Salt"
     did nothing and told the filler line, so the peaceful route could not be finished. Now the
     cache is handed over, the route step closes and the waiting offer shows the sure parley."""
-    played = await play(tmp_path, FULL, 519)
+    cache = pick(("give:caul-s-bait-cache", ["boss-the-saltlow-marshes"], None))
+    played = await play(tmp_path, FULL, 519, picks=[cache])
     assert [e.npc_id for e in played.of(KeepsakeGiven)] == ["boss-the-saltlow-marshes"]
     steps = [e.log_line for e in played.of(QuestStepDone)]
     assert "Give Caul's Bait-Cache to Abbess Marwen Salt" in steps
@@ -120,7 +128,8 @@ async def test_v1_m32_route_item_to_a_waiting_master_closes_the_step(tmp_path: P
 async def test_v1_m32_gift_to_a_yielded_master_moves_and_never_turns_him(tmp_path: Path) -> None:
     """X7, typed 853-855: the ring given to the yielded Duke never moved, and an attitude change
     while he was still hostile printed "turns hostile"."""
-    played = await play(tmp_path, TYPED, 853)
+    ring = pick(("give:broken-signet-ring", ["boss-the-rookwood-marches"], None))
+    played = await play(tmp_path, TYPED, 853, picks=[ring])
     assert [e.npc_id for e in played.of(KeepsakeGiven)] == ["boss-the-rookwood-marches"]
     assert not any(e.turned for e in played.of(AttitudeChanged))
     assert "turns hostile" not in played.told()
@@ -130,7 +139,8 @@ async def test_v1_m32_refused_move_says_why(tmp_path: Path) -> None:
     """X7, full 619: a move to a place that is not next door got the filler line, no reason.
     Now the walk goes road by road; the crossing into the next region asks first, and once
     confirmed the party reaches The Skiff-Road."""
-    played = await play(tmp_path, FULL, 617, then=(ConfirmHostile(),))
+    skiff = pick(("travel", ["the-skiff-road"], None))
+    played = await play(tmp_path, FULL, 617, then=(ConfirmHostile(),), picks=[skiff])
     said = " ".join([played.told(), *played.notices()])
     assert QUIET_LINE not in said
     assert played.asked() and "Crossing into" in played.asked()[0]

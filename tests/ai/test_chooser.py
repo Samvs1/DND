@@ -67,7 +67,10 @@ def test_strict_tools_setting_is_off_by_default() -> None:
 
 async def test_bad_target_and_qty_are_repaired_by_the_retry(tmp_path: Path) -> None:
     state, menu = _gift()
-    bad = _pick([{"do": INCENSE, "to": ["pc-p4"], "qty": 9}])
+    drop = (
+        "drop:block-of-incense"  # M36.10a: a give's count goes to the rules as said, a drop's not
+    )
+    bad = _pick([{"do": INCENSE, "to": ["pc-p4"], "qty": 2}, {"do": drop, "to": [], "qty": 9}])
     good = _pick([{"do": INCENSE, "to": ["widow-cabrelle"], "qty": 2}])
     client, fake = chooser_client(tmp_path, {CHOOSE_TOOL: [bad, good]})
     line = "Brienne gives Widow Cabrelle two blocks of incense for the shrine"
@@ -78,7 +81,20 @@ async def test_bad_target_and_qty_are_repaired_by_the_retry(tmp_path: Path) -> N
     assert len(fake.requests) == 2 and fake.requests[0].tool_choice == CHOOSE_TOOL
     feedback = str(fake.requests[1].messages[-1]["content"])
     assert f"{INCENSE} takes one of: halan-s-rest-peddler, widow-cabrelle" in feedback
-    assert f"{INCENSE} qty is 1 to 5" in feedback
+    assert f"{drop} qty is 1 to 5" in feedback
+
+
+async def test_a_give_or_coin_count_over_the_pack_is_kept_for_the_rules(tmp_path: Path) -> None:
+    """M36.10a: "gives the widow nine blocks" with five carried is no repair: the rules give the
+    five and say so (a coin count over the purse is refused with the real purse)."""
+    state, menu = _gift()
+    nine = _pick([{"do": INCENSE, "to": ["widow-cabrelle"], "qty": 9}])
+    client, fake = chooser_client(tmp_path, {CHOOSE_TOOL: [nine]})
+    choice = await choose(state, HERO, "I give the widow nine blocks of incense", menu, client)
+    assert choice == MenuChoice(
+        steps=(MenuStep(entry=INCENSE, targets=("widow-cabrelle",), qty=9),)
+    )
+    assert len(fake.requests) == 1
 
 
 async def test_an_id_off_the_menu_is_repaired_with_the_ids_of_its_verb(tmp_path: Path) -> None:

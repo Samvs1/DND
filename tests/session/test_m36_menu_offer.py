@@ -14,7 +14,8 @@ from aidm.models.state import GameState
 from aidm.models.world_events import ActionDeclared
 from aidm.session.held import PARLEY_ASK
 from aidm.session.offer_strike import WAITS
-from tests.session.menu_play import TYPED, menu_play, pick
+from tests.session.menu_play import TYPED, menu_play
+from tests.session.table_fixtures import pick
 
 
 def _sturdy(state: GameState) -> None:

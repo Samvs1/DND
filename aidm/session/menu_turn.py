@@ -4,7 +4,8 @@
 `menu_line(core, player, actor, entry)`: the hero's menu (`menu_pick.line_menu`: the explore
 scope, or the offer scope while an encounter offer waits here), the chooser's pick
 (`menu_pick.pick`; a failure is the fallback notice and nothing else), the acts
-(`rules.menu_steps.to_acts`), then each act through the runner the buttons and the router already
+(`rules.menu_steps.to_groups`; M36.10a: each step planned again on the live state the steps
+before it left), then each act through the runner the buttons and the router already
 use, which asks the rules again on the live state:
 - the intents (`intent_turn.run_intent`): give, hand, pay, take, lift, loot, equip, unequip,
   drop, talk (`AskIntent` with the words), look, search, inventory, travel, rest, shop, the quest
@@ -27,7 +28,7 @@ from aidm.models.protocol_server import NoticeKind
 from aidm.models.protocol_views import QueueEntry
 from aidm.models.state import Creature
 from aidm.rules.acts import Intent, InventoryIntent, WhatNowIntent
-from aidm.rules.menu_steps import Act, to_acts
+from aidm.rules.menu_steps import Act, Group, step_acts, to_groups
 from aidm.session import party_actions, what_now
 from aidm.session.declared import declare
 from aidm.session.intent_turn import run_intent
@@ -51,14 +52,22 @@ async def menu_line(core: TableCore, player: Player, actor: Creature, entry: Que
     choice = await pick(core, player, actor.id, entry.text, menu)
     if choice is None:
         return
-    acts = to_acts(core.state, menu, choice, core.regs.combat, entry.text)
-    if not all(_private(act) for act in acts):
+    groups = to_groups(core.state, menu, choice, core.regs.combat, entry.text)
+    if not all(_private(act) for _, acts in groups for act in acts):
         declare(core, entry)
 
-    async def run(act: Act) -> None:
-        await _run(core, player, actor, entry, act)
+    async def run(group: Group) -> None:
+        step, planned = group
+        acts = planned  # M36.10a: each step planned again on the state the steps before it left
+        if step is not None:
+            acts = step_acts(core.state, menu, step, core.regs.combat, entry.text)
+        for act in acts:
+            before = core.refusals
+            await _run(core, player, actor, entry, act)
+            if core.refusals > before:
+                return
 
-    await play_steps(core, player, acts, run, lambda: _fight_started(core))
+    await play_steps(core, player, groups, run, lambda: _fight_started(core))
 
 
 def _fight_started(core: TableCore) -> str | None:

@@ -24,7 +24,7 @@ from aidm.models.state import GameState
 from aidm.models.world_events import NarrationRecorded
 from tests.ai.fake_scripts import fake_client
 from tests.ai.tool_fixtures import party_state
-from tests.session.table_fixtures import assert_replays, join, running
+from tests.session.table_fixtures import assert_replays, join, menu_llm, pick, running
 from tests.sim.sim_setup import build_party
 from tests.unit.rules.item_fixtures import DOCKS, at
 
@@ -44,9 +44,10 @@ def _docks() -> GameState:
 
 async def test_m30_typed_cast_is_cast_before_the_model(tmp_path: Path) -> None:
     """The model would answer `no_mechanics` (FakeLLM's default whenever tools are offered); it is
-    never asked: the engine casts the spell and spends the slot."""
-    client, fake = fake_client(tmp_path)
-    async with running(client, _docks()) as (table, _):
+    never asked: the engine casts the spell and spends the slot. M36.10a: the menu chooser's call
+    is the only one with a tool (it picks the cast; the storyteller only tells it)."""
+    client, fake = menu_llm(tmp_path, pick(("cast:misty-step", [], None)))
+    async with running(client, _docks(), interpreter="menu") as (table, _):
         seat = await join(table, "Ann", "wizard")
         start = table.state.event_count
         seat.send(SubmitAction(text=BLINK))
@@ -55,7 +56,8 @@ async def test_m30_typed_cast_is_cast_before_the_model(tmp_path: Path) -> None:
         events = [e.event for e in table.log if e.seq >= start]
     assert [e.spell_id for e in events if isinstance(e, SpellCast)] == ["misty-step"]
     assert any(isinstance(e, ResourceSet) and e.key == "spell-slot-2" for e in events)
-    assert fake.requests and not any(r.tools for r in fake.requests)
+    told = [r for r in fake.requests if r.tool_choice != "choose_actions"]
+    assert told and not any(r.tools for r in told)
 
 
 async def test_m30_no_mechanics_never_casts_free(tmp_path: Path) -> None:

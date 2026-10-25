@@ -26,7 +26,9 @@ from tests.session.table_fixtures import (
     drain_queue,
     fake_llm,
     join,
+    menu_llm,
     of_type,
+    pick,
     running,
     screen_seat,
     start_fight,
@@ -42,7 +44,8 @@ def _hero_name(table: Table, creature_id: str) -> str:
 async def test_a_typed_action_reaches_every_seat_and_the_screen_before_the_telling(
     tmp_path: Path,
 ) -> None:
-    async with running(disabled_llm(tmp_path)) as (table, _):
+    llm = menu_llm(tmp_path, pick(other=""))[0]  # the cabin: the storyteller's (M36.10a)
+    async with running(llm, interpreter="menu") as (table, _):
         ann = await join(table, "Ann", "fighter")
         bob = await join(table, "Bob", "rogue")
         screen = await screen_seat(table)
@@ -64,7 +67,8 @@ async def test_a_typed_action_reaches_every_seat_and_the_screen_before_the_telli
 
 
 async def test_queued_actions_are_declared_in_the_order_they_play_out(tmp_path: Path) -> None:
-    async with running(disabled_llm(tmp_path)) as (table, _):
+    llm = menu_llm(tmp_path, pick(("search:investigation", [], None)), pick(other=""))[0]
+    async with running(llm, interpreter="menu") as (table, _):
         ann = await join(table, "Ann", "fighter")
         bob = await join(table, "Bob", "rogue")
         ann.send(HostPause())

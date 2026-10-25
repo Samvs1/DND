@@ -4,6 +4,8 @@ M27.6: gear in a fight, typed or from the hotbar's combat command."""
 
 from pathlib import Path
 
+from aidm.dm.fake_llm import FakeStep
+from aidm.dm.llm_client import LlmClient
 from aidm.models.character import InventoryItem
 from aidm.models.combat_events import AttackRolled, ZoneSurfaceAdded
 from aidm.models.commands import UseItemCommand
@@ -19,7 +21,9 @@ from tests.session.table_fixtures import (
     assert_replays,
     disabled_llm,
     join,
+    menu_llm,
     of_type,
+    pick,
     running,
     start_fight,
 )
@@ -40,12 +44,20 @@ def _poultices(state: GameState) -> int:
     return next((e.qty for e in pc.inventory if e.item == "herbal-poultice"), 0)
 
 
+BREW = pick(("use:herbalism-kit-craft", [], None))  # "I brew a poultice" (M36.10a)
+
+
+def _menu(tmp_path: Path, *picks: FakeStep) -> LlmClient:
+    """The menu interpreter's picks; every other AI call fails as with no key."""
+    return menu_llm(tmp_path, *picks, storyteller_down=True)[0]
+
+
 async def test_herbalism_crafts_at_a_long_rest(tmp_path: Path) -> None:
     state = _carrying("herbalism-kit", tools=("herbalism-kit",))
     state.camp_supplies = 60  # the rest costs 10 per hero, the poultice 2 more
     before = state.camp_supplies
     cost = long_rest_cost(state)
-    async with running(disabled_llm(tmp_path), state) as (table, _):
+    async with running(_menu(tmp_path, BREW), state, interpreter="menu") as (table, _):
         seat = await join(table, "Ann", "fighter")
         seat.send(SubmitAction(text="I brew a poultice with my herbalism kit"))
         await table.settle()
@@ -62,7 +74,7 @@ async def test_herbalism_crafts_at_a_long_rest(tmp_path: Path) -> None:
 async def test_herbalism_without_the_proficiency_rests_and_makes_nothing(tmp_path: Path) -> None:
     state = _carrying("herbalism-kit")
     state.camp_supplies = 60
-    async with running(disabled_llm(tmp_path), state) as (table, _):
+    async with running(_menu(tmp_path, BREW), state, interpreter="menu") as (table, _):
         seat = await join(table, "Ann", "fighter")
         seat.send(SubmitAction(text="I brew a poultice"))
         await table.settle()
@@ -74,7 +86,8 @@ async def test_herbalism_without_the_proficiency_rests_and_makes_nothing(tmp_pat
 
 async def test_typed_gear_use_applies_through_the_rules(tmp_path: Path) -> None:
     state = _carrying("spyglass")
-    async with running(disabled_llm(tmp_path), state) as (table, _):
+    look = pick(("use:spyglass-look", [], None))
+    async with running(_menu(tmp_path, look, look), state, interpreter="menu") as (table, _):
         seat = await join(table, "Ann", "fighter")
         seat.send(SubmitAction(text="I use my spyglass"))
         await table.settle()

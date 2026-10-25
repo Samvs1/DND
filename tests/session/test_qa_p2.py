@@ -19,9 +19,13 @@ from tests.session.table_fixtures import (
     drain_queue,
     join,
     join_with_token,
+    menu_llm,
     of_type,
+    pick,
     running,
 )
+
+SEARCH = pick(("search:investigation", [], None))  # "I search behind the hearth" (M36.10a)
 
 
 async def test_qa_06_second_hello_reuses_the_seat_and_close_leaves_it_away(
@@ -81,7 +85,8 @@ async def test_qa_07_kick_holds_for_the_connection_and_the_name(tmp_path: Path) 
 
 async def test_qa_09_progress_goes_back_to_the_renamed_save_folder(tmp_path: Path) -> None:
     store = CampaignStore(tmp_path / "saves")
-    async with running(disabled_llm(tmp_path), inn_state(), store=store) as (table, _):
+    llm = menu_llm(tmp_path, SEARCH)[0]
+    async with running(llm, inn_state(), store=store, interpreter="menu") as (table, _):
         ann = await join(table, "Ann", "fighter")
         ann.send(SubmitAction(text="I search behind the hearth"))
         await table.settle()

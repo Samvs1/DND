@@ -20,13 +20,22 @@ from aidm.models.state import GameState
 from aidm.rules.leveling import gain_xp, xp_for_level
 from aidm.session.reducer import apply
 from tests.ai.guard_fixtures import inn_state
-from tests.session.table_fixtures import assert_replays, disabled_llm, join, of_type, running
+from tests.session.table_fixtures import (
+    assert_replays,
+    disabled_llm,
+    join,
+    menu_llm,
+    of_type,
+    pick,
+    running,
+)
 
 POTION = "potion-of-healing"
 
 
 async def test_gear_messages_and_equip_text(tmp_path: Path) -> None:
-    async with running(disabled_llm(tmp_path)) as (table, _):
+    llm = menu_llm(tmp_path, pick(("equip:shield", [], None)), storyteller_down=True)[0]
+    async with running(llm, interpreter="menu") as (table, _):
         ann = await join(table, "Ann", "fighter")
         ann.send(Unequip(item_id="shield"))
         await table.settle()

@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from aidm.data.combat_data import combat_registries
+from aidm.dm.fake_llm import FakeStep
 from aidm.dm.precheck import precheck
 from aidm.models.character import Keepsake, PcData
 from aidm.models.events import GoldChanged, InventoryChanged
@@ -18,11 +19,22 @@ from aidm.rules.acts import HealIntent, HeroHandIntent
 from aidm.rules.hero_handing import HandRefused, hand_events
 from aidm.session.reducer import apply, replay
 from tests.session.playtest_saves import replay_until
-from tests.session.table_fixtures import assert_replays, disabled_llm, join, of_type, running
+from tests.session.table_fixtures import (
+    assert_replays,
+    join,
+    menu_llm,
+    of_type,
+    pick,
+    running,
+)
 
 
-async def _typed(tmp_path: Path, state: GameState, hero: str, msg: AnyClientMsg) -> list[object]:
-    async with running(disabled_llm(tmp_path), state) as (table, _):
+async def _typed(
+    tmp_path: Path, state: GameState, hero: str, msg: AnyClientMsg, *picks: FakeStep
+) -> list[object]:
+    """`picks`: the menu chooser's readings of a typed line (M36.10a); the AI is otherwise down."""
+    llm = menu_llm(tmp_path, *picks, storyteller_down=True)[0]
+    async with running(llm, state, interpreter="menu") as (table, _):
         seat = await join(table, "Ann", hero)
         start = table.state.event_count
         seat.send(msg)
@@ -46,7 +58,10 @@ async def test_m29_hand_poultice_to_a_hero_is_a_hand_over(tmp_path: Path) -> Non
     """p7 64-66: "Brienne hands the Herbal Poultice to Elowen and tells her to keep it" spent it
     on Elowen (full HP, no effect)."""
     text = "Brienne hands the Herbal Poultice to Elowen and tells her to keep it for emergencies."
-    events = await _typed(tmp_path, replay_until("r2-p7", 64), "pc-p2", SubmitAction(text=text))
+    hand = pick(("hand:herbal-poultice", ["pc-p4"], 1))
+    events = await _typed(
+        tmp_path, replay_until("r2-p7", 64), "pc-p2", SubmitAction(text=text), hand
+    )
     assert not any(isinstance(e, ItemUsed) for e in events)
     assert _moved(events) == [("pc-p2", "herbal-poultice", -1), ("pc-p4", "herbal-poultice", 1)]
 
@@ -62,11 +77,15 @@ async def test_m29_hand_crowbar_and_gold_between_heroes(tmp_path: Path) -> None:
     """p7 68-69 (the crowbar was prose only) and 289 (no way to pass coin to a friend)."""
     state = replay_until("r2-p7", 68)
     text = "Brienne gives the spare crowbar to Elowen."
-    events = await _typed(tmp_path, state, "pc-p2", SubmitAction(text=text))
+    hand = pick(("hand:crowbar", ["pc-p4"], 1))
+    events = await _typed(tmp_path, state, "pc-p2", SubmitAction(text=text), hand)
     assert _moved(events) == [("pc-p2", "crowbar", -1), ("pc-p4", "crowbar", 1)]
     state = replay_until("r2-p7", 289)
     have = _pc(state, "pc-p2").gold
-    events = await _typed(tmp_path, state, "pc-p2", SubmitAction(text="I give Elowen 5 gold"))
+    coins = pick(("hand:gold", ["pc-p4"], 5))
+    events = await _typed(
+        tmp_path, state, "pc-p2", SubmitAction(text="I give Elowen 5 gold"), coins
+    )
     gold = [(e.creature_id, e.delta) for e in events if isinstance(e, GoldChanged)]
     assert gold == [("pc-p2", -5), ("pc-p4", 5)] and have >= 5
     too_much = HandOver(to_id="pc-p4", gold=have + 1000)
