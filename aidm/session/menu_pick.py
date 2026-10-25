@@ -8,7 +8,9 @@ Used when `TableConfig.interpreter` is "menu" by `session.menu_turn` (a line out
   the table's log as `recent` for the pronoun anchors). A `ChooserFailure` shows its in-fiction
   notice (`adjudicator.FALLBACK_NOTICE`) to that player only, is logged (`chooser_failed`) and
   returns None: nothing is declared, applied or spent, so the turn is not consumed. Every pick is
-  logged too (`menu_choice`: entry ids only, never the words);
+  logged too (`menu_choice`: entry ids, and M36.9 the `colour` the model set apart, clipped: the
+  words that only say how the hero acts; they go to nothing with mechanics, the narrator already
+  has the player's whole line);
 - `play_steps(core, player, acts, run, stop)`: the acts in order through `run` (the existing
   runners, which ask the rules again on the live state). A refused act (a REFUSED notice or an
   error sent while it ran, `TableCore.refusals`) stops every act after it, and so does `stop`
@@ -32,6 +34,7 @@ from aidm.session.table_core import Player, TableCore
 RECENT = 60
 STOPPED = "The rest of what you typed is not played: {why}."
 NOT_DONE = "that step did not happen"
+COLOUR_CHARS = 120
 
 
 def line_menu(core: TableCore, actor_id: str) -> ActionMenu:
@@ -52,7 +55,13 @@ async def pick(
         core.diag("chooser_failed", creature_id=actor_id, reason=choice.reason)
         return None
     steps = [step.entry for step in choice.steps]
-    core.diag("menu_choice", creature_id=actor_id, steps=steps, other=choice.other)
+    core.diag(
+        "menu_choice",
+        creature_id=actor_id,
+        steps=steps,
+        other=choice.other,
+        colour=choice.colour[:COLOUR_CHARS],
+    )
     return choice
 
 

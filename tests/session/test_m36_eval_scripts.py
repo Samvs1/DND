@@ -2,16 +2,21 @@
 
 import json
 from pathlib import Path
+from typing import Any
 
+from aidm.dm.chooser import exact_choice
 from aidm.dm.fake_llm import FakeReply, fake_tool_call
 from scripts.eval_interpret import main as eval_main
 from scripts.extract_typed_lines import main as extract_main
-from scripts.interpret.corpus import Row, load_corpus
-from scripts.interpret.evaluate import coverage, live, router_baseline
+from scripts.interpret import lib
+from scripts.interpret.corpus import Expect, Row, load_corpus
+from scripts.interpret.evaluate import coverage, live, router_baseline, with_states
 from scripts.interpret.score import tallies
 from tests.ai.chooser_fixtures import chooser_client
 
-SAMPLE = Path(__file__).resolve().parents[1] / "fixtures" / "interpret" / "sample_corpus.jsonl"
+FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "interpret"
+SAMPLE = FIXTURES / "sample_corpus.jsonl"
+CORPUS = FIXTURES / "corpus.jsonl"
 
 
 def _pick(steps: list[tuple[str, list[str]]], other: bool = False) -> FakeReply:
@@ -19,6 +24,51 @@ def _pick(steps: list[tuple[str, list[str]]], other: bool = False) -> FakeReply:
     return fake_tool_call(
         "choose_actions", {"steps": rows, "other": {"text": "", "first": False} if other else None}
     )
+
+
+def _as_model_would(expect: Expect) -> FakeReply:
+    """The expectation as the model answers it, with words a label never holds: other.text and
+    colour set (M36.9: neither may change exact or act match)."""
+    rows = [
+        {"do": s.entry, "to": s.targets, "qty": s.qty if s.qty > 1 else None} for s in expect.steps
+    ]
+    other = {"text": "words no label has", "first": expect.other_first} if expect.other else None
+    args: dict[str, Any] = {"steps": rows, "other": other, "colour": "with a flourish"}
+    return fake_tool_call("choose_actions", args)
+
+
+def _scripted_expectations(rows: list[Row]) -> list[FakeReply]:
+    """One reply per row the model is asked, in the order `live` asks (no reply for a row the
+    exact fast path answers)."""
+    script: list[FakeReply] = []
+    for row, line in with_states(rows):
+        menu = lib.menu_for(line.state, row.actor_id) if line is not None else None
+        if menu is not None and menu.entries and exact_choice(menu, row.text) is None:
+            script.append(_as_model_would(row.expect))
+    return script
+
+
+async def _act_never_below_exact(tmp_path: Path, rows: list[Row]) -> list[dict[str, Any]]:
+    llm, _ = chooser_client(tmp_path, {"choose_actions": _scripted_expectations(rows)})
+    run = await live(rows, llm, cap=1_000, limit=None)
+    verdicts = [r["verdict"] for r in run["results"]]
+    assert verdicts and all(v["act"] or not v["exact"] for v in verdicts)
+    return run["results"]
+
+
+async def test_eval_act_match_ignores_other_words_and_colour(tmp_path: Path) -> None:
+    """M36.9 scorer bug: rows exact but not act match (other.text compared against "")."""
+    results = await _act_never_below_exact(tmp_path, load_corpus(SAMPLE))
+    asked = [r for r in results if r["calls"] == 1]
+    assert asked and all(r["verdict"]["exact"] and r["verdict"]["act"] for r in asked)
+    assert any(r["pick"]["other"] for r in asked) and all(r["pick"]["colour"] for r in asked)
+
+
+async def test_eval_act_match_is_never_below_exact_on_the_corpus(tmp_path: Path) -> None:
+    results = await _act_never_below_exact(tmp_path, load_corpus(CORPUS))
+    assert len(results) == 300
+    asked = [r for r in results if r["calls"] == 1]
+    assert all(r["verdict"]["exact"] and r["verdict"]["act"] for r in asked)
 
 
 def test_extract_typed_lines_one_run(tmp_path: Path) -> None:
@@ -91,6 +141,7 @@ async def test_eval_live_scoring_arithmetic(tmp_path: Path) -> None:
     assert other["false_other"] and not other["act"] and not other["false_action"]
     overall = tallies(run["results"])["overall"]["all"]
     assert overall.rows == 6 and overall.flags["exact"] == 3 and overall.flags["false_action"] == 1
+    assert all(r["verdict"]["act"] or not r["verdict"]["exact"] for r in run["results"])
 
 
 async def test_eval_live_stops_at_the_cap(tmp_path: Path) -> None:

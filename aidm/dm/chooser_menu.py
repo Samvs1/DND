@@ -7,7 +7,8 @@ item, item (up to N), ...`, items that share a note grouped after it ("unequip i
 dagger, shortbow"). When several groups list the same items, the items are written once (`ITEMS`)
 and each group says `<item> = any of ITEMS` (or the few it leaves out). A target list that is
 every listed target of its kinds is written "any foe" / "any place" and so on, unless a
-target carries a note ("moves 30 ft first"). Grouping reads ids and fields only, never wording.
+target carries a note ("moves 30 ft first"); neighbouring targets with the same note share it
+(M36.9). Grouping reads ids and fields only, never wording.
 
 Public API: `menu_lines(menu) -> list[str]`.
 """
@@ -71,10 +72,23 @@ def _targets(menu: ActionMenu, entry: MenuEntry) -> str:
     if not notes and every == set(entry.target_ids) and len(every) > 2:
         text = "any " + " or ".join(_KIND_WORDS[k] for k in sorted(wanted))
     else:
-        text = ", ".join(f"{t} ({notes[t]})" if t in notes else t for t in entry.target_ids)
+        text = _runs(entry.target_ids, notes)
     pick = f"pick up to {entry.max_targets} of: " if entry.max_targets > 1 else ""
     then = f"; then an area: {', '.join(entry.zone_ids)}" if entry.zone_ids else ""
     return f" -> {pick}{text}{then}"
+
+
+def _runs(ids: tuple[str, ...], notes: dict[str, str]) -> str:
+    """Targets in order; neighbours with the same note share it, written once after them, and
+    runs are split by "; " (M36.9: "kobold-1, kobold-2 (moves 30 ft first, 60%); pc-p4")."""
+    runs: list[tuple[str, list[str]]] = []
+    for target in ids:
+        note = notes.get(target, "")
+        if runs and runs[-1][0] == note:
+            runs[-1][1].append(target)
+        else:
+            runs.append((note, [target]))
+    return "; ".join(", ".join(run) + (f" ({note})" if note else "") for note, run in runs)
 
 
 def _extras(entry: MenuEntry) -> str:

@@ -16,6 +16,7 @@ from aidm.models.protocol_client import SubmitAction
 from aidm.models.protocol_server import ErrorMsg, Notice, NoticeKind
 from aidm.models.state import GameState
 from aidm.session import combat_flow
+from aidm.session.session_log import SessionLog
 from tests.ai.chooser_fixtures import chooser_client, state_at
 from tests.session.m32_play import typed
 from tests.session.table_fixtures import assert_replays, join, running
@@ -24,11 +25,12 @@ TYPED, QUESTS, FULL = "m35-r6-typed", "m35-r6-quests", "m35-r6-full"
 type Step = tuple[str, Sequence[str], int | None]
 
 
-def pick(*steps: Step, other: str | None = None, first: bool = False) -> FakeStep:
-    """The chooser's scripted answer: steps `(entry id, target ids, qty)`, and/or `other`."""
+def pick(*steps: Step, other: str | None = None, first: bool = False, colour: str = "") -> FakeStep:
+    """The chooser's scripted answer: steps `(entry id, target ids, qty)`, and/or `other`;
+    `colour` the words that only colour the steps (M36.9)."""
     rows = [{"do": e, "to": list(t), "qty": q} for e, t, q in steps]
     off: dict[str, Any] | None = None if other is None else {"text": other, "first": first}
-    return fake_tool_call("choose_actions", {"steps": rows, "other": off})
+    return fake_tool_call("choose_actions", {"steps": rows, "other": off, "colour": colour})
 
 
 @dataclass
@@ -63,6 +65,7 @@ async def menu_play(
     mode: LlmMode = LlmMode.FAKE,
     script: Sequence[FakeStep] = (),
     also: tuple[str, ...] = (),
+    log: SessionLog | None = None,
 ) -> MenuPlayed:
     """Seat a player as the hero who typed at `seq` (or `actor`), send the line (or `text`).
     `also` seats other players first (their heroes' turns wait for them). On a fight state the
@@ -73,7 +76,7 @@ async def menu_play(
         prep(state)
     by_tool: Mapping[str, Sequence[FakeStep]] = {"choose_actions": choices}
     llm, fake = chooser_client(tmp_path, by_tool, script, mode=mode)
-    async with running(llm, state, interpreter="menu") as (table, _):
+    async with running(llm, state, interpreter="menu", session_log=log) as (table, _):
         for n, other in enumerate(also):
             await join(table, f"Bo{n}", other)
         seat = await join(table, "Ann", actor or hero)

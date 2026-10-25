@@ -2,10 +2,11 @@
 
 Definitions (a "choice" is steps + other + other_first; targets compare as sets):
 - exact: the pick's steps (entry, targets, qty), other and other_first equal the expectation
-  or one alt;
+  or one alt (`colour` and other's words are never scored, M36.9);
 - entry match: the pick's entry ids in order and its other flag equal the expectation's or an alt's;
-- act match: `to_acts` of the pick equals `to_acts` of the expectation or an alt (equivalent ids
-  count);
+- act match: exact, or `to_acts` of the pick equals `to_acts` of the expectation or an alt
+  (equivalent ids count); an `OtherIntent` compares by presence and position only, never its
+  words (M36.9: the model's other.text against a label's empty text), so act >= exact always;
 - false action: the pick has a step whose entry is in no expectation (it did something not asked);
 - false other: the pick has `other` while no expectation has it and the expectation has steps;
 - fast path: the exact label fast path answered (no model call); failure: the chooser failed.
@@ -18,6 +19,7 @@ from typing import Any
 
 from aidm.models.action_menu import ActionMenu, MenuChoice
 from aidm.models.state import GameState
+from aidm.rules.acts import OtherIntent
 from aidm.rules.menu_steps import Act, to_acts
 from scripts.interpret import lib
 from scripts.interpret.corpus import Row
@@ -35,11 +37,16 @@ def _entries(choice: MenuChoice) -> tuple[tuple[str, ...], bool]:
     return tuple(s.entry for s in choice.steps), choice.other
 
 
-def _acts(state: GameState, menu: ActionMenu, choice: MenuChoice, text: str) -> list[Act] | None:
+OTHER_MARK = "<other>"
+
+
+def _acts(state: GameState, menu: ActionMenu, choice: MenuChoice, text: str) -> list[object] | None:
+    """The pick's acts, each `OtherIntent` as one marker (its words are not scored)."""
     try:
-        return to_acts(state, menu, choice, lib.regs(), text)
+        acts: list[Act] = to_acts(state, menu, choice, lib.regs(), text)
     except Exception:  # an unplayable pick is simply not a match
         return None
+    return [OTHER_MARK if isinstance(a, OtherIntent) else a for a in acts]
 
 
 def verdicts(
@@ -54,7 +61,8 @@ def verdicts(
     out["exact"] = shape(pick) in [shape(c) for c in wanted]
     out["entry"] = _entries(pick) in [_entries(c) for c in wanted]
     got = _acts(state, menu, pick, row.text)
-    out["act"] = got is not None and any(got == _acts(state, menu, c, row.text) for c in wanted)
+    same = got is not None and any(got == _acts(state, menu, c, row.text) for c in wanted)
+    out["act"] = out["exact"] or same  # exact compares targets as sets, acts keep their order
     known = {s.entry for c in wanted for s in c.steps}
     out["false_action"] = any(s.entry not in known for s in pick.steps)
     asked_steps = any(c.steps for c in wanted)

@@ -52,7 +52,8 @@ def test_schema_has_exactly_the_menu_enums() -> None:
     assert step["properties"]["do"]["enum"] == [e.id for e in menu.entries]
     assert step["properties"]["to"]["items"]["enum"] == [t.id for t in menu.targets]
     assert params["properties"]["steps"]["maxItems"] == 4
-    assert params["required"] == ["steps", "other"] and step["required"] == ["do", "to", "qty"]
+    assert params["required"] == ["steps", "other", "colour"]
+    assert step["required"] == ["do", "to", "qty"]
     assert params["additionalProperties"] is False and "$defs" not in json.dumps(params)
     assert tool_param(choice_tool(menu, strict=True))["function"]["strict"] is True
 
@@ -192,7 +193,7 @@ def test_prompt_has_the_pronoun_anchors_and_the_words_last() -> None:
         gift_state, ContextPurpose.CHOOSE, HERO, "I ask her", events=[spoke], menu=gift
     )
     text = to_messages(pack)[1]["content"]
-    assert "LAST SPOKEN TO: widow-cabrelle = Widow Cabrelle" in text
+    assert "LAST SPOKEN TO: widow-cabrelle (Silent keeper of the inn)" in text
     assert "give:<item> -> halan-s-rest-peddler, widow-cabrelle: <item> = any of ITEMS" in text
 
 

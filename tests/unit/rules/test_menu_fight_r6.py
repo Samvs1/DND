@@ -98,7 +98,7 @@ def test_menu_target_labels_name_distance_and_state() -> None:
     labels = {t.id: t.label for t in _menu(435, "pc-p2").targets}
     assert labels["kobold-1"] == "Kobold A, 30 ft, unhurt"
     assert labels["swarm-of-bats-1"] == "Swarm of Bats, here, hurt"
-    assert labels["collapsed_vault"] == "Caved-In Crypt, 30 ft"
+    assert labels["collapsed_vault"] == "Caved-In Crypt (Kobold A; Kobold B), 30 ft"  # M36.9
 
 
 def test_menu_stowed_rapier_draws_first() -> None:

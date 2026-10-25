@@ -21,6 +21,7 @@ from aidm.models.world_events import (
     ShopOpened,
 )
 from aidm.session.menu_pick import NOT_DONE, STOPPED
+from aidm.session.session_log import MemoryLog
 from tests.session.menu_play import FULL, QUESTS, TYPED, menu_play, pick
 
 WIDOW, PEDDLER = "widow-cabrelle", "halan-s-rest-peddler"
@@ -201,3 +202,25 @@ async def test_menu_fake_mode_default_pick_is_the_storyteller(tmp_path: Path) ->
     played = await menu_play(tmp_path, QUESTS, 563, text=line)
     assert [d.text for d in played.of(ActionDeclared)] == [line]
     assert played.of(NarrationRecorded) and played.choose_calls() == 1
+
+
+async def test_menu_colour_is_logged_and_plays_nothing(tmp_path: Path) -> None:
+    """M36.9: "kneels before her and gives the widow a block of incense": the give alone plays;
+    the colour goes to the menu_choice session line only, never to an act or the storyteller."""
+    log = MemoryLog()
+    line = "Brienne kneels before her and gives the widow a block of incense"
+    played = await menu_play(
+        tmp_path,
+        QUESTS,
+        563,
+        pick((f"give:{INCENSE}", [WIDOW], None), colour="kneels before her"),
+        text=line,
+        log=log,
+    )
+    assert _moved(played.events, "pc-p2", INCENSE) == [-1]
+    adjudicated = [r for r in played.fake.requests if r.tools and r.tool_choice != "choose_actions"]
+    assert played.choose_calls() == 1 and not adjudicated  # no storyteller ruling
+    rows = log.records("menu_choice")
+    assert [(r["steps"], r["other"], r["colour"]) for r in rows] == [
+        ([f"give:{INCENSE}"], False, "kneels before her")
+    ]

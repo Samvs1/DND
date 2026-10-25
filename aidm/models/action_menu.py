@@ -30,11 +30,13 @@ Public API:
   `qty_max` the count carried or held.
 - `ActionMenu(scope, actor_id, entries, targets)`: entry ids and target ids are unique and every
   target id an entry names is in `targets`.
-- `MenuStep(entry, targets, qty)`, `MenuChoice(steps, other, other_text, other_first)`: up to 4
-  ordered steps, `other` (a stunt or something off the menu), or both (M36.5, DECISIONS: "I leap
-  onto the table and fire at the kobold" is a stunt and an attack). `other_text` is the
+- `MenuStep(entry, targets, qty)`, `MenuChoice(steps, other, other_text, other_first, colour)`:
+  up to 4 ordered steps, `other` (a stunt or something off the menu), or both (M36.5, DECISIONS:
+  "I leap onto the table and fire at the kobold" is a stunt and an attack). `other_text` is the
   off-menu part in the player's words ("" = the whole line); `other_first` = it happens before
-  the steps (else after them).
+  the steps (else after them). M36.9: `colour` holds the words that only describe HOW the hero
+  does the chosen steps (manner, posture, feeling); narration only, never an act or a mechanic
+  (`other` is only an action no entry does).
 """
 
 from enum import StrEnum
@@ -188,6 +190,7 @@ class MenuChoice(_Frozen):
     other: bool = False
     other_text: str = ""
     other_first: bool = False
+    colour: str = ""
 
     @model_validator(mode="after")
     def _steps_or_other(self) -> Self:

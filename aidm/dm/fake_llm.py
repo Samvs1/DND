@@ -130,7 +130,9 @@ def default_choice_step(request: CompletionRequest) -> FakeStep:
     """`choose_actions` with no script: `other` holding the player's line (the storyteller's)."""
     found = [m for msg in request.messages for m in _PLAYER_LINE.findall(str(msg.get("content")))]
     line = html.unescape(found[-1]) if found else ""
-    return fake_tool_call("choose_actions", {"steps": [], "other": {"text": line, "first": False}})
+    return fake_tool_call(
+        "choose_actions", {"steps": [], "other": {"text": line, "first": False}, "colour": ""}
+    )
 
 
 TOOL_DEFAULTS: dict[str, Callable[[CompletionRequest], FakeStep]] = {

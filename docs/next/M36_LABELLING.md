@@ -26,6 +26,9 @@ M36.5 and M36.6.
  "alt": [], "source": "M34 Y11", "note": "pronoun target, one foe; arrow means the shortbow"}
 ```
 
+`expect` and each `alt` may also carry `"colour": "<words>"` (M36.9, optional): the words of the line that only
+describe how the hero does the steps. It is never scored (exact ignores it) and is there to document the reading.
+
 Copy `id, run, seq, actor_id, text, scope, source` unchanged. One JSON object per line, ASCII only. Check your file
 offline with `python scripts/eval_interpret.py --corpus artifacts/interpret/labels/partN.jsonl`: every gap it
 prints is a typo to fix or a menu gap to note (below).
@@ -109,6 +112,26 @@ The three labellers split on a few kinds of line; these rules decide them (the c
   entry (its approach does the walk), with `move` + attack as the alt.
 - **A5 A prop**: one the hero does not carry is `other` ("holds up the locket" when the locket is
   elsewhere); one the hero carries and hands over or sets down before a person is `give`.
+
+## M36.9 iteration 1 (after live pass 1)
+The chooser now answers a `colour` field beside `steps` and `other` (DECISIONS M36.9). The scorer's act match
+compares `other` by presence and position only (never its words) and is never below exact. Label changes, all
+from the pass-1 analysis group 8, made only where the model's reading is as right for play; nothing else was
+relabelled:
+- `m29-p6:180` "wields a vorpal sword and chops the crocodile's head off": alt `attack:longsword [crocodile-1]`
+  added (in play the real sword is rolled; the narrator cannot invent the beheading). Expect stays `other`.
+- `m32-r5-full:521` "hold out Caul's Bait-Cache (not carried) as an offering of repentance": alt
+  `offer:parley:persuasion` + `other` first added (the plea is the real intent; the uncarried prop is other).
+- `m29-r2-p5:329` "greet the peddler and ask what he has": alt `talk ; shop` added (greet, then see the wares),
+  beside the existing `shop` alt.
+- `m29-r2-p4:243` "I pinch out the candle flame and we crouch low in the shadows" (offer scope): expect changed
+  from `put_out ; offer:surprise` to `put_out` with colour "we crouch low in the shadows"; the old label is
+  now the alt. Why: crouching is posture, and no strike is said, so by rule 7 (surprise = creeping up to
+  strike first) it is not an offer answer; the foe keeps waiting and the next line answers it. Crouching to
+  hide is how a surprise is set up, so that reading stays as the alt.
+- `m32-r5-typed:1299` "Mother Vyra, drop your weapons and yield!": kept `surrender:intimidation`, no alt. A bare
+  demand with no offer or plea is the threat (rule 5 above: intimidation is a threat, persuasion an offer or a
+  plea; "Yield and you live!" has the persuasion alt because it offers something).
 
 ## Known gaps kept (M36.8c; the label stays as the labeller chose)
 Coins under 1 gp (the economy is whole gold: "four silver" is `pay` 1), escorting a person on

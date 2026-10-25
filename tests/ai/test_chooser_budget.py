@@ -3,7 +3,9 @@ state before EVERY typed line (`action_declared`) in the committed playtest fixt
 
 Measured at M36.5 over 1,613 lines (rounds 1-6): the messages max 1,646 tokens (p90 1,410); with
 the per-menu tool schema as sent (compact JSON, the entry-id enum is most of it) max 2,488
-(p90 2,150). The bounds below leave a small margin; a menu change that blows them is fixed in the
+(p90 2,150). M36.9 (colour field, longer rules, zone targets naming who stands there; paid for by
+shared target notes and shorter names): messages max 1,745 (p90 1,547), total max 2,589 (p90
+2,276). The bounds below leave a small margin; a menu change that blows them is fixed in the
 rendering (`aidm.dm.chooser_menu`), never by raising the bound.
 """
 

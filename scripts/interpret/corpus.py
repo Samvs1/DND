@@ -1,7 +1,8 @@
 """The labelled corpus rows and the offline coverage check (M36.7).
 
 A row is `{id, run, seq, actor_id, text, scope, expect, alt, source, note}`; `expect` and each
-`alt` is `{steps: [{entry, targets, qty}], other, other_first}`. `gaps(menu, row)` lists why the
+`alt` is `{steps: [{entry, targets, qty}], other, other_first}`, plus an optional `colour` (M36.9:
+the words that only colour the steps; never scored). `gaps(menu, row)` lists why the
 menu cannot express a row's expectation (an empty list = covered): scope mismatch, an entry or a
 target the menu lacks, a quantity over the entry's, a choice the model's tool would reject.
 """
@@ -27,6 +28,7 @@ class Expect(BaseModel):
     steps: list[StepRow] = Field(default_factory=list[StepRow])
     other: bool = False
     other_first: bool = False
+    colour: str = ""  # M36.9: optional, never scored (the words that only colour the steps)
 
     def choice(self) -> MenuChoice:
         steps = tuple(
@@ -36,6 +38,7 @@ class Expect(BaseModel):
             steps=steps,
             other=self.other,
             other_first=self.other and self.other_first and bool(steps),
+            colour=self.colour,
         )
 
 
@@ -85,6 +88,7 @@ def _tool_gaps(menu: ActionMenu, choice: MenuChoice) -> list[str]:
     args = {
         "steps": [{"do": s.entry, "to": list(s.targets), "qty": s.qty} for s in choice.steps],
         "other": {"text": "", "first": choice.other_first} if choice.other else None,
+        "colour": choice.colour,
     }
     try:
         built = choice_tool(menu).args_model.model_validate(args)

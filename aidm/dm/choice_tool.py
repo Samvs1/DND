@@ -4,8 +4,11 @@
 per call: `steps` is at most 4 items `{do, to, qty}` where `do` is an enum of exactly the menu's
 entry ids and `to` an array of the menu's target ids (an enum; no targets = an empty array), and
 `other` is null or `{text, first}` (the off-menu part in the player's words; `first` = it happens
-before the steps). Every property is required and no extra property is allowed, so the same
-schema is valid for DeepSeek strict function calling (`strict`, off by default).
+before the steps). M36.9: `colour` is a string ("" when none) holding the words that only describe
+how the hero does the chosen steps; narration only, it never makes an act. Its meaning is said
+once, in the CHOOSE rules (`chooser_prompt`), not in the per-menu schema (prompt budget). Every
+property is required and no extra property is allowed, so the same schema is valid for DeepSeek
+strict function calling (`strict`, off by default).
 
 The schema only guides; the args model validates. `ChooseActionsArgs` (bound to the menu by
 `choice_tool`) rejects an id not on the menu, a target that does not fit its entry (its
@@ -28,7 +31,7 @@ from aidm.dm.llm_types import ToolDef
 from aidm.models.action_menu import MAX_STEPS, ActionMenu, MenuChoice, MenuEntry, MenuStep
 
 CHOOSE_TOOL = "choose_actions"
-TOOL_TEXT = "The hero's steps from the MENU in the order said, other (off the menu), or both."
+TOOL_TEXT = "The hero's MENU steps in the order said, other, colour."
 _SUGGEST = 8
 
 
@@ -50,7 +53,7 @@ def menu_schema(menu: ActionMenu | None) -> dict[str, Any]:
     }
     part = _object({"text": {"type": "string"}, "first": {"type": "boolean"}})
     other = {"anyOf": [part, {"type": "null"}]}
-    return _object({"steps": steps, "other": other})
+    return _object({"steps": steps, "other": other, "colour": {"type": "string"}})
 
 
 def _object(properties: dict[str, Any]) -> dict[str, Any]:
@@ -135,6 +138,7 @@ class ChooseActionsArgs(BaseModel):
 
     steps: list[ChosenStep] = Field(default_factory=list[ChosenStep])
     other: OtherPart | None = None
+    colour: str = ""
 
     @model_validator(mode="after")
     def _fits_menu(self) -> Self:
@@ -151,6 +155,7 @@ class ChooseActionsArgs(BaseModel):
             other=other is not None,
             other_text=other.text.strip() if other is not None else "",
             other_first=bool(other is not None and other.first and steps),
+            colour=self.colour.strip(),
         )
 
 

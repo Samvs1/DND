@@ -5,7 +5,9 @@ fight gear, hit chances) and probed with the real commands (`menu_probe`), never
 range, targeting or hit-chance rules. Entry order: attacks and throws, spells, features, items,
 then touch actions (help, shove), movement, the standard actions and the closing ones (flee,
 surrender, end turn). Targets: every standing combatant (foes first, then allies, then the hero)
-and every zone, each labelled for a model choosing ("Kobold A, 15 ft, unhurt").
+and every zone, each labelled for a model choosing ("Kobold A, 15 ft, unhurt"); M36.9: a zone's
+label names the creatures standing in it ("Archway (Zombie A), 25 ft"), so an area spell can be
+aimed by creature.
 
 Public API: `fight_menu(state, actor_id, regs) -> ActionMenu` (the actor's turn must be open).
 """
@@ -23,6 +25,7 @@ from aidm.rules.menu_view import FightView, fight_view
 
 def _targets(view: FightView) -> tuple[MenuTarget, ...]:
     out: list[MenuTarget] = []
+    standing: dict[str, list[str]] = {}
     groups: tuple[tuple[tuple[str, ...], TargetKind], ...] = (
         (view.foes, "foe"),
         (view.allies, "ally"),
@@ -33,8 +36,10 @@ def _targets(view: FightView) -> tuple[MenuTarget, ...]:
             creature = view.state.creatures[cid]
             label = creature_label(creature, view.creature_feet(cid))
             out.append(MenuTarget(id=cid, label=label, kind=kind))
+            zone_id = view.encounter.combatants[cid].zone_id
+            standing.setdefault(zone_id, []).append(creature.name)
     for zone in view.encounter.zone_map.zones:
-        label = zone_label(zone.name, view.zone_feet.get(zone.id))
+        label = zone_label(zone.name, view.zone_feet.get(zone.id), standing.get(zone.id, ()))
         out.append(MenuTarget(id=zone.id, label=label, kind="zone"))
     return tuple(out)
 

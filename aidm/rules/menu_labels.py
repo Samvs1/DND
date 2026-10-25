@@ -12,7 +12,7 @@ Short, with descriptors from data, never numbers the hero could not see on the b
 - features: "Turn Undead (Channel Divinity, 1 left, undead nearby: Cantor Ashmere Voll)".
 
 Public API: `state_word(creature)`, `distance_text(feet)`, `creature_label(creature, feet)`,
-`zone_label(name, feet)`, `percent(p)`, `chance_note(p, feet)`,
+`zone_label(name, feet, standing)`, `percent(p)`, `chance_note(p, feet)`,
 `strike_label(name, band, damage, chance, draw)`, `spell_label(spell, line, slots_left)`,
 `feature_label(line, extra)`, `resource_name(key)`, `item_label(name, heal, qty)`,
 `area_words(area)`.
@@ -68,8 +68,11 @@ def creature_label(creature: Creature, feet: int | None) -> str:
     return f"{creature.name}, {distance_text(feet)}, {state_word(creature)}"
 
 
-def zone_label(name: str, feet: int | None) -> str:
-    return f"{name}, {distance_text(feet)}"
+def zone_label(name: str, feet: int | None, standing: Sequence[str] = ()) -> str:
+    """M36.9: the creatures standing in the zone in brackets, "; " between them (a comma would
+    split the label's name from its descriptor)."""
+    who = f" ({'; '.join(standing)})" if standing else ""
+    return f"{name}{who}, {distance_text(feet)}"
 
 
 def percent(probability: float) -> str:
