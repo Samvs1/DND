@@ -9,8 +9,8 @@ is left to tell by the time the turn runs, the line is the storyteller's as befo
 Public API: `lore_turn`.
 """
 
-from aidm.dm.lore_intent import AskIntent
 from aidm.models.protocol_views import QueueEntry
+from aidm.rules.acts import AskIntent
 from aidm.rules.lore_talk import ask_events
 from aidm.rules.secrets import fact_words
 from aidm.session.held import adjudicated

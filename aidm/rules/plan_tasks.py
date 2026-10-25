@@ -9,7 +9,7 @@ Run by `aidm.rules.plan_repair.repair_plan`, each repair a `quest_repair` note:
   says what the party really does ("Go to The Tithing Shed"); a step with a clue, a person who
   teaches it or a quest title keeps learning (`plan_satisfy.learn_sources`);
 - `giver_reports` (V14): a side quest whose giver asks the party to come back or bring
-  something back (a word of the lexicon set `come_back_words` in its objective or title:
+  something back (a word of `come_back_words`, data/bg3/plan_words.json, in its objective or title:
   back, bring, return, recover, report, retrieve, fetch) ends with a `meet` of its giver,
   unless its last step already happens at the giver (meet, deliver to, pay or win over them).
   Favours always end so (`rules.favours`).
@@ -19,7 +19,7 @@ Public API: `normal_tags(plan, notes)`, `learn_visits(plan, notes)`,
 `come_back(*texts) -> bool`.
 """
 
-from aidm.data.intent_phrases import intent_phrases
+from aidm.data.plan_words import plan_words
 from aidm.models.campaign import Act, CampaignPlan
 from aidm.models.problem import Problem
 from aidm.models.quests import MAX_STEPS, QuestStep, StepKind
@@ -83,7 +83,7 @@ def learn_visits(plan: CampaignPlan, notes: list[Problem]) -> CampaignPlan:
 
 
 def come_back(*texts: str) -> bool:
-    return bool(fact_words(*texts) & intent_phrases().lexicon["come_back_words"])
+    return bool(fact_words(*texts) & plan_words().come_back_words)
 
 
 def ends_at(steps: tuple[QuestStep, ...], giver_id: str) -> bool:

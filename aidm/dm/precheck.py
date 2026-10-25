@@ -15,107 +15,49 @@ give a thing not carried, hand to a hero, heal, cast a known spell (M30.0b T7), 
 longer sentence, shop, travel, a locked way, equip / unequip / drop, light first, gear use,
 take.
 
-Public API:
-- Intents (frozen): `RestIntent(kind)` (`RestKind` SHORT/LONG), `ShopIntent(npc_id)`,
-  `TravelIntent(node_id)`, `InventoryIntent(actor_id)`, `LookIntent(text)`, `TakeIntent`,
-  `BarredIntent(text)` (`aidm.dm.scene_intent`), `ItemIntent`, `ItemIntents`
-  (`aidm.dm.equip_intent`), `HelpUpIntent`, `GiveIntent`, `HeroHandIntent`, `LiftIntent`,
-  `PayIntent`, `ParleyIntent`, `UseIntent`, `HealIntent`, `CastIntent`, `QuestAnswerIntent`,
-  `SearchIntent`, `AskIntent` (M31.1b: a question to a person who can teach),
-  `OfferStrikeIntent` (M32.1a: an attack while the offer waits), `RefusedIntent` (a plain
-  no-roll answer), `ImpossibleIntent` (M32.1a: a feat no body could do) (their `*_intent`
-  modules);
-- `Intent` (the union), `precheck(state, actor_id, text) -> Intent | None`;
+Public API (the intents and their union `Intent` live in `aidm.rules.acts`, M36.1):
+- `precheck(state, actor_id, text) -> Intent | None`;
 - `gear_intent(state, actor_id, text) -> UseIntent | None`: the gear rows alone, for the typed
   actions of a fight (M27.5: putting a light out is free, lighting one a bonus action);
 - `gear_phrase(text) -> (phrase, mine) | None`: the gear a throw or use sentence names (M27.6);
 - `asks_what_now(state, actor_id, text) -> bool` (M23.8: "what now", "what should we do",
   "where to", "i'm lost", "help me"...; never "help <a downed hero> up", the help-up row ranks
-  first). It is answered before the queue, also in a fight: What now? is not a turn;
-- `look_around_text(state) -> str`, `SHOP_ROLES`, `is_shop` (`aidm.dm.scene_intent`).
+  first). It is answered before the queue, also in a fight: What now? is not a turn.
 """
 
-from aidm.dm.cast_intent import CastIntent
-from aidm.dm.equip_intent import ItemIntent, ItemIntents
-from aidm.dm.fight_cast_intent import RefusedIntent
-from aidm.dm.give_intent import GiveIntent
-from aidm.dm.hand_intent import HeroHandIntent
-from aidm.dm.heal_intent import HealIntent
-from aidm.dm.help_intent import HelpUpIntent
-from aidm.dm.impossible_intent import ImpossibleIntent
 from aidm.dm.intent_router import ask_intent, explore_intent
-from aidm.dm.lift_intent import LiftIntent
-from aidm.dm.lore_intent import AskIntent
-from aidm.dm.offer_intent import OfferStrikeIntent
-from aidm.dm.parley_intent import ParleyIntent
-from aidm.dm.pay_intent import PayIntent
-from aidm.dm.quest_answer_intent import QuestAnswerIntent
-from aidm.dm.scene_intent import (
-    SHOP_ROLES,
+from aidm.dm.sentence import normalise
+from aidm.dm.use_intent import item_phrase, use_intent
+from aidm.models.state import GameState
+from aidm.rules.acts import (
+    AskIntent,
     BarredIntent,
+    CastIntent,
+    GiveIntent,
+    HealIntent,
+    HelpUpIntent,
+    HeroHandIntent,
+    ImpossibleIntent,
+    Intent,
     InventoryIntent,
+    ItemIntent,
+    ItemIntents,
+    LiftIntent,
     LookIntent,
+    OfferStrikeIntent,
+    ParleyIntent,
+    PayIntent,
+    QuestAnswerIntent,
+    RefusedIntent,
     RestIntent,
-    RestKind,
+    SearchIntent,
     ShopIntent,
     TakeIntent,
     TravelIntent,
+    UseIntent,
     WhatNowIntent,
-    is_shop,
-    look_around_text,
 )
-from aidm.dm.search_intent import SearchIntent
-from aidm.dm.sentence import normalise
-from aidm.dm.use_intent import UseIntent, item_phrase, use_intent
-from aidm.models.state import GameState
 
-__all__ = [
-    "SHOP_ROLES",
-    "BarredIntent",
-    "Intent",
-    "InventoryIntent",
-    "ItemIntent",
-    "ItemIntents",
-    "LookIntent",
-    "RestIntent",
-    "RestKind",
-    "ShopIntent",
-    "TakeIntent",
-    "TravelIntent",
-    "asks_what_now",
-    "gear_intent",
-    "gear_phrase",
-    "is_shop",
-    "look_around_text",
-    "precheck",
-]
-
-type Intent = (
-    RestIntent
-    | ShopIntent
-    | TravelIntent
-    | ItemIntent
-    | ItemIntents
-    | InventoryIntent
-    | LookIntent
-    | TakeIntent
-    | HelpUpIntent
-    | GiveIntent
-    | PayIntent
-    | HeroHandIntent
-    | LiftIntent
-    | ParleyIntent
-    | BarredIntent
-    | UseIntent
-    | HealIntent
-    | CastIntent
-    | QuestAnswerIntent
-    | SearchIntent
-    | AskIntent
-    | OfferStrikeIntent
-    | RefusedIntent
-    | ImpossibleIntent
-)
 _INTENTS = (
     RestIntent,
     ShopIntent,

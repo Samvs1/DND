@@ -18,6 +18,7 @@ The fight rows of data/bg3/intent_phrases.json, in precedence order:
   `UseItemCommand` on the hero it names (an ally's own draught cannot be reached mid-fight);
 - `surrender_*` (`aidm.dm.surrender_intent`).
 
+Its typed plan lives in `aidm.rules.acts_fight` (M36.1); this module only reads text.
 Public API: `FightCommand`, `RESOLVERS` (`feature`, `fight_heal_spell`, `fight_heal_item`),
 `fight_command(state, actor_id, text) -> FightCommand | DrawAttack | None` (the attack, feature
 and healing rows; M30.0b T9: `DrawAttack` draws a stowed weapon, then attacks).
@@ -27,8 +28,7 @@ import re
 
 from aidm.data.combat_data import combat_registries
 from aidm.dm.attack_intent import RESOLVERS as ATTACK_RESOLVERS
-from aidm.dm.attack_intent import DrawAttack
-from aidm.dm.heal_intent import HealIntent, heal_item, heal_spell
+from aidm.dm.heal_intent import heal_item, heal_spell
 from aidm.dm.intent_match import Found, Resolver, route
 from aidm.models.commands import (
     AttackCommand,
@@ -37,9 +37,9 @@ from aidm.models.commands import (
     UseItemCommand,
 )
 from aidm.models.state import GameState
+from aidm.rules.acts import HealIntent
+from aidm.rules.acts_fight import DrawAttack, FightCommand
 from aidm.rules.features import feature_actions
-
-type FightCommand = AttackCommand | FeatureActionCommand | CastCommand | UseItemCommand
 
 
 def _words(text: str) -> set[str]:

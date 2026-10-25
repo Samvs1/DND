@@ -5,12 +5,12 @@ import pytest
 
 from aidm.dm.guard import check_prose
 from aidm.dm.guard_types import ViolationKind
-from aidm.dm.help_intent import HelpUpIntent
 from aidm.dm.precheck import precheck
 from aidm.models.damage import DamagePacket, DamageType
 from aidm.models.encounter import Encounter
 from aidm.models.events import HpChanged
 from aidm.models.state import GameState
+from aidm.rules.acts import HelpUpIntent
 from aidm.rules.damage import resolve_damage
 from aidm.session.reducer import apply
 from tests.ai.guard_fixtures import inn_state

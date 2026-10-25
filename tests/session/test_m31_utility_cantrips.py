@@ -3,9 +3,9 @@ are everyday words ("light"), so "I light the torch" stays the torch."""
 
 import pytest
 
-from aidm.dm.cast_intent import CastIntent
 from aidm.dm.precheck import precheck
 from aidm.models.state import GameState
+from aidm.rules.acts import CastIntent
 from tests.ai.tool_fixtures import party_state
 
 UTILITY = ["light", "mage-hand", "prestidigitation", "mending", "message", "dancing-lights"]

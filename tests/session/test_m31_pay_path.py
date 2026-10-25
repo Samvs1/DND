@@ -4,12 +4,11 @@ not move. Played on the real round 4 state (fixture m31-r4-typed) with the story
 
 from pathlib import Path
 
-from aidm.dm.hand_intent import HeroHandIntent
-from aidm.dm.pay_intent import PayIntent
 from aidm.dm.precheck import precheck
 from aidm.models.events import GoldChanged
 from aidm.models.item_events import HandedOver
 from aidm.models.protocol_server import NarrationChunkMsg
+from aidm.rules.acts import HeroHandIntent, PayIntent
 from tests.session.m32_play import play
 from tests.session.playtest_saves import replay_until
 

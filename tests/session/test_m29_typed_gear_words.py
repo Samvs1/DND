@@ -5,11 +5,11 @@ says why not in an engine line; a compound sentence does both of its acts."""
 from pathlib import Path
 
 from aidm.dm.precheck import precheck
-from aidm.dm.use_intent import UseIntent
 from aidm.models.item_events import LightEnded, LightLit
 from aidm.models.protocol_client import SubmitAction
 from aidm.models.state import GameState
 from aidm.models.world_events import EquipmentChanged, NarrationRecorded
+from aidm.rules.acts import UseIntent
 from tests.session.playtest_saves import replay_until
 from tests.session.table_fixtures import assert_replays, disabled_llm, join, running
 

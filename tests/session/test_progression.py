@@ -1,6 +1,6 @@
 """M5.4 progression: travel legality, gateway locks, offers, escape/parley, region resolution."""
 
-from aidm.dm.precheck import BarredIntent, TravelIntent, precheck
+from aidm.dm.precheck import precheck
 from aidm.models.abilities import Skill
 from aidm.models.campaign_events import EncounterOffered, OfferResolved, RegionResolved
 from aidm.models.campaign_state import OfferChoice, RegionResolution
@@ -8,6 +8,7 @@ from aidm.models.encounter import EncounterStatus
 from aidm.models.events import AnyEvent
 from aidm.models.state import GameState
 from aidm.models.world_events import AttitudeChanged, PartyMoved
+from aidm.rules.acts import BarredIntent, TravelIntent
 from aidm.rules.campaign_install import install_campaign
 from aidm.rules.finale import choose_events, finale_open
 from aidm.rules.plan_ids import boss_npc_id

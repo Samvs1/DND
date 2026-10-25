@@ -4,9 +4,7 @@ and a typed answer to a waiting quest offer, on the real round-4 states."""
 import random
 from pathlib import Path
 
-from aidm.dm.parley_intent import ParleyIntent
 from aidm.dm.precheck import precheck
-from aidm.dm.quest_answer_intent import QuestAnswerIntent
 from aidm.dm.tool_context import tool_registries
 from aidm.models.abilities import Skill
 from aidm.models.campaign_events import OfferResolved
@@ -16,6 +14,7 @@ from aidm.models.protocol_client import CancelHostile, ConfirmHostile, SubmitAct
 from aidm.models.protocol_server import Notice, PendingConfirmationMsg
 from aidm.models.state import GameState
 from aidm.models.world import QuestState
+from aidm.rules.acts import ParleyIntent, QuestAnswerIntent
 from aidm.rules.surrender import NoneYield, demand_surrender, never_yield_line
 from aidm.session import combat_flow
 from aidm.session.held import PARLEY_ASK, PARLEY_STAY

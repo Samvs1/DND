@@ -21,29 +21,22 @@ kind that never yields the answer is the rules' plain line with no roll (`Refuse
 offer still waits), else the demand is a parley with its row's skill (`ParleyIntent`, asked
 first like every typed parley).
 
+Its act type lives in `aidm.rules.acts` (M36.1); this module only reads text.
 Public API: `OfferStrikeIntent(actor_id)`, `RESOLVERS` (`offer_strike`, `offer_surrender`).
 """
 
-from dataclasses import dataclass
-
 from aidm.data.combat_data import combat_registries
 from aidm.data.intent_phrases import intent_phrases
-from aidm.dm.fight_cast_intent import RefusedIntent
 from aidm.dm.intent_match import Found, Resolver
-from aidm.dm.parley_intent import ParleyIntent
 from aidm.dm.spell_names import named_spell
 from aidm.dm.strike_intent import said_weapon
 from aidm.dm.strike_words import marked, negated, strikes
 from aidm.models.abilities import Skill
 from aidm.models.state import Creature
+from aidm.rules.acts import OfferStrikeIntent, ParleyIntent, RefusedIntent
 from aidm.rules.ai_spells import is_hostile_spell
 from aidm.rules.spell_targets import strikes_creatures
 from aidm.rules.surrender import offer_never_yield_line
-
-
-@dataclass(frozen=True)
-class OfferStrikeIntent:
-    actor_id: str
 
 
 def _harmful_spell(actor: Creature, words: list[str]) -> bool:

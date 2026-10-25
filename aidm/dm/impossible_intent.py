@@ -10,20 +10,13 @@ something small somewhere big ("throw a rock into the river") has no such object
 check. The resolver returns `ImpossibleIntent` with the row's reason; the
 session logs the engine's `ActionImpossible` (no dice) and tells it failing.
 
+Its act type lives in `aidm.rules.acts` (M36.1); this module only reads text.
 Public API: `ImpossibleIntent(actor_id, text, reason)`, `RESOLVERS` (`impossible_feat`).
 """
 
-from dataclasses import dataclass
-
 from aidm.dm.intent_match import Found, Resolver
 from aidm.models.impossible import MAX_IMPOSSIBLE_REASON, MAX_IMPOSSIBLE_TEXT
-
-
-@dataclass(frozen=True)
-class ImpossibleIntent:
-    actor_id: str
-    text: str
-    reason: str
+from aidm.rules.acts import ImpossibleIntent
 
 
 def impossible_feat(found: Found) -> ImpossibleIntent | None:

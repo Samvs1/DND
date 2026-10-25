@@ -5,8 +5,9 @@ reason, and the context's exit list says why a way is locked."""
 import pytest
 
 from aidm.dm.context_sections import manifest_lines
-from aidm.dm.precheck import BarredIntent, asks_what_now, precheck
+from aidm.dm.precheck import asks_what_now, precheck
 from aidm.models.state import GameState
+from aidm.rules.acts import BarredIntent
 from aidm.rules.scene import current_scene
 from tests.ai.tool_fixtures import run_tool
 from tests.session.quest_offer_fixtures import fresh

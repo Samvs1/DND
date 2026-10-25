@@ -12,19 +12,13 @@ the party, and (M29.9a T16) one that names an NPC standing here who is not among
 foes, unless it also names a foe. Anything else is None (an attack, a sneak or a run is the
 offer's other buttons, or the AI).
 
+Its act type lives in `aidm.rules.acts` (M36.1); this module only reads text.
 Public API: `ParleyIntent(actor_id, skill)`, `RESOLVERS` (`parley`).
 """
 
-from dataclasses import dataclass
-
 from aidm.dm.intent_match import Found, Resolver
 from aidm.models.abilities import Skill
-
-
-@dataclass(frozen=True)
-class ParleyIntent:
-    actor_id: str
-    skill: Skill
+from aidm.rules.acts import ParleyIntent
 
 
 def parley(found: Found) -> ParleyIntent:

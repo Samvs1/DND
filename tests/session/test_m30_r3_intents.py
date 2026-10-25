@@ -6,9 +6,6 @@ from pathlib import Path
 
 import pytest
 
-from aidm.dm.attack_intent import DrawAttack
-from aidm.dm.cast_intent import CastIntent
-from aidm.dm.give_intent import GiveIntent
 from aidm.dm.intent_router import fight_intent
 from aidm.dm.precheck import precheck
 from aidm.dm.tool_context import tool_registries
@@ -18,6 +15,8 @@ from aidm.models.events import CheckResolved, ResourceSet
 from aidm.models.protocol_client import SubmitAction
 from aidm.models.quest_events import KeepsakeGiven
 from aidm.models.world_events import EquipmentChanged, NarrationRecorded
+from aidm.rules.acts import CastIntent, GiveIntent
+from aidm.rules.acts_fight import DrawAttack
 from aidm.rules.equipment import EquipRefused, draw_events
 from aidm.session import combat_flow
 from tests.session.playtest_saves import logged, replay_until

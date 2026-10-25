@@ -18,19 +18,16 @@ action. The whole line is declared once; the acts stop when the turn or the figh
 Public API: `combat_text`.
 """
 
-from aidm.dm.attack_intent import DrawAttack
 from aidm.dm.compound_lines import clause_parts, is_lead_in
-from aidm.dm.fight_cast_intent import RefusedIntent
-from aidm.dm.fight_intent import FightCommand
-from aidm.dm.impossible_intent import ImpossibleIntent
-from aidm.dm.intent_router import FightIntent, fight_intent
+from aidm.dm.intent_router import fight_intent
 from aidm.dm.narration_templates import template_line
-from aidm.dm.surrender_intent import SurrenderIntent
 from aidm.models.commands import DashCommand, MoveCommand
 from aidm.models.impossible import ActionImpossible
 from aidm.models.protocol_server import ErrorCode, NoticeKind
 from aidm.models.protocol_views import QueueEntry
 from aidm.models.state import Creature, GameState
+from aidm.rules.acts import ImpossibleIntent, RefusedIntent
+from aidm.rules.acts_fight import DrawAttack, FightCommand, FightIntent, SurrenderIntent
 from aidm.rules.turns import EconomyRefused, spend_action
 from aidm.session import combat_flow, gear_actions
 from aidm.session.declared import declare

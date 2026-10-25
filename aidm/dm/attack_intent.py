@@ -21,12 +21,12 @@ attacks: `DrawAttack(item, attack)`. A named weapon the hero does not carry, or 
 ("swing from the chandelier into him", "kick the brazier at it") is None: it stays a creative
 action.
 
+Its act type lives in `aidm.rules.acts_fight` (M36.1); this module only reads text.
 Public API: `DrawAttack(item, attack)`, `RESOLVERS` (`attack`), `draw_attack(actor, weapon,
 actor_id, target)` (M32.1a: the weapon-strike row draws the same way).
 """
 
 import re
-from dataclasses import dataclass
 
 from aidm.data.combat_data import combat_registries
 from aidm.data.intent_phrases import intent_phrases
@@ -35,18 +35,11 @@ from aidm.models.commands import AttackCommand
 from aidm.models.encounter import Encounter
 from aidm.models.state import Creature, GameState
 from aidm.models.world_events import EquipmentChanged
+from aidm.rules.acts_fight import DrawAttack
 from aidm.rules.attack_profiles import UNARMED_KEY, attack_options
 from aidm.rules.equipment import EquipRefused, draw_events
 
 _SMALL = frozenset({"the", "a", "an", "of", "my", "his", "her", "their", "our"})
-
-
-@dataclass(frozen=True)
-class DrawAttack:
-    """A stowed weapon the hero carries, drawn for free, then the attack with it."""
-
-    item: str
-    attack: AttackCommand
 
 
 def _words(text: str) -> frozenset[str]:

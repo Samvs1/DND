@@ -20,30 +20,22 @@ The resolvers read the sentence:
   drinks, whatever names come later in the line.
 Anything else is None and goes on as before (the adjudicator).
 
+Its act type lives in `aidm.rules.acts` (M36.1); this module only reads text.
 Public API: `HealIntent(actor_id, target_ids, item, owner_id, spell)`, `RESOLVERS`
 (`heal_spell`, `heal_item`), `named_heroes(state, actor_id, text)` (the heroes a sentence names,
 in the order they appear last).
 """
 
 import re
-from dataclasses import dataclass
 
 from aidm.data.combat_data import combat_registries
 from aidm.data.intent_phrases import intent_phrases
 from aidm.data.spell_defs import HealEffect
 from aidm.dm.intent_match import Found, Resolver
 from aidm.models.state import Creature, CreatureKind, GameState
+from aidm.rules.acts import HealIntent
 
 _SMALL = frozenset({"of", "the", "a", "an", "my", "his", "her"})
-
-
-@dataclass(frozen=True)
-class HealIntent:
-    actor_id: str
-    target_ids: tuple[str, ...]
-    item: str | None = None
-    owner_id: str | None = None  # who carries the item
-    spell: str | None = None
 
 
 def _words(text: str) -> list[str]:

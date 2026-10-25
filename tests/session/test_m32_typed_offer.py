@@ -3,11 +3,7 @@ waits, and feats no body could do, on the real round-5 states."""
 
 from pathlib import Path
 
-from aidm.dm.fight_cast_intent import RefusedIntent
-from aidm.dm.impossible_intent import ImpossibleIntent
 from aidm.dm.intent_router import explore_intent
-from aidm.dm.offer_intent import OfferStrikeIntent
-from aidm.dm.parley_intent import ParleyIntent
 from aidm.models.abilities import Skill
 from aidm.models.campaign_events import OfferResolved
 from aidm.models.campaign_state import OfferChoice
@@ -17,6 +13,7 @@ from aidm.models.events import CheckResolved
 from aidm.models.impossible import ActionImpossible
 from aidm.models.protocol_client import ConfirmHostile, SubmitAction
 from aidm.models.protocol_server import ErrorMsg, PendingConfirmationMsg
+from aidm.rules.acts import ImpossibleIntent, OfferStrikeIntent, ParleyIntent, RefusedIntent
 from aidm.session.held import NOT_YOURS, PARLEY_ASK
 from aidm.session.offer_strike import WAITS
 from tests.session.m32_play import FULL, QUESTS, TYPED, play, typed

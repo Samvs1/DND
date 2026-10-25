@@ -2,7 +2,8 @@
 the rule disagreed for a downed hero), from the full-campaign save (docs/playtests/M29_round2.md).
 """
 
-from aidm.dm.precheck import BarredIntent, precheck
+from aidm.dm.precheck import precheck
+from aidm.rules.acts import BarredIntent
 from aidm.rules.leveling import can_level_up, level_up_refusal, xp_for_level
 from scripts.agent.text import level_up_names
 from tests.session.playtest_saves import replay_until

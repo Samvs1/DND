@@ -30,13 +30,13 @@ Public API: `use_intent`, `first_act`, `rest_with_crafts`, `fight_gear`, `draw_w
 
 import random
 
-from aidm.dm.attack_intent import DrawAttack
 from aidm.dm.precheck import gear_intent
-from aidm.dm.use_intent import UseIntent
 from aidm.models.events import AnyEvent
 from aidm.models.item_events import ItemUseRefused
 from aidm.models.protocol_server import CombatState, ErrorCode, NoticeKind
 from aidm.models.protocol_views import QueueEntry, VoteKind
+from aidm.rules.acts import UseIntent
+from aidm.rules.acts_fight import DrawAttack
 from aidm.rules.dice import Rng
 from aidm.rules.equipment import EquipRefused, draw_events
 from aidm.rules.item_effects import gear_name

@@ -9,6 +9,7 @@ a creature in it ("I run to Old Kern" goes to Old Kern's zone). Anything else is
 sentence goes on to the creative action path as before. The rules still decide (distance, rough
 ground, standing up): a refused move is answered like the button's refusal.
 
+Its typed plan lives in `aidm.rules.acts_fight` (M36.1); this module only reads text.
 Public API: `RESOLVERS` (`move`),
 `combat_move(state, actor_id, text) -> list[MoveCommand | DashCommand] | None` (the move row).
 """
@@ -20,9 +21,8 @@ from aidm.dm.intent_match import Found, Resolver, route
 from aidm.models.commands import DashCommand, MoveCommand
 from aidm.models.encounter import Encounter
 from aidm.models.state import GameState
+from aidm.rules.acts_fight import MoveCommands
 from aidm.rules.zones import zone_path
-
-type MoveCommands = list[MoveCommand | DashCommand]
 
 
 def _words(name: str) -> frozenset[str]:

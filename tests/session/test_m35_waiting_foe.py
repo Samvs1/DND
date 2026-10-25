@@ -6,7 +6,6 @@ from pathlib import Path
 
 from aidm.data.combat_data import combat_registries
 from aidm.dm.intent_router import explore_intent, fight_intent
-from aidm.dm.offer_intent import OfferStrikeIntent
 from aidm.models.campaign_events import OfferResolved
 from aidm.models.campaign_state import OfferChoice
 from aidm.models.combat_events import SpellCast
@@ -15,6 +14,7 @@ from aidm.models.encounter_events import EncounterStarted
 from aidm.models.events import AnyEvent, LongRestTaken, ResourceSet
 from aidm.models.quest_events import QuestStepDone
 from aidm.models.world import QuestState
+from aidm.rules.acts import OfferStrikeIntent
 from aidm.rules.command_checks import CommandRefused
 from aidm.rules.offer_answer import answer_offer
 from aidm.rules.spells import scene_cast

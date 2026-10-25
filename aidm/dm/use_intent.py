@@ -34,13 +34,14 @@ None and goes on to the adjudicator. The rules decide (`aidm.rules.item_use.use_
 FIRST act lights or puts out a light is that intent with `rest`, the other act (the session
 does both).
 
+Its act type lives in `aidm.rules.acts` (M36.1); this module only reads text.
 Public API: `UseIntent(actor_id, item, target, verb, put_out, at_rest, use_id, rest)`,
 `RESOLVERS`, `use_intent(state, actor_id, clean) -> UseIntent | None` (the use rows alone, on
 the text as given), `item_phrase(clean) -> (phrase, mine) | None`.
 """
 
 import re
-from dataclasses import dataclass, replace
+from dataclasses import replace
 
 from aidm.data.intent_phrases import intent_phrases
 from aidm.data.item_uses import (
@@ -58,6 +59,7 @@ from aidm.dm.gear_words import carried_entry, fits, held_gear, lock_named, words
 from aidm.dm.intent_match import Found, Resolver, route, text_match
 from aidm.models.encounter import EncounterStatus
 from aidm.models.state import Creature, GameState
+from aidm.rules.acts import UseIntent
 from aidm.rules.item_effects import gear_name
 from aidm.rules.light import hero_light
 from aidm.rules.scene import current_scene
@@ -70,18 +72,6 @@ _SAME_VERB = {
     "toss": "throw",
     "lob": "throw",
 }
-
-
-@dataclass(frozen=True)
-class UseIntent:
-    actor_id: str
-    item: str
-    target: str | None = None
-    verb: str | None = None
-    put_out: bool = False
-    at_rest: bool = False
-    use_id: str | None = None  # M27.6: the use a verb picks ("throw" the torch, not "light")
-    rest: str | None = None  # M29.7a: the other act of a compound sentence
 
 
 def _fight(state: GameState) -> bool:

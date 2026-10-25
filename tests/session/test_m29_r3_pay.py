@@ -5,7 +5,6 @@ import random
 
 import pytest
 
-from aidm.dm.pay_intent import PayIntent
 from aidm.dm.precheck import precheck
 from aidm.dm.tool_context import ToolContext, tool_registries
 from aidm.dm.tool_exec_quests import run_offer_favour
@@ -14,6 +13,7 @@ from aidm.models.events import GoldChanged
 from aidm.models.item_events import HandedOver
 from aidm.models.quests import StepKind
 from aidm.models.world_events import QuestUpdated
+from aidm.rules.acts import PayIntent
 from aidm.rules.paying import PayRefused, gold_for, pay_events
 from aidm.rules.quest_steps import step_met
 from aidm.session.reducer import apply

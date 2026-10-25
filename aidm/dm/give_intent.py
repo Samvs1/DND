@@ -23,6 +23,7 @@ M33.1 (ultrareview 2: "give two arrows to Bram" gave one arrow and said "had onl
 give of a stacked inventory item is that many units, up to the stack held (`more` repeats the
 item key, one gift per unit through the same gift path).
 
+Its act type lives in `aidm.rules.acts` (M36.1); this module only reads text.
 Public API: `GiveIntent(actor_id, npc_id, thing, more=(), said=1)` (`thing` a keepsake id, an
 inventory key, or "" for nothing carried; `more` further keepsakes, or further units of the
 inventory item, of a counted hand-over; `said` the count asked, `GIVE_ALL` for "all"),
@@ -32,7 +33,6 @@ inventory item, of a counted hand-over; `said` the count asked, `GIVE_ALL` for "
 """
 
 import re
-from dataclasses import dataclass
 
 from aidm.data.intent_phrases import intent_phrases
 from aidm.dm.entities import display_name
@@ -40,6 +40,7 @@ from aidm.dm.intent_match import Found, Resolver, route
 from aidm.models.quests import StepKind
 from aidm.models.state import Creature, GameState
 from aidm.models.world import QuestState, WorldNpc
+from aidm.rules.acts import GiveIntent
 from aidm.rules.handing import delivers_to
 from aidm.rules.quest_items import item_words
 from aidm.rules.quest_plan import main_quests
@@ -49,15 +50,6 @@ _PRONOUNS = frozenset({"it", "them", "this", "that", "these", "those", "one", "h
 _NUMBERS = {"two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8}
 _NUMBERS |= {"nine": 9, "ten": 10}
 GIVE_ALL = 99
-
-
-@dataclass(frozen=True)
-class GiveIntent:
-    actor_id: str
-    npc_id: str
-    thing: str
-    more: tuple[str, ...] = ()
-    said: int = 1
 
 
 def _words(text: str) -> frozenset[str]:

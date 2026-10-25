@@ -36,36 +36,29 @@ healing word over Rook", `dm.spell_names`): a healing spell is the typed-healing
 M31.2a: a utility cantrip (Light, Mage Hand, Prestidigitation ...: no dice, no buff) is read
 only after a cast word (`spell_names.plain_word_spell`), so "I light the torch" is the torch.
 
+Its act type lives in `aidm.rules.acts` (M36.1); this module only reads text.
 Public API: `CastIntent(actor_id, spell, target_ids, at_scene)`, `RESOLVERS` (`cast_spell`,
 `named_spell`).
 """
 
 import re
-from dataclasses import dataclass
 
 from aidm.data.combat_data import combat_registries
 from aidm.data.intent_phrases import intent_phrases
 from aidm.data.spell_defs import HealEffect, SpellDef
 from aidm.dm.fight_names import tokens
-from aidm.dm.heal_intent import HealIntent, heal_spell, named_heroes
+from aidm.dm.heal_intent import heal_spell, named_heroes
 from aidm.dm.intent_conditions import foe_words
 from aidm.dm.intent_match import Found, Resolver
 from aidm.dm.spell_names import plain_word_spell, ready_spells, said_name
 from aidm.models.state import GameState
+from aidm.rules.acts import CastIntent, HealIntent
 from aidm.rules.scene import current_scene
 from aidm.rules.spell_targets import strikes_creatures
 
 _SELF_WORDS = frozenset({"me", "myself", "herself", "himself", "themself", "themselves", "self"})
 _FILLER = frozenset({"the", "of", "and", "old", "young", "a", "an", "in", "at", "to"})
 _SCENE_KINDS = frozenset({"area", "point"})
-
-
-@dataclass(frozen=True)
-class CastIntent:
-    actor_id: str
-    spell: str
-    target_ids: tuple[str, ...]
-    at_scene: bool = False
 
 
 def _id_words(index: str) -> frozenset[str]:

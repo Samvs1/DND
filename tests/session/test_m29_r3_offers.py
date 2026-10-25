@@ -4,7 +4,6 @@ reproduced from its live save (tests/session/playtest_saves.py)."""
 import random
 
 from aidm.dm.arrival import offer_data
-from aidm.dm.parley_intent import ParleyIntent
 from aidm.dm.precheck import precheck
 from aidm.dm.tool_context import tool_registries
 from aidm.models.campaign_events import OfferResolved, RegionResolved
@@ -12,6 +11,7 @@ from aidm.models.campaign_state import OfferChoice
 from aidm.models.encounter import EncounterSetup, MonsterSpawn, PartyPlacement
 from aidm.models.encounter_events import EncounterStarted
 from aidm.models.events import CreatureAdded
+from aidm.rules.acts import ParleyIntent
 from aidm.rules.encounter import start_encounter
 from aidm.rules.encounter_offer import fight_map
 from aidm.rules.offer_answer import answer_offer, foes_gone, sure_parley

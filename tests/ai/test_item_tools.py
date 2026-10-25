@@ -6,13 +6,14 @@ import pytest
 from aidm.dm.context import build_context
 from aidm.dm.context_text import ContextPurpose
 from aidm.dm.guard import check_prose
-from aidm.dm.precheck import TakeIntent, precheck
+from aidm.dm.precheck import precheck
 from aidm.dm.tool_exec_items import MAX_KEEPSAKES
 from aidm.models.character import Keepsake
 from aidm.models.events import InventoryChanged
 from aidm.models.state import GameState
 from aidm.models.world import WorldItem
 from aidm.models.world_events import ItemRemoved, KeepsakeGained
+from aidm.rules.acts import TakeIntent
 from aidm.rules.equipment import EquipRefused, take_events
 from aidm.rules.item_grants import carried_qty
 from tests.ai.tool_fixtures import apply_result, party_state, run_tool

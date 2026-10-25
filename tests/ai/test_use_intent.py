@@ -1,12 +1,12 @@
 """The deterministic gear precheck (M27.5, `aidm.dm.use_intent` through `aidm.dm.precheck`):
 one test per common phrasing; anything unclear goes to the AI."""
 
-from aidm.dm.precheck import ItemIntent, gear_intent, precheck
+from aidm.dm.precheck import gear_intent, precheck
 from aidm.dm.tool_context import ToolContext
-from aidm.dm.use_intent import UseIntent
 from aidm.models.encounter import Side
 from aidm.models.state import GameState
 from aidm.models.world_events import FeatureIntroduced
+from aidm.rules.acts import ItemIntent, UseIntent
 from aidm.rules.light import put_out
 from tests.ai.tool_fixtures import add_npc, apply_result, run_tool
 from tests.unit.rules.combat_fixtures import monster

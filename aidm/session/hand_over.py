@@ -27,17 +27,14 @@ Public API: `take_intent`, `give`, `give_intent`, `hand`, `hand_intent`, `pay_fi
 """
 
 from aidm.dm.event_text import event_line
-from aidm.dm.give_intent import GIVE_ALL, GiveIntent
-from aidm.dm.hand_intent import HeroHandIntent
-from aidm.dm.lift_intent import LiftIntent
+from aidm.dm.give_intent import GIVE_ALL
 from aidm.dm.narration_templates import template_line
-from aidm.dm.pay_intent import PayIntent
-from aidm.dm.precheck import TakeIntent
 from aidm.models.events import AnyEvent
 from aidm.models.item_events import HandedOver
 from aidm.models.protocol_client import Give, HandOver
 from aidm.models.protocol_server import ErrorCode, NoticeKind
 from aidm.models.state import Creature
+from aidm.rules.acts import GiveIntent, HeroHandIntent, LiftIntent, PayIntent, TakeIntent
 from aidm.rules.equipment import EquipRefused, take_events
 from aidm.rules.handing import GiveRefused, give_events
 from aidm.rules.hero_handing import HandRefused, hand_events

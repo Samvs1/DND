@@ -12,9 +12,9 @@ never yield, the roll covers the others and the player is told who will not. Cal
 Public API: `ACTION_SPENT`, `surrender_turn`.
 """
 
-from aidm.dm.surrender_intent import SurrenderIntent
 from aidm.models.protocol_server import ErrorCode, NoticeKind
 from aidm.models.protocol_views import QueueEntry
+from aidm.rules.acts_fight import SurrenderIntent
 from aidm.rules.surrender import NoneYield, demand_surrender, never_yield_line
 from aidm.rules.turns import EconomyRefused
 from aidm.session import combat_flow

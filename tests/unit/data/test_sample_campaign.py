@@ -63,7 +63,7 @@ def test_sample_cast_secrets_and_quests() -> None:
 
 
 def test_sample_arrival_nodes_have_a_shopkeeper() -> None:
-    from aidm.dm.precheck import SHOP_ROLES
+    from aidm.rules.shop import SHOP_ROLES
 
     for region in PLAN.all_regions():
         keepers = [

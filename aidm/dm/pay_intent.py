@@ -18,36 +18,27 @@ another act told with it, `PayIntent.rest`; then the whole sentence):
   hand" pay too;
 - `who` is a known NPC (`give_intent.named_npc`, a present one first); coins named for another
   hero ("pay Brienne 10 gold", "slap 10 gold down for Brienne") are the hero hand-over of that
-  gold (`aidm.dm.hand_intent.HeroHandIntent`, the rules `aidm.rules.hero_handing`): one rule for
+  gold (`aidm.rules.acts.HeroHandIntent`, the rules `aidm.rules.hero_handing`): one rule for
   coins to anyone.
 None when no NPC is named (the next form is tried). The rules decide
 (`aidm.rules.paying.pay_events`): the coins move when the hero carries them, else the line is
 refused with the real purse ("Rook has only 15 gold.", DECISIONS M31.2b).
 
+Its act type lives in `aidm.rules.acts` (M36.1); this module only reads text.
 Public API: `PayIntent(actor_id, npc_id, gold, rest)`, `RESOLVERS` (`pay`).
 """
 
-from dataclasses import dataclass
-
 from aidm.dm.give_intent import named_npc
-from aidm.dm.hand_intent import HeroHandIntent
 from aidm.dm.intent_match import Found, Resolver
 from aidm.models.quests import StepKind
 from aidm.models.state import CreatureKind, GameState
 from aidm.models.world import QuestState
+from aidm.rules.acts import HeroHandIntent, PayIntent
 from aidm.rules.paying import gold_for
 
 _NUMBERS = {"a": 1, "an": 1, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6}
 _NUMBERS |= {"seven": 7, "eight": 8, "nine": 9, "ten": 10, "some": 1, "a few": 3}
 _METAL = {"silver": "silver", "sp": "silver", "copper": "copper", "cp": "copper"}
-
-
-@dataclass(frozen=True)
-class PayIntent:
-    actor_id: str
-    npc_id: str
-    gold: int
-    rest: str | None = None
 
 
 def _asked(state: GameState, npc_id: str) -> int:

@@ -14,9 +14,9 @@ an open finale card.
 Public API: `propose_intent`, `STOPPED`.
 """
 
-from aidm.dm.precheck import RestIntent, RestKind, ShopIntent, TravelIntent
 from aidm.models.protocol_server import NoticeKind
 from aidm.models.protocol_views import QueueEntry, VoteKind
+from aidm.rules.acts import RestIntent, RestKind, ShopIntent, TravelIntent
 from aidm.rules.finale import finale_open
 from aidm.rules.scene import node_display_name
 from aidm.rules.world_graph import travel_route

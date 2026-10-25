@@ -28,13 +28,14 @@ attack option key the words name; the creative weapon rule asks it too), `head_w
 
 from aidm.data.combat_data import combat_registries
 from aidm.data.intent_phrases import intent_phrases
-from aidm.dm.attack_intent import DrawAttack, draw_attack
+from aidm.dm.attack_intent import draw_attack
 from aidm.dm.fight_names import named_in_fight, tokens
 from aidm.dm.intent_match import Found, Resolver
 from aidm.dm.strike_words import marked, weapon_words
 from aidm.models.combat import AttackEconomy, AttackProfile
 from aidm.models.commands import AttackCommand
 from aidm.models.state import Creature, GameState
+from aidm.rules.acts_fight import DrawAttack
 from aidm.rules.attack_profiles import UNARMED_KEY, attack_options
 
 

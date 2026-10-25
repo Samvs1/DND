@@ -2,13 +2,13 @@
 typed "give X to Y" is a deterministic pre-check, and the narrator can tell a hand-over."""
 
 from aidm.dm.event_text import event_line
-from aidm.dm.give_intent import GiveIntent
 from aidm.dm.narration_templates import template_line
 from aidm.dm.precheck import precheck
 from aidm.models.character import Keepsake
 from aidm.models.quest_events import KeepsakeGiven
 from aidm.models.state import GameState
 from aidm.models.world_events import ItemDiscovered, ItemPlaced, KeepsakeGained, PartyMoved
+from aidm.rules.acts import GiveIntent
 from aidm.rules.plan_ids import boss_npc_id, main_quest_id, quest_item_id
 from aidm.rules.sheet import build_sheet
 from aidm.session.sheet_view import quest_titles

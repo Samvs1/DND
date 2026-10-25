@@ -20,10 +20,9 @@ use is spent and the real attack or save is rolled at the real DC (the rules ref
 their reason: out of range, no slot). A line that names a spell but no valid target is refused
 plainly (`RefusedIntent`): nothing is spent and no creative check is made.
 
+Its act type lives in `aidm.rules.acts` (M36.1); this module only reads text.
 Public API: `RefusedIntent(actor_id, text)`, `RESOLVERS` (`fight_cast`).
 """
-
-from dataclasses import dataclass
 
 from aidm.data.combat_data import combat_registries
 from aidm.data.feature_hooks import ActiveAbilityHook
@@ -33,6 +32,7 @@ from aidm.dm.intent_match import Found, Resolver
 from aidm.dm.spell_names import named_spell
 from aidm.models.commands import CastCommand, FeatureActionCommand
 from aidm.models.state import Creature, GameState
+from aidm.rules.acts import RefusedIntent
 from aidm.rules.feature_commands import ability_spell
 from aidm.rules.features import command_hook
 
@@ -41,12 +41,6 @@ WHERE = "Name where {name} goes: a foe or a place on this battlefield."
 UNKNOWN = "{name} has no effect the engine can run in a fight yet."
 
 type _Aim = tuple[tuple[str, ...], str | None]
-
-
-@dataclass(frozen=True)
-class RefusedIntent:
-    actor_id: str
-    text: str
 
 
 def _feature_spell(actor: Creature, feature_id: str) -> SpellDef | None:

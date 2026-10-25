@@ -4,7 +4,6 @@ live save: the typed words become the engine's own command, never a storyteller 
 from pathlib import Path
 
 from aidm.dm.fight_intent import fight_command
-from aidm.dm.parley_intent import ParleyIntent
 from aidm.dm.precheck import precheck
 from aidm.models.abilities import Skill
 from aidm.models.campaign_events import OfferResolved
@@ -13,6 +12,7 @@ from aidm.models.combat_events import AttackRolled
 from aidm.models.commands import AttackCommand
 from aidm.models.events import CheckResolved, DiceRolled
 from aidm.models.protocol_client import ConfirmHostile, SubmitAction
+from aidm.rules.acts import ParleyIntent
 from aidm.session import combat_flow
 from aidm.session.table import Table
 from tests.session.playtest_saves import replay_until

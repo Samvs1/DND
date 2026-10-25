@@ -5,7 +5,7 @@ pick-up / give and the `give` command."""
 
 from pathlib import Path
 
-from aidm.dm.precheck import TakeIntent, precheck
+from aidm.dm.precheck import precheck
 from aidm.dm.tool_context import ToolContext
 from aidm.dm.tool_exec import execute_tool
 from aidm.models.campaign_events import RegionResolved
@@ -18,6 +18,7 @@ from aidm.models.quest_events import KeepsakeGiven, QuestStepDone
 from aidm.models.state import GameState
 from aidm.models.world import QuestState
 from aidm.models.world_events import ItemDiscovered, ItemPlaced, PartyMoved
+from aidm.rules.acts import TakeIntent
 from aidm.rules.encounter import end_encounter
 from aidm.rules.equipment import take_events
 from aidm.rules.handing import give_events

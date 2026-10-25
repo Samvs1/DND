@@ -4,7 +4,6 @@ favour places that stay near, and no unchecked step kinds, on the real round-4 s
 import random
 from pathlib import Path
 
-from aidm.dm.lore_intent import AskIntent
 from aidm.dm.precheck import precheck
 from aidm.dm.quest_text import FAVOUR_ASK_NOTE, QUEST_EVENT_NOTES
 from aidm.dm.tool_context import ToolContext, tool_registries
@@ -17,6 +16,7 @@ from aidm.models.quest_events import LoreLearned, QuestAsked, QuestStepDone
 from aidm.models.quests import QuestStep, StepKind
 from aidm.models.state import GameState
 from aidm.models.world_events import QuestUpdated, SecretRevealed
+from aidm.rules.acts import AskIntent
 from aidm.rules.lore import place_lore_events
 from aidm.rules.lore_talk import ask_events
 from aidm.rules.plan_repair import repair_plan

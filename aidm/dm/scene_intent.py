@@ -18,96 +18,38 @@ Each is a phrase row of data/bg3/intent_phrases.json; the resolvers here are the
 - `take` (M19.3: "pick up / take / grab <a visible item here>") -> `TakeIntent`;
 - `what_now` (M23.8): `WhatNowIntent`, answered before the queue (`precheck.asks_what_now`).
 
-Public API: `RestKind`, `RestIntent`, `ShopIntent`, `TravelIntent`, `InventoryIntent`,
-`LookIntent`, `TakeIntent`, `BarredIntent`, `WhatNowIntent`, `SHOP_ROLES`, `is_shop`,
-`look_around_text(state)`, `RESOLVERS`.
+The act types (`RestIntent`, `TravelIntent`, ...) live in `aidm.rules.acts`, `SHOP_ROLES` and
+`is_shop` in `aidm.rules.shop`, `look_around_text` in `aidm.dm.scene_text` (M36.1).
+
+Public API: `RESOLVERS`.
 """
 
 import re
-from dataclasses import dataclass
-from enum import StrEnum
 
 from aidm.dm.far_travel import far_route
 from aidm.dm.intent_match import Found, Resolver
-from aidm.models.state import GameState
-from aidm.models.world import WorldNpc
-from aidm.rules.gateway_lock import locked_reason, short_reason
+from aidm.dm.scene_text import look_around_text
+from aidm.rules.acts import (
+    BarredIntent,
+    InventoryIntent,
+    LookIntent,
+    RestIntent,
+    RestKind,
+    ShopIntent,
+    TakeIntent,
+    TravelIntent,
+    WhatNowIntent,
+)
+from aidm.rules.gateway_lock import locked_reason
 from aidm.rules.scene import current_scene, node_display_name
+from aidm.rules.shop import is_shop
 from aidm.rules.world_graph import legal_neighbours
 
-
-class RestKind(StrEnum):
-    SHORT = "short"
-    LONG = "long"
-
-
-@dataclass(frozen=True)
-class RestIntent:
-    kind: RestKind
-
-
-@dataclass(frozen=True)
-class ShopIntent:
-    npc_id: str
-
-
-@dataclass(frozen=True)
-class TravelIntent:
-    node_id: str
-    goal: str | None = None  # M32.1a X6: a place further on, walked hop by hop
-
-
-@dataclass(frozen=True)
-class InventoryIntent:
-    actor_id: str
-
-
-@dataclass(frozen=True)
-class LookIntent:
-    text: str
-
-
-@dataclass(frozen=True)
-class TakeIntent:
-    actor_id: str
-    item_id: str
-
-
-@dataclass(frozen=True)
-class BarredIntent:
-    text: str
-
-
-@dataclass(frozen=True)
-class WhatNowIntent:
-    actor_id: str
-
-
-SHOP_ROLES = (
-    "merchant",
-    "shopkeeper",
-    "shopkeep",
-    "trader",
-    "vendor",
-    "peddler",
-    "smith",
-    "blacksmith",
-    "armorer",
-    "armourer",
-    "alchemist",
-    "fletcher",
-    "quartermaster",
-)
 _DROP = frozenset({"the", "of", "a", "an"})
 
 
 def _words(name: str) -> frozenset[str]:
     return frozenset(re.findall(r"[a-z0-9']+", name.lower().replace("-", " "))) - {"the"}
-
-
-def is_shop(state: GameState, npc: WorldNpc) -> bool:
-    role = _words(npc.role)
-    return npc.id == state.world.shop_npc_id or any(r in role for r in SHOP_ROLES)
 
 
 def rest(found: Found) -> RestIntent:
@@ -185,36 +127,3 @@ RESOLVERS: dict[str, Resolver] = {
     "barred_lock": barred_lock,
     "take": take,
 }
-
-
-def _listing(names: list[str]) -> str:
-    if len(names) <= 1:
-        return "".join(names)
-    return ", ".join(names[:-1]) + " and " + names[-1]
-
-
-def look_around_text(state: GameState) -> str:
-    scene = current_scene(state)
-    world = state.world
-    parts = [f"You are at {scene.node_name}."]
-    if scene.description:
-        parts.append(scene.description.strip())
-    npcs = [world.npcs[i] for i in scene.npc_ids]
-    people = [f"{n.name} ({n.role})" if n.role else n.name for n in npcs]
-    parts.append(f"Here with you: {_listing(people)}." if people else "Nobody else is here.")
-    foes = [state.creatures[c].name for c in scene.monster_ids]
-    if foes:
-        parts.append(f"Hostile: {_listing(foes)}.")
-    features = [world.features[f].name for f in scene.feature_ids]
-    if features:
-        parts.append(f"You notice: {_listing(features)}.")
-    items = [world.items[i].name for i in scene.item_ids]
-    if items:
-        parts.append(f"Lying here: {_listing(items)}.")
-    exits = [
-        node_display_name(state, e)
-        + (f" ({short_reason(state, e)})" if e in scene.locked_exits else "")
-        for e in scene.exits
-    ]
-    parts.append(f"Ways on: {_listing(exits)}." if exits else "There is no obvious way on.")
-    return " ".join(parts)

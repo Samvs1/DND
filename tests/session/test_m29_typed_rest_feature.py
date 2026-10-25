@@ -5,13 +5,14 @@ feature or heal in a fight runs as the hotbar's command (charged by the rules)."
 from pathlib import Path
 
 from aidm.dm.fight_intent import fight_command
-from aidm.dm.precheck import RestIntent, RestKind, precheck
+from aidm.dm.precheck import precheck
 from aidm.models.character import InventoryItem
 from aidm.models.commands import CastCommand
 from aidm.models.events import HpChanged, InventoryChanged, ResourceSet
 from aidm.models.protocol_client import SubmitAction
 from aidm.models.protocol_server import VoteOpen
 from aidm.models.protocol_views import VoteKind
+from aidm.rules.acts import RestIntent, RestKind
 from aidm.session import combat_flow
 from aidm.session.table import Table
 from tests.session.playtest_saves import replay_until

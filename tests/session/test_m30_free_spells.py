@@ -8,13 +8,13 @@ plainly, and a hostile spell with an NPC here stays the storyteller's (an attack
 
 from pathlib import Path
 
-from aidm.dm.cast_intent import CastIntent
 from aidm.dm.precheck import precheck
 from aidm.models.combat_events import SpellCast
 from aidm.models.events import AnyEvent, ResourceSet
 from aidm.models.protocol_client import SubmitAction
 from aidm.models.state import GameState
 from aidm.models.world_events import NarrationRecorded, PartyMoved
+from aidm.rules.acts import CastIntent
 from tests.ai.tool_fixtures import party_state
 from tests.session.table_fixtures import assert_replays, disabled_llm, join, running
 from tests.sim.sim_setup import build_party

@@ -10,15 +10,14 @@ import pytest
 
 from aidm.dm import narrator
 from aidm.dm.compound_lines import clause_parts, is_lead_in
-from aidm.dm.give_intent import GiveIntent
 from aidm.dm.intent_router import explore_intent, fight_intent
-from aidm.dm.offer_intent import OfferStrikeIntent
 from aidm.models.campaign_events import OfferResolved
 from aidm.models.combat_events import AttackRolled
 from aidm.models.commands import AttackCommand, CastCommand
 from aidm.models.encounter_events import EncounterStarted
 from aidm.models.events import InventoryChanged
 from aidm.models.state import GameState
+from aidm.rules.acts import GiveIntent, OfferStrikeIntent
 from aidm.session import intent_turn, telling
 from aidm.session.hand_over import ONLY
 from aidm.session.offer_strike import WAITS

@@ -13,9 +13,9 @@ Public API: `search_turn`.
 
 from collections.abc import Sequence
 
-from aidm.dm.search_intent import SearchIntent
 from aidm.models.events import AnyEvent
 from aidm.models.protocol_views import QueueEntry
+from aidm.rules.acts import SearchIntent
 from aidm.rules.lore import place_lore_events
 from aidm.rules.searching import search_events
 from aidm.session.held import adjudicated

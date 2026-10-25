@@ -26,10 +26,13 @@ Public API:
 - `npc_shop_stock(state, npc_id, catalogue, table) -> tuple[StockEntry, ...]`.
 - `buy_events(state, pc_id, npc_id, item, qty, catalogue, table) -> list[AnyEvent]`.
 - `sell_events(state, pc_id, npc_id, item, qty, catalogue, table) -> list[AnyEvent]`.
+- `SHOP_ROLES`: the role words that make a person a shopkeeper; `is_shop(state, npc) -> bool`
+  (the open shop's keeper, or a role word in the person's role; M36.1, moved from dm).
 """
 
 import math
 import random
+import re
 from dataclasses import dataclass
 from enum import StrEnum
 
@@ -43,6 +46,27 @@ from aidm.models.world_events import ItemsTraded
 from aidm.rules.dice import Rng
 from aidm.rules.item_grants import carried_qty, gain_item_events
 from aidm.rules.social import npc_is_hostile
+
+SHOP_ROLES = (
+    "merchant",
+    "shopkeeper",
+    "shopkeep",
+    "trader",
+    "vendor",
+    "peddler",
+    "smith",
+    "blacksmith",
+    "armorer",
+    "armourer",
+    "alchemist",
+    "fletcher",
+    "quartermaster",
+)
+
+
+def is_shop(state: GameState, npc: WorldNpc) -> bool:
+    role = frozenset(re.findall(r"[a-z0-9']+", npc.role.lower().replace("-", " "))) - {"the"}
+    return npc.id == state.world.shop_npc_id or any(r in role for r in SHOP_ROLES)
 
 
 class ShopRefusal(StrEnum):

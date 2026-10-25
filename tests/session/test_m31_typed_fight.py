@@ -4,7 +4,6 @@ each on the real round-4 state where the line was typed (tests/session/playtest_
 import random
 from pathlib import Path
 
-from aidm.dm.fight_cast_intent import RefusedIntent
 from aidm.dm.intent_router import fight_intent
 from aidm.dm.tool_context import ToolContext, tool_registries
 from aidm.dm.tool_exec_creative import run_creative_effect
@@ -16,6 +15,7 @@ from aidm.models.dm_tiers import EffectKind
 from aidm.models.events import CheckResolved, DiceRolled, ResourceSet
 from aidm.models.protocol_client import SubmitAction
 from aidm.models.protocol_server import Notice
+from aidm.rules.acts import RefusedIntent
 from aidm.session import combat_flow
 from tests.session.playtest_saves import logged, replay_until
 from tests.session.table_fixtures import assert_replays, disabled_llm, join, running

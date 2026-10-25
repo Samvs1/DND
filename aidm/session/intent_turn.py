@@ -24,39 +24,40 @@ the same fight-starting act (`offer_strike.cast_opens_fight`): never a slot spen
 Public API: `resolve_line`, `run_intent`, `inventory_text`.
 """
 
-from aidm.dm.cast_intent import CastIntent
 from aidm.dm.compound_lines import clause_parts, is_lead_in
-from aidm.dm.equip_intent import ItemIntent, ItemIntents
-from aidm.dm.fight_cast_intent import RefusedIntent
-from aidm.dm.give_intent import GiveIntent
-from aidm.dm.hand_intent import HeroHandIntent
-from aidm.dm.heal_intent import HealIntent
-from aidm.dm.help_intent import HelpUpIntent
-from aidm.dm.impossible_intent import ImpossibleIntent
-from aidm.dm.lift_intent import LiftIntent
-from aidm.dm.lore_intent import AskIntent
-from aidm.dm.offer_intent import OfferStrikeIntent
-from aidm.dm.parley_intent import ParleyIntent
-from aidm.dm.pay_intent import PayIntent
-from aidm.dm.precheck import (
-    BarredIntent,
-    Intent,
-    InventoryIntent,
-    LookIntent,
-    RestIntent,
-    ShopIntent,
-    TakeIntent,
-    TravelIntent,
-    precheck,
-)
-from aidm.dm.quest_answer_intent import QuestAnswerIntent
-from aidm.dm.search_intent import SearchIntent
-from aidm.dm.use_intent import UseIntent
+from aidm.dm.precheck import precheck
 from aidm.models.impossible import ActionImpossible
 from aidm.models.protocol_client import AnswerQuestOffer
 from aidm.models.protocol_server import NoticeKind
 from aidm.models.protocol_views import QueueEntry
 from aidm.models.state import Creature, GameState
+from aidm.rules.acts import (
+    AskIntent,
+    BarredIntent,
+    CastIntent,
+    GiveIntent,
+    HealIntent,
+    HelpUpIntent,
+    HeroHandIntent,
+    ImpossibleIntent,
+    Intent,
+    InventoryIntent,
+    ItemIntent,
+    ItemIntents,
+    LiftIntent,
+    LookIntent,
+    OfferStrikeIntent,
+    ParleyIntent,
+    PayIntent,
+    QuestAnswerIntent,
+    RefusedIntent,
+    RestIntent,
+    SearchIntent,
+    ShopIntent,
+    TakeIntent,
+    TravelIntent,
+    UseIntent,
+)
 from aidm.rules.lore import place_lore_events
 from aidm.session import (
     gear_actions,

@@ -14,9 +14,8 @@ through `rules.spells.scene_cast`: the same checks, the slot spent, nothing move
 Public API: `heal_intent(core, player, intent)` (a `HealIntent` or a `CastIntent`).
 """
 
-from aidm.dm.cast_intent import CastIntent
-from aidm.dm.heal_intent import HealIntent
 from aidm.models.events import AnyEvent
+from aidm.rules.acts import CastIntent, HealIntent
 from aidm.rules.command_checks import CommandRefused
 from aidm.rules.items import use_item_events
 from aidm.rules.spells import cast_spell, scene_cast

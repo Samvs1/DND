@@ -16,29 +16,21 @@ drink", "pour it into her mouth" are healing, `aidm.dm.heal_intent`), when an ab
 meant (the lexicon's `abstract_gifts`: "give Elowen my thanks", "a hug", "a nod"), or when no
 hero is named. The rules decide (`aidm.rules.hero_handing.hand_events`).
 
+Its act type lives in `aidm.rules.acts` (M36.1); this module only reads text.
 Public API: `HeroHandIntent(actor_id, to_id, thing, qty, gold)`, `RESOLVERS` (`hand`).
 """
 
 import re
-from dataclasses import dataclass
 
 from aidm.data.intent_phrases import intent_phrases
 from aidm.dm.gear_words import fits, words
 from aidm.dm.intent_match import Found, Resolver
 from aidm.models.state import Creature, CreatureKind, GameState
+from aidm.rules.acts import HeroHandIntent
 from aidm.rules.item_effects import gear_name
 
 _NUMBERS = {"two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8}
 _NUMBERS |= {"nine": 9, "ten": 10}
-
-
-@dataclass(frozen=True)
-class HeroHandIntent:
-    actor_id: str
-    to_id: str
-    thing: str | None  # an inventory key or keepsake id; "" when the actor carries no such thing
-    qty: int = 1
-    gold: int = 0
 
 
 def _hero(state: GameState, actor_id: str, who: str) -> str | None:

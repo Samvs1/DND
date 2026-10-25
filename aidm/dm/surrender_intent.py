@@ -9,21 +9,15 @@ reason, mercy, spare, offer, promise, quarter ...) -> Persuasion, ranked first; 
 (a demand, a threat, a shout) -> Intimidation. The hero giving up ("I surrender", "we yield",
 "I give up": the `self_surrender` veto) is not a demand and stays a creative action.
 
+Its act type lives in `aidm.rules.acts_fight` (M36.1); this module only reads text.
 Public API: `SurrenderIntent(actor_id, skill)`, `RESOLVERS` (`surrender`),
 `surrender_intent(state, actor_id, text)` (the surrender rows).
 """
 
-from dataclasses import dataclass
-
 from aidm.dm.intent_match import Found, Resolver, route
 from aidm.models.abilities import Skill
 from aidm.models.state import GameState
-
-
-@dataclass(frozen=True)
-class SurrenderIntent:
-    actor_id: str
-    skill: Skill
+from aidm.rules.acts_fight import SurrenderIntent
 
 
 def surrender(found: Found) -> SurrenderIntent:

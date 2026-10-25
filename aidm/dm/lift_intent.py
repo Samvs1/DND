@@ -7,21 +7,14 @@ word; the resolver finds a keepsake that an NPC here holds (`WorldNpc.keepsakes`
 name words (every word of the name in the sentence, or at least two of them). The rules roll and
 decide (`aidm.rules.lifting.lift_events`). Anything else is None (the adjudicator).
 
+Its act type lives in `aidm.rules.acts` (M36.1); this module only reads text.
 Public API: `LiftIntent(actor_id, npc_id, keepsake_id)`, `RESOLVERS` (`lift`).
 """
 
-from dataclasses import dataclass
-
 from aidm.dm.intent_match import Found, Resolver
+from aidm.rules.acts import LiftIntent
 from aidm.rules.quest_items import item_words
 from aidm.rules.scene import current_scene
-
-
-@dataclass(frozen=True)
-class LiftIntent:
-    actor_id: str
-    npc_id: str
-    keepsake_id: str
 
 
 def _named(name: str, said: frozenset[str]) -> bool:

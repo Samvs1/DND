@@ -3,9 +3,6 @@ fight, each on the real round-4 state where the line was typed."""
 
 from pathlib import Path
 
-from aidm.dm.cast_intent import CastIntent
-from aidm.dm.equip_intent import ItemAction, ItemIntent, ItemIntents
-from aidm.dm.heal_intent import HealIntent
 from aidm.dm.precheck import precheck
 from aidm.models.combat_events import SpellCast
 from aidm.models.events import AnyEvent, HpChanged, ResourceSet
@@ -13,6 +10,7 @@ from aidm.models.protocol_client import SubmitAction
 from aidm.models.protocol_server import Notice
 from aidm.models.state import GameState
 from aidm.models.world_events import EquipmentChanged
+from aidm.rules.acts import CastIntent, HealIntent, ItemAction, ItemIntent, ItemIntents
 from tests.session.playtest_saves import logged, replay_until
 from tests.session.table_fixtures import Seat, assert_replays, disabled_llm, join, running
 

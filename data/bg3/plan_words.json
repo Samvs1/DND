@@ -1,0 +1,13 @@
+{
+  "source": "M36.1: moved out of intent_phrases.json lexicon; read by aidm.rules.plan_tasks (M31.1b V14)",
+  "come_back_words": [
+    "back",
+    "bring",
+    "recover",
+    "report",
+    "retrieve",
+    "return",
+    "returns",
+    "fetch"
+  ]
+}

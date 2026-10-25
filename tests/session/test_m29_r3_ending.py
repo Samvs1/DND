@@ -5,12 +5,12 @@ import random
 
 from aidm.dm.epilogue_facts import epilogue_facts, template_epilogue
 from aidm.dm.precheck import precheck
-from aidm.dm.use_intent import UseIntent
 from aidm.models.character import Keepsake
 from aidm.models.quest_events import LoreLearned
 from aidm.models.quests import StepKind
 from aidm.models.world import WorldItem
 from aidm.models.world_events import KeepsakeGained
+from aidm.rules.acts import UseIntent
 from aidm.rules.item_use import use_item
 from aidm.rules.plan_repair import repair_plan
 from aidm.rules.quest_plan import main_quest

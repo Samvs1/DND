@@ -6,8 +6,6 @@ from pathlib import Path
 import pytest
 
 from aidm.data.combat_data import combat_registries
-from aidm.dm.hand_intent import HeroHandIntent
-from aidm.dm.heal_intent import HealIntent
 from aidm.dm.precheck import precheck
 from aidm.models.character import Keepsake, PcData
 from aidm.models.events import GoldChanged, InventoryChanged
@@ -16,6 +14,7 @@ from aidm.models.protocol import AnyClientMsg
 from aidm.models.protocol_client import HandOver, SubmitAction
 from aidm.models.protocol_server import ErrorMsg
 from aidm.models.state import GameState
+from aidm.rules.acts import HealIntent, HeroHandIntent
 from aidm.rules.hero_handing import HandRefused, hand_events
 from aidm.session.reducer import apply, replay
 from tests.session.playtest_saves import replay_until

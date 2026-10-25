@@ -8,19 +8,12 @@ the job", "count us in") or a plain no or refusal ("no, ...", "not now", "we'll 
 decline") and the resolver returns a `QuestAnswerIntent` the session answers through the SAME
 path as the card's buttons (`session.quest_people.answer_quest`).
 
+Its act type lives in `aidm.rules.acts` (M36.1); this module only reads text.
 Public API: `QuestAnswerIntent(actor_id, quest_id, accept)`, `RESOLVERS` (`quest_answer`).
 """
 
-from dataclasses import dataclass
-
 from aidm.dm.intent_match import Found, Resolver
-
-
-@dataclass(frozen=True)
-class QuestAnswerIntent:
-    actor_id: str
-    quest_id: str
-    accept: bool
+from aidm.rules.acts import QuestAnswerIntent
 
 
 def quest_answer(found: Found) -> QuestAnswerIntent | None:

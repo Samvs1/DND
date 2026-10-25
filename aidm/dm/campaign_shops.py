@@ -2,7 +2,7 @@
 so gold was useless). Repair over reject, like the quest repairs (`aidm.dm.campaign_draft`).
 
 A region has a trader when one of the cast living in it has a shopkeeper role (the role words
-the table uses to find a shop, `aidm.dm.scene_intent.SHOP_ROLES`) whose shop kind sells the basics
+the table uses to find a shop, `aidm.rules.shop.SHOP_ROLES`) whose shop kind sells the basics
 (M29.6b, `ShopTable.basics`: weapons, armour and healing; p2's region-1 shop sold neither weapon
 nor armour). A region without one gets a peddler (a general store) at its arrival (the safe
 place), with a repair note; the model's own cast is never changed.
@@ -16,10 +16,9 @@ import re
 from aidm.data.shop_defs import shop_table
 from aidm.dm.campaign_draft_base import slug_id
 from aidm.dm.campaign_steps import repair_note
-from aidm.dm.scene_intent import SHOP_ROLES
 from aidm.models.campaign import CampaignPlan, NpcPlan, RegionPlan
 from aidm.models.problem import Problem
-from aidm.rules.shop import role_shop_kind
+from aidm.rules.shop import SHOP_ROLES, role_shop_kind
 
 PEDDLER_ROLE = "travelling peddler and trader"
 PEDDLER_ARCHETYPE = "commoner"

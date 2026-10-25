@@ -8,21 +8,15 @@ open learn step or a secret they may reveal now. Otherwise the row gives nothing
 goes on to the storyteller as before. The session applies the engine's events first and then
 lets the storyteller answer in the person's voice with those events (`session.lore_turn`).
 
+Its act type lives in `aidm.rules.acts` (M36.1); this module only reads text.
 Public API: `AskIntent(actor_id, npc_id)`, `RESOLVERS` (`ask_lore`).
 """
 
-from dataclasses import dataclass
-
 from aidm.dm.intent_conditions import name_words
 from aidm.dm.intent_match import Found, Resolver
+from aidm.rules.acts import AskIntent
 from aidm.rules.lore_talk import ask_events
 from aidm.rules.secrets import fact_words
-
-
-@dataclass(frozen=True)
-class AskIntent:
-    actor_id: str
-    npc_id: str
 
 
 def ask_lore(found: Found) -> AskIntent | None:

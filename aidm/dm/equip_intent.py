@@ -26,39 +26,19 @@ done is a note and the other half still happens. M32.1a X6 (round 5: the sword h
 my sword and sling my shield on my back" was dropped): a said word inside a name word fits when
 nothing fits better ("sword" is the Longsword).
 
+Its act type lives in `aidm.rules.acts` (M36.1); this module only reads text.
 Public API: `ItemAction` (EQUIP/UNEQUIP/DROP), `ItemIntent(actor_id, action, item)` (`item` the
 inventory index), `ItemIntents(acts)`, `RESOLVERS` (`item`, `item_pair`).
 """
 
 import re
-from dataclasses import dataclass
-from enum import StrEnum
 
 from aidm.data.intent_phrases import intent_phrases
 from aidm.dm.entities import display_name
 from aidm.dm.intent_match import Found, Resolver, route, text_match
 from aidm.dm.sentence import plain_verb
 from aidm.models.state import Creature, GameState
-
-
-class ItemAction(StrEnum):
-    EQUIP = "equip"
-    UNEQUIP = "unequip"
-    DROP = "drop"
-
-
-@dataclass(frozen=True)
-class ItemIntent:
-    actor_id: str
-    action: ItemAction
-    item: str
-
-
-@dataclass(frozen=True)
-class ItemIntents:
-    """Both halves of a compound gear line, in the order said (M31.1a V7)."""
-
-    acts: tuple[ItemIntent, ...]
+from aidm.rules.acts import ItemAction, ItemIntent, ItemIntents
 
 
 def _words(name: str) -> frozenset[str]:

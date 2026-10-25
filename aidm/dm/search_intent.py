@@ -11,24 +11,18 @@ read it") is `rest`, cut at the first follow-up verb of the lexicon's `search_fo
 sent to the storyteller with the search's events. With nothing hidden here the row does not
 match and the storyteller handles the search as before.
 
+Its act type lives in `aidm.rules.acts` (M36.1); this module only reads text.
 Public API: `SearchIntent(actor_id, skill, rest)`, `RESOLVERS` (`search`), `follow_up(text)`.
 """
 
 import re
-from dataclasses import dataclass
 
 from aidm.data.intent_phrases import intent_phrases
 from aidm.dm.intent_match import Found, Resolver
 from aidm.models.abilities import Skill
+from aidm.rules.acts import SearchIntent
 
 _CUT = re.compile(r"(?:,? and then |,? then |; |, and |, | and )(?P<verb>[a-z']+)")
-
-
-@dataclass(frozen=True)
-class SearchIntent:
-    actor_id: str
-    skill: Skill
-    rest: str | None = None
 
 
 def follow_up(text: str) -> str | None:

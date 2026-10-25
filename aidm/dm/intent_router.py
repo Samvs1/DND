@@ -15,6 +15,7 @@ lookups and exports `RESOLVERS`) and routes a sentence through the phrase table
 Which intent wins is the rows' `precedence` field, never call order; the conditions a row
 needs are named in the table and evaluated in `aidm.dm.intent_conditions`.
 
+Its typed plan lives in `aidm.rules.acts_fight` (M36.1); this module only reads text.
 Public API: `RESOLVERS`, `FightIntent`, `explore_intent`, `fight_intent`, `ask_intent` (each
 `(state, actor_id, text)`; None when no row resolves).
 """
@@ -44,19 +45,16 @@ from aidm.dm import (
 from aidm.dm import (
     fight_intent as fight_rows,
 )
-from aidm.dm.attack_intent import DrawAttack
-from aidm.dm.combat_intent import MoveCommands
-from aidm.dm.fight_cast_intent import RefusedIntent
-from aidm.dm.fight_intent import FightCommand
-from aidm.dm.impossible_intent import ImpossibleIntent
 from aidm.dm.intent_match import Resolver, route
-from aidm.dm.surrender_intent import SurrenderIntent
 from aidm.models.commands import AttackCommand, CastCommand, FeatureActionCommand, UseItemCommand
 from aidm.models.state import GameState
-
-type FightIntent = (
-    MoveCommands | FightCommand | DrawAttack | SurrenderIntent | RefusedIntent | ImpossibleIntent
+from aidm.rules.acts import ImpossibleIntent, RefusedIntent
+from aidm.rules.acts_fight import (
+    DrawAttack,
+    FightIntent,
+    SurrenderIntent,
 )
+
 _FIGHT = (
     list,
     ImpossibleIntent,

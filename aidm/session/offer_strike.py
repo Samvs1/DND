@@ -21,11 +21,10 @@ Public API: `WAITS`, `offer_strike_turn`, `cast_opens_fight`.
 """
 
 from aidm.dm.arrival import offer_data
-from aidm.dm.cast_intent import CastIntent
-from aidm.dm.offer_intent import OfferStrikeIntent
 from aidm.models.campaign_state import OfferChoice
 from aidm.models.protocol_server import NoticeKind
 from aidm.models.protocol_views import QueueEntry
+from aidm.rules.acts import CastIntent, OfferStrikeIntent
 from aidm.rules.offer_answer import OfferRefused, answer_offer
 from aidm.rules.waiting_foe import cast_starts_fight
 from aidm.session import combat_flow, waiting_line

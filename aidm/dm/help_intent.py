@@ -7,22 +7,17 @@ returns a `HelpUpIntent` when it names a downed party member (alive at 0 HP) oth
 actor, or is a pronoun while exactly one is down. Anything else is None and goes on. The rules
 decide (`aidm.rules.downed.help_up_events`).
 
+Its act type lives in `aidm.rules.acts` (M36.1); this module only reads text.
 Public API: `HelpUpIntent(actor_id, target_id)`, `RESOLVERS` (`help_up`).
 """
 
 import re
-from dataclasses import dataclass
 
 from aidm.dm.intent_match import Found, Resolver
 from aidm.models.state import Creature, GameState
+from aidm.rules.acts import HelpUpIntent
 
 _PRONOUNS = frozenset({"her", "him", "them", "my friend", "my ally", "our friend", "our ally"})
-
-
-@dataclass(frozen=True)
-class HelpUpIntent:
-    actor_id: str
-    target_id: str
 
 
 def _words(name: str) -> frozenset[str]:
