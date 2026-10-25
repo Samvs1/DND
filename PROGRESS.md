@@ -1,4 +1,4 @@
-﻿NEXT: M36.11 (M) Client MenuAct message for the 4 text-sending buttons (map travel, shop visit, gear uses, put out the light; since M36.10b they send the menu's exact labels as `submit_action` text: aidm/web/js/map/map.js, shop/shop.js, sheet/item_uses.js, table/light.js), gen_protocol, PROTOCOL.md, PLAYER_MANUAL (typing section). Gate: UI tests, --check. Files in flight: none. Last gate: M36.10b FULL gate PASS (12/12) with the menu interpreter as the default.
+NEXT: M36.11 (M) Client MenuAct message for the 4 text-sending buttons (map travel, shop visit, gear uses, put out the light; since M36.10b they send the menu's exact labels as `submit_action` text: aidm/web/js/map/map.js, shop/shop.js, sheet/item_uses.js, table/light.js), gen_protocol, PROTOCOL.md, PLAYER_MANUAL (typing section). Gate: UI tests, --check. Files in flight: none. Last gate: M36.10b FULL gate PASS (12/12) with the menu interpreter as the default.
 
 # PROGRESS
 
