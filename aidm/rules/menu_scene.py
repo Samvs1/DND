@@ -34,7 +34,7 @@ from aidm.rules.shop import is_shop
 from aidm.rules.social import npc_is_hostile
 
 OFFER_FIRST_NOTE = "the waiting encounter is answered first (Escape slips away)"
-FOE_STRIKES_NOTE = "a foe waits here: it strikes first and no rest is taken"
+FOE_STRIKES_NOTE = "a foe waits: it strikes first, no rest"
 _SEARCHES = (
     (Skill.PERCEPTION, "Search this place by watching and listening (Perception)"),
     (Skill.INVESTIGATION, "Search this place by going through things (Investigation)"),

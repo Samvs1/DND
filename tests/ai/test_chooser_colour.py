@@ -59,16 +59,15 @@ def test_rules_say_colour_other_and_the_step_limits() -> None:
     for words in (
         "4. colour: the parts of the line that only describe HOW the hero does the chosen steps",
         "narration only, no mechanics",
-        "never the manner or colour of a chosen step",
-        "never add help_up, pay, search or travel",
-        "Another hero's deed is colour",
-        "Showing or holding up an item is not",
+        "never the manner, place or detail of a chosen step",
+        "no unasked help_up, pay, search, travel, dash, hide or what_now",
+        "Another hero's deed, or showing a carried item, is colour (not give)",
+        "never swapping in another",
         "is the attack alone (it walks first)",
         "creeping up to strike first is offer:surprise",
-        "a plea, offer, threat or bargain is offer:parley; a question or greeting is talk",
-        'take:moth, colour "keep it safe"',
-        'rest:long, colour "set watches"',
+        "a plea, offer, threat or bargain is offer:parley; only a question or greeting is talk",
         'item:restorative-draught>pc-p4, colour "kneel beside Elowen"',
+        'talk>guard-1, colour "show the seal"',
     ):
         assert words in system, words
 

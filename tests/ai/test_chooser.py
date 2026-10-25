@@ -117,7 +117,7 @@ def test_exact_fast_path_hits_labels_and_misses_paraphrases() -> None:
     assert exact_choice(fight, "Longsword Kobold B") == MenuChoice(steps=(strike,))
     assert exact_choice(gift, "I look about the room") is None
     assert exact_choice(fight, "I dash away") is None
-    assert exact_choice(gift, "Talk them out of fighting") is None  # never a guess
+    assert exact_choice(gift, "Parley to end it without a fight") is None  # never a guess
     assert exact_choice(gift, "") is None
 
 
@@ -182,7 +182,7 @@ def test_prompt_has_the_pronoun_anchors_and_the_words_last() -> None:
         menu=menu,
     )
     system, user = (m["content"] for m in to_messages(pack))
-    assert system.startswith("You read one typed line") and "Examples" in system
+    assert system.startswith("Read one player's typed line") and "Examples" in system
     assert "LAST TARGET: swarm-of-bats-1 = Swarm of Bats" in user
     assert "In a fight, your turn: action ready" in user
     assert "attack:longsword = Longsword (melee, 1d8+3)" in user

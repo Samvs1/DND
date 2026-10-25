@@ -38,9 +38,16 @@ from aidm.rules.surrender import offer_never_yield_line
 _FIGHT_NOTE = "starts the fight"
 _PERSON_NOTE = "starts a fight"
 _ANSWERS = {
-    OfferChoice.FIGHT: "Fight them (the fight starts)",
-    OfferChoice.SURPRISE: "Sneak up and strike first (a group Stealth check, then the fight)",
-    OfferChoice.ESCAPE: "Slip away to where you came from (group Stealth or Athletics)",
+    OfferChoice.FIGHT: "Fight them",
+    OfferChoice.SURPRISE: "Sneak up and strike first (group Stealth, then the fight)",
+    OfferChoice.ESCAPE: "Slip away the way you came (group Stealth or Athletics)",
+}
+
+
+_PARLEY_WAYS = {
+    "persuasion": "Persuasion: plead, reason, bargain",
+    "intimidation": "Intimidation: threaten",
+    "deception": "Deception: bluff or lie",
 }
 
 
@@ -49,7 +56,7 @@ def _answers(offer: EncounterOffer) -> list[MenuEntry]:
     for choice in offer.options:
         if choice is OfferChoice.PARLEY:
             for skill in PARLEY_SKILLS:
-                label = f"Talk them out of fighting ({skill.value.title()})"
+                label = f"Parley to end it without a fight ({_PARLEY_WAYS[skill.value]})"
                 out.append(
                     MenuEntry(
                         id=f"offer:parley:{skill.value}",

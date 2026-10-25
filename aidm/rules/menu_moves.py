@@ -35,6 +35,10 @@ _SIMPLE: dict[str, tuple[ActionKind, str]] = {
     "dodge": (ActionKind.DODGE, "Dodge (attacks against you have disadvantage)"),
     "hide": (ActionKind.HIDE, "Hide (Stealth check, hidden until seen)"),
 }
+_SURRENDER_ASKS = {  # M36.9 iteration 2: the Persuasion form reads as an offer of mercy
+    "intimidation": "Demand the foes surrender",
+    "persuasion": "Call on the foes to yield and be spared",
+}
 
 
 def _zone_note(view: FightView, feet: int) -> str:
@@ -221,7 +225,7 @@ def _closing(view: FightView) -> list[MenuEntry]:
                 MenuEntry(
                     id=f"surrender:{skill.value}",
                     kind=ActionKind.SURRENDER,
-                    label=f"Demand the foes surrender ({skill.value.title()} {sign}, action)",
+                    label=f"{_SURRENDER_ASKS[skill.value]} ({skill.value.title()} {sign}, action)",
                     spent=is_spent(view, "action"),
                     skill=skill.value,
                 )

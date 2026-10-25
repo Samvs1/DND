@@ -102,7 +102,7 @@ def test_menu_offer_answers_and_strikes() -> None:
     assert sword.starts_fight and set(sword.target_ids) == {"boss-gullmere-quay", "foe:cultist"}
     assert _entry(menu, "surrender").skill == "intimidation"
     assert {"search:perception", "search:investigation"} <= ids  # M36.8c: search while foes wait
-    assert _entry(menu, "rest:long").note.startswith("a foe waits here")
+    assert _entry(menu, "rest:long").note.startswith("a foe waits: it strikes first")
 
 
 def test_menu_quest_card_answers() -> None:

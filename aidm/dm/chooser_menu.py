@@ -8,14 +8,18 @@ dagger, shortbow"). When several groups list the same items, the items are writt
 and each group says `<item> = any of ITEMS` (or the few it leaves out). A target list that is
 every listed target of its kinds is written "any foe" / "any place" and so on, unless a
 target carries a note ("moves 30 ft first"); neighbouring targets with the same note share it
-(M36.9). Grouping reads ids and fields only, never wording.
+(M36.9). Grouping reads ids and fields only, never wording. Offer answers are never grouped
+(M36.9 iteration 2: grouped, the model saw only `offer:<item>: fight, ..., parley:persuasion` and
+none of what each answer does). Neighbouring entries whose labels differ only inside their
+bracket share one line (`offer:parley:persuasion, offer:parley:deception = Parley ... (Persuasion:
+...; Deception: ...)`).
 
 Public API: `menu_lines(menu) -> list[str]`.
 """
 
 from dataclasses import dataclass
 
-from aidm.models.action_menu import ActionMenu, MenuEntry
+from aidm.models.action_menu import ActionKind, ActionMenu, MenuEntry
 
 GROUP_MIN = 3
 _KIND_WORDS = {
@@ -52,7 +56,7 @@ def _groups(menu: ActionMenu) -> list[_Group]:
     by_key: dict[tuple[object, ...], list[MenuEntry]] = {}
     for entry in menu.entries:
         verb = _verb(entry)
-        if verb is not None and not entry.target_notes:
+        if verb is not None and not entry.target_notes and entry.kind is not ActionKind.OFFER:
             by_key.setdefault((verb, *_shape(entry)), []).append(entry)
     return [
         _Group(str(key[0]), tuple(entries))
@@ -156,6 +160,35 @@ def _items_line(counts: dict[str, int]) -> str:
     return "ITEMS: " + ", ".join(f"{i} (up to {n})" if n > 1 else i for i, n in counts.items())
 
 
+def _stem(entry: MenuEntry) -> tuple[object, ...] | None:
+    """Neighbours with the same stem share one line: the label before its bracket, the same
+    targets and no extras (`None`: the entry has no bracket to differ in)."""
+    base, bracket, tail = entry.label.partition(" (")
+    if not bracket or not tail.endswith(")") or _extras(entry):
+        return None
+    return (base, entry.target_ids, entry.zone_ids, entry.max_targets)
+
+
+def _stem_line(menu: ActionMenu, run: list[MenuEntry]) -> str:
+    """`a, b = Base (tail a; tail b) -> targets` (M36.9 iteration 2: the three parley answers)."""
+    if len(run) == 1:
+        return _single(menu, run[0])
+    base = run[0].label.partition(" (")[0]
+    tails = "; ".join(e.label.partition(" (")[2][:-1] for e in run)
+    return f"{', '.join(e.id for e in run)} = {base} ({tails}){_targets(menu, run[0])}"
+
+
+def _singles(menu: ActionMenu, entries: list[MenuEntry]) -> list[str]:
+    runs: list[list[MenuEntry]] = []
+    for entry in entries:
+        stem = _stem(entry)
+        if runs and stem is not None and _stem(runs[-1][-1]) == stem:
+            runs[-1].append(entry)
+        else:
+            runs.append([entry])
+    return [_stem_line(menu, run) for run in runs]
+
+
 def menu_lines(menu: ActionMenu | None) -> list[str]:
     if menu is None:
         return []
@@ -164,11 +197,15 @@ def menu_lines(menu: ActionMenu | None) -> list[str]:
     lines: list[str] = [_items_line(counts)] if counts else []
     home = {e.id: g for g in groups for e in g.entries}
     done: set[int] = set()
+    pending: list[MenuEntry] = []
     for entry in menu.entries:
         group = home.get(entry.id)
         if group is None:
-            lines.append(_single(menu, entry))
-        elif id(group) not in done:
+            pending.append(entry)
+            continue
+        lines += _singles(menu, pending)
+        pending = []
+        if id(group) not in done:
             done.add(id(group))
             lines.append(_group_line(menu, group, counts))
-    return lines
+    return lines + _singles(menu, pending)
