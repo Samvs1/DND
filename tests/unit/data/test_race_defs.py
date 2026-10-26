@@ -132,7 +132,9 @@ def test_high_elf_extras() -> None:
 
 def test_schema_rejects_bad_input() -> None:
     with pytest.raises(ValidationError):
-        RaceDef.model_validate({"index": "x", "name": "X", "size": "Medium", "speed": 30, "nope": 1})
+        RaceDef.model_validate(
+            {"index": "x", "name": "X", "size": "Medium", "speed": 30, "nope": 1}
+        )
     with pytest.raises(ValidationError):
         RaceDef.model_validate({"index": "x", "name": "X", "size": "Huge", "speed": 30})
     bad = {"index": "x", "name": "X", "ability_bonuses": [{"ability": "luck", "bonus": 1}]}

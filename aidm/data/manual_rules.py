@@ -88,7 +88,8 @@ def _body_lines(c: ConditionDef) -> list[str]:
         out.append("cannot see")
     if c.turn_start_damage:
         out.append(
-            f"takes {c.turn_start_damage} {c.turn_start_damage_type} damage at the start of its turns"
+            f"takes {c.turn_start_damage} {c.turn_start_damage_type} damage"
+            " at the start of its turns"
         )
     if c.turn_end_damage:
         out.append(
@@ -250,8 +251,10 @@ def shop_rules() -> str:
     ]
     return "\n".join(
         [
-            f"- You buy at {round(s.buy_markup * 100)}% of an item's value, rounded up, never less than 1 gp.",
-            f"- A shop buys from you at {round(s.sell_fraction * 100)}% of the value, rounded down.",
+            f"- You buy at {round(s.buy_markup * 100)}% of an item's value,"
+            " rounded up, never less than 1 gp.",
+            f"- A shop buys from you at {round(s.sell_fraction * 100)}% of the value,"
+            " rounded down.",
             f"- You can trade up to {s.max_qty} of an item at a time.",
             f"- A trader whose trade is unclear counts as a {words(s.default_kind)} shop.",
             f"- Every region has a trader who sells {join(s.basics)}.",

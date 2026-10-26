@@ -81,7 +81,9 @@ def test_audio_url_only_when_the_file_exists(tmp_path: Path) -> None:
 
 def test_display_text_drops_the_speech_cues() -> None:
     line = ScribeLine(
-        id="t.1", group=ScribeGroup.REVIVE, text="[calm, warm] Ah. [long-break] Rise, [break] friend."
+        id="t.1",
+        group=ScribeGroup.REVIVE,
+        text="[calm, warm] Ah. [long-break] Rise, [break] friend.",
     )
     assert line.display == "Ah. Rise, friend."
     assert all("[" not in line.display for line in scribe_lines().lines)
@@ -96,4 +98,3 @@ def test_he_speaks_aloud_rarely_refusals_are_text_only() -> None:
     revive = [line.display for line in lines.group(ScribeGroup.REVIVE)]
     # Owner-approved close (M13.4f): each revive keeps its opening and ends "Rise, once more."
     assert all(len(text.split()) <= 14 and text.endswith("Rise, once more.") for text in revive)
-

@@ -236,16 +236,17 @@ def _effect_problems(effect: UseEffect) -> list[str]:
     names: list[str] = []
     if isinstance(effect, LightPlace | Boon):
         names = list(effect.skills)
-    elif isinstance(effect, Supplies):
-        names = [effect.skill]
-    elif isinstance(effect, Unlock) and effect.skill is not None:
+    elif isinstance(effect, Supplies | Unlock) and effect.skill is not None:
         names = [effect.skill]
     problems = [f"unknown skill {n!r}" for n in names if n not in skills]
     if isinstance(effect, SurfaceUse) and effect.surface not in surface_defs():
         problems.append(f"unknown surface {effect.surface!r}")
-    if isinstance(effect, ConditionUse | DamageUse) and effect.condition is not None:
-        if effect.condition not in condition_defs():
-            problems.append(f"unknown condition {effect.condition!r}")
+    if (
+        isinstance(effect, ConditionUse | DamageUse)
+        and effect.condition is not None
+        and effect.condition not in condition_defs()
+    ):
+        problems.append(f"unknown condition {effect.condition!r}")
     if isinstance(effect, CastSpell) and effect.spell and effect.spell not in shipped_spell_ids():
         problems.append(f"unknown spell {effect.spell!r}")
     if isinstance(effect, Craft) and effect.output not in item_catalogue():

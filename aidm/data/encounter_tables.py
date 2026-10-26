@@ -11,12 +11,13 @@
   the boss fight's (hard); `spoke_max_monsters_per_pc[region tier]` caps a spoke's monster count
   at that multiple of the party size (action economy).
 - M29.6 tuning: `spoke_budget_scale[region tier]` multiplies a spoke's rating cap (default 1.0:
-  the whole tier up to the next threshold); `spoke_stand_ins` (when no theme monster fits a spoke's budget, encounter-ready
-  monsters sharing a terrain with the themes stand in, at the highest XP that fits, instead of
-  the cheapest theme monster over budget); `boss_company_max_per_pc` caps the boss's company at
-  that multiple of the party size (None: only the budget and `max_monsters`); a boss whose own
-  adjusted XP is over the boss cap (a small party) spawns with its hit points scaled by
-  cap / adjusted XP, never below `boss_hp_scale_floor` (None: never scaled).
+  the whole tier up to the next threshold); `spoke_stand_ins` (when no theme monster fits a
+  spoke's budget, encounter-ready monsters sharing a terrain with the themes stand in, at the
+  highest XP that fits, instead of the cheapest theme monster over budget);
+  `boss_company_max_per_pc` caps the boss's company at that multiple of the party size
+  (None: only the budget and `max_monsters`); a boss whose own adjusted XP is over the boss
+  cap (a small party) spawns with its hit points scaled by cap / adjusted XP, never below
+  `boss_hp_scale_floor` (None: never scaled).
 - M29.6b area danger (`aidm.rules.encounter_danger`): `area_damage_rating[difficulty]` is the
   share of the heroes' average hit point maximum one area blast (a breath weapon) must reach to
   rate the fight at least that difficulty (empty: off); `area_reference_hp[region tier]` is a

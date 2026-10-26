@@ -28,7 +28,9 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from aidm.data.spell_defs import Effect, SpellRange, Targeting
 
-DEFAULT_MONSTER_OVERLAY = Path(__file__).resolve().parents[2] / "data" / "bg3" / "monster_actions.json"
+DEFAULT_MONSTER_OVERLAY = (
+    Path(__file__).resolve().parents[2] / "data" / "bg3" / "monster_actions.json"
+)
 
 
 class _Strict(BaseModel):

@@ -14,7 +14,8 @@ Sources (all data, no per-item code):
 
 Public API:
 - `ItemCategory` (weapon, armor, gear, tool, potion, supply, key, scroll).
-- `CatalogueItem(id, name, category, value_gp, weight, tier, supply, heal, opens)`; `.index` is `id`.
+- `CatalogueItem(id, name, category, value_gp, weight, tier, supply, heal, opens)`;
+  `.index` is `id`.
 - `KeyDef`, `load_key_defs(path=None)`, `key_defs()`.
 - `build_item_catalogue(equipment, consumables, keys, spell_levels, spell_names) -> Registry`.
 - `item_catalogue() -> Registry[CatalogueItem]`: the default, cached.

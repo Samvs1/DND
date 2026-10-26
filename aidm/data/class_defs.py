@@ -120,13 +120,17 @@ class ClassDef(_Frozen):
         if tuple(row.level for row in self.levels) != tuple(range(1, MAX_CLASS_LEVEL + 1)):
             raise ValueError(f"{self.index}: levels must be exactly 1..{MAX_CLASS_LEVEL}")
         if self.spellcasting is None:
-            if any(r.cantrips_known or r.spells_known is not None or any(r.slots) for r in self.levels):
+            if any(
+                r.cantrips_known or r.spells_known is not None or any(r.slots) for r in self.levels
+            ):
                 raise ValueError(f"{self.index}: spell data on a non-caster")
         elif self.spellcasting.kind == "prepared" and any(
             r.spells_known is not None for r in self.levels
         ):
             raise ValueError(f"{self.index}: prepared casters have no spells_known")
-        elif self.spellcasting.kind != "prepared" and any(r.spells_known is None for r in self.levels):
+        elif self.spellcasting.kind != "prepared" and any(
+            r.spells_known is None for r in self.levels
+        ):
             raise ValueError(f"{self.index}: known/pact casters need spells_known on every level")
         return self
 

@@ -1,6 +1,7 @@
 """Splice generated tables into docs/PLAYER_MANUAL.md between marker comments (M14.1).
 
-A generated block starts with `<!-- generated:<name> -->` and ends with `<!-- end generated:<name> -->`.
+A generated block starts with `<!-- generated:<name> -->` and ends with
+`<!-- end generated:<name> -->`.
 The text outside the markers is hand-written and never touched.
 
 Public API: `SECTIONS`, `MANUAL_PATH`, `render`, `splice`, `stale_sections`.

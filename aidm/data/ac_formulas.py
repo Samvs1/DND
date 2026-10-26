@@ -25,9 +25,7 @@ from aidm.data.registry import Registry
 
 type AbilityKey = Literal["str", "dex", "con", "int", "wis", "cha"]
 
-DEFAULT_AC_FORMULAS = (
-    Path(__file__).resolve().parents[2] / "data" / "bg3" / "ac_formulas.json"
-)
+DEFAULT_AC_FORMULAS = Path(__file__).resolve().parents[2] / "data" / "bg3" / "ac_formulas.json"
 
 
 class AcFormula(BaseModel):

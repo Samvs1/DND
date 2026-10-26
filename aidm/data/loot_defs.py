@@ -54,7 +54,7 @@ class LootTables(BaseModel):
     def _shape(self) -> LootTables:
         if set(self.tiers) != {"1", "2", "3"}:
             raise ValueError("loot tables need region tiers 1, 2 and 3")
-        if any(not REQUIRED_KINDS <= set(kinds) for kinds in self.tiers.values()):
+        if any(not set(kinds) >= REQUIRED_KINDS for kinds in self.tiers.values()):
             raise ValueError("every tier needs the kinds default and boss")
         return self
 

@@ -8,8 +8,12 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from aidm.data.condition_defs import ConditionDef, DefaultDuration, condition_defs
-from aidm.data.condition_defs import load_condition_defs
+from aidm.data.condition_defs import (
+    ConditionDef,
+    DefaultDuration,
+    condition_defs,
+    load_condition_defs,
+)
 from aidm.data.srd import srd
 from aidm.models.abilities import Ability
 from aidm.models.damage import DamageType

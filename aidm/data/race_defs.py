@@ -11,8 +11,8 @@ never re-parse the SRD's nested JSON. A test pins every copied number to the SRD
 - Subraces are nested `SubraceDef` entries with their own SRD subrace index; their bonuses and
   traits ADD to the parent race (the pipeline combines them, M2.2).
 
-Public API: `RaceDef`, `SubraceDef`, `AbilityBonusDef`, `load_race_defs(path=None) -> Registry[RaceDef]`,
-`race_defs()` (default, cached).
+Public API: `RaceDef`, `SubraceDef`, `AbilityBonusDef`,
+`load_race_defs(path=None) -> Registry[RaceDef]`, `race_defs()` (default, cached).
 """
 
 from __future__ import annotations

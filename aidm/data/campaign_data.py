@@ -11,7 +11,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-SAMPLE_CAMPAIGN_PATH = Path(__file__).resolve().parents[2] / "data" / "campaigns" / "sample_campaign.json"
+SAMPLE_CAMPAIGN_PATH = (
+    Path(__file__).resolve().parents[2] / "data" / "campaigns" / "sample_campaign.json"
+)
 
 
 def load_sample_campaign_json(path: Path | None = None) -> dict[str, object]:

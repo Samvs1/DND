@@ -9,8 +9,13 @@ from typing import Any
 import pytest
 from pydantic import ValidationError
 
-from aidm.data.class_defs import CLASS_ORDER, DEFAULT_CLASSES_DIR, ClassDef, class_defs
-from aidm.data.class_defs import load_class_defs
+from aidm.data.class_defs import (
+    CLASS_ORDER,
+    DEFAULT_CLASSES_DIR,
+    ClassDef,
+    class_defs,
+    load_class_defs,
+)
 from aidm.data.srd import srd
 
 SUBCLASS_LEVEL = {"cleric": 1, "warlock": 1, "wizard": 2, "fighter": 3, "rogue": 3, "ranger": 3}
@@ -109,7 +114,9 @@ def test_srd_features_per_level_match_srd_levels(key: str) -> None:
         got = [f for f in row.features if not f.startswith("bg3-")]
         assert got == [f.index for f in srd_row.features]
         # SRD ability_score_bonuses is cumulative: a new ASI is an increase over the last level.
-        prev = srd().levels.get(f"{key}-{row.level - 1}").ability_score_bonuses if row.level > 1 else 0
+        prev = (
+            srd().levels.get(f"{key}-{row.level - 1}").ability_score_bonuses if row.level > 1 else 0
+        )
         assert row.asi == ((srd_row.ability_score_bonuses or 0) > (prev or 0))
 
 
@@ -145,7 +152,7 @@ def test_slots_and_spells_match_srd_levels(key: str) -> None:
         assert sc is not None
         assert row.slots == tuple(sc.get(f"spell_slots_level_{n}", 0) for n in range(1, 6))
         assert row.cantrips_known == sc.get("cantrips_known", 0)
-        assert row.spells_known == (sc["spells_known"] if "spells_known" in sc else None)
+        assert row.spells_known == sc.get("spells_known")
 
 
 def test_spellcasting_blocks() -> None:

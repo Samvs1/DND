@@ -54,8 +54,16 @@ def _walk(effects: Sequence[Effect]) -> Iterator[Effect]:
 
 def test_reference_spells_are_shipped() -> None:
     expected = {
-        "fire-bolt", "sacred-flame", "eldritch-blast", "magic-missile", "cure-wounds",
-        "healing-word", "bless", "burning-hands", "hold-person", "shield-of-faith",
+        "fire-bolt",
+        "sacred-flame",
+        "eldritch-blast",
+        "magic-missile",
+        "cure-wounds",
+        "healing-word",
+        "bless",
+        "burning-hands",
+        "hold-person",
+        "shield-of-faith",
     }
     assert expected <= {s.index for s in spell_defs().all()}
 
@@ -95,8 +103,12 @@ def _write(tmp_path: Path, name: str, data: dict[str, object]) -> Path:
 
 
 BASE: dict[str, object] = {
-    "index": "fire-bolt", "level": 0, "school": "evocation", "classes": ["wizard"],
-    "range": {"kind": "feet", "feet": 120}, "targeting": {"kind": "creature"},
+    "index": "fire-bolt",
+    "level": 0,
+    "school": "evocation",
+    "classes": ["wizard"],
+    "range": {"kind": "feet", "feet": 120},
+    "targeting": {"kind": "creature"},
     "effects": [{"type": "damage", "dice": "1d10", "damage_type": "fire"}],
 }
 

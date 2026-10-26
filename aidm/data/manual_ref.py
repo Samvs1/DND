@@ -20,7 +20,9 @@ def _feature_name(cls: ClassDef, feature_id: str) -> str:
     own = {f.id: f.name for f in cls.bg3_features}
     if feature_id in own:
         return own[feature_id]
-    name = feature_defs().get(feature_id).name if feature_id in feature_defs() else words(feature_id)
+    name = (
+        feature_defs().get(feature_id).name if feature_id in feature_defs() else words(feature_id)
+    )
     return f"{name}*" if _is_unsupported(feature_id) else name
 
 
@@ -28,7 +30,11 @@ def classes_table() -> str:
     rows = []
     for c in class_defs().all():
         magic = c.spellcasting
-        casting = f"{magic.ability.upper()} ({magic.kind}, from level {magic.first_level})" if magic else "none"
+        casting = (
+            f"{magic.ability.upper()} ({magic.kind}, from level {magic.first_level})"
+            if magic
+            else "none"
+        )
         rows.append(
             [
                 c.name,
@@ -40,7 +46,15 @@ def classes_table() -> str:
                 casting,
             ]
         )
-    head = ["Class", "Hit die", "Main abilities", "Saving throws", "Armour", "Weapons", "Spellcasting"]
+    head = [
+        "Class",
+        "Hit die",
+        "Main abilities",
+        "Saving throws",
+        "Armour",
+        "Weapons",
+        "Spellcasting",
+    ]
     return table(head, rows)
 
 
@@ -100,6 +114,7 @@ def races_table() -> str:
 
 def backgrounds_table() -> str:
     rows = [
-        [b.name, join(b.skills), join(b.tools), f"{b.gold} gp", b.flavour] for b in background_defs().all()
+        [b.name, join(b.skills), join(b.tools), f"{b.gold} gp", b.flavour]
+        for b in background_defs().all()
     ]
     return table(["Background", "Skills", "Tools", "Starting gold", "In a few words"], rows)

@@ -68,7 +68,9 @@ def test_every_entry_is_referenced_or_a_pick_option() -> None:
 def test_unsupported_features_are_listed_in_rules_decisions() -> None:
     text = RULES_DECISIONS.read_text(encoding="utf-8")
     unsupported = [
-        e.index for e in feature_defs().all() if any(isinstance(h, UnsupportedHook) for h in e.hooks)
+        e.index
+        for e in feature_defs().all()
+        if any(isinstance(h, UnsupportedHook) for h in e.hooks)
     ]
     assert unsupported, "the shipped data has known unsupported mechanics"
     assert [i for i in unsupported if f"`{i}`" not in text] == []
@@ -92,11 +94,11 @@ def test_resources_used_by_hooks_are_defined() -> None:
     used: set[str] = set()
     for entry in registry.all():
         for hook in entry.hooks:
+            if isinstance(hook, ExtraActionHook | SlotRecoveryHook | DropToOneHook):
+                used.add(hook.resource)
             if isinstance(hook, BonusActionHook | ToggleHook) and hook.resource:
                 used.add(hook.resource)
-            elif isinstance(hook, ExtraActionHook | SlotRecoveryHook | DropToOneHook):
-                used.add(hook.resource)
-            elif isinstance(hook, SpellGrantHook):
+            if isinstance(hook, SpellGrantHook):
                 used |= {g.resource for g in hook.spells if g.resource}
     assert used - defined == set()
 

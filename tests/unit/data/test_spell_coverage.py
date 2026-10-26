@@ -39,9 +39,9 @@ def _in_scope() -> dict[str, int]:
     scope: dict[str, int] = {}
     for spell in srd().spells.all():
         classes = {c.index for c in spell.classes}
-        if classes & FULL_CASTERS and spell.level <= MAX_LEVEL:
-            scope[spell.index] = spell.level
-        elif "ranger" in classes and spell.level <= min(MAX_LEVEL, RANGER_MAX_LEVEL):
+        full_caster = classes & FULL_CASTERS and spell.level <= MAX_LEVEL
+        ranger = "ranger" in classes and spell.level <= min(MAX_LEVEL, RANGER_MAX_LEVEL)
+        if full_caster or ranger:
             scope[spell.index] = spell.level
     return scope
 
