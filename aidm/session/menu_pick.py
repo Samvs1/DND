@@ -17,11 +17,13 @@ Used when `TableConfig.interpreter` is "menu" by `session.menu_turn` (a line out
   runners, which ask the rules again on the live state). A refused act (a REFUSED notice or an
   error sent while it ran, `TableCore.refusals`) stops every act after it, and so does `stop`
   (a fight started, the hero's turn ended); either way the player is told plainly that the rest
-  of the line is not played (`STOPPED`), never a silent drop.
+  of the line is not played (`STOPPED`), never a silent drop. M41.3: it answers whether every
+  act ran (the caller then tells what an act that ends the line cut off, `tell_cut`).
+- `tell_cut(core, player, why)`: the plain `STOPPED` notice with that reason.
 
 Public API: `MenuQueueEntry`, `RECENT`, `STOPPED`, `NOT_DONE`, `waiting_card`, `line_menu`,
 `recent_events`,
-`pick`, `play_steps`.
+`pick`, `play_steps`, `tell_cut`.
 """
 
 from collections.abc import Awaitable, Callable, Sequence
@@ -92,13 +94,18 @@ async def play_steps[T](
     acts: Sequence[T],
     run: Callable[[T], Awaitable[None]],
     stop: Callable[[], str | None],
-) -> None:
+) -> bool:
     for index, act in enumerate(acts):
         before = core.refusals
         await run(act)
         if index == len(acts) - 1:
-            return
+            return True
         why = NOT_DONE if core.refusals > before else stop()
         if why is not None:
-            core.notice(player.id, NoticeKind.INFO, STOPPED.format(why=why))
-            return
+            tell_cut(core, player, why)
+            return False
+    return True
+
+
+def tell_cut(core: TableCore, player: Player, why: str) -> None:
+    core.notice(player.id, NoticeKind.INFO, STOPPED.format(why=why))

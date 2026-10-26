@@ -19,18 +19,24 @@ entry is written without its targets (`id = label [spent]`: it cannot be done th
 a long target list an earlier entry already wrote is "-> as for <that entry>".
 M41.1 (round 7 Z4: "pays Wren 500 gold" with 60 carried was sent as 60, the "up to 60" read as
 a cap): a gold entry (`menu_steps_scene.coin_entry`) is marked `qty: the sum said` instead.
+M41.3 (round 7 Z7): with shared entries and helpers (`choice_tool.sharers`) the menu ends with
+one `by` line: which steps another hero may do and the heroes who can (`BY_LINE`).
 
 Public API: `menu_lines(menu) -> list[str]`.
 """
 
 from dataclasses import dataclass
 
+from aidm.dm.choice_tool import sharers
 from aidm.models.action_menu import ActionKind, ActionMenu, MenuEntry
 from aidm.rules.menu_steps_scene import coin_entry
 
 GROUP_MIN = 3
 COIN_QTY = "qty: the sum said"  # M41.1: a gold entry's count is never capped at the purse
 LONG_NOTE = 30
+BY_LINE = (
+    "by = who does a {verbs} step the line gives another hero (not colour; else null) -> {ids}"
+)
 _KIND_WORDS = {
     "foe": "foe",
     "ally": "ally",
@@ -225,9 +231,22 @@ def _once(menu: ActionMenu) -> ActionMenu:
     return menu.model_copy(update={"entries": tuple(entries)})
 
 
+def _by_line(menu: ActionMenu) -> list[str]:
+    """M41.3: the steps another hero may do for this line, and who can."""
+    shared = sharers(menu)
+    if not shared:
+        return []
+    verbs = " or ".join(dict.fromkeys(f"{e.split(':', 1)[0]}:" for e in shared))
+    return [BY_LINE.format(verbs=verbs, ids=", ".join(menu.helpers))]
+
+
 def menu_lines(menu: ActionMenu | None) -> list[str]:
     if menu is None:
         return []
+    return _lines(menu) + _by_line(menu)
+
+
+def _lines(menu: ActionMenu) -> list[str]:
     menu = _once(menu)
     groups = _groups(menu)
     counts = _shared(groups)

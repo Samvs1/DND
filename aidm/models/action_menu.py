@@ -44,6 +44,10 @@ Public API:
   (`other` is only an action no entry does).
 - M40.1: `card` entries (`card:yes`, `card:no`) answer the confirm card waiting for the acting
   hero's player (`rules.menu_card`); `option` is "yes" or "no".
+- M41.3 (round 7 Z7): a `shared` entry (out of a fight: a search, a pickup) may be done by
+  another hero the line names instead: `MenuStep.by` is one of `ActionMenu.helpers` (the other
+  heroes here who can act; each is a target), the same table rule as a talk check the
+  storyteller rolls for the hero the line names.
 """
 
 from enum import StrEnum
@@ -149,6 +153,7 @@ class MenuEntry(_Frozen):
     draw: str | None = None
     quest_id: str | None = None
     starts_fight: bool = False
+    shared: bool = False  # M41.3: another hero (`ActionMenu.helpers`) may do it (`MenuStep.by`)
 
     @model_validator(mode="after")
     def _targets_fit(self) -> Self:
@@ -172,6 +177,7 @@ class ActionMenu(_Frozen):
     targets: tuple[MenuTarget, ...] = ()
     unoffered: tuple[MenuTarget, ...] = ()
     unready: tuple[MenuTarget, ...] = ()
+    helpers: tuple[str, ...] = ()  # M41.3: the other heroes here who may do a shared entry
 
     @model_validator(mode="after")
     def _consistent(self) -> Self:
@@ -183,6 +189,8 @@ class ActionMenu(_Frozen):
             missing = (set(entry.target_ids) | set(entry.zone_ids)) - known
             if missing:
                 raise ValueError(f"{entry.id}: unknown targets {sorted(missing)}")
+        if set(self.helpers) - known:
+            raise ValueError(f"unknown helpers {sorted(set(self.helpers) - known)}")
         target_ids = [t.id for t in (*self.targets, *self.unoffered)]
         if len(target_ids) != len(set(target_ids)):
             raise ValueError("duplicate target ids")
@@ -193,6 +201,7 @@ class MenuStep(_Frozen):
     entry: str = Field(min_length=1)
     targets: tuple[str, ...] = ()
     qty: int = Field(default=1, ge=1)
+    by: str | None = None  # M41.3: the hero who does a shared step, if not the acting hero
 
 
 class MenuChoice(_Frozen):

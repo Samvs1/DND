@@ -7,6 +7,8 @@
 - on the hero's turn (a scheduled job): the fight menu, the chooser's pick (`menu_pick.pick`; a
   failure is the fallback notice, nothing spent, the turn still open), the acts
   (`rules.menu_steps.to_acts`, planned on the state each step leaves), then `play_fight_acts`.
+  M41.3 (round 7 Z6): what an act that ends the line cut off (end turn, flee) is told
+  (`menu_pick.tell_cut` with `Plan.why`), never dropped silently.
 
 `play_fight_acts(core, player, entry, acts, turn=True)`: the segment so far is told and the words
 declared once (not for a private listing), then each act through the existing runner, which
@@ -37,12 +39,19 @@ from aidm.models.protocol_views import QueueEntry
 from aidm.models.state import Creature
 from aidm.rules.acts import InventoryIntent, OtherIntent, RefusedIntent, UseIntent, WhatNowIntent
 from aidm.rules.acts_fight import DrawAttack, SurrenderIntent
-from aidm.rules.menu_steps import Act, resume_strike, to_acts
+from aidm.rules.menu_steps import Act, plan_line, resume_strike, to_acts
 from aidm.rules.menu_steps_fight import COMMAND_TYPES
 from aidm.session import combat_flow, gear_actions, what_now
 from aidm.session.declared import declare
 from aidm.session.fight_text import NOT_YOUR_TURN, my_turn, play_act
-from aidm.session.menu_pick import MenuQueueEntry, line_menu, pick, play_steps
+from aidm.session.menu_pick import (
+    NOT_DONE,
+    MenuQueueEntry,
+    line_menu,
+    pick,
+    play_steps,
+    tell_cut,
+)
 from aidm.session.table_core import Job, Player, TableCore
 
 TURN_OVER = "your turn is over"
@@ -75,7 +84,11 @@ def menu_combat_line(
         core.error(player.id, ErrorCode.NOT_YOUR_TURN, NOT_YOUR_TURN)
         return
     acts = to_acts(core.state, free, choice, core.regs.combat, text)
-    core.schedule(lambda: play_fight_acts(core, player, entry, acts, turn=False))
+
+    async def off_turn() -> None:
+        await play_fight_acts(core, player, entry, acts, turn=False)
+
+    core.schedule(off_turn)
 
 
 async def _turn(core: TableCore, player: Player, entry: QueueEntry) -> None:
@@ -89,8 +102,12 @@ async def _turn(core: TableCore, player: Player, entry: QueueEntry) -> None:
         choice = await pick(core, player, entry.creature_id, entry.text, menu)
     if choice is None:
         return
-    acts = to_acts(core.state, menu, choice, core.regs.combat, entry.text)
-    await play_fight_acts(core, player, entry, acts)
+    plan = plan_line(core.state, menu, choice, core.regs.combat, entry.text)
+    acts = [act for _, group in plan.groups for act in group]
+    before = core.refusals
+    done = await play_fight_acts(core, player, entry, acts)
+    if done and plan.rest is not None:  # M41.3: the cut part is told (a refused end: not done)
+        tell_cut(core, player, NOT_DONE if core.refusals > before else plan.why)
 
 
 def _private(act: Act) -> bool:
@@ -99,7 +116,7 @@ def _private(act: Act) -> bool:
 
 async def play_fight_acts(
     core: TableCore, player: Player, entry: QueueEntry, acts: list[Act], *, turn: bool = True
-) -> None:
+) -> bool:
     if not all(_private(act) for act in acts):
         if turn:
             await combat_flow.tell_segment(core)
@@ -111,7 +128,7 @@ async def play_fight_acts(
     def stop() -> str | None:
         return TURN_OVER if turn and not my_turn(core, entry.creature_id) else None
 
-    await play_steps(core, player, acts, run, stop)
+    return await play_steps(core, player, acts, run, stop)
 
 
 async def _fight_act(core: TableCore, player: Player, entry: QueueEntry, act: Act) -> None:

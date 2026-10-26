@@ -139,7 +139,10 @@ async def test_menu_fight_flee_ends_the_line_and_its_refusal_is_plain(tmp_path: 
     played = await menu_play(
         tmp_path, TYPED, 435, pick(("flee", [], None), ("dodge", [], None)), text="I run for it"
     )
-    assert played.notices() == ["Enemies are in your zone: Disengage first, then flee."]
+    assert played.notices() == [  # M41.3: the dodge it cut off is told, never dropped
+        "Enemies are in your zone: Disengage first, then flee.",
+        STOPPED.format(why=NOT_DONE),
+    ]
     assert not [e for e in played.of(EconomyChanged) if e.creature_id == "pc-p2"]
 
 

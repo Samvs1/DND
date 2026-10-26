@@ -16,8 +16,10 @@ joins the parts that belong to it:
   usable out of a fight (`rules.menu_casts`), the quest card, helping up, a strike at a person
   here (`menu_offer.person_strikes`, M36.8c: the engine's point-of-no-return path) and, while a
   shop is open here and `trade` is given, buying and selling (`rules.menu_trade`).
-Out of a fight the menu keeps only the targets its entries name. M41.2: in and out of a fight
-the menu carries the hero's ready spells it cannot pay for (`rules.spell_ready`, `unready`).
+Out of a fight the menu keeps only the targets its entries name. M41.3: with a shared entry
+(a search, a pickup) the menu names the other heroes who can do it instead (`helpers`).
+M41.2: in and out of a fight the menu carries the hero's ready spells it cannot pay for
+(`rules.spell_ready`, `unready`).
 Entry ids are unique: a clash of two data keys (rare) keeps the first and numbers the next
 (`give:torch-2`).
 
@@ -35,7 +37,7 @@ from aidm.rules.menu_fight import fight_menu
 from aidm.rules.menu_items import carried_entries, put_out_entries
 from aidm.rules.menu_offer import help_up_entries, offer_entries, person_strikes, quest_entries
 from aidm.rules.menu_scene import info_entries, scene_entries
-from aidm.rules.menu_scene_view import scene_targets, scene_view
+from aidm.rules.menu_scene_view import helpers, scene_targets, scene_view
 from aidm.rules.menu_trade import TradeData, trade_entries
 from aidm.rules.spell_ready import unready_spells
 
@@ -80,11 +82,14 @@ def _out_of_fight(
     if trade is not None:
         entries += trade_entries(view, trade)
     named = {t for e in entries for t in (*e.target_ids, *e.zone_ids)}
+    others = helpers(view) if any(e.shared for e in entries) else ()
+    named.update(others)
     return ActionMenu(
         scope=MenuScope.OFFER if offer_scope else MenuScope.EXPLORE,
         actor_id=actor_id,
         entries=_unique(entries),
         targets=tuple(t for t in scene_targets(view) if t.id in named),
+        helpers=others,
         unready=unready_spells(
             view.state.creatures[actor_id], view.sheet.spellcasting, regs.spells
         ),

@@ -23,6 +23,9 @@ the player did not name, so:
   sends a guiding bolt at the armor" with no slot left cast Sacred Flame): a ready spell of the
   hero's that no entry offers because the hero cannot pay for it (`ActionMenu.unready`, from
   `rules.spell_ready`, labelled with the reason: "Tamsin has no 1st-level slot left").
+- M41.3 (round 7 Z7): `with_unoffered` also keeps, of the heroes who may do a shared step
+  (`ActionMenu.helpers`), only the ones the line names (`named_helpers`: the hero's name or its
+  first word, whole words), so a line that names no other hero is read as before.
 - `not_offered(menu, step)`: the step's NOT OFFERED targets: nothing can act on them, so the
   chooser turns that step into `other` with no repair round (`ChooseActionsArgs.to_choice`).
   M41.2: an entry id the menu does not hold whose last part is a NOT OFFERED id
@@ -38,7 +41,8 @@ the player did not name, so:
   step_acts` plays such a step as `OtherIntent` should one ever get past the validator.
 
 Public API: `MAX_UNOFFERED`, `unoffered_targets(state, menu, text)`,
-`with_unoffered(state, menu, text)`, `not_offered(menu, step)`, `named_off(menu, step)`,
+`with_unoffered(state, menu, text)`, `named_helpers(state, menu, text)`, `not_offered(menu,
+step)`, `named_off(menu, step)`,
 `takers(menu, entry_id, target)`, `off_targets(menu, step)`.
 """
 
@@ -58,6 +62,7 @@ from aidm.rules.gateway_lock import short_reason
 from aidm.rules.item_effects import gear_name
 from aidm.rules.menu_scene_view import NO_ROAD_NOTE
 from aidm.rules.menu_view import slug
+from aidm.rules.story_names import mentions, text_slug
 from aidm.rules.world_graph import travel_route
 
 MAX_UNOFFERED = 4
@@ -178,9 +183,25 @@ def unoffered_targets(state: GameState, menu: ActionMenu, text: str) -> tuple[Me
     return tuple(target for _, target in found[:MAX_UNOFFERED])
 
 
+def named_helpers(state: GameState, menu: ActionMenu, text: str) -> tuple[str, ...]:
+    """M41.3: the helpers the line names (their name, or its first word, as whole words)."""
+    line = text_slug(text)
+    out: list[str] = []
+    for hero_id in menu.helpers:
+        hero = state.creatures.get(hero_id)
+        name = hero.name.strip() if hero is not None else ""
+        forms = {slug(name), slug(name.split(" ", 1)[0])} - {""}
+        if any(mentions(line, form) for form in forms):
+            out.append(hero_id)
+    return tuple(out)
+
+
 def with_unoffered(state: GameState, menu: ActionMenu, text: str) -> ActionMenu:
     unoffered = unoffered_targets(state, menu, text)
-    return menu.model_copy(update={"unoffered": unoffered}) if unoffered else menu
+    helpers = named_helpers(state, menu, text)
+    if not unoffered and helpers == menu.helpers:
+        return menu
+    return menu.model_copy(update={"unoffered": unoffered, "helpers": helpers})
 
 
 _BEINGS = frozenset({"person", "ally", "self", "foe"})

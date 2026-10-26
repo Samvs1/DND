@@ -26,9 +26,12 @@ with a line that no longer invites a stand-in: it names the entries that take th
 the same thing (`takers`) and says a part no entry does is `other`, never another target (the
 old "takes one of: reeve-hallick" was how the swapped target got in). A step whose `do` is
 `other` (OTHER_STEP) is read as the other part. The `to` enum lists the not-offered targets too.
+M41.3 (round 7 Z7): when the menu has a shared entry (a search, a pickup) and other heroes who
+can act (`ActionMenu.helpers`), each step also has `by`: null, or the helper who does that step
+(`sharers(menu)`); `by` on an entry that is not shared, or naming no helper, is repaired.
 
 Public API: `CHOOSE_TOOL`, `OTHER_STEP`, `ChosenStep`, `OtherPart`, `ChooseActionsArgs`
-(`to_choice()`), `menu_schema(menu)`, `menu_problems(menu, args)`,
+(`to_choice()`), `menu_schema(menu)`, `menu_problems(menu, args)`, `sharers(menu)`,
 `choice_tool(menu, strict=False)`.
 """
 
@@ -58,7 +61,10 @@ def menu_schema(menu: ActionMenu | None) -> dict[str, Any]:
         to["maxItems"] = 0
     do: dict[str, Any] = {"type": "string", "enum": entries} if entries else {"type": "string"}
     qty = {"anyOf": [{"type": "integer"}, {"type": "null"}]}
-    step = _object({"do": do, "to": to, "qty": qty})
+    fields: dict[str, Any] = {"do": do, "to": to, "qty": qty}
+    if menu is not None and sharers(menu):
+        fields["by"] = {"anyOf": [{"type": "string", "enum": list(menu.helpers)}, {"type": "null"}]}
+    step = _object(fields)
     steps: dict[str, Any] = {
         "type": "array",
         "items": step,
@@ -67,6 +73,13 @@ def menu_schema(menu: ActionMenu | None) -> dict[str, Any]:
     part = _object({"text": {"type": "string"}, "first": {"type": "boolean"}})
     other = {"anyOf": [part, {"type": "null"}]}
     return _object({"steps": steps, "other": other, "colour": {"type": "string"}})
+
+
+def sharers(menu: ActionMenu) -> tuple[str, ...]:
+    """M41.3: the shared entry ids another hero may do for this line (none: no `by`)."""
+    if not menu.helpers:
+        return ()
+    return tuple(e.id for e in menu.entries if e.shared)
 
 
 def _object(properties: dict[str, Any]) -> dict[str, Any]:
@@ -88,6 +101,7 @@ class ChosenStep(BaseModel):
     do: str
     to: list[str] = Field(default_factory=list[str])
     qty: int | None = None
+    by: str | None = None  # M41.3
 
 
 class OtherPart(BaseModel):
@@ -124,8 +138,20 @@ def _qty_problem(entry: MenuEntry, qty: int | None) -> str | None:
     return f"{entry.id} qty is 1 to {entry.qty_max}"
 
 
-def _step(step: ChosenStep) -> MenuStep:
-    return MenuStep(entry=step.do, targets=tuple(step.to), qty=max(1, step.qty or 1))
+def _by_problem(menu: ActionMenu, entry: MenuEntry, by: str | None) -> str | None:
+    """M41.3: `by` only on a shared entry, naming a hero who can do it."""
+    if by is None or by == menu.actor_id:
+        return None
+    if not entry.shared or not menu.helpers:
+        return f"{entry.id} is done by the acting hero only; send by: null"
+    if by not in menu.helpers:
+        return f"{entry.id} by takes one of: {', '.join(menu.helpers)}, or null"
+    return None
+
+
+def _step(step: ChosenStep, actor_id: str | None = None) -> MenuStep:
+    by = None if step.by == actor_id else step.by
+    return MenuStep(entry=step.do, targets=tuple(step.to), qty=max(1, step.qty or 1), by=by)
 
 
 def _off_problem(menu: ActionMenu, entry: MenuEntry, off: tuple[str, ...]) -> str:
@@ -162,7 +188,11 @@ def menu_problems(menu: ActionMenu | None, args: "ChooseActionsArgs") -> list[st
         if off:
             problems.append(_off_problem(menu, entry, off))
             continue
-        for problem in (_targets_problem(entry, step.to), _qty_problem(entry, step.qty)):
+        for problem in (
+            _targets_problem(entry, step.to),
+            _qty_problem(entry, step.qty),
+            _by_problem(menu, entry, step.by),
+        ):
             if problem is not None:
                 problems.append(problem)
     return problems
@@ -190,7 +220,7 @@ class ChooseActionsArgs(BaseModel):
         `other`) is dropped and becomes `other` (first when it came before every kept step), the
         model's own other part kept as it is."""
         menu = type(self).menu
-        picked = [_step(s) for s in self.steps]
+        picked = [_step(s, menu.actor_id if menu is not None else None) for s in self.steps]
         off = [i for i, s in enumerate(picked) if _dropped(menu, s)]
         steps = tuple(s for i, s in enumerate(picked) if i not in off)
         other = self.other

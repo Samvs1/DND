@@ -29,7 +29,8 @@ def _as_model_would(expect: Expect) -> FakeReply:
     """The expectation as the model answers it, with words a label never holds: other.text and
     colour set (M36.9: neither may change exact or act match)."""
     rows = [
-        {"do": s.entry, "to": s.targets, "qty": s.qty if s.qty > 1 else None} for s in expect.steps
+        {"do": s.entry, "to": s.targets, "qty": s.qty if s.qty > 1 else None, "by": s.by}
+        for s in expect.steps
     ]
     other = {"text": "words no label has", "first": expect.other_first} if expect.other else None
     args: dict[str, Any] = {"steps": rows, "other": other, "colour": "with a flourish"}
@@ -65,7 +66,7 @@ async def test_eval_act_match_ignores_other_words_and_colour(tmp_path: Path) -> 
 
 async def test_eval_act_match_is_never_below_exact_on_the_corpus(tmp_path: Path) -> None:
     results = await _act_never_below_exact(tmp_path, load_corpus(CORPUS))
-    assert len(results) == 311  # M41.1: +7 round-7 rows; M41.2: +1 (r7b-typed 1277)
+    assert len(results) == 316  # M41.1: +7 round-7 rows; M41.2: +1 (r7b-typed 1277); M41.3: +5
     asked = [r for r in results if r["calls"] == 1]
     assert all(r["verdict"]["exact"] and r["verdict"]["act"] for r in asked)
 

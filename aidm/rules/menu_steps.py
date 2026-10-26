@@ -41,12 +41,22 @@ at a zone takes the zone holding most of them. The step is then played from the 
 fits (no foe left, the spell gone) is a plain answer.
 
 - Travel steps in a row are one walk to the last place named (M36.10a, `_travels`).
+- M41.3 (round 7 Z6: "we trudge back to the Rust Chapel and I search the iron walls" only
+  travelled): `plan_line` keeps what an act that ends the line cut off (`Plan.rest`: the steps
+  after it and an `other` part said after them) with the reason it waits (`Plan.why`, by the
+  act: "the fight has started"), never a silent drop. The session plays the rest once a travel,
+  rest or shop the party agreed to is done, on the menu of the place it reached (`refit`: the steps
+  that still fit, in order, and why the first that does not cannot be done now), else tells it.
+- M41.3 (Z7): a shared step (a search, a pickup) with `by` naming one of `ActionMenu.helpers`
+  is played as that hero (`step_actor`).
 
-Public API: `Act`, `Group`, `to_acts(state, menu, choice, regs, text="")`, `to_groups(...)`,
+Public API: `Act`, `Group`, `Plan`, `to_acts(state, menu, choice, regs, text="")`,
+`to_groups(...)`, `plan_line(...)`, `refit(menu, before, rest)`, `step_actor(menu, step)`,
 `step_acts(state, menu, step, regs, text="")`, `resume_strike(state, actor_id, step, regs)`.
 """
 
 from collections.abc import Sequence
+from dataclasses import dataclass
 
 from aidm.data.combat_data import CombatRegistries
 from aidm.models.action_menu import (
@@ -96,6 +106,20 @@ _ENDS = (
     ConfirmHostile,
 )
 _FIGHT_SCOPES = (MenuScope.FIGHT, MenuScope.OFF_TURN)
+FIGHT_FIRST = "the fight has started"
+_WHY: dict[type[object], str] = {  # M41.3: why the rest of a line waits after an act that ends it
+    EndTurnCommand: "your turn is over",
+    FleeCommand: "you have left the fight",
+    OfferStrikeIntent: FIGHT_FIRST,
+    PersonStrikeIntent: FIGHT_FIRST,
+    ConfirmHostile: FIGHT_FIRST,
+    TravelIntent: "the party travels first",
+    RestIntent: "the party rests first",
+    ShopIntent: "the shop opens first",
+    ParleyIntent: "the parley is answered first",
+    AnswerOffer: "the offer is answered first",
+}
+CANNOT_NOW = "{what} cannot be done now"
 
 
 def _entry(menu: ActionMenu, entry_id: str) -> MenuEntry | None:
@@ -108,10 +132,18 @@ def _ends(act: Act) -> bool:
     return isinstance(act, _ENDS)
 
 
+def step_actor(menu: ActionMenu, step: MenuStep) -> str:
+    """M41.3: the hero who does the step: `by` on a shared entry naming a helper, else the
+    acting hero."""
+    entry = _entry(menu, step.entry)
+    shared = entry is not None and entry.shared and step.by in menu.helpers
+    return step.by if shared and step.by is not None else menu.actor_id
+
+
 def step_acts(
     state: GameState, menu: ActionMenu, step: MenuStep, regs: CombatRegistries, text: str = ""
 ) -> list[Act]:
-    actor_id = menu.actor_id
+    actor_id = step_actor(menu, step)
     entry = _entry(menu, step.entry)
     if entry is None or off_targets(menu, step):  # the validator keeps these out (M38.4: a
         return [OtherIntent(actor_id, text)]  # target the entry cannot act on is never played)
@@ -184,6 +216,50 @@ def _travels(menu: ActionMenu, steps: Sequence[MenuStep]) -> list[MenuStep]:
 type Group = tuple[MenuStep | None, list[Act]]
 
 
+@dataclass(frozen=True)
+class Plan:
+    """M41.3: a line's acts by step, and what an act that ends the line cut off (with why)."""
+
+    groups: list[Group]
+    rest: MenuChoice | None = None
+    why: str = ""
+
+
+def _rest(choice: MenuChoice, steps: Sequence[MenuStep]) -> MenuChoice | None:
+    late = choice.other and not choice.other_first
+    if not steps and not late:
+        return None
+    text = choice.other_text if late else ""
+    return MenuChoice(steps=tuple(steps), other=late, other_text=text)
+
+
+def plan_line(
+    state: GameState,
+    menu: ActionMenu,
+    choice: MenuChoice,
+    regs: CombatRegistries,
+    text: str = "",
+) -> Plan:
+    """The acts grouped by the step each act comes from (None: the `other` part), so a session
+    can plan each step again on the state the steps before it left (M36.10a)."""
+    other: list[Group] = [(None, [OtherIntent(menu.actor_id, choice.other_text or text)])]
+    if not choice.other:
+        other = []
+    groups: list[Group] = other if choice.other_first else []
+    running = state
+    steps = _travels(menu, choice.steps)
+    for index, step in enumerate(steps):
+        made = step_acts(running, menu, step, regs, text)
+        groups.append((step, made))
+        ender = next((a for a in made if _ends(a)), None)
+        if ender is not None:
+            rest = _rest(choice, steps[index + 1 :])
+            return Plan(groups, rest, _WHY.get(type(ender), FIGHT_FIRST) if rest else "")
+        if menu.scope is MenuScope.FIGHT:
+            running = _after(running, made, regs)
+    return Plan(groups if choice.other_first else [*groups, *other])
+
+
 def to_groups(
     state: GameState,
     menu: ActionMenu,
@@ -191,21 +267,27 @@ def to_groups(
     regs: CombatRegistries,
     text: str = "",
 ) -> list[Group]:
-    """`to_acts`, grouped by the step each act comes from (None: the `other` part), so a session
-    can plan each step again on the state the steps before it left (M36.10a)."""
-    other: list[Group] = [(None, [OtherIntent(menu.actor_id, choice.other_text or text)])]
-    if not choice.other:
-        other = []
-    groups: list[Group] = other if choice.other_first else []
-    running = state
-    for step in _travels(menu, choice.steps):
-        made = step_acts(running, menu, step, regs, text)
-        groups.append((step, made))
-        if any(_ends(a) for a in made):
-            return groups
-        if menu.scope is MenuScope.FIGHT:
-            running = _after(running, made, regs)
-    return groups if choice.other_first else [*groups, *other]
+    return plan_line(state, menu, choice, regs, text).groups
+
+
+def _fits(menu: ActionMenu, step: MenuStep) -> bool:
+    entry = _entry(menu, step.entry)
+    if entry is None or any(t not in entry.target_ids for t in step.targets):
+        return False
+    return step.by is None or step_actor(menu, step) == step.by
+
+
+def refit(menu: ActionMenu, before: ActionMenu, rest: MenuChoice) -> tuple[MenuChoice | None, str]:
+    """M41.3: the rest of a line on the menu of where the party is now: the steps that still fit,
+    in order, up to the first that does not (and why that one cannot be done now: its label on
+    the menu it was chosen from); the `other` part only when every step fits."""
+    for index, step in enumerate(rest.steps):
+        if not _fits(menu, step):
+            old = _entry(before, step.entry)
+            why = CANNOT_NOW.format(what=old.label if old is not None else step.entry)
+            kept = rest.steps[:index]
+            return (MenuChoice(steps=kept) if kept else None), why
+    return rest, ""
 
 
 def to_acts(

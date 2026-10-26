@@ -23,7 +23,8 @@ only the cast record (its label marked ", master"), the offer's master target is
 and the steps map it back where an act needs the boss record (`twin_boss`: a strike).
 
 Public API: `SceneMenuView`, `scene_view(state, actor_id, regs)`, `Place`, `places(view)`,
-`scene_targets(view)`, `offer_foes(view)`, `fallen_heroes(view)`, `person_twins(state)`,
+`scene_targets(view)`, `offer_foes(view)`, `fallen_heroes(view)`, `helpers(view)` (M41.3: the
+other heroes who can act, above 0 HP and not incapacitated), `person_twins(state)`,
 `twin_boss(state, npc_id)`, `HERE_NOTE`, `NO_ROAD_NOTE`, `FOE_PREFIX`, `MASTER_MARK`.
 """
 
@@ -34,6 +35,7 @@ from aidm.models.action_menu import MenuTarget
 from aidm.models.campaign_state import EncounterOffer
 from aidm.models.sheet import CharacterSheet
 from aidm.models.state import GameState
+from aidm.rules.conditions import is_incapacitated
 from aidm.rules.gateway_lock import locked_reason, short_reason
 from aidm.rules.light import hero_light
 from aidm.rules.menu_labels import state_word
@@ -215,6 +217,12 @@ def fallen_heroes(view: SceneMenuView) -> tuple[str, ...]:
             if c.pc is not None and c.id != view.actor_id and (c.dead or c.hp <= 0)
         )
     )
+
+
+def helpers(view: SceneMenuView) -> tuple[str, ...]:
+    """M41.3: the other heroes here who can do a shared step for the line (search, pick up)."""
+    heroes = (view.state.creatures[h] for h in view.heroes)
+    return tuple(c.id for c in heroes if c.hp > 0 and not is_incapacitated(c))
 
 
 def scene_targets(view: SceneMenuView) -> list[MenuTarget]:

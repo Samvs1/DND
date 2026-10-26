@@ -10,6 +10,9 @@ a road that is shut) and says plainly where it stopped, why, and that the goal l
 M33.1 (ultrareview 4: the next road withdrew a giver's Accept / Not now card): it also stops
 at every other state that holds the party (`rules.quest_offers` "busy"): a quest asked here,
 an open finale card.
+M41.3 (round 7 Z6): `then` is the rest of the typed line, run once the agreed job is done
+(after the walk, wherever it stopped: the rest checks where the party is); it answers whether
+a vote opened (another open vote refuses it).
 
 Public API: `propose_intent`, `STOPPED`.
 """
@@ -34,27 +37,43 @@ _WHY_FINALE = "the last choice waits here for your answer"
 type VoteIntent = TravelIntent | RestIntent | ShopIntent
 
 
-def propose_intent(core: TableCore, player: Player, entry: QueueEntry, intent: VoteIntent) -> None:
+def propose_intent(
+    core: TableCore, player: Player, entry: QueueEntry, intent: VoteIntent, then: Job | None = None
+) -> bool:
     if isinstance(intent, TravelIntent):
         goal = intent.goal or intent.node_id
         detail = f"travel to {node_display_name(core.state, goal)}"
         if intent.goal is not None:
             detail += f" (by {node_display_name(core.state, intent.node_id)})"
-        _propose(core, player, VoteKind.TRAVEL, detail, _route_job(core, entry.creature_id, intent))
-    elif isinstance(intent, RestIntent):
+        job = _route_job(core, entry.creature_id, intent)
+        return _propose(core, player, VoteKind.TRAVEL, detail, _then(job, then))
+    if isinstance(intent, RestIntent):
         short = intent.kind is RestKind.SHORT
         kind = VoteKind.SHORT_REST if short else VoteKind.LONG_REST
         detail = "take a short rest" if short else "make camp for a long rest"
-        _propose(core, player, kind, detail, party_actions.rest_job(core, intent.kind))
-    else:
-        npc = core.state.world.npcs[intent.npc_id]
-        job = party_actions.shop_job(core, entry.creature_id, intent.npc_id)
-        _propose(core, player, VoteKind.SHOP, f"trade with {npc.name}", job)
+        job = party_actions.rest_job(core, intent.kind)
+        return _propose(core, player, kind, detail, _then(job, then))
+    npc = core.state.world.npcs[intent.npc_id]
+    job = party_actions.shop_job(core, entry.creature_id, intent.npc_id)
+    return _propose(core, player, VoteKind.SHOP, f"trade with {npc.name}", _then(job, then))
 
 
-def _propose(core: TableCore, player: Player, kind: VoteKind, detail: str, job: Job) -> None:
+def _then(job: Job, then: Job | None) -> Job:
+    if then is None:
+        return job
+
+    async def both() -> None:
+        await job()
+        await then()
+
+    return both
+
+
+def _propose(core: TableCore, player: Player, kind: VoteKind, detail: str, job: Job) -> bool:
     if votes.open_vote(core, kind, detail, player, job):
         core.notice(None, NoticeKind.INFO, f"{player.name} proposes to {detail}.")
+        return True
+    return False
 
 
 def _stop_reason(core: TableCore, hop: str, last: bool) -> str | None:

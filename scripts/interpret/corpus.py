@@ -10,6 +10,9 @@ M38.4 (optional): `not_offered` lists the not-offered target ids the menu must s
 (`ActionMenu.unoffered`); `via` holds raw picks a model may send (steps at a target the entry
 cannot act on) that the tool must turn into `expect` (`ChooseActionsArgs.to_choice`) or reject
 with the repair line that says the part is `other` (M38.5 fix).
+M41.3 (optional): a step's `by` is the hero who does a shared step (a search, a pickup) the line
+gives another hero; the menu must name that hero among its helpers (`ActionMenu.helpers`, the
+ones the line names).
 M40.1 (optional): `card` is the prompt of the confirm card waiting for the row's hero when the
 line was typed (session state, not in the log); the menu gets the card's entries
 (`rules.menu_card.with_card`).
@@ -30,6 +33,7 @@ class StepRow(BaseModel):
     entry: str
     targets: list[str] = Field(default_factory=list[str])
     qty: int = 1
+    by: str | None = None  # M41.3
 
 
 class Expect(BaseModel):
@@ -41,7 +45,8 @@ class Expect(BaseModel):
 
     def choice(self) -> MenuChoice:
         steps = tuple(
-            MenuStep(entry=s.entry, targets=tuple(s.targets), qty=s.qty) for s in self.steps
+            MenuStep(entry=s.entry, targets=tuple(s.targets), qty=s.qty, by=s.by)
+            for s in self.steps
         )
         return MenuChoice(
             steps=steps,
@@ -80,12 +85,12 @@ class SceneRow(Row):
     scene: str
 
 
-type Shape = tuple[tuple[tuple[str, tuple[str, ...], int], ...], bool, bool]
+type Shape = tuple[tuple[tuple[str, tuple[str, ...], int, str | None], ...], bool, bool]
 
 
 def shape(choice: MenuChoice) -> Shape:
     """A choice as the scorer compares it: steps (targets as a set), other, other_first."""
-    steps = tuple((s.entry, tuple(sorted(s.targets)), s.qty) for s in choice.steps)
+    steps = tuple((s.entry, tuple(sorted(s.targets)), s.qty, s.by) for s in choice.steps)
     return steps, choice.other, choice.other and choice.other_first and bool(steps)
 
 
@@ -116,6 +121,8 @@ def _choice_gaps(menu: ActionMenu, choice: MenuChoice) -> list[str]:
             found.append(f"{step.entry}: {len(step.targets)} targets over {entry.max_targets}")
         if step.qty > entry.qty_max and not said_count(entry):  # the tool's own rule
             found.append(f"{step.entry}: qty {step.qty} over {entry.qty_max}")
+        if step.by is not None and not (entry.shared and step.by in menu.helpers):
+            found.append(f"{step.entry}: by {step.by} not offered")
     return found
 
 
@@ -137,7 +144,9 @@ def _tool_gaps(menu: ActionMenu, choice: MenuChoice) -> list[str]:
 
 def _args(choice: MenuChoice) -> dict[str, object]:
     return {
-        "steps": [{"do": s.entry, "to": list(s.targets), "qty": s.qty} for s in choice.steps],
+        "steps": [
+            {"do": s.entry, "to": list(s.targets), "qty": s.qty, "by": s.by} for s in choice.steps
+        ],
         "other": {"text": "", "first": choice.other_first} if choice.other else None,
         "colour": choice.colour,
     }

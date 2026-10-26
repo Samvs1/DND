@@ -182,6 +182,7 @@ def _lying(view: SceneMenuView) -> list[MenuEntry]:
                 label=f"Pick up {item.name} ({count} here)",
                 qty_max=count,
                 item=item.id,
+                shared=True,  # M41.3: another hero the line names may pick it up instead
             )
         )
     shown = {n: n for n in view.people} | view.twins

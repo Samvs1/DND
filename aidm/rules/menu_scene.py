@@ -22,6 +22,9 @@ itself notes that the offer is answered first (`move_party` never moves past a w
 Escape is the offer's way out); "you are here" stays plain. M36.8c: search and the shop stay on
 the menu while foes wait (the engine runs the search check and the table shows the shop's
 "trade with" button then too: never refuse the possible, the menu matches the buttons).
+M41.3 (round 7 Z6): the travel label says that the steps after it happen at the place reached
+(the session plays them there once the party arrives); a search is `shared` (another hero the
+line names may do it, `ActionMenu.helpers`).
 
 Public API: `scene_entries(view) -> list[MenuEntry]`, `info_entries()`.
 """
@@ -33,6 +36,7 @@ from aidm.rules.rests import long_rest_cost, short_rests_left
 from aidm.rules.shop import is_shop
 from aidm.rules.social import npc_is_hostile
 
+TRAVEL_LABEL = "Travel to a place (the steps after it happen there)"
 OFFER_FIRST_NOTE = "the waiting encounter is answered first (Escape slips away)"
 FOE_STRIKES_NOTE = "a foe waits: it strikes first, no rest"
 _SEARCHES = (
@@ -68,7 +72,11 @@ def _talk(view: SceneMenuView) -> list[MenuEntry]:
 def _searches() -> list[MenuEntry]:
     return [
         MenuEntry(
-            id=f"search:{skill.value}", kind=ActionKind.SEARCH, label=label, skill=skill.value
+            id=f"search:{skill.value}",
+            kind=ActionKind.SEARCH,
+            label=label,
+            skill=skill.value,
+            shared=True,  # M41.3: another hero the line names may search instead
         )
         for skill, label in _SEARCHES
     ]
@@ -85,7 +93,7 @@ def _travel(view: SceneMenuView) -> list[MenuEntry]:
         MenuEntry(
             id="travel",
             kind=ActionKind.TRAVEL,
-            label="Travel to a place",
+            label=TRAVEL_LABEL,
             target_ids=tuple(p.node_id for p in known),
             max_targets=1,
             target_notes=notes,

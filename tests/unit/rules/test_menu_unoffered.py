@@ -57,7 +57,10 @@ def test_names_the_menu_acts_on_are_never_not_offered() -> None:
     state, menu = state_at(*DOWNED), menu_at(*DOWNED, "pc-p2")
     for line in ("I help Elowen up", "I hand Rook my torch", "We travel to Hollowgate Cross"):
         assert unoffered_targets(state, menu, line) == ()
-    assert with_unoffered(state, menu, "I help Elowen up") is menu
+    shown = with_unoffered(state, menu, "I help Elowen up")
+    assert shown.unoffered == ()
+    assert shown.entries is menu.entries and shown.targets is menu.targets
+    assert menu.helpers == ("pc-p6", "pc-p8") and shown.helpers == ()  # M41.3: none named
 
 
 def test_a_name_inside_a_shown_name_is_that_one() -> None:

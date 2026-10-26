@@ -25,6 +25,9 @@ events already applied to `state`:
 - M31.2b (items 908): `feats` (foe id -> the text of what its stat block and this turn's events
   let it do, `aidm.dm.foe_feats`: a mephit may breathe frost, never split into shards).
 Generic foe words (lexicon `foe_words`: "creature", "corpse") mean every foe.
+M41.3 (round 7 Z6: "Elowen calls out and the party flees" removed only Elowen): when a hero
+fled, `fight_lines` also names the heroes still in the fight (a hero flees only on their own
+turn), so the telling never moves the whole party out (`_left_behind`).
 `FightLedger()` (empty `terms`) switches the per-creature checks off.
 
 Public API: `FightLedger`, `fight_ledger(state, events) -> FightLedger`,
@@ -322,9 +325,35 @@ def fight_lines(state: GameState, ledger: FightLedger, events: Sequence[ev.AnyEv
         for e in events
         if isinstance(e, CombatantWithdrew) and e.reason is WithdrawReason.FLED
     ]
+    out += _left_behind(state, events)
     killers = dict(ledger.killed_by)
     for cid in sorted(ledger.downed):
         by = killers.get(cid)
         tail = f" (the killing blow was {_name(state, by)}'s)" if by is not None else ""
         out.append(f"{_name(state, cid)} fell{tail}")
     return out
+
+
+def _left_behind(state: GameState, events: Sequence[ev.AnyEvent]) -> list[str]:
+    """M41.3: after a hero fled, the heroes still in the fight."""
+    enc = state.encounter
+    fled = [
+        e.creature_id
+        for e in events
+        if isinstance(e, CombatantWithdrew) and e.reason is WithdrawReason.FLED
+    ]
+    heroes = [c for cid in fled if (c := state.creatures.get(cid)) is not None and c.pc is not None]
+    if not heroes or enc is None:
+        return []
+    staying = [
+        c.name
+        for cid, fighter in enc.combatants.items()
+        if fighter.withdrawn is None
+        and (c := state.creatures.get(cid)) is not None
+        and c.pc is not None
+        and not c.dead
+    ]
+    if not staying:
+        return []
+    verb = "is" if len(staying) == 1 else "are"
+    return [f"{', '.join(staying)} {verb} still in the fight (a hero flees only on their own turn)"]

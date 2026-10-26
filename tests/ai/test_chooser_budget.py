@@ -18,7 +18,9 @@ entries (session state, not in the log): measured on the corpus rows that name t
 a cleric's full turn at 1,868): a spent entry drops its targets and a repeated long target list
 is "as for <entry>": over 1,994 lines messages max 1,782 (p90 1,587), total max 2,587 (p90
 2,300). M41.1 (one gold entry for every receiver, `qty: the sum said`, rule 10 names an ITEMS
-item): messages max 1,784, total max 2,580. The bounds below leave a small margin; a
+item): messages max 1,784, total max 2,580. M41.3 (the travel label says where the next
+steps happen; the `by` line and field only on lines that name another hero): messages max
+1,784, total max 2,589. The bounds below leave a small margin; a
 menu change that blows them is fixed in the rendering (`aidm.dm.chooser_menu`), never by raising
 the bound.
 """
