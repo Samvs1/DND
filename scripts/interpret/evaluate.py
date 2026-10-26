@@ -9,9 +9,10 @@ from typing import Any
 from aidm.dm.chooser import ChooserFailure, choose
 from aidm.dm.llm_client import LlmClient
 from aidm.dm.llm_types import LlmRole
-from aidm.models.action_menu import MenuChoice
+from aidm.models.action_menu import ActionMenu, MenuChoice
 from aidm.models.events import AnyEvent
 from aidm.models.state import GameState
+from aidm.rules.menu_card import WaitingCard, with_card
 from aidm.rules.menu_unoffered import with_unoffered
 from scripts.interpret import lib
 from scripts.interpret.corpus import Row, SceneRow, gaps
@@ -53,6 +54,12 @@ def with_states(rows: list[Row]) -> Iterator[tuple[Row, lib.Line | Situation | N
             yield wanted[seq], None
 
 
+def row_menu(state: GameState, row: Row) -> ActionMenu:
+    """The menu the row's hero had: M40.1 with the confirm card that waited, if the row says."""
+    card = WaitingCard(row.actor_id, row.card) if row.card else None
+    return with_card(lib.menu_for(state, row.actor_id), card)
+
+
 def coverage(rows: list[Row]) -> list[str]:
     problems: list[str] = []
     for row, line in with_states(rows):
@@ -66,7 +73,7 @@ def coverage(rows: list[Row]) -> list[str]:
         if row.actor_id not in line.state.creatures:
             problems.append(f"{row.id}: actor {row.actor_id} is not in the state")
             continue
-        menu = with_unoffered(line.state, lib.menu_for(line.state, row.actor_id), row.text)
+        menu = with_unoffered(line.state, row_menu(line.state, row), row.text)
         problems += [f"{row.id}: {g}" for g in gaps(menu, row)]
     return problems
 
@@ -88,7 +95,7 @@ async def live(rows: list[Row], llm: LlmClient, cap: int, limit: int | None) -> 
     for row, line in with_states(todo):
         if used >= cap or line is None:
             continue
-        menu = lib.menu_for(line.state, row.actor_id)
+        menu = row_menu(line.state, row)
         before = _fast_totals(llm)
         start = time.perf_counter()
         picked = await choose(line.state, row.actor_id, row.text, menu, llm, recent=line.recent)

@@ -3,7 +3,9 @@
 Used when `TableConfig.interpreter` is "menu" by `session.menu_turn` (a line out of a fight) and
 `session.menu_fight_turn` (a hero's fight line):
 - `line_menu(core, actor_id)`: the acting hero's menu right now (`rules.action_menu.build_menu`,
-  with the table's shop data, so buy and sell are offered while a shop is open here);
+  with the table's shop data, so buy and sell are offered while a shop is open here); M40.1:
+  with the confirm card waiting for this hero's player (`waiting_card`, the table's
+  `PendingHostile`) as `card:yes` / `card:no` (`rules.menu_card.with_card`);
 - `pick(core, player, actor_id, text, menu)`: the chooser (`dm.chooser.choose`, with the tail of
   the table's log as `recent` for the pronoun anchors). A `ChooserFailure` shows its in-fiction
   notice (`adjudicator.FALLBACK_NOTICE`) to that player only, is logged (`chooser_failed`) and
@@ -17,7 +19,8 @@ Used when `TableConfig.interpreter` is "menu" by `session.menu_turn` (a line out
   (a fight started, the hero's turn ended); either way the player is told plainly that the rest
   of the line is not played (`STOPPED`), never a silent drop.
 
-Public API: `MenuQueueEntry`, `RECENT`, `STOPPED`, `NOT_DONE`, `line_menu`, `recent_events`,
+Public API: `MenuQueueEntry`, `RECENT`, `STOPPED`, `NOT_DONE`, `waiting_card`, `line_menu`,
+`recent_events`,
 `pick`, `play_steps`.
 """
 
@@ -29,6 +32,7 @@ from aidm.models.events import AnyEvent
 from aidm.models.protocol_server import NoticeKind
 from aidm.models.protocol_views import QueueEntry
 from aidm.rules.action_menu import build_menu
+from aidm.rules.menu_card import WaitingCard, with_card
 from aidm.rules.menu_trade import TradeData
 from aidm.session.table_core import Player, TableCore
 
@@ -44,9 +48,19 @@ class MenuQueueEntry(QueueEntry):
     choice: MenuChoice
 
 
+def waiting_card(core: TableCore, actor_id: str) -> WaitingCard | None:
+    """The confirm card held for this hero's player, if one waits (M40.1)."""
+    pending = core.pending
+    owner = core.owner_of(actor_id)
+    if pending is None or owner is None or pending.player_id != owner.id:
+        return None
+    return WaitingCard(actor_id, pending.prompt) if pending.actor_id == actor_id else None
+
+
 def line_menu(core: TableCore, actor_id: str) -> ActionMenu:
     trade = TradeData(core.regs.catalogue, core.regs.shops)
-    return build_menu(core.state, actor_id, core.regs.combat, trade)
+    menu = build_menu(core.state, actor_id, core.regs.combat, trade)
+    return with_card(menu, waiting_card(core, actor_id))
 
 
 def recent_events(core: TableCore) -> list[AnyEvent]:

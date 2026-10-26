@@ -25,7 +25,7 @@ Engine meaning lives here and in `menu_steps_fight` / `menu_steps_scene`, never 
   hand all the salt to Gran Tevin" hands the salt just picked up too).
 - The steps stop after an act that ends the line: the turn ends (end turn, flee), a fight starts
   (an offer strike, the offer's Fight, Surprise or Escape answer), or a vote or held parley
-  opens (travel, rest, shop, parley).
+  opens (travel, rest, shop, parley); M40.1: so does a waiting card's Yes (`card:yes`).
 - Re-validation: the plan is never trusted. The session plays the acts in order through its
   runners, which ask the rules again on the live state (a spent action, a gone item, a foe
   already down are answered plainly there), and stops after a refused act or when the hero's
@@ -60,7 +60,7 @@ from aidm.models.action_menu import (
 )
 from aidm.models.campaign_state import OfferChoice
 from aidm.models.commands import EndTurnCommand, FleeCommand, MoveCommand
-from aidm.models.protocol_client import AnswerOffer
+from aidm.models.protocol_client import AnswerOffer, ConfirmHostile
 from aidm.models.state import GameState
 from aidm.rules.action_menu import build_menu
 from aidm.rules.acts import (
@@ -93,6 +93,7 @@ _ENDS = (
     RestIntent,
     ShopIntent,
     ParleyIntent,
+    ConfirmHostile,
 )
 _FIGHT_SCOPES = (MenuScope.FIGHT, MenuScope.OFF_TURN)
 

@@ -9,6 +9,9 @@ M38.4 (optional): `not_offered` lists the not-offered target ids the menu must s
 (`ActionMenu.unoffered`); `via` holds raw picks a model may send (steps at a target the entry
 cannot act on) that the tool must turn into `expect` (`ChooseActionsArgs.to_choice`) or reject
 with the repair line that says the part is `other` (M38.5 fix).
+M40.1 (optional): `card` is the prompt of the confirm card waiting for the row's hero when the
+line was typed (session state, not in the log); the menu gets the card's entries
+(`rules.menu_card.with_card`).
 """
 
 import json
@@ -60,6 +63,7 @@ class Row(BaseModel):
     note: str = ""
     not_offered: list[str] = Field(default_factory=list[str])  # M38.4
     via: list[Expect] = Field(default_factory=list[Expect])  # M38.4
+    card: str = ""  # M40.1: the waiting confirm card's prompt
 
     def choices(self) -> list[MenuChoice]:
         return [self.expect.choice(), *(a.choice() for a in self.alt)]

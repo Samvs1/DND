@@ -63,8 +63,9 @@ def acting_hero(core: TableCore, player: Player, text: str | None) -> Creature |
     if pc.hp <= 0:  # M11.1: a downed hero cannot act (v1: the unconscious hero kept typing)
         core.error(player.id, ErrorCode.NO_CHARACTER, "You are unconscious and cannot act.")
         return None
-    if core.pending is not None and core.pending.player_id == player.id:
-        core.pending = None  # a new action answers the open "Are you sure?" with no (M15.1)
+    mine = core.pending is not None and core.pending.player_id == player.id
+    if mine and core.combat_active():  # a new action answers the open "Are you sure?" No (M15.1)
+        core.pending = None  # out of a fight the card is in the menu (M40.1, `menu_turn`)
     return pc
 
 

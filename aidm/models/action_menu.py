@@ -39,6 +39,8 @@ Public API:
   the steps (else after them). M36.9: `colour` holds the words that only describe HOW the hero
   does the chosen steps (manner, posture, feeling); narration only, never an act or a mechanic
   (`other` is only an action no entry does).
+- M40.1: `card` entries (`card:yes`, `card:no`) answer the confirm card waiting for the acting
+  hero's player (`rules.menu_card`); `option` is "yes" or "no".
 """
 
 from enum import StrEnum
@@ -101,6 +103,7 @@ class ActionKind(StrEnum):
     OFFER = "offer"
     QUEST = "quest"
     HELP_UP = "help_up"
+    CARD = "card"
 
 
 type TargetKind = Literal["foe", "ally", "self", "zone", "person", "place", "thing"]

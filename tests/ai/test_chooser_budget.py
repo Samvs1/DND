@@ -12,7 +12,9 @@ off target, NOT OFFERED targets, harmful spells at a person, labels that say wha
 by writing a target note once): measured with the not-offered targets the chooser adds, messages
 max 1,789 (p90 1,580), total max 2,594 (p90 2,304). M38.5 fix (rule 1 narrowed, people not
 here no longer NOT OFFERED, `strike:` entries, the demand label): messages max 1,792 (p90
-1,591), total max 2,587 (p90 2,315). The bounds below leave a small margin; a
+1,591), total max 2,587 (p90 2,315). M40.1: a confirm card waiting for the hero adds its two
+entries (session state, not in the log): measured on the corpus rows that name their card
+(`card`), +42 message tokens on the two round-7 rows. The bounds below leave a small margin; a
 menu change that blows them is fixed in the rendering (`aidm.dm.chooser_menu`), never by raising
 the bound.
 """
@@ -25,18 +27,22 @@ from aidm.dm.choice_tool import choice_tool
 from aidm.dm.context import build_context, estimate_tokens, to_messages
 from aidm.dm.context_text import ContextPurpose
 from aidm.dm.llm_types import tool_param
-from aidm.models.events import LoggedEvent
+from aidm.models.action_menu import ActionMenu
+from aidm.models.events import AnyEvent, LoggedEvent
 from aidm.models.state import GameState
 from aidm.models.world_events import ActionDeclared
 from aidm.rules.action_menu import build_menu
 from aidm.rules.menu_unoffered import with_unoffered
 from aidm.session.reducer import apply
-from tests.ai.chooser_fixtures import RECENT, REGS, TRADE
+from scripts.interpret.corpus import load_corpus
+from scripts.interpret.evaluate import row_menu
+from tests.ai.chooser_fixtures import RECENT, REGS, TRADE, recent_at, state_at
 from tests.session.playtest_saves import FIXTURES
 
 MESSAGES_BOUND = 1_800
 TOTAL_BOUND = 2_600
 MIN_LINES = 1_500
+CORPUS = FIXTURES.parent / "interpret" / "corpus.jsonl"
 
 
 def _typed_lines() -> Iterator[tuple[str, int, int, int]]:
@@ -74,3 +80,26 @@ def test_choose_prompt_fits_the_budget_on_every_fixture_line() -> None:
     worst_total = max(rows, key=lambda r: r[2] + r[3])
     assert worst_words[2] <= MESSAGES_BOUND, worst_words
     assert worst_total[2] + worst_total[3] <= TOTAL_BOUND, worst_total
+
+
+def _tokens(
+    state: GameState, actor_id: str, text: str, recent: list[AnyEvent], menu: ActionMenu
+) -> tuple[int, int]:
+    """(message tokens, tool schema tokens) as the chooser sends them."""
+    pack = build_context(state, ContextPurpose.CHOOSE, actor_id, text, events=recent, menu=menu)
+    words = sum(estimate_tokens(m["content"]) for m in to_messages(pack))
+    schema = json.dumps(tool_param(choice_tool(menu)), separators=(",", ":"))
+    return words, estimate_tokens(schema)
+
+
+def test_choose_prompt_with_a_waiting_card_fits_the_budget() -> None:
+    """M40.1: the lines typed while a confirm card waited, with the card's entries."""
+    rows = [r for r in load_corpus(CORPUS) if r.card]
+    assert rows
+    for row in rows:
+        state = state_at(row.run, row.seq)
+        menu = with_unoffered(state, row_menu(state, row), row.text)
+        assert any(e.id == "card:yes" for e in menu.entries)
+        recent = recent_at(row.run, row.seq)
+        words, schema = _tokens(state, row.actor_id, row.text, recent, menu)
+        assert words <= MESSAGES_BOUND and words + schema <= TOTAL_BOUND, row.id

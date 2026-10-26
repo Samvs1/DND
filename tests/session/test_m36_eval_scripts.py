@@ -8,9 +8,8 @@ from aidm.dm.chooser import exact_choice
 from aidm.dm.fake_llm import FakeReply, fake_tool_call
 from scripts.eval_interpret import main as eval_main
 from scripts.extract_typed_lines import main as extract_main
-from scripts.interpret import lib
 from scripts.interpret.corpus import Expect, Row, load_corpus
-from scripts.interpret.evaluate import coverage, live, with_states
+from scripts.interpret.evaluate import coverage, live, row_menu, with_states
 from scripts.interpret.score import tallies
 from tests.ai.chooser_fixtures import chooser_client
 
@@ -42,7 +41,7 @@ def _scripted_expectations(rows: list[Row]) -> list[FakeReply]:
     exact fast path answers)."""
     script: list[FakeReply] = []
     for row, line in with_states(rows):
-        menu = lib.menu_for(line.state, row.actor_id) if line is not None else None
+        menu = row_menu(line.state, row) if line is not None else None
         if menu is not None and menu.entries and exact_choice(menu, row.text) is None:
             script.append(_as_model_would(row.expect))
     return script
@@ -66,7 +65,7 @@ async def test_eval_act_match_ignores_other_words_and_colour(tmp_path: Path) -> 
 
 async def test_eval_act_match_is_never_below_exact_on_the_corpus(tmp_path: Path) -> None:
     results = await _act_never_below_exact(tmp_path, load_corpus(CORPUS))
-    assert len(results) == 300
+    assert len(results) == 302
     asked = [r for r in results if r["calls"] == 1]
     assert all(r["verdict"]["exact"] and r["verdict"]["act"] for r in asked)
 

@@ -20,20 +20,29 @@ meaning, never wording:
 - `offer:<choice>` is the offer card's answer (`AnswerOffer`), a parley answer the held parley
   (`ParleyIntent`), the surrender demand a parley with its skill or, when every foe is a kind
   that never yields, the rules' plain line;
+- M40.1: `card:yes` / `card:no` are the waiting confirm card's buttons (`ConfirmHostile`,
+  `CancelHostile`; `rules.menu_card`);
 - a feature is used out of a fight (`FeatureUseIntent`), a draught on a hero is `HealIntent`, a
   spell on heroes `CastIntent` (no creature target: cast at the scene); M36.8c: a `feed:` draught
   comes from the target hero's own pack (`HealIntent.owner_id` the target), and a keepsake taken
   back from a shown person comes from whichever of their twin records holds it.
 `free_acts` serves the free answers on any menu (pack, "what now", putting out the light).
 
-Public API: `SceneAct`, `scene_step_acts(state, actor_id, entry, step, text)`,
+Public API: `CardAct`, `SceneAct`, `scene_step_acts(state, actor_id, entry, step, text)`,
 `free_acts(actor_id, entry)`, `said_count(entry)`.
 """
 
 from aidm.models.abilities import Skill
 from aidm.models.action_menu import ActionKind, MenuEntry, MenuStep
 from aidm.models.campaign_state import OfferChoice
-from aidm.models.protocol_client import AnswerOffer, CopyScroll, ShopBuy, ShopSell
+from aidm.models.protocol_client import (
+    AnswerOffer,
+    CancelHostile,
+    ConfirmHostile,
+    CopyScroll,
+    ShopBuy,
+    ShopSell,
+)
 from aidm.models.state import GameState
 from aidm.rules.acts import (
     AskIntent,
@@ -74,7 +83,8 @@ from aidm.rules.menu_scene_view import twin_boss
 from aidm.rules.scene import node_display_name
 from aidm.rules.world_graph import travel_route
 
-type SceneAct = Intent | WhatNowIntent | AnswerOffer | ShopBuy | ShopSell | CopyScroll
+type CardAct = ConfirmHostile | CancelHostile
+type SceneAct = Intent | WhatNowIntent | AnswerOffer | ShopBuy | ShopSell | CopyScroll | CardAct
 MAX_TRADE = 99
 GONE = "That is no longer lying here."
 
@@ -221,6 +231,8 @@ def _plain(actor_id: str, entry: MenuEntry, target: str | None, text: str) -> Sc
             return FeatureUseIntent(actor_id, entry.feature_id or "")
         case ActionKind.OFFER | ActionKind.SURRENDER:
             return _offer(actor_id, entry)
+        case ActionKind.CARD:  # M40.1: the waiting card's own Yes / No
+            return ConfirmHostile() if entry.option == "yes" else CancelHostile()
         case _:
             return OtherIntent(actor_id, text)
 
