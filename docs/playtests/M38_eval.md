@@ -70,3 +70,30 @@ A, B and C are menu causes, so M38.4 covers all three:
 - C: the demand-surrender and parley labels say what they do.
 
 D, E and F get no fix.
+
+## M38.5 live pass 1 (2026-10-26, after M38.4; 521 calls, allowance 2,094 of 2,500 used)
+Raw output: artifacts/eval/20261026-114643.json (main) and artifacts/eval/20261026-115022.json (synthetic).
+
+| metric | main M38.5 | main M36.9 pass 3 | synthetic M38.5 | synthetic M38.3 |
+|---|---|---|---|---|
+| exact | 87.7% | 90.0% | 80.7% | 73.9% |
+| finding-cited | 84.2% | 90.0% | | |
+| false action | 5.7% (17) | 4.0% (12) | 14.3% (23) | 20.5% (33) |
+| false other | 5.0% | 3.3% | 3.7% | 3.1% |
+| chooser failed | 0 | 0 | 2 rows | 0 |
+| p90 latency | 2.20 s | 2.01 s | 2.15 s | 2.34 s |
+
+The trap sentences improved, but the real playtest lines got worse. 13 main rows that passed in all three M36.9 runs (passes 2, 3 and
+pro) fail now, and no row that failed all three passes now. The 13 regressions point to the M38.4 changes:
+- B (area spells take person targets) made scene casts worse.
+  - 42 "I cast Burning Hands at the damp ferns" is now aimed at Mother Marrow, a person, which opens a fight: a harmful new false action.
+  - 651 "burning hands on the violet fungus" became a fire bolt.
+  - 1345 "thunderwave out over the black water" went to `other`.
+- A (rule 1: "the target the line names goes in its step even if the entry does not list it") makes the model put places and things
+  in steps, which then fall to `other`. That gives an extra `other` on 64, 201, 378, 588 and 631, a lost hand-over on 68, a stray lift on 294,
+  and 797 "I travel to Lamplighters' Rest" picked as look.
+- C (the new surrender and parley labels): 419 "Drop your weapons and yield!" is now a parley instead of the demand to surrender.
+- 210 (perception against investigation) looks like run-to-run noise.
+
+The four uncarried-item rows A aimed at did not pass. 418 and 638 picked a parley or a talk, and 868 handed the chime to Elowen.
+On the synthetic side, A fixed help_up at a standing hero, guidance and the companions talk, and B fixed the four person casts. "I surrender" still picks the demand.
