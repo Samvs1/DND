@@ -400,7 +400,7 @@ Rules for the whole milestone: no new phrase rows, lexicon words or guard keys; 
 - [x] M36.12 (M) Delete the router, its modules, data and own tests (sentences already in the corpus); tests/live/test_interpret_live.py (20 lines). FULL gate, commit `M36: Typed lines read from the engine's menu`. (commit 246384a)
 
 ## M37 Housekeeping (owner 2026-10-26: "Let's go for option 4 for now")
-- [x] M37.1 (M) Ruff lint gap: `extend-exclude` anchored to the root (`./data`, `./artifacts`, `./saves`, `./logs`), so ruff no longer skips every folder named `data` (`aidm/data`, `tests/unit/data`); the 27 surfaced findings and 11 unformatted files fixed (wrapped lines, merged nested ifs, no rule change, generated manual unchanged). Gate: ruff check + format --check on the whole repo, pyright, lint-imports, structure, secrets, protocol, manual --check, pytest tests/unit/data tests/unit/rules.
+- [x] M37.1 (M) Ruff lint gap: `extend-exclude` anchored to the root (`./data`, `./artifacts`, `./saves`, `./logs`), so ruff no longer skips every folder named `data` (`aidm/data`, `tests/unit/data`); the 27 surfaced findings and 11 unformatted files fixed (wrapped lines, merged nested ifs, no rule change, generated manual unchanged). Gate: ruff check + format --check on the whole repo, pyright, lint-imports, structure, secrets, protocol, manual --check, pytest tests/unit/data tests/unit/rules. (commit 200eef6)
 
 ## Notes (stashes, blockers, decisions pending)
 - M36.4: docs/PLAYER_MANUAL.md already describes typed counted pick-up, taking from a fallen hero's pack and Second Wind out of a fight; the typed path only reaches them once the menu interpreter is the default (M36.10). If M36 stalls before the flip, reword those lines to the buttons or revert them (no doc drift).
