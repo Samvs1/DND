@@ -36,8 +36,8 @@ _RULES = (
     "Read a player's typed line (D&D 5e, BG3 rules) and call choose_actions with what their"
     " hero does, in MENU and TARGETS ids.",
     "Rules:",
-    "1. Use only listed ids; never invent an id, item or amount. The target the line names goes"
-    " in its step even if the entry does not list it or it is NOT OFFERED; never a stand-in.",
+    "1. Use only listed ids; never invent or swap in an id, target, item or amount. A named"
+    " person, hero or item no entry takes, or NOT OFFERED, is other.",
     "2. Prefer an entry over other when one does what the line asks, in any words: a strike or"
     " shot is an attack, a question or greeting is talk, going somewhere is travel (in a fight:"
     " move).",

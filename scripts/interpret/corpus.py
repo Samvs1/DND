@@ -7,7 +7,8 @@ menu cannot express a row's expectation (an empty list = covered): scope mismatc
 target the menu lacks, a quantity over the entry's, a choice the model's tool would reject.
 M38.4 (optional): `not_offered` lists the not-offered target ids the menu must show for the line
 (`ActionMenu.unoffered`); `via` holds raw picks a model may send (steps at a target the entry
-cannot act on) that the tool must turn into `expect` (`ChooseActionsArgs.to_choice`).
+cannot act on) that the tool must turn into `expect` (`ChooseActionsArgs.to_choice`) or reject
+with the repair line that says the part is `other` (M38.5 fix).
 """
 
 import json
@@ -136,23 +137,22 @@ def _args(choice: MenuChoice) -> dict[str, object]:
     }
 
 
+OFF_REPAIR = "is other, never another target"  # the repair line's words (`choice_tool`)
+
+
 def _via_gaps(menu: ActionMenu, row: Row) -> list[str]:
-    """M38.4: the not-offered targets are shown, and each raw pick resolves to `expect`."""
+    """M38.4: the not-offered targets are shown; each raw pick at a target its entry cannot take
+    resolves to `expect`, or (M38.5 fix) is rejected by a repair line that says the part is
+    `other`, never another target (never repaired into a stand-in)."""
     shown = {t.id for t in menu.unoffered}
-    named = shown | {t.id for t in menu.targets}
     found = [f"{t} is not shown as not offered" for t in row.not_offered if t not in shown]
     want = shape(row.expect.choice())
     for via in row.via:
-        found += [
-            f"via target {t} not on the menu"
-            for s in via.steps
-            for t in s.targets
-            if t not in named
-        ]
         try:
             built = choice_tool(menu).args_model.model_validate(_args(via.choice()))
         except ValueError as exc:
-            found.append(f"via rejected: {str(exc).splitlines()[0]}")
+            if OFF_REPAIR not in str(exc):
+                found.append(f"via rejected: {str(exc).splitlines()[0]}")
             continue
         if isinstance(built, ChooseActionsArgs) and shape(built.to_choice()) != want:
             found.append(f"via resolves to {built.to_choice()} not the expectation")

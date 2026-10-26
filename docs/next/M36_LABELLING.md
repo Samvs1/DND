@@ -194,13 +194,15 @@ carry an alt, 20 have two or more steps. Offline coverage 300 of 300
 overall 56.3%, explore 49.3%, offer 40.0%, fight 75.0%, finding-cited 53.3%.
 
 ## M38.4: not-offered targets, harmful spells at a person, labels that say what they do
-- **A step at a target its entry cannot act on is `other`** (DECISIONS M38.4 A): the chooser turns it into
-  `other`, never a swapped target. The label of such a line stays `other` (or the steps plus `other`). Two
-  optional fields document the path and are checked offline: `not_offered` (the ids the menu must list as
-  NOT OFFERED for the line: `m29-p3:418` receipt-scroll, `m32-r5-full:521` caul-s-bait-cache,
-  `m31-r4-full:638` sister-s-locket, `m29-r2-p7:868` brother-vale) and `via` (a raw pick a model may send,
+- **A step at a target its entry cannot act on is never a swapped target** (DECISIONS M38.4 A, M38.5 fix A):
+  a NOT OFFERED target goes to `other` at once; a named person, hero or foe the entry does not take gets a
+  repair line that says the part is `other`. The label of such a line stays `other` (or the steps plus
+  `other`). Two optional fields document the path and are checked offline: `not_offered` (the ids the menu
+  must list as NOT OFFERED for the line: `m29-p3:418` receipt-scroll, `m32-r5-full:521` caul-s-bait-cache,
+  `m31-r4-full:638` sister-s-locket; people not here are not listed) and `via` (a raw pick a model may send,
   such as `help_up>pc-p6` for "I help Rook up" or `talk>foe:thug` for "Rook bows low to the thug", that must
-  resolve to `expect`). Never add a `via` that resolves to steps the player did not ask for.
+  resolve to `expect` or be rejected by that repair line). Never add a `via` that resolves to steps the
+  player did not ask for.
 - **A harmful spell at a person here** out of a fight is the `strike:<spell>` entry with that person as its
   target, for any spell that deals damage with no attack roll (Burning Hands, Sacred Flame, Magic Missile;
   DECISIONS M38.4 B and M38.5 fix B); an attack-roll spell keeps its `cast:<spell>` person target (M38.2), and

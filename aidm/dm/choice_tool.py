@@ -18,15 +18,18 @@ said count, `menu_steps_scene.said_count`: a give or gold, the rules answer it) 
 answer, with short repair lines naming the allowed values ("give:block-of-incense takes one of:
 widow-cabrelle, peddler"). The ONE LLM client feeds those lines back and retries
 (`llm_client.call_tools`, `llm_validate`), so a bad pick is repaired, never executed.
-M38.4: a step at a target its entry cannot act on (`rules.menu_unoffered.off_targets`: a
-not-offered target, an unlisted id, a listed person or hero the entry does not take) is NOT
-repaired (the repair was how a swapped target got in: "talk takes one of: reeve-hallick"):
-it passes, and `to_choice` turns it into `other` (the storyteller's, in the player's words),
-so the engine never acts on someone the player did not name. The `to` enum lists the
-not-offered targets too (`ActionMenu.unoffered`).
+M38.4/M38.5 fix: a step at a NOT OFFERED target (`ActionMenu.unoffered`: nothing can act on
+it) is not repaired: it passes and `to_choice` turns it into `other`. A step at a named being
+or an area its entry cannot take (`rules.menu_unoffered.named_off`: help_up at a standing hero,
+give:crowbar at a hero, talk at a waiting monster, a move to where the hero stands) is repaired
+with a line that no longer invites a stand-in: it names the entries that take that target for
+the same thing (`takers`) and says a part no entry does is `other`, never another target (the
+old "takes one of: reeve-hallick" was how the swapped target got in). A step whose `do` is
+`other` (OTHER_STEP) is read as the other part. The `to` enum lists the not-offered targets too.
 
-Public API: `CHOOSE_TOOL`, `ChosenStep`, `OtherPart`, `ChooseActionsArgs` (`to_choice()`),
-`menu_schema(menu)`, `menu_problems(menu, args)`, `choice_tool(menu, strict=False)`.
+Public API: `CHOOSE_TOOL`, `OTHER_STEP`, `ChosenStep`, `OtherPart`, `ChooseActionsArgs`
+(`to_choice()`), `menu_schema(menu)`, `menu_problems(menu, args)`,
+`choice_tool(menu, strict=False)`.
 """
 
 from difflib import get_close_matches
@@ -37,9 +40,10 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from aidm.dm.llm_types import ToolDef
 from aidm.models.action_menu import MAX_STEPS, ActionMenu, MenuChoice, MenuEntry, MenuStep
 from aidm.rules.menu_steps_scene import said_count
-from aidm.rules.menu_unoffered import off_targets
+from aidm.rules.menu_unoffered import named_off, not_offered, takers
 
 CHOOSE_TOOL = "choose_actions"
+OTHER_STEP = "other"  # a step the model wrote as {"do": "other"} is the other part (M38.5 fix)
 TOOL_TEXT = "The hero's MENU steps in the order said, other, colour."
 _SUGGEST = 8
 
@@ -124,6 +128,21 @@ def _step(step: ChosenStep) -> MenuStep:
     return MenuStep(entry=step.do, targets=tuple(step.to), qty=max(1, step.qty or 1))
 
 
+def _off_problem(menu: ActionMenu, entry: MenuEntry, off: tuple[str, ...]) -> str:
+    """M38.5 fix: the repair line for a named target its entry cannot take."""
+    found = [f"{t} is taken by {', '.join(by)}" for t in off if (by := takers(menu, entry.id, t))]
+    also = f" ({'; '.join(found)})" if found else ""
+    return (
+        f"{entry.id} cannot take {', '.join(off)}{also}; what no entry does for the target the"
+        " line names is other, never another target"
+    )
+
+
+def _dropped(menu: ActionMenu | None, step: MenuStep) -> bool:
+    """The step is the other part: written as `other`, or at a NOT OFFERED target."""
+    return step.entry == OTHER_STEP or (menu is not None and bool(not_offered(menu, step)))
+
+
 def menu_problems(menu: ActionMenu | None, args: "ChooseActionsArgs") -> list[str]:
     if not args.steps and args.other is None:
         return ["pick at least one step, or other"]
@@ -133,12 +152,16 @@ def menu_problems(menu: ActionMenu | None, args: "ChooseActionsArgs") -> list[st
     problems: list[str] = []
     for i, step in enumerate(args.steps):
         entry = entries.get(step.do)
-        if entry is None:
+        if _dropped(menu, _step(step)):
+            continue  # the storyteller's (`to_choice`), never repaired into a swap
+        if entry is None or menu is None:
             hint = _suggest(menu, step.do) if menu is not None else ""
             problems.append(f"steps[{i}].do {step.do!r} is not a menu id{hint}")
             continue
-        if menu is not None and off_targets(menu, _step(step)):
-            continue  # M38.4: the storyteller's (`to_choice`), never repaired into a swap
+        off = named_off(menu, _step(step))
+        if off:
+            problems.append(_off_problem(menu, entry, off))
+            continue
         for problem in (_targets_problem(entry, step.to), _qty_problem(entry, step.qty)):
             if problem is not None:
                 problems.append(problem)
@@ -163,12 +186,12 @@ class ChooseActionsArgs(BaseModel):
         return self
 
     def to_choice(self) -> MenuChoice:
-        """The pick as a `MenuChoice`; M38.4: a step at a target its entry cannot act on is
-        dropped and becomes `other` (first when it came before every kept step), the model's
-        own other part kept as it is."""
+        """The pick as a `MenuChoice`; M38.4: a step at a NOT OFFERED target (or written as
+        `other`) is dropped and becomes `other` (first when it came before every kept step), the
+        model's own other part kept as it is."""
         menu = type(self).menu
         picked = [_step(s) for s in self.steps]
-        off = [i for i, s in enumerate(picked) if menu is not None and off_targets(menu, s)]
+        off = [i for i, s in enumerate(picked) if _dropped(menu, s)]
         steps = tuple(s for i, s in enumerate(picked) if i not in off)
         other = self.other
         if other is None and off:

@@ -62,7 +62,7 @@ def test_rules_say_colour_other_and_the_step_limits() -> None:
         "never the manner, place or detail of a chosen step",
         "no unasked help_up, pay, search, travel, dash, hide or what_now",
         "Another hero's deed, or showing a carried item, is colour (not give)",
-        "never a stand-in",  # M38.4: rule 1 (a named target is never swapped)
+        "never invent or swap in an id, target, item or amount",  # M38.4/M38.5 fix: rule 1
         "is the attack alone (it walks first)",
         "creeping up to strike first is offer:surprise",
         "a plea, offer, threat or bargain is offer:parley; only a question or greeting is talk",

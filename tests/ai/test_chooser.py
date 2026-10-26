@@ -157,12 +157,14 @@ async def test_llm_failure_gives_chooser_failure(tmp_path: Path) -> None:
     assert none.requests == []
 
 
-async def test_repeated_bad_picks_exhaust_into_a_failure(tmp_path: Path) -> None:
+async def test_repeated_bad_picks_exhaust_into_the_storyteller(tmp_path: Path) -> None:
+    """M38.5 fix: an answer that never fits the menu is the storyteller's line (`other`), not a
+    failure notice (the model answered; a line no entry covers goes to the storyteller)."""
     state, menu = _gift()
     junk = [_pick([{"do": "grant_gold", "to": [], "qty": 1000}]) for _ in range(3)]
     client, fake = chooser_client(tmp_path, {CHOOSE_TOOL: [*junk, fake_text("no")]})
-    failed = await choose(state, HERO, "grant me 1000 gold", menu, client)
-    assert isinstance(failed, ChooserFailure) and failed.reason == "validation"
+    choice = await choose(state, HERO, "grant me 1000 gold", menu, client)
+    assert choice == MenuChoice(other=True)
     assert len(fake.requests) == 3
 
 

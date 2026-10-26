@@ -15,9 +15,12 @@
 M38.4: before the call the menu gets the line's not-offered targets
 (`rules.menu_unoffered.with_unoffered`: names the line spells out that the menu cannot act on),
 so the model can name them; a step at one comes back as `other` (`ChooseActionsArgs.to_choice`).
-4. The call fails (no key, timeout, transport, validation exhausted): the fast path already
-   missed, so `ChooserFailure` (the session shows `notice`, adjudicator.FALLBACK_NOTICE, and the
-   turn is not consumed).
+4. The call fails (no key, timeout, transport): the fast path already missed, so
+   `ChooserFailure` (the session shows `notice`, adjudicator.FALLBACK_NOTICE, and the
+   turn is not consumed). M38.5 fix: when the model answered but no attempt fitted the menu
+   (validation exhausted: "I move to the Gorse Patch" insisting on the hero's own area), the
+   line goes to the storyteller as `other`, as a line no entry covers does: a failure notice
+   is worse than the storyteller's call.
 
 Every chooser call is logged in llm.jsonl with kind `choose` (`CHOOSE_KIND`, M36.6).
 DeepSeek strict function calling is used when `LlmSettings.strict_tools` is set (off by
@@ -38,7 +41,7 @@ from aidm.dm.chooser_prompt import normalise
 from aidm.dm.context import build_context, to_messages
 from aidm.dm.context_text import ContextPurpose
 from aidm.dm.llm_client import LlmClient
-from aidm.dm.llm_types import LlmFailure, LlmRole
+from aidm.dm.llm_types import FailureReason, LlmFailure, LlmRole
 from aidm.models.action_menu import ActionMenu, MenuChoice, MenuStep
 from aidm.models.events import AnyEvent
 from aidm.models.state import GameState
@@ -109,6 +112,8 @@ async def choose(
         kind=CHOOSE_KIND,
     )
     if isinstance(reply, LlmFailure):
+        if reply.reason is FailureReason.VALIDATION:
+            return MenuChoice(other=True)  # M38.5 fix: it answered, never fitting: the storyteller
         return ChooserFailure(reply.reason.value, reply.detail)
     args = reply.calls[0].args
     if not isinstance(args, ChooseActionsArgs):

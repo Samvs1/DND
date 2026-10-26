@@ -7,7 +7,10 @@ from aidm.rules.acts import OtherIntent
 from aidm.rules.menu_steps import step_acts
 from aidm.rules.menu_unoffered import (
     MAX_UNOFFERED,
+    named_off,
+    not_offered,
     off_targets,
+    takers,
     unoffered_targets,
     with_unoffered,
 )
@@ -15,6 +18,7 @@ from tests.ai.chooser_fixtures import FIGHT_SEQ, REGS, TYPED, menu_at, state_at
 
 LOCKET = ("m31-r4-full", 638)  # Elowen; Rook carries the Sister's Locket
 CHIME = ("r2-p7", 868)  # Brienne carries the chime; Brother Vale is elsewhere
+CROWBAR = ("r2-p7", 68)  # "Brienne gives the spare crowbar to Elowen."
 DOWNED = ("m32-r5-typed", 281)  # Brienne; Elowen down, Rook standing
 TOLL = ("m32-r5-typed", 61)  # Brienne; a thug waits, Reeve Hallick stands by
 
@@ -37,15 +41,16 @@ def test_v1_m38_an_allys_keepsake_is_not_offered() -> None:
     assert "sister-s-locket" not in named and "sister-s-locket" not in {t.id for t in menu.targets}
 
 
-def test_v1_m38_a_person_not_here_is_not_offered() -> None:
-    """Row m29-r2-p7:868: the chime carried "back toward Brother Vale" was handed to Elowen."""
+def test_a_person_not_here_is_never_not_offered() -> None:
+    """M38.5 fix: "we head back to Bramble Pike's stall" named a person who is away as colour and
+    drew a stray other; people not here are no longer listed."""
     line = "Brienne picks up the unfinished chime and carries it back toward Brother Vale."
-    menu = _unoffered(CHIME, "pc-p2", line)
-    assert [(t.id, t.label, t.kind) for t in menu.unoffered] == [
-        ("brother-vale", "Brother Vale (not here)", "person")
-    ]
+    assert _unoffered(CHIME, "pc-p2", line).unoffered == ()
+    at = ("m32-r5-typed", 588)
+    pike = "With coin in our pockets we head back to Bramble Pike's stall at the Briar Vein"
+    assert unoffered_targets(state_at(*at), menu_at(*at, "pc-p6"), pike) == ()
     step = MenuStep(entry="hand:unfinished-chime", targets=("brother-vale",))
-    assert off_targets(menu, step) == ("brother-vale",)
+    assert named_off(menu_at(*CHIME, "pc-p2"), step) == ("brother-vale",)
 
 
 def test_names_the_menu_acts_on_are_never_not_offered() -> None:
@@ -56,21 +61,17 @@ def test_names_the_menu_acts_on_are_never_not_offered() -> None:
 
 
 def test_a_name_inside_a_shown_name_is_that_one() -> None:
-    """ "descending to the Saltwright's forge" names the place, not the master who is away."""
+    """ "descending to the Saltwright's forge" names the place."""
     at = ("r2-p4", 1690)
     line = "We take a long rest here at the gate before descending to the Saltwright's forge"
     assert unoffered_targets(state_at(*at), menu_at(*at, "pc-p2"), line) == ()
-    asked = "I ask the peddler what he knows about the Saltwright"
-    (master,) = unoffered_targets(state_at(*at), menu_at(*at, "pc-p2"), asked)
-    assert master.label == "The Saltwright (not here)"
 
 
 def test_not_offered_targets_are_capped_in_line_order() -> None:
-    state, menu = state_at(*CHIME), menu_at(*CHIME, "pc-p2")
-    people = [n.name for n in state.world.npcs.values() if n.node_id != state.world.current_node]
-    found = unoffered_targets(state, menu, " and ".join(people))
-    assert len(found) == min(MAX_UNOFFERED, len(people))
-    assert [t.label.split(" (")[0] for t in found] == people[: len(found)]
+    state, menu = state_at(*LOCKET), menu_at(*LOCKET, "pc-p4")
+    line = "I hold up the Sister's Locket " * (MAX_UNOFFERED + 2)
+    assert len(unoffered_targets(state, menu, line)) == 1  # one thing, however often named
+    assert MAX_UNOFFERED == 4
 
 
 def test_v1_m38_help_up_at_a_standing_hero_is_off() -> None:
@@ -102,3 +103,32 @@ def test_a_misspelt_id_and_area_aims_keep_the_repair() -> None:
     fight = menu_at(TYPED, FIGHT_SEQ, "pc-p2")
     foe = next(t.id for t in fight.targets if t.kind == "foe")
     assert off_targets(fight, MenuStep(entry="move", targets=(foe,))) == ()
+
+
+def test_v1_m38_named_off_targets_get_the_repair_not_other() -> None:
+    """M38.5 pass 1: "Brienne gives the spare crowbar to Elowen" (m29-r2-p7:68) became other;
+    a hero named for give is a repair that points at hand:crowbar, not a drop to other."""
+    menu = menu_at(*CROWBAR, "pc-p2")
+    give = MenuStep(entry="give:crowbar", targets=("pc-p4",))
+    assert named_off(menu, give) == ("pc-p4",) and not_offered(menu, give) == ()
+    assert takers(menu, "give:crowbar", "pc-p4") == ("hand:crowbar",)
+    talk = MenuStep(entry="talk", targets=("pc-p4",))  # m29-r2-p7:64 "tells her to keep it"
+    assert named_off(menu, talk) == ("pc-p4",) and takers(menu, "talk", "pc-p4") == ()
+
+
+def test_places_and_things_on_the_wrong_entry_keep_the_plain_repair() -> None:
+    """A place or feature named as colour never makes a step other (M38.5 fix)."""
+    toll = menu_at(*TOLL, "pc-p2")
+    place = next(t.id for t in toll.targets if t.kind == "place")
+    step = MenuStep(entry="talk", targets=(place,))
+    assert off_targets(toll, step) == (place,) and named_off(toll, step) == ()
+
+
+def test_a_move_to_the_heros_own_area_is_named_off() -> None:
+    """syn:goblin_fight:8 "I move to the Gorse Patch" (the hero's own area) failed three repairs."""
+    state, fight = state_at(TYPED, FIGHT_SEQ), menu_at(TYPED, FIGHT_SEQ, "pc-p2")
+    enc = state.encounter
+    assert enc is not None
+    here = enc.combatant("pc-p2").zone_id
+    step = MenuStep(entry="move", targets=(here,))
+    assert named_off(fight, step) == (here,)
