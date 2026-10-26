@@ -19,9 +19,14 @@ the player did not name, so:
   and its leads name it) or a map use (`World.charted`; the visited places and their roads are
   travel targets already) that no road open now reaches, with the engine's reason
   (`gateway_lock.short_reason`: "locked until the master of X is dealt with", or
-  `NO_ROAD_NOTE`). A place the party never heard of is never one.
+  `NO_ROAD_NOTE`). A place the party never heard of is never one. M41.2 (round 7 Z5: "Tamsin
+  sends a guiding bolt at the armor" with no slot left cast Sacred Flame): a ready spell of the
+  hero's that no entry offers because the hero cannot pay for it (`ActionMenu.unready`, from
+  `rules.spell_ready`, labelled with the reason: "Tamsin has no 1st-level slot left").
 - `not_offered(menu, step)`: the step's NOT OFFERED targets: nothing can act on them, so the
   chooser turns that step into `other` with no repair round (`ChooseActionsArgs.to_choice`).
+  M41.2: an entry id the menu does not hold whose last part is a NOT OFFERED id
+  (`cast:guiding-bolt`) names it too, so it is never repaired into a listed stand-in.
 - `named_off(menu, step)`: M38.5 fix: the step's targets its entry cannot take that are a named
   being (a person, a hero, a foe, an id the menu does not list but a close misspelling) or, on
   an entry aimed at areas, an area it cannot reach (a move to where the hero stands). The
@@ -119,6 +124,13 @@ def _out_of_reach(state: GameState, menu: ActionMenu) -> Iterator[_Candidate]:
         yield node, name, where, "place"
 
 
+def _unready(menu: ActionMenu) -> Iterator[_Candidate]:
+    """M41.2: the hero's ready spells it cannot pay for, with the reason."""
+    for target in menu.unready:
+        name, _, reason = target.label.partition(" (")
+        yield target.id, name, reason.removesuffix(")"), target.kind
+
+
 def _shown(menu: ActionMenu) -> set[str]:
     """The names the menu already acts on: its targets' names ("Merre Wenslow", "Thug") and the
     things its entries name (`feed:potion-of-healing`, `take:free-given-salt`, `loot:<item>`)."""
@@ -153,6 +165,7 @@ def unoffered_targets(state: GameState, menu: ActionMenu, text: str) -> tuple[Me
         *_carried_elsewhere(state, menu.actor_id),
         *_elsewhere(state),
         *_out_of_reach(state, menu),
+        *_unready(menu),
     ):
         key = slug(name)
         at = line.find(f"-{key}-") if key else -1
@@ -183,7 +196,11 @@ def _kinds(menu: ActionMenu) -> dict[str, TargetKind]:
 
 def not_offered(menu: ActionMenu, step: MenuStep) -> tuple[str, ...]:
     shown = {t.id for t in menu.unoffered}
-    return tuple(t for t in step.targets if t in shown)
+    named = tuple(t for t in step.targets if t in shown)
+    tail = step.entry.split(":", 1)[-1]
+    if tail in shown and tail not in named and _entry(menu, step.entry) is None:
+        return (tail, *named)
+    return named
 
 
 def off_targets(menu: ActionMenu, step: MenuStep) -> tuple[str, ...]:

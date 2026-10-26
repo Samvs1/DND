@@ -31,7 +31,10 @@ Public API:
 - `ActionMenu(scope, actor_id, entries, targets, unoffered)`: entry ids and target ids are unique
   and every target id an entry names is in `targets`. M38.4: `unoffered` are names the line
   means that no entry acts on (an item another hero carries, a person not here); no entry names
-  one, and a step at one is the storyteller's (`rules.menu_unoffered`).
+  one, and a step at one is the storyteller's (`rules.menu_unoffered`). M41.2: `unready` are the
+  hero's ready spells it has no way to cast now (no slot of their level or higher, no pool use
+  left), each labelled with the reason ("Guiding Bolt (Tamsin has no 1st-level slot left)");
+  never shown to the model: the ones the line names become `unoffered` (`rules.spell_ready`).
 - `MenuStep(entry, targets, qty)`, `MenuChoice(steps, other, other_text, other_first, colour)`:
   up to 4 ordered steps, `other` (a stunt or something off the menu), or both (M36.5, DECISIONS:
   "I leap onto the table and fire at the kobold" is a stunt and an attack). `other_text` is the
@@ -168,6 +171,7 @@ class ActionMenu(_Frozen):
     entries: tuple[MenuEntry, ...] = ()
     targets: tuple[MenuTarget, ...] = ()
     unoffered: tuple[MenuTarget, ...] = ()
+    unready: tuple[MenuTarget, ...] = ()
 
     @model_validator(mode="after")
     def _consistent(self) -> Self:

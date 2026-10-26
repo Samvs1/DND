@@ -21,6 +21,7 @@ from aidm.rules.menu_labels import creature_label, zone_label
 from aidm.rules.menu_magic import feature_entries, spell_entries
 from aidm.rules.menu_moves import move_entries, standard_entries, touch_entries
 from aidm.rules.menu_view import FightView, fight_view
+from aidm.rules.spell_ready import unready_spells
 
 
 def _targets(view: FightView) -> tuple[MenuTarget, ...]:
@@ -55,6 +56,11 @@ def fight_menu(state: GameState, actor_id: str, regs: CombatRegistries) -> Actio
         *move_entries(view),
         *standard_entries(view),
     ]
+    hero = state.creatures[actor_id]
     return ActionMenu(
-        scope=MenuScope.FIGHT, actor_id=actor_id, entries=tuple(entries), targets=_targets(view)
+        scope=MenuScope.FIGHT,
+        actor_id=actor_id,
+        entries=tuple(entries),
+        targets=_targets(view),
+        unready=unready_spells(hero, view.sheet.spellcasting, regs.spells),  # M41.2
     )

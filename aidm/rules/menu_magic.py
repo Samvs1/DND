@@ -1,12 +1,14 @@
 """Fight menu entries for spells and class or race features (M36.2, SPEC 6.2). Pure.
 
 - `cast:<spell>`: every spell the hero can cast now (a ready cantrip, or a ready leveled spell
-  with a slot of its level or higher; `slot_level` is the lowest such slot). Aimed by the spell's
-  own data: no target (self, or an area around the hero), a zone (an aimed area or point, or a
-  self cone), or creatures (up to the sheet's `target_count`): every creature the cast accepts,
-  foes first for a hostile spell (`spell_targets.strikes_creatures`), else the hero and the
-  allies first (charming an ally or healing a foe is possible). A creature out of range that
-  the movement left brings in range is an approach target; attack-roll spells note the hit chance.
+  with a slot of its level or higher; `slot_level` is the lowest such slot). M41.2: one the hero
+  cannot pay for (`spell_ready.can_pay`) has no entry; it is `ActionMenu.unready`. Aimed by the
+  spell's own data: no target (self, or an area around the hero), a zone (an aimed area or
+  point, or a self cone), or creatures (up to the sheet's `target_count`): every creature the
+  cast accepts, foes first for a hostile spell (`spell_targets.strikes_creatures`), else the
+  hero and the allies first (charming an ally or healing a foe is possible). A creature out of
+  range that the movement left brings in range is an approach target; attack-roll spells note
+  the hit chance.
 - `feature:<name>`: every feature action with uses left (Second Wind, Action Surge, Turn Undead,
   Breath Weapon ...), aimed the same way through the hook's pseudo spell
   (`feature_commands.ability_spell`). An area around the hero names who it would reach, from the
@@ -33,6 +35,7 @@ from aidm.rules.menu_labels import area_words, feature_label, spell_label
 from aidm.rules.menu_probe import Reach, accepted, probe_targets
 from aidm.rules.menu_view import FightView, aim_of, chance_notes, is_spent, slug
 from aidm.rules.spell_chances import SPELL_OPTION_PREFIX, spell_attack_options
+from aidm.rules.spell_ready import can_pay, ready_lines
 from aidm.rules.spell_targets import spell_band, strikes_creatures
 
 type Needs = Literal["none", "zone", "creature"]
@@ -85,9 +88,9 @@ def lowest_slot(block: SpellcastingBlock, level: int) -> tuple[int, int] | None:
 
 def _spell_entry(view: FightView, line: SpellLine, block: SpellcastingBlock) -> MenuEntry | None:
     spell = view.regs.spells.find(line.index)
+    if spell is None or not can_pay(view.state.creatures[view.actor_id], spell, line.resource):
+        return None  # M41.2: `ActionMenu.unready`, NOT OFFERED when named (`rules.spell_ready`)
     slot = lowest_slot(block, line.level) if line.level > 0 and line.resource is None else None
-    if spell is None or (line.level > 0 and line.resource is None and slot is None):
-        return None
     slot_level = slot[0] if slot is not None else None
 
     def build(ids: tuple[str, ...], zone: str | None) -> AnyCommand:
@@ -131,11 +134,8 @@ def spell_entries(view: FightView) -> list[MenuEntry]:
     block = view.sheet.spellcasting
     if block is None:
         return []
-    lines = [*block.cantrips, *(s for g in block.levels for s in g.spells)]
     out: list[MenuEntry] = []
-    for line in lines:
-        if not line.prepared:
-            continue
+    for line in ready_lines(block):
         made = _spell_entry(view, line, block)
         if made is not None:
             out.append(made)

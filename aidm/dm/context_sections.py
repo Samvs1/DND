@@ -9,7 +9,8 @@ Public API:
   `CLOSED_WORLD`; in a fight the foes' traits follow the hostile creatures, M27.6
   `aidm.dm.context_traits`).
 - `party_lines(state, short, keep=None) -> list[str]`: one compact sheet line per living PC;
-  `keep` (M31.1c V21: the acting hero) keeps the full sheet when the others go short.
+  `keep` (M31.1c V21: the acting hero) keeps the full sheet when the others go short; M41.2: a
+  caster's full sheet ends its spells with the slots left at each level.
 - `relevant_facts(facts, focus, k) -> list[Fact]` (THE fact
   retrieval: top-k by entity overlap with `focus`, ties broken by recency; deterministic);
   `fact_lines(state, focus, k) -> list[str]` (their texts).
@@ -34,6 +35,7 @@ from aidm.rules.checks import difficulty_word
 from aidm.rules.gateway_lock import short_reason
 from aidm.rules.scene import SceneView, node_display_name
 from aidm.rules.social import attitude_band, attitude_score
+from aidm.rules.spellcasting import slot_pools
 from aidm.rules.story_records import (
     StoryRecord,
     dated_facts,
@@ -132,12 +134,20 @@ def _gear(c: Creature) -> list[str]:
 
 
 def _spells(c: Creature) -> list[str]:
-    """The spells the hero can cast now (M30.2: so the model never calls magic impossible)."""
+    """The hero's ready spells (M30.2: so the model never calls magic impossible; M41.2: the
+    slots left follow them, `_slots`)."""
     if c.pc is None:
         return []
     pc = c.pc
     ready = [*pc.cantrips, *pc.race_cantrips, *pc.spells_known, *pc.prepared]
     return [display_name(i) for i in dict.fromkeys(ready)]
+
+
+def _slots(c: Creature) -> str:
+    """M41.2: the slots left at each level (THE slot model), so the storyteller never treats a
+    leveled spell as castable with no slot of its level or higher (round 7 Z5)."""
+    pools = [f"level {ref.level} {pool.current} of {pool.maximum}" for ref, pool in slot_pools(c)]
+    return f", spell slots left: {', '.join(pools)}" if pools else ""
 
 
 def _backstory(c: Creature) -> str:
@@ -160,7 +170,7 @@ def _sheet(c: Creature, short: bool) -> str:
         line += f", gear: {', '.join(gear)}"
     spells = _spells(c)
     if spells:
-        line += f", spells: {', '.join(spells)}"
+        line += f", spells: {', '.join(spells)}{_slots(c)}"
     if pc.keepsakes:  # M19.3: story objects the hero really carries
         line += f", keepsakes: {', '.join(k.name for k in pc.keepsakes)}"
     story = _backstory(c)
