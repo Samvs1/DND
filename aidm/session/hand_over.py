@@ -22,6 +22,10 @@
 - `pay_first` (typed "pay Rutter 4 silver", M29.9a T17): `rules.paying.pay_events` applied, or
   the rules' plain reason; the caller tells it (alone, or with the sentence's other act).
 
+M41.1 (round 7 Z4): the typed paths `hand_intent` and `pay_first` return the
+rules' refusal reason instead of sending it, so the caller (`session.intent_turn`) tells it as
+an impossible attempt in the story (`ActionImpossible`); the buttons keep the plain refusal.
+
 - `lift_intent` (typed "lift the link back out of his pouch", M29.7a R18):
   `rules.lifting.lift_events` (a Sleight of Hand check; the keepsake moves on a success, the
   NPC notices on a failure), then `telling.conclude` tells it.
@@ -119,11 +123,21 @@ async def hand(core: TableCore, player: Player, msg: HandOver) -> None:
     if pc is None:
         core.error(player.id, ErrorCode.NO_CHARACTER, "You need a living hero for that.")
         return
-    await _hand(core, player, HeroHandIntent(pc.id, msg.to_id, msg.item_id, msg.qty, msg.gold))
+    intent = HeroHandIntent(pc.id, msg.to_id, msg.item_id, msg.qty, msg.gold)
+    applied = _hand_first(core, intent)
+    if isinstance(applied, str):  # the button's refusal: the rules' plain reason
+        core.error(player.id, ErrorCode.REFUSED, applied, "hand_refused")
+        return
+    await _told(core, applied)
 
 
-async def hand_intent(core: TableCore, player: Player, intent: HeroHandIntent) -> None:
-    await _hand(core, player, intent)
+async def hand_intent(core: TableCore, intent: HeroHandIntent) -> str | None:
+    """A typed hand-over: told, or (M41.1) the rules' reason for the caller to tell."""
+    applied = _hand_first(core, intent)
+    if isinstance(applied, str):
+        return applied
+    await _told(core, applied)
+    return None
 
 
 async def loot_intent(core: TableCore, player: Player, intent: LootIntent) -> None:
@@ -144,7 +158,8 @@ async def loot_intent(core: TableCore, player: Player, intent: LootIntent) -> No
     await _told(core, core.apply_all(events))
 
 
-async def _hand(core: TableCore, player: Player, intent: HeroHandIntent) -> None:
+def _hand_first(core: TableCore, intent: HeroHandIntent) -> list[AnyEvent] | str:
+    """The hand-over applied, or the rules' refusal reason (nothing moved)."""
     try:
         events = hand_events(
             core.state,
@@ -156,9 +171,8 @@ async def _hand(core: TableCore, player: Player, intent: HeroHandIntent) -> None
             gold=intent.gold,
         )
     except HandRefused as refused:
-        core.error(player.id, ErrorCode.REFUSED, refused.detail, "hand_refused")
-        return
-    await _told(core, core.apply_all(events))
+        return refused.detail
+    return core.apply_all(events)
 
 
 async def _told(core: TableCore, applied: list[AnyEvent]) -> None:
@@ -168,12 +182,12 @@ async def _told(core: TableCore, applied: list[AnyEvent]) -> None:
     await remember(core, await tell_text(core, " ".join(lines)), applied)
 
 
-def pay_first(core: TableCore, player: Player, intent: PayIntent) -> list[AnyEvent] | None:
+def pay_first(core: TableCore, intent: PayIntent) -> list[AnyEvent] | str:
+    """The payment applied, or the rules' refusal reason (nothing moved)."""
     try:
         events = pay_events(core.state, intent.actor_id, intent.npc_id, intent.gold)
     except PayRefused as refused:
-        core.error(player.id, ErrorCode.REFUSED, refused.detail, "pay_refused")
-        return None
+        return refused.detail
     return core.apply_all(events)
 
 

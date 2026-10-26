@@ -11,12 +11,14 @@ the same fight-starting act (`offer_strike.cast_opens_fight`): never a slot spen
 M36.4: `run_intent` also runs the menu's own acts (`rules.menu_steps`; not yet produced from a
 typed line until M36.6): taking from a fallen hero's pack, a feature out of a fight, the menu's
 look (the look-around text written here) and a line off the menu (the storyteller).
+M41.1 (round 7 Z4): a typed hand-over or payment the rules refuse (more gold than the hero
+has) moves nothing and is told as an impossible attempt with the rules' reason (`_refused`).
 
 Public API: `run_intent` (the pack listing is `dm.scene_text.inventory_text`).
 """
 
 from aidm.dm.scene_text import inventory_text, look_around_text
-from aidm.models.impossible import ActionImpossible
+from aidm.models.impossible import MAX_IMPOSSIBLE_REASON, MAX_IMPOSSIBLE_TEXT, ActionImpossible
 from aidm.models.protocol_client import AnswerQuestOffer
 from aidm.models.protocol_server import NoticeKind
 from aidm.models.protocol_views import QueueEntry
@@ -85,10 +87,10 @@ async def run_intent(
         await party_actions.help_up_intent(core, player, intent)
     elif isinstance(intent, GiveIntent):
         await hand_over.give_intent(core, player, intent)
-    elif isinstance(intent, HeroHandIntent):
-        await hand_over.hand_intent(core, player, intent)
+    elif isinstance(intent, HeroHandIntent):  # M41.1: a refusal is told as impossible
+        await _refused(core, entry, intent.actor_id, await hand_over.hand_intent(core, intent))
     elif isinstance(intent, PayIntent):
-        await _pay(core, player, entry, intent)
+        await _pay(core, entry, intent)
     elif isinstance(intent, LiftIntent):
         await hand_over.lift_intent(core, player, intent)
     elif isinstance(intent, LootIntent):  # M36.4 Y14: from a fallen hero's pack
@@ -141,15 +143,30 @@ async def _look(core: TableCore, entry: QueueEntry, intent: LookIntent | BarredI
 
 
 async def _impossible(core: TableCore, entry: QueueEntry, intent: ImpossibleIntent) -> None:
-    event = ActionImpossible(creature_id=intent.actor_id, text=intent.text, reason=intent.reason)
+    event = ActionImpossible(
+        creature_id=intent.actor_id,
+        text=intent.text[:MAX_IMPOSSIBLE_TEXT],
+        reason=intent.reason[:MAX_IMPOSSIBLE_REASON],
+    )
     events = core.apply_all([event])
     await conclude(core, None, events, actor_id=intent.actor_id, player_text=entry.text)
 
 
-async def _pay(core: TableCore, player: Player, entry: QueueEntry, intent: PayIntent) -> None:
+async def _refused(core: TableCore, entry: QueueEntry, actor_id: str, reason: str | None) -> None:
+    """M41.1 (round 7 Z4): a typed hand-over or payment the rules refuse (more gold than the hero
+    has, not that many carried) moves nothing and is told as an impossible attempt with the
+    rules' reason, never partly done. It counts as a refusal, so the line's later steps stop
+    as after any refused act (`menu_pick.play_steps`)."""
+    if reason is not None:
+        await _impossible(core, entry, ImpossibleIntent(actor_id, entry.text, reason))
+        core.refusals += 1
+
+
+async def _pay(core: TableCore, entry: QueueEntry, intent: PayIntent) -> None:
     """M29.9a T17: the coins move first; "pay Rutter and ask him about the girl" then asks."""
-    paid = hand_over.pay_first(core, player, intent)
-    if paid is None:
+    paid = hand_over.pay_first(core, intent)
+    if isinstance(paid, str):
+        await _refused(core, entry, intent.actor_id, paid)
         return
     if intent.rest is None:
         await conclude(core, None, paid, actor_id=intent.actor_id)

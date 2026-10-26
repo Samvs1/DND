@@ -5,8 +5,8 @@ not move. Played on the real round 4 state (fixture m31-r4-typed) with the story
 from pathlib import Path
 
 from aidm.models.events import GoldChanged
+from aidm.models.impossible import ActionImpossible
 from aidm.models.item_events import HandedOver
-from aidm.models.protocol_server import NarrationChunkMsg
 from tests.session.m32_play import play
 from tests.session.playtest_saves import replay_until
 from tests.session.table_fixtures import pick
@@ -17,11 +17,13 @@ MERRE = "merre-wenslow"
 
 async def test_v1_m31_overpay_refused_with_the_real_purse(tmp_path: Path) -> None:
     """Typed 44: "I slap 50 gold down on the table for Merre Wenslow" with 15 gold carried was
-    told as coins on the table (no intent read it). It is a payment now, refused plainly."""
+    told as coins on the table (no intent read it). It is a payment now, refused plainly.
+    M41.1 (round 7 Z4): the refusal is told in the story as an impossible attempt with the
+    rules' reason (the storyteller is down here: the template line), nothing moves."""
     played = await play(tmp_path, R4, 44, picks=[pick(("pay", [MERRE], 50))])
-    assert "Rook has only 15 gold." in played.notices()
+    assert [e.reason for e in played.of(ActionImpossible)] == ["Rook has only 15 gold."]
     assert not played.of(GoldChanged) and not played.of(HandedOver)
-    assert not any(isinstance(m, NarrationChunkMsg) for m in played.msgs)
+    assert "Rook has only 15 gold" in played.told()
 
 
 async def test_v1_m31_affordable_coins_on_the_table_move(tmp_path: Path) -> None:
@@ -38,7 +40,7 @@ async def test_v1_m31_affordable_coins_on_the_table_move(tmp_path: Path) -> None
 async def test_v1_m31_toss_a_hero_gold_for_her_trouble(tmp_path: Path) -> None:
     """Typed 1304: "I toss Brienne 10 gold for her trouble" was refused as "does not carry that"
     while Tamsin carried 100 gold (owner rule: never refuse the possible). The coins move."""
-    played = await play(tmp_path, R4, 1304, picks=[pick(("hand:gold", ["pc-p2"], 10))])
+    played = await play(tmp_path, R4, 1304, picks=[pick(("pay", ["pc-p2"], 10))])
     tamsin, brienne = played.state.creatures["pc-p8"], played.state.creatures["pc-p2"]
     assert tamsin.pc is not None and brienne.pc is not None
     assert (tamsin.pc.gold, brienne.pc.gold) == (90, 122)

@@ -10,11 +10,12 @@ meaning, never wording:
   so; while an encounter offer waits here every other place says it is answered first;
 - counts: `give` hands that many units (a keepsake group by name gives that many of its
   keepsakes, `menu_items.same_keepsakes`), `hand`/`loot` move `qty` units, gold or keepsakes,
-  `pay` that many gold, `take` that many units of a group lying here (`menu_items.same_lying`,
-  `TakeIntent.qty` for part of a stack), `drop` one unit per drop, `buy`/`sell` the count; a
-  count is capped at what there is, but M36.10a a said count (`said_count`: a give, or pay, hand
-  or loot gold) goes to the rules as said: a give gives what there is and says so, a coin count
-  over the purse is refused with the real purse (M31.2b);
+  `pay` that many gold (M41.1: to a person, or handed to another hero), `take` that many units
+  of a group lying here (`menu_items.same_lying`, `TakeIntent.qty` for part of a stack),
+  `drop` one unit per drop, `buy`/`sell` the count; a count is capped at what there is, but
+  M36.10a a said count (`said_count`: a give, or pay or loot gold) goes to the rules as said: a
+  give gives what there is and says so, a coin count over the purse is refused with the real
+  purse (M31.2b; M41.1 told in the story as an impossible attempt);
 - `talk` is the lore/social path carrying the player's words (`AskIntent.said`); `look` the
   look-around (`LookAroundIntent`, the session writes the text);
 - `offer:<choice>` is the offer card's answer (`AnswerOffer`), a parley answer the held parley
@@ -29,7 +30,7 @@ meaning, never wording:
 `free_acts` serves the free answers on any menu (pack, "what now", putting out the light).
 
 Public API: `CardAct`, `SceneAct`, `scene_step_acts(state, actor_id, entry, step, text)`,
-`free_acts(actor_id, entry)`, `said_count(entry)`.
+`free_acts(actor_id, entry)`, `said_count(entry)`, `coin_entry(entry)`.
 """
 
 from aidm.models.abilities import Skill
@@ -141,13 +142,11 @@ def _give(state: GameState, actor_id: str, entry: MenuEntry, npc: str, qty: int)
 
 
 def _hand(state: GameState, actor_id: str, entry: MenuEntry, to: str, qty: int) -> list[SceneAct]:
-    if entry.item is None:
-        return [HeroHandIntent(actor_id, to, None, gold=qty)]
-    hero = state.creatures[actor_id]
-    keeps = same_keepsakes(hero.pc.keepsakes, entry.item) if hero.pc is not None else []
+    hero, thing = state.creatures[actor_id], entry.item or ""  # M41.1: gold is the pay entry
+    keeps = same_keepsakes(hero.pc.keepsakes, thing) if hero.pc is not None else []
     if keeps:
         return [HeroHandIntent(actor_id, to, k) for k in keeps[:qty]]
-    return [HeroHandIntent(actor_id, to, entry.item, qty=qty)]
+    return [HeroHandIntent(actor_id, to, thing, qty=qty)]
 
 
 def _loot(
@@ -246,7 +245,10 @@ def _counted(
             return [_give(state, actor_id, entry, target, qty)]
         case ActionKind.HAND:
             return _hand(state, actor_id, entry, target, qty)
-        case ActionKind.PAY:
+        case ActionKind.PAY:  # M41.1: the one gold entry; another hero is a hand-over
+            hero = state.creatures.get(target)
+            if hero is not None and hero.pc is not None:
+                return [HeroHandIntent(actor_id, target, None, gold=qty)]
             return [PayIntent(actor_id, target, qty)]
         case ActionKind.TAKE if entry.id.startswith("loot:"):
             return _loot(state, actor_id, entry, target, qty)
@@ -268,10 +270,14 @@ def _holder(state: GameState, person: str, keepsake: str) -> str:
     return twin_boss(state, person)
 
 
+def coin_entry(entry: MenuEntry) -> bool:
+    """M41.1: an entry whose count is gold (pay, or loot with no item): any sum said."""
+    return entry.item is None and entry.kind in (ActionKind.PAY, ActionKind.TAKE)
+
+
 def said_count(entry: MenuEntry) -> bool:
-    """A count the rules answer as said: a give, or gold (pay, or hand or loot with no item)."""
-    coins = entry.kind in (ActionKind.HAND, ActionKind.TAKE) and entry.item is None
-    return entry.kind in (ActionKind.PAY, ActionKind.GIVE) or coins
+    """A count the rules answer as said: a give, or gold (`coin_entry`)."""
+    return entry.kind is ActionKind.GIVE or coin_entry(entry)
 
 
 def _cast(actor_id: str, entry: MenuEntry, step: MenuStep) -> SceneAct:

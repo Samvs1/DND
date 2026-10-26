@@ -3,7 +3,7 @@ step at a target its entry cannot act on is the storyteller's, never a swapped t
 M38.3 live eval, docs/playtests/M38_eval.md). Real replayed states, no model."""
 
 from aidm.models.action_menu import ActionMenu, MenuStep
-from aidm.rules.acts import OtherIntent
+from aidm.rules.acts import HeroHandIntent, OtherIntent
 from aidm.rules.menu_steps import step_acts
 from aidm.rules.menu_unoffered import (
     MAX_UNOFFERED,
@@ -84,14 +84,20 @@ def test_v1_m38_help_up_at_a_standing_hero_is_off() -> None:
 
 
 def test_v1_m38_talk_to_a_waiting_monster_and_pay_to_a_hero_are_off() -> None:
-    """ "Rook bows low to the thug" became talk to Reeve Hallick; "10 gold for Brienne" a pay."""
+    """ "Rook bows low to the thug" became talk to Reeve Hallick; "10 gold for Brienne" a pay.
+    M41.1 (round 7 Z3): the one gold entry takes the heroes too, so gold for a hero is a
+    hand-over to that hero (never a pay to the person standing by)."""
     menu = menu_at(*TOLL, "pc-p2")
     assert off_targets(menu, MenuStep(entry="talk", targets=("foe:thug",))) == ("foe:thug",)
     assert off_targets(menu, MenuStep(entry="talk", targets=("pc-p4", "pc-p6"))) == (
         "pc-p4",
         "pc-p6",
     )
-    assert off_targets(menu, MenuStep(entry="pay", targets=("pc-p4",), qty=5)) == ("pc-p4",)
+    to_hero = MenuStep(entry="pay", targets=("pc-p4",), qty=5)
+    assert off_targets(menu, to_hero) == ()
+    assert step_acts(state_at(*TOLL), menu, to_hero, REGS) == [
+        HeroHandIntent("pc-p2", "pc-p4", None, gold=5)
+    ]
     assert off_targets(menu, MenuStep(entry="pay", targets=("the-poor",))) == ("the-poor",)
     assert off_targets(menu, MenuStep(entry="talk", targets=("reeve-hallick",))) == ()
 

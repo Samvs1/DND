@@ -17,6 +17,8 @@ says is dropped, and a long one an earlier entry wrote for the same target is "a
 M40.4 (the round-7 fixtures put a cleric's full turn over the prompt bound): a spent single
 entry is written without its targets (`id = label [spent]`: it cannot be done this turn), and
 a long target list an earlier entry already wrote is "-> as for <that entry>".
+M41.1 (round 7 Z4: "pays Wren 500 gold" with 60 carried was sent as 60, the "up to 60" read as
+a cap): a gold entry (`menu_steps_scene.coin_entry`) is marked `qty: the sum said` instead.
 
 Public API: `menu_lines(menu) -> list[str]`.
 """
@@ -24,8 +26,10 @@ Public API: `menu_lines(menu) -> list[str]`.
 from dataclasses import dataclass
 
 from aidm.models.action_menu import ActionKind, ActionMenu, MenuEntry
+from aidm.rules.menu_steps_scene import coin_entry
 
 GROUP_MIN = 3
+COIN_QTY = "qty: the sum said"  # M41.1: a gold entry's count is never capped at the purse
 LONG_NOTE = 30
 _KIND_WORDS = {
     "foe": "foe",
@@ -106,6 +110,8 @@ def _runs(ids: tuple[str, ...], notes: dict[str, str]) -> str:
 
 def _extras(entry: MenuEntry) -> str:
     bits = [f"up to {entry.qty_max}"] if entry.qty_max > 1 else []
+    if coin_entry(entry):  # M41.1 (round 7 Z4): a sum over the purse is the rules' to refuse
+        bits = [COIN_QTY]
     if entry.spent:
         bits.append("spent")
     if entry.note:

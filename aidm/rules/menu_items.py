@@ -4,8 +4,9 @@
 - `give:<item>`: every carried inventory item (`qty_max` the count carried, round 6 Y13: "a block
   of incense" out of five) and every keepsake (grouped by name, `item` the first one's id) to a
   person standing here (`rules.handing.give_events`);
-- `hand:<item>`, `hand:gold`: the same to another hero (`rules.hero_handing.hand_events`);
-- `pay`: gold to a person here (`qty_max` the gold carried, `rules.paying.pay_events`);
+- `hand:<item>`: the same to another hero (`rules.hero_handing.hand_events`);
+- `pay`: gold to a person here (`rules.paying.pay_events`) or to another hero (M41.1: one gold
+  entry, `rules.hero_handing.hand_events`), `qty_max` the gold carried;
 - `take:<name>`: each visible item lying here, items of one name and kind grouped (M36.4, round 6
   Y12: three lumps of resin are one entry, `qty_max` 3; `item` the first one's id,
   `same_lying` finds the rest), `qty_max` the count (`rules.equipment.take_events`, counted);
@@ -146,35 +147,22 @@ def _handing(view: SceneMenuView) -> list[MenuEntry]:
 
 
 def _gold(view: SceneMenuView) -> list[MenuEntry]:
+    """M41.1 (round 7 Z3): ONE gold entry for every receiver, the people here and the other
+    heroes; the receiver decides the engine act (`menu_steps_scene`: a pay or a hand-over)."""
     gold = view.gold
-    if gold < 1:
+    receivers = (*view.people, *view.heroes)
+    if gold < 1 or not receivers:
         return []
-    out: list[MenuEntry] = []
-    if view.heroes:
-        label = f"Hand gold to another hero (you have {gold} gp)"
-        out.append(
-            MenuEntry(
-                id="hand:gold",
-                kind=ActionKind.HAND,
-                label=label,
-                target_ids=view.heroes,
-                max_targets=1,
-                qty_max=gold,
-            )
-        )
-    if view.people:
-        label = f"Pay gold to someone here (you have {gold} gp)"
-        out.append(
-            MenuEntry(
-                id="pay",
-                kind=ActionKind.PAY,
-                label=label,
-                target_ids=view.people,
-                max_targets=1,
-                qty_max=gold,
-            )
-        )
-    return out
+    label = f"Pay or hand gold to a person or hero here (you have {gold} gp)"
+    entry = MenuEntry(
+        id="pay",
+        kind=ActionKind.PAY,
+        label=label,
+        target_ids=receivers,
+        max_targets=1,
+        qty_max=gold,
+    )
+    return [entry]
 
 
 def _lying(view: SceneMenuView) -> list[MenuEntry]:

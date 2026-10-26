@@ -4,7 +4,8 @@ A row is `{id, run, seq, actor_id, text, scope, expect, alt, source, note}`; `ex
 `alt` is `{steps: [{entry, targets, qty}], other, other_first}`, plus an optional `colour` (M36.9:
 the words that only colour the steps; never scored). `gaps(menu, row)` lists why the
 menu cannot express a row's expectation (an empty list = covered): scope mismatch, an entry or a
-target the menu lacks, a quantity over the entry's, a choice the model's tool would reject.
+target the menu lacks, a quantity over the entry's (not a said count: a give or gold, M36.10a,
+as the tool), a choice the model's tool would reject.
 M38.4 (optional): `not_offered` lists the not-offered target ids the menu must show for the line
 (`ActionMenu.unoffered`); `via` holds raw picks a model may send (steps at a target the entry
 cannot act on) that the tool must turn into `expect` (`ChooseActionsArgs.to_choice`) or reject
@@ -21,6 +22,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from aidm.dm.choice_tool import ChooseActionsArgs, choice_tool
 from aidm.models.action_menu import ActionMenu, MenuChoice, MenuStep
+from aidm.rules.menu_steps_scene import said_count
 
 
 class StepRow(BaseModel):
@@ -112,7 +114,7 @@ def _choice_gaps(menu: ActionMenu, choice: MenuChoice) -> list[str]:
         ]
         if len(step.targets) > entry.max_targets:
             found.append(f"{step.entry}: {len(step.targets)} targets over {entry.max_targets}")
-        if step.qty > entry.qty_max:
+        if step.qty > entry.qty_max and not said_count(entry):  # the tool's own rule
             found.append(f"{step.entry}: qty {step.qty} over {entry.qty_max}")
     return found
 

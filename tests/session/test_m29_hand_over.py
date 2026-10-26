@@ -73,7 +73,7 @@ async def test_m29_hand_crowbar_and_gold_between_heroes(tmp_path: Path) -> None:
     assert _moved(events) == [("pc-p2", "crowbar", -1), ("pc-p4", "crowbar", 1)]
     state = replay_until("r2-p7", 289)
     have = _pc(state, "pc-p2").gold
-    coins = pick(("hand:gold", ["pc-p4"], 5))
+    coins = pick(("pay", ["pc-p4"], 5))  # M41.1: the one gold entry
     events = await _typed(
         tmp_path, state, "pc-p2", SubmitAction(text="I give Elowen 5 gold"), coins
     )
