@@ -23,6 +23,7 @@ from aidm.models.commands import (
 )
 from aidm.rules.conditions import effective_speed
 from aidm.rules.features import feature_actions
+from aidm.rules.menu_labels import SURRENDER_ASK
 from aidm.rules.menu_probe import probe_targets, refusal
 from aidm.rules.menu_view import FAR_NOTE, FightView, aim_of, is_spent
 from aidm.rules.surrender import SURRENDER_SKILLS
@@ -35,9 +36,9 @@ _SIMPLE: dict[str, tuple[ActionKind, str]] = {
     "dodge": (ActionKind.DODGE, "Dodge (attacks against you have disadvantage)"),
     "hide": (ActionKind.HIDE, "Hide (Stealth check, hidden until seen)"),
 }
-_SURRENDER_ASKS = {  # M36.9 iteration 2: the Persuasion form reads as an offer of mercy
-    "intimidation": "Demand the foes surrender",
-    "persuasion": "Call on the foes to yield and be spared",
+_SURRENDER_WAYS = {  # M36.9 iteration 2: the Persuasion form reads as an offer of mercy;
+    "intimidation": "threaten",  # M38.4: one stem that says who surrenders (never the hero)
+    "persuasion": "offer mercy",
 }
 
 
@@ -225,7 +226,10 @@ def _closing(view: FightView) -> list[MenuEntry]:
                 MenuEntry(
                     id=f"surrender:{skill.value}",
                     kind=ActionKind.SURRENDER,
-                    label=f"{_SURRENDER_ASKS[skill.value]} ({skill.value.title()} {sign}, action)",
+                    label=(
+                        f"{SURRENDER_ASK} ({skill.value.title()} {sign}, action:"
+                        f" {_SURRENDER_WAYS[skill.value]})"
+                    ),
                     spent=is_spent(view, "action"),
                     skill=skill.value,
                 )

@@ -134,7 +134,7 @@ def test_exact_fast_path_hits_labels_and_misses_paraphrases() -> None:
     assert exact_choice(fight, "Longsword Kobold B") == MenuChoice(steps=(strike,))
     assert exact_choice(gift, "I look about the room") is None
     assert exact_choice(fight, "I dash away") is None
-    assert exact_choice(gift, "Parley to end it without a fight") is None  # never a guess
+    assert exact_choice(gift, "Speak to end it without a fight") is None  # never a guess
     assert exact_choice(gift, "") is None
 
 

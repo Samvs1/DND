@@ -11,6 +11,9 @@ While an encounter offer waits at the party's place (the `offer` scope):
   (M32.1a X3, M35.2 Y9, `session.offer_strike`);
 - `surrender`: a demand that the foes yield, a parley with Intimidation; when every foe is a kind
   that never yields the note carries the rules' plain line (`rules.surrender`, M32.1a X5).
+  M38.4 (cause C): the labels say what the entries do: the parley is "Speak to end it without a
+  fight, one roll: a failure starts it" ("sure to hold" when the master's peace route is done),
+  the demand "Make the foes surrender to you" (the hero yielding has no entry: `other`).
 M36.8c (round 1 G-104 "attacks Old Broker Tann without warning"): every weapon the hero holds
 (not the off hand: a bonus action never opens a fight) also aims at the people standing here, out
 of a fight with or without an offer (`person_strikes` when none waits). Chosen, it is the
@@ -21,8 +24,8 @@ At any place out of a fight:
   person standing here (`world.quest_ask`);
 - `help_up`: helping a downed hero up to 1 HP (`rules.downed.help_up_events`).
 
-Public API: `offer_entries(view)`, `person_strikes(view)`, `quest_entries(view)`,
-`help_up_entries(view)`.
+Public API: `PARLEY_BASE`, `PARLEY_ROLL`, `PARLEY_SURE`, `offer_entries(view)`,
+`person_strikes(view)`, `quest_entries(view)`, `help_up_entries(view)`.
 """
 
 from aidm.models.action_menu import ActionKind, MenuEntry
@@ -30,11 +33,14 @@ from aidm.models.campaign_state import EncounterOffer, OfferChoice
 from aidm.models.sheet import AttackLine
 from aidm.rules.attack_profiles import UNARMED_KEY
 from aidm.rules.menu_casts import strike_casts
-from aidm.rules.menu_labels import strike_label
+from aidm.rules.menu_labels import SURRENDER_ASK, strike_label
 from aidm.rules.menu_scene_view import SceneMenuView, offer_foes
-from aidm.rules.offer_answer import PARLEY_SKILLS
+from aidm.rules.offer_answer import PARLEY_SKILLS, sure_parley
 from aidm.rules.surrender import offer_never_yield_line
 
+PARLEY_BASE = "Speak to end it without a fight"
+PARLEY_ROLL = "one roll: a failure starts it"
+PARLEY_SURE = "sure to hold"
 _FIGHT_NOTE = "starts the fight"
 _PERSON_NOTE = "starts a fight"
 _ANSWERS = {
@@ -51,12 +57,15 @@ _PARLEY_WAYS = {
 }
 
 
-def _answers(offer: EncounterOffer) -> list[MenuEntry]:
+def _answers(view: SceneMenuView, offer: EncounterOffer) -> list[MenuEntry]:
+    """M38.4 (cause C): the parley label says what the answer does, words with stakes ("one
+    roll: a failure starts it"), so a bow or "I won't attack" no longer reads as one."""
+    stake = PARLEY_SURE if sure_parley(view.state, offer) else PARLEY_ROLL
     out: list[MenuEntry] = []
     for choice in offer.options:
         if choice is OfferChoice.PARLEY:
             for skill in PARLEY_SKILLS:
-                label = f"Parley to end it without a fight ({_PARLEY_WAYS[skill.value]})"
+                label = f"{PARLEY_BASE}, {stake} ({_PARLEY_WAYS[skill.value]})"
                 out.append(
                     MenuEntry(
                         id=f"offer:parley:{skill.value}",
@@ -146,7 +155,7 @@ def _surrender(view: SceneMenuView) -> MenuEntry:
     return MenuEntry(
         id="surrender",
         kind=ActionKind.SURRENDER,
-        label="Demand that they surrender (Intimidation)",
+        label=f"{SURRENDER_ASK} (Intimidation)",
         note=never or "",
         skill="intimidation",
     )
@@ -156,7 +165,7 @@ def offer_entries(view: SceneMenuView) -> list[MenuEntry]:
     offer = view.offer
     if offer is None:
         return []
-    out = _answers(offer)
+    out = _answers(view, offer)
     foes = tuple(t.id for t in offer_foes(view)) if view.threat else ()
     people = tuple(p for p in view.people if p not in foes)
     if foes or people:

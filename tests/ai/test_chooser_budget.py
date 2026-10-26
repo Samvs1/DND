@@ -6,9 +6,13 @@ the per-menu tool schema as sent (compact JSON, the entry-id enum is most of it)
 (p90 2,150). M36.9 (colour field, longer rules, zone targets naming who stands there; paid for by
 shared target notes and shorter names): messages max 1,745 (p90 1,547), total max 2,589 (p90
 2,276). M36.9 iteration 2 (offer answers listed with their labels, paid for by a shorter system
-text and shorter offer labels): messages max 1,763 (p90 1,555), total max 2,588 (p90 2,295). The
-bounds below leave a small margin; a menu change that blows them is fixed in the
-rendering (`aidm.dm.chooser_menu`), never by raising the bound.
+text and shorter offer labels): messages max 1,763 (p90 1,555), total max 2,588 (p90 2,295).
+M38.2 (attack-roll spells at a person): messages max 1,791, total 2,586. M38.4 (rule 1 names the
+off target, NOT OFFERED targets, harmful spells at a person, labels that say what they do; paid
+by writing a target note once): measured with the not-offered targets the chooser adds, messages
+max 1,789 (p90 1,580), total max 2,594 (p90 2,304). The bounds below leave a small margin; a
+menu change that blows them is fixed in the rendering (`aidm.dm.chooser_menu`), never by raising
+the bound.
 """
 
 import gzip

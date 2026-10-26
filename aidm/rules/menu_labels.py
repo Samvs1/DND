@@ -11,7 +11,8 @@ Short, with descriptors from data, never numbers the hero could not see on the b
   area, concentration).
 - features: "Turn Undead (Channel Divinity, 1 left, undead nearby: Cantor Ashmere Voll)".
 
-Public API: `state_word(creature)`, `distance_text(feet)`, `creature_label(creature, feet)`,
+Public API: `SURRENDER_ASK` (the surrender demand's label, fight and offer),
+`state_word(creature)`, `distance_text(feet)`, `creature_label(creature, feet)`,
 `zone_label(name, feet, standing)`, `percent(p)`, `chance_note(p, feet)`,
 `strike_label(name, band, damage, chance, draw)`, `spell_label(spell, line, slots_left)`,
 `feature_label(line, extra)`, `resource_name(key)`, `item_label(name, heal, qty)`,
@@ -40,6 +41,7 @@ _ECONOMY_WORDS = {
     "extra_action": "extra action",
 }
 _AREA_WORDS = {"zone": "in your area", "zone_and_adjacent": "nearby"}
+SURRENDER_ASK = "Make the foes surrender to you"  # M38.4: who surrenders (never the hero)
 
 
 def state_word(creature: Creature) -> str:
