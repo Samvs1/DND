@@ -16,6 +16,9 @@ model tells attempts as attempts:
 - M29.7b: who acted at whom with what outcome and who did nothing (`aidm.dm.fight_ledger`), and
   the world facts of `aidm.dm.turn_facts_world` (the place really reached, lights, pick-ups, the
   party's size and who is still hurt).
+- M40.5 (round 7 Z13, Z3, Z10): when nothing changed hands, why (`rules.not_carried`: the
+  thing is another hero's, and no hero the line names answered: their answers are their
+  players'); an area spell's creatures it did not affect, and why (`aidm.dm.area_text`).
 The same truth is enforced by THE guard (`aidm.dm.guard_turn`, `guard_truth`, `guard_goods`).
 
 Public API: `turn_facts(state, events, *, actor_id, player_text) -> list[str]`.
@@ -25,6 +28,7 @@ from collections import Counter
 from collections.abc import Sequence
 
 from aidm.data.guard_lexicon import guard_lexicon
+from aidm.dm.area_text import area_miss_facts
 from aidm.dm.fight_ledger import fight_lines
 from aidm.dm.guard_text import find_phrases, plain
 from aidm.dm.guard_turn import TurnTruth, turn_truth
@@ -35,6 +39,8 @@ from aidm.models import events as ev
 from aidm.models.combat_events import AttackRolled
 from aidm.models.encounter import EncounterStatus, Side
 from aidm.models.state import GameState
+from aidm.rules.menu_view import slug
+from aidm.rules.not_carried import held_elsewhere, named_heroes
 
 
 def _weapon_facts(state: GameState, events: Sequence[ev.AnyEvent]) -> list[str]:
@@ -146,20 +152,50 @@ def _goods_facts(state: GameState, truth: TurnTruth, actor_id: str | None, text:
         " does not exist, so it cannot be used, drunk, thrown, lost or broken."
         for c in truth.claimed
     ]
-    if _asked(text, lex.purchase_words | lex.payment_verbs) and not truth.paid:
+    unpaid = _asked(text, lex.purchase_words | lex.payment_verbs) and not truth.paid
+    if unpaid:
         out.append(
             "No coin changed hands and nothing was bought or sold: every hero's gold and pack"
             " are unchanged; a sale happens only when the shop makes it."
         )
-    if _asked(text, lex.handover_words) and not truth.handed:
+    handover = _asked(text, lex.handover_words) and not truth.handed
+    if handover:
         out.append(
             f"Nothing changed hands: {who} still holds everything they carried, and nobody"
             " took, accepted or now holds anything of theirs."
         )
+    if handover or unpaid:
+        out += _why_unmoved(state, truth, actor_id, who, text)
     kindle = _asked(text, lex.kindle_words) and _asked(text, lex.light_nouns)
     if kindle and not truth.lit:
         out.append("No new light was lit by this action: no torch, lantern or candle caught flame.")
     return out
+
+
+def _why_unmoved(
+    state: GameState, truth: TurnTruth, actor_id: str | None, who: str, text: str
+) -> list[str]:
+    """M40.5 (round 7 Z13, Z3): why nothing changed hands, from the heroes' packs: the thing is
+    another hero's, and no hero the line names answered (their answers are their players')."""
+    claimed = {slug(c.term) for c in truth.claimed}
+    out = [
+        f"{who} carries no {held.name}: {_joined(held.holders)}"
+        f" {'carries' if len(held.holders) == 1 else 'carry'} it, so {who} had none to hold out"
+        " or hand over."
+        for held in held_elsewhere(state, actor_id, text)
+        if slug(held.name) not in claimed
+    ]
+    heroes = named_heroes(state, actor_id, text)
+    if heroes:
+        out.append(
+            f"{_joined(heroes)} refused, declined and ignored nothing: no hero answered this, and"
+            " a hero's answer is their own player's to give."
+        )
+    return out
+
+
+def _joined(names: Sequence[str]) -> str:
+    return names[0] if len(names) == 1 else f"{', '.join(names[:-1])} and {names[-1]}"
 
 
 def _travel_facts(state: GameState, text: str, events: Sequence[ev.AnyEvent]) -> list[str]:
@@ -186,7 +222,7 @@ def turn_facts(
     truth = turn_truth(state, events, actor_id=actor_id, player_text=player_text)
     text = plain(player_text or "").casefold()
     out = [*_weapon_facts(state, events), *_hurt_facts(state, events, truth.fight.fled)]
-    out += _foes_left(state)
+    out += _foes_left(state) + area_miss_facts(state, events)
     out += _actor_facts(state, truth, events) + _fight_facts(truth)
     if text:
         out += _goods_facts(state, truth, actor_id, text) + _travel_facts(state, text, events)

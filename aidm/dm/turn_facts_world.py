@@ -1,7 +1,10 @@
 """World facts the narrator is told about a turn (M29.7b honest storyteller, M29_round2.md R2 R12
 R17 R28): where the party really is, which lights burn, that nothing was picked up, the party's
-size and who is still hurt. The same truth is enforced by THE guard (`aidm.dm.guard_light`,
-`aidm.dm.guard_party`).
+size and who is still hurt. M40.5 (round 7 Z11, r7b-quests 116-119: found, then told "already
+in Brienne's hands" before any pick-up): the things a search turned up that still lie here are
+told lying where they were found, held by nobody, until a pick-up event takes them (and a
+pick-up asked for and not made no longer says nothing lay here). The same truth is enforced by
+THE guard (`aidm.dm.guard_light`, `aidm.dm.guard_party`).
 
 Public API: `PUT_OUT_WORDS`, `world_facts(state, truth, text, events) -> list[str]`,
 `light_asked(text) -> bool`.
@@ -15,6 +18,7 @@ from aidm.dm.guard_turn import TurnTruth
 from aidm.models import events as ev
 from aidm.models.item_events import LightEnded, LightLit
 from aidm.models.state import GameState
+from aidm.models.world_events import ItemDiscovered
 
 PUT_OUT_WORDS = frozenset(
     {"put out", "puts out", "pinch out", "pinches out", "snuff", "snuffs", "douse", "douses"}
@@ -57,12 +61,40 @@ def _light_facts(truth: TurnTruth, text: str, events: Sequence[ev.AnyEvent]) -> 
     return out
 
 
-def _pickup_facts(truth: TurnTruth, text: str) -> list[str]:
+def _lying_here(state: GameState) -> list[str]:
+    world = state.world
+    here = world.current_node
+    return [i.name for i in world.items.values() if here and i.node_id == here and not i.hidden]
+
+
+def _pickup_facts(state: GameState, truth: TurnTruth, text: str) -> list[str]:
     if truth.picked or not find_phrases(text, guard_lexicon().pickup_words):
         return []
+    rest = "" if _lying_here(state) else ", and nothing lay here to take"
     return [
         "Nothing was picked up in these events: nobody lifts, takes or pockets anything; what a"
-        " hero carries they already had, and nothing lay here to take."
+        f" hero carries they already had{rest}."
+    ]
+
+
+def _found_facts(state: GameState, events: Sequence[ev.AnyEvent]) -> list[str]:
+    """M40.5: found earlier (a search turned it up: it had a DC to find) and still lying here."""
+    world = state.world
+    just = {e.item_id for e in events if isinstance(e, ItemDiscovered)}  # its own line says so
+    found = [
+        item.name
+        for item in world.items.values()
+        if world.current_node is not None
+        and item.node_id == world.current_node
+        and not item.hidden
+        and item.discover_dc is not None
+        and item.id not in just
+    ]
+    if not found:
+        return []
+    return [
+        "Found by a search and still lying where it was found, held by nobody (in no hand, pack"
+        f" or pocket until a hero picks it up): {', '.join(found)}."
     ]
 
 
@@ -87,6 +119,7 @@ def world_facts(
     return [
         *_place_facts(state, truth),
         *_light_facts(truth, text, events),
-        *_pickup_facts(truth, text),
+        *_pickup_facts(state, truth, text),
+        *_found_facts(state, events),
         *_party_facts(state),
     ]
