@@ -21,6 +21,7 @@ Any refusal of the spell engine (out of range, a bad target, no voice under Sile
 that takes minutes during a fight) comes back as its message; nothing is spent.
 
 Public API: `SCROLL_PROFICIENCY`, `scroll_numbers(level) -> CasterNumbers`,
+`spell_aim(enc, caster_id, spell, target)` (the aiming above, also the opening strike's, M38.4),
 `read_scroll(state, reader_id, item, spell_id, target, rng, regs) -> list[AnyEvent] | str`.
 """
 
@@ -58,7 +59,7 @@ def _fight(state: GameState, reader_id: str) -> Encounter | None:
     return enc if reader_id in enc.combatants else None
 
 
-def _aim(
+def spell_aim(
     enc: Encounter | None, reader_id: str, spell: SpellDef, target: str | None
 ) -> tuple[Sequence[str], str | None]:
     kind = spell.targeting.kind
@@ -111,7 +112,7 @@ def read_scroll(
     try:
         numbers = scroll_numbers(spell.level)
         return scroll_cast(
-            state, reader_id, spell, numbers, _aim(enc, reader_id, spell, target), rng, regs
+            state, reader_id, spell, numbers, spell_aim(enc, reader_id, spell, target), rng, regs
         )
     except CommandRefused as error:
         return error.reason

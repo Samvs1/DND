@@ -19,7 +19,11 @@ Eldritch Blast) also aims at the people standing here, as a held weapon does (M3
 is its opening-strike key (`spell:<id>`), so a person named is the engine's attack on a person
 (`PersonStrikeIntent`: `start_encounter` with the spell as the opening strike, the
 point-of-no-return question first for a non-hostile person), and no one named stays the scene
-cast. A spell with no attack roll (a save, Magic Missile) has no opening-strike path.
+cast. M38.4 (owner rule: never refuse a possible action): so does a harmful spell with no attack
+roll, any that deals damage (`spell_targets.deals_damage`: Burning Hands, Sacred Flame, Magic
+Missile), its opening strike cast at the person (an area at the zone they stand in,
+`rules.opening_strike`). A hostile spell that deals no damage (Charm Person, Sleep, Hold Person)
+stays the scene cast out of a fight.
 
 M36.4: `feature:<name>`: a class feature usable out of a fight (`feature_commands.
 usable_out_of_fight`: a healing bonus action such as Second Wind) with uses left, the same id as
@@ -41,7 +45,7 @@ from aidm.rules.menu_magic import lowest_slot, needs_of
 from aidm.rules.menu_scene_view import SceneMenuView
 from aidm.rules.menu_view import slug
 from aidm.rules.spell_chances import SPELL_OPTION_PREFIX, spell_attack_options
-from aidm.rules.spell_targets import strikes_creatures
+from aidm.rules.spell_targets import deals_damage, strikes_creatures
 
 SCENE_NOTE = "cast at the scene"
 PERSON_NOTE = "cast at the scene, or at a person here: starts a fight"
@@ -49,12 +53,15 @@ NO_SLOT = "no spell slot left"
 
 
 def _at_people(view: SceneMenuView) -> frozenset[str]:
-    """The spells the hero can open a fight with on a person here (an attack roll)."""
+    """The spells the hero can open a fight with on a person here: a ready spell with an attack
+    roll (M38.2), or a harmful one, any that deals damage, with a slot left (M38.4)."""
     if not view.people:
         return frozenset()
     hero = view.state.creatures[view.actor_id]
     keys = spell_attack_options(hero, view.regs.chars, view.regs.spells)
-    return frozenset(p.key.removeprefix(SPELL_OPTION_PREFIX) for p in keys)
+    rolled = {p.key.removeprefix(SPELL_OPTION_PREFIX) for p in keys}
+    harmful = {s.index for s, _, _, left in _castable(view) if left != 0 and deals_damage(s)}
+    return frozenset(rolled | harmful)
 
 
 def _castable(view: SceneMenuView) -> Iterator[tuple[SpellDef, SpellLine, int | None, int | None]]:

@@ -24,6 +24,8 @@ Public API:
 - `needs_battlefield(spell) -> bool`: the spell cannot resolve outside a fight (below).
 - `strikes_creatures(spell) -> bool` (M30.2b): a hostile spell, one with an attack roll, a save,
   damage or an HP pool (Sleep) at its top level: aimed at someone it is an attack.
+- `all_effects(effects)`: every effect, nested ones too; `deals_damage(spell) -> bool` (M38.4):
+  a harmful spell, one with damage anywhere in it.
 - `area_creatures(state, zone_id, area, exclude) -> tuple[str, ...]`: living, present
   combatants in the zone (and its neighbours for "zone_and_adjacent").
 - `SpellTargets(instances, zone, chosen)`; `resolve_targets(state, caster_id, spell, cast_level,
@@ -38,7 +40,7 @@ Public API:
   "hp_ascending" sorts the instances by current HP (stable, ties keep their order).
 """
 
-from collections.abc import Collection, Sequence
+from collections.abc import Collection, Iterator, Sequence
 from dataclasses import dataclass
 
 from aidm.data.character_data import CharacterRegistries
@@ -48,6 +50,7 @@ from aidm.data.spell_defs import (
     DamageEffect,
     Effect,
     HpPoolEffect,
+    MultiTargetEffect,
     SaveEffect,
     SpellDef,
     Targeting,
@@ -192,6 +195,29 @@ def needs_battlefield(spell: SpellDef) -> bool:
 def strikes_creatures(spell: SpellDef) -> bool:
     """A hostile spell: an attack roll, a save, damage or an HP pool among its effects."""
     return _needs_fight(spell.effects) or any(isinstance(e, HpPoolEffect) for e in spell.effects)
+
+
+def all_effects(effects: Sequence[Effect]) -> Iterator[Effect]:
+    """Every effect of a spell, nested ones too (on a hit or a miss, on a failed or saved roll,
+    inside an HP pool or a multi-target block)."""
+    for effect in effects:
+        yield effect
+        if isinstance(effect, AttackRollEffect):
+            yield from all_effects(effect.on_hit)
+            if isinstance(effect.on_miss, tuple):
+                yield from all_effects(effect.on_miss)
+        elif isinstance(effect, SaveEffect):
+            yield from all_effects(effect.on_fail)
+            if isinstance(effect.on_success, tuple):
+                yield from all_effects(effect.on_success)
+        elif isinstance(effect, (HpPoolEffect, MultiTargetEffect)):
+            yield from all_effects(effect.effects)
+
+
+def deals_damage(spell: SpellDef) -> bool:
+    """M38.4: a harmful spell, one that deals damage (Burning Hands, Magic Missile, Sacred
+    Flame): cast at a person here it opens a fight, as an attack does."""
+    return any(isinstance(e, DamageEffect) for e in all_effects(spell.effects))
 
 
 def spell_can_affect(creature: Creature, targeting: Targeting) -> bool:

@@ -4,7 +4,11 @@ style"; M20.5, playtest 3: a hero who cast Eldritch Blast at someone had a dagge
 `opening_strike(state, attacker_id, target_id, regs, rng, attack=None)` is rolled before the first
 turn and spends no action:
 - `attack` a spell id the hero has ready with an attack roll (a cantrip, or a leveled spell, which
-  pays its slot as usual): that spell is cast at the target (`rules.spells.cast_spell`);
+  pays its slot as usual): that spell is cast at the target (`rules.spells.cast_spell`); M38.4:
+  a harmful spell with no attack roll (`spell_targets.deals_damage`: a save such as Burning Hands
+  or Sacred Flame, or Magic Missile) is cast too, aimed as a scroll is (`scroll_read.spell_aim`:
+  at the target, an area at the zone the target stands in, so it hits whoever stands there), its
+  lowest slot paid; one the rules refuse (no slot left) rolls nothing, no weapon in its place;
 - `attack` a carried spell scroll (`scroll-of-<spell>`, M27.7): the hero reads it at the target
   through THE item interpreter with no action spent (`rules.item_use.use_item(free=True)`): the
   scroll's own numbers, the scroll used up; a read the rules refuse rolls nothing (no weapon is
@@ -28,8 +32,10 @@ from aidm.rules.command_checks import CommandRefused
 from aidm.rules.dice import Rng
 from aidm.rules.hit_chance import attack_situation
 from aidm.rules.item_use import use_item
+from aidm.rules.scroll_read import spell_aim
 from aidm.rules.scrolls import SCROLL_PREFIX
 from aidm.rules.spell_chances import SPELL_OPTION_PREFIX, spell_attack_options
+from aidm.rules.spell_targets import deals_damage
 from aidm.rules.spells import cast_spell
 
 
@@ -40,11 +46,16 @@ def _spell(
     creature = state.creatures[attacker_id]
     ready = {p.key for p in spell_attack_options(creature, regs.chars, regs.spells)}
     spell = regs.spells.find(spell_id)
-    if spell is None or f"{SPELL_OPTION_PREFIX}{spell_id}" not in ready:
+    if spell is None:
         return None
-    slot = None if spell.level == 0 else spell.level
+    if f"{SPELL_OPTION_PREFIX}{spell_id}" in ready:
+        slot, aim = (None if spell.level == 0 else spell.level), ([target_id], None)
+    elif deals_damage(spell):  # M38.4: a harmful spell with no attack roll, aimed as a scroll is
+        slot, aim = None, spell_aim(state.encounter, attacker_id, spell, target_id)
+    else:
+        return None
     try:
-        return cast_spell(state, attacker_id, spell, slot, [target_id], None, rng, regs)
+        return cast_spell(state, attacker_id, spell, slot, aim[0], aim[1], rng, regs)
     except CommandRefused:
         return []
 

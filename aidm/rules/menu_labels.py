@@ -18,21 +18,18 @@ Public API: `state_word(creature)`, `distance_text(feet)`, `creature_label(creat
 `area_words(area)`.
 """
 
-from collections.abc import Iterator, Sequence
+from collections.abc import Sequence
 
 from aidm.data.spell_defs import (
-    AttackRollEffect,
     DamageEffect,
-    Effect,
     HealEffect,
-    HpPoolEffect,
-    MultiTargetEffect,
     SaveEffect,
     SpellDef,
     TempHpEffect,
 )
 from aidm.models.sheet import FeatureActionLine, SpellLine
 from aidm.models.state import Creature
+from aidm.rules.spell_targets import all_effects
 
 HURT_AT = 1.0
 WOUNDED_AT = 0.5
@@ -95,24 +92,9 @@ def strike_label(name: str, band: str, damage: str, chance: str = "", draw: bool
     return f"{name} ({', '.join(parts)})"
 
 
-def _walk(effects: Sequence[Effect]) -> Iterator[Effect]:
-    for effect in effects:
-        yield effect
-        if isinstance(effect, AttackRollEffect):
-            yield from _walk(effect.on_hit)
-            if isinstance(effect.on_miss, tuple):
-                yield from _walk(effect.on_miss)
-        elif isinstance(effect, SaveEffect):
-            yield from _walk(effect.on_fail)
-            if isinstance(effect.on_success, tuple):
-                yield from _walk(effect.on_success)
-        elif isinstance(effect, (HpPoolEffect, MultiTargetEffect)):
-            yield from _walk(effect.effects)
-
-
 def _effect_words(spell: SpellDef) -> list[str]:
     words: list[str] = []
-    for effect in _walk(spell.effects):
+    for effect in all_effects(spell.effects):
         if isinstance(effect, DamageEffect):
             word = str(effect.damage_type)
         elif isinstance(effect, (HealEffect, TempHpEffect)):
