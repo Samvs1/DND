@@ -1,4 +1,4 @@
-NEXT: M39.0 round 7: 3 playtester runs (r7-typed, r7-quests, r7-full) live, then M39.1 the checked report. Files in flight: none. Last gate: M38.5 FULL gate PASS (12/12).
+NEXT: none planned. Round 7 report docs/playtests/M39_round7.md is with the owner; wait for the owner's pick of which Z findings to fix (no live calls until a fresh OK). Files in flight: none. Last gate: M38.5 FULL gate PASS (12/12); M39 is docs only.
 
 # PROGRESS
 
@@ -412,8 +412,8 @@ Rules for the whole milestone: the M36 rules hold (no phrase rows, lexicon words
 
 ## M39 Round 7 (owner 2026-10-26: "Lets do a round 7 playtest."; findings docs/playtests/M39_round7.md)
 Same shape as round 6: r7-typed (Sonnet, acts 1-2, seed 2, fighter,rogue,wizard,cleric, cap 220), r7-quests (Haiku, acts 1-2, seed 3, classic, cap 180), r7-full (Sonnet, full campaign, seed 1, classic, cap 320), ports 8771-8773, live. First round on the menu interpreter (M36, M38): every typed line adds a chooser call, so expect about 1,000 calls (round 6: 637); llm.jsonl starts at line 5770. Verify M35 (Y1-Y4, Y6, Y9, Y20) and M36/M38 (Y10-Y15, the false actions of docs/playtests/M38_eval.md) in the saves; findings numbered Z1...
-- [ ] M39.0 Play the 3 runs (playtester agents; reports in the scratchpad).
-- [ ] M39.1 Check every claim against its save; write docs/playtests/M39_round7.md (runs, fix verdicts, findings Z1.., spend). No fixes: the owner decides.
+- [x] M39.0 Play the 3 runs (playtester agents; reports in the scratchpad). Done: the first start (r7-*) was dropped after cross-talk on the default run pointer; replayed as r7b-typed (8774), r7b-quests (8775), r7b-full (8776), every command with `--run`. 1,048 calls in all (127 in the dropped start).
+- [x] M39.1 Check every claim against its save; write docs/playtests/M39_round7.md (runs, fix verdicts, findings Z1.., spend). No fixes: the owner decides. Done: Y1, Y4, Y20 hold (ledger 0 problems on all 3 saves); findings Z1-Z24 (harmful: Z1 typed yes starts a fight, Z2 out-of-reach travel swapped); Z19/Z20 are harness gaps, not game bugs.
 
 ## Notes (stashes, blockers, decisions pending)
 - M38 left (harmful, live final pass): "I help Rook up" with Rook standing helps Elowen up; "I leave 5 gold for the poor" pays Merre; "I surrender" picks the demand that the foes yield (no yield entry exists). Plus the ally-in-fight weapon gap (M38.2 note). Not started: needs an owner call (any live check needs a fresh OK).
