@@ -97,3 +97,37 @@ pro) fail now, and no row that failed all three passes now. The 13 regressions p
 
 The four uncarried-item rows A aimed at did not pass. 418 and 638 picked a parley or a talk, and 868 handed the chime to Elowen.
 On the synthetic side, A fixed help_up at a standing hero, guidance and the companions talk, and B fixed the four person casts. "I surrender" still picks the demand.
+
+## M38.5 final pass (2026-10-26, after fixes B d9cc01c, A 0aacceb and C 05e4aff; 392 calls, allowance 2,486 of 2,500 used)
+Raw output: artifacts/eval/20261026-122057.json (main, 333 calls) and artifacts/eval/20261026-122318.json (synthetic subset, 59 calls).
+
+| main corpus (300) | final | pass 1 | M36.9 pass 2 / 3 / pro |
+|---|---|---|---|
+| exact | **90.7%** | 87.7% | 91.0 / 90.0 / 91.7% |
+| finding-cited | 90.0% | 84.2% | 89.2 / 90.0 / 89.2% |
+| false action | **3.7% (11)** | 5.7% (17) | 6.0 / 4.0 / 3.0% |
+| false other | 3.0% | 5.0% | 2.7 / 3.3 / 1.7% |
+| p90 latency | 2.44 s | 2.20 s | 1.82 / 2.01 / 2.70 s |
+
+- 12 of the 13 pass-1 regressions pass again. The 13th, 42 "Burning Hands at the damp ferns", picked `strike:burning-hands` with no
+  target. Played offline, that step is `CastIntent(at_scene=True)`, the same act as the label: an id miss with no harm, not a person strike.
+- Four rows that passed in all three M36.9 runs miss now: 42 above, plus 296, 658 and 968. Two of them add `other` and one adds a stray move;
+  at about +-4 rows per 100 this is run-to-run noise.
+- 521 (Caul's Bait-Cache), which failed all three M36.9 runs, now passes. 418, 638 and 868 still miss, on the model's own reading.
+- The main corpus is at par with M36.9, with a lower false-action rate than pass 3. The 92% bar is still out of reach (M36.9, option 1).
+
+Synthetic subset (43 rows: every pass-1 miss plus the A, B and C target rows; a hard set by selection, so not comparable to a full pass):
+
+| same 43 rows | M38.3 | pass 1 | final |
+|---|---|---|---|
+| exact | 9 | 12 | **21** |
+| false action | 28 | 23 | **16** |
+| chooser failed | 0 | 2 | 0 |
+
+- Fixed now: the burning hands strikes at a person, the guidance on Old Renn, "I won't attack the thug", "I bow to the thug",
+  the greeting with the bow slung, gold to Brienne, the barred Old Bridgeheart, and the two former chooser failures.
+- Still wrong, and harmful:
+  - "I help Rook up" (Rook is standing) helps Elowen up.
+  - "I leave 5 gold for the poor" pays Merre.
+  - "I surrender" picks the demand.
+- Still wrong, harmless: "magic missile at the ferryman" is a scene cast, and the D word-play rows. Round 7 measures these in real play.
