@@ -37,7 +37,7 @@ _SIMPLE: dict[str, tuple[ActionKind, str]] = {
     "hide": (ActionKind.HIDE, "Hide (Stealth check, hidden until seen)"),
 }
 _SURRENDER_WAYS = {  # M36.9 iteration 2: the Persuasion form reads as an offer of mercy;
-    "intimidation": "threaten",  # M38.4: one stem that says who surrenders (never the hero)
+    "intimidation": "a threat",  # M38.4/M38.5 fix: one stem, the demand, who yields to whom
     "persuasion": "offer mercy",
 }
 

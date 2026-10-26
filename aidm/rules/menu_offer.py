@@ -12,8 +12,10 @@ While an encounter offer waits at the party's place (the `offer` scope):
 - `surrender`: a demand that the foes yield, a parley with Intimidation; when every foe is a kind
   that never yields the note carries the rules' plain line (`rules.surrender`, M32.1a X5).
   M38.4 (cause C): the labels say what the entries do: the parley is "Speak to end it without a
-  fight, one roll: a failure starts it" ("sure to hold" when the master's peace route is done),
-  the demand "Make the foes surrender to you" (the hero yielding has no entry: `other`).
+  fight, one roll: a failure starts it" ("sure to hold" when the master's peace route is done);
+  M38.5 fix: the demand is "Demand that the foes yield to you, not you to them" (M38.4's "Make
+  the foes surrender to you" lost "Demand" and "Drop your weapons and yield!" read as a parley;
+  the hero yielding has no entry: `other`).
 M36.8c (round 1 G-104 "attacks Old Broker Tann without warning"): every weapon the hero holds
 (not the off hand: a bonus action never opens a fight) also aims at the people standing here, out
 of a fight with or without an offer (`person_strikes` when none waits). Chosen, it is the

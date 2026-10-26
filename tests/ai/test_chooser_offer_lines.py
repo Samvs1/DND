@@ -46,15 +46,17 @@ def test_entries_with_notes_or_no_bracket_keep_their_own_lines() -> None:
 
 def test_v1_m38_surrender_labels_say_the_foes_surrender_to_you() -> None:
     """M38.4 cause C: "I surrender" picked the Persuasion demand ("Call on the foes to yield and
-    be spared"); both forms now say who surrenders, the Persuasion one still offers mercy, and
-    the shared stem is no fast-path key (never a guess)."""
+    be spared"); both forms now say who yields to whom, and M38.5 fix: they are the demand again
+    ("Drop your weapons and yield!", m32-r5-typed:419, read M38.4's "Make the foes surrender to
+    you" as a parley); the shared stem is no fast-path key (never a guess)."""
     menu = menu_at(FIGHT_RUN, FIGHT_SEQ, "pc-p6")
     labels = {e.id: e.label for e in menu.entries}
-    assert labels["surrender:persuasion"].startswith("Make the foes surrender to you (Persuasion")
+    stem = "Demand that the foes yield to you, not you to them"
+    assert labels["surrender:persuasion"].startswith(f"{stem} (Persuasion")
     assert labels["surrender:persuasion"].endswith(", action: offer mercy)")
-    assert labels["surrender:intimidation"].startswith("Make the foes surrender to you (Intim")
-    assert labels["surrender:intimidation"].endswith(", action: threaten)")
-    assert exact_choice(menu, "Make the foes surrender to you") is None
+    assert labels["surrender:intimidation"].startswith(f"{stem} (Intimidation")
+    assert labels["surrender:intimidation"].endswith(", action: a threat)")
+    assert exact_choice(menu, stem) is None
     assert exact_choice(menu, "I surrender") is None
 
 
@@ -66,7 +68,9 @@ def test_v1_m38_parley_label_says_it_is_words_and_a_roll() -> None:
         "Speak to end it without a fight, one roll: a failure starts it"
         " (Persuasion: plead, reason, bargain)"
     )
-    assert labels["surrender"] == "Make the foes surrender to you (Intimidation)"
+    assert (
+        labels["surrender"] == "Demand that the foes yield to you, not you to them (Intimidation)"
+    )
 
 
 def test_a_sure_parley_says_it_holds_without_a_roll() -> None:

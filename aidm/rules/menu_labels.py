@@ -41,7 +41,7 @@ _ECONOMY_WORDS = {
     "extra_action": "extra action",
 }
 _AREA_WORDS = {"zone": "in your area", "zone_and_adjacent": "nearby"}
-SURRENDER_ASK = "Make the foes surrender to you"  # M38.4: who surrenders (never the hero)
+SURRENDER_ASK = "Demand that the foes yield to you, not you to them"  # M38.5 fix: the demand
 
 
 def state_word(creature: Creature) -> str:

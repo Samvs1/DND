@@ -210,8 +210,8 @@ overall 56.3%, explore 49.3%, offer 40.0%, fight 75.0%, finding-cited 53.3%.
   is `cast:<spell>` with `targets: []` (the scene cast). A hostile spell with no damage (Sleep, Charm Person)
   at a person stays `cast:<spell>` with `targets: []`. Relabelled: `syn:merre_shop:11`, `:12`, `:13`,
   `syn:ferry_casters:17` (were `other`).
-- **Labels that say what they do** (DECISIONS M38.4 C): the surrender demand is "Make the foes surrender to
-  you"; the hero yielding ("I surrender") has no entry and stays `other`. The parley is "Speak to end it
+- **Labels that say what they do** (DECISIONS M38.4 C): the surrender demand is "Demand that the foes yield
+  to you, not you to them" (M38.5 fix); the hero yielding ("I surrender") has no entry and stays `other`. The parley is "Speak to end it
   without a fight, one roll: a failure starts it"; a bow, a greeting with no plea or "I won't attack" stays
   `other` as before. No label changed for C.
 - Unchanged on purpose: `m29-r3-full:466` "four silver" (gold only, DECISIONS M38.0), the D, E and F rows of

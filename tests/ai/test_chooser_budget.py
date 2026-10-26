@@ -10,7 +10,9 @@ text and shorter offer labels): messages max 1,763 (p90 1,555), total max 2,588 
 M38.2 (attack-roll spells at a person): messages max 1,791, total 2,586. M38.4 (rule 1 names the
 off target, NOT OFFERED targets, harmful spells at a person, labels that say what they do; paid
 by writing a target note once): measured with the not-offered targets the chooser adds, messages
-max 1,789 (p90 1,580), total max 2,594 (p90 2,304). The bounds below leave a small margin; a
+max 1,789 (p90 1,580), total max 2,594 (p90 2,304). M38.5 fix (rule 1 narrowed, people not
+here no longer NOT OFFERED, `strike:` entries, the demand label): messages max 1,792 (p90
+1,591), total max 2,587 (p90 2,315). The bounds below leave a small margin; a
 menu change that blows them is fixed in the rendering (`aidm.dm.chooser_menu`), never by raising
 the bound.
 """
