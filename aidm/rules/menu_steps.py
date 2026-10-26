@@ -12,7 +12,8 @@ Engine meaning lives here and in `menu_steps_fight` / `menu_steps_scene`, never 
   steps: the offer is answered as Fight and the step itself waits for the hero's turn, when
   `resume_strike` maps it onto the spawned creatures (below). M36.8c: a weapon strike out of a
   fight aimed at a person here (not the waiting master) is `PersonStrikeIntent(actor, npc,
-  attack option)` and ends the steps too; a shown cast twin of a boss record is mapped back to
+  attack option)` and ends the steps too (M38.2: so is a spell with an attack roll, its option
+  the opening-strike key `spell:<id>`); a shown cast twin of a boss record is mapped back to
   the boss record first (`menu_scene_view.twin_boss`), so the master's strike stays an offer
   strike.
 - Ordering on the running state: each step is turned into acts on the state the steps before it
@@ -128,12 +129,20 @@ def _strike_acts(
     state: GameState, actor_id: str, entry: MenuEntry, step: MenuStep
 ) -> list[Act] | None:
     """Out of a fight: a weapon strike at a person here, or a strike at a waiting offer's foes."""
-    chosen = step.targets or (entry.target_ids if len(entry.target_ids) == 1 else ())
-    targets = tuple(twin_boss(state, t) for t in chosen)
     offer = state.campaign.offer if state.campaign is not None else None
     master = offer.boss_npc_id if offer is not None else None
-    person = next((t for t in targets if t in state.world.npcs and t != master), None)
-    if person is not None and entry.kind is ActionKind.ATTACK:
+
+    def is_person(target: str) -> bool:
+        return target in state.world.npcs and target != master
+
+    spell_strike = entry.kind is ActionKind.CAST and entry.option is not None
+    pool = entry.target_ids  # M38.2: a spell named at no one is never aimed at a person
+    if spell_strike:
+        pool = tuple(t for t in pool if not is_person(twin_boss(state, t)))
+    chosen = step.targets or (pool if len(pool) == 1 else ())
+    targets = tuple(twin_boss(state, t) for t in chosen)
+    person = next((t for t in targets if is_person(t)), None)
+    if person is not None and (entry.kind is ActionKind.ATTACK or spell_strike):
         return [PersonStrikeIntent(actor_id, person, entry.option)]
     if entry.starts_fight:
         return [OfferStrikeIntent(actor_id, step.model_copy(update={"targets": targets}))]

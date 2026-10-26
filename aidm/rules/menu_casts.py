@@ -14,13 +14,19 @@ spell through the storyteller):
   a save, damage, an HP pool such as Sleep) is a strike at the offer's foes (`starts_fight`): the
   offer is answered as Fight and the cast plays on the hero's turn (M35.2 Y9,
   `rules.waiting_foe.cast_starts_fight`), never a scene cast.
+M38.2: a ready spell with an attack roll (`spell_chances.spell_attack_options`, Fire Bolt,
+Eldritch Blast) also aims at the people standing here, as a held weapon does (M36.8c): `option`
+is its opening-strike key (`spell:<id>`), so a person named is the engine's attack on a person
+(`PersonStrikeIntent`: `start_encounter` with the spell as the opening strike, the
+point-of-no-return question first for a non-hostile person), and no one named stays the scene
+cast. A spell with no attack roll (a save, Magic Missile) has no opening-strike path.
 
 M36.4: `feature:<name>`: a class feature usable out of a fight (`feature_commands.
 usable_out_of_fight`: a healing bonus action such as Second Wind) with uses left, the same id as
 in a fight; Action Surge, Turn Undead and Breath Weapon need a fight and are not listed.
 
 Public API: `explore_casts(view)`, `strike_casts(view, foe_ids)`, `explore_features(view)`,
-`SCENE_NOTE`, `NO_SLOT`.
+`SCENE_NOTE`, `PERSON_NOTE`, `NO_SLOT`.
 """
 
 from collections.abc import Iterator
@@ -34,10 +40,21 @@ from aidm.rules.menu_labels import spell_label
 from aidm.rules.menu_magic import lowest_slot, needs_of
 from aidm.rules.menu_scene_view import SceneMenuView
 from aidm.rules.menu_view import slug
+from aidm.rules.spell_chances import SPELL_OPTION_PREFIX, spell_attack_options
 from aidm.rules.spell_targets import strikes_creatures
 
 SCENE_NOTE = "cast at the scene"
+PERSON_NOTE = "cast at the scene, or at a person here: starts a fight"
 NO_SLOT = "no spell slot left"
+
+
+def _at_people(view: SceneMenuView) -> frozenset[str]:
+    """The spells the hero can open a fight with on a person here (an attack roll)."""
+    if not view.people:
+        return frozenset()
+    hero = view.state.creatures[view.actor_id]
+    keys = spell_attack_options(hero, view.regs.chars, view.regs.spells)
+    return frozenset(p.key.removeprefix(SPELL_OPTION_PREFIX) for p in keys)
 
 
 def _castable(view: SceneMenuView) -> Iterator[tuple[SpellDef, SpellLine, int | None, int | None]]:
@@ -60,21 +77,24 @@ def _castable(view: SceneMenuView) -> Iterator[tuple[SpellDef, SpellLine, int | 
 def explore_casts(view: SceneMenuView) -> list[MenuEntry]:
     out: list[MenuEntry] = []
     party = (view.actor_id, *view.heroes)
+    people = _at_people(view)
     for spell, line, level, left in _castable(view):
         hostile = strikes_creatures(spell)
         if hostile and view.threat:
             continue  # a strike at the waiting foes (`strike_casts`)
         aimed = needs_of(spell) == "creature" and not hostile
-        note = NO_SLOT if left == 0 else "" if aimed else SCENE_NOTE
+        at_person = not aimed and left != 0 and spell.index in people
+        note = NO_SLOT if left == 0 else "" if aimed else PERSON_NOTE if at_person else SCENE_NOTE
         out.append(
             MenuEntry(
                 id=f"cast:{spell.index}",
                 kind=ActionKind.CAST,
                 label=spell_label(spell, line, left),
-                target_ids=party if aimed else (),
-                max_targets=max(1, line.target_count) if aimed else 0,
+                target_ids=party if aimed else view.people if at_person else (),
+                max_targets=max(1, line.target_count) if aimed else 1 if at_person else 0,
                 spent=left == 0,
                 note=note,
+                option=f"{SPELL_OPTION_PREFIX}{spell.index}" if at_person else None,
                 spell_id=spell.index,
                 slot_level=level,
             )
@@ -84,17 +104,21 @@ def explore_casts(view: SceneMenuView) -> list[MenuEntry]:
 
 def strike_casts(view: SceneMenuView, foe_ids: tuple[str, ...]) -> list[MenuEntry]:
     out: list[MenuEntry] = []
+    people = _at_people(view)
     for spell, line, level, left in _castable(view):
         if not strikes_creatures(spell) or left == 0:
             continue
         count = line.target_count if needs_of(spell) == "creature" else len(foe_ids)
+        at_person = spell.index in people
         out.append(
             MenuEntry(
                 id=f"cast:{spell.index}",
                 kind=ActionKind.CAST,
                 label=spell_label(spell, line, left),
-                target_ids=foe_ids,
+                target_ids=foe_ids
+                + tuple(p for p in view.people if at_person and p not in foe_ids),
                 max_targets=max(1, min(count, len(foe_ids))),
+                option=f"{SPELL_OPTION_PREFIX}{spell.index}" if at_person else None,
                 note="starts the fight",
                 spell_id=spell.index,
                 slot_level=level,

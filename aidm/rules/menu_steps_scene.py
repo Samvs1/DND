@@ -264,8 +264,8 @@ def said_count(entry: MenuEntry) -> bool:
 
 def _cast(actor_id: str, entry: MenuEntry, step: MenuStep) -> SceneAct:
     spell = entry.spell_id or ""
-    if not entry.target_ids:
-        return CastIntent(actor_id, spell, (), at_scene=True)
+    if not entry.target_ids or (entry.option is not None and not step.targets):
+        return CastIntent(actor_id, spell, (), at_scene=True)  # M38.2: no person named
     targets = step.targets or (actor_id,)
     return CastIntent(actor_id, spell, targets[: max(1, entry.max_targets)])
 
