@@ -35,6 +35,7 @@ from aidm.models.dm_tiers import AttitudeBand
 
 MAX_STEP_TEXT = 100
 MAX_STEPS = 4
+MAX_QUEST_STEPS = MAX_STEPS + 1  # M41.4: a world quest's steps, a plan's plus the giver's report
 MAX_STEP_COUNT = 5
 MAX_STEP_GOLD = 500
 MAX_TAG = 24

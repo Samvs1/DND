@@ -9,11 +9,14 @@ backfill) and place the act's quest items.
 - The ask (`ask_events`): on an arrival (a `PartyMoved` in the batch) at a place where a side
   quest's giver is present, alive and not hostile, and that quest is unknown or still offered
   ("Not now" earlier, or an old save's bulk offer), the giver asks: `QuestUpdated(offered)` for an
-  unknown quest (kind, objective and steps from `quest_plan`), then `QuestAsked`. One ask per
+  unknown quest (kind, objective and steps from `quest_plan`, read against the world NOW by
+  `quest_targets.asked_quest`, M41.4: no friend as target, a place already won is a visit), then
+  `QuestAsked`. One ask per
   arrival (the first quest in plan order); none while an encounter offer waits, a fight runs or
   the finale card is open (M23.9).
 - The answer (`answer_events`): Accept -> `QuestUpdated(active)` (a stored quest without steps,
-  an old save's, gets its derived steps and objective in that same event); Not now ->
+  an old save's, gets its derived steps and objective in that same event; `asked_quest` again,
+  the world may have moved while it was offered); Not now ->
   `QuestAskDeclined` (stays offered, asked again on the next arrival); Not now for a favour
   (M23.5) lets it go (failed + `withdrawn`, no deed: a favour is never asked again).
   `QuestOfferRefused` when that quest is not being asked.
@@ -37,6 +40,7 @@ from aidm.rules.finale import finale_open
 from aidm.rules.progression import region_of
 from aidm.rules.quest_plan import quest_steps, side_world_quest
 from aidm.rules.quest_steps import npc_meetable
+from aidm.rules.quest_targets import asked_quest
 from aidm.rules.scene import node_display_name
 
 LEAD_TEXT = "Someone at {place} may need help."
@@ -106,7 +110,7 @@ def ask_events(state: GameState, batch: Sequence[AnyEvent]) -> list[AnyEvent]:
             continue
         events: list[AnyEvent] = []
         if known is None:
-            events.append(QuestUpdated(quest=side_world_quest(plan, quest)))
+            events.append(QuestUpdated(quest=asked_quest(state, side_world_quest(plan, quest))))
         ask = QuestAsk(quest_id=quest.id, npc_id=quest.giver_npc_id, node_id=node)
         return [*events, QuestAsked(ask=ask)]
     return []
@@ -120,7 +124,7 @@ def _accepted(state: GameState, quest: Quest) -> Quest:
     if plan is not None and planned is not None and not quest.steps:
         update["steps"] = quest_steps(plan, planned)
         update["objective"] = quest.objective or planned.objective
-    return quest.model_copy(update=update)
+    return asked_quest(state, quest.model_copy(update=update))
 
 
 def answer_events(state: GameState, quest_id: str, accept: bool) -> list[AnyEvent]:

@@ -7,6 +7,9 @@ Public API:
 - `QuestStepDone(quest_id, route_id, step, log_line)`: step `step` (0-based, the next one) of the
   quest's own steps (`route_id` None) or of one of its known routes is done; a non-empty
   `log_line` joins the quest log.
+- `QuestStepAdded(quest_id, step)` (M41.4): the engine adds the report to the giver as the last
+  step of an active side quest that did not end with them (`aidm.rules.quest_targets`): a task
+  is handed in where it was given (saves from before, plans that were full).
 - `RouteDiscovered(quest_id, route_id)`: the party now knows this route of the main quest.
 - `QuestLeadAdded(lead)`: a journal lead toward a side quest's giver (a `QuestUpdated` of that
   quest removes it, the quest is known then).
@@ -30,7 +33,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from aidm.models.quests import MAX_STEPS
+from aidm.models.quests import MAX_QUEST_STEPS, QuestStep
 from aidm.models.world import QuestAsk, QuestLead
 
 
@@ -42,8 +45,14 @@ class QuestStepDone(_QuestEvent):
     type: Literal["quest_step_done"] = "quest_step_done"
     quest_id: str = Field(min_length=1)
     route_id: str | None = None
-    step: int = Field(ge=0, lt=MAX_STEPS)
+    step: int = Field(ge=0, lt=MAX_QUEST_STEPS)
     log_line: str = Field(default="", max_length=160)
+
+
+class QuestStepAdded(_QuestEvent):
+    type: Literal["quest_step_added"] = "quest_step_added"
+    quest_id: str = Field(min_length=1)
+    step: QuestStep
 
 
 class RouteDiscovered(_QuestEvent):
@@ -96,6 +105,7 @@ class LoreLearned(_QuestEvent):
 
 QuestEvents = (
     QuestStepDone
+    | QuestStepAdded
     | RouteDiscovered
     | QuestLeadAdded
     | QuestLeadRemoved

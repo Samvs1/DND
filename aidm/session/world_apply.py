@@ -161,6 +161,7 @@ def _rewarded(state: GameState, kind: str, source: str) -> None:
     campaign = state.campaign
     if kind == "milestone" and campaign is not None and source not in campaign.milestones:
         campaign.milestones.append(source)
+        campaign.milestone_at[source] = state.event_count  # M41.4: when, for quest steps
 
 
 def _item_removed(world: World, item_id: str, qty: int) -> None:

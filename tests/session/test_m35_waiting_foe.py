@@ -12,6 +12,7 @@ from aidm.models.encounter_events import EncounterStarted
 from aidm.models.events import AnyEvent, LongRestTaken, ResourceSet
 from aidm.models.quest_events import QuestStepDone
 from aidm.models.world import QuestState
+from aidm.models.world_events import PartyMoved
 from aidm.rules.command_checks import CommandRefused
 from aidm.rules.spells import scene_cast
 from aidm.rules.waiting_foe import FOE_WAITS, cast_starts_fight, rest_ambush_events, waiting_foe
@@ -69,7 +70,7 @@ def test_v1_m35_settled_master_never_ambushes_a_rest() -> None:
 def test_v1_m35_clear_step_closes_when_its_region_is_settled() -> None:
     """Y6, quests 782 and 1092-1112: The Wailing Cage's "Win the fight at The Wailing Keep" could
     never close once Vesper was won over (alliance, 1099). The gateway's threat is over by any
-    route, so the step is done and the side quest completes."""
+    route, so the step is done; M41.4 (Z14): the side quest then completes at its giver."""
     state = replay_until(QUESTS, 1113)
     quest = state.world.quests["the-wailing-cage"]
     assert (quest.state, quest.steps_done) == (QuestState.ACTIVE, 1)
@@ -77,6 +78,15 @@ def test_v1_m35_clear_step_closes_when_its_region_is_settled() -> None:
     settle_after(state, REGS, [], lambda events: apply_all(state, events, log))
     done = [e for e in log if isinstance(e, QuestStepDone) and e.quest_id == quest.id]
     assert [e.step for e in done] == [1]
+    giver = state.world.npcs[quest.giver_npc_id or ""]
+    assert state.world.quests[quest.id].steps[-1].npc == giver.id
+    assert giver.node_id is not None
+    world = state.world
+    moved = PartyMoved(
+        from_node=world.current_node, to_node=giver.node_id, scene_index=world.scene_index + 1
+    )
+    batch = apply_all(state, [moved], log)
+    settle_after(state, REGS, batch, lambda events: apply_all(state, events, log))
     assert state.world.quests[quest.id].state is QuestState.COMPLETED
 
 

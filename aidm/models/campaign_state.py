@@ -11,14 +11,16 @@ Public API:
   escape_dc, parley_dc, surprise_dc, options)`: the warning beat before a fight: what waits
   at the node and the DCs the engine set; nothing has started yet.
 - `CampaignState(plan, graph, seed, resolved, complete, offered_nodes, offer, epilogue,
-  milestones, finale_choice)`: `resolved`
+  milestones, milestone_at, finale_choice)`: `resolved`
   maps region id -> resolution, `complete` is set when the final region is resolved (with a
   finale in the plan the story ends only once `finale_choice` holds the chosen ending's id,
   M23.9: `aidm.rules.progression.campaign_complete` is the one reading of "the story is over"),
   `offered_nodes` are nodes whose one-time encounter was already offered, `offer` is the
   pending offer (the party must answer it before anything else happens there); `epilogue` is
   the written epilogue of a completed campaign (M5.7); `milestones` are the sources of the
-  milestone rewards already paid (M9.2: `visit:<node>`, `clear:<node>`, region ids).
+  milestone rewards already paid (M9.2: `visit:<node>`, `clear:<node>`, region ids);
+  `milestone_at` (M41.4) the seq each was paid at, so a quest counts only a clear won after it
+  was accepted (a save from before holds none: its clears count as before).
 """
 
 from enum import StrEnum
@@ -69,4 +71,5 @@ class CampaignState(BaseModel):
     offer: EncounterOffer | None = None
     epilogue: str | None = None
     milestones: list[str] = Field(default_factory=list[str])
+    milestone_at: dict[str, int] = Field(default_factory=dict[str, int])
     finale_choice: str | None = None

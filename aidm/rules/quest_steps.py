@@ -6,7 +6,9 @@ Every check reads the CURRENT state. A step is met when its count reaches `Quest
   count until the next arrival); a main quest (active from the first step into its region) and
   a save from before count `World.visited` (x/N);
 - clear: a fight there was won (or a parley succeeded): the spoke milestone `clear:<node>` in
-  `CampaignState.milestones` (DECISIONS M23.2); a gateway counts once its boss is defeated or,
+  `CampaignState.milestones` (DECISIONS M23.2), M41.4 (round 7 Z15) paid after the quest was
+  accepted (`CampaignState.milestone_at`; a place already won when the quest is asked is a visit,
+  `rules.quest_targets`); a gateway counts once its boss is defeated or,
   M35.2 (round 6 Y6: a favour's "Win the fight at The Wailing Keep" could never close once the
   master there was won over), once its region is resolved by any route (the threat is over);
 - defeat: the NPC is dead (`WorldNpc.dead`), or the step names a region boss and
@@ -30,7 +32,8 @@ Every check reads the CURRENT state. A step is met when its count reaches `Quest
 Public API: `step_count(state, step, owner) -> int` (0..goal, the x of "x/N"),
 `step_met(state, step, owner) -> bool`, `steps_met(state, steps, done, owner) -> int` (how many
 leading steps are met when `done` are already recorded; steps are sequential),
-`npc_meetable(state, npc_id) -> bool` (present, alive, not hostile).
+`npc_meetable(state, npc_id) -> bool` (present, alive, not hostile), `place_won(state, node,
+since=None) -> bool` (the fight there is won, after `since` when given).
 """
 
 from collections.abc import Callable
@@ -87,17 +90,26 @@ def _visit(state: GameState, step: QuestStep, owner: str) -> int:
     return sum(1 for node in step.nodes if world.arrived.get(node, -1) > since)
 
 
-def _clear(state: GameState, step: QuestStep, owner: str) -> int:
+def place_won(state: GameState, node: str, since: int | None = None) -> bool:
+    """The fight at `node` is won: its `clear:` milestone (after `since` when given, M41.4: a
+    fight won before a quest was accepted is not that quest's deed; a save from before records
+    no seq, so its clears count), or a gateway whose region is over (boss defeated or resolved)."""
     campaign = state.campaign
     if campaign is None:
-        return 0
-    node = step.nodes[0]
-    if clear_key(node) in campaign.milestones:
-        return 1
+        return False
+    key = clear_key(node)
+    if key in campaign.milestones:
+        at = campaign.milestone_at.get(key)
+        if since is None or at is None or at > since:
+            return True
     region = next((r for r in campaign.plan.all_regions() if r.gateway.id == node), None)
     if region is None:
-        return 0
-    return int(region.id in campaign.resolved or boss_defeated(state, region))
+        return False
+    return region.id in campaign.resolved or boss_defeated(state, region)
+
+
+def _clear(state: GameState, step: QuestStep, owner: str) -> int:
+    return int(place_won(state, step.nodes[0], _since(state, owner)))
 
 
 def _defeat(state: GameState, step: QuestStep, owner: str) -> int:

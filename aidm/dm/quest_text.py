@@ -23,6 +23,7 @@ from aidm.models.quest_events import (
     QuestAsked,
     QuestLeadAdded,
     QuestLeadRemoved,
+    QuestStepAdded,
     QuestStepDone,
     RouteDiscovered,
 )
@@ -106,6 +107,11 @@ FAVOUR_ASK_NOTE = (
 STEP_NOTE = (
     "Describe no new deed for a quest step marked done: what the party did or carries met it."
 )
+
+
+def _added_fact(state: GameState, e: QuestStepAdded) -> str:
+    """M41.4 Z14: the report to the giver joins the quest (handed in where it was given)."""
+    return f"Quest '{_title(state, e.quest_id)}': its last step is now: {e.step.text}."
 
 
 def _route_fact(state: GameState, e: RouteDiscovered) -> str:
@@ -256,6 +262,7 @@ QUEST_EVENT_LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = {
     QuestLeadRemoved: _no_line,
     QuestAskDeclined: _no_line,
     QuestStepDone: _step_fact,
+    QuestStepAdded: _added_fact,
     RouteDiscovered: _route_fact,
     KeepsakeGiven: _given,
     KeepsakeTaken: _taken,
@@ -277,6 +284,7 @@ QUEST_TEMPLATE_LINES: dict[type[Any], Callable[[GameState, Any], str | None]] = 
     QuestLeadRemoved: _no_line,
     QuestAskDeclined: _no_line,
     QuestStepDone: _step_story,
+    QuestStepAdded: _no_line,
     RouteDiscovered: _route_story,
     KeepsakeGiven: _given,
     KeepsakeTaken: _taken,

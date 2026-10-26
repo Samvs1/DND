@@ -88,6 +88,7 @@ def test_m29_step_lines_are_the_engines_drowned_husband() -> None:
         "Go to Bogmouth Shrine",
         "Go to The Drowned Causeway",
         "Go to Nighman's Barrow",
+        "Meet Widow Mera Skell",  # M41.4 Z14: every task is handed in where it was given
     ]
     assert "Corin Skell" in quest.objective or "name" in quest.objective  # flavour stays here
 

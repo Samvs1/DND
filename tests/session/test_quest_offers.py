@@ -171,12 +171,12 @@ def _closed_event(events: list[AnyEvent]) -> QuestUpdated:
 
 
 def test_a_task_with_every_step_done_completes_instead_of_being_left_behind() -> None:
+    """An errand nobody gave (no giver: M41.4 adds no report to hand it in)."""
     _, state, log = fresh()
     resolve_region_one(state, log)
     done = Quest(
         id="q-own",
         title="Own errand",
-        giver_npc_id="tobin-marrow",
         state=QuestState.ACTIVE,
         steps=plan().quests[0].steps[:1],
     )

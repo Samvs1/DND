@@ -8,18 +8,17 @@ Run by `aidm.rules.plan_repair.repair_plan`, each repair a `quest_repair` note:
   round 4: "Learn about tithing" closed on arrival) becomes a visit of that place, so its line
   says what the party really does ("Go to The Tithing Shed"); a step with a clue, a person who
   teaches it or a quest title keeps learning (`plan_satisfy.learn_sources`);
-- `giver_reports` (V14): a side quest whose giver asks the party to come back or bring
-  something back (a word of `come_back_words`, data/bg3/plan_words.json, in its objective or title:
-  back, bring, return, recover, report, retrieve, fetch) ends with a `meet` of its giver,
-  unless its last step already happens at the giver (meet, deliver to, pay or win over them).
+- `giver_reports` (V14; M41.4, round 7 Z14: every side quest, no longer only one whose words
+  asked the party back, as those words missed "prove to the archivist"): a side quest ends with
+  a `meet` of its giver (the giver pays, so the task is handed in where it was given), unless
+  its last step already happens at the giver (meet, deliver to, pay or win over them) or it has
+  `MAX_STEPS` already (play adds the report then, `rules.quest_targets.report_step_due`).
   Favours always end so (`rules.favours`).
 
 Public API: `normal_tags(plan, notes)`, `learn_visits(plan, notes)`,
-`giver_reports(plan, notes)`, `report_step(giver_id)`, `ends_at(steps, giver_id) -> bool`,
-`come_back(*texts) -> bool`.
+`giver_reports(plan, notes)`, `report_step(giver_id)`, `ends_at(steps, giver_id) -> bool`.
 """
 
-from aidm.data.plan_words import plan_words
 from aidm.models.campaign import Act, CampaignPlan
 from aidm.models.problem import Problem
 from aidm.models.quests import MAX_STEPS, QuestStep, StepKind
@@ -82,10 +81,6 @@ def learn_visits(plan: CampaignPlan, notes: list[Problem]) -> CampaignPlan:
     return map_steps(plan, fix)
 
 
-def come_back(*texts: str) -> bool:
-    return bool(fact_words(*texts) & plan_words().come_back_words)
-
-
 def ends_at(steps: tuple[QuestStep, ...], giver_id: str) -> bool:
     return bool(steps) and steps[-1].kind in _AT_GIVER and steps[-1].npc == giver_id
 
@@ -99,11 +94,9 @@ def giver_reports(plan: CampaignPlan, notes: list[Problem]) -> CampaignPlan:
 
     def fix(act: Act, owner: str, steps: tuple[QuestStep, ...]) -> tuple[QuestStep, ...]:
         quest = quests.get(owner)
-        if quest is None or not come_back(quest.objective, quest.title):
+        if quest is None or ends_at(steps, quest.giver_npc_id) or len(steps) >= MAX_STEPS:
             return steps
-        if ends_at(steps, quest.giver_npc_id) or len(steps) >= MAX_STEPS:
-            return steps
-        notes.append(note(owner, "the giver asked the party to come back: it ends with them"))
+        notes.append(note(owner, "the task is handed in where it was given: it ends with them"))
         return (*steps, report_step(quest.giver_npc_id))
 
     return map_steps(plan, fix)

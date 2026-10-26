@@ -2,7 +2,8 @@
 
 Same semantics as the reducer: plain assignment of resolved values, `ReducerError` for an event
 that does not fit the state (an engine bug). Steps are sequential: a `QuestStepDone` must name
-the next step. Quests are frozen models, so a change replaces the quest.
+the next step; a `QuestStepAdded` (M41.4) appends one to an active quest. Quests are frozen
+models, so a change replaces the quest.
 
 M23.4: a `QuestUpdated` (applied through `quest_updated`) removes that quest's lead (the quest
 is known now) and closes the giver's open question once the quest is no longer offered;
@@ -23,15 +24,18 @@ from aidm.models.quest_events import (
     QuestAsked,
     QuestLeadAdded,
     QuestLeadRemoved,
+    QuestStepAdded,
     QuestStepDone,
     RouteDiscovered,
 )
+from aidm.models.quests import MAX_QUEST_STEPS
 from aidm.models.state import GameState
 from aidm.models.world import MAX_QUEST_LOG, Quest, QuestAsk, QuestState, RouteProgress
 from aidm.session.reducer_errors import ReducerError
 
 type QuestEvent = (
     QuestStepDone
+    | QuestStepAdded
     | RouteDiscovered
     | QuestLeadAdded
     | QuestLeadRemoved
@@ -44,6 +48,7 @@ type QuestEvent = (
 
 QUEST_EVENT_TYPES = (
     QuestStepDone,
+    QuestStepAdded,
     RouteDiscovered,
     QuestLeadAdded,
     QuestLeadRemoved,
@@ -86,6 +91,12 @@ def _step_done(quest: Quest, event: QuestStepDone) -> Quest:
         raise ReducerError(f"quest {quest.id!r} is at step {quest.steps_done}, not {event.step}")
     update = {"steps_done": quest.steps_done + 1, "log": _logged(quest, event.log_line)}
     return quest.model_copy(update=update)
+
+
+def _step_added(quest: Quest, event: QuestStepAdded) -> Quest:
+    if quest.state is not QuestState.ACTIVE or len(quest.steps) >= MAX_QUEST_STEPS:
+        raise ReducerError(f"quest {quest.id!r} takes no added step")
+    return quest.model_copy(update={"steps": (*quest.steps, event.step)})
 
 
 def _discovered(quest: Quest, route_id: str) -> Quest:
@@ -157,6 +168,8 @@ def apply_quest_event(state: GameState, event: QuestEvent) -> None:
     match event:
         case QuestStepDone(quest_id=quest_id):
             world.quests[quest_id] = _step_done(_quest(state, quest_id), event)
+        case QuestStepAdded(quest_id=quest_id):
+            world.quests[quest_id] = _step_added(_quest(state, quest_id), event)
         case RouteDiscovered(quest_id=quest_id, route_id=route_id):
             world.quests[quest_id] = _discovered(_quest(state, quest_id), route_id)
         case QuestLeadAdded(lead=lead):

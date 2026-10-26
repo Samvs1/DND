@@ -18,7 +18,10 @@ A pass, in order:
    hand-over (M29.7c R14: the party answers, and with the route done a parley surely holds,
    `offer_answer`); a finished
    Cunning route is read by the boss offer through `route_effects` (no event of its own).
-3. Each ACTIVE side quest or favour with steps: newly met steps are recorded; when every step
+3. Each ACTIVE side quest or favour with steps: first (M41.4, round 7 Z14) one whose steps do
+   not end with its giver gets the report to them (`quest_targets.report_step_due`,
+   `QuestStepAdded`: the giver pays, so the task is handed in where it was given); newly met
+   steps are recorded; when every step
    is recorded the quest completes with `quest_deed_events` + `quest_reward_events` (once: only
    an active quest completes, and the payout refuses a quest already completed).
 Several quests can finish in one pass, all read from the same state (M35.1, round-6 Y1: the
@@ -39,7 +42,7 @@ from aidm.data.registry import Registry
 from aidm.models.campaign import Act, CampaignPlan, RegionPlan
 from aidm.models.campaign_state import RegionResolution
 from aidm.models.events import AnyEvent
-from aidm.models.quest_events import QuestStepDone, RouteDiscovered
+from aidm.models.quest_events import QuestStepAdded, QuestStepDone, RouteDiscovered
 from aidm.models.quests import QuestKind, RouteEffect, RouteKind, RoutePlan, StepKind
 from aidm.models.state import GameState
 from aidm.models.world import MAX_QUEST_LOG, Quest, QuestState
@@ -50,6 +53,7 @@ from aidm.rules.quest_items import quest_item_events
 from aidm.rules.quest_plan import main_quest, main_world_quest
 from aidm.rules.quest_rewards import quest_reward_events
 from aidm.rules.quest_steps import npc_meetable, steps_met
+from aidm.rules.quest_targets import report_step_due
 from aidm.rules.running_totals import chain_totals
 from aidm.rules.social import ALLY_BAR, attitude_score, deed_attitude_events
 from aidm.rules.social_deeds import quest_deed_events
@@ -166,6 +170,9 @@ def _main_events(state: GameState, plan: CampaignPlan, act: Act, quest: Quest) -
 def _side_events(
     state: GameState, quest: Quest, tiers: DmTiers, catalogue: Registry[CatalogueItem]
 ) -> list[AnyEvent]:
+    report = report_step_due(state, quest)
+    if report is not None:  # M41.4 Z14: handed in where it was given, then it moves on
+        return [QuestStepAdded(quest_id=quest.id, step=report)]
     done = quest.steps_done
     met = steps_met(state, quest.steps, done, quest.id)
     if met > done:

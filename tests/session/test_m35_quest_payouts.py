@@ -15,7 +15,9 @@ from tests.session.progression_fixtures import REGS, apply_all, campaign_state
 LEDGER, CHOIR = "missing-ledger", "douse-the-choir"
 
 
-def _all_steps_done(state: GameState, quest_ids: tuple[str, ...], giver: str | None = None) -> None:
+def _all_steps_done(
+    state: GameState, quest_ids: tuple[str, ...], log: list[AnyEvent], giver: str | None = None
+) -> None:
     """Accept the quests with every step already recorded (what one action finishing both does)."""
     events: list[AnyEvent] = []
     for qid in quest_ids:
@@ -24,7 +26,7 @@ def _all_steps_done(state: GameState, quest_ids: tuple[str, ...], giver: str | N
         if giver is not None:
             update["giver_npc_id"] = giver
         events.append(QuestUpdated(quest=quest.model_copy(update=update)))
-    apply_all(state, list(events))
+    apply_all(state, list(events), log)
 
 
 def _purse(state: GameState) -> dict[str, tuple[int, int]]:
@@ -35,7 +37,7 @@ def _purse(state: GameState) -> dict[str, tuple[int, int]]:
 
 def test_golden_two_quest_payouts_one_step() -> None:
     start, state, log = campaign_state()
-    _all_steps_done(state, (LEDGER, CHOIR))
+    _all_steps_done(state, (LEDGER, CHOIR), log)
     before = _purse(state)
     one_pass = quest_progress_events(state, REGS.tiers, REGS.catalogue)
     paid = [e.source for e in one_pass if isinstance(e, RewardGranted)]
@@ -52,7 +54,7 @@ def test_golden_two_quest_payouts_one_step() -> None:
 def test_v1_y1_two_quests_settle_pays_both() -> None:
     """Through the session's settle loop: both quests complete and every hero gets both shares."""
     start, state, log = campaign_state()
-    _all_steps_done(state, (LEDGER, CHOIR))
+    _all_steps_done(state, (LEDGER, CHOIR), log)
     before = _purse(state)
     settle_after(state, REGS, [], lambda events: apply_all(state, events, log))
     assert {q: state.world.quests[q].state for q in (LEDGER, CHOIR)} == {
@@ -69,7 +71,7 @@ def test_two_quests_same_giver_both_deeds_land() -> None:
     start, state, log = campaign_state()
     giver = state.world.quests[LEDGER].giver_npc_id
     assert giver is not None
-    _all_steps_done(state, (LEDGER, CHOIR), giver=giver)
+    _all_steps_done(state, (LEDGER, CHOIR), log, giver=giver)
     deeds = state.world.npcs[giver].deeds
     first = quest_progress_events(state, REGS.tiers, REGS.catalogue)
     assert len([e for e in first if isinstance(e, AttitudeChanged) and e.npc_id == giver]) == 1
@@ -82,8 +84,8 @@ def test_two_quests_same_giver_both_deeds_land() -> None:
 
 def test_level_up_flag_once_across_two_payouts() -> None:
     """Two payouts that together cross a level threshold flag it once, at the crossing."""
-    _, state, _ = campaign_state()
-    _all_steps_done(state, (LEDGER, CHOIR))
+    _, state, log = campaign_state()
+    _all_steps_done(state, (LEDGER, CHOIR), log)
     for creature in state.creatures.values():
         if creature.pc is not None:
             creature.pc.xp = 210  # 210 + 75 < 300 <= 210 + 75 + 25 (SRD level 2 at 300 XP)
