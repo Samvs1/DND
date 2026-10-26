@@ -30,6 +30,7 @@ from aidm.models.checks import CheckKind, CheckResult
 from aidm.models.encounter import EncounterStatus, Side
 from aidm.models.state import GameState
 from aidm.models.world_events import FeatureDiscovered, ItemDiscovered
+from aidm.rules.story_records import description_shown
 
 _SEARCH_SKILLS = (Skill.PERCEPTION, Skill.INVESTIGATION)
 _SEARCH_ABILITIES = (Ability.WIS, Ability.INT)
@@ -92,7 +93,7 @@ def current_scene(state: GameState) -> SceneView:
     return SceneView(
         node_id=node,
         node_name=node_display_name(state, node),
-        description=world.descriptions.get(node, "") if node is not None else "",
+        description=description_shown(state, node),  # M40.4: "" once a thing it names changed
         party_ids=tuple(party),
         npc_ids=tuple(npcs),
         monster_ids=living,

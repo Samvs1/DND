@@ -180,7 +180,7 @@ def test_budget_trims_only_what_is_needed() -> None:
     assert pack.trimmed == ("facts",)
     assert pack.tokens <= target
     facts = pack.section(SectionKey.FACTS)
-    assert facts is not None and facts.lines[0].startswith("fact number 59")
+    assert facts is not None and facts.lines[0].startswith("Earlier: fact number 59")
 
 
 def test_tiny_budget_keeps_manifest_and_flags_over_budget() -> None:
@@ -199,7 +199,7 @@ def test_facts_ranked_by_entity_overlap() -> None:
         Fact(id="fact-3", text="about the forest", entity_ids=("forest",)),
     ]
     facts = build_context(state, NARR, facts_k=2).section(SectionKey.FACTS)
-    assert facts is not None and facts.lines == ("about mira", "about the forest")
+    assert facts is not None and facts.lines == ("Earlier: about mira", "Earlier: about the forest")
 
 
 def test_player_text_delimiters_escaped() -> None:

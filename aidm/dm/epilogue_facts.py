@@ -9,7 +9,8 @@ heroes), the finale's question and the ending the party
 chose (with the plan's ending text, public once chosen), who fell and who survived, how every
 quest ended (completed, failed, left behind, let go, never taken up, left unfinished; M29.9b
 T21: the main quests too), where each NPC's attitude ended (the public
-band only), the secrets the party really learned, and every entry of the fact ledger.
+band only), the secrets the party really learned, and every entry of the fact ledger that
+no later engine event superseded (M40.4, `aidm.rules.story_records.live_facts`).
 `template_epilogue` is the safe fallback: it lists the same facts in plain past-tense sentences,
 and a defeated boss is only ever "defeated". M29.5c G35: each boss's fate comes from the final
 state (`RegionOutcome.fate`: an ally who later died, or one who turned on the party and lives,
@@ -42,6 +43,7 @@ from aidm.rules.quest_plan import main_quest
 from aidm.rules.scene import node_display_name
 from aidm.rules.social import public_npc_view
 from aidm.rules.step_text import state_names, step_deed
+from aidm.rules.story_records import live_facts
 
 MAX_LEDGER_FACTS = 24
 MAX_ATTITUDES = 10
@@ -234,7 +236,7 @@ def epilogue_facts(state: GameState) -> EpilogueFacts:
             if n.name not in defeated_bosses
         )[:MAX_ATTITUDES],
         revealed=revealed,
-        ledger=tuple(f.text for f in state.world.facts[-MAX_LEDGER_FACTS:]),
+        ledger=tuple(f.text for f in live_facts(state)[-MAX_LEDGER_FACTS:]),  # M40.4
         began=node_display_name(state, campaign.plan.acts[0].region.arrival.id)
         if campaign.plan.acts
         else "",

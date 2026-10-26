@@ -15,7 +15,9 @@ for a one-turn summary, hand-overs and pick-ups no event made: `ONE_TURN_GUARD_K
 `MAX_SUMMARY_SENTENCES`
 sentences are kept, entity ids must be known (`aidm.dm.tool_exec_ledger.known_entity_ids`),
 a fact keeps only known ids and is dropped without any (or when its text fails the guard), at
-most `MAX_SUMMARY_FACTS` facts.
+most `MAX_SUMMARY_FACTS` facts. M40.4: a fact that claims a deed (killed, fled, handed over,
+paid, picked up, refused; its own `claims` or its verbs) is dropped unless an engine event in
+the covered turns did it to a thing it names (`aidm.rules.story_claims.unsupported_claims`).
 Facts enter the ledger through the same constructor as the `record_fact` tool
 (`aidm.dm.tool_exec_ledger.new_fact`) and are tagged `SUMMARY_TAG`. A failed call or a summary
 the guard rejects falls back to `aidm.dm.memory_fallback.fallback_summary` (no invention).
@@ -57,6 +59,7 @@ from aidm.models.events import AnyEvent
 from aidm.models.memory import SceneSummary, SummarySource
 from aidm.models.state import GameState
 from aidm.models.world_events import FactRecorded, PartyMoved, SceneSummarised
+from aidm.rules.story_claims import ClaimKind, unsupported_claims
 
 SUMMARY_EVERY_TURNS = 12
 MAX_SUMMARY_SENTENCES = 4
@@ -82,7 +85,9 @@ SUMMARY_RULES = (
     " sentence case (capitalise only the first word and names). entity_ids: ids shown in"
     " brackets in the manifest for every entity involved. facts: up to 5 durable things the"
     " party learned or changed (who wants what, where something is, what was promised), each"
-    " with the bracketed ids it concerns and one or two short tags."
+    " with the bracketed ids it concerns and one or two short tags. claims: the deeds a fact"
+    " says happened (kill, flight, handover, payment, pickup, refusal); a fact is kept only"
+    " when the engine events did that deed."
 )
 
 
@@ -92,6 +97,7 @@ class SummaryFact(BaseModel):
     text: str = Field(min_length=1, max_length=300)
     entity_ids: list[str] = Field(default_factory=list[str])
     tags: list[str] = Field(default_factory=list[str])
+    claims: list[ClaimKind] = Field(default_factory=list[ClaimKind])  # M40.4: deeds it states
 
 
 class SummaryDraft(BaseModel):
@@ -165,13 +171,18 @@ def _outcome(
 
 
 def _facts(
-    draft: SummaryDraft, known: set[str], check: ProseCheck, dropped: list[str]
+    state: GameState, draft: SummaryDraft, check: ProseCheck, dropped: list[str]
 ) -> list[DraftFact]:
+    known = known_entity_ids(state)
     kept: list[DraftFact] = []
     for fact in draft.facts[:MAX_SUMMARY_FACTS]:
         ids = tuple(dict.fromkeys(i for i in fact.entity_ids if i in known))
         if not ids or not check(fact.text).ok:
             dropped.append(f"fact {fact.text[:40]!r}")
+            continue
+        unmade = unsupported_claims(state, fact.text, ids, fact.claims)
+        if unmade:  # M40.4: a deed no engine event in the covered turns did
+            dropped.append(f"fact {fact.text[:40]!r} ({', '.join(unmade)} no event made)")
             continue
         kept.append(DraftFact(fact.text.strip(), ids, tuple(fact.tags)))
     return kept
@@ -200,7 +211,7 @@ def _from_draft(
         turns=memory.turns_since_summary,
         source=SummarySource.MODEL,
     )
-    facts = _facts(draft, known, check, dropped)
+    facts = _facts(state, draft, check, dropped)
     return _outcome(state, summary, facts, dropped=tuple(dropped))
 
 

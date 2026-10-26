@@ -5,8 +5,10 @@
 Replays each fixture through the one reducer. At every `narration_recorded` it rebuilds the
 narrator prompt from the state just before it (as `narrate` / `narrate_round_segment` do: the
 engine events since the previous narration plus the RESOLVED notes) and counts, per store
-(facts, summaries, narration lines, descriptions), the records shown and the STALE ones shown.
-At the end it also counts stale records in the journal view and the epilogue input.
+(facts, summaries, narration lines, descriptions), the records shown and, for every STALE record,
+whether it is shown as the present (an undated prompt line), shown dated as past ("- Earlier",
+"- Narrated earlier", M40.4) or left out. At the end it also counts stale records in the
+journal view (its scene recaps count as past) and the epilogue's own ledger.
 The staleness heuristic is documented in scripts/audit/stale.py.
 """
 

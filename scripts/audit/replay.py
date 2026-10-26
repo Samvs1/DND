@@ -5,7 +5,7 @@ from collections.abc import Iterator, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from aidm.dm.epilogue_facts import MAX_LEDGER_FACTS
+from aidm.dm.epilogue_facts import MAX_LEDGER_FACTS, epilogue_facts
 from aidm.dm.event_text import event_notes
 from aidm.dm.narration_weight import truth_notes
 from aidm.dm.narrator import narration_messages
@@ -37,17 +37,27 @@ type Log = list[tuple[int, str]]
 type Ctx = tuple[Made, Log, dict[str, int]]
 
 
+PRESENT, PAST, LEFT_OUT = "present", "past", "left out"
+DATED = ("- Earlier", "- Narrated earlier")  # a prompt line that dates its record as past
+
+
+def _zero() -> dict[str, int]:
+    return dict.fromkeys(STORES, 0)
+
+
 @dataclass
 class Run:
     name: str
     narrations: int = 0
     skipped: int = 0
-    shown: dict[str, int] = field(default_factory=lambda: dict.fromkeys(STORES, 0))
-    stale: dict[str, int] = field(default_factory=lambda: dict.fromkeys(STORES, 0))
-    prompts_stale: int = 0
-    journal: tuple[int, int] = (0, 0)  # (records, stale)
+    shown: dict[str, int] = field(default_factory=_zero)
+    stale: dict[str, int] = field(default_factory=_zero)  # stale shown as the present
+    past: dict[str, int] = field(default_factory=_zero)  # stale shown dated as past
+    left_out: dict[str, int] = field(default_factory=_zero)  # stale and not shown
+    prompts_stale: int = 0  # prompts with >= 1 stale record shown as the present
+    journal: tuple[int, int, int] = (0, 0, 0)  # (records, stale as present, stale as past)
     epilogue: tuple[int, int] = (0, 0)
-    cases: list[tuple[int, str, str]] = field(default_factory=list)  # (seq, store, text)
+    cases: list[tuple[int, str, str, str]] = field(default_factory=list)  # seq, store, text, how
 
 
 @dataclass
@@ -111,17 +121,36 @@ def note_made(made: Made, event: AnyEvent, seq: int) -> None:
         made.setdefault(("descriptions", event.text), seq)
 
 
-def count_narration(run: Run, state: GameState, prompt: str, seq: int, ctx: Ctx):
-    made = ctx[0]
-    shown = [r for r in current_records(state, made) if r.text in prompt]
-    stale = stale_of(state, shown, seq, ctx)
+def how_shown(prompt: str, text: str) -> str:
+    """PAST when every prompt line holding the record dates it, PRESENT when one does not."""
+    lines = [line for line in prompt.splitlines() if text in line]
+    if not lines:
+        return LEFT_OUT
+    return PAST if all(line.startswith(DATED) for line in lines) else PRESENT
+
+
+def count_narration(run: Run, state: GameState, prompt: str, seq: int, ctx: Ctx) -> None:
+    records = current_records(state, ctx[0])
     run.narrations += 1
-    for r in shown:
-        run.shown[r.store] += 1
-    for r in stale:
-        run.stale[r.store] += 1
-        run.cases.append((seq, r.store, r.text))
-    run.prompts_stale += 1 if stale else 0
+    present = 0
+    for r in records:
+        if r.text in prompt:
+            run.shown[r.store] += 1
+    for r in stale_of(state, records, seq, ctx):
+        how = how_shown(prompt, r.text)
+        bucket = {PRESENT: run.stale, PAST: run.past, LEFT_OUT: run.left_out}[how]
+        bucket[r.store] += 1
+        present += how == PRESENT
+        run.cases.append((seq, r.store, r.text, how))
+    run.prompts_stale += 1 if present else 0
+
+
+def epilogue_ledger(state: GameState) -> tuple[str, ...]:
+    """The fact ledger the epilogue reads (its own reader), or the plain tail without a campaign."""
+    try:
+        return epilogue_facts(state).ledger
+    except ValueError:
+        return tuple(f.text for f in state.world.facts[-MAX_LEDGER_FACTS:])
 
 
 def finish(run: Run, state: GameState, seq: int, ctx: Ctx) -> None:
@@ -129,10 +158,13 @@ def finish(run: Run, state: GameState, seq: int, ctx: Ctx) -> None:
     journal_facts = set(public_facts(state))
     journal_sums = {s.text for s in public_summaries(state)}
     recs = current_records(state, made)
-    ledger = {f.text for f in state.world.facts[-MAX_LEDGER_FACTS:]}
+    ledger = set(epilogue_ledger(state))
     j = [r for r in recs if r.text in (journal_facts | journal_sums)]
     e = [r for r in recs if r.store == "facts" and r.text in ledger]
-    run.journal = (len(j), len(stale_of(state, j, seq, ctx)))
+    stale_j = stale_of(state, j, seq, ctx)
+    # the journal's scene summaries are titled past-tense recaps (history); its facts are notes
+    past_j = sum(1 for r in stale_j if r.store == "summaries")
+    run.journal = (len(j), len(stale_j) - past_j, past_j)
     run.epilogue = (len(e), len(stale_of(state, e, seq, ctx)))
 
 
@@ -171,16 +203,22 @@ def audit_run(folder: Path) -> Run:
     return run
 
 
+def _cols(counts: dict[str, int]) -> str:
+    return "/".join(str(counts[s]) for s in STORES)
+
+
 def table_lines(runs: list[Run]) -> list[str]:
     head = (
-        "run | narr | shown f/s/n/d | stale f/s/n/d | prompts>=1 stale | journal r/s | epilogue r/s"
+        "run | narr | shown f/s/n/d | stale as present f/s/n/d | stale dated past f/s/n/d"
+        " | stale left out f/s/n/d | prompts>=1 present | journal r/present/past | epilogue r/s"
     )
-    out = [head, "-" * len(head)]
+    out = [head, "-" * 100]
     for r in runs:
-        shown = "/".join(str(r.shown[s]) for s in STORES)
-        stale = "/".join(str(r.stale[s]) for s in STORES)
         out.append(
-            f"{r.name} | {r.narrations} | {shown} | {stale} | {r.prompts_stale} | "
-            f"{r.journal[0]}/{r.journal[1]} | {r.epilogue[0]}/{r.epilogue[1]}"
+            f"{r.name} | {r.narrations} | {_cols(r.shown)} | {_cols(r.stale)} | "
+            f"{_cols(r.past)} | {_cols(r.left_out)} | {r.prompts_stale} | "
+            f"{'/'.join(map(str, r.journal))} | {r.epilogue[0]}/{r.epilogue[1]}"
         )
+    totals = [sum(r.stale[s] for r in runs) for s in STORES]
+    out.append(f"TOTAL stale as present f/s/n/d: {'/'.join(map(str, totals))}")
     return out

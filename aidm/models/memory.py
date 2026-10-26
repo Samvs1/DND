@@ -9,12 +9,18 @@ party moved on.
 
 Public API: `MAX_NARRATION_LOG`, `SummarySource` (model / template), `SceneSummary(scene_index,
 node_id, text, title, entity_ids, turns, source)`, `Memory(summaries, narration,
-turns_since_summary, since_scene, since_node)`.
+turns_since_summary, since_scene, since_node, narration_made)`.
+M40.4: `SceneSummary.made` and `narration_made` are stamped by the reducer
+(`aidm.models.story.StoryStamp`); `narration_made` lines up with `narration` from the end (a
+save from before M40.4, or a test that set `narration` alone, has fewer stamps: the older lines
+are unstamped).
 """
 
 from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field
+
+from aidm.models.story import StoryStamp
 
 MAX_NARRATION_LOG = 12
 
@@ -34,6 +40,7 @@ class SceneSummary(BaseModel):
     entity_ids: tuple[str, ...] = ()
     turns: int = Field(default=0, ge=0)
     source: SummarySource = SummarySource.MODEL
+    made: StoryStamp | None = None  # M40.4: stamped by the reducer
 
 
 class Memory(BaseModel):
@@ -41,6 +48,7 @@ class Memory(BaseModel):
 
     summaries: list[SceneSummary] = Field(default_factory=list[SceneSummary])
     narration: list[str] = Field(default_factory=list[str])
+    narration_made: list[StoryStamp] = Field(default_factory=list[StoryStamp])  # M40.4
     turns_since_summary: int = Field(default=0, ge=0)
     since_scene: int = Field(default=0, ge=0)
     since_node: str | None = None

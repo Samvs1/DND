@@ -65,7 +65,7 @@ def test_styles_scale_and_forbid_repetition() -> None:
     minor, major = style_for(NarrationWeight.MINOR), style_for(NarrationWeight.MAJOR)
     assert "1 or 2 short sentences" in minor and "3 to 5 sentences" in major
     for style in (minor, major):
-        assert "Narrated:" in style and "never invent loot, gold, wounds" in style
+        assert "Narrated earlier" in style and "never invent loot, gold, wounds" in style
     tokens = [max_tokens_for(w) for w in NarrationWeight]
     assert tokens == sorted(tokens) and tokens[-1] < 700
 

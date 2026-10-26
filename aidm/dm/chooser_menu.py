@@ -14,6 +14,9 @@ none of what each answer does). Neighbouring entries whose labels differ only in
 bracket share one line (`offer:parley:persuasion, offer:parley:deception = Parley ... (Persuasion:
 ...; Deception: ...)`). M38.4: a target note is written once: one the entry's own label already
 says is dropped, and a long one an earlier entry wrote for the same target is "as for <entry>".
+M40.4 (the round-7 fixtures put a cleric's full turn over the prompt bound): a spent single
+entry is written without its targets (`id = label [spent]`: it cannot be done this turn), and
+a long target list an earlier entry already wrote is "-> as for <that entry>".
 
 Public API: `menu_lines(menu) -> list[str]`.
 """
@@ -110,8 +113,13 @@ def _extras(entry: MenuEntry) -> str:
     return f" [{'; '.join(bits)}]" if bits else ""
 
 
-def _single(menu: ActionMenu, entry: MenuEntry) -> str:
-    return f"{entry.id} = {entry.label}{_targets(menu, entry)}{_extras(entry)}"
+def _single(menu: ActionMenu, entry: MenuEntry, seen: dict[str, str]) -> str:
+    # M40.4: a spent entry cannot be done this turn, so its targets are not written
+    targets = "" if entry.spent else _targets(menu, entry)
+    if len(targets) > LONG_NOTE:  # M40.4: a long target list an earlier entry wrote
+        first = seen.setdefault(targets, entry.id)
+        targets = targets if first == entry.id else f" -> as for {first}"
+    return f"{entry.id} = {entry.label}{targets}{_extras(entry)}"
 
 
 def _item_list(entries: tuple[MenuEntry, ...]) -> str:
@@ -175,16 +183,16 @@ def _stem(entry: MenuEntry) -> tuple[object, ...] | None:
     return (base, entry.target_ids, entry.zone_ids, entry.max_targets)
 
 
-def _stem_line(menu: ActionMenu, run: list[MenuEntry]) -> str:
+def _stem_line(menu: ActionMenu, run: list[MenuEntry], seen: dict[str, str]) -> str:
     """`a, b = Base (tail a; tail b) -> targets` (M36.9 iteration 2: the three parley answers)."""
     if len(run) == 1:
-        return _single(menu, run[0])
+        return _single(menu, run[0], seen)
     base = run[0].label.partition(" (")[0]
     tails = "; ".join(e.label.partition(" (")[2][:-1] for e in run)
     return f"{', '.join(e.id for e in run)} = {base} ({tails}){_targets(menu, run[0])}"
 
 
-def _singles(menu: ActionMenu, entries: list[MenuEntry]) -> list[str]:
+def _singles(menu: ActionMenu, entries: list[MenuEntry], seen: dict[str, str]) -> list[str]:
     runs: list[list[MenuEntry]] = []
     for entry in entries:
         stem = _stem(entry)
@@ -192,7 +200,7 @@ def _singles(menu: ActionMenu, entries: list[MenuEntry]) -> list[str]:
             runs[-1].append(entry)
         else:
             runs.append([entry])
-    return [_stem_line(menu, run) for run in runs]
+    return [_stem_line(menu, run, seen) for run in runs]
 
 
 def _once(menu: ActionMenu) -> ActionMenu:
@@ -220,15 +228,16 @@ def menu_lines(menu: ActionMenu | None) -> list[str]:
     lines: list[str] = [_items_line(counts)] if counts else []
     home = {e.id: g for g in groups for e in g.entries}
     done: set[int] = set()
+    seen: dict[str, str] = {}
     pending: list[MenuEntry] = []
     for entry in menu.entries:
         group = home.get(entry.id)
         if group is None:
             pending.append(entry)
             continue
-        lines += _singles(menu, pending)
+        lines += _singles(menu, pending, seen)
         pending = []
         if id(group) not in done:
             done.add(id(group))
             lines.append(_group_line(menu, group, counts))
-    return lines + _singles(menu, pending)
+    return lines + _singles(menu, pending, seen)

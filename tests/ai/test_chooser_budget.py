@@ -14,7 +14,10 @@ max 1,789 (p90 1,580), total max 2,594 (p90 2,304). M38.5 fix (rule 1 narrowed, 
 here no longer NOT OFFERED, `strike:` entries, the demand label): messages max 1,792 (p90
 1,591), total max 2,587 (p90 2,315). M40.1: a confirm card waiting for the hero adds its two
 entries (session state, not in the log): measured on the corpus rows that name their card
-(`card`), +42 message tokens on the two round-7 rows. The bounds below leave a small margin; a
+(`card`), +42 message tokens on the two round-7 rows. M40.4 (the m39-r7 fixtures of M40.3 put
+a cleric's full turn at 1,868): a spent entry drops its targets and a repeated long target list
+is "as for <entry>": over 1,994 lines messages max 1,782 (p90 1,587), total max 2,587 (p90
+2,300). The bounds below leave a small margin; a
 menu change that blows them is fixed in the rendering (`aidm.dm.chooser_menu`), never by raising
 the bound.
 """

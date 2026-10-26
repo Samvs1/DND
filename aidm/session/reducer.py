@@ -18,6 +18,9 @@ plain assignment of the resolved values it carries. The reducer never rolls dice
 re-derives rules, so replay is exact. Payload objects are copied on insert, so later mutation of
 state never changes a logged event. Exhaustiveness: a new `AnyEvent` member without a `case` here
 fails pyright via `assert_never`.
+M40.4: before each event the reducer reads its story keys (`aidm.rules.story_keys`: a foe died,
+a quest changed state, an item changed holder...) and after it marks `World.changed[key] = seq`,
+so a story record made earlier can be told apart from the present (`aidm.rules.story_records`).
 """
 
 from collections.abc import Iterable
@@ -76,6 +79,7 @@ from aidm.models.events import (
 from aidm.models.impossible import ActionImpossible
 from aidm.models.scribe import CharacterRewritten
 from aidm.models.state import ActiveCondition, Creature, GameState
+from aidm.rules.story_keys import quest_changes, quest_status, story_keys
 from aidm.session.campaign_apply import CAMPAIGN_EVENT_TYPES, CampaignEvent, apply_campaign_event
 from aidm.session.encounter_apply import apply_encounter_event
 from aidm.session.reducer_errors import ReducerError
@@ -269,10 +273,24 @@ def _apply_registry_event(state: GameState, event: WorldEvent | CampaignEvent) -
 
 
 def apply(state: GameState, event: AnyEvent) -> GameState:
+    seq = state.event_count
+    keys = story_keys(state, event)
+    quests = quest_status(state) if _is_registry_event(event) else None
+    _apply(state, event)
+    changed = state.world.changed
+    for key in keys:
+        changed[key] = seq
+    if quests is not None:
+        for key in quest_changes(quests, quest_status(state), state):
+            changed[key] = seq
+    return state
+
+
+def _apply(state: GameState, event: AnyEvent) -> None:
     if _is_registry_event(event):
         _apply_registry_event(state, event)
         state.event_count += 1
-        return state
+        return
     match event:
         case CreatureAdded(creature=creature):
             _add_creature(state, creature)
@@ -327,7 +345,6 @@ def apply(state: GameState, event: AnyEvent) -> GameState:
         case _:
             assert_never(event)
     state.event_count += 1
-    return state
 
 
 def replay(initial: GameState, events: Iterable[AnyEvent]) -> GameState:

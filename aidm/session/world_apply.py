@@ -7,6 +7,8 @@ incremented by the caller.
 Public API: `WorldEvent` (the union of the world events), `WORLD_EVENT_TYPES` (its classes, for
 an `isinstance` dispatch), `apply_world_event(state, event)`. The quest events (M23) are handled
 by `aidm.session.quest_apply`, the item-use events (M27.3) by `aidm.session.item_apply`.
+M40.4: a story record (fact, summary, narrated turn, place description) is stamped with
+`StoryStamp(seq, scene)` as it is stored (the seq is `event_count` before the caller's increment).
 """
 
 from typing import assert_never
@@ -14,6 +16,7 @@ from typing import assert_never
 from aidm.models.character import Equipped, Keepsake
 from aidm.models.memory import MAX_NARRATION_LOG
 from aidm.models.state import GameState
+from aidm.models.story import StoryStamp
 from aidm.models.world import World, WorldNpc
 from aidm.models.world_events import (
     ActionDeclared,
@@ -173,6 +176,11 @@ def _item_removed(world: World, item_id: str, qty: int) -> None:
     del world.items[item_id]
 
 
+def _stamp(state: GameState) -> StoryStamp:
+    """M40.4: when a story record is made (this event's seq, the scene now)."""
+    return StoryStamp(seq=state.event_count, scene=state.world.scene_index)
+
+
 def _narrated(state: GameState, text: str, turn: int) -> None:
     memory = state.memory
     if memory.turns_since_summary == 0:
@@ -180,6 +188,7 @@ def _narrated(state: GameState, text: str, turn: int) -> None:
         memory.since_node = state.world.current_node
     memory.turns_since_summary += 1
     memory.narration = [*memory.narration, text][-MAX_NARRATION_LOG:]
+    memory.narration_made = [*memory.narration_made, _stamp(state)][-len(memory.narration) :]
     state.world.scene_turn = turn
 
 
@@ -195,6 +204,7 @@ def _scene_event(state: GameState, event: SceneEvent) -> None:
             if node_id in world.descriptions:
                 raise ReducerError(f"node {node_id!r} is already described")
             world.descriptions[node_id] = text
+            world.described[node_id] = _stamp(state)
         case ItemPlaced(item=item):
             if item.id in world.items:
                 raise ReducerError(f"duplicate item id {item.id!r}")
@@ -209,7 +219,7 @@ def _scene_event(state: GameState, event: SceneEvent) -> None:
         case NarrationRecorded(text=text, scene_turn=turn):
             _narrated(state, text, turn)
         case SceneSummarised(summary=summary):
-            state.memory.summaries.append(summary)
+            state.memory.summaries.append(summary.model_copy(update={"made": _stamp(state)}))
             state.memory.turns_since_summary = 0
         case _:
             assert_never(event)
@@ -262,7 +272,7 @@ def apply_world_event(state: GameState, event: WorldEvent) -> None:
         case QuestUpdated(quest=quest):
             quest_updated(state, quest)
         case FactRecorded(fact=fact):
-            world.facts.append(fact)
+            world.facts.append(fact.model_copy(update={"made": _stamp(state)}))
         case ShopOpened(npc_id=npc_id):
             _npc(state, npc_id)
             world.shop_npc_id = npc_id

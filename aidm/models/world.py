@@ -67,6 +67,10 @@ Public API:
   "noise" or "light", a light gave the party away), `foraged` (places
   whose once-per-place supplies use is spent), `charted` (places made known by a map use: their
   names and ways show on the map without a visit). Old saves default to empty.
+  M40.4 (story records, `aidm.models.story`): `Fact.made` and `described` (node id -> the stamp
+  of its description) are stamped by the reducer; `changed` maps a story key ("status:<id>",
+  "kill:<id>", "flight:<id>", "handover:<id>", "payment:<id>", "pickup:<id>", "refusal:<id>")
+  to the seq of the last engine event that made it (`aidm.rules.story_keys`).
 """
 
 from __future__ import annotations
@@ -81,6 +85,7 @@ from aidm.models.character import Keepsake
 from aidm.models.checks import DcTier
 from aidm.models.dm_tiers import AttitudeBand
 from aidm.models.quests import QuestKind, QuestStep
+from aidm.models.story import StoryStamp
 
 MAX_QUEST_LOG = 8
 
@@ -271,6 +276,7 @@ class Fact(BaseModel):
     text: str = Field(min_length=1)
     entity_ids: tuple[str, ...] = ()
     tags: tuple[str, ...] = ()
+    made: StoryStamp | None = None  # M40.4: stamped by the reducer
 
 
 class WorldItem(BaseModel):
@@ -316,6 +322,8 @@ class World(BaseModel):
     charted: list[str] = Field(default_factory=list[str])  # M27.3
     arrived: dict[str, int] = Field(default_factory=dict[str, int])  # M29.9b: node -> last seq
     learned: dict[str, int] = Field(default_factory=dict[str, int])  # M29.9b: tag -> last seq
+    described: dict[str, StoryStamp] = Field(default_factory=dict[str, StoryStamp])  # M40.4
+    changed: dict[str, int] = Field(default_factory=dict[str, int])  # M40.4: story key -> seq
 
     @model_validator(mode="before")
     @classmethod

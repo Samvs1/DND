@@ -80,9 +80,9 @@ _RULES = (
 )
 NO_REPEAT = (
     "Say something new or say less. Do not reuse images, details or phrases from the lines"
-    " marked 'Narrated:' or from the place's established description, and do not describe the"
-    " place, its landmarks or a person's mannerisms again unless they change or matter to this"
-    " outcome."
+    " marked 'Narrated earlier' or from the place's established description, and do not"
+    " describe the place, its landmarks or a person's mannerisms again unless they change or"
+    " matter to this outcome."
 )
 NOTHING_CHANGED = (
     "No rule applied and nothing in the world changed. Describe only the attempt and how the"

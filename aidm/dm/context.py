@@ -6,8 +6,11 @@ closed-world statement; M27.5: the light of the place and, for ADJUDICATE, the u
 from `aidm.dm.context_gear` come right before it), 3 PARTY (compact sheets), 4 QUESTS
 (`aidm.dm.context_quests`: main objective, known routes, current steps, item whereabouts,
 offers; M23.5) and FACTS (top-k by entity overlap), 5 MEMORY (scene summaries, last narration
-turns), 6 EVENTS (engine events since the last narration, authoritative), 7 NPC_PRIVATE (motive,
-secrets and the route hint the NPC knows, ONLY for `NPC_VOICE`).
+turns; M40.4: FACTS and MEMORY are dated past records, titled `PAST_NOTES_TITLE` /
+`MEMORY_TITLE`, and a fact a later engine event superseded is left out,
+`aidm.rules.story_records`), 6 EVENTS (engine events since the last narration,
+authoritative), 7 NPC_PRIVATE (motive, secrets and the route hint the NPC knows, ONLY for
+`NPC_VOICE`).
 
 M36.5 `CHOOSE` (the menu chooser, SPEC 6.2) is the same builder with its own sections, in this
 order: SYSTEM (the chooser's fixed rules and examples, `aidm.dm.chooser_prompt`), ACTOR (class,
@@ -61,6 +64,13 @@ from aidm.models.state import GameState
 from aidm.rules.scene import current_scene
 
 DEFAULT_BUDGET_TOKENS = 6000
+# M40.4: stored story records are past notes; only the engine's own lines are the present
+PRESENT_NOTE = (
+    "only the engine's lines (SCENE MANIFEST, PARTY, QUESTS, RECENT ENGINE EVENTS, RESOLVED)"
+    " are the present; where a note disagrees with them, the note is out of date"
+)
+PAST_NOTES_TITLE = f"PAST NOTES (written earlier, dated; {PRESENT_NOTE})"
+MEMORY_TITLE = "MEMORY (earlier turns, dated: the past, not the present)"
 MAX_PLAYER_CHARS = 1000
 _CONTROL = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
 
@@ -84,8 +94,8 @@ _TITLES = {
     SectionKey.MANIFEST: "SCENE MANIFEST",
     SectionKey.PARTY: "PARTY",
     SectionKey.QUESTS: "QUESTS (the only tasks that exist)",
-    SectionKey.FACTS: "RELEVANT FACTS",
-    SectionKey.MEMORY: "MEMORY",
+    SectionKey.FACTS: PAST_NOTES_TITLE,
+    SectionKey.MEMORY: MEMORY_TITLE,
     SectionKey.EVENTS: "RECENT ENGINE EVENTS (authoritative)",
     SectionKey.NPC_PRIVATE: "NPC PRIVATE NOTES (never reveal unrevealed secrets)",
     SectionKey.ACTOR: "ACTING HERO",

@@ -28,6 +28,7 @@ from aidm.models.encounter_events import EncounterEnded
 from aidm.models.events import AnyEvent
 from aidm.models.memory import SummarySource
 from aidm.models.state import GameState
+from aidm.models.story import StoryStamp
 from aidm.models.world import Fact, NpcSecret
 from aidm.models.world_events import FactRecorded, PartyMoved, SceneSummarised, SecretRevealed
 from aidm.session.reducer import apply
@@ -81,8 +82,10 @@ def test_trigger_at_scene_end() -> None:
 def test_scene_summarised_resets_the_counter() -> None:
     state = _narrate(inn_state(), *TURNS)
     summary = fallback_summary(state)
+    seq = state.event_count
     apply(state, SceneSummarised(summary=summary))
-    assert state.memory.summaries == [summary] and state.memory.turns_since_summary == 0
+    stamped = summary.model_copy(update={"made": StoryStamp(seq=seq, scene=0)})  # M40.4
+    assert state.memory.summaries == [stamped] and state.memory.turns_since_summary == 0
     assert not should_summarise(state)
     _narrate(state, "The fire crackles.")
     assert state.memory.turns_since_summary == 1
@@ -205,4 +208,7 @@ def test_context_uses_the_retrieval() -> None:
         apply(state, FactRecorded(fact=fact))
     pack = build_context(state, ContextPurpose.NARRATE, facts_k=2)
     section = pack.section(SectionKey.FACTS)
-    assert section is not None and list(section.lines) == ["both", "recent a"]
+    assert section is not None and list(section.lines) == [
+        "Earlier this scene: both",
+        "Earlier this scene: recent a",
+    ]

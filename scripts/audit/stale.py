@@ -71,7 +71,8 @@ def alias_table(state: GameState) -> dict[str, list[str]]:
     return table
 
 
-OFFER_WORDS = re.compile(r"accept|refus|request|promis|offer|\bask", re.IGNORECASE)
+# M40.4: offer words start a word ("Cofferlight" held "offer" and tied a fact to quests)
+OFFER_WORDS = re.compile(r"\b(?:accept|refus|request|promis|offer|ask)", re.IGNORECASE)
 
 
 def giver_table(state: GameState) -> dict[str, list[str]]:

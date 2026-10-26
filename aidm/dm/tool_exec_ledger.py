@@ -2,7 +2,9 @@
 `aidm.dm.tool_exec_quests` in M23.5.)
 
 Facts: every entity id must name something known (creature, NPC, feature, quest or world node),
-so the ledger cannot invent entities.
+so the ledger cannot invent entities. M40.4: a fact that claims a deed (killed, fled, handed
+over, paid, picked up, refused) no engine event since the last summary did is refused
+(`aidm.rules.story_claims`, the same check as the summariser's facts).
 
 Public API: `run_record_fact` -> `ToolResult`; `known_entity_ids(state)`;
 `new_fact(state, text, entity_ids, tags, offset=0) -> Fact` (the ONE way a ledger entry is built,
@@ -17,6 +19,7 @@ from aidm.models.state import GameState
 from aidm.models.world import Fact
 from aidm.models.world_events import FactRecorded
 from aidm.rules.dice import Rng
+from aidm.rules.story_claims import unsupported_claims
 
 MAX_TAG_CHARS = 24
 
@@ -53,5 +56,8 @@ def run_record_fact(
     unknown = [e for e in args.entity_ids if e not in known_entity_ids(state)]
     if unknown:
         raise ToolRefused(f"unknown entity ids: {', '.join(unknown)}")
+    unmade = unsupported_claims(state, args.text, args.entity_ids)
+    if unmade:  # M40.4: a note may only record a deed an engine event did
+        raise ToolRefused(f"no engine event this scene made the {', '.join(unmade)} it states")
     fact = new_fact(state, args.text, args.entity_ids, args.tags)
     return ToolResult(events=(FactRecorded(fact=fact),), summary=f"fact {fact.id} recorded")

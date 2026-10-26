@@ -57,6 +57,7 @@ from aidm.rules.scene import current_scene, node_display_name
 from aidm.rules.scribe import scribe_view
 from aidm.rules.shop import StockEntry, is_shop
 from aidm.rules.social import public_npc_view
+from aidm.rules.story_records import live_facts
 from aidm.rules.zones import zone_is_difficult
 from aidm.session.public_feed import leaks, private_texts
 from aidm.session.views_light import hero_extras, lock_tier, place_lit_name, zone_extras
@@ -160,9 +161,10 @@ def public_map(state: GameState) -> PublicMap | None:
 
 
 def public_facts(state: GameState) -> tuple[str, ...]:
-    """The latest ledger facts, minus any that carry private text (motive, secret, hidden)."""
+    """The latest ledger facts, minus any that carry private text (motive, secret, hidden) and,
+    M40.4, any a later engine event superseded (`aidm.rules.story_records.live_facts`)."""
     private = private_texts(state)
-    facts = [f.text for f in state.world.facts if not leaks(f.text, private)]
+    facts = [f.text for f in live_facts(state) if not leaks(f.text, private)]
     return tuple(facts[-MAX_PUBLIC_FACTS:])
 
 

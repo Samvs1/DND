@@ -14,6 +14,10 @@ Public API:
   retrieval: top-k by entity overlap with `focus`, ties broken by recency; deterministic);
   `fact_lines(state, focus, k) -> list[str]` (their texts).
 - `memory_lines(state, last_n) -> list[str]`: scene summaries then the last narration turns.
+M40.4: facts, summaries and narrated turns are past records (`aidm.rules.story_records`):
+`fact_lines` ranks only the facts no later engine event superseded and dates each one
+("Earlier this scene: ..."); `memory_lines` dates every summary and narrated turn ("Earlier,
+scene 2 (place): ...", "Narrated earlier this scene: ...").
 - `npc_private_lines(state, npc_id) -> list[str]`.
 The QUESTS section lives in `aidm.dm.context_quests` (M23.5).
 - `scene_focus(state, scene, actor_id, npc_id) -> frozenset[str]`: entity ids of the scene.
@@ -30,6 +34,15 @@ from aidm.rules.checks import difficulty_word
 from aidm.rules.gateway_lock import short_reason
 from aidm.rules.scene import SceneView, node_display_name
 from aidm.rules.social import attitude_band, attitude_score
+from aidm.rules.story_records import (
+    StoryRecord,
+    dated_facts,
+    live_facts,
+    narration_records,
+    shown_when,
+    summary_record,
+    when_label,
+)
 
 _BACKSTORY_CHARS = 120
 
@@ -185,17 +198,25 @@ def relevant_facts(facts: Sequence[Fact], focus: Iterable[str], k: int) -> list[
 
 
 def fact_lines(state: GameState, focus: frozenset[str], k: int) -> list[str]:
-    return [f.text for f in relevant_facts(state.world.facts, focus, k)]
+    """M40.4: past notes, dated; a note a later engine event superseded is left out."""
+    return dated_facts(state, relevant_facts(live_facts(state), focus, k))
+
+
+def _dated(state: GameState, record: StoryRecord) -> str:
+    return shown_when(state, record) or when_label(state, None)
 
 
 def memory_lines(state: GameState, last_n: int) -> list[str]:
-    memory = state.memory
+    """M40.4: scene summaries and the last narrated turns are history, each dated as past."""
     lines = [
-        f"Earlier (scene {s.scene_index}, {node_display_name(state, s.node_id)}): {s.text}"
-        for s in memory.summaries
+        f"{_dated(state, summary_record(s))} ({node_display_name(state, s.node_id)}): {s.text}"
+        for s in state.memory.summaries
     ]
-    recent = memory.narration[-last_n:] if last_n > 0 else []
-    return lines + [f"Narrated: {text}" for text in recent]
+    recent = narration_records(state)[-last_n:] if last_n > 0 else []
+    for r in recent:
+        when = _dated(state, r)
+        lines.append(f"Narrated {when[0].lower()}{when[1:]}: {r.text}")
+    return lines
 
 
 def npc_private_lines(state: GameState, npc_id: str | None) -> list[str]:
