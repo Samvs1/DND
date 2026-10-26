@@ -13,7 +13,13 @@ the player did not name, so:
   one is that one. M38.5 fix: people who are not here are left out (a line about travelling to
   someone or asking about them named them as colour and drew a stray `other`). At most
   MAX_UNOFFERED, in the order the line names them. `with_unoffered(state, menu, text)` is the
-  menu with them (`ActionMenu.unoffered`; no entry names one).
+  menu with them (`ActionMenu.unoffered`; no entry names one). M40.2 (round 7 Z2: "We follow
+  Sersha's trail to the Gear Nave", a locked tier-3 place, travelled to a place the menu did
+  offer): out of a fight, a place the party has heard of from its journal (the quests it holds
+  and its leads name it) or a map use (`World.charted`; the visited places and their roads are
+  travel targets already) that no road open now reaches, with the engine's reason
+  (`gateway_lock.short_reason`: "locked until the master of X is dealt with", or
+  `NO_ROAD_NOTE`). A place the party never heard of is never one.
 - `not_offered(menu, step)`: the step's NOT OFFERED targets: nothing can act on them, so the
   chooser turns that step into `other` with no repair round (`ChooseActionsArgs.to_choice`).
 - `named_off(menu, step)`: M38.5 fix: the step's targets its entry cannot take that are a named
@@ -34,10 +40,20 @@ Public API: `MAX_UNOFFERED`, `unoffered_targets(state, menu, text)`,
 from collections.abc import Iterator
 from difflib import get_close_matches
 
-from aidm.models.action_menu import ActionMenu, MenuEntry, MenuStep, MenuTarget, TargetKind
+from aidm.models.action_menu import (
+    ActionMenu,
+    MenuEntry,
+    MenuScope,
+    MenuStep,
+    MenuTarget,
+    TargetKind,
+)
 from aidm.models.state import Creature, GameState
+from aidm.rules.gateway_lock import short_reason
 from aidm.rules.item_effects import gear_name
+from aidm.rules.menu_scene_view import NO_ROAD_NOTE
 from aidm.rules.menu_view import slug
+from aidm.rules.world_graph import travel_route
 
 MAX_UNOFFERED = 4
 NOT_HERE = "not here"
@@ -78,6 +94,31 @@ def _elsewhere(state: GameState) -> Iterator[_Candidate]:
             yield item.id, item.name, NOT_HERE, "thing"
 
 
+def _journal(state: GameState) -> str:
+    """The journal's words as one slug: the quests the party holds and its leads."""
+    world = state.world
+    texts = [" ".join((q.title, q.objective, *q.log)) for q in world.quests.values()]
+    return f"-{slug(' '.join([*texts, *(lead.text for lead in world.leads)]))}-"
+
+
+def _out_of_reach(state: GameState, menu: ActionMenu) -> Iterator[_Candidate]:
+    """M40.2: the places the journal names or a map charted that no road open now reaches (the
+    places a travel entry takes are targets already, and `unoffered_targets` skips them)."""
+    world = state.world
+    if menu.scope not in (MenuScope.EXPLORE, MenuScope.OFFER) or world.current_node is None:
+        return
+    told = _journal(state)
+    for node, name in world.node_names.items():
+        key = slug(name)
+        heard = node in world.charted or f"-{key}-" in told
+        if not key or not heard or node == world.current_node:
+            continue
+        if travel_route(world, world.current_node, node):
+            continue
+        where = short_reason(state, node) if node in world.locked_nodes else NO_ROAD_NOTE
+        yield node, name, where, "place"
+
+
 def _shown(menu: ActionMenu) -> set[str]:
     """The names the menu already acts on: its targets' names ("Merre Wenslow", "Thug") and the
     things its entries name (`feed:potion-of-healing`, `take:free-given-salt`, `loot:<item>`)."""
@@ -111,6 +152,7 @@ def unoffered_targets(state: GameState, menu: ActionMenu, text: str) -> tuple[Me
     for thing, name, where, kind in (
         *_carried_elsewhere(state, menu.actor_id),
         *_elsewhere(state),
+        *_out_of_reach(state, menu),
     ):
         key = slug(name)
         at = line.find(f"-{key}-") if key else -1
