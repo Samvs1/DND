@@ -90,6 +90,27 @@ def set_current_unless_live(root: Path, run: str) -> bool:
     return True
 
 
+def live_current(root: Path) -> str | None:
+    """The run CURRENT names if its server is still live (Z18), else None."""
+    pointer = root / "CURRENT"
+    if not pointer.exists():
+        return None
+    name = pointer.read_text(encoding="utf-8").strip()
+    if not name or not (run_dir(root, name) / "session.json").exists():
+        return None
+    return name if alive(Session.load(root, name)) else None
+
+
+def run_footer(root: Path, given: str | None, text: str) -> str:
+    """`[run NAME]`: the run a command went to (Z18); `new` names its own run in its head."""
+    found = re.match(r"New run (\S+?):", text)
+    try:
+        name = found.group(1) if found else current_run(root, given)
+    except SystemExit:
+        return ""
+    return f"[run {name}]"
+
+
 def port_open(port: int) -> bool:
     with socket.socket() as probe:
         probe.settimeout(0.5)

@@ -1,11 +1,11 @@
 """Text harness for AI playtesters (M29.3, docs/next/GOAL_BALANCE.md "Layer 2").
 
     python scripts/agent_play.py new [--shape classic|martial|casters|solo|duo|fighter,cleric]
-        [--live] [--seed N] [--port 8101] [--run NAME]
+        [--live] [--seed N] [--port 8101] [--run NAME] [--force]
     python scripts/agent_play.py look
     python scripts/agent_play.py act "I ask the innkeeper about the beacon"
-    python scripts/agent_play.py do attack 1 | dodge | dash | disengage | end | cast <spell> [foe#]
-        | use <use_id> [foe#]
+    python scripts/agent_play.py do attack 1 [weapon] | dodge | dash | disengage | end
+        | cast <spell> [foe#] | use <use_id> [foe#]
     python scripts/agent_play.py move <place or zone>
     python scripts/agent_play.py answer <fight|surprise|escape|parley|yes|no|confirm|cancel|id>
     python scripts/agent_play.py trade list | buy <item> [qty] | sell <item> [qty]
@@ -19,7 +19,8 @@ campaign under `saves/playtests/<run>/` and seats the heroes; later commands rec
 $AIDM_AGENT_RUN). `--as NAME` picks the hero (in a
 fight the hero whose turn it is acts). `--live` uses the real DeepSeek model through the one
 LLM client and the key in .env (never printed); without it the deterministic fake storyteller
-answers. Every output ends with `[save <campaign id> | event <n>]` for bug reports.
+answers. Every output ends with `[save <campaign id> | event <n>]` and `[run NAME]`.
+`new` without `--run` refuses while the default run is live (Z18): pass `--run NAME` or `--force`.
 A vote answered without `--as` is answered by one driver for every hero (by design, not a game
 bug); pass `--as NAME` to vote as one hero. `look` shows slots, supplies, spells, light, cover.
 """
@@ -59,6 +60,7 @@ def build_parser() -> argparse.ArgumentParser:
     new.add_argument("--live", action="store_true", help="real DeepSeek storyteller")
     new.add_argument("--seed", type=int, default=1)
     new.add_argument("--port", type=int, default=DEFAULT_PORT)
+    new.add_argument("--force", action="store_true", help="start even if the default run is live")
     for name in ("look", "stop", "levelup", "serve"):
         sub.add_parser(name, parents=hidden)
     sub.add_parser("act", parents=hidden).add_argument("text", nargs="+")
@@ -74,7 +76,9 @@ async def dispatch(args: argparse.Namespace) -> str:
     root, run, who = args.root, args.run, args.as_name
     match args.command:
         case "new":
-            return await ops.cmd_new(root, run, args.shape, args.seed, args.live, args.port)
+            return await ops.cmd_new(
+                root, run, args.shape, args.seed, args.live, args.port, args.force
+            )
         case "look":
             return await ops.cmd_look(root, run, who)
         case "act":
@@ -96,7 +100,7 @@ async def dispatch(args: argparse.Namespace) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
-    from scripts.agent.session import serve
+    from scripts.agent.session import run_footer, serve
     from scripts.agent.text import ascii_text
 
     if isinstance(sys.stdout, io.TextIOWrapper):
@@ -109,8 +113,11 @@ def main(argv: list[str] | None = None) -> int:
         text = asyncio.run(dispatch(args))
     except SystemExit as err:
         print(f"ERROR: {err}")
+        if args.command != "new":
+            print(ascii_text(run_footer(args.root, args.run, "")))
         return 1
     print(ascii_text(text))
+    print(ascii_text(run_footer(args.root, args.run, text)))
     return 0
 
 

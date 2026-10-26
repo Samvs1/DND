@@ -10,10 +10,10 @@ write a report. You never change code, data, tests or docs, and you never read `
 
 ## The tool
 Run it from `C:\Users\vanst\Desktop\Dnd2` (the repo root) with `.\.venv\Scripts\python.exe scripts/agent_play.py <command>`:
-- `new --run <name> --port <port> --shape <classic|martial|casters|solo|duo|class,class> [--live]`: start (your caller gives
+- `new --run <name> --port <port> --shape <classic|martial|casters|solo|duo|class,class> [--live] [--force]`: start (refuses while the default run is live unless you pass --run or --force; every output ends with `[run NAME]`) (your caller gives
   the run name, port, shape and whether `--live`). Use ONLY the run name and port you were given.
 - `look`: the short state. `act "<what my hero does or says>"`: a typed action. `move <place or zone id>`.
-- `do attack 1 | dodge | dash | disengage | end | cast <spell> [foe#] | use <use id> [foe#]`: fight actions, exactly as
+- `do attack 1 [weapon] | dodge | dash | disengage | end | cast <spell> [foe#] | use <use id or potion> [foe#]`: fight actions, exactly as
   the Options list in `look` shows them. `answer <fight|surprise|escape|parley|yes|no|confirm|cancel|id>`: an offer,
   a quest offer, a vote, a finale. `levelup`: when a hero can level up. `--as <hero name>` picks the hero.
 - `stop`: always run it last, even when stuck, so no server stays running.

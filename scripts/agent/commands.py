@@ -1,8 +1,9 @@
 """Turn what the playtester typed into protocol messages (pure, no network).
 
 `do` words become a combat command for the acting hero; targets are the numbers `look` prints
-for foes (or a creature id). `attack` leaves `option` unset: the link asks the server for the
-hit chances and takes the best one, like a player pressing the strike button.
+for foes (or a creature id). `attack <foe#>` leaves `option` empty: the link asks the server for
+the hit chances and takes the best one, like the strike button; `attack <foe#> <weapon>` names
+the hand or weapon. `use` takes a gear use id or a potion of the pack (Z19).
 
 Public API: `UsageError`, `build_command`, `answer_message`, `target_of`.
 """
@@ -63,8 +64,9 @@ def build_command(
         return {"type": SIMPLE[verb], **base}
     if verb == "attack":
         if not rest:
-            raise UsageError("do attack <foe#>")
-        return {"type": "attack", **base, "target_id": target_of(rest[0], foes), "option": ""}
+            raise UsageError("do attack <foe#> [weapon]")
+        option = weapon_of(rest[1], sheet) if len(rest) > 1 else ""
+        return {"type": "attack", **base, "target_id": target_of(rest[0], foes), "option": option}
     if verb == "move":
         if not rest:
             raise UsageError("move <zone id>")
@@ -87,6 +89,24 @@ def build_command(
         f"unknown action {verb!r}: attack, cast, use, feature, bonus, dodge, dash, disengage, "
         "hide, flee, end"
     )
+
+
+def weapon_of(word: str, sheet: Msg | None) -> str:
+    """An explicit weapon: a hand (main_hand, off_hand, ranged), an item id or a weapon name."""
+    attacks = (sheet or {}).get("attacks", [])
+    for a in attacks:
+        keys = [a.get("hand"), a.get("item"), a.get("name")]
+        if word.lower() in [str(k).lower() for k in keys if k]:
+            return str(a.get("hand") or a.get("item") or a["name"])
+    if not attacks:
+        return word
+    names = ", ".join(str(a.get("hand") or a.get("item")) for a in attacks)
+    raise UsageError(f"you have no weapon {word!r} (yours: {names})")
+
+
+def usable_items(sheet: Msg | None) -> list[Msg]:
+    """Inventory items the web hotbar offers as a one-tap use (category `potion`)."""
+    return [i for i in (sheet or {}).get("inventory", []) if i.get("category") == "potion"]
 
 
 def _zone_of(word: str, combat: Msg) -> str:
@@ -137,10 +157,30 @@ def _use(rest: list[str], base: Msg, foes: list[Msg], sheet: Msg | None) -> Msg:
     uses = {u["use_id"]: u for u in (sheet or {}).get("gear_uses", [])}
     use = uses.get(rest[0])
     if use is None:
-        raise UsageError(
-            f"you have no use {rest[0]!r} (yours: {', '.join(sorted(uses)) or 'none'})"
-        )
+        return _use_potion(rest, base, foes, sheet, sorted(uses))
     cmd: Msg = {"type": "use_item", **base, "item": use["item"], "use_id": use["use_id"]}
+    if len(rest) > 1:
+        cmd["target_id"] = target_of(rest[1], foes)
+    return cmd
+
+
+def _use_potion(
+    rest: list[str], base: Msg, foes: list[Msg], sheet: Msg | None, ids: list[str]
+) -> Msg:
+    """Z19: a potion of the pack, as the hotbar sends it (`use_item` with the item id only)."""
+    word = rest[0].lower()
+    found = next(
+        (
+            i
+            for i in usable_items(sheet)
+            if word in (str(i["item"]).lower(), str(i["name"]).lower())
+        ),
+        None,
+    )
+    if found is None:
+        have = ids + [str(i["item"]) for i in usable_items(sheet)]
+        raise UsageError(f"you have no use {rest[0]!r} (yours: {', '.join(have) or 'none'})")
+    cmd: Msg = {"type": "use_item", **base, "item": found["item"]}
     if len(rest) > 1:
         cmd["target_id"] = target_of(rest[1], foes)
     return cmd

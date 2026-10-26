@@ -97,6 +97,24 @@ def _bonus_lines(sheet: Msg | None, eco: Msg) -> list[str]:
     return [f"do bonus {v}   (Cunning Action, bonus action)" for v in ("dash", "disengage", "hide")]
 
 
+def _weapon_lines(sheet: Msg | None) -> list[str]:
+    """Z20: the weapons `do attack <foe#> [weapon]` can name (default: the best fit)."""
+    atk = (sheet or {}).get("attacks", [])
+    if not atk:
+        return []
+    names = ", ".join(f"{a.get('hand') or a.get('item')}={a.get('name')}" for a in atk)
+    return [f"(weapons for do attack <foe#> <weapon>: {names}; default = best fit)"]
+
+
+def _potion_lines(sheet: Msg | None) -> list[str]:
+    """Z19: usable pack items, like the web hotbar's potion buttons (a bonus action)."""
+    items = [i for i in (sheet or {}).get("inventory", []) if i.get("category") == "potion"]
+    return [
+        f"do use {i['item']} [foe#]   ({i.get('name', i['item'])} x{i.get('qty', 1)}, bonus action)"
+        for i in items
+    ]
+
+
 def option_lines(combat: Msg | None, hero_id: str, sheet: Msg | None) -> list[str]:
     """The exact `do` / `move` commands a hero can type right now in a fight."""
     if not combat or combat.get("active_id") != hero_id:
@@ -117,6 +135,7 @@ def option_lines(combat: Msg | None, hero_id: str, sheet: Msg | None) -> list[st
     if spent:
         lines.append("(spent or unavailable: " + ", ".join(spent) + ")")
     lines.append("do end")
+    lines += _weapon_lines(sheet) + _potion_lines(sheet)
     for use in (sheet or {}).get("gear_uses", []):
         label = f"{use['name']}: {use['label']}, {use['cost']}"
         lines.append(f"do use {use['use_id']} [foe#]   ({label})")

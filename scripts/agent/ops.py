@@ -23,6 +23,7 @@ from scripts.agent.session import (
     Session,
     alive,
     current_run,
+    live_current,
     run_dir,
     set_current_unless_live,
     start_server,
@@ -83,8 +84,18 @@ async def _seat(session: Session, classes: list[str]) -> Link:
     return host
 
 
-async def cmd_new(root: Path, run: str | None, shape: str, seed: int, live: bool, port: int) -> str:
+async def cmd_new(
+    root: Path,
+    run: str | None,
+    shape: str,
+    seed: int,
+    live: bool,
+    port: int,
+    force: bool = False,
+) -> str:
     classes = parse_party(shape)
+    if (busy := live_current(root)) and not run and not force:
+        raise SystemExit(f"run {busy} is live and is the default: pass --run <name> or --force.")
     name = run or time.strftime("run-%m%d-%H%M%S")
     session = Session(run=name, port=port, live=live, shape=shape, seed=seed)
     start_server(session, root)
