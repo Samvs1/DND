@@ -3,24 +3,46 @@
 import time
 from collections import defaultdict
 from collections.abc import Iterator
+from dataclasses import dataclass
 from typing import Any
 
 from aidm.dm.chooser import ChooserFailure, choose
 from aidm.dm.llm_client import LlmClient
 from aidm.dm.llm_types import LlmRole
 from aidm.models.action_menu import MenuChoice
+from aidm.models.events import AnyEvent
+from aidm.models.state import GameState
 from scripts.interpret import lib
-from scripts.interpret.corpus import Row, gaps
+from scripts.interpret.corpus import Row, SceneRow, gaps
 from scripts.interpret.score import verdicts
+from scripts.interpret.synthetic import scene
 
 DEFAULT_CAP = 300
 
 
-def with_states(rows: list[Row]) -> Iterator[tuple[Row, lib.Line | None]]:
-    """Each row with the line it names (None if the fixture has no such line); live state."""
+@dataclass
+class Situation:
+    """A scene row's state: nothing happened before it (M38.1)."""
+
+    state: GameState
+    recent: list[AnyEvent]
+
+
+def _scene_state(row: SceneRow) -> Situation | None:
+    try:
+        return Situation(scene(row.scene).state, [])
+    except KeyError:
+        return None
+
+
+def with_states(rows: list[Row]) -> Iterator[tuple[Row, lib.Line | Situation | None]]:
+    """Each row with the line (or scene) it names (None if there is none); live state."""
     by_run: dict[str, dict[int, Row]] = defaultdict(dict)
     for row in rows:
-        by_run[row.run][row.seq] = row
+        if isinstance(row, SceneRow):
+            yield row, _scene_state(row)
+        else:
+            by_run[row.run][row.seq] = row
     for run, wanted in by_run.items():
         seen: set[int] = set()
         for line in lib.walk(run, frozenset(wanted)):
@@ -34,10 +56,15 @@ def coverage(rows: list[Row]) -> list[str]:
     problems: list[str] = []
     for row, line in with_states(rows):
         if line is None:
-            problems.append(f"{row.id}: no such typed line in the fixture")
+            problems.append(f"{row.id}: no such typed line or scene")
             continue
-        if line.event.creature_id != row.actor_id or line.event.text != row.text:
+        if isinstance(line, lib.Line) and (
+            line.event.creature_id != row.actor_id or line.event.text != row.text
+        ):
             problems.append(f"{row.id}: actor or text differs from the fixture line")
+        if row.actor_id not in line.state.creatures:
+            problems.append(f"{row.id}: actor {row.actor_id} is not in the state")
+            continue
         menu = lib.menu_for(line.state, row.actor_id)
         problems += [f"{row.id}: {g}" for g in gaps(menu, row)]
     return problems

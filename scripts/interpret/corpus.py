@@ -59,9 +59,23 @@ class Row(BaseModel):
         return [self.expect.choice(), *(a.choice() for a in self.alt)]
 
 
+class SceneRow(Row):
+    """M38.1: a row on a named synthetic scene (scripts/interpret/synthetic.py) instead of a
+    fixture line; `run` and `seq` stay empty."""
+
+    run: str = ""
+    seq: int = 0
+    scene: str
+
+
+def _row(raw: str) -> Row:
+    data = json.loads(raw)
+    return SceneRow.model_validate(data) if "scene" in data else Row.model_validate(data)
+
+
 def load_corpus(path: Path) -> list[Row]:
     lines = path.read_text(encoding="utf-8").splitlines()
-    return [Row.model_validate(json.loads(line)) for line in lines if line.strip()]
+    return [_row(line) for line in lines if line.strip()]
 
 
 def _choice_gaps(menu: ActionMenu, choice: MenuChoice) -> list[str]:

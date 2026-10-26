@@ -83,7 +83,11 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--cap", type=int, default=DEFAULT_CAP)
     args = parser.parse_args(argv)
-    rows = load_corpus(Path(args.corpus))
+    try:
+        rows = load_corpus(Path(args.corpus))
+    except ValueError as exc:
+        print(f"BAD ROW in {args.corpus}: {str(exc).splitlines()[0]}")
+        return 1
     problems = coverage(rows)
     for problem in problems:
         print(f"GAP {problem}")
