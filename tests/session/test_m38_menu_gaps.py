@@ -54,7 +54,7 @@ async def _strike(tmp_path: Path, spell: str, actor: str, text: str) -> MenuPlay
         tmp_path,
         "r3-casters",
         288,
-        pick((f"cast:{spell}", [RENN], None)),
+        pick((f"strike:{spell}", [RENN], None)),
         text=text,
         actor=actor,
         then=(ConfirmHostile(),),

@@ -19,18 +19,22 @@ Eldritch Blast) also aims at the people standing here, as a held weapon does (M3
 is its opening-strike key (`spell:<id>`), so a person named is the engine's attack on a person
 (`PersonStrikeIntent`: `start_encounter` with the spell as the opening strike, the
 point-of-no-return question first for a non-hostile person), and no one named stays the scene
-cast. M38.4 (owner rule: never refuse a possible action): so does a harmful spell with no attack
-roll, any that deals damage (`spell_targets.deals_damage`: Burning Hands, Sacred Flame, Magic
-Missile), its opening strike cast at the person (an area at the zone they stand in,
-`rules.opening_strike`). A hostile spell that deals no damage (Charm Person, Sleep, Hold Person)
-stays the scene cast out of a fight.
+cast. M38.4 (owner rule: never refuse a possible action): a harmful spell with no attack roll,
+any that deals damage (`spell_targets.deals_damage`: Burning Hands, Sacred Flame, Magic
+Missile), can open a fight on a person too, its opening strike cast at the person (an area at
+the zone they stand in, `rules.opening_strike`). M38.5 fix: that is its own entry,
+`strike:<spell>` ("Burning Hands at a person here" -> the people here, note STRIKE_NOTE), and its
+`cast:<spell>` entry stays the plain scene cast with no target, so a cast at the ferns or the
+water is never aimed at a person. While an offer waits, the strike at the foes also takes the
+people here (`strike_casts`). A hostile spell that deals no damage (Charm Person, Sleep, Hold
+Person) stays the scene cast out of a fight.
 
 M36.4: `feature:<name>`: a class feature usable out of a fight (`feature_commands.
 usable_out_of_fight`: a healing bonus action such as Second Wind) with uses left, the same id as
 in a fight; Action Surge, Turn Undead and Breath Weapon need a fight and are not listed.
 
 Public API: `explore_casts(view)`, `strike_casts(view, foe_ids)`, `explore_features(view)`,
-`SCENE_NOTE`, `PERSON_NOTE`, `NO_SLOT`.
+`SCENE_NOTE`, `PERSON_NOTE`, `NO_SLOT`, `STRIKE_PREFIX`, `STRIKE_NOTE`.
 """
 
 from collections.abc import Iterator
@@ -48,8 +52,19 @@ from aidm.rules.spell_chances import SPELL_OPTION_PREFIX, spell_attack_options
 from aidm.rules.spell_targets import deals_damage, strikes_creatures
 
 SCENE_NOTE = "cast at the scene"
+STRIKE_PREFIX = "strike"
+STRIKE_NOTE = "starts a fight"
 PERSON_NOTE = "cast at the scene, or at a person here: starts a fight"
 NO_SLOT = "no spell slot left"
+
+
+def _rolled(view: SceneMenuView) -> frozenset[str]:
+    """The ready spells with an attack roll (M38.2), when someone stands here to aim them at."""
+    if not view.people:
+        return frozenset()
+    hero = view.state.creatures[view.actor_id]
+    keys = spell_attack_options(hero, view.regs.chars, view.regs.spells)
+    return frozenset(p.key.removeprefix(SPELL_OPTION_PREFIX) for p in keys)
 
 
 def _at_people(view: SceneMenuView) -> frozenset[str]:
@@ -57,11 +72,26 @@ def _at_people(view: SceneMenuView) -> frozenset[str]:
     roll (M38.2), or a harmful one, any that deals damage, with a slot left (M38.4)."""
     if not view.people:
         return frozenset()
-    hero = view.state.creatures[view.actor_id]
-    keys = spell_attack_options(hero, view.regs.chars, view.regs.spells)
-    rolled = {p.key.removeprefix(SPELL_OPTION_PREFIX) for p in keys}
     harmful = {s.index for s, _, _, left in _castable(view) if left != 0 and deals_damage(s)}
-    return frozenset(rolled | harmful)
+    return _rolled(view) | harmful
+
+
+def _person_strike(
+    view: SceneMenuView, spell: SpellDef, line: SpellLine, level: int | None
+) -> MenuEntry:
+    """M38.5 fix: a harmful spell with no attack roll at a person here is its own entry, so its
+    scene cast never takes a person as a target ("Burning Hands at the damp ferns")."""
+    return MenuEntry(
+        id=f"{STRIKE_PREFIX}:{spell.index}",
+        kind=ActionKind.CAST,
+        label=f"{line.name} at a person here",
+        target_ids=view.people,
+        max_targets=1,
+        note=STRIKE_NOTE,
+        option=f"{SPELL_OPTION_PREFIX}{spell.index}",
+        spell_id=spell.index,
+        slot_level=level,
+    )
 
 
 def _castable(view: SceneMenuView) -> Iterator[tuple[SpellDef, SpellLine, int | None, int | None]]:
@@ -84,13 +114,16 @@ def _castable(view: SceneMenuView) -> Iterator[tuple[SpellDef, SpellLine, int | 
 def explore_casts(view: SceneMenuView) -> list[MenuEntry]:
     out: list[MenuEntry] = []
     party = (view.actor_id, *view.heroes)
-    people = _at_people(view)
+    people = _rolled(view)
+    strikes: list[MenuEntry] = []
     for spell, line, level, left in _castable(view):
         hostile = strikes_creatures(spell)
         if hostile and view.threat:
             continue  # a strike at the waiting foes (`strike_casts`)
         aimed = needs_of(spell) == "creature" and not hostile
         at_person = not aimed and left != 0 and spell.index in people
+        if view.people and left != 0 and not at_person and deals_damage(spell):
+            strikes.append(_person_strike(view, spell, line, level))
         note = NO_SLOT if left == 0 else "" if aimed else PERSON_NOTE if at_person else SCENE_NOTE
         out.append(
             MenuEntry(
@@ -106,7 +139,7 @@ def explore_casts(view: SceneMenuView) -> list[MenuEntry]:
                 slot_level=level,
             )
         )
-    return out
+    return out + strikes
 
 
 def strike_casts(view: SceneMenuView, foe_ids: tuple[str, ...]) -> list[MenuEntry]:

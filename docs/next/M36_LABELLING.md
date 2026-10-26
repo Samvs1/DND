@@ -201,11 +201,13 @@ overall 56.3%, explore 49.3%, offer 40.0%, fight 75.0%, finding-cited 53.3%.
   `m31-r4-full:638` sister-s-locket, `m29-r2-p7:868` brother-vale) and `via` (a raw pick a model may send,
   such as `help_up>pc-p6` for "I help Rook up" or `talk>foe:thug` for "Rook bows low to the thug", that must
   resolve to `expect`). Never add a `via` that resolves to steps the player did not ask for.
-- **A harmful spell at a person here** (out of a fight, or a bystander while an offer waits) is the cast entry
-  with that person as its target, as an attack-roll spell has been since M38.2: any spell that deals damage
-  (Burning Hands, Sacred Flame, Magic Missile; DECISIONS M38.4 B). Named at no one it is the entry with
-  `targets: []` (the scene cast). A hostile spell with no damage (Sleep, Charm Person) at a person stays the
-  entry with `targets: []`. Relabelled: `syn:merre_shop:11`, `:12`, `:13`, `syn:ferry_casters:17` (were `other`).
+- **A harmful spell at a person here** out of a fight is the `strike:<spell>` entry with that person as its
+  target, for any spell that deals damage with no attack roll (Burning Hands, Sacred Flame, Magic Missile;
+  DECISIONS M38.4 B and M38.5 fix B); an attack-roll spell keeps its `cast:<spell>` person target (M38.2), and
+  a bystander while an offer waits is a target of the strike at the foes. Cast at the scenery or at no one it
+  is `cast:<spell>` with `targets: []` (the scene cast). A hostile spell with no damage (Sleep, Charm Person)
+  at a person stays `cast:<spell>` with `targets: []`. Relabelled: `syn:merre_shop:11`, `:12`, `:13`,
+  `syn:ferry_casters:17` (were `other`).
 - **Labels that say what they do** (DECISIONS M38.4 C): the surrender demand is "Make the foes surrender to
   you"; the hero yielding ("I surrender") has no entry and stays `other`. The parley is "Speak to end it
   without a fight, one roll: a failure starts it"; a bow, a greeting with no plea or "I won't attack" stays

@@ -4,7 +4,7 @@ a harmful spell with no attack roll (cause B)."""
 
 from aidm.models.action_menu import ActionMenu, MenuEntry, MenuScope, MenuStep
 from aidm.rules.acts import CastIntent, OfferStrikeIntent, PersonStrikeIntent
-from aidm.rules.menu_casts import PERSON_NOTE, SCENE_NOTE
+from aidm.rules.menu_casts import PERSON_NOTE, SCENE_NOTE, STRIKE_NOTE
 from aidm.rules.menu_steps import step_acts
 from aidm.rules.spell_targets import deals_damage
 from tests.ai.chooser_fixtures import REGS, menu_at, state_at
@@ -41,16 +41,35 @@ def test_spell_attack_entry_with_no_one_named_stays_the_scene_cast() -> None:
 
 def test_v1_m38_harmful_spells_with_no_attack_roll_aim_at_a_person() -> None:
     """M38.4 cause B: "I cast burning hands at Merre", "Brienne casts magic missile at the
-    ferryman" gave the bare scene cast; a spell that deals damage aims at the people here."""
+    ferryman" gave the bare scene cast; a spell that deals damage has a person strike entry.
+    M38.5 fix: it is its own `strike:` entry, the `cast:` entry stays the scene cast."""
     menu = menu_at(*FERRY, "pc-p2")
     for spell in ("magic-missile", "burning-hands", "thunderwave", "acid-splash"):
-        entry = _entry(menu, f"cast:{spell}")
-        assert entry.target_ids == (RENN,) and entry.note == PERSON_NOTE
+        scene = _entry(menu, f"cast:{spell}")
+        assert scene.target_ids == () and scene.note == SCENE_NOTE and scene.option is None
+        entry = _entry(menu, f"strike:{spell}")
+        assert entry.target_ids == (RENN,) and entry.note == STRIKE_NOTE
         assert entry.option == f"spell:{spell}" and entry.max_targets == 1
-        acts = _acts(FERRY, "pc-p2", f"cast:{spell}", RENN)
+        acts = _acts(FERRY, "pc-p2", f"strike:{spell}", RENN)
         assert acts == [PersonStrikeIntent("pc-p2", RENN, f"spell:{spell}")]
-    cleric = _entry(menu_at(*FERRY, "pc-p4"), "cast:sacred-flame")
+        assert _acts(FERRY, "pc-p2", f"strike:{spell}") == [
+            CastIntent("pc-p2", spell, (), at_scene=True)
+        ]
+    cleric = _entry(menu_at(*FERRY, "pc-p4"), "strike:sacred-flame")
     assert cleric.target_ids == (RENN,) and cleric.option == "spell:sacred-flame"
+
+
+def test_v1_m38_area_spell_at_the_scenery_is_never_aimed_at_a_person() -> None:
+    """M38.5 pass 1 regressions: "I cast Burning Hands at the damp ferns by the road"
+    (m32-r5-typed:42) was aimed at Mother Marrow, "I cast thunderwave out over the black water"
+    (m31-r4-typed:1345) went to other: the scene cast has no person target."""
+    for at, spell in (
+        (("m32-r5-typed", 42), "burning-hands"),
+        (("m31-r4-typed", 1345), "thunderwave"),
+    ):
+        menu = menu_at(*at, "pc-p6")
+        scene = _entry(menu, f"cast:{spell}")
+        assert scene.target_ids == () and scene.note == SCENE_NOTE and scene.max_targets == 0
 
 
 def test_hostile_spells_that_deal_no_damage_stay_the_scene_cast() -> None:
