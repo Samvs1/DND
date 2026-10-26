@@ -70,7 +70,8 @@ async def test_bad_target_and_qty_are_repaired_by_the_retry(tmp_path: Path) -> N
     drop = (
         "drop:block-of-incense"  # M36.10a: a give's count goes to the rules as said, a drop's not
     )
-    bad = _pick([{"do": INCENSE, "to": ["pc-p4"], "qty": 2}, {"do": drop, "to": [], "qty": 9}])
+    look = {"do": "look", "to": ["widow-cabrelle"], "qty": None}
+    bad = _pick([{"do": INCENSE, "to": ["widow-cabrelle"], "qty": 2}, {"do": drop, "qty": 9}, look])
     good = _pick([{"do": INCENSE, "to": ["widow-cabrelle"], "qty": 2}])
     client, fake = chooser_client(tmp_path, {CHOOSE_TOOL: [bad, good]})
     line = "Brienne gives Widow Cabrelle two blocks of incense for the shrine"
@@ -80,8 +81,8 @@ async def test_bad_target_and_qty_are_repaired_by_the_retry(tmp_path: Path) -> N
     )
     assert len(fake.requests) == 2 and fake.requests[0].tool_choice == CHOOSE_TOOL
     feedback = str(fake.requests[1].messages[-1]["content"])
-    assert f"{INCENSE} takes one of: halan-s-rest-peddler, widow-cabrelle" in feedback
-    assert f"{drop} qty is 1 to 5" in feedback
+    assert "look takes no target; send to: []" in feedback  # M38.4: a person at a hero's
+    assert f"{drop} qty is 1 to 5" in feedback  # give is no longer repaired (test_m38_unoffered)
 
 
 async def test_a_give_or_coin_count_over_the_pack_is_kept_for_the_rules(tmp_path: Path) -> None:
@@ -198,7 +199,7 @@ def test_prompt_has_the_pronoun_anchors_and_the_words_last() -> None:
         menu=menu,
     )
     system, user = (m["content"] for m in to_messages(pack))
-    assert system.startswith("Read one player's typed line") and "Examples" in system
+    assert system.startswith("Read a player's typed line") and "Examples" in system
     assert "LAST TARGET: swarm-of-bats-1 = Swarm of Bats" in user
     assert "In a fight, your turn: action ready" in user
     assert "attack:longsword = Longsword (melee, 1d8+3)" in user

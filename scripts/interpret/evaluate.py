@@ -12,6 +12,7 @@ from aidm.dm.llm_types import LlmRole
 from aidm.models.action_menu import MenuChoice
 from aidm.models.events import AnyEvent
 from aidm.models.state import GameState
+from aidm.rules.menu_unoffered import with_unoffered
 from scripts.interpret import lib
 from scripts.interpret.corpus import Row, SceneRow, gaps
 from scripts.interpret.score import verdicts
@@ -65,7 +66,7 @@ def coverage(rows: list[Row]) -> list[str]:
         if row.actor_id not in line.state.creatures:
             problems.append(f"{row.id}: actor {row.actor_id} is not in the state")
             continue
-        menu = lib.menu_for(line.state, row.actor_id)
+        menu = with_unoffered(line.state, lib.menu_for(line.state, row.actor_id), row.text)
         problems += [f"{row.id}: {g}" for g in gaps(menu, row)]
     return problems
 

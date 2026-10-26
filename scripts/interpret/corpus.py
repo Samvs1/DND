@@ -5,6 +5,9 @@ A row is `{id, run, seq, actor_id, text, scope, expect, alt, source, note}`; `ex
 the words that only colour the steps; never scored). `gaps(menu, row)` lists why the
 menu cannot express a row's expectation (an empty list = covered): scope mismatch, an entry or a
 target the menu lacks, a quantity over the entry's, a choice the model's tool would reject.
+M38.4 (optional): `not_offered` lists the not-offered target ids the menu must show for the line
+(`ActionMenu.unoffered`); `via` holds raw picks a model may send (steps at a target the entry
+cannot act on) that the tool must turn into `expect` (`ChooseActionsArgs.to_choice`).
 """
 
 import json
@@ -54,6 +57,8 @@ class Row(BaseModel):
     alt: list[Expect] = Field(default_factory=list[Expect])
     source: str = "sample"
     note: str = ""
+    not_offered: list[str] = Field(default_factory=list[str])  # M38.4
+    via: list[Expect] = Field(default_factory=list[Expect])  # M38.4
 
     def choices(self) -> list[MenuChoice]:
         return [self.expect.choice(), *(a.choice() for a in self.alt)]
@@ -66,6 +71,15 @@ class SceneRow(Row):
     run: str = ""
     seq: int = 0
     scene: str
+
+
+type Shape = tuple[tuple[tuple[str, tuple[str, ...], int], ...], bool, bool]
+
+
+def shape(choice: MenuChoice) -> Shape:
+    """A choice as the scorer compares it: steps (targets as a set), other, other_first."""
+    steps = tuple((s.entry, tuple(sorted(s.targets)), s.qty) for s in choice.steps)
+    return steps, choice.other, choice.other and choice.other_first and bool(steps)
 
 
 def _row(raw: str) -> Row:
@@ -99,13 +113,8 @@ def _choice_gaps(menu: ActionMenu, choice: MenuChoice) -> list[str]:
 
 
 def _tool_gaps(menu: ActionMenu, choice: MenuChoice) -> list[str]:
-    args = {
-        "steps": [{"do": s.entry, "to": list(s.targets), "qty": s.qty} for s in choice.steps],
-        "other": {"text": "", "first": choice.other_first} if choice.other else None,
-        "colour": choice.colour,
-    }
     try:
-        built = choice_tool(menu).args_model.model_validate(args)
+        built = choice_tool(menu).args_model.model_validate(_args(choice))
     except ValueError as exc:
         return [f"tool rejects: {str(exc).splitlines()[0]}"]
     if not isinstance(built, ChooseActionsArgs):
@@ -119,6 +128,37 @@ def _tool_gaps(menu: ActionMenu, choice: MenuChoice) -> list[str]:
     return [] if same else ["tool round trip differs"]
 
 
+def _args(choice: MenuChoice) -> dict[str, object]:
+    return {
+        "steps": [{"do": s.entry, "to": list(s.targets), "qty": s.qty} for s in choice.steps],
+        "other": {"text": "", "first": choice.other_first} if choice.other else None,
+        "colour": choice.colour,
+    }
+
+
+def _via_gaps(menu: ActionMenu, row: Row) -> list[str]:
+    """M38.4: the not-offered targets are shown, and each raw pick resolves to `expect`."""
+    shown = {t.id for t in menu.unoffered}
+    named = shown | {t.id for t in menu.targets}
+    found = [f"{t} is not shown as not offered" for t in row.not_offered if t not in shown]
+    want = shape(row.expect.choice())
+    for via in row.via:
+        found += [
+            f"via target {t} not on the menu"
+            for s in via.steps
+            for t in s.targets
+            if t not in named
+        ]
+        try:
+            built = choice_tool(menu).args_model.model_validate(_args(via.choice()))
+        except ValueError as exc:
+            found.append(f"via rejected: {str(exc).splitlines()[0]}")
+            continue
+        if isinstance(built, ChooseActionsArgs) and shape(built.to_choice()) != want:
+            found.append(f"via resolves to {built.to_choice()} not the expectation")
+    return found
+
+
 def gaps(menu: ActionMenu, row: Row) -> list[str]:
     found: list[str] = []
     if menu.scope.value != row.scope:
@@ -126,4 +166,4 @@ def gaps(menu: ActionMenu, row: Row) -> list[str]:
     for choice in row.choices():
         problems = _choice_gaps(menu, choice)
         found += problems or _tool_gaps(menu, choice)
-    return found
+    return found + _via_gaps(menu, row)

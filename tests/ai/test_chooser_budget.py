@@ -23,6 +23,7 @@ from aidm.models.events import LoggedEvent
 from aidm.models.state import GameState
 from aidm.models.world_events import ActionDeclared
 from aidm.rules.action_menu import build_menu
+from aidm.rules.menu_unoffered import with_unoffered
 from aidm.session.reducer import apply
 from tests.ai.chooser_fixtures import RECENT, REGS, TRADE
 from tests.session.playtest_saves import FIXTURES
@@ -44,6 +45,7 @@ def _typed_lines() -> Iterator[tuple[str, int, int, int]]:
             event = entry.event
             if isinstance(event, ActionDeclared):
                 menu = build_menu(state, event.creature_id, REGS, TRADE)
+                menu = with_unoffered(state, menu, event.text)  # M38.4: as the chooser sends it
                 recent = [e.event for e in log[max(0, i - RECENT) : i]]
                 pack = build_context(
                     state,

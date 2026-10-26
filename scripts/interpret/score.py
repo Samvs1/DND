@@ -22,15 +22,9 @@ from aidm.models.state import GameState
 from aidm.rules.acts import OtherIntent
 from aidm.rules.menu_steps import Act, to_acts
 from scripts.interpret import lib
-from scripts.interpret.corpus import Row
+from scripts.interpret.corpus import Row, shape
 
-type Shape = tuple[tuple[tuple[str, tuple[str, ...], int], ...], bool, bool]
 FLAGS = ("exact", "entry", "act", "false_action", "false_other", "fast", "failed")
-
-
-def shape(choice: MenuChoice) -> Shape:
-    steps = tuple((s.entry, tuple(sorted(s.targets)), s.qty) for s in choice.steps)
-    return steps, choice.other, choice.other and choice.other_first and bool(steps)
 
 
 def _entries(choice: MenuChoice) -> tuple[tuple[str, ...], bool]:

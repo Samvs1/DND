@@ -28,8 +28,10 @@ Public API:
   choice (rest kind, offer answer, quest accept; M36.8c: a `feed:` draught's "their_own", a
   person strike's attack option), `item` an inventory key, keepsake id or world item id,
   `qty_max` the count carried or held.
-- `ActionMenu(scope, actor_id, entries, targets)`: entry ids and target ids are unique and every
-  target id an entry names is in `targets`.
+- `ActionMenu(scope, actor_id, entries, targets, unoffered)`: entry ids and target ids are unique
+  and every target id an entry names is in `targets`. M38.4: `unoffered` are names the line
+  means that no entry acts on (an item another hero carries, a person not here); no entry names
+  one, and a step at one is the storyteller's (`rules.menu_unoffered`).
 - `MenuStep(entry, targets, qty)`, `MenuChoice(steps, other, other_text, other_first, colour)`:
   up to 4 ordered steps, `other` (a stunt or something off the menu), or both (M36.5, DECISIONS:
   "I leap onto the table and fire at the kobold" is a stunt and an attack). `other_text` is the
@@ -162,6 +164,7 @@ class ActionMenu(_Frozen):
     actor_id: str = Field(min_length=1)
     entries: tuple[MenuEntry, ...] = ()
     targets: tuple[MenuTarget, ...] = ()
+    unoffered: tuple[MenuTarget, ...] = ()
 
     @model_validator(mode="after")
     def _consistent(self) -> Self:
@@ -173,7 +176,7 @@ class ActionMenu(_Frozen):
             missing = (set(entry.target_ids) | set(entry.zone_ids)) - known
             if missing:
                 raise ValueError(f"{entry.id}: unknown targets {sorted(missing)}")
-        target_ids = [t.id for t in self.targets]
+        target_ids = [t.id for t in (*self.targets, *self.unoffered)]
         if len(target_ids) != len(set(target_ids)):
             raise ValueError("duplicate target ids")
         return self

@@ -192,3 +192,13 @@ button, fight 38 / 62 / 0, offer 19 / 29 / 2. 17 rows are `other` only, 7 steps 
 carry an alt, 20 have two or more steps. Offline coverage 300 of 300
 (`python scripts/eval_interpret.py`). Router baseline (`--router`, act match, no model calls):
 overall 56.3%, explore 49.3%, offer 40.0%, fight 75.0%, finding-cited 53.3%.
+
+## M38.4: not-offered targets, harmful spells at a person, labels that say what they do
+- **A step at a target its entry cannot act on is `other`** (DECISIONS M38.4 A): the chooser turns it into
+  `other`, never a swapped target. The label of such a line stays `other` (or the steps plus `other`). Two
+  optional fields document the path and are checked offline: `not_offered` (the ids the menu must list as
+  NOT OFFERED for the line: `m29-p3:418` receipt-scroll, `m32-r5-full:521` caul-s-bait-cache,
+  `m31-r4-full:638` sister-s-locket, `m29-r2-p7:868` brother-vale) and `via` (a raw pick a model may send,
+  such as `help_up>pc-p6` for "I help Rook up" or `talk>foe:thug` for "Rook bows low to the thug", that must
+  resolve to `expect`). Never add a `via` that resolves to steps the player did not ask for.
+

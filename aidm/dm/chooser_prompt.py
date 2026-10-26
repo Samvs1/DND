@@ -8,9 +8,9 @@ with ids and the labels the menu wrote (distance, health), the pronoun anchors (
 target and the last person spoken to, found in the recent events) and the last 2 events.
 Player words are never here: the builder wraps them as untrusted data (SPEC 6.7).
 
-Public API: `choose_system(tag)`, `CHOOSE_TASK`, `actor_lines(state, actor_id, menu)`,
-`normalise(text)`, `shown_name(target_id, name)`, `target_lines(menu)`,
-`anchor_lines(state, actor_id, menu, events)`, `recent_lines(state, events)`.
+Public API: `choose_system(tag)`, `CHOOSE_TASK`, `NOT_OFFERED`,
+`actor_lines(state, actor_id, menu)`, `normalise(text)`, `shown_name(target_id, name)`,
+`target_lines(menu)`, `anchor_lines(state, actor_id, menu, events)`, `recent_lines(state, events)`.
 """
 
 import re
@@ -30,12 +30,14 @@ _NON_WORD = re.compile(r"[^a-z0-9]+")
 _LINE_CHARS = 160
 _LAST_TARGET = "LAST TARGET"
 _LAST_SPOKEN = "LAST SPOKEN TO"
+NOT_OFFERED = "NOT OFFERED"
 
 _RULES = (
-    "Read one player's typed line from a D&D 5e game (BG3 rules) and call choose_actions with"
-    " what their hero does, using ids from the MENU and TARGETS.",
+    "Read a player's typed line (D&D 5e, BG3 rules) and call choose_actions with what their"
+    " hero does, in MENU and TARGETS ids.",
     "Rules:",
-    "1. Use only listed entry and target ids. Never invent an id, a target, an item or an amount.",
+    "1. Use only listed ids; never invent an id, item or amount. The target the line names goes"
+    " in its step even if the entry does not list it or it is NOT OFFERED; never a stand-in.",
     "2. Prefer an entry over other when one does what the line asks, in any words: a strike or"
     " shot is an attack, a question or greeting is talk, going somewhere is travel (in a fight:"
     " move).",
@@ -45,7 +47,7 @@ _RULES = (
     "4. colour: the parts of the line that only describe HOW the hero does the chosen steps"
     ' (manner, posture, words of feeling); narration only, no mechanics; "" if none.',
     "5. other: what no entry does, for the storyteller (a stunt; using a thing not on the menu or"
-    " not carried, never swapping in another); never the manner, place or detail of a chosen step"
+    " not carried); never the manner, place or detail of a chosen step"
     " (searching a body is search, carrying a friend is travel). other.text in the player's words;"
     " other.first: before the steps. In a fight it takes the hero's action.",
     "6. A melee attack at a foe out of reach is the attack alone (it walks first); move only when"
@@ -127,17 +129,22 @@ def shown_name(target_id: str, name: str) -> str:
 
 def target_lines(menu: ActionMenu | None) -> list[str]:
     """One line per kind and descriptor ("place (no open road from here): a, b"); a target's
-    name is written only when its id does not already say it."""
+    name is written only when its id does not already say it. M38.4: the not-offered targets
+    last, on one line ("NOT OFFERED (no entry acts on it): sister-s-locket (Rook carries it)")."""
     if menu is None:
         return []
     groups: dict[tuple[str, str], list[str]] = {}
     for target in menu.targets:
         name, _, desc = target.label.partition(", ")
         groups.setdefault((target.kind, desc), []).append(shown_name(target.id, name))
-    return [
+    lines = [
         f"{kind}{f' ({desc})' if desc else ''}: {', '.join(names)}"
         for (kind, desc), names in groups.items()
     ]
+    if menu.unoffered:  # M38.4: names the line means that no entry acts on
+        names = (shown_name(t.id, t.label) for t in menu.unoffered)
+        lines.append(f"{NOT_OFFERED} (no entry acts on it): {', '.join(names)}")
+    return lines
 
 
 def _last_target(events: Sequence[AnyEvent], actor_id: str) -> str | None:

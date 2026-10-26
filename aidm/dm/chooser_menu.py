@@ -12,7 +12,8 @@ target carries a note ("moves 30 ft first"); neighbouring targets with the same 
 (M36.9 iteration 2: grouped, the model saw only `offer:<item>: fight, ..., parley:persuasion` and
 none of what each answer does). Neighbouring entries whose labels differ only inside their
 bracket share one line (`offer:parley:persuasion, offer:parley:deception = Parley ... (Persuasion:
-...; Deception: ...)`).
+...; Deception: ...)`). M38.4: a target note is written once: one the entry's own label already
+says is dropped, and a long one an earlier entry wrote for the same target is "as for <entry>".
 
 Public API: `menu_lines(menu) -> list[str]`.
 """
@@ -22,6 +23,7 @@ from dataclasses import dataclass
 from aidm.models.action_menu import ActionKind, ActionMenu, MenuEntry
 
 GROUP_MIN = 3
+LONG_NOTE = 30
 _KIND_WORDS = {
     "foe": "foe",
     "ally": "ally",
@@ -70,7 +72,11 @@ def _targets(menu: ActionMenu, entry: MenuEntry) -> str:
         return ""
     labels = {t.id: t.label for t in menu.targets}
     kinds = {t.id: t.kind for t in menu.targets}
-    notes = {t: n for t, n in entry.target_notes.items() if n not in labels.get(t, "")}
+    notes = {
+        t: n
+        for t, n in entry.target_notes.items()
+        if n not in labels.get(t, "") and n not in entry.label  # M38.4: said once
+    }
     wanted = {kinds[t] for t in entry.target_ids}
     every = {t.id for t in menu.targets if t.kind in wanted}
     if not notes and every == set(entry.target_ids) and len(every) > 2:
@@ -189,9 +195,26 @@ def _singles(menu: ActionMenu, entries: list[MenuEntry]) -> list[str]:
     return [_stem_line(menu, run) for run in runs]
 
 
+def _once(menu: ActionMenu) -> ActionMenu:
+    """M38.4: a long target note an earlier entry already wrote for the same target is written
+    "as for <that entry>" (a locked place's reason on both travel and unlock)."""
+    first: dict[tuple[str, str], str] = {}
+    entries: list[MenuEntry] = []
+    for entry in menu.entries:
+        notes = dict(entry.target_notes)
+        for target, note in entry.target_notes.items():
+            said = first.setdefault((target, note), entry.id)
+            if said != entry.id and len(note) > LONG_NOTE:
+                notes[target] = f"as for {said}"
+        changed = notes != entry.target_notes
+        entries.append(entry.model_copy(update={"target_notes": notes}) if changed else entry)
+    return menu.model_copy(update={"entries": tuple(entries)})
+
+
 def menu_lines(menu: ActionMenu | None) -> list[str]:
     if menu is None:
         return []
+    menu = _once(menu)
     groups = _groups(menu)
     counts = _shared(groups)
     lines: list[str] = [_items_line(counts)] if counts else []

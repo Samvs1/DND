@@ -79,6 +79,7 @@ from aidm.rules.menu_probe import accepted, walk
 from aidm.rules.menu_scene_view import FOE_PREFIX, twin_boss
 from aidm.rules.menu_steps_fight import COMMAND_TYPES, FightAct, fight_step_acts
 from aidm.rules.menu_steps_scene import SceneAct, free_acts, scene_step_acts
+from aidm.rules.menu_unoffered import off_targets
 from aidm.rules.projection import project_state
 
 type Act = FightAct | SceneAct
@@ -111,8 +112,8 @@ def step_acts(
 ) -> list[Act]:
     actor_id = menu.actor_id
     entry = _entry(menu, step.entry)
-    if entry is None:  # not on this menu (the validator keeps this out): the storyteller's
-        return [OtherIntent(actor_id, text)]
+    if entry is None or off_targets(menu, step):  # the validator keeps these out (M38.4: a
+        return [OtherIntent(actor_id, text)]  # target the entry cannot act on is never played)
     if menu.scope not in _FIGHT_SCOPES and entry.kind in STRIKE_KINDS:
         strike = _strike_acts(state, actor_id, entry, step)
         if strike is not None:

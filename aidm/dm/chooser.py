@@ -12,6 +12,9 @@
    from this menu), on the CHOOSE pack of the ONE context builder (`ContextPurpose.CHOOSE`;
    `recent` = the table's recent events, for the pronoun anchors and the last 2 events). A pick
    that does not fit the menu is repaired by the client's retry-with-feedback loop.
+M38.4: before the call the menu gets the line's not-offered targets
+(`rules.menu_unoffered.with_unoffered`: names the line spells out that the menu cannot act on),
+so the model can name them; a step at one comes back as `other` (`ChooseActionsArgs.to_choice`).
 4. The call fails (no key, timeout, transport, validation exhausted): the fast path already
    missed, so `ChooserFailure` (the session shows `notice`, adjudicator.FALLBACK_NOTICE, and the
    turn is not consumed).
@@ -39,6 +42,7 @@ from aidm.dm.llm_types import LlmFailure, LlmRole
 from aidm.models.action_menu import ActionMenu, MenuChoice, MenuStep
 from aidm.models.events import AnyEvent
 from aidm.models.state import GameState
+from aidm.rules.menu_unoffered import with_unoffered
 
 _BRACKETS = re.compile(r"\([^)]*\)")
 CHOOSE_KIND = "choose"  # the llm.jsonl call kind of a chooser call (M36.6; M36.9 counts them)
@@ -92,6 +96,7 @@ async def choose(
         return exact
     if not menu.entries:
         return MenuChoice(other=True)
+    menu = with_unoffered(state, menu, text)
     pack = build_context(state, ContextPurpose.CHOOSE, actor_id, text, events=recent, menu=menu)
     tool = choice_tool(menu, strict=llm.settings.strict_tools)
     reply = await llm.call_tools(
