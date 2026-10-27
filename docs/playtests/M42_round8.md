@@ -66,8 +66,8 @@ No cross-talk: every command carried `--run` (Z18 fix).
   The card offers fight, surprise, escape and parley; "yes" names none of them.
 
 ### What the storyteller says (11 slips in 427 narrations)
-The manual promises each of these never happens ("What the storyteller can and cannot do"). Five follow a line where the engine did nothing
-or refused without the storyteller being told why (AA3, AA10 skiff, AA10 wares, AA6's 63, AA2's 390).
+The manual promises each of these never happens ("What the storyteller can and cannot do"). Four follow a line where the engine did nothing
+or refused without the storyteller being told why (AA3, the skiff, the wares, Vell at 390), as does AA6's stale answer at 63.
 - **AA10 Slips, by kind:**
   - an item that does not exist found: r8-quests 660-661, a successful search of Vell's body "draws out the Ashen Signet"; no item exists, and 656 just said it was not there (closed world).
   - a foe told gone while it fights: r8-full 73 and 89, the crocodile "slides back into the water" and "vanishes below the surface" at 11/19 HP; it moves at 80 and dies later. AA3 above.

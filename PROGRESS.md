@@ -1,4 +1,4 @@
-NEXT: PAUSED after M42 (round 8 report docs/playtests/M42_round8.md). Owner picks what to fix: AA1-AA4 harmful, the storyteller slips (claims-check decision, M40.6), AA5-AA9, balance AA11-AA14 (Z16-Z17), harness AA15. Any live use needs a fresh OK. Files in flight: none. Last gate: FULL gate PASS (12/12) at M41 close; M42 is docs only (secrets, structure, manual checks ok).
+NEXT: M43.1 after the owner reviews the rules list in docs/next/M43_CONTRACT.md (waiting). Files in flight: none. Last gate: FULL gate PASS (12/12) at M41 close; M42/M43.0 docs only.
 
 # PROGRESS
 
@@ -439,6 +439,16 @@ Storyteller honesty (owner 2026-10-26): the claims-check call was designed, then
 Same shape as round 7: r8-typed (Sonnet, acts 1-2, seed 2, fighter,rogue,wizard,cleric, cap 220), r8-quests (Haiku, acts 1-2, seed 3, classic, cap 180), r8-full (Sonnet, full campaign, seed 1, classic, cap 320), ports 8777-8779, live, every command with `--run`. Expect about 1,000 calls (round 7: 1,048); llm.jsonl starts at line 6818. Verify M40 (Z1, Z2, Z9-Z13 storyteller slips) and M41 (Z3-Z8, Z14, Z15, Z18-Z20) in the saves; gather numbers for Z16-Z17; findings numbered AA1...
 - [x] M42.0 Play the 3 runs (playtester agents; reports in the scratchpad). Done: r8-typed c-20261027-064955-0002 (1309 events, ~214 cmds), r8-quests -0003 (1028, 169), r8-full -0001 (1801, ~318, act 3 reached, cap hit). 875 calls (llm.jsonl 6818-7692).
 - [x] M42.1 Check every claim against its save; write docs/playtests/M42_round8.md (runs, fix verdicts, storyteller slip count vs round 7, findings, spend). No fixes: the owner decides. Done: ledger 0, replay = snapshot, stale-as-present 0 on all 3 saves; Z2, Z3, Z7, Z8, Z14, Z18, Z19 hold; findings AA1-AA15 (harmful: AA1 area spell on own zone, AA2 hand-over at a master's offer starts the fight, AA3 no-slot spell told as a kill, AA4 free creative-action spell); 11 storyteller slips in 427 narrations (round 7: 8 listed).
+
+## M43 The game's contract (owner 2026-10-27: "Lets start bugfixing but ... We should find a more definitive way to prevent this"; "Okay go for it. The story check is acceptable"; plan docs/next/M43_CONTRACT.md)
+Rules A1-A4, B1-B6, C1-C5, D1-D2, checked by `scripts/contract.py` on every save; fix by family. Simplicity limits in the plan doc apply to every brief. Round 9 needs a fresh OK.
+- [x] M43.0 Plan: the rules list with evidence, the story-check measurement (0 of 11), steps and model routing (DECISIONS M43.0). Owner reviews the list before code.
+- [ ] M43.1 (M, Sonnet medium) `scripts/contract.py`: A1-A4 wired, B6, C1-C4 from saves; one persisted record of how a typed line was read; run on the 27 fixtures and the 3 r8 saves; findings list. Gate: a test per rule from a real save event.
+- [ ] M43.2 (H, Opus high) B1-B5: one path for typed lines.
+- [ ] M43.3 (H, Opus medium) D1: outcome, refusal reason and who-did-it reach the storyteller.
+- [ ] M43.4 (M, Sonnet medium) C1-C5 at quest registration (install and the favour tool).
+- [ ] M43.5 Contract green on all fixtures, `/simplify` pass, FULL gate, commit `M43: The contract`.
+- [ ] M43.6 Round 9 (needs a fresh OK): contract on the live saves, slip rate (D2), balance numbers.
 
 ## Notes (stashes, blockers, decisions pending)
 - M38 left (harmful, live final pass): "I help Rook up" with Rook standing helps Elowen up; "I leave 5 gold for the poor" pays Merre; "I surrender" picks the demand that the foes yield (no yield entry exists). Plus the ally-in-fight weapon gap (M38.2 note). Not started: needs an owner call (any live check needs a fresh OK).
