@@ -1,14 +1,10 @@
 """The code map (owner 2026-10-27): what each file is for, who imports it, and the hub files.
 
-  python scripts/code_map.py            scan with mapifyy-cli (about 70 s), then write the map
-  python scripts/code_map.py --no-scan  rebuild the map from the last scan
+  python scripts/code_map.py     about a second; no third-party tools
 
-mapifyy-cli (dev extra, pinned) parses every .py and .js file with tree-sitter into
-artifacts/codemap/mapify/codebase_blueprint.json (classes, functions, import strings per file).
-Its own graph and "God Nodes" are not used: it links calls by bare name (every `.get` points at
-one `get` function) and maps `import typing` to typing.js. This script resolves the import
-strings itself (dotted Python modules, relative JS paths) over aidm/ and scripts/ (tests are not
-coupling) and writes, under artifacts/codemap/ (gitignored):
+Reads every .py and .js file under aidm/ and scripts/ (tests are not coupling): Python imports
+with `ast` (also the ones inside functions), JS imports with one pattern (every import in
+aidm/web/js is a relative path). Writes, under artifacts/codemap/ (gitignored):
 - CODEMAP.md: lines per folder, the hubs (imported by many AND importing many: fan-in x fan-out),
   the most imported files, the files near the 400-line limit, and file families (one name
   prefix, many files in one folder);
@@ -18,40 +14,36 @@ coupling) and writes, under artifacts/codemap/ (gitignored):
 
 import ast
 import io
-import json
-import os
 import posixpath
-import subprocess
+import re
 import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "artifacts" / "codemap"
-BLUEPRINT = OUT / "mapify" / "codebase_blueprint.json"
-CODE_DIRS = ("aidm/", "scripts/")
+CODE_DIRS = ("aidm", "scripts")
 LINE_LIMIT, NEAR_LIMIT, FAMILY_MIN, TOP = 400, 340, 6, 20
+JS_IMPORT = re.compile(r"""(?:\bfrom|\bimport)\s*\(?\s*['"](\.{1,2}/[^'"]+)['"]""")
 
 Graph = dict[str, set[str]]
+Imports = list[tuple[str, ...]]  # each import: the strings it may name, the most specific first
 
 
-def scan() -> None:
-    """Run mapifyy-cli in a child process (its rich console output is captured, not printed)."""
-    cmd = [sys.executable, "-c", "from mapify.cli import main; main()", "run", str(ROOT)]
-    cmd += ["--output", str(BLUEPRINT)]
-    env = os.environ | {"PYTHONIOENCODING": "utf-8"}  # its emoji crash a cp1252 console
-    done = subprocess.run(
-        cmd, capture_output=True, encoding="utf-8", errors="replace", env=env, check=False
-    )
-    if done.returncode != 0:
-        tail = "\n".join(done.stderr.splitlines()[-5:])
-        raise SystemExit(f"code map: mapify failed (pip install -e .[dev]?)\n{tail}")
+def code_files(root: Path) -> list[str]:
+    found = (p for d in CODE_DIRS for p in (root / d).rglob("*") if p.suffix in (".py", ".js"))
+    return sorted(p.relative_to(root).as_posix() for p in found if "__pycache__" not in p.parts)
 
 
-def load_imports(blueprint: Path) -> dict[str, list[str]]:
-    files = json.loads(blueprint.read_text(encoding="utf-8"))["files"]
-    out = {Path(rel).as_posix(): list(info["imports"]) for rel, info in files.items()}
-    return {rel: imps for rel, imps in out.items() if rel.startswith(CODE_DIRS)}
+def py_imports(tree: ast.Module) -> Imports:
+    """`import a.b` names a.b; `from a.b import c` names a.b.c if that is a module, else a.b."""
+    out: Imports = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            out += [(alias.name,) for alias in node.names]
+        elif isinstance(node, ast.ImportFrom) and node.module and not node.level:
+            out += [(f"{node.module}.{alias.name}", node.module) for alias in node.names]
+    return out
 
 
 def resolve(src: str, imp: str, known: set[str]) -> str | None:
@@ -65,11 +57,14 @@ def resolve(src: str, imp: str, known: set[str]) -> str | None:
     return next((c for c in candidates if c in known and c != src), None)
 
 
-def build_graph(imports: dict[str, list[str]]) -> Graph:
+def build_graph(imports: dict[str, Imports]) -> Graph:
     known = set(imports)
     graph: Graph = {src: set() for src in imports}
     for src, imps in imports.items():
-        graph[src] |= {dst for imp in imps if (dst := resolve(src, imp, known))}
+        for options in imps:
+            hit = next((d for imp in options if (d := resolve(src, imp, known))), None)
+            if hit:
+                graph[src].add(hit)
     return graph
 
 
@@ -103,25 +98,25 @@ def families(paths: list[str]) -> list[tuple[str, list[str]]]:
     return sorted(found, key=lambda kv: -len(kv[1]))
 
 
-def summary_line(text: str, suffix: str) -> str:
-    if suffix == ".py":
-        try:
-            doc = ast.get_docstring(ast.parse(text)) or ""
-        except SyntaxError:
-            doc = ""
-        return doc.strip().splitlines()[0] if doc.strip() else ""
+def summary_line(text: str, tree: ast.Module | None) -> str:
+    if tree is not None:
+        doc = (ast.get_docstring(tree) or "").strip()
+        return doc.splitlines()[0] if doc else ""
     head = text.lstrip().splitlines()[:1]
-    return (
-        head[0].lstrip("/* ").strip() if head and head[0].lstrip().startswith(("//", "/*")) else ""
-    )
+    if head and head[0].startswith(("//", "/*")):
+        return head[0].lstrip("/* ").strip()
+    return ""
 
 
-def read_files(paths: list[str]) -> dict[str, tuple[int, str]]:
-    out: dict[str, tuple[int, str]] = {}
-    for rel in paths:
-        text = (ROOT / rel).read_text(encoding="utf-8", errors="replace")
-        out[rel] = (len(text.splitlines()), summary_line(text, Path(rel).suffix))
-    return out
+def parse(rel: str, text: str) -> tuple[int, str, Imports]:
+    """Lines, the one-line purpose and the imports of one file."""
+    if rel.endswith(".py"):
+        try:
+            tree = ast.parse(text)
+        except SyntaxError:
+            return len(text.splitlines()), "", []
+        return len(text.splitlines()), summary_line(text, tree), py_imports(tree)
+    return len(text.splitlines()), summary_line(text, None), [(m,) for m in JS_IMPORT.findall(text)]
 
 
 def table(head: str, rows: list[list[str]]) -> list[str]:
@@ -181,13 +176,14 @@ def index_lines(graph: Graph, info: dict[str, tuple[int, str]]) -> list[str]:
     return out + [""]
 
 
-def main(argv: list[str]) -> int:
-    if "--no-scan" not in argv:
-        scan()
-    if not BLUEPRINT.exists():
-        raise SystemExit(f"code map: no scan at {BLUEPRINT}; run without --no-scan")
-    graph = build_graph(load_imports(BLUEPRINT))
-    info = read_files(sorted(graph))
+def main(root: Path = ROOT) -> int:
+    parsed = {
+        rel: parse(rel, (root / rel).read_text(encoding="utf-8", errors="replace"))
+        for rel in code_files(root)
+    }
+    graph = build_graph({rel: imps for rel, (_, _, imps) in parsed.items()})
+    info = {rel: (lines, what) for rel, (lines, what, _) in parsed.items()}
+    OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "CODEMAP.md").write_text("\n".join(codemap_lines(graph, info)), encoding="utf-8")
     (OUT / "INDEX.md").write_text("\n".join(index_lines(graph, info)), encoding="utf-8")
     print(f"code map: {len(graph)} files -> {OUT / 'CODEMAP.md'} and INDEX.md")
@@ -197,4 +193,4 @@ def main(argv: list[str]) -> int:
 if __name__ == "__main__":
     if isinstance(sys.stdout, io.TextIOWrapper):
         sys.stdout.reconfigure(encoding="utf-8")
-    raise SystemExit(main(sys.argv[1:]))
+    raise SystemExit(main())

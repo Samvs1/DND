@@ -49,20 +49,18 @@ uvicorn aidm.server.app:app --port 8000      # or: python -m aidm.server [--lan]
 $env:AIDM_FAKE_LLM="1"                       # deterministic server mode for UI tests
 $env:RUN_LIVE="1"; pytest -q tests/live       # opt-in live DeepSeek/Fish tests
 python scripts/simulate_party.py --seeds 20  # M9
-python scripts/code_map.py                   # code map (~70 s; --no-scan reuses the last scan)
+python scripts/code_map.py                   # code map (about 1 s): artifacts/codemap/
 ```
 The full gate is `pytest -q`, `ruff check .`, `ruff format --check .`, `pyright`, `lint-imports`,
 `python scripts/check_structure.py`, `python scripts/check_secrets.py` and `python scripts/gen_protocol.py --check`.
 
-## Code map (`scripts/code_map.py`; mapifyy-cli, pinned in the dev extra)
-- Writes `artifacts/codemap/` (gitignored). Regenerate when the tree changed since the last map (check the files' dates),
-  before planning a refactor, and at each milestone close.
+## Code map (`scripts/code_map.py`, about 1 s, standard library only)
+- Writes `artifacts/codemap/` (gitignored). Run it at session start and before planning a refactor or a new module.
 - `INDEX.md`: one line per file in aidm/ and scripts/: path, lines, imported by, imports, first docstring line.
   Grep it to find where a concept lives BEFORE opening files.
 - `CODEMAP.md`: lines per folder, hubs (imported by many AND importing many), most imported files, files near the
   400-line limit, and families (one name prefix, many files: a concept split across files, e.g. `aidm/dm/guard*`).
   Read it before adding a module: a change to a hub reaches far; do not grow a big family without a reason.
-- mapify's own "God Nodes" table is NOT used: it links calls by bare name and maps `import typing` to typing.js.
 - Every module starts with a one-line docstring (Python) or header comment (JS): it is the file's index entry.
 
 ## Layering (SPEC 5; enforced by import-linter, never weakened)

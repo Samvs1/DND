@@ -35,7 +35,6 @@ dev = [
     "pyloudnorm",
     "soundfile",
     "lameenc",
-    "mapifyy-cli==1.0.2",  # scripts/code_map.py (pinned: small third-party tool, reviewed 2026-10-27)
 ]
 voice = [
     "numpy",
