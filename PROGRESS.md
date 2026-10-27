@@ -1,4 +1,4 @@
-NEXT: M43.5 (orchestrator): contract green on all fixtures (decide historical findings), /simplify pass, FULL gate, commit M43: The contract. Files in flight: none. Last gate: M43.4 FULL gate PASS (12/12).
+NEXT: M43.6 round 9 WAITS for the owner's fresh OK (live DeepSeek spend): 3 playtester runs, then `python scripts/contract.py` on the live saves (B1 has `line_read` records there), the slip rate per 100 narrations (D2; target is the owner's call) and the balance numbers. Files in flight: none. Last gate: M43 FULL gate PASS (12/12) 2026-10-27.
 
 # PROGRESS
 
@@ -448,7 +448,7 @@ Rules A1-A4, B1-B6, C1-C5, D1-D2, checked by `scripts/contract.py` on every save
 - [x] M43.2 (H, Opus high) B1-B5: one path for typed lines. DONE (commits 6b222b8, 91e5323 + final): NOT OFFERED steps and `other` parts naming them refused with the reason; fight spells aimed as named (rules answer); cards wait (the bare-yes "which one?" ask removed in M43.2b, owner: overcorrecting, a player's slip); every typed refusal and cut part logged as `action_impossible`; fixture m42-r8-typed; B1 = 0 on 4 FakeLLM sim saves (DECISIONS M43.2).
 - [x] M43.3 (H, Opus medium) D1: outcome, refusal reason and who-did-it reach the storyteller. (commit e2eeac1) DONE: refusals kept in `Memory.untold` by the reducer until the next narration, told by the builder (`dm/context_outcome.py`) with who did what; contract D1 (`contractlib/story_rules.py`) 7+2 findings -> 0 (DECISIONS M43.3).
 - [x] M43.4 (M, Sonnet medium) C1-C5 at quest registration (install and the favour tool). (commit 2fcd9b4)
-- [ ] M43.5 Contract green on all fixtures, `/simplify` pass, FULL gate, commit `M43: The contract`.
+- [x] M43.5 Contract green on all fixtures, `/simplify` pass, FULL gate, commit `M43: The contract`. DONE (commits d02aed2, 9183a65, b5f3ced + this): the contract is a gate test holding every fixture to its recorded history (tests/fixtures/contract_baseline.json, counts must be EQUAL); /simplify (4 reviewers) found and fixed two M43 defects (a cut line told as "nothing happened"; a carried rest reaching the storyteller), one EVENTS line per fact, quest repair over every route in one door, contract scripts on the engine's helpers, the gate test 39 s -> 18 s (DECISIONS M43.5).
 - [ ] M43.6 Round 9 (needs a fresh OK): contract on the live saves, slip rate (D2), balance numbers.
 
 ## Notes (stashes, blockers, decisions pending)
