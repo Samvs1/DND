@@ -1,4 +1,4 @@
-NEXT: M43.1 after the owner reviews the rules list in docs/next/M43_CONTRACT.md (waiting). Files in flight: none. Last gate: FULL gate PASS (12/12) at M41 close; M42/M43.0 docs only.
+NEXT: M43.1 after the owner reviews the rules list in docs/next/M43_CONTRACT.md (waiting). Files in flight: none. Last gate: FULL gate PASS (12/12) after the code map (2026-10-27).
 
 # PROGRESS
 
@@ -442,6 +442,7 @@ Same shape as round 7: r8-typed (Sonnet, acts 1-2, seed 2, fighter,rogue,wizard,
 
 ## M43 The game's contract (owner 2026-10-27: "Lets start bugfixing but ... We should find a more definitive way to prevent this"; "Okay go for it. The story check is acceptable"; plan docs/next/M43_CONTRACT.md)
 Rules A1-A4, B1-B6, C1-C5, D1-D2, checked by `scripts/contract.py` on every save; fix by family. Simplicity limits in the plan doc apply to every brief. Round 9 needs a fresh OK.
+- [x] Code map (owner 2026-10-27): mapifyy-cli==1.0.2 pinned in the dev extra, `python scripts/code_map.py` -> artifacts/codemap/CODEMAP.md + INDEX.md (CLAUDE.md "Code map", DECISIONS). FULL gate PASS (12/12).
 - [x] M43.0 Plan: the rules list with evidence, the story-check measurement (0 of 11), steps and model routing (DECISIONS M43.0). Owner reviews the list before code.
 - [ ] M43.1 (M, Sonnet medium) `scripts/contract.py`: A1-A4 wired, B6, C1-C4 from saves; one persisted record of how a typed line was read; run on the 27 fixtures and the 3 r8 saves; findings list. Gate: a test per rule from a real save event.
 - [ ] M43.2 (H, Opus high) B1-B5: one path for typed lines.
