@@ -1,8 +1,9 @@
 """M43.2 contract rules B4 and B5 at the table (docs/next/M43_CONTRACT.md).
 B4: every part of a line plays in order, or the dropped part is told, as a refusal with the
 reason (`action_impossible`). B5: a waiting card is answered only by a line that picks one of
-its choices; a bare "yes" at a card with more than two choices asks which one. Real round-8
-lines on fixture m42-r8-typed; FakeLLM picks only, never the network."""
+its choices (a bare "yes" at an offer with no card up plays as read: owner 2026-10-27, a
+player's slip). Real round-8 lines on fixture m42-r8-typed; FakeLLM picks only, never the
+network."""
 
 from pathlib import Path
 
@@ -16,7 +17,6 @@ from tests.session.menu_play import menu_play
 from tests.session.table_fixtures import pick
 
 R8 = "m42-r8-typed"
-WHICH = "Which one? Fight, Surprise, Escape or Parley."
 
 
 async def test_v1_m43_both_parts_of_a_walk_and_search_play_in_order(tmp_path: Path) -> None:
@@ -41,16 +41,6 @@ async def test_v1_m43_the_part_after_a_refused_one_is_told_as_a_refusal(tmp_path
         "Magic Missile: Rook has no 1st-level slot left.",
         STOPPED.format(why=NOT_DONE),
     ]
-
-
-async def test_v1_m43_a_bare_yes_at_a_four_choice_offer_asks_which_one(tmp_path: Path) -> None:
-    """round 8 AA9: r8-typed 184 "Yes, go ahead" at the two-bandit offer (fight, surprise,
-    escape, parley; no card up) was read as Fight and the fight started (185)."""
-    played = await menu_play(tmp_path, R8, 184, pick(("offer:fight", [], None)))
-    assert not played.of(OfferResolved)
-    assert played.state.campaign is not None and played.state.campaign.offer is not None
-    assert [e.reason for e in played.of(ActionImpossible)] == [WHICH]
-    assert WHICH in played.notices()
 
 
 async def test_v1_m43_a_line_naming_the_answer_still_answers(tmp_path: Path) -> None:

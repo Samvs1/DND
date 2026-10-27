@@ -5,14 +5,7 @@ Real replayed state (fixture m40-r7-typed, the parley card at 383), no model."""
 from aidm.dm.chooser import exact_choice
 from aidm.models.action_menu import ActionKind, MenuChoice, MenuStep
 from aidm.models.protocol_client import CancelHostile, ConfirmHostile
-from aidm.rules.menu_card import (
-    CARD_NO,
-    CARD_YES,
-    WaitingCard,
-    ask_which,
-    card_act,
-    with_card,
-)
+from aidm.rules.menu_card import CARD_NO, CARD_YES, WaitingCard, card_act, with_card
 from aidm.rules.menu_steps import step_acts, to_acts
 from aidm.session.held import PARLEY_ASK
 from tests.ai.chooser_fixtures import FIGHT_SEQ, REGS, TYPED, menu_at, state_at
@@ -71,15 +64,3 @@ def test_the_cards_button_words_are_its_exact_answer() -> None:
     menu = with_card(menu_at(R7, YES_AT, BRIENNE), CARD)
     assert exact_choice(menu, "Yes, do it") == MenuChoice(steps=(MenuStep(entry=CARD_YES),))
     assert exact_choice(menu, "No, hold back") == MenuChoice(steps=(MenuStep(entry=CARD_NO),))
-
-
-def test_ask_which_only_for_a_bare_line_at_an_offer_with_more_than_two_answers() -> None:
-    """M43.2 B5 (replaces `picks_card`: a new action no longer answers the card No). Round 8
-    AA9: "Yes, go ahead" names none of the offer's four answers, so it asks which one."""
-    menu = with_card(menu_at(R7, YES_AT, BRIENNE), CARD)
-    fight = MenuStep(entry="offer:fight")
-    asked = ask_which(menu, fight, "Yes, go ahead")
-    assert asked == "Which one? Fight, Surprise, Escape or Parley."
-    assert ask_which(menu, fight, "We fight them") is None  # names the answer's own words
-    assert ask_which(menu, MenuStep(entry=CARD_YES), "Yes, go ahead") is None  # the card's yes
-    assert ask_which(menu, fight, "") is None  # a button's pick

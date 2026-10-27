@@ -90,7 +90,6 @@ from aidm.rules.acts import (
 )
 from aidm.rules.acts_fight import DrawAttack
 from aidm.rules.menu_attacks import drawn_state
-from aidm.rules.menu_card import ask_which
 from aidm.rules.menu_probe import accepted, walk
 from aidm.rules.menu_scene_view import FOE_PREFIX, twin_boss
 from aidm.rules.menu_steps_fight import COMMAND_TYPES, FightAct, fight_step_acts
@@ -158,7 +157,7 @@ def step_acts(
 ) -> list[Act]:
     actor_id = step_actor(menu, step)
     entry = _entry(menu, step.entry)
-    why = refusal(menu, step) or ask_which(menu, step, text)  # M43.2 (B2, B5)
+    why = refusal(menu, step)  # M43.2 (B2)
     if why is not None or entry is None:
         return [RefusedIntent(actor_id, why or UNKNOWN_STEP)]
     if engine_answers(menu, step):  # M43.2 (B3): the real command answers, never a stand-in

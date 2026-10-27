@@ -37,8 +37,9 @@ Each rule names how it is checked. "Saves" = `scripts/contract.py`, run in the g
   zone holds the named target, or the line is told it is out of the spell's reach. Covers R26 = AA1, Y10, Z2, Z5, G23.
 - **B4 Every part of a line plays in order, or the dropped part is told.** Covers V7, X6, Y12, Z6, AA8.
 - **B5 A waiting card is answered only by a line that picks one of its choices.** Any other line, a hand-over included,
-  leaves it waiting, plays on it as itself (the route hand-over), or asks. A bare "yes" at a card with more than two
-  choices asks which one. Covers T8 T16, V4, X3-X5 X7, Z1, AA2 AA9.
+  leaves it waiting, plays on it as itself (the route hand-over), or asks. Covers T8 T16, V4, X3-X5 X7, Z1, AA2.
+  (Owner 2026-10-27: a bare "yes" at an offer with no card up, AA9, is a player's slip and plays as read; the
+  "which one?" ask was overcorrecting and is removed. A fix that causes more problems than it solves is not made.)
 - **B6 The same act follows the same rules on every path** (button, typed, held). Saves: a `spell_cast` above
   cantrip level spends a slot of that caster (unless from a scroll or item), with the caster's save DC. Covers V1, AA4.
 
