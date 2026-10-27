@@ -43,3 +43,32 @@ have one and match.
 - Live now (r8): C1 target = giver, C2 repeated step, C4 find 3 / hand over 1. Nothing in A1-A4 or B6.
 - The older fixtures will not be green: M43.5 needs either an allowlist per fixture (rule + index) or regenerating them.
 - B1-B5 cannot be judged until a table writes `line_read`: the first new typed save is the baseline for M43.2.
+
+## M43.3 D1: every refusal reaches the next narration's prompt
+`scripts/contractlib/story_rules.TurnOutcomes`: for each `narration_recorded`, the prompt is rebuilt with the current
+builder (`scripts/audit/replay.build_prompt`) on the state before it, from the events since the last narration WITHOUT
+the refusal events themselves (the session does not hand every refusal over as an event: M43.2's menu refusals are
+log-only), and every `action_impossible` since then whose reason is not in that prompt is a finding.
+
+| save | D1 before | D1 after |
+|---|---|---|
+| m31-r4-typed | 3 | 0 |
+| m35-r6-typed | 2 | 0 |
+| m42-r8-typed | 2 | 0 |
+| other 24 fixtures | 0 | 0 |
+| r8-typed (-0002) | 2 | 0 |
+| r8-full (-0001) | 0 | 0 |
+| r8-quests (-0003) | 0 | 0 |
+
+The pre-M43.3 saves hold only the storyteller's own impossible verdicts (M30.1, e.g. r8-typed 94 "Brienne has only
+10 gold."), which the live narrator did get as events; the "before" count measures what the builder carried on its own,
+which is what a menu refusal (M43.2, never handed over) depends on. After: the reducer keeps every refusal in
+`Memory.untold` until the next narration and the builder tells it, so the rebuilt prompt always holds it.
+Example, r8-typed 95 (rebuilt, events without the refusal): before, the EVENTS section was empty; after it reads
+`Brienne tried "I slide Brenn 300 gold to tell me who winds the lower hand": nothing happened, because Brienne has only 10 gold.`
+Who did it, r8-typed 482 (the rats told biting the party): the section had "Brienne loses 6 HP (now 14)." and no
+source; it now also reads `Rook cast Burning Hands.` and `Rook dealt 6 fire damage to Brienne.` (and Elowen, Tamsin).
+Not covered by D1 (no refusal exists): the skiff (r8-typed 335) and the wares (402) are stunts or a shop proposal with
+no engine event; their telling is already told "No rule applied and nothing in the world changed." Vell (r8-quests 390)
+is AA2 (B5, fixed in M43.2). The narration audit is unchanged in stale-as-present (0); three fixtures show 1-4 fewer
+past records (FACTS trimmed first under the token budget: the outcome lines take priority over flavour).

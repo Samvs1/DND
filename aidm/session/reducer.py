@@ -21,6 +21,7 @@ fails pyright via `assert_never`.
 M40.4: before each event the reducer reads its story keys (`aidm.rules.story_keys`: a foe died,
 a quest changed state, an item changed holder...) and after it marks `World.changed[key] = seq`,
 so a story record made earlier can be told apart from the present (`aidm.rules.story_records`).
+M43.3 (D1): an `ActionImpossible` is kept in `Memory.untold` until the next `NarrationRecorded`.
 """
 
 from collections.abc import Iterable
@@ -77,6 +78,7 @@ from aidm.models.events import (
     XpGained,
 )
 from aidm.models.impossible import ActionImpossible, LineRead
+from aidm.models.memory import MAX_UNTOLD
 from aidm.models.scribe import CharacterRewritten
 from aidm.models.state import ActiveCondition, Creature, GameState
 from aidm.rules.story_keys import quest_changes, quest_status, story_keys
@@ -229,8 +231,12 @@ def _npc_fate(
         npc.dead = isinstance(event, CreatureDied)
 
 
-def _apply_party_event(state: GameState, event: PartyDefeated | CharacterRewritten) -> None:
+def _apply_party_event(
+    state: GameState, event: PartyDefeated | CharacterRewritten | ActionImpossible
+) -> None:
     match event:
+        case ActionImpossible():  # M43.3 (D1): kept for the next telling
+            state.memory.untold = [*state.memory.untold, event][-MAX_UNTOLD:]
         case PartyDefeated(text=text, source=source, place=place):
             state.defeat = DefeatState(text=text, source=source, place=place)
         case CharacterRewritten(target_id=tid, hp=hp):
@@ -336,11 +342,11 @@ def _apply(state: GameState, event: AnyEvent) -> None:
             | ZoneSurfaceTicked()
         ):
             apply_encounter_event(state, event)
-        case DiceRolled() | CheckResolved() | DamageTaken() | ActionImpossible() | LineRead():
+        case DiceRolled() | CheckResolved() | DamageTaken() | LineRead():
             pass
         case AttackRolled() | SpellCast() | MonsterActionUsed() | FeatureUsed():
             pass
-        case PartyDefeated() | CharacterRewritten():
+        case PartyDefeated() | CharacterRewritten() | ActionImpossible():
             _apply_party_event(state, event)
         case _:
             assert_never(event)

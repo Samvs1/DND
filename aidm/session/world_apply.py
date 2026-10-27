@@ -190,6 +190,7 @@ def _narrated(state: GameState, text: str, turn: int) -> None:
     memory.turns_since_summary += 1
     memory.narration = [*memory.narration, text][-MAX_NARRATION_LOG:]
     memory.narration_made = [*memory.narration_made, _stamp(state)][-len(memory.narration) :]
+    memory.untold = []  # M43.3: told by the builder to this narration
     state.world.scene_turn = turn
 
 

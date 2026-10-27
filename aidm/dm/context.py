@@ -9,7 +9,8 @@ offers; M23.5) and FACTS (top-k by entity overlap), 5 MEMORY (scene summaries, l
 turns; M40.4: FACTS and MEMORY are dated past records, titled `PAST_NOTES_TITLE` /
 `MEMORY_TITLE`, and a fact a later engine event superseded is left out,
 `aidm.rules.story_records`), 6 EVENTS (engine events since the last narration,
-authoritative), 7 NPC_PRIVATE (motive, secrets and the route hint the NPC knows, ONLY for
+authoritative; M43.3: then the turn's outcome, `aidm.dm.context_outcome`: refusals not yet told
+and who did what), 7 NPC_PRIVATE (motive, secrets and the route hint the NPC knows, ONLY for
 `NPC_VOICE`).
 
 M36.5 `CHOOSE` (the menu chooser, SPEC 6.2) is the same builder with its own sections, in this
@@ -47,6 +48,7 @@ from typing import Any
 from aidm.dm.chooser_menu import menu_lines
 from aidm.dm.chooser_prompt import actor_lines, anchor_lines, recent_lines, target_lines
 from aidm.dm.context_gear import actor_gear_lines, gear_lines, light_lines
+from aidm.dm.context_outcome import outcome_lines
 from aidm.dm.context_quests import quest_lines, route_hint_lines
 from aidm.dm.context_sections import (
     fact_lines,
@@ -224,7 +226,7 @@ def build_context(
             fact_lines(state, scene_focus(state, scene, actor_id, npc_id), facts_k),
         ),
         _section(SectionKey.MEMORY, memory_lines(state, narration_n)),
-        _section(SectionKey.EVENTS, event_lines(state, events)),
+        _section(SectionKey.EVENTS, [*event_lines(state, events), *outcome_lines(state, events)]),
     ]
     npc = state.world.npcs.get(npc_id or "")
     if purpose is ContextPurpose.NPC_VOICE:
