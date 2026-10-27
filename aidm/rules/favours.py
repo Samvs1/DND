@@ -46,7 +46,9 @@ from aidm.rules.lore_talk import learnable_here
 from aidm.rules.plan_ids import boss_npc_id
 from aidm.rules.plan_tasks import ends_at, report_step
 from aidm.rules.progression import region_of
+from aidm.rules.quest_contract import target_refusal
 from aidm.rules.quest_steps import step_met
+from aidm.rules.quest_targets import party_friend
 from aidm.rules.secrets import fact_words, item_key
 from aidm.rules.social import npc_is_hostile
 from aidm.rules.step_text import state_names, step_text
@@ -149,6 +151,9 @@ def _check_npc(state: GameState, npc_id: str, asker: WorldNpc, kind: StepKind) -
         raise FavourRefused(f"unknown or dead npc {npc_id!r}; name a known, living NPC")
     if npc.id == asker.id and kind is not StepKind.PAY:
         raise FavourRefused("the favour must concern someone other than the asker")
+    friend = kind is StepKind.DEFEAT and party_friend(state, npc.id)
+    if kind is StepKind.DEFEAT and (why := target_refusal(asker.id, npc.id, friend)):
+        raise FavourRefused(f"{npc.name}: {why}; pick another foe")  # M43.4 C1
     region = _region(state)
     home = region_of(state, npc.node_id)
     if region is not None and (home is None or home.id != region.id):

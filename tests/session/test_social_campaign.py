@@ -149,24 +149,25 @@ def test_public_npc_view_hides_motive_and_unrevealed_secrets() -> None:
 
 
 def test_drafts_support_fact_conditions_and_quests_against() -> None:
+    # M43.4 C1: the target is not the giver (Tobin), so it is the first cast member
     draft = draft_from_plan()
     draft["npcs"][0]["secrets"] = [
         {"text": "She paid the wreckers.", "reveal_kind": "fact_known", "fact_tag": "Wreckers"}
     ]
-    draft["quests"][0]["against"] = draft["npcs"][1]["name"]
+    draft["quests"][0]["against"] = draft["npcs"][0]["name"]
     plan = assemble_plan(CampaignDraft.model_validate(draft))
     assert isinstance(plan, CampaignPlan)
     assert plan.npcs[0].secrets[0].reveal.fact_tag == "wreckers"
-    assert plan.quests[0].against_npc_id == plan.npcs[1].id
+    assert plan.quests[0].against_npc_id == plan.npcs[0].id
 
 
 def test_installed_quests_keep_their_target() -> None:
     base = draft_from_plan()
-    base["quests"][0]["against"] = base["npcs"][1]["name"]
+    base["quests"][0]["against"] = base["npcs"][0]["name"]
     plan = assemble_plan(CampaignDraft.model_validate(base))
     assert isinstance(plan, CampaignPlan)
     first = side_world_quest(plan, plan.quests[0])
-    assert first.against_npc_id == plan.npcs[1].id
+    assert first.against_npc_id == plan.npcs[0].id
 
 
 def test_qa_05_model_recorded_fact_cannot_unlock_a_fact_known_secret() -> None:

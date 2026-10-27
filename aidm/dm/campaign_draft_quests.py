@@ -49,6 +49,7 @@ from aidm.models.quests import (
 )
 from aidm.rules.plan_ids import boss_npc_id, main_quest_id
 from aidm.rules.quest_check import MAX_SIDE_QUESTS
+from aidm.rules.quest_contract import fit_side_quest
 
 MAX_ROUTE_ID = 40
 DEFAULT_EFFECT: RouteEffect = "boss_alone"
@@ -156,6 +157,16 @@ def _side_quests(
     return tuple(out)
 
 
+def _contract_quests(
+    plan: CampaignPlan, quests: tuple[QuestPlan, ...], notes: list[Problem]
+) -> tuple[CampaignPlan, tuple[QuestPlan, ...]]:
+    """M43.4 C1: a quest aimed at its own giver is repaired or left out (secrets it revealed
+    reveal at a friendly attitude, as for any dropped quest)."""
+    fitted = [fit_side_quest(q, notes) for q in quests]
+    kept = tuple(q for q in fitted if q is not None)
+    return (_without_quests(plan, list(kept)) if len(kept) < len(quests) else plan), kept
+
+
 def _route_id(title: str, kind: RouteKind, taken: set[str]) -> str:
     base = slug_id(title, ())[:MAX_ROUTE_ID].strip("-") or kind.value
     if base in taken:
@@ -238,8 +249,9 @@ def with_quests(plan: CampaignPlan, drafts: QuestDrafts, notes: list[Problem]) -
     placed = _placed(plan, drafts, notes)
     mid = _without_quests(plan, [q for q, _ in placed])
     try:
+        mid, quests = _contract_quests(mid, _side_quests(mid, placed, notes), notes)
         update = {
-            "quests": _side_quests(mid, placed, notes),
+            "quests": quests,
             "acts": tuple(_act(mid, a, drafts, notes) for a in mid.acts),
             "finale": _finale(drafts.finale, notes),
         }

@@ -72,3 +72,21 @@ Not covered by D1 (no refusal exists): the skiff (r8-typed 335) and the wares (4
 no engine event; their telling is already told "No rule applied and nothing in the world changed." Vell (r8-quests 390)
 is AA2 (B5, fixed in M43.2). The narration audit is unchanged in stale-as-present (0); three fixtures show 1-4 fewer
 past records (FACTS trimmed first under the token budget: the outcome lines take priority over flavour).
+
+## M43.4 C1-C5 at registration
+One validator, `aidm/rules/quest_contract.py` (pure, ~90 lines); two doors: the campaign install (`dm.campaign_draft_quests.with_quests`
+for C1, `rules.plan_repair.repair_plan` for C2/C4, over each side quest) and the favour tool (`rules.favours._check_npc`, C1).
+| rule | choice |
+|---|---|
+| C1 target = giver | repair: `against_npc_id` cleared (the quest stays); a defeat step on the giver rejects the quest (left out at install, secrets it revealed reveal at friendly; logged as a `quest_repair` note) |
+| C1 target a friend | favour: refused with a plain reason (existing tool-error path). Install: no party yet; `quest_targets.asked_quest` already turns the step into a meet when the card is asked |
+| C1 one person, one record | met by the boss-twin merge in `campaign_draft._twin_boss` (M29.5b); the m29 fixtures are older |
+| C2 repeated step | repair: the later copy is dropped |
+| C2 free step | repair: dropped while a checked step remains; a quest of only free steps keeps them (accepted: nothing else to check) |
+| C2 names nothing | met: `StepDraft` resolution turns unresolved names into free steps, and the free rule above drops them |
+| C4 find N / hand over 1 | repair: a deliver step has no count (model), so the find asks for the hand-over's count (places cut to fit); the shipped sample's 3 Ember-stones became 1 |
+| C4 reward = asked item | repair existed (`_fit_rewards`); it now uses `same_item` ("Grey Flour Charm" vs "Grey Flour" was missed) |
+| C3 | met by the current engine: `quest_progress` decides every step with `step_met`; at m39-r7-full 444 that check says "not yet" (test). The old fixtures hold the old era's events; r8 saves have 0 |
+| C5 | met: `quest_progress._offer_waits` / `ANSWERING_STEPS` (M29.7c R14) and the typed hand-over answer (M43.2 B5, AA2); test over a real plan |
+Remains: C1/C2/C4 inside the main quest's ROUTES are not fitted (the contract reads side quests only); recorded saves keep their
+old quests, so the fixture totals (C1 9, C2 5, C3 10, C4 18) do not move (M43.5 decides them).

@@ -75,11 +75,8 @@ def test_golden_sample_act_items() -> None:
     assert orders.catalog_id is None
     act3 = act_quest_items(plan(), 3)
     stones = [i for i in act3 if i.quest_id == "kindle-the-stair"]
-    assert [i.node_id for i in stones] == [
-        "cistern-of-echoes",
-        "keepers-barracks",
-        "wreckers-gallery",
-    ]
+    # M43.4 C4: the sample finds 3 Ember-stones but hands over 1, so it asks for 1 (one count)
+    assert [i.node_id for i in stones] == ["cistern-of-echoes"]
     assert {i.name for i in stones} == {"Ember-stone"} and not any(i.hidden for i in stones)
     letter = next(i for i in act3 if i.quest_id == main_quest_id(plan().acts[2].region))
     assert letter.hidden and letter.name == "Salt-stained letter"

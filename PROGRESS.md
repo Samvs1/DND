@@ -1,4 +1,4 @@
-NEXT: M43.4 (M, Sonnet medium): C1-C5 at quest registration (install and the favour tool): repair or reject. Files in flight: none. Last gate: M43.3 FULL gate PASS (12/12).
+NEXT: M43.5 (orchestrator): contract green on all fixtures (decide historical findings), /simplify pass, FULL gate, commit M43: The contract. Files in flight: none. Last gate: M43.4 FULL gate PASS (12/12).
 
 # PROGRESS
 
@@ -447,7 +447,7 @@ Rules A1-A4, B1-B6, C1-C5, D1-D2, checked by `scripts/contract.py` on every save
 - [x] M43.1 (M, Sonnet medium) `scripts/contract.py`: A1-A4 wired, B6, C1-C4 from saves; one persisted record of how a typed line was read; run on the 27 fixtures and the 3 r8 saves; findings list. Gate: a test per rule from a real save event. DONE: scripts/contract.py + scripts/contractlib/, `LineRead` event (menu_pick.pick), docs/next/M43_FINDINGS.md.
 - [x] M43.2 (H, Opus high) B1-B5: one path for typed lines. DONE (commits 6b222b8, 91e5323 + final): NOT OFFERED steps and `other` parts naming them refused with the reason; fight spells aimed as named (rules answer); cards wait (the bare-yes "which one?" ask removed in M43.2b, owner: overcorrecting, a player's slip); every typed refusal and cut part logged as `action_impossible`; fixture m42-r8-typed; B1 = 0 on 4 FakeLLM sim saves (DECISIONS M43.2).
 - [x] M43.3 (H, Opus medium) D1: outcome, refusal reason and who-did-it reach the storyteller. (commit e2eeac1) DONE: refusals kept in `Memory.untold` by the reducer until the next narration, told by the builder (`dm/context_outcome.py`) with who did what; contract D1 (`contractlib/story_rules.py`) 7+2 findings -> 0 (DECISIONS M43.3).
-- [ ] M43.4 (M, Sonnet medium) C1-C5 at quest registration (install and the favour tool).
+- [x] M43.4 (M, Sonnet medium) C1-C5 at quest registration (install and the favour tool). (commit HASH)
 - [ ] M43.5 Contract green on all fixtures, `/simplify` pass, FULL gate, commit `M43: The contract`.
 - [ ] M43.6 Round 9 (needs a fresh OK): contract on the live saves, slip rate (D2), balance numbers.
 
