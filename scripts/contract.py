@@ -9,7 +9,8 @@ present, A4 hp and resources in 0..max, B1 every typed line ends in an outcome (
 `line_read` record), B6 a leveled spell spends a slot and uses its caster's DC, C1-C4 generated
 quests, D1 every refusal reaches the next narration's rebuilt prompt. A save without
 initial.json (events only) cannot be replayed: its checks are skipped and said so. The exit
-code is 0 for now (the contract joins the gate at M43.5).
+code is 0 (a report). In the gate, tests/sim/test_contract_fixtures.py holds every fixture to
+its recorded history, `tests/fixtures/contract_baseline.json` (M43.5).
 """
 
 import io
@@ -56,18 +57,24 @@ def table_lines(counts: dict[str, dict[str, int]]) -> list[str]:
     return out
 
 
-def main(argv: list[str]) -> int:
-    folders = [Path(a) for a in argv] or sorted(p for p in FIXTURES.iterdir() if p.is_dir())
+def findings(folders: list[Path]) -> tuple[dict[str, dict[str, int]], list[str]]:
+    """Per save the count per rule, and the report lines (each finding, each skip)."""
     counts: dict[str, dict[str, int]] = {}
+    out: list[str] = []
     for folder in folders:
         found, skipped = check_save(folder)
         row = counts.setdefault(folder.name, {})
         for rule, idx, reason in found:
             row[rule] = row.get(rule, 0) + 1
-            print(f"{folder.name} {rule} {idx} {reason}".encode("ascii", "replace").decode())
-        for why in skipped:
-            print(f"{folder.name} SKIP {why}")
-    for line in table_lines(counts):
+            out.append(f"{folder.name} {rule} {idx} {reason}".encode("ascii", "replace").decode())
+        out += [f"{folder.name} SKIP {why}" for why in skipped]
+    return counts, out
+
+
+def main(argv: list[str]) -> int:
+    folders = [Path(a) for a in argv] or sorted(p for p in FIXTURES.iterdir() if p.is_dir())
+    counts, out = findings(folders)
+    for line in out + table_lines(counts):
         print(line)
     return 0
 
