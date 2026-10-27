@@ -1,4 +1,4 @@
-NEXT: M41 closed. Next is a live round 8 (about 1,000 DeepSeek calls) to measure storyteller slips and the M40/M41 fixes; it needs a fresh owner OK. Then balance Z16-Z17 from its numbers. Open: Z21-Z24 small; the chooser prompt is at 2,589 of its 2,600 token bound. Files in flight: none. Last gate: FULL gate PASS (12/12) at M41 close.
+NEXT: M42.0: play round 8 (3 live runs r8-typed 8777, r8-quests 8778, r8-full 8779, every command with --run); llm.jsonl starts at line 6818. Then M42.1 the report. Files in flight: none. Last gate: FULL gate PASS (12/12) at M41 close.
 
 # PROGRESS
 
@@ -434,6 +434,11 @@ Storyteller honesty (owner 2026-10-26): the claims-check call was designed, then
 - [x] M41.4 (H) Quests Z14, Z15: (a) a favour whose objective is to return to its giver completes only at the giver (r7b-quests 680-684 The Brief Life of War closed on a visit step); (b) a generated favour never targets an NPC who is friendly or allied with the party (r7b-full 436-444 against isca-murkline), and a step is credited only from events after the quest was accepted (the Y7 sub-case: "Win the fight at The Grey Bog" closed from the fight before). Tests on the fixtures; ledger check stays 0 problems.
 - [x] M41.5 (M) Harness Z18-Z20 (scripts/agent): (a) `new` refuses or warns when CURRENT names a live run, and every command prints the run it went to; (b) `do use` lists potions and other usable inventory items like the web hotbar (aidm/web/js/combat/hotbar_magic.js, category `potion`); (c) `do attack` sends the weapon the Options list shows (no `option: ""`). Tests in tests/unit/scripts.
 - [x] M41.6 (M) Offline coverage on both corpora, narration audit (stale as present stays 0), FULL gate, commit `M41: Round-7 interpretation, quest and harness fixes`. Round 8 needs a fresh OK. Done 2026-10-27: coverage 316/316 and 162/162, narration audit stale as present 0, FULL gate PASS (12/12).
+
+## M42 Round 8 (owner 2026-10-27: "Go ahead with a round 8 testing"; findings docs/playtests/M42_round8.md)
+Same shape as round 7: r8-typed (Sonnet, acts 1-2, seed 2, fighter,rogue,wizard,cleric, cap 220), r8-quests (Haiku, acts 1-2, seed 3, classic, cap 180), r8-full (Sonnet, full campaign, seed 1, classic, cap 320), ports 8777-8779, live, every command with `--run`. Expect about 1,000 calls (round 7: 1,048); llm.jsonl starts at line 6818. Verify M40 (Z1, Z2, Z9-Z13 storyteller slips) and M41 (Z3-Z8, Z14, Z15, Z18-Z20) in the saves; gather numbers for Z16-Z17; findings numbered AA1...
+- [ ] M42.0 Play the 3 runs (playtester agents; reports in the scratchpad).
+- [ ] M42.1 Check every claim against its save; write docs/playtests/M42_round8.md (runs, fix verdicts, storyteller slip count vs round 7, findings, spend). No fixes: the owner decides.
 
 ## Notes (stashes, blockers, decisions pending)
 - M38 left (harmful, live final pass): "I help Rook up" with Rook standing helps Elowen up; "I leave 5 gold for the poor" pays Merre; "I surrender" picks the demand that the foes yield (no yield entry exists). Plus the ally-in-fight weapon gap (M38.2 note). Not started: needs an owner call (any live check needs a fresh OK).
