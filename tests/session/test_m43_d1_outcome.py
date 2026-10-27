@@ -5,10 +5,13 @@ read the prompt the storyteller receives, never model prose."""
 
 from pathlib import Path
 
+from aidm.dm.context_outcome import outcome_lines
 from aidm.dm.fake_llm import FakeLLM
 from aidm.dm.narrator import narrate, narrate_round_segment
+from aidm.models.events import ConditionApplied
 from aidm.models.impossible import ActionImpossible
 from aidm.models.protocol_client import SubmitAction
+from aidm.models.state import ActiveCondition
 from aidm.models.world_events import ActionDeclared
 from scripts.contractlib.save import Finding
 from scripts.contractlib.story_rules import TurnOutcomes
@@ -86,7 +89,8 @@ async def test_v1_m43_whose_fire_burned_whom_reaches_the_telling(tmp_path: Path)
     llm, fake = chooser_client(tmp_path)
     await narrate_round_segment(state, segment, llm).collect()
     prompt = _told(fake)[0]
-    assert "Rook cast Burning Hands." in prompt
+    assert "Rook: burning hands at" in prompt  # M43.5: told once, the fight ledger's line
+    assert "Rook cast Burning Hands." not in prompt
     for hero in ("Brienne", "Elowen", "Tamsin"):
         assert f"Rook dealt 6 fire damage to {hero}." in prompt
     assert "Giant Rat A dealt" not in prompt
@@ -118,3 +122,16 @@ def test_v1_m43_the_d1_check_finds_a_refusal_the_prompt_does_not_carry() -> None
             if isinstance(entry.event, ActionImpossible):
                 state.memory.untold = [*state.memory.untold, entry.event]
         assert len(found) == expected
+
+
+def test_v1_m43_a_caused_condition_is_one_line_in_the_events() -> None:
+    """M43.5 (F3): one statement per fact: a condition Rook caused is told once, with who caused
+    it, never also as the plain line ("Brienne is frightened." beside "... (caused by Rook).")."""
+    state = state_at(R8, 482)
+    rook = next(c.id for c in state.creatures.values() if c.name == "Rook")
+    brienne = next(c.id for c in state.creatures.values() if c.name == "Brienne")
+    scared = ConditionApplied(
+        creature_id=brienne, condition=ActiveCondition(name="frightened", source_id=rook)
+    )
+    lines = outcome_lines(state, [scared])
+    assert len(lines) == 1 and lines[0].endswith("(caused by Rook).")

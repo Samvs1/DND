@@ -8,11 +8,9 @@ Engine meaning lives here and in `menu_steps_fight` / `menu_steps_scene`, never 
 - `other` is one `OtherIntent(actor, text)`: the storyteller's creative or social call, with
   the off-menu part's words (`choice.other_text`, else the whole line). With steps too (M36.5)
   it comes before them when `other_first`, else after them unless a step ended the line.
-  M43.2 (B2): an `other` part that names a NOT OFFERED thing is a `RefusedIntent` with its
-  reason (`menu_unoffered.other_refusal`), and so is a step at one (`menu_unoffered.refusal`);
-  a step the validator kept out (an unknown entry, an off target) is refused, never played.
-  B3: a fight spell aimed off its list is sent as named (an area spell at the zone the named
-  creature stands in, `_area_aim`), and the rules answer it.
+  A NOT OFFERED thing, in a step or the `other` part, or a step the validator kept out is a
+  `RefusedIntent` with the reason (M43.2); a fight spell aimed off its list goes as named
+  (`_area_aim`: an area spell at the named creature's zone) and the rules answer it.
 - A strike with `starts_fight` (the offer scope) is `OfferStrikeIntent(actor, step)` and ends the
   steps: the offer is answered as Fight and the step itself waits for the hero's turn, when
   `resume_strike` maps it onto the spawned creatures (below). M36.8c: a weapon strike out of a
@@ -184,12 +182,24 @@ def _area_aim(state: GameState, entry: MenuEntry, step: MenuStep) -> MenuStep:
     if enc is None:
         return step
     zones = {z.id for z in enc.zone_map.zones}
-    if not entry.target_ids or not set(entry.target_ids) <= zones:
+    held = _zones_held(state, entry, zones, step.targets)
+    if held is None:
         return step
-    named = [t for t in step.targets if t in zones]
-    held = [enc.combatants[c].zone_id for c in step.targets if c in enc.combatants]
-    aim = (named or held)[:1]
+    aim = ([t for t in step.targets if t in zones] or held)[:1]
     return step.model_copy(update={"targets": tuple(aim)}) if aim else step
+
+
+def _zones_held(
+    state: GameState, entry: MenuEntry, pool: set[str], creature_ids: Sequence[str]
+) -> list[str] | None:
+    """For an entry aimed at areas (its targets all in `pool`): the zones the named creatures
+    stand in, in the order named; None for any other entry."""
+    if not entry.target_ids or not set(entry.target_ids) <= pool:
+        return None
+    enc = state.encounter
+    if enc is None:
+        return []
+    return [enc.combatants[c].zone_id for c in creature_ids if c in enc.combatants]
 
 
 def _strike_acts(
@@ -364,9 +374,8 @@ def _named(state: GameState, foe: str) -> list[str]:
 def _mapped(state: GameState, menu: ActionMenu, entry: MenuEntry, step: MenuStep) -> list[str]:
     named = [cid for foe in step.targets for cid in _named(state, foe)]
     zones = {t.id for t in menu.targets if t.kind == "zone"}
-    if entry.target_ids and set(entry.target_ids) <= zones:
-        enc = state.encounter
-        spots = [enc.combatant(c).zone_id for c in named] if enc is not None else []
+    spots = _zones_held(state, entry, zones, named)
+    if spots is not None:
         best = sorted(
             (z for z in dict.fromkeys(spots) if z in entry.target_ids),
             key=lambda z: (-spots.count(z), entry.target_ids.index(z)),

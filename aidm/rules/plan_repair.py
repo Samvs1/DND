@@ -14,7 +14,9 @@ model plan never reaches play (repair over reject, each repair a `quest_repair` 
   secrets revealed by showing the old reward follow the new name);
 - M31.1b: learn tags are slugs, a learn step only a place teaches is a visit of it, and a
   quest whose giver asks the party to come back ends with meeting them (`rules.plan_tasks`);
-- M43.4: C2 and C4 over each side quest's steps (`rules.quest_contract`);
+- M43.4: first, C1 over the side quests (`rules.quest_contract.fit_quests`: a target that is
+  the giver is cleared, a defeat of the giver leaves the quest out); C2 and C4 over every route
+  and side quest's steps (`fit_steps`), the last repair before the texts;
 - M29.9b: a side quest never meets a master and never visits its giver's home
   (`rules.plan_steps`); every step nobody could finish is repaired (`rules.plan_satisfy`); last,
   the engine writes the text of every checked step from its fields (`rules.step_text`; R1 and
@@ -36,9 +38,9 @@ from aidm.models.problem import Problem
 from aidm.models.quests import MainQuestPlan, QuestStep, StepKind
 from aidm.rules.plan_ids import boss_npc_id, main_quest_id
 from aidm.rules.plan_satisfy import satisfy_plan
-from aidm.rules.plan_steps import engine_texts, home_visits, master_meets
+from aidm.rules.plan_steps import engine_texts, home_visits, map_steps, master_meets
 from aidm.rules.plan_tasks import giver_reports, learn_visits, normal_tags
-from aidm.rules.quest_contract import fit_steps
+from aidm.rules.quest_contract import fit_quests, fit_steps
 from aidm.rules.quest_items import same_item
 from aidm.rules.quest_plan import short_text
 from aidm.rules.secrets import item_key
@@ -199,15 +201,11 @@ def _renamed_reveals(npc: NpcPlan, renamed: dict[str, str]) -> NpcPlan:
 
 
 def _contract_steps(plan: CampaignPlan, notes: list[Problem]) -> CampaignPlan:
-    """M43.4 C2 and C4 over every side quest's steps (the last repair before the texts)."""
-    quests = tuple(
-        q.model_copy(update={"steps": fit_steps(q.id, q.steps, notes)}) for q in plan.quests
-    )
-    return plan.model_copy(update={"quests": quests})
+    return map_steps(plan, lambda _act, owner, steps: fit_steps(owner, steps, notes))
 
 
 def repair_plan(plan: CampaignPlan, notes: list[Problem]) -> CampaignPlan:
-    repaired = _fit_rewards(_shared_items(plan, notes), notes)
+    repaired = _fit_rewards(_shared_items(fit_quests(plan, notes), notes), notes)
     repaired = learn_visits(normal_tags(repaired, notes), notes)
     repaired = home_visits(master_meets(repaired, notes), notes)
     repaired = giver_reports(satisfy_plan(repaired, notes), notes)

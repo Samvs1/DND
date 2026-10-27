@@ -18,20 +18,15 @@ said count, `menu_steps_scene.said_count`: a give or gold, the rules answer it) 
 answer, with short repair lines naming the allowed values ("give:block-of-incense takes one of:
 widow-cabrelle, peddler"). The ONE LLM client feeds those lines back and retries
 (`llm_client.call_tools`, `llm_validate`), so a bad pick is repaired, never executed.
-M38.4/M38.5 fix, M43.2 (the contract's B2, B3): a step at a NOT OFFERED target
-(`ActionMenu.unoffered`: nothing can act on it) is not repaired: it passes and stays a step, which
-the engine refuses with the reason (`rules.menu_unoffered.refusal`); so does a fight spell or
-feature aimed at a target its entry does not list (`engine_answers`: the real command says why
-not, never a stand-in). A step at a named being
-or an area its entry cannot take (`rules.menu_unoffered.named_off`: help_up at a standing hero,
-give:crowbar at a hero, talk at a waiting monster, a move to where the hero stands) is repaired
-with a line that no longer invites a stand-in: it names the entries that take that target for
-the same thing (`takers`) and says a part no entry does is `other`, never another target (the
-old "takes one of: reeve-hallick" was how the swapped target got in). A step whose `do` is
-`other` (OTHER_STEP) is read as the other part. The `to` enum lists the not-offered targets too.
-M41.3 (round 7 Z7): when the menu has a shared entry (a search, a pickup) and other heroes who
-can act (`ActionMenu.helpers`), each step also has `by`: null, or the helper who does that step
-(`sharers(menu)`); `by` on an entry that is not shared, or naming no helper, is repaired.
+- `engine_answers` (M43.2): a step at a NOT OFFERED target, or a fight spell or feature aimed
+  off its list, passes as it is: the engine refuses it with its reason or the real command
+  answers it, never a stand-in.
+- `named_off` (M38.5): a step at a named being or area its entry cannot take gets a repair line
+  naming the entries that take that target (`takers`) and saying a part no entry does is
+  `other`, never another target.
+- A step whose `do` is `other` (`OTHER_STEP`) is the other part; the `to` enum lists the
+  not-offered targets too.
+- M41.3: on a shared entry each step has `by` (`sharers(menu)`), null or a helper who does it.
 
 Public API: `CHOOSE_TOOL`, `OTHER_STEP`, `ChosenStep`, `OtherPart`, `ChooseActionsArgs`
 (`to_choice()`), `menu_schema(menu)`, `menu_problems(menu, args)`, `sharers(menu)`,
@@ -167,11 +162,6 @@ def _off_problem(menu: ActionMenu, entry: MenuEntry, off: tuple[str, ...]) -> st
     )
 
 
-def _dropped(step: MenuStep) -> bool:
-    """The step is the other part: written as `other`."""
-    return step.entry == OTHER_STEP
-
-
 def menu_problems(menu: ActionMenu | None, args: "ChooseActionsArgs") -> list[str]:
     if not args.steps and args.other is None:
         return ["pick at least one step, or other"]
@@ -180,16 +170,16 @@ def menu_problems(menu: ActionMenu | None, args: "ChooseActionsArgs") -> list[st
     entries = {e.id: e for e in menu.entries} if menu is not None else {}
     problems: list[str] = []
     for i, step in enumerate(args.steps):
-        entry = entries.get(step.do)
-        if _dropped(_step(step)):
-            continue  # the storyteller's (`to_choice`)
-        if menu is not None and engine_answers(menu, _step(step)):
+        entry, made = entries.get(step.do), _step(step)
+        if made.entry == OTHER_STEP:
+            continue  # the other part, written as a step (`to_choice`)
+        if menu is not None and engine_answers(menu, made):
             continue  # M43.2: refused with its reason or answered by the rules, never swapped
         if entry is None or menu is None:
             hint = _suggest(menu, step.do) if menu is not None else ""
             problems.append(f"steps[{i}].do {step.do!r} is not a menu id{hint}")
             continue
-        off = named_off(menu, _step(step))
+        off = named_off(menu, made)
         if off:
             problems.append(_off_problem(menu, entry, off))
             continue
@@ -227,7 +217,7 @@ class ChooseActionsArgs(BaseModel):
         reason), never the storyteller's."""
         menu = type(self).menu
         picked = [_step(s, menu.actor_id if menu is not None else None) for s in self.steps]
-        off = [i for i, s in enumerate(picked) if _dropped(s)]
+        off = [i for i, s in enumerate(picked) if s.entry == OTHER_STEP]
         steps = tuple(s for i, s in enumerate(picked) if i not in off)
         other = self.other
         if other is None and off:

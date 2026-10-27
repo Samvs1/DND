@@ -1,16 +1,13 @@
 """The turn's outcome in plain words for the context pack (M43.3, contract rule D1).
 
 Built only through THE context builder (`aidm.dm.context`, the EVENTS section, never trimmed),
-from the events' own fields, no phrase rows:
-- what did not happen and why: every refusal logged since the last narration
-  (`Memory.untold`, kept by the reducer) that the telling was not handed as an event:
-  `Rook tried "casts magic missile at Bandit B": nothing happened, because <reason>.`;
-- who did what, where the event names its actor: damage (`DamageTaken.source_id`), a kill (the
-  last damage on the creature that died, in the same events), a condition another creature
-  caused (`ActiveCondition.source_id`) and a spell cast in a fight (`SpellCast.caster_id`;
-  casts at the scene have their own line, `aidm.dm.cast_text`).
-Round 8: four slips followed a refusal the storyteller was not told (AA3, the skiff, the wares,
-Vell) and one gave Rook's fire to the rats (r8-typed 466-482).
+from the events' own fields, no phrase rows, one line per fact:
+- what did not happen and why: every refusal logged since the last narration (`Memory.untold`)
+  that the telling was not handed as an event;
+- each event's line (`event_text.event_line`), or, where the event names who caused it, the
+  line that says so instead: damage (`DamageTaken.source_id`) and a condition another creature
+  caused (`ActiveCondition.source_id`). Casts and killing blows in a fight are the fight
+  ledger's lines (`fight_ledger.fight_lines`, in the turn facts).
 
 Public API: `outcome_lines(state, events) -> list[str]`.
 """
@@ -19,8 +16,8 @@ from collections.abc import Sequence
 
 from aidm.dm.condition_text import applied_line
 from aidm.dm.entities import display_name
-from aidm.models.combat_events import SpellCast
-from aidm.models.events import AnyEvent, ConditionApplied, CreatureDied, DamageTaken
+from aidm.dm.event_text import event_line
+from aidm.models.events import AnyEvent, ConditionApplied, DamageTaken
 from aidm.models.impossible import ActionImpossible
 from aidm.models.state import GameState
 
@@ -42,27 +39,22 @@ def _damage(state: GameState, e: DamageTaken) -> str | None:
         return None
     kinds = " and ".join(dict.fromkeys(p.damage_type.value for p in e.parts if p.taken))
     whom = "themself" if e.source_id == e.creature_id else whom
-    return f"{who} dealt {e.total} {kinds} damage to {whom}."
+    plain = event_line(state, e)  # resistances and immunities: told in the same line
+    return f"{who} dealt {e.total} {kinds} damage to {whom}." + (f" {plain}" if plain else "")
 
 
-def _deed(state: GameState, e: AnyEvent, events: Sequence[AnyEvent]) -> str | None:
+def _deed(state: GameState, e: AnyEvent) -> str | None:
+    """The line that names who caused the event, in place of its plain line."""
     if isinstance(e, DamageTaken):
         return _damage(state, e)
-    if isinstance(e, CreatureDied):
-        hits = [d for d in events if isinstance(d, DamageTaken) and d.creature_id == e.creature_id]
-        who, whom = _name(state, hits[-1].source_id) if hits else None, _name(state, e.creature_id)
-        return f"{who} killed {whom}." if who and whom and who != whom else None
     if isinstance(e, ConditionApplied) and e.condition.source_id != e.creature_id:
         who, whom = _name(state, e.condition.source_id), _name(state, e.creature_id)
         line = applied_line(whom, e.condition.name) if whom else ""
         return f"{line[:-1]} (caused by {who})." if who and line else None
-    if isinstance(e, SpellCast) and not e.at_scene:
-        who = _name(state, e.caster_id)
-        return f"{who} cast {display_name(e.spell_id)}." if who else None
     return None
 
 
 def outcome_lines(state: GameState, events: Sequence[AnyEvent]) -> list[str]:
     refused = [_refused(state, e) for e in state.memory.untold if e not in events]
-    deeds = [line for e in events if (line := _deed(state, e, events)) is not None]
-    return [*refused, *deeds]
+    told = [line for e in events if (line := _deed(state, e) or event_line(state, e))]
+    return [*refused, *told]

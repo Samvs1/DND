@@ -80,11 +80,22 @@ def test_m43_c2_a_repeated_step_is_dropped() -> None:
 
 
 def test_m43_c2_a_free_step_is_dropped_while_a_checked_step_remains() -> None:
-    """m29-r2-p8 774, A Name for the Road: a step the engine cannot check."""
+    """m29-r2-p8 774, A Name for the Road: a step the engine cannot check. M43.5: the plan
+    repair drops it once (`plan_satisfy`, V16), before C2 runs; the checked step stays."""
+    installed = next(
+        e.event for e in fixture("m29-r2-p8").events if e.event.type == "campaign_installed"
+    )
+    plan = installed.plan
+    quest = plan.quests[0]
+    spoke = next(a for a in plan.acts if a.index == quest.act).region.spokes[0].id
+    checked = QuestStep(kind=StepKind.VISIT, text="Go there", nodes=(spoke,))
     free = QuestStep(kind=StepKind.FREE, text="Think of a name")
-    steps = fit_steps("q", (free, _visit()), [])
-    assert [s.kind for s in steps] == [StepKind.VISIT]
-    assert fit_steps("q", (free,), []) == (free,)
+    plan = plan.model_copy(
+        update={"quests": (quest.model_copy(update={"steps": (free, checked)}), *plan.quests[1:])}
+    )
+    fixed = next(q for q in repair_plan(plan, []).quests if q.id == quest.id)
+    assert StepKind.FREE not in {s.kind for s in fixed.steps}
+    assert any(s.kind is StepKind.VISIT and spoke in s.nodes for s in fixed.steps)
 
 
 def test_m43_c4_find_three_hand_over_one_use_one_count() -> None:

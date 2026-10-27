@@ -26,7 +26,7 @@ M41.3 (round 7 Z6): what an act that ends the line cut off (`rules.menu_steps.pl
 never dropped: after a travel, rest or shop the party agreed to, it is played once the job is
 done, on the menu of where the party is (`_later`: a fight that started, a walk that stopped
 short or a step that no longer fits is told); after any other ending act it is told
-(`menu_pick.tell_cut`).
+(`menu_pick.tell_rest`).
 Z7: a shared step done by another hero (`MenuStep.by`) is announced first (`DOES`).
 
 Public API: `FIGHT_STARTED`, `DOES`, `menu_line`.
@@ -62,12 +62,13 @@ from aidm.session.asides import Aside, told_with
 from aidm.session.declared import declare
 from aidm.session.intent_turn import run_intent
 from aidm.session.menu_pick import (
-    NOT_DONE,
     MenuQueueEntry,
+    cut_words,
     line_menu,
     pick,
     play_steps,
     tell_cut,
+    tell_rest,
 )
 from aidm.session.table_core import Job, Player, TableCore
 
@@ -132,10 +133,10 @@ async def _play(line: _Line, plan: Plan) -> None:
                 return
 
     done = await play_steps(
-        core, line.player, line.entry, plan.groups, run, lambda: _fight_started(core)
+        core, line.entry, line.menu, plan.groups, run, lambda: _fight_started(core)
     )
-    if done and plan.rest is not None and not line.carried:
-        tell_cut(core, line.player, line.entry, NOT_DONE if core.refusals > refused else plan.why)
+    if done and not line.carried:
+        tell_rest(core, line.entry, line.menu, plan, core.refusals > refused)
 
 
 def _announce(line: _Line, step: MenuStep) -> None:
@@ -152,15 +153,16 @@ def _later(line: _Line, rest: MenuChoice, goal: str | None) -> Job:
     core = line.core
 
     async def job() -> None:
+        whole = cut_words(line.menu, rest.steps, rest.other_text)
         if core.combat_active():
-            tell_cut(core, line.player, line.entry, FIGHT_STARTED)
+            tell_cut(core, line.entry, FIGHT_STARTED, whole)
             return
         if goal is not None and core.state.world.current_node != goal:
             place = node_display_name(core.state, goal)
-            tell_cut(core, line.player, line.entry, SHORT.format(place=place))
+            tell_cut(core, line.entry, SHORT.format(place=place), whole)
             return
         hero = core.state.creatures.get(line.actor.id, line.actor)
-        menu = line_menu(core, hero.id)
+        menu = line_menu(core, hero.id, line.entry.text)
         fitted, why = refit(menu, line.menu, rest)
         if fitted is not None:
             later = _Line(core, line.player, hero, line.entry, menu)
@@ -168,7 +170,9 @@ def _later(line: _Line, rest: MenuChoice, goal: str | None) -> Job:
                 later, plan_line(core.state, menu, fitted, core.regs.combat, line.entry.text)
             )
         if why:
-            tell_cut(core, line.player, line.entry, why)
+            kept = len(fitted.steps) if fitted is not None else 0
+            cut = cut_words(line.menu, rest.steps[kept:], rest.other_text)
+            tell_cut(core, line.entry, why, cut)
 
     return job
 

@@ -38,9 +38,37 @@ async def test_v1_m43_the_part_after_a_refused_one_is_told_as_a_refusal(tmp_path
         tmp_path, R8, 261, pick(*steps), text="Rook casts magic missile at Bandit B and dodges"
     )
     assert [e.reason for e in played.of(ActionImpossible)] == [
-        "Magic Missile: Rook has no 1st-level slot left.",
-        STOPPED.format(why=NOT_DONE),
-    ]
+        "Magic Missile: Rook has no 1st-level slot left."
+    ]  # M43.5: the cut after a logged refusal is the player's notice only (one record, not two)
+    assert STOPPED.format(why=NOT_DONE) in played.notices()
+
+
+async def test_v1_m43_a_cut_logs_only_the_cut_part_with_the_plain_reason(tmp_path: Path) -> None:
+    """M43.5 (F1): r7b-quests 913, Elowen ends her turn and then dodges: the dodge is logged as
+    the part not played ("your turn is over"), never the whole line as "nothing happened"."""
+    steps = pick(("end-turn", [], None), ("dodge", [], None))
+    text = "I end my turn and then dodge"
+    played = await menu_play(tmp_path, "m39-r7-quests", 913, steps, text=text)
+    assert STOPPED.format(why="your turn is over") in played.notices()
+    cut = played.of(ActionImpossible)
+    assert [e.reason for e in cut] == ["your turn is over"]
+    assert cut[0].text.startswith("Dodge") and text not in cut[0].text
+
+
+async def test_v1_m43_a_carried_rest_naming_a_not_offered_thing_is_refused(
+    tmp_path: Path,
+) -> None:
+    """M43.5 (F2): r8-typed 373, the walk to Saltmere Landing and then a payment of gold Rook
+    does not have: after the walk the carried part is refused with its reason (it was a
+    creative action for the storyteller)."""
+    text = "We walk back to Saltmere Landing and then I pay the ferryman 500 gold"
+    walk = pick(("travel", ["saltmere-landing"], None), other="I pay the ferryman 500 gold")
+    played = await menu_play(tmp_path, R8, 373, walk, text=text)
+    assert played.state.world.current_node == "saltmere-landing"
+    moved = next(i for i, e in enumerate(played.events) if isinstance(e, PartyMoved))
+    refused = [i for i, e in enumerate(played.events) if isinstance(e, ActionImpossible)]
+    assert refused and refused[0] > moved
+    assert "500 gold" in played.of(ActionImpossible)[0].reason
 
 
 async def test_v1_m43_a_line_naming_the_answer_still_answers(tmp_path: Path) -> None:

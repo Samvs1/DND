@@ -36,26 +36,22 @@ the player did not name, so:
   validator rejects such a step with a repair line that names the entries that do take it
   (`takers`: the same item, "hand:crowbar" for "give:crowbar" to a hero) and says that a part
   no entry does is `other`, never another target. Places and things on the wrong entry, and
-  creatures named for an area, keep the plain repair (the area holding it).
+  creatures named for an area, keep the plain repair (the area holding it), except a fight cast
+  or feature, which `engine_answers` sends as named.
 - `off_targets(menu, step)`: every target its entry cannot act on (zones aside); `menu_steps.
   step_acts` refuses such a step should one ever get past the validator (M43.2).
-
-M43.2 (the contract's B2, B3; round 8 AA1 AA3 AA4 AA6): a line that names a game thing never
-goes to the storyteller as a creative action. A step at a NOT OFFERED target stays that step and
-is refused with the reason its label carries (`refusal(menu, step)`: "Magic Missile: Rook has no
-1st-level slot left."), and so is an `other` part that names one (`other_refusal(menu, text)`). A
-sum of gold the line names that the hero does not have is NOT OFFERED too ("100 gold (Elowen has
-only 20 gold)"). In a fight a spell or feature step aimed at a target its entry does not list
-passes the validator (`engine_answers`): the session plays it through the real command, whose
-rules say why not ("The 15-ft cone does not reach Courtyard, 30 ft away."), never a stand-in
-target; and an `other` part naming one weapon, spell or feature entry and a creature or area is
-that entry (`as_entry`), never a free creative action.
+- `engine_answers(menu, step)`: the validator passes the step as it is (refused with its
+  reason, or a fight spell or feature the real command answers).
+- `refusal(menu, step)`, `other_refusal(menu, text)`: the reason a NOT OFFERED thing carries.
+- `as_entry(menu, text)`: in a fight, an `other` part naming one weapon, spell or feature entry
+  and what it aims at is that entry.
+- `GOLD_SUM`: a sum of gold a line names (one over the hero's purse is NOT OFFERED).
 
 Public API: `MAX_UNOFFERED`, `unoffered_targets(state, menu, text)`,
 `with_unoffered(state, menu, text)`, `named_helpers(state, menu, text)`, `not_offered(menu,
 step)`, `named_off(menu, step)`, `engine_answers(menu, step)`, `refusal(menu, step)`,
 `other_refusal(menu, text)`, `as_entry(menu, text)`, `takers(menu, entry_id, target)`,
-`off_targets(menu, step)`.
+`off_targets(menu, step)`, `GOLD_SUM`.
 """
 
 import re
@@ -82,7 +78,7 @@ from aidm.rules.world_graph import travel_route
 MAX_UNOFFERED = 4
 NOT_HERE = "not here"
 _TYPO_CUTOFF = 0.85
-_GOLD = re.compile(r"\b(\d+)\s*(?:gold|gp)\b")
+GOLD_SUM = re.compile(r"\b(\d+)\s*(?:gold|gp)\b")
 _AIMED_MAGIC = frozenset({ActionKind.CAST, ActionKind.FEATURE})
 
 type _Candidate = tuple[str, str, str, TargetKind]  # (id, name, where, kind)
@@ -157,7 +153,7 @@ def _gold_over(state: GameState, actor_id: str, text: str) -> Iterator[_Candidat
     hero = state.creatures.get(actor_id)
     if hero is None or hero.pc is None:
         return
-    for found in _GOLD.finditer(text.lower()):
+    for found in GOLD_SUM.finditer(text.lower()):
         amount = int(found.group(1))
         if amount > hero.pc.gold:
             where = f"{hero.name} has only {hero.pc.gold} gold"
@@ -253,20 +249,26 @@ def not_offered(menu: ActionMenu, step: MenuStep) -> tuple[str, ...]:
     return named
 
 
+def _unlisted(menu: ActionMenu, entry: MenuEntry, step: MenuStep) -> tuple[str, ...]:
+    """The step's targets its entry does not list (a close misspelling of a listed one aside)."""
+    allowed = (*entry.target_ids, *entry.zone_ids)
+    kinds = _kinds(menu)
+    return tuple(
+        t
+        for t in step.targets
+        if t not in allowed and (t in kinds or not get_close_matches(t, allowed, 1, _TYPO_CUTOFF))
+    )
+
+
 def off_targets(menu: ActionMenu, step: MenuStep) -> tuple[str, ...]:
     entry = _entry(menu, step.entry)
     if entry is None or entry.max_targets == 0:
         return ()
     kinds = _kinds(menu)
     areas = any(kinds.get(t) == "zone" for t in entry.target_ids)
-    allowed = (*entry.target_ids, *entry.zone_ids)
-    return tuple(
-        target
-        for target in step.targets
-        if target not in allowed
-        and (kinds.get(target) == "zone") is areas  # a creature for an area is repaired
-        and (target in kinds or not get_close_matches(target, allowed, 1, _TYPO_CUTOFF))
-    )
+    # a creature named for an area is the validator's plain repair (the area holding it); a
+    # fight cast or feature goes as named (`engine_answers`, `menu_steps._area_aim`)
+    return tuple(t for t in _unlisted(menu, entry, step) if (kinds.get(t) == "zone") is areas)
 
 
 def named_off(menu: ActionMenu, step: MenuStep) -> tuple[str, ...]:
@@ -288,24 +290,19 @@ def engine_answers(menu: ActionMenu, step: MenuStep) -> bool:
     entry = _entry(menu, step.entry)
     if menu.scope is not MenuScope.FIGHT or entry is None or entry.kind not in _AIMED_MAGIC:
         return False
-    allowed = (*entry.target_ids, *entry.zone_ids)
-    kinds = _kinds(menu)
-    return any(
-        t not in allowed and (t in kinds or not get_close_matches(t, allowed, 1, _TYPO_CUTOFF))
-        for t in step.targets
-    )
+    return bool(_unlisted(menu, entry, step))
 
 
 def _reason(target: MenuTarget) -> str:
+    """Every NOT OFFERED label is "<name> (<why>)" (`unoffered_targets`)."""
     name, _, where = target.label.partition(" (")
-    return f"{name}: {where.removesuffix(')')}." if where else f"{name} cannot be used now."
+    return f"{name}: {where.removesuffix(')')}."
 
 
 def refusal(menu: ActionMenu, step: MenuStep) -> str | None:
     """M43.2: why a step at a NOT OFFERED thing cannot be done, from that thing's label."""
-    shown = {t.id: t for t in menu.unoffered}
     named = not_offered(menu, step)
-    return _reason(shown[named[0]]) if named else None
+    return next(_reason(t) for t in menu.unoffered if t.id == named[0]) if named else None
 
 
 def other_refusal(menu: ActionMenu, text: str) -> str | None:

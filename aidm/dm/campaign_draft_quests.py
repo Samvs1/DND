@@ -34,8 +34,7 @@ from aidm.dm.campaign_steps import (
     repair_note,
     resolve_steps,
 )
-from aidm.models.campaign import Act, CampaignPlan, QuestPlan, RevealCondition, RevealKind
-from aidm.models.dm_tiers import AttitudeBand
+from aidm.models.campaign import Act, CampaignPlan, QuestPlan
 from aidm.models.problem import Problem
 from aidm.models.quests import (
     FORCE_ROUTE_ID,
@@ -49,7 +48,7 @@ from aidm.models.quests import (
 )
 from aidm.rules.plan_ids import boss_npc_id, main_quest_id
 from aidm.rules.quest_check import MAX_SIDE_QUESTS
-from aidm.rules.quest_contract import fit_side_quest
+from aidm.rules.quest_contract import without_quests
 
 MAX_ROUTE_ID = 40
 DEFAULT_EFFECT: RouteEffect = "boss_alone"
@@ -119,29 +118,6 @@ def _placed(
     return sorted(kept, key=lambda k: order.index(k[0].id))
 
 
-def _stale(reveal: RevealCondition, kept: list[QuestPlan]) -> bool:
-    """A reveal by a quest (or a quest's reward item) that is no longer in the plan."""
-    if reveal.kind is RevealKind.QUEST_COMPLETED:
-        return reveal.quest_id not in {q.id for q in kept}
-    if reveal.kind is RevealKind.ITEM_SHOWN:
-        return reveal.item not in {q.reward_item for q in kept}
-    return False
-
-
-def _without_quests(plan: CampaignPlan, kept: list[QuestPlan]) -> CampaignPlan:
-    """`plan` with only the `kept` quests; secrets revealed by a dropped quest (or its reward
-    item) reveal at a friendly attitude instead."""
-    friendly = RevealCondition(kind=RevealKind.ATTITUDE, band=AttitudeBand.FRIENDLY)
-    npcs = []
-    for npc in plan.npcs:
-        secrets = tuple(
-            s.model_copy(update={"reveal": friendly}) if _stale(s.reveal, kept) else s
-            for s in npc.secrets
-        )
-        npcs.append(npc.model_copy(update={"secrets": secrets}))
-    return plan.model_copy(update={"npcs": tuple(npcs), "quests": tuple(kept)})
-
-
 def _side_quests(
     plan: CampaignPlan, placed: list[tuple[QuestPlan, list[StepDraft]]], notes: list[Problem]
 ) -> tuple[QuestPlan, ...]:
@@ -155,16 +131,6 @@ def _side_quests(
         (fixed,) = fix_delivers(names, quest.id, [steps], notes)
         out.append(quest.model_copy(update={"steps": tuple(fixed)}))
     return tuple(out)
-
-
-def _contract_quests(
-    plan: CampaignPlan, quests: tuple[QuestPlan, ...], notes: list[Problem]
-) -> tuple[CampaignPlan, tuple[QuestPlan, ...]]:
-    """M43.4 C1: a quest aimed at its own giver is repaired or left out (secrets it revealed
-    reveal at a friendly attitude, as for any dropped quest)."""
-    fitted = [fit_side_quest(q, notes) for q in quests]
-    kept = tuple(q for q in fitted if q is not None)
-    return (_without_quests(plan, list(kept)) if len(kept) < len(quests) else plan), kept
 
 
 def _route_id(title: str, kind: RouteKind, taken: set[str]) -> str:
@@ -247,11 +213,10 @@ def _finale(draft: FinaleDraft | None, notes: list[Problem]) -> FinalePlan | Non
 def with_quests(plan: CampaignPlan, drafts: QuestDrafts, notes: list[Problem]) -> CampaignPlan:
     """`plan` (assembled without quest steps) with the drafted quests, routes and finale."""
     placed = _placed(plan, drafts, notes)
-    mid = _without_quests(plan, [q for q, _ in placed])
+    mid = without_quests(plan, [q for q, _ in placed])
     try:
-        mid, quests = _contract_quests(mid, _side_quests(mid, placed, notes), notes)
         update = {
-            "quests": quests,
+            "quests": _side_quests(mid, placed, notes),
             "acts": tuple(_act(mid, a, drafts, notes) for a in mid.acts),
             "finale": _finale(drafts.finale, notes),
         }

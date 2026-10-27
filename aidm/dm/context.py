@@ -59,7 +59,6 @@ from aidm.dm.context_sections import (
     scene_focus,
 )
 from aidm.dm.context_text import PLAYER_TAG, ContextPurpose, system_text, task_text
-from aidm.dm.event_text import event_lines
 from aidm.models.action_menu import ActionMenu
 from aidm.models.events import AnyEvent
 from aidm.models.state import GameState
@@ -226,7 +225,7 @@ def build_context(
             fact_lines(state, scene_focus(state, scene, actor_id, npc_id), facts_k),
         ),
         _section(SectionKey.MEMORY, memory_lines(state, narration_n)),
-        _section(SectionKey.EVENTS, [*event_lines(state, events), *outcome_lines(state, events)]),
+        _section(SectionKey.EVENTS, outcome_lines(state, events)),
     ]
     npc = state.world.npcs.get(npc_id or "")
     if purpose is ContextPurpose.NPC_VOICE:
