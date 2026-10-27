@@ -95,7 +95,7 @@ async def _turn(core: TableCore, player: Player, entry: QueueEntry) -> None:
     if not my_turn(core, entry.creature_id):  # the turn passed while the job waited
         core.error(player.id, ErrorCode.NOT_YOUR_TURN, NOT_YOUR_TURN)
         return
-    menu = line_menu(core, entry.creature_id)
+    menu = line_menu(core, entry.creature_id, entry.text)
     if isinstance(entry, MenuQueueEntry):
         choice = entry.choice
     else:
@@ -107,7 +107,7 @@ async def _turn(core: TableCore, player: Player, entry: QueueEntry) -> None:
     before = core.refusals
     done = await play_fight_acts(core, player, entry, acts)
     if done and plan.rest is not None:  # M41.3: the cut part is told (a refused end: not done)
-        tell_cut(core, player, NOT_DONE if core.refusals > before else plan.why)
+        tell_cut(core, player, entry, NOT_DONE if core.refusals > before else plan.why)
 
 
 def _private(act: Act) -> bool:
@@ -128,7 +128,7 @@ async def play_fight_acts(
     def stop() -> str | None:
         return TURN_OVER if turn and not my_turn(core, entry.creature_id) else None
 
-    return await play_steps(core, player, acts, run, stop)
+    return await play_steps(core, player, entry, acts, run, stop)
 
 
 async def _fight_act(core: TableCore, player: Player, entry: QueueEntry, act: Act) -> None:

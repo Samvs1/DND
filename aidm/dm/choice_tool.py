@@ -18,8 +18,11 @@ said count, `menu_steps_scene.said_count`: a give or gold, the rules answer it) 
 answer, with short repair lines naming the allowed values ("give:block-of-incense takes one of:
 widow-cabrelle, peddler"). The ONE LLM client feeds those lines back and retries
 (`llm_client.call_tools`, `llm_validate`), so a bad pick is repaired, never executed.
-M38.4/M38.5 fix: a step at a NOT OFFERED target (`ActionMenu.unoffered`: nothing can act on
-it) is not repaired: it passes and `to_choice` turns it into `other`. A step at a named being
+M38.4/M38.5 fix, M43.2 (the contract's B2, B3): a step at a NOT OFFERED target
+(`ActionMenu.unoffered`: nothing can act on it) is not repaired: it passes and stays a step, which
+the engine refuses with the reason (`rules.menu_unoffered.refusal`); so does a fight spell or
+feature aimed at a target its entry does not list (`engine_answers`: the real command says why
+not, never a stand-in). A step at a named being
 or an area its entry cannot take (`rules.menu_unoffered.named_off`: help_up at a standing hero,
 give:crowbar at a hero, talk at a waiting monster, a move to where the hero stands) is repaired
 with a line that no longer invites a stand-in: it names the entries that take that target for
@@ -43,7 +46,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from aidm.dm.llm_types import ToolDef
 from aidm.models.action_menu import MAX_STEPS, ActionMenu, MenuChoice, MenuEntry, MenuStep
 from aidm.rules.menu_steps_scene import said_count
-from aidm.rules.menu_unoffered import named_off, not_offered, takers
+from aidm.rules.menu_unoffered import engine_answers, named_off, takers
 
 CHOOSE_TOOL = "choose_actions"
 OTHER_STEP = "other"  # a step the model wrote as {"do": "other"} is the other part (M38.5 fix)
@@ -164,9 +167,9 @@ def _off_problem(menu: ActionMenu, entry: MenuEntry, off: tuple[str, ...]) -> st
     )
 
 
-def _dropped(menu: ActionMenu | None, step: MenuStep) -> bool:
-    """The step is the other part: written as `other`, or at a NOT OFFERED target."""
-    return step.entry == OTHER_STEP or (menu is not None and bool(not_offered(menu, step)))
+def _dropped(step: MenuStep) -> bool:
+    """The step is the other part: written as `other`."""
+    return step.entry == OTHER_STEP
 
 
 def menu_problems(menu: ActionMenu | None, args: "ChooseActionsArgs") -> list[str]:
@@ -178,8 +181,10 @@ def menu_problems(menu: ActionMenu | None, args: "ChooseActionsArgs") -> list[st
     problems: list[str] = []
     for i, step in enumerate(args.steps):
         entry = entries.get(step.do)
-        if _dropped(menu, _step(step)):
-            continue  # the storyteller's (`to_choice`), never repaired into a swap
+        if _dropped(_step(step)):
+            continue  # the storyteller's (`to_choice`)
+        if menu is not None and engine_answers(menu, _step(step)):
+            continue  # M43.2: refused with its reason or answered by the rules, never swapped
         if entry is None or menu is None:
             hint = _suggest(menu, step.do) if menu is not None else ""
             problems.append(f"steps[{i}].do {step.do!r} is not a menu id{hint}")
@@ -216,12 +221,13 @@ class ChooseActionsArgs(BaseModel):
         return self
 
     def to_choice(self) -> MenuChoice:
-        """The pick as a `MenuChoice`; M38.4: a step at a NOT OFFERED target (or written as
-        `other`) is dropped and becomes `other` (first when it came before every kept step), the
-        model's own other part kept as it is."""
+        """The pick as a `MenuChoice`; a step written as `other` is dropped and becomes `other`
+        (first when it came before every kept step), the model's own other part kept as it is.
+        M43.2: a step at a NOT OFFERED target stays a step (the engine refuses it with the
+        reason), never the storyteller's."""
         menu = type(self).menu
         picked = [_step(s, menu.actor_id if menu is not None else None) for s in self.steps]
-        off = [i for i, s in enumerate(picked) if _dropped(menu, s)]
+        off = [i for i, s in enumerate(picked) if _dropped(s)]
         steps = tuple(s for i, s in enumerate(picked) if i not in off)
         other = self.other
         if other is None and off:

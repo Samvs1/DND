@@ -4,9 +4,10 @@ r7b-typed 1277: "Tamsin sends a guiding bolt at the armor", with both of Tamsin'
 0, cast Sacred Flame: the fight menu lists no leveled spell without a slot, so the model took the
 cantrip it did list. A ready spell the hero cannot pay for cannot be cast, so no fight entry
 offers it; the menu carries it with the reason (`ActionMenu.unready`), and a line that names one
-gets it as a NOT OFFERED target (`rules.menu_unoffered`): that step is the storyteller's, never
-a stand-in spell. Out of a fight such a spell is a `spent` entry the rules refuse in plain words
-(M36.10a, `rules.menu_casts`): it names the spell, so it is no stand-in.
+gets it as a NOT OFFERED target (`rules.menu_unoffered`): M43.2: that step is refused with the
+reason, never a stand-in spell and never the storyteller's. Out of a fight such a spell is a
+`spent` entry the rules refuse in plain words (M36.10a, `rules.menu_casts`): it names the spell,
+so it is no stand-in.
 - `ready_lines(block)`: the sheet's prepared spell lines, cantrips first.
 - `can_pay(creature, spell, resource)`: the cast's own answer (`spell_targets.cast_slot` with no
   slot level asked, on THE slot model `rules.spellcasting`): a cantrip, an at-will spell, an

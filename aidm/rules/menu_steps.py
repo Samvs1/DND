@@ -8,6 +8,11 @@ Engine meaning lives here and in `menu_steps_fight` / `menu_steps_scene`, never 
 - `other` is one `OtherIntent(actor, text)`: the storyteller's creative or social call, with
   the off-menu part's words (`choice.other_text`, else the whole line). With steps too (M36.5)
   it comes before them when `other_first`, else after them unless a step ended the line.
+  M43.2 (B2): an `other` part that names a NOT OFFERED thing is a `RefusedIntent` with its
+  reason (`menu_unoffered.other_refusal`), and so is a step at one (`menu_unoffered.refusal`);
+  a step the validator kept out (an unknown entry, an off target) is refused, never played.
+  B3: a fight spell aimed off its list is sent as named (an area spell at the zone the named
+  creature stands in, `_area_aim`), and the rules answer it.
 - A strike with `starts_fight` (the offer scope) is `OfferStrikeIntent(actor, step)` and ends the
   steps: the offer is answered as Fight and the step itself waits for the hero's turn, when
   `resume_strike` maps it onto the spawned creatures (below). M36.8c: a weapon strike out of a
@@ -50,7 +55,7 @@ fits (no foe left, the spell gone) is a plain answer.
 - M41.3 (Z7): a shared step (a search, a pickup) with `by` naming one of `ActionMenu.helpers`
   is played as that hero (`step_actor`).
 
-Public API: `Act`, `Group`, `Plan`, `to_acts(state, menu, choice, regs, text="")`,
+Public API: `UNKNOWN_STEP`, `Act`, `Group`, `Plan`, `to_acts(state, menu, choice, regs, text="")`,
 `to_groups(...)`, `plan_line(...)`, `refit(menu, before, rest)`, `step_actor(menu, step)`,
 `step_acts(state, menu, step, regs, text="")`, `resume_strike(state, actor_id, step, regs)`.
 """
@@ -85,11 +90,18 @@ from aidm.rules.acts import (
 )
 from aidm.rules.acts_fight import DrawAttack
 from aidm.rules.menu_attacks import drawn_state
+from aidm.rules.menu_card import ask_which
 from aidm.rules.menu_probe import accepted, walk
 from aidm.rules.menu_scene_view import FOE_PREFIX, twin_boss
 from aidm.rules.menu_steps_fight import COMMAND_TYPES, FightAct, fight_step_acts
 from aidm.rules.menu_steps_scene import SceneAct, free_acts, scene_step_acts
-from aidm.rules.menu_unoffered import off_targets
+from aidm.rules.menu_unoffered import (
+    as_entry,
+    engine_answers,
+    off_targets,
+    other_refusal,
+    refusal,
+)
 from aidm.rules.projection import project_state
 
 type Act = FightAct | SceneAct
@@ -120,6 +132,7 @@ _WHY: dict[type[object], str] = {  # M41.3: why the rest of a line waits after a
     AnswerOffer: "the offer is answered first",
 }
 CANNOT_NOW = "{what} cannot be done now"
+UNKNOWN_STEP = "That cannot be done now."  # M43.2: a step at no entry of the menu
 
 
 def _entry(menu: ActionMenu, entry_id: str) -> MenuEntry | None:
@@ -145,8 +158,13 @@ def step_acts(
 ) -> list[Act]:
     actor_id = step_actor(menu, step)
     entry = _entry(menu, step.entry)
-    if entry is None or off_targets(menu, step):  # the validator keeps these out (M38.4: a
-        return [OtherIntent(actor_id, text)]  # target the entry cannot act on is never played)
+    why = refusal(menu, step) or ask_which(menu, step, text)  # M43.2 (B2, B5)
+    if why is not None or entry is None:
+        return [RefusedIntent(actor_id, why or UNKNOWN_STEP)]
+    if engine_answers(menu, step):  # M43.2 (B3): the real command answers, never a stand-in
+        step = _area_aim(state, entry, step)
+    elif off_targets(menu, step):  # the validator keeps these out; never played (M38.4)
+        return [RefusedIntent(actor_id, f"{CANNOT_NOW.format(what=entry.label)}.")]  # (M43.2)
     if menu.scope not in _FIGHT_SCOPES and entry.kind in STRIKE_KINDS:
         strike = _strike_acts(state, actor_id, entry, step)
         if strike is not None:
@@ -157,6 +175,22 @@ def step_acts(
             return [*free]
         return [*fight_step_acts(state, actor_id, entry, step, regs)]
     return [*scene_step_acts(state, actor_id, entry, step, text)]
+
+
+def _area_aim(state: GameState, entry: MenuEntry, step: MenuStep) -> MenuStep:
+    """M43.2 (B3, round 8 AA1 = R26): an area spell named at a creature is aimed at the zone
+    that creature stands in, reached or not (the cast's own rule then says it is out of reach,
+    as the button's preview does); a zone the line named wins."""
+    enc = state.encounter
+    if enc is None:
+        return step
+    zones = {z.id for z in enc.zone_map.zones}
+    if not entry.target_ids or not set(entry.target_ids) <= zones:
+        return step
+    named = [t for t in step.targets if t in zones]
+    held = [enc.combatants[c].zone_id for c in step.targets if c in enc.combatants]
+    aim = (named or held)[:1]
+    return step.model_copy(update={"targets": tuple(aim)}) if aim else step
 
 
 def _strike_acts(
@@ -233,6 +267,19 @@ def _rest(choice: MenuChoice, steps: Sequence[MenuStep]) -> MenuChoice | None:
     return MenuChoice(steps=tuple(steps), other=late, other_text=text)
 
 
+def _other_group(state: GameState, menu: ActionMenu, words: str, regs: CombatRegistries) -> Group:
+    """The `other` part. M43.2 (B2): a NOT OFFERED thing it names is refused with the reason; in
+    a fight a weapon, spell or feature it names at a creature or area it names is that entry
+    (`menu_unoffered.as_entry`); only the rest goes to the storyteller."""
+    why = other_refusal(menu, words)
+    if why is not None:
+        return None, [RefusedIntent(menu.actor_id, why)]
+    step = as_entry(menu, words)
+    if step is not None:
+        return step, step_acts(state, menu, step, regs, words)
+    return None, [OtherIntent(menu.actor_id, words)]
+
+
 def plan_line(
     state: GameState,
     menu: ActionMenu,
@@ -242,9 +289,8 @@ def plan_line(
 ) -> Plan:
     """The acts grouped by the step each act comes from (None: the `other` part), so a session
     can plan each step again on the state the steps before it left (M36.10a)."""
-    other: list[Group] = [(None, [OtherIntent(menu.actor_id, choice.other_text or text)])]
-    if not choice.other:
-        other = []
+    words = choice.other_text or text
+    other = [_other_group(state, menu, words, regs)] if choice.other else []
     groups: list[Group] = other if choice.other_first else []
     running = state
     steps = _travels(menu, choice.steps)

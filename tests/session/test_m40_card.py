@@ -81,11 +81,13 @@ async def test_v1_m40_typed_no_keeps_the_offer_waiting(tmp_path: Path) -> None:
     assert NOTHING_WAITS in played.notices()  # the card was answered: nothing waits now
 
 
-async def test_v1_m40_another_pick_counts_as_no(tmp_path: Path) -> None:
+async def test_v1_m43_another_pick_leaves_the_card_waiting(tmp_path: Path) -> None:
+    """M43.2 B5 (round 8 AA2; it counted as No before): a line that picks none of the card's
+    choices plays as itself and the card keeps waiting for its Yes or No."""
     look = pick(("look", [], None))
     played = await menu_play(tmp_path, R7, TALK, PARLEY, look, then=(_said(YES), ConfirmHostile()))
-    assert not _resolved(played.events)  # neither the fight nor the parley
-    assert NOTHING_WAITS in played.notices()  # the new action answered the card No
+    assert [c for c, _ in _resolved(played.events)] == [OfferChoice.PARLEY]  # the card's Yes
+    assert NOTHING_WAITS not in played.notices()
 
 
 async def test_v1_m40_typed_yes_at_orloks_card(tmp_path: Path) -> None:

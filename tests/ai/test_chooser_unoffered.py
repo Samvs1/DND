@@ -1,5 +1,6 @@
 """M38.4 cause A at the chooser, as fixed after M38.5 live pass 1: a pick at a NOT OFFERED target
-resolves to `other` with no repair round; a pick at a named being its entry cannot take (a
+passes with no repair round (M43.2 B2: it stays that step and is refused with the reason; it
+resolved to `other` before); a pick at a named being its entry cannot take (a
 standing hero for help_up, a hero for give, a waiting monster for talk, the hero's own area for
 move) gets a repair line that names the entries that do take it and says the part is `other`,
 never another target; such a step is never executed. FakeLLM only, no network."""
@@ -15,7 +16,7 @@ from aidm.dm.context_text import ContextPurpose
 from aidm.dm.fake_llm import fake_tool_call
 from aidm.dm.llm_types import tool_param
 from aidm.models.action_menu import MenuChoice, MenuStep
-from aidm.rules.acts import OtherIntent
+from aidm.rules.acts import RefusedIntent
 from aidm.rules.menu_steps import to_acts
 from aidm.rules.menu_unoffered import with_unoffered
 from tests.ai.chooser_fixtures import (
@@ -48,12 +49,12 @@ def _feedback(fake: Any) -> str:
     return str(fake.requests[1].messages[-1]["content"])
 
 
-async def test_v1_m38_a_not_offered_pick_resolves_to_other(tmp_path: Path) -> None:
+async def test_v1_m38_a_not_offered_pick_stays_its_step(tmp_path: Path) -> None:
     state, menu = state_at(*LOCKET), menu_at(*LOCKET, "pc-p4")
     off = _pick([_step("talk", "sister-s-locket")])
     client, fake = chooser_client(tmp_path, {CHOOSE_TOOL: [off]})
     choice = await choose(state, "pc-p4", LOCKET_LINE, menu, client)
-    assert choice == MenuChoice(other=True)
+    assert choice == MenuChoice(steps=(MenuStep(entry="talk", targets=("sister-s-locket",)),))
     assert len(fake.requests) == 1  # no repair round: nothing could be swapped in
     sent = json.dumps(fake.requests[0].messages)
     assert "NOT OFFERED (no entry acts on it): sister-s-locket (Rook carries it)" in sent
@@ -114,8 +115,8 @@ async def test_v1_m38_talk_to_the_waiting_thug_never_becomes_the_tollman(tmp_pat
 
 
 def test_v1_m38_an_off_target_is_never_executed() -> None:
-    """The NOT OFFERED pick passes the validator and `to_choice` drops it; a raw step at an off
-    target that reached `to_acts` plays only the storyteller's part."""
+    """The NOT OFFERED pick passes the validator and stays its step, which is refused with the
+    reason (M43.2 B2); a raw step at an off target that reached `to_acts` is refused too."""
     state = state_at(*LOCKET)
     menu = with_unoffered(state, menu_at(*LOCKET, "pc-p4"), LOCKET_LINE)
     args = choice_tool(menu).args_model.model_validate(
@@ -123,12 +124,13 @@ def test_v1_m38_an_off_target_is_never_executed() -> None:
     )
     assert isinstance(args, ChooseActionsArgs)
     choice = args.to_choice()
-    assert not choice.steps and choice.other
-    assert to_acts(state, menu, choice, REGS, LOCKET_LINE) == [OtherIntent("pc-p4", LOCKET_LINE)]
+    assert choice.steps and not choice.other
+    why = "Sister's Locket: Rook carries it."
+    assert to_acts(state, menu, choice, REGS, LOCKET_LINE) == [RefusedIntent("pc-p4", why)]
     downed = menu_at(*DOWNED, "pc-p2")
     raw = MenuChoice(steps=(MenuStep(entry="help_up", targets=("pc-p6",)),))
     acts = to_acts(state_at(*DOWNED), downed, raw, REGS, "I help Rook up")
-    assert acts == [OtherIntent("pc-p2", "I help Rook up")]
+    assert len(acts) == 1 and isinstance(acts[0], RefusedIntent)
 
 
 def test_the_schema_lists_the_not_offered_targets_and_rule_one_names_them() -> None:

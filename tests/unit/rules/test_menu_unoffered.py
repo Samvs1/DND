@@ -3,7 +3,7 @@ step at a target its entry cannot act on is the storyteller's, never a swapped t
 M38.3 live eval, docs/playtests/M38_eval.md). Real replayed states, no model."""
 
 from aidm.models.action_menu import ActionMenu, MenuStep
-from aidm.rules.acts import HeroHandIntent, OtherIntent
+from aidm.rules.acts import HeroHandIntent, RefusedIntent
 from aidm.rules.menu_steps import step_acts
 from aidm.rules.menu_unoffered import (
     MAX_UNOFFERED,
@@ -83,7 +83,8 @@ def test_v1_m38_help_up_at_a_standing_hero_is_off() -> None:
     assert off_targets(menu, MenuStep(entry="help_up", targets=("pc-p6",))) == ("pc-p6",)
     assert off_targets(menu, MenuStep(entry="help_up", targets=("pc-p4",))) == ()
     acts = step_acts(state_at(*DOWNED), menu, MenuStep(entry="help_up", targets=("pc-p6",)), REGS)
-    assert acts == [OtherIntent("pc-p2", "")]
+    help_up = next(e for e in menu.entries if e.id == "help_up")
+    assert acts == [RefusedIntent("pc-p2", f"{help_up.label} cannot be done now.")]  # M43.2
 
 
 def test_v1_m38_talk_to_a_waiting_monster_and_pay_to_a_hero_are_off() -> None:

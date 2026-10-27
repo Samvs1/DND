@@ -2,10 +2,12 @@
 
 Used when `TableConfig.interpreter` is "menu" by `session.menu_turn` (a line out of a fight) and
 `session.menu_fight_turn` (a hero's fight line):
-- `line_menu(core, actor_id)`: the acting hero's menu right now (`rules.action_menu.build_menu`,
-  with the table's shop data, so buy and sell are offered while a shop is open here); M40.1:
-  with the confirm card waiting for this hero's player (`waiting_card`, the table's
-  `PendingHostile`) as `card:yes` / `card:no` (`rules.menu_card.with_card`);
+- `line_menu(core, actor_id, text="")`: the acting hero's menu right now
+  (`rules.action_menu.build_menu`, with the table's shop data, so buy and sell are offered while
+  a shop is open here); M40.1: with the confirm card waiting for this hero's player
+  (`waiting_card`, the table's `PendingHostile`) as `card:yes` / `card:no`
+  (`rules.menu_card.with_card`); M43.2: with the line's NOT OFFERED things
+  (`rules.menu_unoffered.with_unoffered`), so a step at one is refused with the reason;
 - `pick(core, player, actor_id, text, menu)`: the chooser (`dm.chooser.choose`, with the tail of
   the table's log as `recent` for the pronoun anchors). A `ChooserFailure` shows its in-fiction
   notice (`adjudicator.FALLBACK_NOTICE`) to that player only, is logged (`chooser_failed`) and
@@ -13,13 +15,17 @@ Used when `TableConfig.interpreter` is "menu" by `session.menu_turn` (a line out
   logged too (`menu_choice`: entry ids, and M36.9 the `colour` the model set apart, clipped: the
   words that only say how the hero acts; they go to nothing with mechanics, the narrator already
   has the player's whole line);
-- `play_steps(core, player, acts, run, stop)`: the acts in order through `run` (the existing
-  runners, which ask the rules again on the live state). A refused act (a REFUSED notice or an
-  error sent while it ran, `TableCore.refusals`) stops every act after it, and so does `stop`
-  (a fight started, the hero's turn ended); either way the player is told plainly that the rest
-  of the line is not played (`STOPPED`), never a silent drop. M41.3: it answers whether every
-  act ran (the caller then tells what an act that ends the line cut off, `tell_cut`).
-- `tell_cut(core, player, why)`: the plain `STOPPED` notice with that reason.
+- `play_steps(core, player, entry, acts, run, stop)`: the acts in order through `run` (the
+  existing runners, which ask the rules again on the live state). A refused act (a REFUSED notice
+  or an error sent while it ran, `TableCore.refusals`) stops every act after it, and so does
+  `stop` (a fight started, the hero's turn ended); either way the player is told plainly that
+  the rest of the line is not played (`STOPPED`), never a silent drop. M41.3: it answers whether
+  every act ran (the caller then tells what an act that ends the line cut off, `tell_cut`).
+  M43.2 (the contract's B1): a refusal that logged no `ActionImpossible` logs one with the
+  refusal's words (`TableCore.last_refusal`), so every refused typed line leaves its reason in
+  the save (log-only here: the player has the notice, the screen shows the event).
+- `tell_cut(core, player, entry, why)`: the plain `STOPPED` notice with that reason; M43.2 (B4):
+  logged as an `ActionImpossible` for the part not played.
 
 Public API: `MenuQueueEntry`, `RECENT`, `STOPPED`, `NOT_DONE`, `waiting_card`, `line_menu`,
 `recent_events`,
@@ -32,9 +38,11 @@ from aidm.dm.chooser import ChooserFailure, choose
 from aidm.models.action_menu import ActionMenu, MenuChoice
 from aidm.models.events import AnyEvent
 from aidm.models.impossible import (
+    MAX_IMPOSSIBLE_REASON,
     MAX_IMPOSSIBLE_TEXT,
     MAX_READ_STEP,
     MAX_READ_STEPS,
+    ActionImpossible,
     LineRead,
 )
 from aidm.models.protocol_server import NoticeKind
@@ -42,6 +50,7 @@ from aidm.models.protocol_views import QueueEntry
 from aidm.rules.action_menu import build_menu
 from aidm.rules.menu_card import WaitingCard, with_card
 from aidm.rules.menu_trade import TradeData
+from aidm.rules.menu_unoffered import with_unoffered
 from aidm.session.table_core import Player, TableCore
 
 RECENT = 60
@@ -65,10 +74,11 @@ def waiting_card(core: TableCore, actor_id: str) -> WaitingCard | None:
     return WaitingCard(actor_id, pending.prompt) if pending.actor_id == actor_id else None
 
 
-def line_menu(core: TableCore, actor_id: str) -> ActionMenu:
+def line_menu(core: TableCore, actor_id: str, text: str = "") -> ActionMenu:
     trade = TradeData(core.regs.catalogue, core.regs.shops)
     menu = build_menu(core.state, actor_id, core.regs.combat, trade)
-    return with_card(menu, waiting_card(core, actor_id))
+    menu = with_card(menu, waiting_card(core, actor_id))
+    return with_unoffered(core.state, menu, text) if text else menu
 
 
 def recent_events(core: TableCore) -> list[AnyEvent]:
@@ -111,21 +121,42 @@ def record_read(core: TableCore, actor_id: str, text: str, choice: MenuChoice) -
 async def play_steps[T](
     core: TableCore,
     player: Player,
+    entry: QueueEntry,
     acts: Sequence[T],
     run: Callable[[T], Awaitable[None]],
     stop: Callable[[], str | None],
 ) -> bool:
     for index, act in enumerate(acts):
-        before = core.refusals
+        before, logged = core.refusals, len(core.log)
         await run(act)
+        if core.refusals > before:
+            _log_refusal(core, entry, logged)
         if index == len(acts) - 1:
             return True
         why = NOT_DONE if core.refusals > before else stop()
         if why is not None:
-            tell_cut(core, player, why)
+            tell_cut(core, player, entry, why)
             return False
     return True
 
 
-def tell_cut(core: TableCore, player: Player, why: str) -> None:
+def _log_refusal(core: TableCore, entry: QueueEntry, since: int) -> None:
+    """M43.2 (B1): the refusal's reason as an `ActionImpossible`, unless one is logged."""
+    if any(isinstance(e.event, ActionImpossible) for e in core.log[since:]):
+        return
+    _impossible(core, entry, core.last_refusal or NOT_DONE)
+
+
+def _impossible(core: TableCore, entry: QueueEntry, reason: str) -> None:
+    event = ActionImpossible(
+        creature_id=entry.creature_id,
+        text=entry.text[:MAX_IMPOSSIBLE_TEXT],
+        reason=reason[:MAX_IMPOSSIBLE_REASON],
+    )
+    core.apply(event)
+    core.segment = [e for e in core.segment if e is not event]
+
+
+def tell_cut(core: TableCore, player: Player, entry: QueueEntry, why: str) -> None:
     core.notice(player.id, NoticeKind.INFO, STOPPED.format(why=why))
+    _impossible(core, entry, STOPPED.format(why=why))

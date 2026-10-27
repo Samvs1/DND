@@ -8,9 +8,11 @@ from typing import Any
 import pytest
 
 from aidm.dm.choice_tool import ChooseActionsArgs, choice_tool
-from aidm.models.action_menu import ActionMenu, MenuChoice
+from aidm.models.action_menu import ActionMenu, MenuChoice, MenuStep
+from aidm.models.commands import CastCommand
+from aidm.rules.menu_steps import to_acts
 from aidm.rules.menu_unoffered import with_unoffered
-from tests.ai.chooser_fixtures import menu_at, state_at
+from tests.ai.chooser_fixtures import REGS, menu_at, state_at
 
 ROWS: tuple[tuple[str, int, str, str, list[dict[str, Any]]], ...] = (
     (
@@ -122,11 +124,20 @@ def test_v1_m38_pass1_row_label_is_a_clean_pick(
     assert not choice.other and [s.entry for s in choice.steps] == [s["do"] for s in steps]
 
 
-def test_v1_m38_a_creature_named_for_burning_hands_is_the_area_repair() -> None:
-    """m31-r4-typed:651 became a fire bolt: the cone at the fungus is repaired to an area."""
-    menu = _menu("m31-r4-typed", 651, "pc-p6", "Rook casts burning hands on the violet fungus")
-    with pytest.raises(ValueError, match="cast:burning-hands takes one of"):
-        _choice(menu, [{"do": "cast:burning-hands", "to": ["violet-fungus-1"], "qty": None}])
+def test_v1_m38_a_creature_named_for_burning_hands_is_aimed_at_its_area() -> None:
+    """m31-r4-typed:651 became a fire bolt. M43.2 (B3, round 8 AA1): the cone named at the
+    fungus passes as named (no repair round that lists stand-in areas) and is cast at the area
+    the fungus stands in; the rules answer an area out of the cone's reach."""
+    line = "Rook casts burning hands on the violet fungus"
+    menu = _menu("m31-r4-typed", 651, "pc-p6", line)
+    choice = _choice(menu, [{"do": "cast:burning-hands", "to": ["violet-fungus-1"], "qty": None}])
+    assert choice.steps == (MenuStep(entry="cast:burning-hands", targets=("violet-fungus-1",)),)
+    state = state_at("m31-r4-typed", 651)
+    enc = state.encounter
+    assert enc is not None
+    (cast,) = to_acts(state, menu, choice, REGS, line)
+    assert isinstance(cast, CastCommand)
+    assert cast.target_zone == enc.combatant("violet-fungus-1").zone_id
 
 
 def test_v1_m38_a_target_on_search_is_the_plain_repair() -> None:

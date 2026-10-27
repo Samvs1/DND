@@ -27,7 +27,7 @@ the player did not name, so:
   (`ActionMenu.helpers`), only the ones the line names (`named_helpers`: the hero's name or its
   first word, whole words), so a line that names no other hero is read as before.
 - `not_offered(menu, step)`: the step's NOT OFFERED targets: nothing can act on them, so the
-  chooser turns that step into `other` with no repair round (`ChooseActionsArgs.to_choice`).
+  validator never repairs that step (M43.2: the engine refuses it with the reason, `refusal`).
   M41.2: an entry id the menu does not hold whose last part is a NOT OFFERED id
   (`cast:guiding-bolt`) names it too, so it is never repaired into a listed stand-in.
 - `named_off(menu, step)`: M38.5 fix: the step's targets its entry cannot take that are a named
@@ -38,18 +38,32 @@ the player did not name, so:
   no entry does is `other`, never another target. Places and things on the wrong entry, and
   creatures named for an area, keep the plain repair (the area holding it).
 - `off_targets(menu, step)`: every target its entry cannot act on (zones aside); `menu_steps.
-  step_acts` plays such a step as `OtherIntent` should one ever get past the validator.
+  step_acts` refuses such a step should one ever get past the validator (M43.2).
+
+M43.2 (the contract's B2, B3; round 8 AA1 AA3 AA4 AA6): a line that names a game thing never
+goes to the storyteller as a creative action. A step at a NOT OFFERED target stays that step and
+is refused with the reason its label carries (`refusal(menu, step)`: "Magic Missile: Rook has no
+1st-level slot left."), and so is an `other` part that names one (`other_refusal(menu, text)`). A
+sum of gold the line names that the hero does not have is NOT OFFERED too ("100 gold (Elowen has
+only 20 gold)"). In a fight a spell or feature step aimed at a target its entry does not list
+passes the validator (`engine_answers`): the session plays it through the real command, whose
+rules say why not ("The 15-ft cone does not reach Courtyard, 30 ft away."), never a stand-in
+target; and an `other` part naming one weapon, spell or feature entry and a creature or area is
+that entry (`as_entry`), never a free creative action.
 
 Public API: `MAX_UNOFFERED`, `unoffered_targets(state, menu, text)`,
 `with_unoffered(state, menu, text)`, `named_helpers(state, menu, text)`, `not_offered(menu,
-step)`, `named_off(menu, step)`,
-`takers(menu, entry_id, target)`, `off_targets(menu, step)`.
+step)`, `named_off(menu, step)`, `engine_answers(menu, step)`, `refusal(menu, step)`,
+`other_refusal(menu, text)`, `as_entry(menu, text)`, `takers(menu, entry_id, target)`,
+`off_targets(menu, step)`.
 """
 
+import re
 from collections.abc import Iterator
 from difflib import get_close_matches
 
 from aidm.models.action_menu import (
+    ActionKind,
     ActionMenu,
     MenuEntry,
     MenuScope,
@@ -68,6 +82,8 @@ from aidm.rules.world_graph import travel_route
 MAX_UNOFFERED = 4
 NOT_HERE = "not here"
 _TYPO_CUTOFF = 0.85
+_GOLD = re.compile(r"\b(\d+)\s*(?:gold|gp)\b")
+_AIMED_MAGIC = frozenset({ActionKind.CAST, ActionKind.FEATURE})
 
 type _Candidate = tuple[str, str, str, TargetKind]  # (id, name, where, kind)
 
@@ -136,6 +152,18 @@ def _unready(menu: ActionMenu) -> Iterator[_Candidate]:
         yield target.id, name, reason.removesuffix(")"), target.kind
 
 
+def _gold_over(state: GameState, actor_id: str, text: str) -> Iterator[_Candidate]:
+    """M43.2 (round 8 AA6): a sum of gold the line names that the hero does not have."""
+    hero = state.creatures.get(actor_id)
+    if hero is None or hero.pc is None:
+        return
+    for found in _GOLD.finditer(text.lower()):
+        amount = int(found.group(1))
+        if amount > hero.pc.gold:
+            where = f"{hero.name} has only {hero.pc.gold} gold"
+            yield f"gold-{amount}", found.group(0), where, "thing"
+
+
 def _shown(menu: ActionMenu) -> set[str]:
     """The names the menu already acts on: its targets' names ("Merre Wenslow", "Thug") and the
     things its entries name (`feed:potion-of-healing`, `take:free-given-salt`, `loot:<item>`)."""
@@ -171,6 +199,7 @@ def unoffered_targets(state: GameState, menu: ActionMenu, text: str) -> tuple[Me
         *_elsewhere(state),
         *_out_of_reach(state, menu),
         *_unready(menu),
+        *_gold_over(state, menu.actor_id, text),
     ):
         key = slug(name)
         at = line.find(f"-{key}-") if key else -1
@@ -248,6 +277,69 @@ def named_off(menu: ActionMenu, step: MenuStep) -> tuple[str, ...]:
         for t in off_targets(menu, step)
         if t not in shown and (kinds.get(t) in _BEINGS or kinds.get(t) in (None, "zone"))
     )
+
+
+def engine_answers(menu: ActionMenu, step: MenuStep) -> bool:
+    """M43.2: the validator passes this step as it is: it names a NOT OFFERED thing (refused
+    with its reason), or it is a spell or feature aimed at a target its entry does not list
+    (the real command says why not)."""
+    if not_offered(menu, step):
+        return True
+    entry = _entry(menu, step.entry)
+    if menu.scope is not MenuScope.FIGHT or entry is None or entry.kind not in _AIMED_MAGIC:
+        return False
+    allowed = (*entry.target_ids, *entry.zone_ids)
+    kinds = _kinds(menu)
+    return any(
+        t not in allowed and (t in kinds or not get_close_matches(t, allowed, 1, _TYPO_CUTOFF))
+        for t in step.targets
+    )
+
+
+def _reason(target: MenuTarget) -> str:
+    name, _, where = target.label.partition(" (")
+    return f"{name}: {where.removesuffix(')')}." if where else f"{name} cannot be used now."
+
+
+def refusal(menu: ActionMenu, step: MenuStep) -> str | None:
+    """M43.2: why a step at a NOT OFFERED thing cannot be done, from that thing's label."""
+    shown = {t.id: t for t in menu.unoffered}
+    named = not_offered(menu, step)
+    return _reason(shown[named[0]]) if named else None
+
+
+def other_refusal(menu: ActionMenu, text: str) -> str | None:
+    """M43.2: an `other` part that names a NOT OFFERED thing is refused with its reason."""
+    line = text_slug(text)
+    for target in menu.unoffered:
+        if mentions(line, slug(target.label.partition(" (")[0])):
+            return _reason(target)
+    return None
+
+
+_NAMED_KINDS = frozenset({ActionKind.ATTACK, ActionKind.CAST, ActionKind.FEATURE, ActionKind.THROW})
+
+
+def _target_name(target: MenuTarget) -> str:
+    return target.label.split(", ", 1)[0].split(" (", 1)[0]
+
+
+def as_entry(menu: ActionMenu, text: str) -> MenuStep | None:
+    """M43.2 (B2; round 8 AA4, round 5 X1): in a fight, an `other` part that names the thing of
+    exactly one weapon, spell or feature entry (its id's last part: `cast:thunderwave`) and a
+    creature or area of the fight (not the hero) is that entry aimed at what it names."""
+    if menu.scope is not MenuScope.FIGHT:
+        return None
+    line = text_slug(text)
+    hits = [
+        e for e in menu.entries if e.kind in _NAMED_KINDS and mentions(line, e.id.split(":", 1)[-1])
+    ]
+    aimed = tuple(
+        t.id for t in menu.targets if t.kind != "self" and mentions(line, slug(_target_name(t)))
+    )
+    if len(hits) != 1 or not aimed:
+        return None
+    return MenuStep(entry=hits[0].id, targets=aimed[: max(1, hits[0].max_targets)])
 
 
 def takers(menu: ActionMenu, entry_id: str, target: str) -> tuple[str, ...]:

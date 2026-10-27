@@ -84,7 +84,8 @@ async def test_m31_typed_cast_with_no_target_spends_nothing(tmp_path: Path) -> N
         await table.settle()
         events = [e.event for e in table.log if e.seq >= start]
         refused = [m.refusal for m in seat.drain() if isinstance(m, ErrorMsg)]
-    assert [e.type for e in events] == ["line_read", "action_declared"]  # no spend
+    # no spend; M43.2 B1: the refusal is logged with its reason (log-only)
+    assert [e.type for e in events] == ["line_read", "action_declared", "action_impossible"]
     assert refused == ["bad_targets"]  # the rules' own plain "Choose a target." (M36.10b)
 
 

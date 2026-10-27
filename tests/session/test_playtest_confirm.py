@@ -30,7 +30,8 @@ async def test_playtest_pending_act_not_narrated_as_done(tmp_path: Path) -> None
         assert table.state.encounter is not None
 
 
-async def test_playtest_new_action_drops_the_pending_act(tmp_path: Path) -> None:
+async def test_m43_new_action_leaves_the_pending_act_waiting(tmp_path: Path) -> None:
+    """M43.2 B5 (it dropped the card before): a new line plays as itself, the card waits."""
     attack = fake_calls([("start_encounter", {"against_npcs": ["npc-mira"]})])
     llm, _ = fake_llm(tmp_path, [attack])
     async with running(llm) as (table, _):
@@ -40,4 +41,4 @@ async def test_playtest_new_action_drops_the_pending_act(tmp_path: Path) -> None
         assert of_type(ann.drain(), PendingConfirmationMsg)
         ann.send(SubmitAction(text="I look around the room"))
         await table.settle()
-        assert table.pending is None and table.state.encounter is None
+        assert table.pending is not None and table.state.encounter is None

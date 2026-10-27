@@ -20,7 +20,8 @@ the chooser's `colour` (the words that only say how the hero acts: "steps forwar
 the first narration of the line (`asides.told_with`), (M33.1).
 M40.1: while a confirm card waits for this player, the menu carries it (`menu_pick.line_menu`):
 `card:yes` / `card:no` play the card's own buttons (`held.confirm_hostile`, `cancel_hostile`);
-any other pick is a new action, which answers the card No (`_drop_card`, the manual's rule).
+M43.2 (the contract's B5, round 8 AA2): any other pick leaves the card waiting (it was answered
+No before); only its own Yes or No answers it.
 M41.3 (round 7 Z6): what an act that ends the line cut off (`rules.menu_steps.plan_line`) is
 never dropped: after a travel, rest or shop the party agreed to, it is played once the job is
 done, on the menu of where the party is (`_later`: a fight that started, a walk that stopped
@@ -54,7 +55,6 @@ from aidm.rules.acts import (
     TravelIntent,
     WhatNowIntent,
 )
-from aidm.rules.menu_card import picks_card
 from aidm.rules.menu_steps import Act, Group, Plan, plan_line, refit, step_actor, step_acts
 from aidm.rules.scene import node_display_name
 from aidm.session import held, party_actions, scene_votes, what_now
@@ -98,14 +98,13 @@ class _Line:
 
 
 async def menu_line(core: TableCore, player: Player, actor: Creature, entry: QueueEntry) -> None:
-    menu = line_menu(core, actor.id)
+    menu = line_menu(core, actor.id, entry.text)
     if isinstance(entry, MenuQueueEntry):  # a button's pick (M36.11): no model call
         choice = entry.choice
     else:
         choice = await pick(core, player, actor.id, entry.text, menu)
     if choice is None:
         return
-    _drop_card(core, player, choice)
     line = _Line(core, player, actor, entry, menu)
     plan = plan_line(core.state, menu, choice, core.regs.combat, entry.text)
     if not all(_private(act) for _, acts in plan.groups for act in acts):
@@ -132,9 +131,11 @@ async def _play(line: _Line, plan: Plan) -> None:
             if core.refusals > before:
                 return
 
-    done = await play_steps(core, line.player, plan.groups, run, lambda: _fight_started(core))
+    done = await play_steps(
+        core, line.player, line.entry, plan.groups, run, lambda: _fight_started(core)
+    )
     if done and plan.rest is not None and not line.carried:
-        tell_cut(core, line.player, NOT_DONE if core.refusals > refused else plan.why)
+        tell_cut(core, line.player, line.entry, NOT_DONE if core.refusals > refused else plan.why)
 
 
 def _announce(line: _Line, step: MenuStep) -> None:
@@ -152,10 +153,11 @@ def _later(line: _Line, rest: MenuChoice, goal: str | None) -> Job:
 
     async def job() -> None:
         if core.combat_active():
-            tell_cut(core, line.player, FIGHT_STARTED)
+            tell_cut(core, line.player, line.entry, FIGHT_STARTED)
             return
         if goal is not None and core.state.world.current_node != goal:
-            tell_cut(core, line.player, SHORT.format(place=node_display_name(core.state, goal)))
+            place = node_display_name(core.state, goal)
+            tell_cut(core, line.player, line.entry, SHORT.format(place=place))
             return
         hero = core.state.creatures.get(line.actor.id, line.actor)
         menu = line_menu(core, hero.id)
@@ -166,16 +168,9 @@ def _later(line: _Line, rest: MenuChoice, goal: str | None) -> Job:
                 later, plan_line(core.state, menu, fitted, core.regs.combat, line.entry.text)
             )
         if why:
-            tell_cut(core, line.player, why)
+            tell_cut(core, line.player, line.entry, why)
 
     return job
-
-
-def _drop_card(core: TableCore, player: Player, choice: MenuChoice) -> None:
-    """A new action answers this player's waiting card No (M15.1), unless it answers the card."""
-    pending = core.pending
-    if pending is not None and pending.player_id == player.id and not picks_card(choice):
-        core.pending = None
 
 
 def _fight_started(core: TableCore) -> str | None:

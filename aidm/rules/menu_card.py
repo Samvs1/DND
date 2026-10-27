@@ -11,17 +11,23 @@ the hero's situation, so while one waits for this hero's player their menu carri
   the card's own prompt (`WaitingCard.prompt`, its closing "Confirm?" dropped), never phrases
   (so a typed "Yes, do it" is the card's yes on the exact path, with no model call).
 - A card held for another hero is not in this hero's menu (`with_card` checks the actor).
-- Any other pick keeps the rule the manual states (a new action counts as No): the session drops
-  the card when the chosen steps hold no card entry (`picks_card`).
+- M43.2 (the contract's B5): any other pick leaves the card waiting (it used to count as No).
 Fight menus never carry a card (a fight that starts clears it).
+- `ask_which(menu, step, text)` (B5, round 8 AA9: "Yes, go ahead" at the two-bandit offer picked
+  Fight): a Fight, Surprise or Escape answer (a parley asks first already) to a waiting offer
+  with more than two answers, read from a bare line (no
+  word of four letters or more that an entry or a target of the menu shows), asks which one,
+  naming the answers ("Which one? Fight, Surprise, Escape or Parley."); only the game's own
+  strings, never a word list.
 
-Public API: `CARD_YES`, `CARD_NO`, `WaitingCard`, `card_act(prompt)`, `card_entries(card)`,
-`with_card(menu, card)`, `picks_card(choice)`.
+Public API: `CARD_YES`, `CARD_NO`, `ASK_WHICH`, `WaitingCard`, `card_act(prompt)`,
+`card_entries(card)`, `with_card(menu, card)`, `ask_which(menu, step, text)`.
 """
 
+import re
 from dataclasses import dataclass
 
-from aidm.models.action_menu import ActionKind, ActionMenu, MenuChoice, MenuEntry, MenuScope
+from aidm.models.action_menu import ActionKind, ActionMenu, MenuEntry, MenuScope, MenuStep
 
 CARD_YES = "card:yes"
 CARD_NO = "card:no"
@@ -29,6 +35,10 @@ YES_LABEL = "Yes, do it (your waiting card: {act})"  # the card's own button wor
 NO_LABEL = "No, hold back (your waiting card)"
 _ASK = "Confirm?"
 _CARD_SCOPES = (MenuScope.EXPLORE, MenuScope.OFFER)
+ASK_WHICH = "Which one? {answers}."
+_ANSWER = "offer:"
+_PARLEY = "offer:parley"
+_WORD = re.compile(r"[a-z0-9]{4,}")
 
 
 @dataclass(frozen=True)
@@ -70,5 +80,21 @@ def with_card(menu: ActionMenu, card: WaitingCard | None) -> ActionMenu:
     return menu.model_copy(update={"entries": (*card_entries(card), *menu.entries)})
 
 
-def picks_card(choice: MenuChoice) -> bool:
-    return any(step.entry in (CARD_YES, CARD_NO) for step in choice.steps)
+def _words(text: str) -> set[str]:
+    return set(_WORD.findall(text.lower()))
+
+
+def ask_which(menu: ActionMenu, step: MenuStep, text: str) -> str | None:
+    answers = [e for e in menu.entries if e.id.startswith(_ANSWER)]
+    parley = step.entry.startswith(_PARLEY)  # a parley asks first already (its own card)
+    if not text or len(answers) <= 2 or not step.entry.startswith(_ANSWER) or parley:
+        return None
+    shown: set[str] = set()
+    for entry in menu.entries:
+        shown |= _words(entry.label) | _words(entry.id)
+    for target in menu.targets:
+        shown |= _words(target.label) if target.kind != "self" else set()
+    if _words(text) & shown:
+        return None
+    names = list(dict.fromkeys(e.id.split(":")[1].capitalize() for e in answers))
+    return ASK_WHICH.format(answers=f"{', '.join(names[:-1])} or {names[-1]}")

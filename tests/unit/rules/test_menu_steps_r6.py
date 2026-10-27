@@ -42,7 +42,7 @@ from aidm.rules.acts import (
     TravelIntent,
 )
 from aidm.rules.acts_fight import DrawAttack
-from aidm.rules.menu_steps import Act, resume_strike, to_acts
+from aidm.rules.menu_steps import UNKNOWN_STEP, Act, resume_strike, to_acts
 from aidm.rules.menu_trade import TradeData
 from tests.session.playtest_saves import replay_until
 
@@ -238,12 +238,12 @@ def test_menu_steps_quest_card_help_up_look_search_rest() -> None:
     ]
 
 
-def test_menu_steps_other_and_unknown_entries_go_to_the_storyteller() -> None:
+def test_menu_steps_other_goes_to_the_storyteller_an_unknown_entry_is_refused() -> None:
     menu = _menu(QUESTS, 563, "pc-p2")
     words = "I juggle three apples for the widow"
     state = _state(QUESTS, 563)
     assert to_acts(state, menu, MenuChoice(other=True), REGS, words) == [
         OtherIntent("pc-p2", words)
     ]
-    odd = MenuChoice(steps=(MenuStep(entry="attack:nothing"),))
-    assert to_acts(state, menu, odd, REGS, words) == [OtherIntent("pc-p2", words)]
+    odd = MenuChoice(steps=(MenuStep(entry="attack:nothing"),))  # M43.2: never the storyteller's
+    assert to_acts(state, menu, odd, REGS, words) == [RefusedIntent("pc-p2", UNKNOWN_STEP)]

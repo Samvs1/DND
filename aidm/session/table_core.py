@@ -5,7 +5,7 @@
 concentration whose last effect ended ends too), the story feed, the seats, connection queues, the
 exploration queue, the open vote, a pending hostile act, the combat segment and the turn timer.
 Handlers take a `TableCore`, never `table.py`. Typed lines are read by the menu chooser (M36.12);
-`refusals` counts REFUSED notices and errors (a menu line stops).
+`refusals` counts REFUSED notices and errors (a menu line stops; M43.2 `last_refusal`: its words).
 
 Public API: `Player`, `TableConfig`, `TtsHook`, `no_tts`, `Job`, `ClientIn`, `Closed`, `TimerFired`,
 `Inbound`, `TableCore`, `phase_of(state)` (DEFEATED when `state.defeat` is set, M11.1).
@@ -185,7 +185,7 @@ class TableCore:
         self.what_now_limit = RateLimit(limit=1, window=5.0)  # M23.8: screen copies per player
         self.scribe = ScribeMemory()  # M13.2 line picks (session/scribe_voice.py); not persisted
         self.shows = ShowBoard()  # M26.3 presented seqs per screen; not persisted
-        self.refusals = 0  # M36.6: REFUSED notices and errors sent so far
+        self.refusals, self.last_refusal = 0, ""  # M36.6: REFUSED notices and errors sent so far
 
     # --- ids, seats, lookups -------------------------------------------------------------
 
@@ -330,6 +330,7 @@ class TableCore:
 
     def notice(self, player_id: str | None, kind: NoticeKind, text: str) -> None:
         self.refusals += kind is NoticeKind.REFUSED
+        self.last_refusal = text if kind is NoticeKind.REFUSED else self.last_refusal
         msg = Notice(kind=kind, text=text)
         if player_id is None:
             self.broadcast(msg)
@@ -337,7 +338,7 @@ class TableCore:
             self.send(player_id, msg)
 
     def error(self, player_id: str, code: ErrorCode, text: str, refusal: str | None = None) -> None:
-        self.refusals += 1
+        self.refusals, self.last_refusal = self.refusals + 1, text
         self.send(player_id, ErrorMsg(code=code, text=text, refusal=refusal))
 
     def snapshot(self) -> Snapshot:
