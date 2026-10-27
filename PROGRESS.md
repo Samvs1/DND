@@ -1,4 +1,4 @@
-NEXT: M42.0: play round 8 (3 live runs r8-typed 8777, r8-quests 8778, r8-full 8779, every command with --run); llm.jsonl starts at line 6818. Then M42.1 the report. Files in flight: none. Last gate: FULL gate PASS (12/12) at M41 close.
+NEXT: M42.1: check every round-8 claim against its save (saves/playtests/r8-*/saves/), write docs/playtests/M42_round8.md. Files in flight: none. Last gate: FULL gate PASS (12/12) at M41 close.
 
 # PROGRESS
 
@@ -437,7 +437,7 @@ Storyteller honesty (owner 2026-10-26): the claims-check call was designed, then
 
 ## M42 Round 8 (owner 2026-10-27: "Go ahead with a round 8 testing"; findings docs/playtests/M42_round8.md)
 Same shape as round 7: r8-typed (Sonnet, acts 1-2, seed 2, fighter,rogue,wizard,cleric, cap 220), r8-quests (Haiku, acts 1-2, seed 3, classic, cap 180), r8-full (Sonnet, full campaign, seed 1, classic, cap 320), ports 8777-8779, live, every command with `--run`. Expect about 1,000 calls (round 7: 1,048); llm.jsonl starts at line 6818. Verify M40 (Z1, Z2, Z9-Z13 storyteller slips) and M41 (Z3-Z8, Z14, Z15, Z18-Z20) in the saves; gather numbers for Z16-Z17; findings numbered AA1...
-- [ ] M42.0 Play the 3 runs (playtester agents; reports in the scratchpad).
+- [x] M42.0 Play the 3 runs (playtester agents; reports in the scratchpad). Done: r8-typed c-20261027-064955-0002 (1309 events, ~214 cmds), r8-quests -0003 (1028, 169), r8-full -0001 (1801, ~318, act 3 reached, cap hit). 875 calls (llm.jsonl 6818-7692).
 - [ ] M42.1 Check every claim against its save; write docs/playtests/M42_round8.md (runs, fix verdicts, storyteller slip count vs round 7, findings, spend). No fixes: the owner decides.
 
 ## Notes (stashes, blockers, decisions pending)
