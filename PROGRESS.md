@@ -1,4 +1,4 @@
-NEXT: M42.1: check every round-8 claim against its save (saves/playtests/r8-*/saves/), write docs/playtests/M42_round8.md. Files in flight: none. Last gate: FULL gate PASS (12/12) at M41 close.
+NEXT: PAUSED after M42 (round 8 report docs/playtests/M42_round8.md). Owner picks what to fix: AA1-AA4 harmful, the storyteller slips (claims-check decision, M40.6), AA5-AA9, balance AA11-AA14 (Z16-Z17), harness AA15. Any live use needs a fresh OK. Files in flight: none. Last gate: FULL gate PASS (12/12) at M41 close; M42 is docs only (secrets, structure, manual checks ok).
 
 # PROGRESS
 
@@ -438,7 +438,7 @@ Storyteller honesty (owner 2026-10-26): the claims-check call was designed, then
 ## M42 Round 8 (owner 2026-10-27: "Go ahead with a round 8 testing"; findings docs/playtests/M42_round8.md)
 Same shape as round 7: r8-typed (Sonnet, acts 1-2, seed 2, fighter,rogue,wizard,cleric, cap 220), r8-quests (Haiku, acts 1-2, seed 3, classic, cap 180), r8-full (Sonnet, full campaign, seed 1, classic, cap 320), ports 8777-8779, live, every command with `--run`. Expect about 1,000 calls (round 7: 1,048); llm.jsonl starts at line 6818. Verify M40 (Z1, Z2, Z9-Z13 storyteller slips) and M41 (Z3-Z8, Z14, Z15, Z18-Z20) in the saves; gather numbers for Z16-Z17; findings numbered AA1...
 - [x] M42.0 Play the 3 runs (playtester agents; reports in the scratchpad). Done: r8-typed c-20261027-064955-0002 (1309 events, ~214 cmds), r8-quests -0003 (1028, 169), r8-full -0001 (1801, ~318, act 3 reached, cap hit). 875 calls (llm.jsonl 6818-7692).
-- [ ] M42.1 Check every claim against its save; write docs/playtests/M42_round8.md (runs, fix verdicts, storyteller slip count vs round 7, findings, spend). No fixes: the owner decides.
+- [x] M42.1 Check every claim against its save; write docs/playtests/M42_round8.md (runs, fix verdicts, storyteller slip count vs round 7, findings, spend). No fixes: the owner decides. Done: ledger 0, replay = snapshot, stale-as-present 0 on all 3 saves; Z2, Z3, Z7, Z8, Z14, Z18, Z19 hold; findings AA1-AA15 (harmful: AA1 area spell on own zone, AA2 hand-over at a master's offer starts the fight, AA3 no-slot spell told as a kill, AA4 free creative-action spell); 11 storyteller slips in 427 narrations (round 7: 8 listed).
 
 ## Notes (stashes, blockers, decisions pending)
 - M38 left (harmful, live final pass): "I help Rook up" with Rook standing helps Elowen up; "I leave 5 gold for the poor" pays Merre; "I surrender" picks the demand that the foes yield (no yield entry exists). Plus the ally-in-fight weapon gap (M38.2 note). Not started: needs an owner call (any live check needs a fresh OK).
