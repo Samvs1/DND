@@ -17,7 +17,7 @@ FIGHTER_LINES = (
     "I draw my sword and scan the crowd for trouble.",
     "I stretch, roll my shoulders and warm up with a few practice cuts.",
     "I stride to the front of the party and keep a hand on my sword.",
-    "I check the weight of my shield and look for anyone who might attack.",
+    "I check my gear and look for anyone who might attack.",  # M43.2: flavour names no item
 )
 
 
