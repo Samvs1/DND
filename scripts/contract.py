@@ -15,6 +15,7 @@ its recorded history, `tests/fixtures/contract_baseline.json` (M43.5).
 
 import io
 import sys
+from collections.abc import Sequence
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -25,7 +26,7 @@ FIXTURES = ROOT / "tests" / "fixtures" / "saves"
 RULES = ("A1", "A2", "A3", "A4", "B1", "B6", "C1", "C2", "C3", "C4", "D1")
 
 
-def check_save(folder: Path) -> tuple[list[tuple[str, int, str]], list[str]]:
+def check_save(folder: Path) -> tuple[Sequence[tuple[str, int, str]], list[str]]:
     """The findings of one save folder, and the rules skipped on it (with the reason)."""
     from pydantic import ValidationError
 
@@ -46,7 +47,7 @@ def check_save(folder: Path) -> tuple[list[tuple[str, int, str]], list[str]]:
     final, found = walk(save, [Bounds(), SpellPaths(), QuestRules(), lines, TurnOutcomes()])
     found = a1_replay(save, final) + a2_ledger(save) + a3_stale(save) + found
     skipped = [] if lines.records else ["B1 (no line_read record: a save from before M43.1)"]
-    return [(f.rule, f.idx, f.reason) for f in found], skipped
+    return found, skipped
 
 
 def table_lines(counts: dict[str, dict[str, int]]) -> list[str]:

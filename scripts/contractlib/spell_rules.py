@@ -7,7 +7,7 @@ from aidm.data.class_defs import class_defs
 from aidm.models.events import AnyEvent
 from aidm.models.state import Creature, GameState
 from aidm.rules.spellcasting import spell_save_dc
-from scripts.contractlib.save import Finding
+from scripts.contractlib.save import Finding, Visitor
 
 WINDOW = 12  # events before a cast in which its slot is spent or its scroll used
 
@@ -21,7 +21,7 @@ def _expected_dc(caster: Creature) -> int | None:
     return spell_save_dc(caster, definition)
 
 
-class SpellPaths:
+class SpellPaths(Visitor):
     def __init__(self) -> None:
         self.spent: dict[str, int] = {}  # caster -> seq of the last slot spent
         self.used: dict[str, int] = {}  # caster -> seq of the last item (a scroll) used
@@ -57,6 +57,3 @@ class SpellPaths:
         if want is None or want == dc:
             return []
         return [Finding("B6", seq, f"{source} save DC {dc}, the caster's DC is {want} ({reason})")]
-
-    def end(self, state: GameState) -> list[Finding]:
-        return []

@@ -24,7 +24,7 @@ from aidm.session.views import public_facts, public_summaries
 from scripts.audit.stale import (
     alias_table,
     changed,
-    entities_named,
+    entities_named_cached,
     giver_table,
     is_stale,
     statuses,
@@ -106,7 +106,9 @@ def stale_of(state: GameState, records: list[Record], now: int, ctx: Ctx) -> lis
     return [
         r
         for r in records
-        if is_stale(entities_named(r.text, r.ids, table, givers), r.made, now, ctx[1], ctx[2])
+        if is_stale(
+            entities_named_cached(r.text, r.ids, table, givers), r.made, now, ctx[1], ctx[2]
+        )
     ]
 
 

@@ -79,26 +79,31 @@ def _offer_quests(state: GameState, text: str, ids: Iterable[str]) -> list[str]:
     return out
 
 
-def _last_change(state: GameState, record: StoryRecord) -> int:
+def _changed_since(state: GameState, record: StoryRecord, made: int) -> bool:
+    """Whether an engine event after seq `made` changed a thing the record names."""
     changed = state.world.changed
     ids = [*record.ids, *_offer_quests(state, record.text, record.ids)]
-    last = max((changed.get(f"{STATUS}:{i}", -1) for i in ids), default=-1)
+    if any(changed.get(f"{STATUS}:{i}", -1) > made for i in ids):
+        return True
     # a place description tells the place, not what the heroes carry
     kinds = (_STATUS_NAME,) if record.store is RecordStore.DESCRIPTION else _NAMED
-    slugged = text_slug(record.text)
+    slugged = ""
     for key, seq in changed.items():
-        if seq <= last:
+        if seq <= made:
             continue
         kind = next((k for k in kinds if key.startswith(k)), None)
-        if kind is not None and mentions(slugged, key.removeprefix(kind)):
-            last = seq
-    return last
+        if kind is None:
+            continue
+        slugged = slugged or text_slug(record.text)
+        if mentions(slugged, key.removeprefix(kind)):
+            return True
+    return False
 
 
 def superseded(state: GameState, record: StoryRecord) -> bool:
     """A later engine event changed a thing the record names."""
     made = record.made.seq if record.made is not None else -1
-    return _last_change(state, record) > made
+    return _changed_since(state, record, made)
 
 
 def shown_when(state: GameState, record: StoryRecord) -> str | None:

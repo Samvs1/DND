@@ -13,10 +13,10 @@ from aidm.models.impossible import ActionImpossible
 from aidm.models.state import GameState
 from aidm.models.world_events import ActionDeclared, NarrationRecorded
 from scripts.audit.replay import build_prompt
-from scripts.contractlib.save import Finding
+from scripts.contractlib.save import Finding, Visitor
 
 
-class TurnOutcomes:
+class TurnOutcomes(Visitor):
     """D1: refusals since the last narration, judged against the next narration's prompt."""
 
     def __init__(self) -> None:
@@ -47,6 +47,3 @@ class TurnOutcomes:
             for seq, e in self.refused
             if e.reason.strip().rstrip(".") not in prompt
         ]
-
-    def end(self, state: GameState) -> list[Finding]:
-        return []

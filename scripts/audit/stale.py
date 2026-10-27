@@ -101,6 +101,25 @@ def entities_named(
     return named
 
 
+_NAMED_CACHE: dict[tuple[object, ...], frozenset[str]] = {}
+
+
+def entities_named_cached(
+    text: str, ids: Iterable[str], table: dict[str, list[str]], givers: dict[str, list[str]]
+) -> set[str]:
+    """`entities_named`, remembered by (text, ids, the two tables): the same record is asked
+    again on every narration while the tables rarely change."""
+    sig = (
+        tuple((a, tuple(k)) for a, k in table.items()),
+        tuple((a, tuple(k)) for a, k in givers.items()),
+    )
+    key = (text, tuple(ids), sig)
+    hit = _NAMED_CACHE.get(key)
+    if hit is None:
+        hit = _NAMED_CACHE[key] = frozenset(entities_named(text, key[1], table, givers))
+    return set(hit)
+
+
 def is_stale(
     named: set[str], made: int, now: int, log: list[tuple[int, str]], born: dict[str, int]
 ) -> bool:

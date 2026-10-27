@@ -3,7 +3,7 @@
 from aidm.models.events import AnyEvent
 from aidm.models.state import GameState
 from scripts.audit.replay import PRESENT, audit_run
-from scripts.contractlib.save import Finding, Save
+from scripts.contractlib.save import Finding, Save, Visitor
 from scripts.sim.checks import _first_difference, engine_invariants
 from scripts.sim.ledger import ledger_problems
 
@@ -43,7 +43,7 @@ def a3_stale(save: Save) -> list[Finding]:
     return found
 
 
-class Bounds:
+class Bounds(Visitor):
     """A4 at each event: the hp it writes stays within 0..max (a resource cannot be written
     past its maximum: the model refuses it), and at the end of the log."""
 

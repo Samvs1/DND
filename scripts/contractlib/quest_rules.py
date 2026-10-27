@@ -2,25 +2,21 @@
 step is recorded done (M43.1). Reuses `rules.quest_check`, `rules.quest_targets` and
 `rules.quest_steps`."""
 
-import re
-
+from aidm.dm.campaign_draft_base import name_key
 from aidm.models.campaign import CampaignPlan
 from aidm.models.events import AnyEvent
-from aidm.models.quests import QuestKind, QuestStep, StepKind
+from aidm.models.quests import QuestKind, StepKind
 from aidm.models.state import GameState
 from aidm.models.world import Quest, QuestState
 from aidm.rules.quest_check import check_plan_quests
+from aidm.rules.quest_contract import FRIEND_TARGET, step_key, target_refusal
 from aidm.rules.quest_items import same_item
 from aidm.rules.quest_steps import step_met
 from aidm.rules.quest_targets import party_friend
-from scripts.contractlib.save import Finding
+from scripts.contractlib.save import Finding, Visitor
 
 _BATCH = frozenset({"quest_step_done", "route_discovered"})
 _C2_CODES = {"quest_steps", "step_node", "step_npc", "step_clear_arrival", "step_tag"}
-
-
-def _key(name: str) -> str:
-    return re.sub(r"[^a-z0-9]+", " ", name.lower()).strip()
 
 
 def c1_targets(seq: int, state: GameState, quest: Quest) -> list[Finding]:
@@ -30,10 +26,10 @@ def c1_targets(seq: int, state: GameState, quest: Quest) -> list[Finding]:
         targets.add(quest.against_npc_id)
     found: list[Finding] = []
     for npc_id in sorted(targets):
-        if npc_id == quest.giver_npc_id:
-            found.append(Finding("C1", seq, f"{quest.id}: the target {npc_id} is the giver"))
-        elif party_friend(state, npc_id):
-            found.append(Finding("C1", seq, f"{quest.id}: the target {npc_id} is a friend"))
+        why = target_refusal(quest.giver_npc_id or "", npc_id, party_friend(state, npc_id))
+        if why is not None:
+            who = "a friend" if why == FRIEND_TARGET else "the giver"
+            found.append(Finding("C1", seq, f"{quest.id}: the target {npc_id} is {who}"))
     return found
 
 
@@ -42,15 +38,11 @@ def dup_people(seq: int, state: GameState, told: set[str]) -> list[Finding]:
     names: dict[str, str] = {}
     found: list[Finding] = []
     for npc in state.world.npcs.values():
-        other = names.setdefault(_key(npc.name), npc.id)
+        other = names.setdefault(name_key(npc.name), npc.id)
         if other != npc.id and npc.id not in told:
             told.add(npc.id)
             found.append(Finding("C1", seq, f"{npc.name!r} is two records: {other}, {npc.id}"))
     return found
-
-
-def _step_id(step: QuestStep) -> tuple[object, ...]:
-    return (step.kind, step.nodes, step.npc, _key(step.item or ""), step.tag, step.band)
 
 
 def c2_steps(seq: int, quest: Quest) -> list[Finding]:
@@ -62,9 +54,9 @@ def c2_steps(seq: int, quest: Quest) -> list[Finding]:
     ]
     seen: set[tuple[object, ...]] = set()
     for i, step in enumerate(quest.steps):
-        if step.kind is not StepKind.FREE and _step_id(step) in seen:
+        if step.kind is not StepKind.FREE and step_key(step) in seen:
             found.append(Finding("C2", seq, f"{quest.id}: step {i} repeats an earlier step"))
-        seen.add(_step_id(step))
+        seen.add(step_key(step))
     return found
 
 
@@ -112,7 +104,7 @@ def c3_done(
     return []
 
 
-class QuestRules:
+class QuestRules(Visitor):
     def __init__(self) -> None:
         self.seen: set[str] = set()
         self.told: set[str] = set()
@@ -136,6 +128,3 @@ class QuestRules:
             return []
         found = c1_targets(seq, state, quest) + dup_people(seq, state, self.told)
         return found + c2_steps(seq, quest) + c4_counts(seq, quest)
-
-    def end(self, state: GameState) -> list[Finding]:
-        return []

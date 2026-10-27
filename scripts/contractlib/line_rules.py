@@ -1,13 +1,13 @@
 """Contract rule B1 (every typed line ends in an outcome), read from the `line_read` record
 (M43.1). A save from before the record reports B1 as skipped."""
 
-import re
-
 from aidm.data.spell_defs import spell_defs
 from aidm.models.events import AnyEvent
 from aidm.models.impossible import LineRead
 from aidm.models.state import GameState
-from scripts.contractlib.save import Finding
+from aidm.rules.menu_unoffered import GOLD_SUM
+from aidm.rules.story_names import mentions, text_slug
+from scripts.contractlib.save import Finding, Visitor
 
 # events that are the line's own bookkeeping or the storyteller's words, not an engine outcome
 QUIET = frozenset(
@@ -21,16 +21,11 @@ QUIET = frozenset(
         "economy_changed",
     }
 )
-_GOLD = re.compile(r"\b\d+\s*(gold|gp)\b")
-
-
-def _fold(text: str) -> str:
-    return " " + re.sub(r"[^a-z0-9]+", " ", text.lower()).strip() + " "
 
 
 def named_things(state: GameState, actor_id: str, text: str) -> list[str]:
     """Game things a line names: a spell the hero knows, a pack item, a place, a gold amount."""
-    low = _fold(text)
+    slugged = text_slug(text)
     hero = state.creatures.get(actor_id)
     names: list[str] = list(state.world.node_names.values())
     if hero is not None and hero.pc is not None:
@@ -38,11 +33,11 @@ def named_things(state: GameState, actor_id: str, text: str) -> list[str]:
         known = [*pc.cantrips, *pc.race_cantrips, *pc.spells_known, *pc.spellbook]
         names += [s for s in known if s in spell_defs()]
         names += [i.item for i in pc.inventory]
-    found = [n for n in names if len(n) > 2 and _fold(n.replace("-", " ")) in low]
-    return found + [m.group(0) for m in _GOLD.finditer(text.lower())][:1]
+    found = [n for n in names if len(n) > 2 and mentions(slugged, text_slug(n).strip("-"))]
+    return found + [m.group(0) for m in GOLD_SUM.finditer(text.lower())][:1]
 
 
-class LineOutcomes:
+class LineOutcomes(Visitor):
     """B1: after a `line_read`, the events up to the next one hold an outcome or a refusal."""
 
     def __init__(self) -> None:
@@ -64,7 +59,7 @@ class LineOutcomes:
             return []
         seq, line, things, types = self.open
         self.open = None
-        if things and not any(t not in QUIET for t in types) and "action_impossible" not in types:
+        if things and not any(t not in QUIET for t in types):
             return [
                 Finding("B1", seq, f"names {things[:2]}, only talk answered: {line.text[:50]!r}")
             ]

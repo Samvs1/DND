@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import NamedTuple, Protocol
+from typing import NamedTuple
 
 from aidm.models.events import AnyEvent, LoggedEvent
 from aidm.models.state import GameState
@@ -17,12 +17,15 @@ class Finding(NamedTuple):
     reason: str
 
 
-class Visitor(Protocol):
-    """A rule checked in the one walk: `see` gets the state BEFORE the event is applied."""
+class Visitor:
+    """A rule checked in the one walk: `see` gets the state BEFORE the event is applied;
+    `end` (default: nothing) gets the final state."""
 
-    def see(self, seq: int, state: GameState, event: AnyEvent) -> list[Finding]: ...
+    def see(self, seq: int, state: GameState, event: AnyEvent) -> list[Finding]:
+        raise NotImplementedError
 
-    def end(self, state: GameState) -> list[Finding]: ...
+    def end(self, state: GameState) -> list[Finding]:
+        return []
 
 
 @dataclass
