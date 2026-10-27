@@ -65,7 +65,7 @@ async def test_typed_what_now_takes_the_same_path(tmp_path: Path) -> None:
         answer = of_type(ann.drain(), WhatNowAnswer)
         assert len(answer) == 1 and answer[0].lines[0].startswith(FIRST)
         assert len(of_type(screen.drain(), WhatNowAnswer)) == 1
-        assert len(table.log) == events  # not declared, no turn
+        assert len(table.log) == events + 1  # M43.1: only the read is logged, no turn
         assert [r.tool_choice for r in fake.requests[asked:]] == ["choose_actions"]  # M36.10a
 
 
@@ -82,7 +82,7 @@ async def test_what_now_works_in_a_fight(tmp_path: Path) -> None:
         await table.settle()
         answer = of_type(ann.drain(), WhatNowAnswer)
         assert len(answer) == 1 and answer[0].lines[0] == FIGHTING
-        assert len(table.log) == events
+        assert len(table.log) == events + 1  # M43.1: the read
 
 
 async def test_typed_what_now_off_turn_in_a_fight_answers_with_no_call(tmp_path: Path) -> None:

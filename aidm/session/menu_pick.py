@@ -23,7 +23,7 @@ Used when `TableConfig.interpreter` is "menu" by `session.menu_turn` (a line out
 
 Public API: `MenuQueueEntry`, `RECENT`, `STOPPED`, `NOT_DONE`, `waiting_card`, `line_menu`,
 `recent_events`,
-`pick`, `play_steps`, `tell_cut`.
+`pick` (M43.1: it logs a `LineRead`), `record_read`, `play_steps`, `tell_cut`.
 """
 
 from collections.abc import Awaitable, Callable, Sequence
@@ -31,6 +31,12 @@ from collections.abc import Awaitable, Callable, Sequence
 from aidm.dm.chooser import ChooserFailure, choose
 from aidm.models.action_menu import ActionMenu, MenuChoice
 from aidm.models.events import AnyEvent
+from aidm.models.impossible import (
+    MAX_IMPOSSIBLE_TEXT,
+    MAX_READ_STEP,
+    MAX_READ_STEPS,
+    LineRead,
+)
 from aidm.models.protocol_server import NoticeKind
 from aidm.models.protocol_views import QueueEntry
 from aidm.rules.action_menu import build_menu
@@ -85,7 +91,21 @@ async def pick(
         other=choice.other,
         colour=choice.colour[:COLOUR_CHARS],
     )
+    record_read(core, actor_id, text, choice)
     return choice
+
+
+def record_read(core: TableCore, actor_id: str, text: str, choice: MenuChoice) -> None:
+    """M43.1: log how the typed line was read (log-only; never part of a telling)."""
+    steps = tuple(
+        (f"{s.entry}>{','.join(s.targets)}" if s.targets else s.entry)[:MAX_READ_STEP]
+        for s in choice.steps[:MAX_READ_STEPS]
+    )
+    event = LineRead(
+        creature_id=actor_id, text=text[:MAX_IMPOSSIBLE_TEXT], steps=steps, other=choice.other
+    )
+    core.apply(event)
+    core.segment = [e for e in core.segment if e is not event]
 
 
 async def play_steps[T](

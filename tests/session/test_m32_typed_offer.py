@@ -79,7 +79,7 @@ async def test_v1_m32_peace_line_to_a_master_never_starts_a_fight(tmp_path: Path
 async def test_v1_m32_surrender_demand_of_the_dead_keeps_the_offer(tmp_path: Path) -> None:
     demand = pick(("surrender", [], None))  # the menu chooser's (M36.10b)
     played = await play(tmp_path, TYPED, 419, picks=[demand])
-    assert [type(e).__name__ for e in played.events] == ["ActionDeclared"]
+    assert [type(e).__name__ for e in played.events] == ["LineRead", "ActionDeclared"]
     assert played.notices() == ["The zombie will not yield: the dead do not surrender."]
     campaign = played.state.campaign
     assert campaign is not None and campaign.offer is not None

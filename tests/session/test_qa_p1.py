@@ -66,7 +66,7 @@ async def test_qa_01_creative_action_spends_the_action(tmp_path: Path) -> None:
         assert errors and errors[-1].code is ErrorCode.REFUSED
         assert {cid: c.hp for cid, c in table.state.creatures.items()} == hp_before
         said = [e.event.type for e in table.log if e.seq >= count]
-        assert said == ["action_declared"]  # M36.10b: the words are told, nothing else happens
+        assert said == ["line_read", "action_declared"]
 
 
 async def test_qa_01_flavour_text_keeps_the_action(tmp_path: Path) -> None:

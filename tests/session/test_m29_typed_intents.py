@@ -64,7 +64,7 @@ async def test_m29_typed_parley_rolls_once_for_the_offer(tmp_path: Path) -> None
         start = table.state.event_count
         seat.send(SubmitAction(text=R4_TEXT))
         await table.settle()
-        assert table.state.event_count == start + 1  # M31.1a V4: only the words, then the card
+        assert table.state.event_count == start + 2  # M31.1a V4: the read, the words, then the card
         seat.send(ConfirmHostile())
         await table.settle()
         assert_replays(table)

@@ -87,7 +87,7 @@ async def test_m31_surrender_of_the_undead_keeps_the_action(tmp_path: Path) -> N
     demand = pick(("surrender:intimidation", [], None))  # the menu chooser's (M36.10b)
     state = replay_until(TYPED, 1143)
     events, after, notes = await _send(tmp_path, state, actor, text, fight=True, picks=[demand])
-    assert [e.type for e in events] == ["action_declared"]  # the words only: no roll, no cost
+    assert [e.type for e in events] == ["line_read", "action_declared"]
     enc = after.encounter
     assert enc is not None and enc.combatants[actor].economy.action
     assert "The Tithekeeper will not yield: the dead do not surrender." in notes
