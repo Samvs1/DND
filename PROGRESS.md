@@ -1,4 +1,4 @@
-NEXT: M44.5 (orchestrator): FULL gate, commit M44: Round-9 fixes. Files in flight: none. Last gate: M44.4 scoped gate green (tests/ai 650, tests/session 793, tests/unit 2611 passed, contract fixtures EQUAL, contract on r9 x3 0 findings, narration_audit TOTAL 0/0/0/0 before and after, ruff, format, pyright 0 errors, lint-imports 2 kept, structure, secrets, protocol, manual ok).
+NEXT: PAUSED after M44 for the owner. A round 10 (to measure M44's storyteller input fixes live: slip rate D2, BB1-BB4 on the typed path) needs a fresh OK (live DeepSeek spend). Files in flight: none. Last gate: M44 FULL gate PASS (12/12) 2026-10-29.
 
 # PROGRESS
 
@@ -457,7 +457,7 @@ Fix: BB1 aimed area spell on the caster's zone, BB2+BB3 typed shop buys (double 
 - [x] M44.2 (H, Opus high) (done, commit see git log) BB1 + BB4 typed spells: an area step at a zone holding none of the creatures the line names aims at the named creature's zone (the rules answer "out of reach"); a spell or feature named out of a fight is cast by the engine or refused with the reason (manual "Healing outside a fight"). Tests r9-typed 160, 434, 678; r9-quests 284; r9-typed 728, 231.
 - [x] M44.3 (H, Opus medium) (done, commit see git log) BB2 + BB3 + BB12 shop and gold lines: one buy is one payment; a stocked item named at an open shop is bought or refused "No sale" with the reason; a bribe that cannot be paid changes nothing. Tests r9-quests 618, r9-typed 285, 1006, 1351, 1546, 1325.
 - [x] M44.4 (H, Opus medium) (done, commit see git log) BB8 + BB9 storyteller: no telling depicts foes acting before their turn's events exist; the open shop's real stock reaches the storyteller. Tests r9-typed 579, 589; r9-full 94, 938; r9-quests 166; r9-typed 1549.
-- [ ] M44.5 FULL gate, commit `M44: Round-9 fixes`.
+- [x] M44.5 FULL gate, commit `M44: Round-9 fixes`. FULL gate PASS (12/12) 2026-10-29.
 
 ## Notes (stashes, blockers, decisions pending)
 - M38 left (harmful, live final pass): "I help Rook up" with Rook standing helps Elowen up; "I leave 5 gold for the poor" pays Merre; "I surrender" picks the demand that the foes yield (no yield entry exists). Plus the ally-in-fight weapon gap (M38.2 note). Not started: needs an owner call (any live check needs a fresh OK).
