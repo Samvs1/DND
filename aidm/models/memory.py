@@ -15,8 +15,9 @@ M40.4: `SceneSummary.made` and `narration_made` are stamped by the reducer
 save from before M40.4, or a test that set `narration` alone, has fewer stamps: the older lines
 are unstamped).
 M43.3 (contract rule D1): `untold` holds the refusals (`ActionImpossible`) logged since the last
-`NarrationRecorded`, at most `MAX_UNTOLD`; the reducer appends and clears them, and the context
-builder tells them to the next storyteller, whichever events that telling is handed.
+`NarrationRecorded` (M44.4: and the shop trades, `ItemsTraded`), at most `MAX_UNTOLD`; the
+reducer appends and clears them, and the context builder tells them to the next storyteller,
+whichever events that telling is handed.
 """
 
 from enum import StrEnum
@@ -25,9 +26,10 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from aidm.models.impossible import ActionImpossible
 from aidm.models.story import StoryStamp
+from aidm.models.trade_events import ItemsTraded
 
 MAX_NARRATION_LOG = 12
-MAX_UNTOLD = 4
+MAX_UNTOLD = 8  # M44.4: refusals and trades share it (was 4, refusals only)
 
 
 class SummarySource(StrEnum):
@@ -57,4 +59,6 @@ class Memory(BaseModel):
     turns_since_summary: int = Field(default=0, ge=0)
     since_scene: int = Field(default=0, ge=0)
     since_node: str | None = None
-    untold: list[ActionImpossible] = Field(default_factory=list[ActionImpossible])  # M43.3
+    untold: list[ActionImpossible | ItemsTraded] = Field(
+        default_factory=list[ActionImpossible | ItemsTraded]
+    )  # M43.3; M44.4: and the shop trades

@@ -97,8 +97,7 @@ def _foes_left(state: GameState) -> list[str]:
         return []
     told = ", ".join(counted(name, n, digits=True) for name, n in sorted(names.items()))
     return [  # M31.1c V17: exactly these; round 4 told "robed cultists" beside one cultist
-        f"Foes still standing in this fight (each is up and fighting): {told}; no other foe of"
-        " any kind is here."
+        f"Foes still standing in this fight: {told}; no other foe of any kind is here."
     ]
 
 

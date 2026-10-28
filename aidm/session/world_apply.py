@@ -14,9 +14,10 @@ M40.4: a story record (fact, summary, narrated turn, place description) is stamp
 from typing import assert_never
 
 from aidm.models.character import Equipped, Keepsake
-from aidm.models.memory import MAX_NARRATION_LOG
+from aidm.models.memory import MAX_NARRATION_LOG, MAX_UNTOLD
 from aidm.models.state import GameState
 from aidm.models.story import StoryStamp
+from aidm.models.trade_events import ItemsTraded
 from aidm.models.world import World, WorldNpc
 from aidm.models.world_events import (
     ActionDeclared,
@@ -29,7 +30,6 @@ from aidm.models.world_events import (
     ItemDiscovered,
     ItemPlaced,
     ItemRemoved,
-    ItemsTraded,
     KeepsakeGained,
     LevelUpReady,
     NarrationRecorded,
@@ -284,7 +284,9 @@ def apply_world_event(state: GameState, event: WorldEvent) -> None:
             _keep(state, creature_id, keepsake)
         case RewardGranted(kind=kind, source=source):
             _rewarded(state, kind, source)
-        case HostileActPending() | ItemsTraded() | LevelUpReady() | ActionDeclared():
+        case ItemsTraded():  # M44.4 (BB9): told to the next storyteller
+            state.memory.untold = [*state.memory.untold, event][-MAX_UNTOLD:]
+        case HostileActPending() | LevelUpReady() | ActionDeclared():
             pass
         case _:
             assert_never(event)

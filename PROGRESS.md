@@ -1,4 +1,4 @@
-NEXT: M44.4 (H, Opus medium): BB8 + BB9 storyteller timing and shop stock. Files in flight: none. Last gate: M44.3b scoped gate green (tests/ai 643, tests/session 793, tests/unit 2611 passed, contract fixtures EQUAL, ruff, format, pyright 0 errors, lint-imports 2 kept, structure, secrets, protocol, manual ok).
+NEXT: M44.5 (orchestrator): FULL gate, commit M44: Round-9 fixes. Files in flight: none. Last gate: M44.4 scoped gate green (tests/ai 650, tests/session 793, tests/unit 2611 passed, contract fixtures EQUAL, contract on r9 x3 0 findings, narration_audit TOTAL 0/0/0/0 before and after, ruff, format, pyright 0 errors, lint-imports 2 kept, structure, secrets, protocol, manual ok).
 
 # PROGRESS
 
@@ -456,7 +456,7 @@ Fix: BB1 aimed area spell on the caster's zone, BB2+BB3 typed shop buys (double 
 - [x] M44.1 (M, Sonnet medium) (done, commit see git log) Fixtures m43-r9-typed, m43-r9-quests, m43-r9-full (gzipped, trimmed to the seqs the tests need) in the contract baseline; BB18: B1 treats a question about a named thing as talk, C3 never judges on a stale state. Gate: contract on the 3 r9 saves 0 findings; baseline test EQUAL.
 - [x] M44.2 (H, Opus high) (done, commit see git log) BB1 + BB4 typed spells: an area step at a zone holding none of the creatures the line names aims at the named creature's zone (the rules answer "out of reach"); a spell or feature named out of a fight is cast by the engine or refused with the reason (manual "Healing outside a fight"). Tests r9-typed 160, 434, 678; r9-quests 284; r9-typed 728, 231.
 - [x] M44.3 (H, Opus medium) (done, commit see git log) BB2 + BB3 + BB12 shop and gold lines: one buy is one payment; a stocked item named at an open shop is bought or refused "No sale" with the reason; a bribe that cannot be paid changes nothing. Tests r9-quests 618, r9-typed 285, 1006, 1351, 1546, 1325.
-- [ ] M44.4 (H, Opus medium) BB8 + BB9 storyteller: no telling depicts foes acting before their turn's events exist; the open shop's real stock reaches the storyteller. Tests r9-typed 579, 589; r9-full 94, 938; r9-quests 166; r9-typed 1549.
+- [x] M44.4 (H, Opus medium) (done, commit see git log) BB8 + BB9 storyteller: no telling depicts foes acting before their turn's events exist; the open shop's real stock reaches the storyteller. Tests r9-typed 579, 589; r9-full 94, 938; r9-quests 166; r9-typed 1549.
 - [ ] M44.5 FULL gate, commit `M44: Round-9 fixes`.
 
 ## Notes (stashes, blockers, decisions pending)

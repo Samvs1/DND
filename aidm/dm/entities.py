@@ -2,7 +2,8 @@
 
 ONE place that answers "is this a known name?" for the guard (M4.6) and the context builder.
 Names come from state only: party members, registered NPCs, creatures (living and dead),
-features (visible ones in `visible`), world items, carried items, places and the lore
+features (visible ones in `visible`), world items, carried items, the open shop's wares
+(M44.4, `aidm.dm.shop_wares`), places and the lore
 allow-list of the world bible (`World.lore_names`), plus the finale's public texts once the
 final region is resolved (M23.9: its question and ending titles, the chosen ending's text).
 
@@ -22,6 +23,7 @@ Public API:
 import re
 from dataclasses import dataclass
 
+from aidm.dm.shop_wares import ware_names
 from aidm.models.state import Creature, GameState
 from aidm.rules.finale import finale_texts
 from aidm.rules.scene import current_scene, node_display_name
@@ -92,6 +94,7 @@ def entity_registry(state: GameState) -> EntityRegistry:
     shown = [f for f in world.features.values() if not f.hidden or f.discovered]
     hidden = [f for f in world.features.values() if f.hidden and not f.discovered]
     npc_names = {n.name for n in world.npcs.values()}
+    wares = ware_names(state)  # M44.4 (BB9): the open shop's stock exists
     return EntityRegistry(
         party=frozenset(c.name for c in creatures if c.pc is not None),
         npcs=frozenset(npc_names),
@@ -101,7 +104,7 @@ def entity_registry(state: GameState) -> EntityRegistry:
         dead=frozenset(c.name for c in creatures if c.dead),
         features=frozenset(f.name for f in shown),
         hidden_features=frozenset(f.name for f in hidden),
-        items=frozenset({i.name for i in world.items.values()} | _carried(creatures)),
+        items=frozenset({i.name for i in world.items.values()} | _carried(creatures) | wares),
         places=frozenset(_places(state)),
         lore=frozenset([*world.lore_names, *finale_texts(state)]),  # M23.9
     )

@@ -58,6 +58,7 @@ from aidm.models.item_events import HandedOver, ItemUsed, LightEnded, LightLit
 from aidm.models.quest_events import KeepsakeGiven, QuestAsked, QuestStepDone
 from aidm.models.quests import QuestKind
 from aidm.models.state import Creature, GameState
+from aidm.models.trade_events import ItemsTraded
 from aidm.models.world import Quest, QuestState
 
 _WORD = re.compile(r"[a-z]+(?:-[a-z]+)*")
@@ -176,7 +177,7 @@ def claimed_things(state: GameState, actor_id: str | None, text: str | None) -> 
 
 
 _BLOWS = (AttackRolled, ev.DamageTaken, SpellCast, MonsterActionUsed)
-_HANDED = (KeepsakeGiven, we.ItemsTraded, we.ItemPlaced, HandedOver)
+_HANDED = (KeepsakeGiven, ItemsTraded, we.ItemPlaced, HandedOver)
 
 
 def _weapons(state: GameState, events: Sequence[ev.AnyEvent], lex: GuardLexicon) -> dict:
@@ -265,7 +266,7 @@ class TalkTruth:
     errand_ok: bool = True
 
 
-_QUEST_TALK = (QuestAsked, we.QuestUpdated, QuestStepDone, we.ShopOpened, we.ItemsTraded)
+_QUEST_TALK = (QuestAsked, we.QuestUpdated, QuestStepDone, we.ShopOpened, ItemsTraded)
 
 
 def _givers_here(state: GameState) -> list[Quest]:
@@ -284,7 +285,7 @@ def _gold_moved(events: Sequence[ev.AnyEvent]) -> bool:
     """M33.2 finding 8: the engine moved coin this turn: a sale, any `GoldChanged` (a payment,
     a quest's or a milestone's payout), a hand-over with gold or a reward paying gold."""
     return any(
-        isinstance(e, ev.GoldChanged | we.ItemsTraded)
+        isinstance(e, ev.GoldChanged | ItemsTraded)
         or (isinstance(e, HandedOver) and e.gold > 0)
         or (isinstance(e, we.RewardGranted) and e.gold_each > 0)
         for e in events

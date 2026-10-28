@@ -18,8 +18,7 @@ Public API:
 - `HostileActPending(actor_id, npc_ids, tool, reason)`: pure log event (point of no return): a
   hostile act against non-hostile NPCs waits for the acting player's confirmation; nothing
   else changed.
-- `ItemsTraded(npc_id, creature_id, item, qty, gold, sold)` (M5.6): pure log event of a shop
-  sale or purchase (gold and inventory move through `GoldChanged` / `InventoryChanged`).
+- `ItemsTraded` (M5.6, `aidm.models.trade_events`): a shop sale or purchase.
 - `RewardGranted(source, kind, xp_each, gold_each, items)` (M5.6): log event of loot, a quest
   or a milestone paying out (the numbers move through their own events); a milestone's
   `source` joins `CampaignState.milestones` (M9.2), so it is paid once.
@@ -56,6 +55,7 @@ from aidm.models.character import Equipped, Keepsake
 from aidm.models.item_events import ItemEvents
 from aidm.models.memory import SceneSummary
 from aidm.models.quest_events import QuestEvents
+from aidm.models.trade_events import ItemsTraded
 from aidm.models.world import (
     Fact,
     Quest,
@@ -124,16 +124,6 @@ class HostileActPending(_WorldEvent):
     npc_ids: tuple[str, ...]
     tool: str
     reason: str = ""
-
-
-class ItemsTraded(_WorldEvent):
-    type: Literal["items_traded"] = "items_traded"
-    npc_id: str
-    creature_id: str
-    item: str = Field(min_length=1)
-    qty: int = Field(ge=1)
-    gold: int = Field(ge=0)
-    sold: bool = False
 
 
 class RewardGranted(_WorldEvent):

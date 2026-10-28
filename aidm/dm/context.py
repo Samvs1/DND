@@ -2,8 +2,9 @@
 
 `build_context` assembles typed sections in a fixed order:
 1 SYSTEM (DM rules, `aidm.dm.context_text`), 2 MANIFEST (closed world, ends with the
-closed-world statement; M27.5: the light of the place and, for ADJUDICATE, the usable gear here
-from `aidm.dm.context_gear` come right before it), 3 PARTY (compact sheets), 4 QUESTS
+closed-world statement; M27.5: the light of the place, M44.4: the open shop's wares with prices
+(`aidm.dm.shop_wares`) and, for ADJUDICATE, the usable gear here from `aidm.dm.context_gear`
+come right before it), 3 PARTY (compact sheets), 4 QUESTS
 (`aidm.dm.context_quests`: main objective, known routes, current steps, item whereabouts,
 offers; M23.5) and FACTS (top-k by entity overlap), 5 MEMORY (scene summaries, last narration
 turns; M40.4: FACTS and MEMORY are dated past records, titled `PAST_NOTES_TITLE` /
@@ -59,6 +60,7 @@ from aidm.dm.context_sections import (
     scene_focus,
 )
 from aidm.dm.context_text import PLAYER_TAG, ContextPurpose, system_text, task_text
+from aidm.dm.shop_wares import wares_lines
 from aidm.models.action_menu import ActionMenu
 from aidm.models.events import AnyEvent
 from aidm.models.state import GameState
@@ -214,7 +216,7 @@ def build_context(
         if purpose is ContextPurpose.ADJUDICATE
         else []
     )
-    manifest[-1:-1] = [*light_lines(state), *gear]
+    manifest[-1:-1] = [*light_lines(state), *wares_lines(state), *gear]
     sections = [
         ContextSection(SectionKey.SYSTEM, "SYSTEM", (system_text(purpose),)),
         _section(SectionKey.MANIFEST, manifest),

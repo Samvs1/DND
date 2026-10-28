@@ -11,7 +11,8 @@ from aidm.dm.chooser_menu import menu_lines
 from aidm.models.events import GoldChanged
 from aidm.models.impossible import ActionImpossible
 from aidm.models.item_events import HandedOver
-from aidm.models.world_events import AttitudeChanged, ItemsTraded, ShopOpened
+from aidm.models.trade_events import ItemsTraded
+from aidm.models.world_events import AttitudeChanged, ShopOpened
 from tests.ai.chooser_fixtures import menu_at
 from tests.session.menu_play import MenuPlayed, menu_play
 from tests.session.table_fixtures import pick

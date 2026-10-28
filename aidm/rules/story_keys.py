@@ -45,7 +45,8 @@ from aidm.models.events import (
 from aidm.models.item_events import HandedOver, ItemUseRefused
 from aidm.models.quest_events import KeepsakeGiven, KeepsakeTaken, QuestAskDeclined
 from aidm.models.state import Creature, GameState
-from aidm.models.world_events import ItemRemoved, ItemsTraded, KeepsakeGained
+from aidm.models.trade_events import ItemsTraded
+from aidm.models.world_events import ItemRemoved, KeepsakeGained
 
 STATUS = "status"
 KILL = "kill"

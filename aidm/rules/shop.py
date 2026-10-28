@@ -41,8 +41,8 @@ from aidm.data.registry import Registry
 from aidm.data.shop_defs import ShopKind, ShopTable
 from aidm.models.events import AnyEvent, GoldChanged, InventoryChanged
 from aidm.models.state import Creature, GameState
+from aidm.models.trade_events import ItemsTraded
 from aidm.models.world import WorldNpc
-from aidm.models.world_events import ItemsTraded
 from aidm.rules.dice import Rng
 from aidm.rules.item_grants import carried_qty, gain_item_events
 from aidm.rules.social import npc_is_hostile

@@ -102,7 +102,8 @@ async def test_v1_m43_a_logged_refusal_is_told_whatever_events_the_telling_gets(
     """round 8 r8-typed 93-95: "I slide Brenn 300 gold ..." refused (94, Brienne 10 gp); the
     telling at 95 is built from the state even when it is handed no events."""
     state = state_at(R8, 95)
-    assert [e.reason for e in state.memory.untold] == ["Brienne has only 10 gold."]
+    told = [e.reason for e in state.memory.untold if isinstance(e, ActionImpossible)]
+    assert told == ["Brienne has only 10 gold."]
     llm, fake = chooser_client(tmp_path)
     await narrate(state, [], llm, actor_id="pc-p2").collect()
     assert "nothing happened, because Brienne has only 10 gold." in _told(fake)[0]
@@ -133,5 +134,5 @@ def test_v1_m43_a_caused_condition_is_one_line_in_the_events() -> None:
     scared = ConditionApplied(
         creature_id=brienne, condition=ActiveCondition(name="frightened", source_id=rook)
     )
-    lines = outcome_lines(state, [scared])
-    assert len(lines) == 1 and lines[0].endswith("(caused by Rook).")
+    lines = [line for line in outcome_lines(state, [scared]) if "frightened" in line]
+    assert len(lines) == 1 and lines[0].endswith("(caused by Rook).")  # M44.4: + the foes' turns

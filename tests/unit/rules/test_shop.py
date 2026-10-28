@@ -8,7 +8,7 @@ from collections.abc import Callable
 import pytest
 
 from aidm.models.events import AnyEvent, CampSuppliesChanged, GoldChanged, InventoryChanged
-from aidm.models.world_events import ItemsTraded
+from aidm.models.trade_events import ItemsTraded
 from aidm.rules.shop import (
     ShopRefusal,
     ShopRefused,
