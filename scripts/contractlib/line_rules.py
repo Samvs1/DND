@@ -59,7 +59,9 @@ class LineOutcomes(Visitor):
             return []
         seq, line, things, types = self.open
         self.open = None
-        if things and not any(t not in QUIET for t in types):
+        # a line the chooser read as a talk step was answered by talk, whatever place it names
+        asked = any(step.startswith("talk>") for step in line.steps)
+        if things and not asked and not any(t not in QUIET for t in types):
             return [
                 Finding("B1", seq, f"names {things[:2]}, only talk answered: {line.text[:50]!r}")
             ]

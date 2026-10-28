@@ -1,5 +1,7 @@
 """The read-line record (M43.1) and rule B1, on a real hero from a round-7 save."""
 
+from dataclasses import replace
+
 from aidm.models.events import AnyEvent, event_adapter
 from aidm.models.impossible import ActionImpossible, LineRead
 from aidm.models.state import GameState
@@ -7,7 +9,7 @@ from aidm.models.world_events import NarrationRecorded
 from aidm.session.reducer import apply, replay
 from scripts.contractlib.line_rules import LineOutcomes, named_things
 from scripts.contractlib.save import Finding, walk
-from tests.unit.contract.helpers import fixture
+from tests.unit.contract.helpers import fixture, run
 
 SAVE = "m39-r7-quests"
 
@@ -65,3 +67,15 @@ def test_contract_b1_a_line_with_a_refusal_passes() -> None:
 
 def test_contract_b1_flavour_naming_no_game_thing_passes() -> None:
     assert _play(_state(), "I stare at the sky and sigh", _talk()) == []
+
+
+def test_contract_b1_a_question_about_a_place_answered_by_talk_passes() -> None:
+    """m43-r9-full 311: 'ask Odo Kettle ... the Sunken Shrine' was read as talk>odo-kettle."""
+    save = fixture("m43-r9-full")
+    read = next(e for e in save.events if e.seq == 311)
+    assert isinstance(read.event, LineRead) and read.event.steps == ("talk>odo-kettle",)
+    assert [f for f in run(save, LineOutcomes()) if f.rule == "B1"] == []
+    # the same line read with no talk step names the place and got only talk: still found
+    bare = read.model_copy(update={"event": read.event.model_copy(update={"steps": ()})})
+    changed = replace(save, events=[bare if e.seq == 311 else e for e in save.events])
+    assert [f.idx for f in run(changed, LineOutcomes()) if f.rule == "B1"] == [311]

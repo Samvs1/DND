@@ -115,11 +115,12 @@ class QuestRules(Visitor):
         if event.type == "campaign_installed":
             return plan_findings(seq, event.plan)
         before, self.prev = self.prev, event.type
+        # the engine decides every step event of one pass on the state before the first event
+        # of the pass, a route_discovered included
+        if event.type in _BATCH and (self.batch is None or before not in _BATCH):
+            self.batch = state.model_copy(deep=True)
         if event.type == "quest_step_done":
-            # the engine decides every step event of one pass on the state before the first one
-            if self.batch is None or before not in _BATCH:
-                self.batch = state.model_copy(deep=True)
-            return c3_done(seq, self.batch, state, event.quest_id, event.step)
+            return c3_done(seq, self.batch or state, state, event.quest_id, event.step)
         if event.type != "quest_updated" or event.quest.id in self.seen:
             return []
         self.seen.add(event.quest.id)

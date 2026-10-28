@@ -44,3 +44,12 @@ def test_contract_c4_find_three_hand_over_one_is_found() -> None:
 def test_contract_c4_the_reward_is_the_item_asked_is_found() -> None:
     """m29-p3 install: the reward of The Last Egg is the Brood-egg it asks for."""
     assert any("Brood-egg" in r for r in _found("m29-p3", "C4"))
+
+
+def test_contract_c3_a_step_after_a_route_discovered_is_judged_on_its_own_pass() -> None:
+    """m43-r9-full 735: route_discovered at 734 began the pass; the old check reused a batch
+    state from seq 638, before the quest existed, and called the visit step unmet."""
+    save = fixture("m43-r9-full")
+    types = {e.seq: e.event.type for e in save.events}
+    assert types[734] == "route_discovered" and types[735] == "quest_step_done"
+    assert rules(run(save, QuestRules()), "C3") == []
