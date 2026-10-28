@@ -1,4 +1,4 @@
-NEXT: M43.6 round 9 WAITS for the owner's fresh OK (live DeepSeek spend): 3 playtester runs, then `python scripts/contract.py` on the live saves (B1 has `line_read` records there), the slip rate per 100 narrations (D2; target is the owner's call) and the balance numbers. Files in flight: none. Last gate: M43 FULL gate PASS (12/12) 2026-10-27.
+NEXT: M43.6 round 9 (owner 2026-10-28: "Go round 9"): 3 live runs r9-typed 8777 (Sonnet, acts 1-2, seed 2, fighter,rogue,wizard,cleric, cap 220), r9-quests 8778 (Haiku, acts 1-2, seed 3, classic, cap 180), r9-full 8779 (Sonnet, full campaign, seed 1, classic, cap 320), every command with --run; expect about 1,000 calls, llm.jsonl starts at line 7693. Then `python scripts/contract.py` on the 3 saves, the slip rate per 100 narrations (D2) and the balance numbers; report docs/playtests/M43_round9.md (findings BB1...). No fixes: the owner decides. Files in flight: none. Last gate: M43 FULL gate PASS (12/12) 2026-10-27.
 
 # PROGRESS
 
