@@ -1,4 +1,5 @@
-"""Which of a hero's ready spells it can pay for now (M41.2, round 7 Z5; SPEC 6.2, 7.2). Pure.
+"""Which of a hero's ready spells it can pay for now (M41.2, round 7 Z5; SPEC 6.2, 7.2), and which
+feature uses the table cannot play (M44.2). Pure.
 
 r7b-typed 1277: "Tamsin sends a guiding bolt at the armor", with both of Tamsin's slot levels at
 0, cast Sacred Flame: the fight menu lists no leveled spell without a slot, so the model took the
@@ -18,20 +19,31 @@ so it is no stand-in.
   level), else "Tamsin has no slot of 1st level or higher left".
 - `unready_spells(creature, block, spells)`: one `MenuTarget` per ready spell the hero cannot pay
   for (id the spell index, label "<name> (<reason>)", kind thing), in sheet order.
+- `unplayable_features(creature, feats)`: M44.2 (round 9 BB4, r9-typed 728 "Tamsin uses Channel
+  Divinity Preserve Life", told as healing with no HP): one `MenuTarget` per feature use the hero
+  has that the table cannot play yet (an `unsupported` hook marked `action` in the data), named
+  by the part after its last colon ("Preserve Life", id its slug), reason UNPLAYABLE, the
+  manual's asterisk words. A line naming one is refused with that reason.
 
-Public API: `ready_lines`, `can_pay`, `no_slot_reason`, `unready_spells`.
+Public API: `ready_lines`, `can_pay`, `no_slot_reason`, `unready_spells`, `unplayable_features`,
+`UNPLAYABLE`.
 """
 
+from aidm.data.feature_defs import FeatureDef
+from aidm.data.feature_hooks import UnsupportedHook
 from aidm.data.registry import Registry
 from aidm.data.spell_defs import SpellDef
 from aidm.models.action_menu import MenuTarget
 from aidm.models.sheet import SpellcastingBlock, SpellLine
 from aidm.models.state import Creature
 from aidm.rules.command_checks import CommandRefused
+from aidm.rules.features import creature_hooks
+from aidm.rules.menu_view import slug
 from aidm.rules.spell_targets import cast_slot
 from aidm.rules.spellcasting import slot_pools
 
 _ORDINALS = {1: "1st", 2: "2nd", 3: "3rd"}
+UNPLAYABLE = "the table cannot use it yet"
 
 
 def ready_lines(block: SpellcastingBlock) -> list[SpellLine]:
@@ -67,3 +79,15 @@ def unready_spells(
         reason = no_slot_reason(creature, spell.level)
         out.append(MenuTarget(id=spell.index, label=f"{line.name} ({reason})", kind="thing"))
     return tuple(out)
+
+
+def unplayable_features(creature: Creature, feats: Registry[FeatureDef]) -> tuple[MenuTarget, ...]:
+    out: dict[str, MenuTarget] = {}
+    for owner, hook in creature_hooks(creature, feats):
+        feature = feats.find(owner)
+        if not isinstance(hook, UnsupportedHook) or not hook.action or feature is None:
+            continue
+        name = feature.name.rpartition(": ")[2]
+        key = slug(name)
+        out.setdefault(key, MenuTarget(id=key, label=f"{name} ({UNPLAYABLE})", kind="thing"))
+    return tuple(out.values())

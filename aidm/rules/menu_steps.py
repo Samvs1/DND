@@ -10,7 +10,9 @@ Engine meaning lives here and in `menu_steps_fight` / `menu_steps_scene`, never 
   it comes before them when `other_first`, else after them unless a step ended the line.
   A NOT OFFERED thing, in a step or the `other` part, or a step the validator kept out is a
   `RefusedIntent` with the reason (M43.2); a fight spell aimed off its list goes as named
-  (`_area_aim`: an area spell at the named creature's zone) and the rules answer it.
+  (`menu_aim.area_aim`: an area spell at the named creature's zone), and so does an area step
+  at a zone holding none of the creatures the line names (M44.2, `menu_aim.line_aim`); the
+  rules answer it.
 - A strike with `starts_fight` (the offer scope) is `OfferStrikeIntent(actor, step)` and ends the
   steps: the offer is answered as Fight and the step itself waits for the hero's turn, when
   `resume_strike` maps it onto the spawned creatures (below). M36.8c: a weapon strike out of a
@@ -87,6 +89,7 @@ from aidm.rules.acts import (
     TravelIntent,
 )
 from aidm.rules.acts_fight import DrawAttack
+from aidm.rules.menu_aim import area_aim, line_aim, zones_held
 from aidm.rules.menu_attacks import drawn_state
 from aidm.rules.menu_probe import accepted, walk
 from aidm.rules.menu_scene_view import FOE_PREFIX, twin_boss
@@ -159,7 +162,7 @@ def step_acts(
     if why is not None or entry is None:
         return [RefusedIntent(actor_id, why or UNKNOWN_STEP)]
     if engine_answers(menu, step):  # M43.2 (B3): the real command answers, never a stand-in
-        step = _area_aim(state, entry, step)
+        step = area_aim(state, entry, step)
     elif off_targets(menu, step):  # the validator keeps these out; never played (M38.4)
         return [RefusedIntent(actor_id, f"{CANNOT_NOW.format(what=entry.label)}.")]  # (M43.2)
     if menu.scope not in _FIGHT_SCOPES and entry.kind in STRIKE_KINDS:
@@ -170,36 +173,9 @@ def step_acts(
         free = free_acts(actor_id, entry)
         if free is not None:
             return [*free]
+        step = line_aim(state, menu, entry, step, text)  # M44.2 (B3): never a stand-in zone
         return [*fight_step_acts(state, actor_id, entry, step, regs)]
     return [*scene_step_acts(state, actor_id, entry, step, text)]
-
-
-def _area_aim(state: GameState, entry: MenuEntry, step: MenuStep) -> MenuStep:
-    """M43.2 (B3, round 8 AA1 = R26): an area spell named at a creature is aimed at the zone
-    that creature stands in, reached or not (the cast's own rule then says it is out of reach,
-    as the button's preview does); a zone the line named wins."""
-    enc = state.encounter
-    if enc is None:
-        return step
-    zones = {z.id for z in enc.zone_map.zones}
-    held = _zones_held(state, entry, zones, step.targets)
-    if held is None:
-        return step
-    aim = ([t for t in step.targets if t in zones] or held)[:1]
-    return step.model_copy(update={"targets": tuple(aim)}) if aim else step
-
-
-def _zones_held(
-    state: GameState, entry: MenuEntry, pool: set[str], creature_ids: Sequence[str]
-) -> list[str] | None:
-    """For an entry aimed at areas (its targets all in `pool`): the zones the named creatures
-    stand in, in the order named; None for any other entry."""
-    if not entry.target_ids or not set(entry.target_ids) <= pool:
-        return None
-    enc = state.encounter
-    if enc is None:
-        return []
-    return [enc.combatants[c].zone_id for c in creature_ids if c in enc.combatants]
 
 
 def _strike_acts(
@@ -374,7 +350,7 @@ def _named(state: GameState, foe: str) -> list[str]:
 def _mapped(state: GameState, menu: ActionMenu, entry: MenuEntry, step: MenuStep) -> list[str]:
     named = [cid for foe in step.targets for cid in _named(state, foe)]
     zones = {t.id for t in menu.targets if t.kind == "zone"}
-    spots = _zones_held(state, entry, zones, named)
+    spots = zones_held(state, entry, zones, named)
     if spots is not None:
         best = sorted(
             (z for z in dict.fromkeys(spots) if z in entry.target_ids),

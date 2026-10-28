@@ -23,7 +23,7 @@ from aidm.rules.menu_labels import creature_label, zone_label
 from aidm.rules.menu_magic import feature_entries, spell_entries
 from aidm.rules.menu_moves import move_entries, standard_entries, touch_entries
 from aidm.rules.menu_view import FightView, fight_view
-from aidm.rules.spell_ready import ready_lines, unready_spells
+from aidm.rules.spell_ready import ready_lines, unplayable_features, unready_spells
 
 UNREACHED = "{name} (no target in its reach now)"
 
@@ -80,5 +80,9 @@ def fight_menu(state: GameState, actor_id: str, regs: CombatRegistries) -> Actio
         actor_id=actor_id,
         entries=tuple(entries),
         targets=_targets(view),
-        unready=(*unready, *_unreached(view, entries, unready)),
+        unready=(
+            *unready,
+            *_unreached(view, entries, unready),
+            *unplayable_features(hero, regs.chars.features),  # M44.2
+        ),
     )

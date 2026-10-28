@@ -45,13 +45,15 @@ the player did not name, so:
 - `refusal(menu, step)`, `other_refusal(menu, text)`: the reason a NOT OFFERED thing carries.
 - `as_entry(menu, text)`: in a fight, an `other` part naming one weapon, spell or feature entry
   and what it aims at is that entry.
+- `named_creatures(menu, text)`: M44.2: the creatures the line names, in its order, the hero
+  aside (`menu_aim.line_aim`).
 - `GOLD_SUM`: a sum of gold a line names (one over the hero's purse is NOT OFFERED).
 
 Public API: `MAX_UNOFFERED`, `unoffered_targets(state, menu, text)`,
 `with_unoffered(state, menu, text)`, `named_helpers(state, menu, text)`, `not_offered(menu,
 step)`, `named_off(menu, step)`, `engine_answers(menu, step)`, `refusal(menu, step)`,
-`other_refusal(menu, text)`, `as_entry(menu, text)`, `takers(menu, entry_id, target)`,
-`off_targets(menu, step)`, `GOLD_SUM`.
+`other_refusal(menu, text)`, `as_entry(menu, text)`, `named_creatures(menu, text)`,
+`takers(menu, entry_id, target)`, `off_targets(menu, step)`, `GOLD_SUM`.
 """
 
 import re
@@ -162,12 +164,17 @@ def _gold_over(state: GameState, actor_id: str, text: str) -> Iterator[_Candidat
 
 def _shown(menu: ActionMenu) -> set[str]:
     """The names the menu already acts on: its targets' names ("Merre Wenslow", "Thug") and the
-    things its entries name (`feed:potion-of-healing`, `take:free-given-salt`, `loot:<item>`)."""
+    things its entries name (`feed:potion-of-healing`, `take:free-given-salt`, `loot:<item>`).
+    M44.2 (round 9 BB4): a spent out-of-fight cast of a spell the hero cannot pay for names it
+    for the rules' plain answer only, so a line naming that spell still has it NOT OFFERED."""
     out: set[str] = set()
+    unpaid = {t.id for t in menu.unready}
     for target in menu.targets:
         name = target.label.split(", ", 1)[0]
         out |= {slug(name), slug(name.split(" (", 1)[0]), slug(target.id)}
     for entry in menu.entries:
+        if entry.spent and entry.spell_id in unpaid:
+            continue
         out |= {entry.id.split(":", 1)[-1], entry.item or ""}
     return out - {""}
 
@@ -319,6 +326,17 @@ _NAMED_KINDS = frozenset({ActionKind.ATTACK, ActionKind.CAST, ActionKind.FEATURE
 
 def _target_name(target: MenuTarget) -> str:
     return target.label.split(", ", 1)[0].split(" (", 1)[0]
+
+
+_CREATURES = frozenset({"foe", "ally", "person"})
+
+
+def named_creatures(menu: ActionMenu, text: str) -> tuple[str, ...]:
+    """M44.2: the creatures of the menu (the hero aside) the line names, in the line's order."""
+    line = text_slug(text)
+    keys = {t.id: slug(_target_name(t)) for t in menu.targets if t.kind in _CREATURES}
+    named = [cid for cid, key in keys.items() if mentions(line, key)]
+    return tuple(sorted(named, key=lambda cid: line.find(f"-{keys[cid]}")))
 
 
 def as_entry(menu: ActionMenu, text: str) -> MenuStep | None:

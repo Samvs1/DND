@@ -547,7 +547,8 @@
   "hooks": [
    {
     "kind": "unsupported",
-    "reason": "Preserve Life; its effect needs the spell effect DSL (M3.4)"
+    "reason": "Preserve Life; its effect needs the spell effect DSL (M3.4)",
+    "action": true
    }
   ]
  },

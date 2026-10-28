@@ -50,6 +50,8 @@ Every hook has `min_level` (the character level it starts working at, default 1)
   killing it outright leaves it at 1 HP instead, spending one use of `resource` (SRD 5.1
   Half-Orc Relentless Endurance; `aidm.rules.hp_floor`, read at the damage choke point).
 - `unsupported`: the mechanic is not modelled yet; `reason` is listed in docs/RULES_DECISIONS.md.
+  M44.2: `action` marks a use the hero takes on purpose (Preserve Life): a line naming it is
+  refused with the plain reason (`rules.spell_ready.unplayable_features`), never told as done.
 
 Public API: the hook classes, `FeatureHook` (discriminated union), `ActiveEffectHook` (the kinds
 a toggle may switch on), `GrantedSpell`, and the literal key types.
@@ -264,6 +266,7 @@ class DropToOneHook(_Hook):
 class UnsupportedHook(_Hook):
     kind: Literal["unsupported"] = "unsupported"
     reason: str = Field(min_length=1)
+    action: bool = False
 
 
 FeatureHook = Annotated[

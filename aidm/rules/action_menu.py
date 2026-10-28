@@ -39,7 +39,7 @@ from aidm.rules.menu_offer import help_up_entries, offer_entries, person_strikes
 from aidm.rules.menu_scene import info_entries, scene_entries
 from aidm.rules.menu_scene_view import helpers, scene_targets, scene_view
 from aidm.rules.menu_trade import TradeData, trade_entries
-from aidm.rules.spell_ready import unready_spells
+from aidm.rules.spell_ready import unplayable_features, unready_spells
 
 
 def _unique(entries: Sequence[MenuEntry]) -> tuple[MenuEntry, ...]:
@@ -90,8 +90,9 @@ def _out_of_fight(
         entries=_unique(entries),
         targets=tuple(t for t in scene_targets(view) if t.id in named),
         helpers=others,
-        unready=unready_spells(
-            view.state.creatures[actor_id], view.sheet.spellcasting, regs.spells
+        unready=(
+            *unready_spells(view.state.creatures[actor_id], view.sheet.spellcasting, regs.spells),
+            *unplayable_features(view.state.creatures[actor_id], regs.chars.features),
         ),
     )
 

@@ -59,7 +59,8 @@ def test_a_higher_slot_still_pays_upcasting_stays_offered() -> None:
     bolt = next(e for e in menu.entries if e.id == "cast:guiding-bolt")
     assert bolt.slot_level == 2
     assert not with_unoffered(state, menu, LINE).unoffered
-    assert not menu.unready
+    # M44.2: Tamsin's Preserve Life is the one unready thing (a use the table cannot play)
+    assert {t.id for t in menu.unready} == {"preserve-life"}
 
 
 def test_the_reason_names_the_level_when_no_higher_pool_exists() -> None:
@@ -76,10 +77,13 @@ def test_a_line_naming_no_spell_gets_none() -> None:
 
 def test_out_of_a_fight_the_spent_entry_names_the_spell() -> None:
     """M36.10a stays: out of a fight a no-slot spell is a spent entry the rules refuse in plain
-    words; it names the spell, so the line gets no not-offered spell."""
+    words. M44.2 (round 9 BB4, r9-typed 231 "Tamsin casts Bless on the party" read `other`): the
+    spent entry no longer hides the spell, so a line naming it has it NOT OFFERED with the
+    no-slot reason; a step at the spent entry is still the rules' plain answer."""
     at = ("p2", 662)
     state = state_at(*at)
     menu = with_unoffered(state, menu_at(*at, "pc-p4"), "Elowen casts cure wounds on Rook")
     cure = next(e for e in menu.entries if e.id == "cast:cure-wounds")
     assert cure.spent and "cure-wounds" in {t.id for t in menu.unready}
-    assert not menu.unoffered
+    assert [t.label for t in menu.unoffered] == ["Cure Wounds (Elowen has no 1st-level slot left)"]
+    assert not not_offered(menu, MenuStep(entry=cure.id, targets=("pc-p6",)))
