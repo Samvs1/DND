@@ -45,8 +45,8 @@ at a zone takes the zone holding most of them. The step is then played from the 
 (`build_menu`) by the same entry id (the offer menu keeps the fight ids). A strike that no longer
 fits (no foe left, the spell gone) is a plain answer.
 
-- M44.3 (round 9 BB2, BB3, BB12): one buy is one payment, a named ware is bought or refused
-  (`menu_buy`); a talk offering gold over the purse (`menu_unoffered.gold_refusal`, in an
+- M44.3 (round 9 BB2, BB3, BB12): one buy is one payment and a ware named after a shop opens
+  is bought (`menu_buy`); a talk offering gold over the purse (`menu_unoffered.gold_refusal`, in an
   `other` part or a pay) is refused before the talk, so the offer moves no attitude.
 - Travel steps in a row are one walk to the last place named (M36.10a, `_travels`).
 - M41.3 (round 7 Z6: "we trudge back to the Rust Chapel and I search the iron walls" only
@@ -94,7 +94,7 @@ from aidm.rules.acts import (
 from aidm.rules.acts_fight import DrawAttack
 from aidm.rules.menu_aim import area_aim, line_aim, zones_held
 from aidm.rules.menu_attacks import drawn_state
-from aidm.rules.menu_buy import absorbed, named_buy, one_payment
+from aidm.rules.menu_buy import absorbed, one_payment
 from aidm.rules.menu_probe import accepted, walk
 from aidm.rules.menu_scene_view import FOE_PREFIX, twin_boss
 from aidm.rules.menu_steps_fight import COMMAND_TYPES, FightAct, fight_step_acts
@@ -269,7 +269,7 @@ def _other_group(state: GameState, menu: ActionMenu, words: str, regs: CombatReg
     why = other_refusal(menu, words)
     if why is not None:
         return None, [RefusedIntent(menu.actor_id, why)]
-    step = as_entry(menu, words) or named_buy(menu, words, dear=True)  # M44.3 (BB3)
+    step = as_entry(menu, words)
     if step is not None:
         return step, step_acts(state, menu, step, regs, words)
     return None, [OtherIntent(menu.actor_id, words)]

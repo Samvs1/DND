@@ -7,10 +7,12 @@ m43-r9-quests (the seq cited is the line's `line_read`; the play starts at its
 
 from pathlib import Path
 
+from aidm.dm.chooser_menu import menu_lines
 from aidm.models.events import GoldChanged
 from aidm.models.impossible import ActionImpossible
 from aidm.models.item_events import HandedOver
 from aidm.models.world_events import AttitudeChanged, ItemsTraded, ShopOpened
+from tests.ai.chooser_fixtures import menu_at
 from tests.session.menu_play import MenuPlayed, menu_play
 from tests.session.table_fixtures import pick
 
@@ -66,11 +68,22 @@ async def test_v1_m44_pays_five_gold_for_a_healers_kit_buys_the_kit(tmp_path: Pa
     assert not played.of(HandedOver) and not _told(played)
 
 
+def _shown_for_sale(seq: int, actor: str, item: str) -> bool:
+    """M44.3b: the ware is an ordinary buy entry (no "not enough gold" note) on the menu."""
+    entry = next(e for e in menu_at(TYPED, seq, actor).entries if e.id == f"buy:{item}")
+    return not entry.note and f"not enough gold: {item}" not in " ".join(
+        menu_lines(menu_at(TYPED, seq, actor))
+    )
+
+
 async def test_v1_m44_greater_healing_too_dear_is_no_sale(tmp_path: Path) -> None:
     """r9-typed 1006 "Brienne buys a Potion of Greater Healing" (stocked at 150, Brienne 31 gp,
-    the shop open) read `other`: the storyteller denied the stock, nothing was refused."""
-    line = "Brienne buys a Potion of Greater Healing"
-    played = await menu_play(tmp_path, TYPED, 1007, pick(other=line))
+    the shop open) read `other`: the menu listed it under "not enough gold", the storyteller
+    denied the stock and nothing was refused. Now it is an ordinary buy entry; the pick of it is
+    refused by the shop's rules with the reason."""
+    assert _shown_for_sale(1006, BRIENNE, "potion-of-healing-greater")
+    choice = pick(("buy:potion-of-healing-greater", [], None))
+    played = await menu_play(tmp_path, TYPED, 1007, choice)
     assert _reasons(played) == ["No sale: 150 gp needed, 31 gp carried."]
     assert not played.of(GoldChanged) and not _told(played)
 
@@ -78,9 +91,19 @@ async def test_v1_m44_greater_healing_too_dear_is_no_sale(tmp_path: Path) -> Non
 async def test_v1_m44_scroll_of_revivify_too_dear_is_no_sale(tmp_path: Path) -> None:
     """r9-typed 1546 "Elowen buys a Scroll of Revivify" (stocked at 300 at Ashfall Keep Court,
     Elowen 266 gp) read `other`; told there was no such scroll."""
-    played = await menu_play(tmp_path, TYPED, 1547, pick(other="Elowen buys a Scroll of Revivify"))
+    assert _shown_for_sale(1546, ELOWEN, "scroll-of-revivify")
+    played = await menu_play(tmp_path, TYPED, 1547, pick(("buy:scroll-of-revivify", [], None)))
     assert _reasons(played) == ["No sale: 300 gp needed, 266 gp carried."]
     assert not played.of(GoldChanged) and not _told(played)
+
+
+async def test_v1_m44_a_stunt_at_a_dear_ware_is_not_refused(tmp_path: Path) -> None:
+    """Owner rule (never refuse the possible): at r9-typed 1546 a theft of the Scroll of Revivify
+    Elowen cannot afford is a stunt for the storyteller, never a "No sale" refusal."""
+    line = "I slip the Scroll of Revivify into my sleeve"
+    played = await menu_play(tmp_path, TYPED, 1547, pick(other=line), text=line)
+    assert not any(r.startswith("No sale") for r in _reasons(played))
+    assert not played.of(GoldChanged) and _told(played)
 
 
 async def test_v1_m44_buy_at_a_closed_shop_opens_it_then_buys(tmp_path: Path) -> None:

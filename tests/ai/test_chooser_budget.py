@@ -20,9 +20,10 @@ is "as for <entry>": over 1,994 lines messages max 1,782 (p90 1,587), total max 
 2,300). M41.1 (one gold entry for every receiver, `qty: the sum said`, rule 10 names an ITEMS
 item): messages max 1,784, total max 2,580. M41.3 (the travel label says where the next
 steps happen; the `by` line and field only on lines that name another hero): messages max
-1,784, total max 2,589. The bounds below leave a small margin; a
-menu change that blows them is fixed in the rendering (`aidm.dm.chooser_menu`), never by raising
-the bound.
+1,784, total max 2,589. M44.3b (a ware the hero cannot pay for loses its "not enough gold"
+note, 497 of 2,358 menus 4-5 tokens shorter): messages max 1,792, total max 2,584. The bounds
+below leave a small margin; a menu change that blows them is fixed in the rendering
+(`aidm.dm.chooser_menu`), never by raising the bound.
 """
 
 import gzip

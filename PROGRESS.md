@@ -1,4 +1,4 @@
-NEXT: M44.4 (H, Opus medium): BB8 + BB9 storyteller timing and shop stock. Files in flight: none. Last gate: M44.3 scoped gate green (tests/ai 643, tests/session 792, tests/unit 2611 passed, contract fixtures EQUAL, ruff, format, pyright 0 errors, lint-imports 2 kept, structure, secrets, protocol, manual ok).
+NEXT: M44.4 (H, Opus medium): BB8 + BB9 storyteller timing and shop stock. Files in flight: none. Last gate: M44.3b scoped gate green (tests/ai 643, tests/session 793, tests/unit 2611 passed, contract fixtures EQUAL, ruff, format, pyright 0 errors, lint-imports 2 kept, structure, secrets, protocol, manual ok).
 
 # PROGRESS
 

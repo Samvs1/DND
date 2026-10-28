@@ -4,7 +4,10 @@ A shop trades while it is open (`world.shop_npc_id`, set by the shop visit) and 
 here, not hostile (`rules.shop`):
 - `buy:<item>`: each item on the keeper's shelves (`rules.shop.npc_shop_stock`, the same stock the
   shop panel shows), `qty_max` the most the hero's gold buys (at least 1: the rules answer a
-  purse too light plainly), at most the shop's lot limit;
+  purse too light plainly), at most the shop's lot limit. M44.3b (round 9 BB3): a ware the hero
+  cannot pay for is an ordinary buy entry with no note (a "not enough gold" note read as not for
+  sale, so the line went to the storyteller); the shop's rules refuse it with "No sale" and
+  the reason, and a stunt naming it stays `other`;
 - `sell:<item>`: each carried item with a market value, `qty_max` the units not in use (one in
   use says "unequip it first"). M36.8c: an item a trader pays nothing for is not listed, as the
   shop panel lists no Sell button for it (the menu matches the buttons; it also keeps the
@@ -59,7 +62,6 @@ def _buy(view: SceneMenuView, trade: TradeData, stock: StockEntry, keeper: World
         kind=ActionKind.BUY,
         label=f"Buy {name} from {keeper.name} ({price})",
         qty_max=max(1, can),
-        note="" if can else "not enough gold",
         item=stock.item,
     )
 

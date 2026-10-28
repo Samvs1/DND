@@ -125,7 +125,7 @@ def test_menu_shop_buy_and_sell_with_counts() -> None:
     menu = _menu(QUESTS, 563, "pc-p2")
     assert _entry(menu, "shop").target_ids == ("halan-s-rest-peddler",)
     potion = _entry(menu, "buy:potion-of-healing")
-    assert potion.qty_max == 1 and potion.note == "not enough gold"
+    assert potion.qty_max == 1 and potion.note == ""  # M44.3b: an ordinary buy entry
     assert _entry(menu, "buy:herbal-poultice").qty_max == 4
     assert _entry(menu, "sell:longsword").note == "unequip it first"
     assert _entry(menu, "pay").qty_max == 45
