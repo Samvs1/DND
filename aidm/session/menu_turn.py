@@ -26,7 +26,8 @@ M41.3 (round 7 Z6): what an act that ends the line cut off (`rules.menu_steps.pl
 never dropped: after a travel, rest or shop the party agreed to, it is played once the job is
 done, on the menu of where the party is (`_later`: a fight that started, a walk that stopped
 short or a step that no longer fits is told); after any other ending act it is told
-(`menu_pick.tell_rest`).
+(`menu_pick.tell_rest`). M44.3 (round 9 BB3): after a shop opened, the rest's `other` part
+naming one of its wares is that buy (`rules.menu_buy.carried_buy`).
 Z7: a shared step done by another hero (`MenuStep.by`) is announced first (`DOES`).
 
 Public API: `FIGHT_STARTED`, `DOES`, `menu_line`.
@@ -55,6 +56,7 @@ from aidm.rules.acts import (
     TravelIntent,
     WhatNowIntent,
 )
+from aidm.rules.menu_buy import carried_buy
 from aidm.rules.menu_steps import Act, Group, Plan, plan_line, refit, step_actor, step_acts
 from aidm.rules.scene import node_display_name
 from aidm.session import held, party_actions, scene_votes, what_now
@@ -163,7 +165,7 @@ def _later(line: _Line, rest: MenuChoice, goal: str | None) -> Job:
             return
         hero = core.state.creatures.get(line.actor.id, line.actor)
         menu = line_menu(core, hero.id, line.entry.text)
-        fitted, why = refit(menu, line.menu, rest)
+        fitted, why = refit(menu, line.menu, carried_buy(menu, rest, line.entry.text))  # M44.3
         if fitted is not None:
             later = _Line(core, line.player, hero, line.entry, menu)
             await _play(

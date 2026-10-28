@@ -45,6 +45,9 @@ at a zone takes the zone holding most of them. The step is then played from the 
 (`build_menu`) by the same entry id (the offer menu keeps the fight ids). A strike that no longer
 fits (no foe left, the spell gone) is a plain answer.
 
+- M44.3 (round 9 BB2, BB3, BB12): one buy is one payment, a named ware is bought or refused
+  (`menu_buy`); a talk offering gold over the purse (`menu_unoffered.gold_refusal`, in an
+  `other` part or a pay) is refused before the talk, so the offer moves no attitude.
 - Travel steps in a row are one walk to the last place named (M36.10a, `_travels`).
 - M41.3 (round 7 Z6: "we trudge back to the Rust Chapel and I search the iron walls" only
   travelled): `plan_line` keeps what an act that ends the line cut off (`Plan.rest`: the steps
@@ -91,6 +94,7 @@ from aidm.rules.acts import (
 from aidm.rules.acts_fight import DrawAttack
 from aidm.rules.menu_aim import area_aim, line_aim, zones_held
 from aidm.rules.menu_attacks import drawn_state
+from aidm.rules.menu_buy import absorbed, named_buy, one_payment
 from aidm.rules.menu_probe import accepted, walk
 from aidm.rules.menu_scene_view import FOE_PREFIX, twin_boss
 from aidm.rules.menu_steps_fight import COMMAND_TYPES, FightAct, fight_step_acts
@@ -98,6 +102,7 @@ from aidm.rules.menu_steps_scene import SceneAct, free_acts, scene_step_acts
 from aidm.rules.menu_unoffered import (
     as_entry,
     engine_answers,
+    gold_refusal,
     off_targets,
     other_refusal,
     refusal,
@@ -137,6 +142,11 @@ UNKNOWN_STEP = "That cannot be done now."  # M43.2: a step at no entry of the me
 
 def _entry(menu: ActionMenu, entry_id: str) -> MenuEntry | None:
     return next((e for e in menu.entries if e.id == entry_id), None)
+
+
+def _kind(menu: ActionMenu, step: MenuStep) -> ActionKind | None:
+    entry = _entry(menu, step.entry)
+    return entry.kind if entry is not None else None
 
 
 def _ends(act: Act) -> bool:
@@ -259,7 +269,7 @@ def _other_group(state: GameState, menu: ActionMenu, words: str, regs: CombatReg
     why = other_refusal(menu, words)
     if why is not None:
         return None, [RefusedIntent(menu.actor_id, why)]
-    step = as_entry(menu, words)
+    step = as_entry(menu, words) or named_buy(menu, words, dear=True)  # M44.3 (BB3)
     if step is not None:
         return step, step_acts(state, menu, step, regs, words)
     return None, [OtherIntent(menu.actor_id, words)]
@@ -275,10 +285,18 @@ def plan_line(
     """The acts grouped by the step each act comes from (None: the `other` part), so a session
     can plan each step again on the state the steps before it left (M36.10a)."""
     words = choice.other_text or text
+    chosen = one_payment(state, menu, choice.steps, text)  # M44.3 (BB2): one buy, one payment
+    if choice.other and absorbed(menu, chosen, words):
+        choice = MenuChoice(steps=chosen, colour=choice.colour)
     other = [_other_group(state, menu, words, regs)] if choice.other else []
     groups: list[Group] = other if choice.other_first else []
+    kinds = {_kind(menu, s) for s in chosen}
+    offers = ActionKind.TALK in kinds and (choice.other or ActionKind.PAY in kinds)
+    unpaid = gold_refusal(menu) if offers else None
+    if unpaid is not None:  # M44.3 (BB12): a sum offered in talk the hero cannot pay: refused first
+        groups.insert(0, (None, [RefusedIntent(menu.actor_id, unpaid)]))
     running = state
-    steps = _travels(menu, choice.steps)
+    steps = _travels(menu, chosen)
     for index, step in enumerate(steps):
         made = step_acts(running, menu, step, regs, text)
         groups.append((step, made))

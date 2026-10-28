@@ -47,13 +47,14 @@ the player did not name, so:
   and what it aims at is that entry.
 - `named_creatures(menu, text)`: M44.2: the creatures the line names, in its order, the hero
   aside (`menu_aim.line_aim`).
-- `GOLD_SUM`: a sum of gold a line names (one over the hero's purse is NOT OFFERED).
+- `GOLD_SUM`: a sum of gold a line names (one over the hero's purse is NOT OFFERED);
+  `gold_refusal(menu)` its reason (M44.3).
 
 Public API: `MAX_UNOFFERED`, `unoffered_targets(state, menu, text)`,
 `with_unoffered(state, menu, text)`, `named_helpers(state, menu, text)`, `not_offered(menu,
 step)`, `named_off(menu, step)`, `engine_answers(menu, step)`, `refusal(menu, step)`,
 `other_refusal(menu, text)`, `as_entry(menu, text)`, `named_creatures(menu, text)`,
-`takers(menu, entry_id, target)`, `off_targets(menu, step)`, `GOLD_SUM`.
+`takers(menu, entry_id, target)`, `off_targets(menu, step)`, `GOLD_SUM`, `gold_refusal(menu)`.
 """
 
 import re
@@ -81,6 +82,7 @@ MAX_UNOFFERED = 4
 NOT_HERE = "not here"
 _TYPO_CUTOFF = 0.85
 GOLD_SUM = re.compile(r"\b(\d+)\s*(?:gold|gp)\b")
+GOLD_ID = "gold-"
 _AIMED_MAGIC = frozenset({ActionKind.CAST, ActionKind.FEATURE})
 
 type _Candidate = tuple[str, str, str, TargetKind]  # (id, name, where, kind)
@@ -159,7 +161,7 @@ def _gold_over(state: GameState, actor_id: str, text: str) -> Iterator[_Candidat
         amount = int(found.group(1))
         if amount > hero.pc.gold:
             where = f"{hero.name} has only {hero.pc.gold} gold"
-            yield f"gold-{amount}", found.group(0), where, "thing"
+            yield f"{GOLD_ID}{amount}", found.group(0), where, "thing"
 
 
 def _shown(menu: ActionMenu) -> set[str]:
@@ -319,6 +321,11 @@ def other_refusal(menu: ActionMenu, text: str) -> str | None:
         if mentions(line, slug(target.label.partition(" (")[0])):
             return _reason(target)
     return None
+
+
+def gold_refusal(menu: ActionMenu) -> str | None:
+    """M44.3 (BB12): the reason of a sum of gold the line names that is over the hero's purse."""
+    return next((_reason(t) for t in menu.unoffered if t.id.startswith(GOLD_ID)), None)
 
 
 _NAMED_KINDS = frozenset({ActionKind.ATTACK, ActionKind.CAST, ActionKind.FEATURE, ActionKind.THROW})
